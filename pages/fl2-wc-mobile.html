@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FansLoop · 选择钱包 App</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/fansloop-auth.css">
+<style>
+    body {
+        background:
+            radial-gradient(ellipse at 50% 10%, rgba(59,153,252,0.18), transparent 60%),
+            radial-gradient(ellipse at 50% 90%, rgba(168,85,247,0.12), transparent 60%),
+            #0A0A12;
+    }
+
+    .fl2-wrap {
+        position: absolute;
+        top: calc(var(--status-bar-height) + var(--nav-bar-height));
+        bottom: 0; left: 0; right: 0;
+        overflow-y: auto;
+    }
+    .fl2-wrap::-webkit-scrollbar { display: none; }
+
+    /* 搜索栏 */
+    .fl2-search {
+        margin: 10px 16px 14px;
+        height: 40px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        display: flex; align-items: center;
+        padding: 0 14px; gap: 10px;
+        color: var(--text-tertiary);
+        font-size: 13px;
+    }
+    .fl2-search i { color: var(--text-tertiary); }
+
+    /* 分类 chips */
+    .fl2-chips {
+        display: flex; gap: 8px;
+        padding: 0 16px 14px;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+    .fl2-chips::-webkit-scrollbar { display: none; }
+    .fl2-chip {
+        flex-shrink: 0;
+        padding: 6px 14px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 999px;
+        font-size: 12px; color: var(--text-secondary);
+        white-space: nowrap;
+    }
+    .fl2-chip.active {
+        background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(236,72,153,0.15));
+        border-color: rgba(168,85,247,0.35);
+        color: #fff;
+    }
+
+    /* 热门推荐标题 */
+    .fl2-sec-h {
+        padding: 10px 16px 8px;
+        font-size: 12px; color: var(--text-tertiary);
+        text-transform: uppercase; letter-spacing: 0.5px;
+        font-weight: 600;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+
+    /* 已安装钱包 - 大卡片 */
+    .fl2-installed {
+        margin: 0 16px 20px;
+        display: grid; grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    .fl2-installed-card {
+        padding: 14px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 16px;
+        display: flex; flex-direction: column; align-items: center;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .fl2-installed-card.suggested {
+        border-color: rgba(16,185,129,0.3);
+        background: linear-gradient(180deg, rgba(16,185,129,0.1), rgba(255,255,255,0.02));
+    }
+    .fl2-installed-card .installed-tag {
+        position: absolute; top: 8px; right: 8px;
+        font-size: 9px; font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 5px;
+        background: rgba(16,185,129,0.2);
+        color: #10B981;
+        display: flex; align-items: center; gap: 3px;
+    }
+    .fl2-installed-card .w-icon {
+        width: 56px; height: 56px; border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 24px; margin-bottom: 10px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    .fl2-installed-card .w-icon.mm { background: linear-gradient(135deg, #F6851B, #C85B16); }
+    .fl2-installed-card .w-icon.tp { background: linear-gradient(135deg, #0079FF, #00C2FF); }
+    .fl2-installed-card .w-name {
+        font-size: 14px; font-weight: 600;
+    }
+    .fl2-installed-card .w-sub {
+        font-size: 11px; color: var(--text-tertiary);
+        margin-top: 2px;
+    }
+    .fl2-open-btn {
+        margin-top: 10px;
+        height: 32px; width: 100%;
+        border-radius: 8px; border: none;
+        background: linear-gradient(135deg, #A855F7, #EC4899);
+        color: #fff; font-size: 12px; font-weight: 600;
+        display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+
+    /* 其他钱包列表 */
+    .fl2-wlist {
+        background: var(--bg-card);
+        border-radius: 16px;
+        margin: 0 16px 14px;
+        overflow: hidden;
+    }
+    .fl2-wlist-item {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px 14px;
+        cursor: pointer;
+    }
+    .fl2-wlist-item + .fl2-wlist-item {
+        border-top: 0.5px solid rgba(255,255,255,0.06);
+    }
+    .fl2-wlist-item .w-logo {
+        width: 40px; height: 40px; border-radius: 11px;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 18px; flex-shrink: 0;
+    }
+    .fl2-wlist-item .w-logo.ok { background: #000; border: 1px solid rgba(255,255,255,0.12); font-weight:700; font-size:14px; }
+    .fl2-wlist-item .w-logo.tw { background: linear-gradient(135deg, #3375BB, #285997); }
+    .fl2-wlist-item .w-logo.im { background: linear-gradient(135deg, #11C4D1, #0F8790); }
+    .fl2-wlist-item .w-logo.bw { background: linear-gradient(135deg, #FBBF24, #F59E0B); }
+    .fl2-wlist-item .w-logo.cb { background: linear-gradient(135deg, #0052FF, #003FBF); }
+    .fl2-wlist-item .w-logo.rb { background: linear-gradient(135deg, #1B3FD8, #0F2B9B); }
+    .fl2-wlist-item .w-logo.pha { background: linear-gradient(135deg, #AB9FF2, #7B6BE6); }
+    .fl2-wlist-item .info {
+        flex: 1; min-width: 0;
+    }
+    .fl2-wlist-item .info .name {
+        font-size: 14px; font-weight: 500;
+    }
+    .fl2-wlist-item .info .desc {
+        font-size: 11px; color: var(--text-tertiary);
+        margin-top: 2px;
+    }
+    .fl2-wlist-item .go {
+        color: var(--text-tertiary); font-size: 13px;
+    }
+    .fl2-wlist-item .btn-mini {
+        height: 28px; padding: 0 12px;
+        border-radius: 8px;
+        font-size: 11px; font-weight: 600;
+        background: rgba(168,85,247,0.15);
+        color: #C084FC;
+        border: 1px solid rgba(168,85,247,0.25);
+    }
+
+    /* Deep Link 提示 */
+    .fl2-deeplink-hint {
+        background: linear-gradient(135deg, rgba(59,153,252,0.1), rgba(168,85,247,0.06));
+        border: 1px solid rgba(59,153,252,0.22);
+        border-radius: 16px;
+        margin: 10px 16px 20px;
+        padding: 14px 16px;
+        display: flex; gap: 12px; align-items: flex-start;
+    }
+    .fl2-deeplink-hint .ic {
+        width: 34px; height: 34px; border-radius: 10px;
+        background: rgba(59,153,252,0.18);
+        display: flex; align-items: center; justify-content: center;
+        color: #3B99FC; flex-shrink: 0;
+    }
+    .fl2-deeplink-hint .txt {
+        flex: 1; font-size: 12px; color: var(--text-secondary);
+        line-height: 1.5;
+    }
+    .fl2-deeplink-hint .txt b {
+        color: #fff; display: block; margin-bottom: 3px; font-size: 13px;
+    }
+
+    /* 二维码切换 */
+    .fl2-toggle-qr {
+        margin: 0 16px 30px;
+        height: 48px; border-radius: 14px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #fff; font-size: 13px;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        cursor: pointer;
+    }
+    .fl2-toggle-qr i { color: #3B99FC; }
+</style>
+</head>
+<body>
+
+<div class="status-bar dark-mode">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid" style="top:var(--status-bar-height)">
+    <div class="nav-left">
+        <div class="nav-btn"><i class="fa-solid fa-chevron-left"></i></div>
+    </div>
+    <div class="nav-title">打开钱包 App</div>
+    <div class="nav-right">
+        <div class="nav-btn"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+</div>
+
+<div class="fl2-wrap">
+
+    <div class="fl2-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <span>搜索钱包 App…</span>
+    </div>
+
+    <div class="fl2-chips">
+        <div class="fl2-chip active">全部</div>
+        <div class="fl2-chip">EVM</div>
+        <div class="fl2-chip">Solana</div>
+        <div class="fl2-chip">Bitcoin</div>
+        <div class="fl2-chip">多链</div>
+        <div class="fl2-chip">硬件钱包</div>
+    </div>
+
+    <div class="fl2-sec-h">
+        <span>已安装在此设备</span>
+        <span style="font-size:10px; color:var(--brand-purple); text-transform:none">自动检测</span>
+    </div>
+
+    <div class="fl2-installed">
+        <div class="fl2-installed-card suggested">
+            <span class="installed-tag"><i class="fa-solid fa-circle" style="font-size:6px"></i> 已安装</span>
+            <div class="w-icon mm">
+                <svg viewBox="0 0 40 40" width="28" height="28">
+                    <path fill="#fff" d="M32 6 L22 13 L24 9 Z M8 6 L18 13 L16 9 Z M27 25 L30 29 L25 30 Z M13 25 L10 29 L15 30 Z M20 20 L14 22 L20 27 L26 22 Z"/>
+                </svg>
+            </div>
+            <div class="w-name">MetaMask</div>
+            <div class="w-sub">v7.25 · EVM</div>
+            <button class="fl2-open-btn">
+                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px"></i>
+                打开
+            </button>
+        </div>
+        <div class="fl2-installed-card suggested">
+            <span class="installed-tag"><i class="fa-solid fa-circle" style="font-size:6px"></i> 已安装</span>
+            <div class="w-icon tp">
+                <i class="fa-solid fa-diamond"></i>
+            </div>
+            <div class="w-name">TokenPocket</div>
+            <div class="w-sub">v6.3 · 多链</div>
+            <button class="fl2-open-btn">
+                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px"></i>
+                打开
+            </button>
+        </div>
+    </div>
+
+    <div class="fl2-sec-h">
+        <span>其他热门钱包</span>
+        <span style="font-size:10px; color:var(--text-tertiary); text-transform:none">
+            <i class="fa-regular fa-circle-question"></i>
+        </span>
+    </div>
+
+    <div class="fl2-wlist">
+        <div class="fl2-wlist-item">
+            <div class="w-logo ok">OK</div>
+            <div class="info">
+                <div class="name">OKX Wallet</div>
+                <div class="desc">400+ 链 · 交易所原生钱包</div>
+            </div>
+            <button class="btn-mini">前往</button>
+        </div>
+        <div class="fl2-wlist-item">
+            <div class="w-logo tw">
+                <i class="fa-solid fa-shield"></i>
+            </div>
+            <div class="info">
+                <div class="name">Trust Wallet</div>
+                <div class="desc">Binance 官方 · 非托管</div>
+            </div>
+            <button class="btn-mini">前往</button>
+        </div>
+        <div class="fl2-wlist-item">
+            <div class="w-logo im">
+                <i class="fa-solid fa-key"></i>
+            </div>
+            <div class="info">
+                <div class="name">imToken</div>
+                <div class="desc">华人团队 · 多链</div>
+            </div>
+            <button class="btn-mini">前往</button>
+        </div>
+        <div class="fl2-wlist-item">
+            <div class="w-logo bw">
+                <i class="fa-solid fa-bolt"></i>
+            </div>
+            <div class="info">
+                <div class="name">Bitget Wallet</div>
+                <div class="desc">原 BitKeep · 多链 DeFi</div>
+            </div>
+            <button class="btn-mini">前往</button>
+        </div>
+        <div class="fl2-wlist-item">
+            <div class="w-logo cb">
+                <i class="fa-solid fa-circle"></i>
+            </div>
+            <div class="info">
+                <div class="name">Coinbase Wallet</div>
+                <div class="desc">美国合规 · 易上手</div>
+            </div>
+            <button class="btn-mini">前往</button>
+        </div>
+        <div class="fl2-wlist-item">
+            <div class="w-logo rb">
+                <i class="fa-solid fa-rainbow"></i>
+            </div>
+            <div class="info">
+                <div class="name">Rainbow</div>
+                <div class="desc">Ethereum 原生 · 艺术化</div>
+            </div>
+            <button class="btn-mini">前往</button>
+        </div>
+        <div class="fl2-wlist-item">
+            <div class="w-logo pha">
+                <i class="fa-solid fa-ghost"></i>
+            </div>
+            <div class="info">
+                <div class="name">Phantom</div>
+                <div class="desc">Solana 生态首选</div>
+            </div>
+            <button class="btn-mini">前往</button>
+        </div>
+    </div>
+
+    <div class="fl2-deeplink-hint">
+        <div class="ic">
+            <i class="fa-solid fa-link"></i>
+        </div>
+        <div class="txt">
+            <b>点击即自动唤起钱包 App</b>
+            系统会通过 Universal Link 打开对应钱包；若未跳转，请确保已安装并更新到最新版本。
+        </div>
+    </div>
+
+    <button class="fl2-toggle-qr">
+        <i class="fa-solid fa-qrcode"></i>
+        在 PC 上扫码连接
+    </button>
+
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

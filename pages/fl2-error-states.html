@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FansLoop · 异常处理</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/fansloop-auth.css">
+<style>
+    body {
+        background:
+            radial-gradient(ellipse at 20% 10%, rgba(239,68,68,0.15), transparent 55%),
+            radial-gradient(ellipse at 80% 80%, rgba(245,158,11,0.12), transparent 55%),
+            #0A0A12;
+    }
+
+    .fl2-wrap {
+        position: absolute;
+        top: calc(var(--status-bar-height) + var(--nav-bar-height));
+        bottom: 0; left: 0; right: 0;
+        overflow-y: auto;
+        padding: 14px 16px 24px;
+    }
+    .fl2-wrap::-webkit-scrollbar { display: none; }
+
+    /* Page intro */
+    .fl2-intro {
+        padding: 4px 4px 18px;
+    }
+    .fl2-intro h1 {
+        font-size: 22px; font-weight: 700;
+        letter-spacing: -0.3px;
+        margin-bottom: 6px;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .fl2-intro h1 i {
+        color: #F59E0B;
+    }
+    .fl2-intro p {
+        font-size: 12px; color: var(--text-secondary);
+        line-height: 1.5;
+    }
+
+    /* Error card base */
+    .fl2-err-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 12px;
+        position: relative;
+    }
+    .fl2-err-card .err-head {
+        display: flex; gap: 12px; align-items: flex-start;
+        margin-bottom: 12px;
+    }
+    .fl2-err-card .err-ic {
+        width: 42px; height: 42px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+    .fl2-err-card.err-1 { border-color: rgba(239,68,68,0.25); }
+    .fl2-err-card.err-1 .err-ic { background: rgba(239,68,68,0.15); color: #FCA5A5; }
+    .fl2-err-card.err-2 { border-color: rgba(245,158,11,0.25); }
+    .fl2-err-card.err-2 .err-ic { background: rgba(245,158,11,0.15); color: #FCD34D; }
+    .fl2-err-card.err-3 { border-color: rgba(99,102,241,0.28); }
+    .fl2-err-card.err-3 .err-ic { background: rgba(99,102,241,0.15); color: #A5B4FC; }
+    .fl2-err-card.err-4 { border-color: rgba(236,72,153,0.28); }
+    .fl2-err-card.err-4 .err-ic { background: rgba(236,72,153,0.15); color: #F9A8D4; }
+
+    .fl2-err-card .err-title {
+        font-size: 15px; font-weight: 600;
+        margin-bottom: 3px;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .fl2-err-card .err-tag {
+        font-size: 9px; padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+    .fl2-err-card.err-1 .err-tag { background: rgba(239,68,68,0.18); color: #FCA5A5; }
+    .fl2-err-card.err-2 .err-tag { background: rgba(245,158,11,0.18); color: #FCD34D; }
+    .fl2-err-card.err-3 .err-tag { background: rgba(99,102,241,0.18); color: #A5B4FC; }
+    .fl2-err-card.err-4 .err-tag { background: rgba(236,72,153,0.18); color: #F9A8D4; }
+
+    .fl2-err-card .err-desc {
+        font-size: 12px; color: var(--text-secondary);
+        line-height: 1.55;
+    }
+
+    /* 提示文案预览 */
+    .fl2-err-preview {
+        background: rgba(10,10,18,0.6);
+        border: 1px dashed rgba(255,255,255,0.1);
+        border-radius: 10px;
+        padding: 12px;
+        display: flex; align-items: center; gap: 10px;
+        margin-bottom: 12px;
+    }
+    .fl2-err-preview .p-ic {
+        width: 26px; height: 26px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11px;
+        flex-shrink: 0;
+    }
+    .fl2-err-card.err-1 .p-ic { background: #EF4444; color: #fff; }
+    .fl2-err-card.err-2 .p-ic { background: #F59E0B; color: #fff; }
+    .fl2-err-card.err-3 .p-ic { background: #6366F1; color: #fff; }
+    .fl2-err-card.err-4 .p-ic { background: #EC4899; color: #fff; }
+    .fl2-err-preview .p-txt {
+        font-size: 12px; color: #fff; font-weight: 500;
+    }
+    .fl2-err-preview .p-sub {
+        font-size: 11px; color: var(--text-tertiary);
+        margin-top: 1px;
+    }
+
+    /* Actions */
+    .fl2-err-actions {
+        display: flex; gap: 8px;
+    }
+    .fl2-err-btn {
+        flex: 1; height: 38px; border-radius: 10px;
+        font-size: 12px; font-weight: 600;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        gap: 5px;
+    }
+    .fl2-err-btn.primary {
+        background: linear-gradient(135deg, #A855F7, #EC4899);
+        border: none;
+    }
+    .fl2-err-card.err-1 .fl2-err-btn.primary { background: linear-gradient(135deg, #EF4444, #DC2626); }
+    .fl2-err-card.err-2 .fl2-err-btn.primary { background: linear-gradient(135deg, #F59E0B, #D97706); }
+
+    /* 分组标题 */
+    .fl2-group-h {
+        font-size: 11px; color: var(--text-tertiary);
+        text-transform: uppercase; letter-spacing: 0.5px;
+        font-weight: 600;
+        padding: 16px 4px 10px;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .fl2-group-h::after {
+        content: ''; flex: 1; height: 1px;
+        background: rgba(255,255,255,0.06);
+        margin-left: 4px;
+    }
+
+    /* 底部帮助 */
+    .fl2-help-card {
+        background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.05));
+        border: 1px solid rgba(168,85,247,0.2);
+        border-radius: 14px;
+        padding: 14px;
+        display: flex; gap: 12px; align-items: center;
+        margin-top: 10px;
+    }
+    .fl2-help-card .ic {
+        width: 40px; height: 40px; border-radius: 12px;
+        background: linear-gradient(135deg, #A855F7, #EC4899);
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 16px;
+    }
+    .fl2-help-card .txt {
+        flex: 1;
+    }
+    .fl2-help-card .txt h4 {
+        font-size: 13px; font-weight: 600;
+    }
+    .fl2-help-card .txt p {
+        font-size: 11px; color: var(--text-tertiary);
+        margin-top: 2px;
+    }
+    .fl2-help-card .go {
+        color: var(--text-tertiary); font-size: 12px;
+    }
+</style>
+</head>
+<body>
+
+<div class="status-bar dark-mode">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid" style="top:var(--status-bar-height)">
+    <div class="nav-left">
+        <div class="nav-btn"><i class="fa-solid fa-chevron-left"></i></div>
+    </div>
+    <div class="nav-title">异常与提示处理</div>
+    <div class="nav-right">
+        <div class="nav-btn"><i class="fa-regular fa-circle-question"></i></div>
+    </div>
+</div>
+
+<div class="fl2-wrap">
+
+    <div class="fl2-intro">
+        <h1><i class="fa-solid fa-triangle-exclamation"></i> 异常状态设计</h1>
+        <p>完整覆盖钱包登录流程中 4 类常见异常的提示文案、图标、动作与恢复路径，可直接用于前端对接</p>
+    </div>
+
+    <!-- 分组 A: 用户行为相关 -->
+    <div class="fl2-group-h">用户行为 · 可挽回</div>
+
+    <!-- 错误 1：用户拒绝连接 -->
+    <div class="fl2-err-card err-3">
+        <div class="err-head">
+            <div class="err-ic"><i class="fa-solid fa-ban"></i></div>
+            <div style="flex:1">
+                <div class="err-title">
+                    用户拒绝连接钱包
+                    <span class="err-tag">USER_REJECT</span>
+                </div>
+                <div class="err-desc">用户在 MetaMask 或 WalletConnect 中点击了"拒绝"按钮</div>
+            </div>
+        </div>
+        <div class="fl2-err-preview">
+            <div class="p-ic"><i class="fa-solid fa-xmark"></i></div>
+            <div>
+                <div class="p-txt">连接已取消</div>
+                <div class="p-sub">你可以随时返回重新连接钱包</div>
+            </div>
+        </div>
+        <div class="fl2-err-actions">
+            <button class="fl2-err-btn"><i class="fa-solid fa-xmark"></i>关闭</button>
+            <button class="fl2-err-btn primary"><i class="fa-solid fa-rotate-right"></i>重新连接</button>
+        </div>
+    </div>
+
+    <!-- 错误 2：用户拒绝签名 -->
+    <div class="fl2-err-card err-3">
+        <div class="err-head">
+            <div class="err-ic"><i class="fa-solid fa-signature"></i></div>
+            <div style="flex:1">
+                <div class="err-title">
+                    用户拒绝签名
+                    <span class="err-tag">SIGN_REJECT</span>
+                </div>
+                <div class="err-desc">钱包连接成功，但用户在签名弹窗中点击了"拒绝"</div>
+            </div>
+        </div>
+        <div class="fl2-err-preview">
+            <div class="p-ic"><i class="fa-solid fa-xmark"></i></div>
+            <div>
+                <div class="p-txt">签名失败，请重试</div>
+                <div class="p-sub">需要签名来验证你对该钱包的所有权</div>
+            </div>
+        </div>
+        <div class="fl2-err-actions">
+            <button class="fl2-err-btn"><i class="fa-solid fa-link-slash"></i>断开钱包</button>
+            <button class="fl2-err-btn primary"><i class="fa-solid fa-rotate-right"></i>重新签名</button>
+        </div>
+    </div>
+
+    <!-- 分组 B: 系统/网络异常 -->
+    <div class="fl2-group-h">系统异常 · 需重试</div>
+
+    <!-- 错误 3：钱包连接失败 -->
+    <div class="fl2-err-card err-2">
+        <div class="err-head">
+            <div class="err-ic"><i class="fa-solid fa-plug-circle-xmark"></i></div>
+            <div style="flex:1">
+                <div class="err-title">
+                    钱包连接失败
+                    <span class="err-tag">CONN_ERROR</span>
+                </div>
+                <div class="err-desc">网络超时、钱包 App 未响应、WalletConnect 中继服务不可达等</div>
+            </div>
+        </div>
+        <div class="fl2-err-preview">
+            <div class="p-ic"><i class="fa-solid fa-wifi"></i></div>
+            <div>
+                <div class="p-txt">钱包连接失败</div>
+                <div class="p-sub">请检查网络或钱包状态后重试</div>
+            </div>
+        </div>
+        <div class="fl2-err-actions">
+            <button class="fl2-err-btn"><i class="fa-solid fa-bug"></i>报告问题</button>
+            <button class="fl2-err-btn primary"><i class="fa-solid fa-rotate-right"></i>重新连接</button>
+        </div>
+    </div>
+
+    <!-- 错误 4：签名校验失败 -->
+    <div class="fl2-err-card err-1">
+        <div class="err-head">
+            <div class="err-ic"><i class="fa-solid fa-shield-xmark"></i></div>
+            <div style="flex:1">
+                <div class="err-title">
+                    签名校验失败
+                    <span class="err-tag">VERIFY_FAIL</span>
+                </div>
+                <div class="err-desc">签名已过期、Nonce 已使用、恢复公钥与地址不匹配等</div>
+            </div>
+        </div>
+        <div class="fl2-err-preview">
+            <div class="p-ic"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div>
+                <div class="p-txt">验证失败，请重新登录</div>
+                <div class="p-sub">签名可能已过期或被篡改</div>
+            </div>
+        </div>
+        <div class="fl2-err-actions">
+            <button class="fl2-err-btn"><i class="fa-solid fa-list-ul"></i>查看日志</button>
+            <button class="fl2-err-btn primary"><i class="fa-solid fa-right-to-bracket"></i>重新登录</button>
+        </div>
+    </div>
+
+    <!-- 分组 C: 其他补充 -->
+    <div class="fl2-group-h">风控提示 · 需关注</div>
+
+    <!-- 额外 5：地址已被其他账号绑定 -->
+    <div class="fl2-err-card err-4">
+        <div class="err-head">
+            <div class="err-ic"><i class="fa-solid fa-user-lock"></i></div>
+            <div style="flex:1">
+                <div class="err-title">
+                    该钱包已绑定其他账号
+                    <span class="err-tag">ADDR_BOUND</span>
+                </div>
+                <div class="err-desc">一个钱包地址只能绑定一个 FansLoop 账号，防止重复领奖</div>
+            </div>
+        </div>
+        <div class="fl2-err-preview">
+            <div class="p-ic"><i class="fa-solid fa-circle-info"></i></div>
+            <div>
+                <div class="p-txt">此地址已绑定 fl_ab82c9</div>
+                <div class="p-sub">请直接使用该账号登录，或更换其他钱包</div>
+            </div>
+        </div>
+        <div class="fl2-err-actions">
+            <button class="fl2-err-btn"><i class="fa-solid fa-wallet"></i>更换钱包</button>
+            <button class="fl2-err-btn primary"><i class="fa-solid fa-right-to-bracket"></i>登录该账号</button>
+        </div>
+    </div>
+
+    <!-- 额外 6：Session 失效 -->
+    <div class="fl2-err-card err-2">
+        <div class="err-head">
+            <div class="err-ic"><i class="fa-solid fa-clock"></i></div>
+            <div style="flex:1">
+                <div class="err-title">
+                    会话已失效
+                    <span class="err-tag">SESSION_EXPIRED</span>
+                </div>
+                <div class="err-desc">Token 已过期 (7 天) 或被管理员吊销，需要重新签名登录</div>
+            </div>
+        </div>
+        <div class="fl2-err-preview">
+            <div class="p-ic"><i class="fa-solid fa-hourglass-end"></i></div>
+            <div>
+                <div class="p-txt">登录已过期，请重新登录</div>
+                <div class="p-sub">为保护你的资产安全，会话每 7 天自动刷新</div>
+            </div>
+        </div>
+        <div class="fl2-err-actions">
+            <button class="fl2-err-btn primary" style="flex:1"><i class="fa-solid fa-signature"></i>快速重签登录</button>
+        </div>
+    </div>
+
+    <!-- 帮助入口 -->
+    <div class="fl2-help-card">
+        <div class="ic"><i class="fa-solid fa-headset"></i></div>
+        <div class="txt">
+            <h4>还有其他问题？</h4>
+            <p>7×24 小时社区支持 · Discord / Telegram</p>
+        </div>
+        <i class="fa-solid fa-chevron-right go"></i>
+    </div>
+
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FansLoop · 验证中</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/fansloop-auth.css">
+<style>
+    body {
+        background:
+            radial-gradient(ellipse at 50% 40%, rgba(168,85,247,0.2), transparent 55%),
+            radial-gradient(ellipse at 50% 90%, rgba(236,72,153,0.12), transparent 60%),
+            #0A0A12;
+    }
+
+    .fl2-wrap {
+        position: absolute;
+        top: var(--status-bar-height);
+        bottom: 0; left: 0; right: 0;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        padding: 0 24px;
+    }
+
+    /* 多层光环 loader */
+    .fl2-loader {
+        position: relative;
+        width: 180px; height: 180px;
+        margin-bottom: 32px;
+    }
+    .fl2-loader .orb {
+        position: absolute; inset: 0;
+        border-radius: 50%;
+        background:
+            conic-gradient(from 0deg,
+                transparent 0%,
+                rgba(168,85,247,0.8) 35%,
+                rgba(236,72,153,0.8) 60%,
+                transparent 85%);
+        animation: fl2spin 1.8s linear infinite;
+        mask: radial-gradient(circle, transparent 58%, #000 60%);
+        -webkit-mask: radial-gradient(circle, transparent 58%, #000 60%);
+    }
+    .fl2-loader .orb.slow {
+        animation-duration: 3.2s;
+        animation-direction: reverse;
+        inset: 18px;
+        opacity: 0.5;
+    }
+    @keyframes fl2spin { to { transform: rotate(360deg); } }
+    .fl2-loader .core {
+        position: absolute; inset: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1A1A26, #0D0D14);
+        border: 1px solid rgba(168,85,247,0.3);
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: inset 0 0 30px rgba(168,85,247,0.15);
+    }
+    .fl2-loader .core i {
+        font-size: 36px;
+        background: linear-gradient(135deg, #C084FC, #F472B6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: fl2pulse 2s ease-in-out infinite;
+    }
+    @keyframes fl2pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(0.92); opacity: 0.75; }
+    }
+
+    /* 粒子轨道 */
+    .fl2-loader .particle {
+        position: absolute;
+        width: 8px; height: 8px; border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 0 12px 3px #A855F7;
+        top: 50%; left: 50%;
+    }
+    .fl2-loader .p1 { animation: orbit1 2s linear infinite; }
+    .fl2-loader .p2 { animation: orbit2 2.8s linear infinite; background: #F472B6; box-shadow: 0 0 12px 3px #F472B6; }
+    @keyframes orbit1 {
+        0% { transform: translate(-50%, -50%) rotate(0deg) translateX(80px) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg) translateX(80px) rotate(-360deg); }
+    }
+    @keyframes orbit2 {
+        0% { transform: translate(-50%, -50%) rotate(180deg) translateX(68px) rotate(-180deg); }
+        100% { transform: translate(-50%, -50%) rotate(540deg) translateX(68px) rotate(-540deg); }
+    }
+
+    .fl2-title {
+        font-size: 24px; font-weight: 700;
+        text-align: center;
+        letter-spacing: -0.3px;
+        margin-bottom: 10px;
+    }
+    .fl2-title .g {
+        background: linear-gradient(135deg, #C084FC, #F472B6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .fl2-desc {
+        font-size: 13px; color: var(--text-secondary);
+        text-align: center; line-height: 1.6;
+        max-width: 280px;
+    }
+
+    /* 步骤进度 */
+    .fl2-progress {
+        width: 100%; max-width: 300px;
+        margin-top: 36px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 14px;
+        padding: 14px 16px;
+    }
+    .fl2-prog-row {
+        display: flex; align-items: center; gap: 10px;
+        padding: 6px 0;
+        font-size: 13px;
+    }
+    .fl2-prog-row .ic {
+        width: 22px; height: 22px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 10px; flex-shrink: 0;
+    }
+    .fl2-prog-row .ic.done {
+        background: rgba(16,185,129,0.18);
+        color: #10B981;
+    }
+    .fl2-prog-row .ic.loading {
+        background: rgba(168,85,247,0.18);
+        color: #C084FC;
+    }
+    .fl2-prog-row .ic.loading i {
+        animation: fl2spin 1s linear infinite;
+    }
+    .fl2-prog-row .ic.wait {
+        background: rgba(255,255,255,0.04);
+        color: var(--text-muted);
+    }
+    .fl2-prog-row .txt {
+        flex: 1;
+    }
+    .fl2-prog-row.wait .txt {
+        color: var(--text-muted);
+    }
+    .fl2-prog-row .time {
+        font-size: 10px; color: var(--text-tertiary);
+        font-family: ui-monospace, monospace;
+    }
+
+    /* 底部链路信息 */
+    .fl2-chain-info {
+        position: absolute;
+        bottom: 30px; left: 24px; right: 24px;
+        display: flex; align-items: center; justify-content: center;
+        gap: 8px;
+        font-size: 11px; color: var(--text-tertiary);
+    }
+    .fl2-chain-info .sep {
+        width: 3px; height: 3px; border-radius: 50%;
+        background: var(--text-muted);
+    }
+</style>
+</head>
+<body>
+
+<div class="status-bar dark-mode">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="fl2-wrap">
+
+    <div class="fl2-loader">
+        <div class="orb"></div>
+        <div class="orb slow"></div>
+        <div class="particle p1"></div>
+        <div class="particle p2"></div>
+        <div class="core">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+    </div>
+
+    <div class="fl2-title">正在<span class="g">验证签名</span></div>
+    <div class="fl2-desc">系统正在校验你的签名，并匹配 FansLoop 账号状态，请稍候…</div>
+
+    <div class="fl2-progress">
+        <div class="fl2-prog-row">
+            <div class="ic done"><i class="fa-solid fa-check"></i></div>
+            <div class="txt">签名已提交到服务器</div>
+            <div class="time">0.2s</div>
+        </div>
+        <div class="fl2-prog-row">
+            <div class="ic done"><i class="fa-solid fa-check"></i></div>
+            <div class="txt">ECDSA 公钥恢复</div>
+            <div class="time">0.4s</div>
+        </div>
+        <div class="fl2-prog-row">
+            <div class="ic loading"><i class="fa-solid fa-circle-notch"></i></div>
+            <div class="txt">校验 Nonce 与时间戳…</div>
+            <div class="time">—</div>
+        </div>
+        <div class="fl2-prog-row wait">
+            <div class="ic wait">4</div>
+            <div class="txt">查询账号绑定关系</div>
+            <div class="time">—</div>
+        </div>
+        <div class="fl2-prog-row wait">
+            <div class="ic wait">5</div>
+            <div class="txt">签发 Session Token</div>
+            <div class="time">—</div>
+        </div>
+    </div>
+</div>
+
+<div class="fl2-chain-info">
+    <span>Request ID · <b style="font-family:ui-monospace,monospace; color:var(--text-secondary)">fl_req_8a2f9e1c</b></span>
+    <span class="sep"></span>
+    <span><i class="fa-solid fa-lock"></i> End-to-End Encrypted</span>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

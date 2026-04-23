@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FansLoop · 完善账号</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/fansloop-auth.css">
+<style>
+    body {
+        background:
+            radial-gradient(ellipse at 20% 10%, rgba(168,85,247,0.15), transparent 55%),
+            radial-gradient(ellipse at 80% 90%, rgba(236,72,153,0.12), transparent 55%),
+            #0A0A12;
+    }
+
+    .fl2-wrap {
+        position: absolute;
+        top: calc(var(--status-bar-height) + var(--nav-bar-height));
+        bottom: 0; left: 0; right: 0;
+        overflow-y: auto;
+        padding: 10px 20px 24px;
+    }
+    .fl2-wrap::-webkit-scrollbar { display: none; }
+
+    /* 步骤进度条 */
+    .fl2-steps-bar {
+        display: flex; gap: 4px;
+        margin-bottom: 20px;
+    }
+    .fl2-step-pill {
+        flex: 1; height: 4px;
+        border-radius: 3px;
+        background: rgba(255,255,255,0.08);
+        overflow: hidden;
+        position: relative;
+    }
+    .fl2-step-pill.done {
+        background: linear-gradient(90deg, #10B981, #34D399);
+    }
+    .fl2-step-pill.active {
+        background: linear-gradient(90deg, #A855F7 60%, rgba(168,85,247,0.25) 60%);
+    }
+
+    /* 欢迎头 */
+    .fl2-hi {
+        display: flex; gap: 14px; align-items: center;
+        padding: 16px;
+        background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(236,72,153,0.05));
+        border: 1px solid rgba(168,85,247,0.22);
+        border-radius: 18px;
+        margin-bottom: 18px;
+    }
+    .fl2-hi .avatar {
+        width: 52px; height: 52px; border-radius: 50%;
+        padding: 2px;
+        background: linear-gradient(135deg, #A855F7, #EC4899);
+        flex-shrink: 0;
+    }
+    .fl2-hi .avatar > div {
+        width: 100%; height: 100%;
+        border-radius: 50%;
+        background: #1A1A26;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 20px;
+        font-weight: 700;
+    }
+    .fl2-hi .info .t {
+        font-size: 11px; color: #C084FC;
+        text-transform: uppercase; letter-spacing: 0.6px;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+    .fl2-hi .info h2 {
+        font-size: 18px; font-weight: 700;
+        letter-spacing: -0.3px;
+    }
+    .fl2-hi .info .addr {
+        font-size: 11px; color: var(--text-tertiary);
+        margin-top: 3px;
+        font-family: ui-monospace, monospace;
+        display: flex; align-items: center; gap: 4px;
+    }
+    .fl2-hi .info .addr .dot {
+        width: 6px; height: 6px; border-radius: 50%;
+        background: #10B981;
+    }
+
+    /* 标题 */
+    .fl2-title {
+        font-size: 22px; font-weight: 700;
+        letter-spacing: -0.3px;
+        margin-bottom: 6px;
+    }
+    .fl2-title .g {
+        background: linear-gradient(90deg, #C084FC, #F472B6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .fl2-desc {
+        font-size: 13px; color: var(--text-secondary);
+        margin-bottom: 18px; line-height: 1.6;
+    }
+
+    /* Tab 切换（手机 / 邮箱） */
+    .fl2-tabs {
+        display: flex; padding: 4px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 12px;
+        margin-bottom: 14px;
+    }
+    .fl2-tabs .t {
+        flex: 1; text-align: center;
+        padding: 10px;
+        font-size: 13px; color: var(--text-tertiary);
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .fl2-tabs .t.active {
+        background: linear-gradient(135deg, rgba(168,85,247,0.35), rgba(236,72,153,0.25));
+        color: #fff;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(168,85,247,0.2);
+    }
+
+    /* 输入组 */
+    .fl2-field {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 10px;
+    }
+    .fl2-field-row {
+        display: flex; align-items: center;
+        padding: 0 14px;
+        min-height: 52px;
+    }
+    .fl2-field-row .prefix {
+        display: flex; align-items: center; gap: 6px;
+        font-size: 13px; color: var(--text-secondary);
+        padding-right: 10px;
+        border-right: 1px solid rgba(255,255,255,0.08);
+        margin-right: 10px;
+        font-weight: 500;
+    }
+    .fl2-field-row input {
+        flex: 1; border: none; background: none;
+        color: #fff; font-size: 15px;
+        outline: none;
+        height: 44px;
+    }
+    .fl2-field-row input::placeholder { color: var(--text-muted); }
+    .fl2-field-row .suffix-btn {
+        padding: 6px 12px;
+        background: rgba(168,85,247,0.15);
+        border: 1px solid rgba(168,85,247,0.25);
+        color: #C084FC;
+        border-radius: 8px;
+        font-size: 12px; font-weight: 600;
+        cursor: pointer;
+    }
+    .fl2-field.focus {
+        border-color: rgba(168,85,247,0.5);
+        box-shadow: 0 0 0 4px rgba(168,85,247,0.08);
+    }
+
+    .fl2-hint {
+        font-size: 11px; color: var(--text-tertiary);
+        margin: -2px 2px 16px;
+        padding-left: 2px;
+        display: flex; align-items: center; gap: 4px;
+    }
+    .fl2-hint i { color: #6EE7B7; font-size: 10px; }
+
+    /* 收益/权益列表 */
+    .fl2-benefits {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 18px;
+    }
+    .fl2-benefits h3 {
+        font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+        color: var(--text-tertiary);
+        margin-bottom: 10px;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .fl2-benefits h3 i { color: #F59E0B; }
+    .fl2-benefit-row {
+        display: flex; gap: 10px; align-items: flex-start;
+        padding: 6px 0;
+        font-size: 12px; color: var(--text-secondary);
+        line-height: 1.5;
+    }
+    .fl2-benefit-row .ic {
+        width: 22px; height: 22px; border-radius: 6px;
+        background: rgba(168,85,247,0.15);
+        color: #C084FC;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11px;
+        flex-shrink: 0;
+    }
+    .fl2-benefit-row b { color: #fff; font-weight: 600; }
+
+    /* CTA */
+    .fl2-btn-primary {
+        width: 100%; height: 52px;
+        border-radius: 14px; border: none;
+        background: linear-gradient(135deg, #A855F7, #EC4899);
+        color: #fff; font-size: 15px; font-weight: 700;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        box-shadow: 0 10px 24px rgba(168,85,247,0.4);
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+    .fl2-btn-skip {
+        width: 100%; height: 46px;
+        border-radius: 12px;
+        background: transparent;
+        border: none;
+        color: var(--text-tertiary);
+        font-size: 13px;
+        cursor: pointer;
+    }
+    .fl2-btn-skip:hover { color: var(--text-secondary); }
+</style>
+</head>
+<body>
+
+<div class="status-bar dark-mode">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid" style="top:var(--status-bar-height)">
+    <div class="nav-left">
+        <div class="nav-btn"><i class="fa-solid fa-chevron-left"></i></div>
+    </div>
+    <div class="nav-title">完善账号</div>
+    <div class="nav-right">
+        <div style="font-size:13px; color:var(--text-tertiary); padding: 0 4px">3/3</div>
+    </div>
+</div>
+
+<div class="fl2-wrap">
+
+    <!-- 步骤条 -->
+    <div class="fl2-steps-bar">
+        <div class="fl2-step-pill done"></div>
+        <div class="fl2-step-pill done"></div>
+        <div class="fl2-step-pill active"></div>
+    </div>
+
+    <!-- 欢迎头（新用户） -->
+    <div class="fl2-hi">
+        <div class="avatar">
+            <div><i class="fa-solid fa-user-astronaut"></i></div>
+        </div>
+        <div class="info">
+            <div class="t"><i class="fa-solid fa-sparkles"></i> 新账号已创建</div>
+            <h2>欢迎加入 FansLoop</h2>
+            <div class="addr"><span class="dot"></span>0x7c5A…8D93 已绑定为主钱包</div>
+        </div>
+    </div>
+
+    <div class="fl2-title">最后一步，<span class="g">完善账号信息</span></div>
+    <div class="fl2-desc">绑定手机号或邮箱用于账号找回与风控验证，可在后续任意时间补充。</div>
+
+    <!-- 切换 Tab -->
+    <div class="fl2-tabs">
+        <div class="t active">
+            <i class="fa-solid fa-mobile-screen"></i> 手机号
+        </div>
+        <div class="t">
+            <i class="fa-regular fa-envelope"></i> 邮箱
+        </div>
+    </div>
+
+    <!-- 手机号输入 -->
+    <div class="fl2-field focus">
+        <div class="fl2-field-row">
+            <div class="prefix">
+                <img src="https://flagcdn.com/w40/cn.png" width="18" height="13" style="border-radius:2px" alt="">
+                +86
+                <i class="fa-solid fa-chevron-down" style="font-size:10px; color:var(--text-tertiary)"></i>
+            </div>
+            <input type="tel" placeholder="请输入手机号" value="138 •••• 2025">
+        </div>
+    </div>
+
+    <div class="fl2-hint">
+        <i class="fa-solid fa-circle-check"></i>
+        手机号格式正确
+    </div>
+
+    <!-- 验证码 -->
+    <div class="fl2-field">
+        <div class="fl2-field-row">
+            <div class="prefix" style="border-right:none; margin-right:0; padding-right:0">
+                <i class="fa-solid fa-key" style="color:var(--text-tertiary)"></i>
+            </div>
+            <input type="text" placeholder="6 位验证码" maxlength="6">
+            <button class="suffix-btn">获取验证码</button>
+        </div>
+    </div>
+
+    <!-- 权益 -->
+    <div class="fl2-benefits">
+        <h3><i class="fa-solid fa-gift"></i> 绑定后享有</h3>
+        <div class="fl2-benefit-row">
+            <div class="ic"><i class="fa-solid fa-rotate-left"></i></div>
+            <div><b>账号随时找回</b> · 钱包丢失时通过手机/邮箱验证恢复访问</div>
+        </div>
+        <div class="fl2-benefit-row">
+            <div class="ic"><i class="fa-solid fa-shield"></i></div>
+            <div><b>风控保护</b> · 大额提现二次验证，避免资产损失</div>
+        </div>
+        <div class="fl2-benefit-row">
+            <div class="ic"><i class="fa-solid fa-bell"></i></div>
+            <div><b>消息提醒</b> · 订阅动态、打赏到账、创作者上新即时通知</div>
+        </div>
+        <div class="fl2-benefit-row">
+            <div class="ic"><i class="fa-solid fa-coins"></i></div>
+            <div><b>新人奖励</b> · 完成绑定即获 <span style="color:#FBBF24; font-weight:700">10 USDT</span> 观影券</div>
+        </div>
+    </div>
+
+    <button class="fl2-btn-primary">
+        <i class="fa-solid fa-check"></i>
+        完成绑定并进入 FansLoop
+    </button>
+    <button class="fl2-btn-skip">
+        暂不绑定，稍后再说 →
+    </button>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FansLoop · 选择钱包</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/fansloop-auth.css">
+<style>
+    /* 底图：暗化的入口页内容 */
+    .fl2-bg-dim {
+        position: absolute; inset: 0;
+        background:
+            radial-gradient(ellipse at 30% 20%, rgba(168,85,247,0.15), transparent 55%),
+            radial-gradient(ellipse at 70% 80%, rgba(236,72,153,0.12), transparent 55%),
+            #0A0A12;
+        filter: blur(0);
+    }
+    .fl2-bg-dim::after {
+        content: ''; position: absolute; inset: 0;
+        background: rgba(0,0,0,0.62);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+    }
+
+    /* 遮罩里模糊的虚拟 UI */
+    .fl2-ghost-ui {
+        position: absolute; top: 90px; left: 40px; right: 40px;
+        z-index: 0; opacity: 0.35;
+    }
+    .fl2-ghost-ui .g-logo {
+        width: 64px; height: 64px; margin: 0 auto 16px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #A855F7, #EC4899);
+        box-shadow: 0 0 60px rgba(168,85,247,0.6);
+    }
+    .fl2-ghost-ui .g-line {
+        height: 18px; background: rgba(255,255,255,0.06);
+        border-radius: 6px; margin: 0 auto 10px; max-width: 240px;
+    }
+    .fl2-ghost-ui .g-line.short { max-width: 160px; height: 12px; }
+
+    /* 弹窗 sheet */
+    .fl2-choose-sheet {
+        position: absolute; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(180deg, #1A1A26 0%, #12121C 100%);
+        border-top-left-radius: 24px;
+        border-top-right-radius: 24px;
+        border-top: 1px solid rgba(255,255,255,0.08);
+        padding: 12px 20px calc(28px + env(safe-area-inset-bottom, 0));
+        box-shadow: 0 -20px 60px rgba(0,0,0,0.55);
+        animation: fl2up 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes fl2up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    .fl2-grab {
+        width: 44px; height: 5px; margin: 0 auto 16px;
+        background: rgba(255,255,255,0.18);
+        border-radius: 3px;
+    }
+
+    .fl2-sheet-title {
+        font-size: 20px; font-weight: 700; letter-spacing: -0.3px;
+        text-align: center; margin-bottom: 6px;
+    }
+    .fl2-sheet-sub {
+        font-size: 13px; color: var(--text-tertiary);
+        text-align: center; margin-bottom: 20px;
+        line-height: 1.5;
+    }
+
+    /* 钱包选项 */
+    .fl2-wopt {
+        display: flex; align-items: center; gap: 14px;
+        padding: 16px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 16px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        position: relative;
+        transition: 0.18s;
+    }
+    .fl2-wopt:active { transform: scale(0.985); }
+    .fl2-wopt.recommended {
+        border-color: rgba(168,85,247,0.35);
+        background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(236,72,153,0.04));
+    }
+    .fl2-wopt .w-logo {
+        width: 52px; height: 52px; border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 28px; flex-shrink: 0;
+        position: relative;
+    }
+    .fl2-wopt .w-logo.mm {
+        background: linear-gradient(135deg, #E17726, #D66A1E);
+        color: #fff;
+    }
+    .fl2-wopt .w-logo.wc {
+        background: linear-gradient(135deg, #3B99FC 0%, #1F6DDC 100%);
+        color: #fff;
+    }
+    .fl2-wopt .w-name {
+        font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 6px;
+    }
+    .fl2-wopt .w-desc {
+        font-size: 12px; color: var(--text-tertiary);
+        margin-top: 3px; line-height: 1.4;
+    }
+    .fl2-wopt .w-arrow {
+        color: var(--text-tertiary); font-size: 14px;
+    }
+    .fl2-recommend-tag {
+        font-size: 9px; font-weight: 700;
+        padding: 2px 6px; border-radius: 5px;
+        background: linear-gradient(135deg, #A855F7, #EC4899);
+        color: #fff; letter-spacing: 0.3px;
+    }
+
+    /* 图标装饰 - MetaMask 狐狸 */
+    .fl2-fox {
+        position: absolute; inset: 0;
+        display: flex; align-items: center; justify-content: center;
+    }
+
+    /* 支持链 */
+    .fl2-chains {
+        display: flex; justify-content: center;
+        gap: 8px; margin: 20px 0 12px;
+    }
+    .fl2-chain {
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        font-size: 10px; color: var(--text-tertiary);
+        display: inline-flex; align-items: center; gap: 4px;
+    }
+    .fl2-chain .dot {
+        width: 6px; height: 6px; border-radius: 50%;
+        background: #627EEA;
+    }
+    .fl2-chain.bsc .dot { background: #F3BA2F; }
+    .fl2-chain.sol .dot { background: #14F195; }
+    .fl2-chain.poly .dot { background: #8247E5; }
+
+    /* 底部安全说明 */
+    .fl2-safe-note {
+        display: flex; align-items: center; gap: 8px;
+        padding: 10px 14px;
+        background: rgba(16,185,129,0.08);
+        border: 1px solid rgba(16,185,129,0.18);
+        border-radius: 10px;
+        font-size: 11px; color: #6EE7B7;
+        line-height: 1.5;
+    }
+    .fl2-safe-note i { color: #10B981; font-size: 14px; flex-shrink: 0; }
+
+    .fl2-cancel {
+        width: 100%; height: 48px; margin-top: 14px;
+        background: transparent; border: none;
+        color: var(--text-secondary); font-size: 14px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+<div class="status-bar dark-mode">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="fl2-bg-dim"></div>
+
+<div class="fl2-ghost-ui">
+    <div class="g-logo"></div>
+    <div class="g-line"></div>
+    <div class="g-line short"></div>
+</div>
+
+<div class="fl2-choose-sheet">
+    <div class="fl2-grab"></div>
+
+    <div class="fl2-sheet-title">选择连接方式</div>
+    <div class="fl2-sheet-sub">FansLoop 不会保存你的私钥，仅通过签名识别身份</div>
+
+    <!-- MetaMask -->
+    <div class="fl2-wopt recommended">
+        <div class="w-logo mm">
+            <i class="fa-brands fa-ethereum" style="opacity:0.3; position:absolute; left:8px; top:8px; font-size:14px;"></i>
+            <i class="fa-solid fa-fox" style="display:none"></i>
+            <svg viewBox="0 0 40 40" width="34" height="34" style="position:relative; z-index:1">
+                <path fill="#fff" d="M32 6 L22 13 L24 9 Z M8 6 L18 13 L16 9 Z M27 25 L30 29 L25 30 Z M13 25 L10 29 L15 30 Z M20 20 L14 22 L20 27 L26 22 Z"/>
+            </svg>
+        </div>
+        <div style="flex:1">
+            <div class="w-name">
+                MetaMask
+                <span class="fl2-recommend-tag">推荐</span>
+            </div>
+            <div class="w-desc">浏览器扩展 · 最常用 · 支持 EVM 全家桶</div>
+        </div>
+        <i class="fa-solid fa-chevron-right w-arrow"></i>
+    </div>
+
+    <!-- WalletConnect -->
+    <div class="fl2-wopt">
+        <div class="w-logo wc">
+            <svg viewBox="0 0 40 40" width="26" height="26">
+                <path fill="#fff" d="M12 16 C 16 12, 24 12, 28 16 L 30 18 L 26 22 L 24 20 C 22 18, 18 18, 16 20 L 14 22 L 10 18 Z M 8 20 L 12 24 L 14 22 L 10 18 Z M 26 22 L 28 24 L 32 20 L 28 16 Z"/>
+            </svg>
+        </div>
+        <div style="flex:1">
+            <div class="w-name">WalletConnect</div>
+            <div class="w-desc">扫码连接 · 支持 300+ 移动端钱包</div>
+        </div>
+        <i class="fa-solid fa-chevron-right w-arrow"></i>
+    </div>
+
+    <!-- 支持链提示 -->
+    <div class="fl2-chains">
+        <span class="fl2-chain"><span class="dot"></span>Ethereum</span>
+        <span class="fl2-chain bsc"><span class="dot"></span>BSC</span>
+        <span class="fl2-chain poly"><span class="dot"></span>Polygon</span>
+        <span class="fl2-chain sol"><span class="dot"></span>Solana</span>
+    </div>
+
+    <div class="fl2-safe-note">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>签名仅用于验证地址所有权，不会触发链上交易，更不会消耗 Gas</span>
+    </div>
+
+    <button class="fl2-cancel">取消</button>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

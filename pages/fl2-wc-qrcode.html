@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FansLoop · WalletConnect 扫码</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/fansloop-auth.css">
+<style>
+    body {
+        background:
+            radial-gradient(ellipse at 50% 20%, rgba(59,153,252,0.2), transparent 55%),
+            radial-gradient(ellipse at 50% 90%, rgba(168,85,247,0.12), transparent 60%),
+            #0A0A12;
+    }
+
+    .fl2-wc-wrap {
+        position: absolute;
+        top: calc(var(--status-bar-height) + var(--nav-bar-height));
+        bottom: 0; left: 0; right: 0;
+        overflow-y: auto;
+        padding: 14px 20px 24px;
+    }
+
+    .fl2-wc-head {
+        display: flex; align-items: center; gap: 12px;
+        margin-bottom: 20px;
+    }
+    .fl2-wc-ic {
+        width: 44px; height: 44px; border-radius: 12px;
+        background: linear-gradient(135deg, #3B99FC, #1F6DDC);
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 6px 18px rgba(59,153,252,0.4);
+    }
+    .fl2-wc-ic svg { color: #fff; }
+    .fl2-wc-head h2 {
+        font-size: 17px; font-weight: 700;
+    }
+    .fl2-wc-head p {
+        font-size: 12px; color: var(--text-tertiary);
+        margin-top: 2px;
+    }
+
+    /* 二维码卡片 */
+    .fl2-qr-card {
+        background: linear-gradient(180deg, #1A1A26 0%, #12121C 100%);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 22px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+    .fl2-qr-card::before {
+        content: ''; position: absolute;
+        top: -40px; right: -40px;
+        width: 140px; height: 140px;
+        background: radial-gradient(circle, rgba(59,153,252,0.18), transparent 70%);
+    }
+
+    .fl2-tab-row {
+        display: flex; gap: 6px; padding: 4px;
+        background: rgba(255,255,255,0.04);
+        border-radius: 10px;
+        margin-bottom: 18px;
+    }
+    .fl2-tab {
+        flex: 1; text-align: center;
+        padding: 8px 6px;
+        font-size: 12px; font-weight: 500;
+        color: var(--text-tertiary);
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .fl2-tab.active {
+        background: rgba(255,255,255,0.08);
+        color: #fff;
+    }
+
+    .fl2-qr-box {
+        width: 220px; height: 220px; margin: 0 auto 16px;
+        background: #fff; border-radius: 18px;
+        padding: 14px;
+        position: relative;
+        box-shadow: 0 20px 50px rgba(59,153,252,0.25);
+    }
+    .fl2-qr-box img {
+        width: 100%; height: 100%; display: block;
+    }
+    /* 中心品牌 */
+    .fl2-qr-brand {
+        position: absolute; top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 44px; height: 44px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #A855F7, #EC4899);
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 18px;
+        box-shadow: 0 6px 18px rgba(168,85,247,0.4),
+                    0 0 0 4px #fff;
+    }
+
+    /* 扫描光条 */
+    .fl2-qr-scan {
+        position: absolute; top: 14px; left: 14px; right: 14px;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #3B99FC, transparent);
+        box-shadow: 0 0 12px #3B99FC;
+        animation: fl2scan 2.2s ease-in-out infinite;
+    }
+    @keyframes fl2scan {
+        0% { top: 14px; opacity: 0; }
+        20%, 80% { opacity: 1; }
+        100% { top: calc(100% - 16px); opacity: 0; }
+    }
+
+    /* 状态 */
+    .fl2-status-row {
+        display: flex; align-items: center; justify-content: center;
+        gap: 8px;
+        padding: 10px 14px;
+        background: rgba(59,153,252,0.1);
+        border: 1px solid rgba(59,153,252,0.22);
+        border-radius: 12px;
+        font-size: 12px; color: #93C5FD;
+    }
+    .fl2-status-row .pulse {
+        width: 7px; height: 7px; border-radius: 50%;
+        background: #3B99FC;
+        box-shadow: 0 0 0 0 #3B99FC;
+        animation: fl2ping 1.6s ease-out infinite;
+    }
+    @keyframes fl2ping {
+        0% { box-shadow: 0 0 0 0 rgba(59,153,252,0.6); }
+        100% { box-shadow: 0 0 0 8px rgba(59,153,252,0); }
+    }
+
+    /* 钱包推荐 */
+    .fl2-wallets-row {
+        display: grid; grid-template-columns: repeat(4, 1fr);
+        gap: 10px; margin-top: 20px;
+    }
+    .fl2-mini-wallet {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 10px 6px;
+        text-align: center;
+        cursor: pointer;
+    }
+    .fl2-mini-wallet .mw-logo {
+        width: 36px; height: 36px; border-radius: 10px;
+        margin: 0 auto 6px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px; color: #fff;
+    }
+    .fl2-mini-wallet .mw-name {
+        font-size: 10px; color: var(--text-secondary);
+        line-height: 1.2;
+    }
+    .fl2-mini-wallet .mw-logo.tp { background: linear-gradient(135deg, #0079FF, #00C2FF); }
+    .fl2-mini-wallet .mw-logo.ok { background: linear-gradient(135deg, #000, #333); border: 1px solid rgba(255,255,255,0.1); }
+    .fl2-mini-wallet .mw-logo.tw { background: linear-gradient(135deg, #3375BB, #285997); }
+    .fl2-mini-wallet .mw-logo.im { background: linear-gradient(135deg, #11C4D1, #0F8790); }
+    .fl2-mini-wallet .mw-logo.bw { background: linear-gradient(135deg, #FBBF24, #F59E0B); }
+    .fl2-mini-wallet .mw-logo.pha { background: linear-gradient(135deg, #AB9FF2, #7B6BE6); }
+    .fl2-mini-wallet .mw-logo.rb { background: linear-gradient(135deg, #1B3FD8, #0F2B9B); }
+    .fl2-mini-wallet .mw-logo.more { background: rgba(255,255,255,0.08); color: var(--text-secondary); border: 1px dashed rgba(255,255,255,0.18); }
+
+    /* 步骤指引 */
+    .fl2-tip-list {
+        margin-top: 20px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 14px;
+        padding: 14px 16px;
+    }
+    .fl2-tip-list h4 {
+        font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+        color: var(--text-tertiary); margin-bottom: 10px;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .fl2-tip-list h4 i { color: #3B99FC; }
+    .fl2-tip {
+        display: flex; gap: 10px; font-size: 12px; color: var(--text-secondary);
+        padding: 4px 0; line-height: 1.5;
+    }
+    .fl2-tip .n {
+        width: 18px; height: 18px; border-radius: 50%;
+        background: rgba(59,153,252,0.15);
+        color: #93C5FD; font-size: 10px; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+
+    /* 底部切换 */
+    .fl2-switch-row {
+        display: flex; gap: 10px; margin-top: 20px;
+    }
+    .fl2-switch-btn {
+        flex: 1; height: 44px; border-radius: 12px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-secondary); font-size: 12px;
+        display: flex; align-items: center; justify-content: center; gap: 6px;
+        cursor: pointer;
+    }
+    .fl2-switch-btn i { font-size: 13px; }
+    .fl2-copy-link {
+        text-align: center; font-size: 11px;
+        color: var(--text-tertiary); margin-top: 14px;
+    }
+    .fl2-copy-link a { color: #3B99FC; text-decoration: none; }
+
+</style>
+</head>
+<body>
+
+<div class="status-bar dark-mode">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid" style="top:var(--status-bar-height); background: rgba(10,10,18,0.8); backdrop-filter: blur(12px)">
+    <div class="nav-left">
+        <div class="nav-btn"><i class="fa-solid fa-chevron-left"></i></div>
+    </div>
+    <div class="nav-title">WalletConnect</div>
+    <div class="nav-right">
+        <div class="nav-btn"><i class="fa-solid fa-rotate-right"></i></div>
+    </div>
+</div>
+
+<div class="fl2-wc-wrap">
+
+    <div class="fl2-wc-head">
+        <div class="fl2-wc-ic">
+            <svg viewBox="0 0 32 32" width="20" height="20" fill="currentColor">
+                <path d="M9 12 C 13 8, 19 8, 23 12 L 25 14 L 22.5 16.5 L 21 15 C 18.5 12.5, 13.5 12.5, 11 15 L 9.5 16.5 L 7 14 Z M 5 16 L 8 19 L 10.5 16.5 L 7.5 13.5 Z M 21.5 16.5 L 24 19 L 27 16 L 24.5 13.5 Z"/>
+            </svg>
+        </div>
+        <div style="flex:1">
+            <h2>扫码连接</h2>
+            <p>使用任意支持 WalletConnect v2 的钱包扫码</p>
+        </div>
+    </div>
+
+    <div class="fl2-qr-card">
+        <div class="fl2-tab-row">
+            <div class="fl2-tab active"><i class="fa-solid fa-qrcode"></i> 扫码</div>
+            <div class="fl2-tab"><i class="fa-solid fa-mobile-screen"></i> 移动端</div>
+        </div>
+
+        <div class="fl2-qr-box">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=0&data=wc%3Ac0e0c5f8b7a24f37b9d6fe2e3a1c5d9b%402%3Frelay-protocol%3Dirn%26symKey%3D9b1f3d8c7e5a2f6b4d0c8e1a3b5d7f9c" alt="WalletConnect QR">
+            <div class="fl2-qr-brand">
+                <i class="fa-solid fa-infinity"></i>
+            </div>
+            <div class="fl2-qr-scan"></div>
+        </div>
+
+        <div class="fl2-status-row">
+            <span class="pulse"></span>
+            等待扫码中 · 会话将在 04:58 后过期
+        </div>
+
+        <div class="fl2-wallets-row">
+            <div class="fl2-mini-wallet">
+                <div class="mw-logo tp">
+                    <i class="fa-solid fa-diamond" style="font-size:14px"></i>
+                </div>
+                <div class="mw-name">TokenPocket</div>
+            </div>
+            <div class="fl2-mini-wallet">
+                <div class="mw-logo ok">
+                    <span style="font-weight:700">OK</span>
+                </div>
+                <div class="mw-name">OKX Wallet</div>
+            </div>
+            <div class="fl2-mini-wallet">
+                <div class="mw-logo tw">
+                    <i class="fa-solid fa-shield" style="font-size:14px"></i>
+                </div>
+                <div class="mw-name">Trust</div>
+            </div>
+            <div class="fl2-mini-wallet">
+                <div class="mw-logo im">
+                    <i class="fa-solid fa-key" style="font-size:14px"></i>
+                </div>
+                <div class="mw-name">imToken</div>
+            </div>
+            <div class="fl2-mini-wallet">
+                <div class="mw-logo bw">
+                    <i class="fa-solid fa-bolt" style="font-size:14px"></i>
+                </div>
+                <div class="mw-name">Bitget</div>
+            </div>
+            <div class="fl2-mini-wallet">
+                <div class="mw-logo pha">
+                    <i class="fa-solid fa-ghost" style="font-size:14px"></i>
+                </div>
+                <div class="mw-name">Phantom</div>
+            </div>
+            <div class="fl2-mini-wallet">
+                <div class="mw-logo rb">
+                    <i class="fa-solid fa-robot" style="font-size:14px"></i>
+                </div>
+                <div class="mw-name">Rainbow</div>
+            </div>
+            <div class="fl2-mini-wallet">
+                <div class="mw-logo more">
+                    <i class="fa-solid fa-ellipsis"></i>
+                </div>
+                <div class="mw-name">更多</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fl2-tip-list">
+        <h4><i class="fa-solid fa-circle-info"></i> 怎么扫？</h4>
+        <div class="fl2-tip">
+            <span class="n">1</span>
+            <span>在移动端钱包打开「扫一扫」或「WalletConnect」入口</span>
+        </div>
+        <div class="fl2-tip">
+            <span class="n">2</span>
+            <span>对准上方二维码，钱包会弹出 FansLoop 连接请求</span>
+        </div>
+        <div class="fl2-tip">
+            <span class="n">3</span>
+            <span>确认连接后返回 FansLoop 完成签名登录</span>
+        </div>
+    </div>
+
+    <div class="fl2-switch-row">
+        <button class="fl2-switch-btn">
+            <i class="fa-solid fa-copy"></i>
+            复制连接链接
+        </button>
+        <button class="fl2-switch-btn">
+            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+            切换到 MetaMask
+        </button>
+    </div>
+
+    <div class="fl2-copy-link">
+        无法扫码？<a href="#">在手机打开此页面</a>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

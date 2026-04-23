@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FansLoop · 首页</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/fansloop-auth.css">
+<style>
+    body {
+        background: #0A0A12;
+    }
+
+    .fl2-wrap {
+        position: absolute;
+        top: var(--status-bar-height);
+        bottom: var(--tab-bar-height);
+        left: 0; right: 0;
+        overflow-y: auto;
+    }
+    .fl2-wrap::-webkit-scrollbar { display: none; }
+
+    /* 顶部信息栏 */
+    .fl2-top {
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 16px 12px;
+    }
+    .fl2-top .avatar {
+        width: 38px; height: 38px;
+        border-radius: 50%;
+        padding: 1.5px;
+        background: linear-gradient(135deg, #A855F7, #EC4899);
+        flex-shrink: 0;
+        position: relative;
+    }
+    .fl2-top .avatar img {
+        width: 100%; height: 100%;
+        border-radius: 50%;
+        border: 1.5px solid #0A0A12;
+        object-fit: cover;
+    }
+    .fl2-top .hi {
+        flex: 1; min-width: 0;
+    }
+    .fl2-top .hi .t {
+        font-size: 11px; color: var(--text-tertiary);
+    }
+    .fl2-top .hi .n {
+        font-size: 15px; font-weight: 700;
+        margin-top: -1px;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .fl2-top .hi .n .chip {
+        font-size: 9px; padding: 2px 6px;
+        background: rgba(16,185,129,0.15);
+        color: #10B981;
+        border-radius: 4px;
+        font-weight: 600;
+        display: inline-flex; align-items: center; gap: 3px;
+    }
+    .fl2-top .hi .n .chip i { font-size: 7px; }
+    .fl2-top .act {
+        display: flex; gap: 8px;
+    }
+    .fl2-top .act .btn {
+        width: 36px; height: 36px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 14px;
+        position: relative;
+    }
+    .fl2-top .act .btn .dot {
+        position: absolute; top: 8px; right: 8px;
+        width: 7px; height: 7px; border-radius: 50%;
+        background: #EC4899;
+        border: 1.5px solid #0A0A12;
+    }
+
+    /* 登录成功 Toast */
+    .fl2-toast-success {
+        margin: 0 16px 14px;
+        padding: 10px 12px 10px 10px;
+        background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05));
+        border: 1px solid rgba(16,185,129,0.3);
+        border-radius: 12px;
+        display: flex; align-items: center; gap: 10px;
+    }
+    .fl2-toast-success .ic {
+        width: 28px; height: 28px; border-radius: 8px;
+        background: linear-gradient(135deg, #10B981, #059669);
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 12px;
+        flex-shrink: 0;
+    }
+    .fl2-toast-success .txt {
+        flex: 1; font-size: 12px;
+    }
+    .fl2-toast-success .txt b {
+        color: #6EE7B7; font-weight: 700;
+    }
+    .fl2-toast-success .txt .sub {
+        font-size: 10px; color: var(--text-tertiary);
+        font-family: ui-monospace, monospace;
+        margin-top: 1px;
+    }
+    .fl2-toast-success .x {
+        color: var(--text-tertiary); font-size: 13px;
+        padding: 4px;
+    }
+
+    /* 类别 tab */
+    .fl2-cat-tabs {
+        display: flex; gap: 4px;
+        padding: 0 12px 10px;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+    .fl2-cat-tabs::-webkit-scrollbar { display: none; }
+    .fl2-cat {
+        flex-shrink: 0;
+        padding: 7px 14px;
+        border-radius: 999px;
+        font-size: 13px;
+        color: var(--text-tertiary);
+        background: transparent;
+        white-space: nowrap;
+        font-weight: 500;
+    }
+    .fl2-cat.active {
+        background: linear-gradient(135deg, #A855F7, #EC4899);
+        color: #fff;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(168,85,247,0.3);
+    }
+
+    /* 余额卡 */
+    .fl2-wallet-card {
+        margin: 0 16px 14px;
+        padding: 16px;
+        background: linear-gradient(135deg, #1A1A26 0%, #12121C 100%);
+        border: 1px solid rgba(168,85,247,0.2);
+        border-radius: 18px;
+        position: relative;
+        overflow: hidden;
+    }
+    .fl2-wallet-card::before {
+        content: ''; position: absolute;
+        top: -50px; right: -50px;
+        width: 160px; height: 160px;
+        background: radial-gradient(circle, rgba(168,85,247,0.25), transparent 70%);
+    }
+    .fl2-wallet-card::after {
+        content: ''; position: absolute;
+        bottom: -30px; left: -30px;
+        width: 120px; height: 120px;
+        background: radial-gradient(circle, rgba(236,72,153,0.15), transparent 70%);
+    }
+    .fl2-wallet-card .wh {
+        display: flex; justify-content: space-between;
+        position: relative;
+        margin-bottom: 10px;
+    }
+    .fl2-wallet-card .wh .k {
+        font-size: 11px; color: var(--text-tertiary);
+        display: flex; align-items: center; gap: 5px;
+    }
+    .fl2-wallet-card .wh .eye {
+        color: var(--text-tertiary); font-size: 12px;
+    }
+    .fl2-wallet-card .amt {
+        font-size: 30px; font-weight: 800;
+        letter-spacing: -1px;
+        position: relative;
+        display: flex; align-items: baseline; gap: 6px;
+    }
+    .fl2-wallet-card .amt .unit {
+        font-size: 14px; color: var(--text-tertiary);
+        font-weight: 600;
+    }
+    .fl2-wallet-card .meta {
+        display: flex; justify-content: space-between;
+        margin-top: 12px;
+        position: relative;
+    }
+    .fl2-wallet-card .meta .addr {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        font-family: ui-monospace, monospace;
+        display: flex; align-items: center; gap: 5px;
+    }
+    .fl2-wallet-card .meta .addr i { color: #10B981; font-size: 8px; }
+    .fl2-wallet-card .actions {
+        display: flex; gap: 8px;
+        margin-top: 14px;
+        position: relative;
+    }
+    .fl2-wallet-card .act-btn {
+        flex: 1;
+        height: 38px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        color: #fff; font-size: 12px; font-weight: 600;
+        display: flex; align-items: center; justify-content: center; gap: 5px;
+        backdrop-filter: blur(10px);
+    }
+    .fl2-wallet-card .act-btn i { font-size: 11px; color: #C084FC; }
+
+    /* 快捷导航 */
+    .fl2-shortcut {
+        display: grid; grid-template-columns: repeat(4, 1fr);
+        gap: 4px;
+        padding: 0 16px 16px;
+    }
+    .fl2-short-item {
+        text-align: center;
+        padding: 10px 2px;
+    }
+    .fl2-short-item .ic {
+        width: 44px; height: 44px; border-radius: 14px;
+        margin: 0 auto 6px;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 18px;
+    }
+    .fl2-short-item .ic.a { background: linear-gradient(135deg, #A855F7, #EC4899); }
+    .fl2-short-item .ic.b { background: linear-gradient(135deg, #F59E0B, #F97316); }
+    .fl2-short-item .ic.c { background: linear-gradient(135deg, #06B6D4, #0891B2); }
+    .fl2-short-item .ic.d { background: linear-gradient(135deg, #10B981, #059669); }
+    .fl2-short-item .lbl {
+        font-size: 11px; color: var(--text-secondary);
+    }
+
+    /* Feed title */
+    .fl2-feed-h {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 4px 16px 12px;
+    }
+    .fl2-feed-h h3 {
+        font-size: 17px; font-weight: 700;
+        letter-spacing: -0.3px;
+    }
+    .fl2-feed-h .more {
+        font-size: 12px; color: var(--text-tertiary);
+    }
+
+    /* Feed 卡片 */
+    .fl2-feed {
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 0 16px 20px;
+    }
+    .fl2-feed-card {
+        border-radius: 14px;
+        overflow: hidden;
+        background: #1A1A26;
+        position: relative;
+        aspect-ratio: 0.7;
+    }
+    .fl2-feed-card img {
+        width: 100%; height: 100%; object-fit: cover;
+        display: block;
+    }
+    .fl2-feed-card .mask {
+        position: absolute; inset: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.85) 10%, transparent 60%);
+    }
+    .fl2-feed-card .bot {
+        position: absolute; left: 10px; right: 10px; bottom: 10px;
+        color: #fff;
+    }
+    .fl2-feed-card .bot .t {
+        font-size: 12px; font-weight: 600;
+        line-height: 1.3;
+        margin-bottom: 6px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .fl2-feed-card .bot .au {
+        display: flex; align-items: center; gap: 5px;
+        font-size: 10px; color: rgba(255,255,255,0.85);
+    }
+    .fl2-feed-card .bot .au img {
+        width: 16px; height: 16px; border-radius: 50%;
+        border: 1px solid rgba(255,255,255,0.4);
+    }
+    .fl2-feed-card .bot .stat {
+        display: flex; gap: 8px;
+        margin-top: 4px;
+        font-size: 10px; color: rgba(255,255,255,0.8);
+    }
+    .fl2-feed-card .tag-paid {
+        position: absolute; top: 8px; left: 8px;
+        padding: 3px 7px;
+        background: rgba(245,158,11,0.95);
+        color: #fff;
+        font-size: 9px; font-weight: 700;
+        border-radius: 5px;
+        letter-spacing: 0.3px;
+    }
+    .fl2-feed-card .tag-free {
+        position: absolute; top: 8px; left: 8px;
+        padding: 3px 7px;
+        background: rgba(16,185,129,0.95);
+        color: #fff;
+        font-size: 9px; font-weight: 700;
+        border-radius: 5px;
+    }
+    .fl2-feed-card .tag-live {
+        position: absolute; top: 8px; left: 8px;
+        padding: 3px 7px;
+        background: rgba(236,72,153,0.95);
+        color: #fff;
+        font-size: 9px; font-weight: 700;
+        border-radius: 5px;
+        display: flex; align-items: center; gap: 3px;
+    }
+    .fl2-feed-card .tag-live::before {
+        content: ''; width: 5px; height: 5px; border-radius: 50%;
+        background: #fff;
+        animation: fl2blink 1.2s ease-in-out infinite;
+    }
+    @keyframes fl2blink { 0%, 100% { opacity: 1 } 50% { opacity: 0.3 } }
+</style>
+</head>
+<body>
+
+<div class="status-bar dark-mode">
+    <span class="time">9:42</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="fl2-wrap">
+
+    <!-- 顶部信息 -->
+    <div class="fl2-top">
+        <div class="avatar">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=80" alt="">
+        </div>
+        <div class="hi">
+            <div class="t">欢迎回来</div>
+            <div class="n">
+                Luna Cipher
+                <span class="chip"><i class="fa-solid fa-circle"></i> 在线</span>
+            </div>
+        </div>
+        <div class="act">
+            <div class="btn">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <div class="btn">
+                <i class="fa-regular fa-bell"></i>
+                <span class="dot"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成功 toast -->
+    <div class="fl2-toast-success">
+        <div class="ic"><i class="fa-solid fa-check"></i></div>
+        <div class="txt">
+            <b>钱包登录成功</b>
+            <div class="sub">Session · fl_tok_8a2f9e1c · 7d 有效</div>
+        </div>
+        <div class="x"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+
+    <!-- 余额卡 -->
+    <div class="fl2-wallet-card">
+        <div class="wh">
+            <div class="k">
+                <i class="fa-solid fa-wallet" style="color:#C084FC"></i>
+                总资产估值
+            </div>
+            <i class="fa-regular fa-eye eye"></i>
+        </div>
+        <div class="amt">
+            1,284.32 <span class="unit">USDT</span>
+        </div>
+        <div class="meta">
+            <div class="addr">
+                <i class="fa-solid fa-circle"></i>
+                0x7c5A…8D93 · Ethereum
+            </div>
+            <div style="font-size:10px; color:#10B981;">
+                +2.4% 今日
+            </div>
+        </div>
+        <div class="actions">
+            <div class="act-btn"><i class="fa-solid fa-arrow-down"></i>充值</div>
+            <div class="act-btn"><i class="fa-solid fa-arrow-up"></i>提现</div>
+            <div class="act-btn"><i class="fa-solid fa-arrow-right-arrow-left"></i>兑换</div>
+        </div>
+    </div>
+
+    <!-- 快捷入口 -->
+    <div class="fl2-shortcut">
+        <div class="fl2-short-item">
+            <div class="ic a"><i class="fa-solid fa-fire"></i></div>
+            <div class="lbl">热门榜</div>
+        </div>
+        <div class="fl2-short-item">
+            <div class="ic b"><i class="fa-solid fa-crown"></i></div>
+            <div class="lbl">订阅</div>
+        </div>
+        <div class="fl2-short-item">
+            <div class="ic c"><i class="fa-solid fa-video"></i></div>
+            <div class="lbl">直播</div>
+        </div>
+        <div class="fl2-short-item">
+            <div class="ic d"><i class="fa-solid fa-gift"></i></div>
+            <div class="lbl">新人礼</div>
+        </div>
+    </div>
+
+    <!-- 分类 tabs -->
+    <div class="fl2-cat-tabs">
+        <div class="fl2-cat active">推荐</div>
+        <div class="fl2-cat">关注</div>
+        <div class="fl2-cat">订阅</div>
+        <div class="fl2-cat">付费</div>
+        <div class="fl2-cat">NFT</div>
+        <div class="fl2-cat">同城</div>
+    </div>
+
+    <!-- Feed -->
+    <div class="fl2-feed-h">
+        <h3>为你推荐</h3>
+        <div class="more">查看全部 <i class="fa-solid fa-chevron-right" style="font-size:10px"></i></div>
+    </div>
+
+    <div class="fl2-feed">
+        <div class="fl2-feed-card">
+            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&q=80" alt="">
+            <div class="mask"></div>
+            <span class="tag-paid">PAID · 12U</span>
+            <div class="bot">
+                <div class="t">深夜实验室 · Web3 加密故事第 4 集</div>
+                <div class="au">
+                    <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=60&q=80" alt="">
+                    @neo_quan
+                </div>
+                <div class="stat">
+                    <span><i class="fa-solid fa-heart"></i> 2.4k</span>
+                    <span><i class="fa-solid fa-eye"></i> 18k</span>
+                </div>
+            </div>
+        </div>
+        <div class="fl2-feed-card">
+            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&q=80" alt="">
+            <div class="mask"></div>
+            <span class="tag-live">LIVE</span>
+            <div class="bot">
+                <div class="t">今晚 9 点 · 上海外滩 DJ 派对直播</div>
+                <div class="au">
+                    <img src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=60&q=80" alt="">
+                    @dj_solar
+                </div>
+                <div class="stat">
+                    <span><i class="fa-solid fa-user"></i> 3.2k 观看</span>
+                </div>
+            </div>
+        </div>
+        <div class="fl2-feed-card">
+            <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80" alt="">
+            <div class="mask"></div>
+            <span class="tag-free">FREE</span>
+            <div class="bot">
+                <div class="t">Hello 来自 3 号矿场，今天一起挖矿</div>
+                <div class="au">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&q=80" alt="">
+                    @miner_x
+                </div>
+                <div class="stat">
+                    <span><i class="fa-solid fa-heart"></i> 842</span>
+                    <span><i class="fa-regular fa-comment"></i> 126</span>
+                </div>
+            </div>
+        </div>
+        <div class="fl2-feed-card">
+            <img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&q=80" alt="">
+            <div class="mask"></div>
+            <span class="tag-paid">订阅解锁</span>
+            <div class="bot">
+                <div class="t">摄影系列 · 东京雨夜漫步合集（28 图）</div>
+                <div class="au">
+                    <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&q=80" alt="">
+                    @kira_ph
+                </div>
+                <div class="stat">
+                    <span><i class="fa-solid fa-heart"></i> 5.1k</span>
+                    <span><i class="fa-solid fa-bookmark"></i> 823</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="tab-bar">
+    <div class="tab-item active">
+        <i class="fa-solid fa-house"></i>
+        <span>首页</span>
+    </div>
+    <div class="tab-item">
+        <i class="fa-regular fa-heart"></i>
+        <span>订阅</span>
+    </div>
+    <div class="tab-create"><div class="create-btn"><i class="fa-solid fa-plus"></i></div></div>
+    <div class="tab-item">
+        <i class="fa-regular fa-message"></i>
+        <span>消息</span>
+    </div>
+    <div class="tab-item">
+        <i class="fa-regular fa-user"></i>
+        <span>我的</span>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>
