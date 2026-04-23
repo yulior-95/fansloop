@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>充值</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 100px;
+}
+
+.currency-switch {
+    margin: 8px 16px 16px;
+    display: flex;
+    background: var(--bg-card);
+    border-radius: var(--radius-full);
+    padding: 4px;
+}
+.currency-switch .s {
+    flex: 1;
+    padding: 10px 0;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-secondary);
+    border-radius: var(--radius-full);
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px;
+}
+.currency-switch .s.active {
+    background: var(--brand-gradient);
+    color: #fff; font-weight: 600;
+}
+
+/* 金额输入 */
+.amount-card {
+    margin: 0 16px 16px;
+    padding: 24px 20px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    text-align: center;
+}
+.amount-card .label {
+    font-size: 12px; color: var(--text-tertiary);
+}
+.amount-card .input-box {
+    display: flex; align-items: baseline; justify-content: center;
+    gap: 4px;
+    margin-top: 10px;
+}
+.amount-card .symbol { font-size: 20px; color: var(--text-secondary); }
+.amount-card .input {
+    font-size: 44px; font-weight: 800;
+    color: var(--text-primary);
+    min-width: 120px;
+    outline: none;
+    background: transparent;
+    border: none;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+}
+.amount-card .input::placeholder { color: var(--text-tertiary); }
+.amount-card .rate {
+    font-size: 12px; color: var(--text-tertiary); margin-top: 6px;
+}
+
+/* 快选 */
+.quick-amounts {
+    margin: 0 16px 16px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+.quick-amounts .qa {
+    padding: 12px 0;
+    text-align: center;
+    border-radius: var(--radius-md);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+.quick-amounts .qa.active {
+    background: rgba(168,85,247,0.12);
+    border-color: var(--brand-purple);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* 链选择（USDT） */
+.section-title {
+    padding: 10px 16px;
+    font-size: 13px; color: var(--text-secondary); font-weight: 600;
+}
+
+.chain-opts {
+    margin: 0 16px 12px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+.chain-opts .opt {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px;
+    border-bottom: 0.5px solid var(--border-color);
+}
+.chain-opts .opt:last-child { border: none; }
+.chain-opts .opt .logo {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+}
+.chain-opts .opt .logo.trc { background: #EF4444; }
+.chain-opts .opt .logo.erc { background: #627EEA; }
+.chain-opts .opt .logo.bsc { background: #F3BA2F; color: #000; }
+.chain-opts .opt .logo.sol { background: linear-gradient(135deg, #9945FF, #14F195); }
+.chain-opts .opt .info { flex: 1; }
+.chain-opts .opt .n { font-size: 14px; font-weight: 600; }
+.chain-opts .opt .d { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.chain-opts .opt .radio {
+    width: 20px; height: 20px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+}
+.chain-opts .opt.active .radio {
+    background: var(--brand-gradient);
+    border-color: var(--brand-purple);
+}
+.chain-opts .opt.active .radio::after {
+    content: ''; width: 8px; height: 8px;
+    border-radius: 50%; background: #fff;
+}
+
+/* 存款地址 */
+.deposit-card {
+    margin: 0 16px 12px;
+    padding: 16px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    text-align: center;
+}
+.deposit-card .qr {
+    width: 160px; height: 160px;
+    margin: 12px auto;
+    padding: 10px;
+    background: #fff;
+    border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+}
+.deposit-card .qr img { width: 100%; height: 100%; }
+.deposit-card .addr {
+    margin-top: 8px;
+    font-family: "SF Mono", monospace;
+    font-size: 12px;
+    color: var(--text-primary);
+    word-break: break-all;
+    padding: 10px 12px;
+    background: var(--bg-primary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.deposit-card .addr .copy {
+    color: var(--brand-purple);
+    flex-shrink: 0;
+    font-weight: 600;
+    font-size: 12px;
+}
+.deposit-card .notice {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 10px;
+    text-align: left;
+    line-height: 1.6;
+}
+
+/* 法币支付 */
+.pay-method {
+    margin: 0 16px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+.pay-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px;
+    border-bottom: 0.5px solid var(--border-color);
+}
+.pay-item:last-child { border-bottom: none; }
+.pay-item .ic {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+}
+.pay-item .a { background: rgba(22,119,255,0.15); color: #1677FF; }
+.pay-item .w { background: rgba(7,193,96,0.15); color: #07C160; }
+.pay-item .b { background: rgba(245,158,11,0.15); color: var(--crypto-gold); }
+.pay-item .info { flex: 1; }
+.pay-item .name { font-size: 14px; font-weight: 500; }
+.pay-item .desc { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.pay-item .radio {
+    width: 20px; height: 20px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: 50%;
+}
+.pay-item.active .radio {
+    background: var(--brand-gradient);
+    border-color: var(--brand-purple);
+    display: flex; align-items: center; justify-content: center;
+}
+.pay-item.active .radio::after {
+    content: ''; width: 8px; height: 8px;
+    border-radius: 50%; background: #fff;
+}
+
+.submit-bar {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 10px 16px 30px;
+    background: rgba(10,10,18,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 0.5px solid var(--border-color);
+    z-index: 20;
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">充值</div>
+    <div class="nav-right"><div class="nav-btn"><i class="fa-solid fa-circle-question"></i></div></div>
+</div>
+
+<div class="app-content">
+
+    <!-- 币种切换 -->
+    <div class="currency-switch">
+        <div class="s active"><i class="fa-brands fa-bitcoin"></i> USDT</div>
+        <div class="s"><i class="fa-solid fa-yen-sign"></i> 法币 (¥)</div>
+    </div>
+
+    <!-- 金额 -->
+    <div class="amount-card">
+        <div class="label">充值金额</div>
+        <div class="input-box">
+            <span class="symbol">$</span>
+            <input class="input" placeholder="0.00" value="100.00">
+        </div>
+        <div class="rate">当前汇率 1 USDT ≈ ¥7.26</div>
+    </div>
+
+    <!-- 快选 -->
+    <div class="quick-amounts">
+        <div class="qa">10</div>
+        <div class="qa">50</div>
+        <div class="qa active">100</div>
+        <div class="qa">500</div>
+    </div>
+
+    <!-- 链选择 -->
+    <div class="section-title">选择链网络</div>
+    <div class="chain-opts">
+        <div class="opt active">
+            <div class="logo trc">T</div>
+            <div class="info">
+                <div class="n">TRON (TRC20)</div>
+                <div class="d">手续费 0 USDT · 推荐</div>
+            </div>
+            <div class="radio"></div>
+        </div>
+        <div class="opt">
+            <div class="logo erc">E</div>
+            <div class="info">
+                <div class="n">Ethereum (ERC20)</div>
+                <div class="d">手续费较高</div>
+            </div>
+            <div class="radio"></div>
+        </div>
+        <div class="opt">
+            <div class="logo bsc">B</div>
+            <div class="info">
+                <div class="n">BNB Smart Chain</div>
+                <div class="d">手续费 ≈ 0.1 USDT</div>
+            </div>
+            <div class="radio"></div>
+        </div>
+        <div class="opt">
+            <div class="logo sol">S</div>
+            <div class="info">
+                <div class="n">Solana (SPL)</div>
+                <div class="d">极速到账</div>
+            </div>
+            <div class="radio"></div>
+        </div>
+    </div>
+
+    <!-- 存款地址 -->
+    <div class="section-title">存款地址（TRC20）</div>
+    <div class="deposit-card">
+        <div class="qr">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=TRX-Demo-Address-TF9K5y8aNh29z" alt="">
+        </div>
+        <div class="addr">
+            <span>TF9K5y8aNh29zrXqL4p8wNxk2Yn6qJcV3p</span>
+            <span class="copy"><i class="fa-regular fa-copy"></i> 复制</span>
+        </div>
+        <div class="notice">
+            <i class="fa-solid fa-triangle-exclamation" style="color:var(--warning); margin-right:4px"></i>
+            请确保转账链为 TRC20，最小充值 1 USDT<br>
+            非 TRC20 地址转账将造成资产丢失无法追回
+        </div>
+    </div>
+
+</div>
+
+<div class="submit-bar">
+    <button class="btn btn-primary btn-block">
+        <i class="fa-solid fa-check"></i> 我已转账，提交确认
+    </button>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

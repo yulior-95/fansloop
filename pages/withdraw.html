@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>提现</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 100px;
+}
+
+.balance-card {
+    margin: 8px 16px 16px;
+    padding: 16px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, rgba(6,182,212,0.15), rgba(59,130,246,0.05));
+    border: 1px solid rgba(6,182,212,0.25);
+    display: flex; align-items: center; gap: 12px;
+}
+.balance-card .ic {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: rgba(6,182,212,0.2);
+    color: var(--crypto-cyan);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+}
+.balance-card .info { flex: 1; }
+.balance-card .label { font-size: 11px; color: var(--text-tertiary); }
+.balance-card .amount {
+    font-size: 20px; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+}
+.balance-card .sw {
+    background: var(--bg-elevated);
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex; align-items: center; gap: 4px;
+}
+
+.section-title {
+    padding: 10px 16px;
+    font-size: 13px; color: var(--text-secondary); font-weight: 600;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.section-title .right { color: var(--brand-purple); font-size: 12px; font-weight: 500; }
+
+.form-card {
+    margin: 0 16px 12px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+}
+
+.field {
+    padding: 10px 0;
+    border-bottom: 0.5px solid var(--border-color);
+}
+.field:last-child { border: none; }
+.field .label {
+    font-size: 11px; color: var(--text-tertiary);
+    margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.field .value-row {
+    display: flex; align-items: center; gap: 8px;
+}
+.field input, .field .val {
+    flex: 1;
+    background: transparent;
+    border: none; outline: none;
+    color: var(--text-primary);
+    font-size: 15px;
+    font-family: inherit;
+}
+.field .val { font-weight: 500; }
+.field .val.addr { font-family: "SF Mono", monospace; font-size: 13px; }
+.field .arrow { color: var(--text-tertiary); font-size: 13px; }
+.field .all {
+    color: var(--brand-purple);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.amount-field input {
+    font-size: 24px !important;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+.amount-field .unit {
+    font-size: 13px; color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* 手续费 */
+.fee-box {
+    margin: 0 16px 12px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 12px 16px;
+}
+.fee-row {
+    display: flex; justify-content: space-between;
+    padding: 6px 0;
+    font-size: 13px;
+}
+.fee-row .k { color: var(--text-tertiary); }
+.fee-row .v { color: var(--text-primary); font-weight: 500; }
+.fee-row.total { border-top: 0.5px solid var(--border-color); margin-top: 4px; padding-top: 10px; }
+.fee-row.total .v { color: var(--brand-purple); font-weight: 700; }
+
+.notice {
+    margin: 0 16px 12px;
+    padding: 12px;
+    border-radius: var(--radius-md);
+    background: rgba(59,130,246,0.08);
+    border: 1px solid rgba(59,130,246,0.2);
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+.notice i { color: var(--info); margin-right: 6px; }
+
+.submit-bar {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 10px 16px 30px;
+    background: rgba(10,10,18,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 0.5px solid var(--border-color);
+    z-index: 20;
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">提现</div>
+    <div class="nav-right"><span style="font-size:13px; color:var(--brand-purple)">记录</span></div>
+</div>
+
+<div class="app-content">
+
+    <!-- 余额卡 -->
+    <div class="balance-card">
+        <div class="ic"><i class="fa-brands fa-bitcoin"></i></div>
+        <div class="info">
+            <div class="label">USDT 可用余额</div>
+            <div class="amount">128.56 <span style="font-size:13px; color:var(--text-secondary)">USDT</span></div>
+        </div>
+        <div class="sw">切换币种 <i class="fa-solid fa-chevron-down" style="font-size:10px"></i></div>
+    </div>
+
+    <!-- 提现表单 -->
+    <div class="section-title">
+        <span>提现信息</span>
+        <span class="right">切换收款方式</span>
+    </div>
+    <div class="form-card">
+
+        <div class="field">
+            <div class="label">链网络</div>
+            <div class="value-row">
+                <span class="val"><span style="display:inline-flex; width:20px; height:20px; border-radius:5px; background:#EF4444; color:#fff; font-size:11px; font-weight:700; align-items:center; justify-content:center; margin-right:6px">T</span> TRON (TRC20)</span>
+                <i class="fa-solid fa-chevron-down arrow"></i>
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="label">提现地址</div>
+            <div class="value-row">
+                <span class="val addr">TF9K5y8aNh29zrXqL4p8wNxk2Yn...</span>
+                <i class="fa-solid fa-qrcode arrow"></i>
+            </div>
+        </div>
+
+        <div class="field amount-field">
+            <div class="label">提现数量</div>
+            <div class="value-row">
+                <input type="text" value="80.00" placeholder="最低 10 USDT">
+                <span class="unit">USDT</span>
+                <span class="all">全部</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 手续费 -->
+    <div class="fee-box">
+        <div class="fee-row">
+            <span class="k">网络手续费</span>
+            <span class="v">1.00 USDT</span>
+        </div>
+        <div class="fee-row">
+            <span class="k">平台手续费</span>
+            <span class="v" style="color:var(--success)">0 USDT · 免手续费</span>
+        </div>
+        <div class="fee-row">
+            <span class="k">预计到账时间</span>
+            <span class="v">≈ 1-3 分钟</span>
+        </div>
+        <div class="fee-row total">
+            <span class="k">实际到账</span>
+            <span class="v">79.00 USDT</span>
+        </div>
+    </div>
+
+    <div class="notice">
+        <i class="fa-solid fa-shield-halved"></i>
+        为保证你的资金安全，首次提现需进行二次验证（短信/邮箱验证码）。所有提现记录将被上链存证，可在区块浏览器查验。
+    </div>
+
+</div>
+
+<div class="submit-bar">
+    <button class="btn btn-primary btn-block">
+        <i class="fa-solid fa-fingerprint"></i> 验证并提现
+    </button>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

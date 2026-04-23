@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>发布视频</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 100px;
+}
+
+.video-preview {
+    margin: 12px 16px;
+    position: relative;
+    width: calc(100% - 32px);
+    aspect-ratio: 9 / 16;
+    max-height: 280px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--bg-card);
+}
+.video-preview img { width: 100%; height: 100%; object-fit: cover; }
+.video-preview .play-btn {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 22px;
+}
+.video-preview .duration {
+    position: absolute;
+    bottom: 10px; left: 10px;
+    background: rgba(0,0,0,0.6);
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    font-size: 11px; color: #fff;
+    font-variant-numeric: tabular-nums;
+}
+.video-preview .edit-tools {
+    position: absolute;
+    top: 10px; right: 10px;
+    display: flex; gap: 6px;
+}
+.video-preview .edit-tools .tb {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: #fff;
+}
+
+/* 时间轴缩略图 */
+.timeline {
+    margin: 0 16px;
+    height: 44px;
+    display: flex;
+    gap: 2px;
+    overflow: hidden;
+    border-radius: 8px;
+}
+.timeline img {
+    height: 100%;
+    width: calc(100% / 8);
+    object-fit: cover;
+}
+
+.form-section { padding: 16px; }
+.input-title {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 12px 0;
+    border-bottom: 0.5px solid var(--border-color);
+}
+.input-title::placeholder { color: var(--text-tertiary); }
+
+.input-desc {
+    width: 100%;
+    min-height: 60px;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: var(--text-primary);
+    padding: 10px 0;
+    resize: none;
+    font-family: inherit;
+}
+.input-desc::placeholder { color: var(--text-tertiary); }
+
+.tag-bar {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 10px 0;
+    border-bottom: 0.5px solid var(--border-color);
+}
+.tag-bar .tag.add {
+    background: transparent;
+    border: 1px dashed var(--border-strong);
+    color: var(--text-secondary);
+}
+
+.option-row {
+    display: flex; align-items: center;
+    padding: 14px 0;
+    border-bottom: 0.5px solid var(--border-color);
+    gap: 12px;
+}
+.option-row .op-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+.option-row .op-main { flex: 1; }
+.option-row .op-title { font-size: 14px; }
+.option-row .op-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.option-row .op-value { font-size: 13px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+
+.price-card {
+    padding: 14px;
+    background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(236,72,153,0.05));
+    border: 1px solid rgba(168,85,247,0.2);
+    border-radius: var(--radius-lg);
+    margin-top: 14px;
+}
+.price-card .rows { display: flex; gap: 8px; margin-top: 10px; }
+.price-card .type-pill {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+.price-card .type-pill.active {
+    border-color: var(--brand-purple);
+    background: rgba(168,85,247,0.1);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+.price-card .type-pill i { margin-right: 4px; }
+
+.submit-bar {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 10px 16px 30px;
+    background: rgba(10,10,18,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 0.5px solid var(--border-color);
+    display: flex; gap: 10px;
+    z-index: 20;
+}
+.submit-bar .btn { flex: 1; }
+.submit-bar .draft { flex: 0 0 100px; }
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">发布视频</div>
+    <div class="nav-right"><span style="font-size:14px;color:var(--brand-purple)">预览</span></div>
+</div>
+
+<div class="app-content">
+
+    <div class="video-preview">
+        <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&q=80">
+        <div class="play-btn"><i class="fa-solid fa-play"></i></div>
+        <div class="edit-tools">
+            <div class="tb"><i class="fa-solid fa-music"></i></div>
+            <div class="tb"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        </div>
+        <div class="duration">02:38</div>
+    </div>
+
+    <!-- 时间轴 -->
+    <div class="timeline">
+        <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=100&q=60">
+        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=100&q=60">
+        <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=100&q=60">
+        <img src="https://images.unsplash.com/photo-1520975916090-3105956dac38?w=100&q=60">
+        <img src="https://images.unsplash.com/photo-1519659528534-7fd733a832a0?w=100&q=60">
+        <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=100&q=60">
+        <img src="https://images.unsplash.com/photo-1514222709107-a180c68d72b4?w=100&q=60">
+        <img src="https://images.unsplash.com/photo-1493612276216-ee3925520721?w=100&q=60">
+    </div>
+
+    <div class="form-section">
+        <input class="input-title" value="涩谷夜景 × 电子乐 · 新 Vlog">
+
+        <textarea class="input-desc">熬夜剪的新 vlog，东京夜色 × 电子乐，chill 到骨子里 🌆✨</textarea>
+
+        <div class="tag-bar">
+            <span class="tag">#东京夜拍</span>
+            <span class="tag">#私房vlog</span>
+            <span class="tag">#付费专享</span>
+            <span class="tag add"><i class="fa-solid fa-plus" style="font-size:10px"></i> 添加话题</span>
+        </div>
+
+        <div class="option-row">
+            <div class="op-icon"><i class="fa-solid fa-music"></i></div>
+            <div class="op-main">
+                <div class="op-title">配乐</div>
+                <div class="op-sub">Midnight in Shibuya</div>
+            </div>
+            <div class="op-value">更改 <i class="fa-solid fa-chevron-right" style="font-size:11px"></i></div>
+        </div>
+
+        <div class="option-row">
+            <div class="op-icon"><i class="fa-solid fa-image"></i></div>
+            <div class="op-main">
+                <div class="op-title">封面</div>
+                <div class="op-sub">已选定自定义封面</div>
+            </div>
+            <div class="op-value">编辑 <i class="fa-solid fa-chevron-right" style="font-size:11px"></i></div>
+        </div>
+
+        <div class="option-row">
+            <div class="op-icon"><i class="fa-solid fa-location-dot"></i></div>
+            <div class="op-main"><div class="op-title">所在位置</div></div>
+            <div class="op-value">东京 涩谷 <i class="fa-solid fa-chevron-right" style="font-size:11px"></i></div>
+        </div>
+
+        <!-- 免费/付费 -->
+        <div class="price-card">
+            <div style="font-size:14px; font-weight:600">内容类型</div>
+            <div style="font-size:11px; color:var(--text-tertiary); margin-top:2px">
+                选择免费将所有人可见，选择付费仅订阅者或单独购买后可看
+            </div>
+            <div class="rows">
+                <div class="type-pill"><i class="fa-solid fa-unlock"></i> 免费公开</div>
+                <div class="type-pill active"><i class="fa-solid fa-crown"></i> 订阅可见</div>
+                <div class="type-pill"><i class="fa-solid fa-coins"></i> 单独付费</div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="submit-bar">
+    <button class="btn btn-ghost draft">存草稿</button>
+    <button class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> 发布到订阅频道</button>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

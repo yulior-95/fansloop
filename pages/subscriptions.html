@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>我的订阅</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content { padding-top: calc(var(--status-bar-height) + var(--nav-bar-height)); padding-bottom: calc(var(--tab-bar-height) + 20px); }
+
+/* Top tabs */
+.sub-tabs {
+    display: flex; gap: 20px;
+    padding: 0 16px;
+    border-bottom: 0.5px solid var(--border-color);
+    background: var(--bg-primary);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+.sub-tabs .tab {
+    padding: 10px 0;
+    font-size: 14px;
+    color: var(--text-tertiary);
+    position: relative;
+}
+.sub-tabs .tab.active { color: var(--text-primary); font-weight: 600; }
+.sub-tabs .tab.active::after {
+    content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px;
+    background: var(--brand-gradient); border-radius: 2px;
+}
+.sub-tabs .tab .dot {
+    position: absolute; top: 8px; right: -8px;
+    width: 6px; height: 6px;
+    background: #EF4444;
+    border-radius: 50%;
+}
+
+/* 订阅创作者横滑列表 */
+.creator-strip {
+    padding: 16px 0 12px 16px;
+    display: flex; gap: 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.creator-strip::-webkit-scrollbar { display: none; }
+.creator-strip .ci {
+    flex-shrink: 0;
+    width: 62px;
+    display: flex; flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+.creator-strip .ci.active .avatar-ring {
+    background: var(--brand-gradient);
+}
+.creator-strip .ci .avatar-ring {
+    padding: 2px;
+    background: var(--border-strong);
+    border-radius: 50%;
+}
+.creator-strip .ci img {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    border: 2px solid var(--bg-primary);
+    display: block;
+}
+.creator-strip .ci .name {
+    font-size: 11px;
+    color: var(--text-secondary);
+    max-width: 62px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.creator-strip .ci.add .avatar-ring {
+    background: var(--border-strong);
+}
+.creator-strip .ci.add .placeholder {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-secondary);
+    font-size: 20px;
+    border: 2px solid var(--bg-primary);
+}
+
+/* Feed 卡片 */
+.feed-list { padding: 0 16px; display: flex; flex-direction: column; gap: 18px; }
+.feed-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+.feed-card .head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px;
+}
+.feed-card .head .info { flex: 1; min-width: 0; }
+.feed-card .head .name-row {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600;
+}
+.feed-card .head .time {
+    font-size: 11px; color: var(--text-tertiary);
+    margin-top: 2px;
+}
+.feed-card .head .more { color: var(--text-tertiary); }
+
+.feed-card .title {
+    padding: 0 12px 10px;
+    font-size: 14px; line-height: 1.5;
+}
+
+.feed-card .media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+}
+.feed-card .media img {
+    width: 100%; height: 100%; object-fit: cover;
+}
+.feed-card .media .tag-bl {
+    position: absolute; bottom: 10px; left: 10px;
+    background: rgba(0,0,0,0.5);
+    padding: 3px 8px;
+    border-radius: var(--radius-full);
+    font-size: 10px; color: #fff;
+    display: flex; align-items: center; gap: 4px;
+    backdrop-filter: blur(10px);
+}
+
+.feed-card .media .paywall-mini {
+    position: absolute; top: 10px; right: 10px;
+    background: var(--brand-gradient);
+    padding: 3px 8px;
+    border-radius: var(--radius-full);
+    font-size: 10px; color: #fff;
+    font-weight: 600;
+}
+
+.feed-card .actions {
+    display: flex; align-items: center;
+    padding: 10px 12px;
+    gap: 20px;
+}
+.feed-card .actions .act {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 13px; color: var(--text-secondary);
+}
+.feed-card .actions .act.liked { color: #ff3b5c; }
+.feed-card .actions .sp { flex: 1; }
+
+/* 图文卡 */
+.post-text {
+    padding: 14px;
+}
+.post-text .content { font-size: 14px; line-height: 1.6; margin-bottom: 10px; }
+.post-text .img-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 4px;
+}
+.post-text .img-grid img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 6px;
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"></div>
+    <div class="nav-title">订阅</div>
+    <div class="nav-right"><div class="nav-btn"><i class="fa-regular fa-envelope"></i></div></div>
+</div>
+
+<div class="app-content">
+
+    <!-- 子 Tabs -->
+    <div class="sub-tabs">
+        <div class="tab active">最新动态<span class="dot"></span></div>
+        <div class="tab">创作者</div>
+        <div class="tab">直播</div>
+    </div>
+
+    <!-- 创作者横滑条 -->
+    <div class="creator-strip">
+        <div class="ci add">
+            <div class="placeholder"><i class="fa-solid fa-plus"></i></div>
+            <span class="name">发现</span>
+        </div>
+        <div class="ci active">
+            <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80"></div>
+            <span class="name">Luna</span>
+        </div>
+        <div class="ci active">
+            <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80"></div>
+            <span class="name">Mila</span>
+        </div>
+        <div class="ci">
+            <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=80"></div>
+            <span class="name">Nova</span>
+        </div>
+        <div class="ci active">
+            <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80"></div>
+            <span class="name">Ryo</span>
+        </div>
+        <div class="ci">
+            <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&q=80"></div>
+            <span class="name">Aria</span>
+        </div>
+        <div class="ci active">
+            <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&q=80"></div>
+            <span class="name">Kenji</span>
+        </div>
+    </div>
+
+    <!-- Feed -->
+    <div class="feed-list">
+        <!-- 视频卡 -->
+        <div class="feed-card">
+            <div class="head">
+                <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80">
+                <div class="info">
+                    <div class="name-row">
+                        Luna
+                        <i class="fa-solid fa-circle-check" style="color:var(--info); font-size:12px"></i>
+                        <span class="badge badge-brand" style="padding:1px 6px; font-size:9px">Pro</span>
+                    </div>
+                    <div class="time">2 小时前 · 已订阅</div>
+                </div>
+                <i class="fa-solid fa-ellipsis more"></i>
+            </div>
+            <div class="title">东京深夜 · 涩谷十字路口的呼吸感 🌃</div>
+            <div class="media">
+                <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&q=80">
+                <div class="tag-bl"><i class="fa-solid fa-play"></i> 02:38</div>
+                <div class="paywall-mini"><i class="fa-solid fa-unlock"></i> 已解锁</div>
+            </div>
+            <div class="actions">
+                <div class="act liked"><i class="fa-solid fa-heart"></i> 12.4K</div>
+                <div class="act"><i class="fa-regular fa-comment"></i> 832</div>
+                <div class="act"><i class="fa-regular fa-bookmark"></i> 256</div>
+                <div class="sp"></div>
+                <div class="act"><i class="fa-solid fa-share"></i></div>
+            </div>
+        </div>
+
+        <!-- 图文卡 -->
+        <div class="feed-card">
+            <div class="head">
+                <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80">
+                <div class="info">
+                    <div class="name-row">Mila <i class="fa-solid fa-circle-check" style="color:var(--info); font-size:12px"></i></div>
+                    <div class="time">5 小时前</div>
+                </div>
+                <i class="fa-solid fa-ellipsis more"></i>
+            </div>
+            <div class="post-text">
+                <div class="content">
+                    今天的光线太爱了，整组胶片风私房，上了三张，完整版（18 张）已更新到订阅频道 🎞️
+                </div>
+                <div class="img-grid">
+                    <img src="https://images.unsplash.com/photo-1492288991661-058aa541ff43?w=300&q=80">
+                    <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=300&q=80">
+                    <img src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300&q=80">
+                </div>
+            </div>
+            <div class="actions">
+                <div class="act"><i class="fa-regular fa-heart"></i> 6.2K</div>
+                <div class="act"><i class="fa-regular fa-comment"></i> 312</div>
+                <div class="act"><i class="fa-regular fa-bookmark"></i> 128</div>
+                <div class="sp"></div>
+                <div class="act"><i class="fa-solid fa-share"></i></div>
+            </div>
+        </div>
+
+        <!-- 视频卡 2 -->
+        <div class="feed-card">
+            <div class="head">
+                <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80">
+                <div class="info">
+                    <div class="name-row">Ryo</div>
+                    <div class="time">1 天前 · 已订阅</div>
+                </div>
+                <i class="fa-solid fa-ellipsis more"></i>
+            </div>
+            <div class="title">新宿后巷の居酒屋探店 vlog</div>
+            <div class="media">
+                <img src="https://images.unsplash.com/photo-1554797589-7241bb691973?w=800&q=80">
+                <div class="tag-bl"><i class="fa-solid fa-play"></i> 04:12</div>
+            </div>
+            <div class="actions">
+                <div class="act liked"><i class="fa-solid fa-heart"></i> 3.8K</div>
+                <div class="act"><i class="fa-regular fa-comment"></i> 156</div>
+                <div class="act"><i class="fa-regular fa-bookmark"></i> 78</div>
+                <div class="sp"></div>
+                <div class="act"><i class="fa-solid fa-share"></i></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- TabBar -->
+<div class="tab-bar">
+    <div class="tab-item">
+        <i class="fa-regular fa-house"></i>
+        <span>首页</span>
+    </div>
+    <div class="tab-item active">
+        <i class="fa-solid fa-heart"></i>
+        <span>订阅</span>
+    </div>
+    <div class="tab-create">
+        <div class="create-btn"><i class="fa-solid fa-plus"></i></div>
+    </div>
+    <div class="tab-item">
+        <i class="fa-regular fa-message"></i>
+        <span>消息</span>
+    </div>
+    <div class="tab-item">
+        <i class="fa-regular fa-user"></i>
+        <span>我的</span>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

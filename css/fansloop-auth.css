@@ -1,0 +1,190 @@
+/* FansLoop 注册 / 登录 / 钱包模块 - 高保真原型共享样式 */
+.fl-bg {
+    position: absolute; inset: 0;
+    background: var(--bg-primary);
+    z-index: 0;
+    pointer-events: none;
+}
+/* 含顶部 Nav 的页面用 common 的 .content-with-nav 整体顶内边距，内层只负责左右+少量底 */
+.fl-inset, .fl-scroll {
+    position: relative;
+    z-index: 1;
+    box-sizing: border-box;
+    padding: 0 20px 16px; /* 底部不再重复加 tab 高度，避免与 .content-with-tab 双重留白 */
+    min-height: 0;
+}
+/* 无顶部 nav（仅状态栏下直接内容）的欢迎/登录前页 */
+.fl-scroll.fl-welcome-only {
+    padding: calc(var(--status-bar-height) + 6px) 20px 16px;
+    z-index: 2;
+}
+/* 装饰背景放在 app-content 内时应低于正文 */
+.fansloop-app {
+    position: relative;
+    isolation: isolate;
+    background: transparent;
+    overflow-x: hidden;
+}
+.fansloop-app > .fl-bg-hero,
+.fansloop-app > .fl-bg { z-index: 0; }
+.fl-bg-hero {
+    position: absolute; top: 0; left: 0; right: 0; height: 38%;
+    background-size: cover; background-position: center;
+    z-index: 0;
+    pointer-events: none;
+}
+.fl-bg-hero::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(10,10,18,0.1) 0%, var(--bg-primary) 92%);
+}
+.fl-hero-ambient {
+    position: absolute; top: 0; left: 0; right: 0; width: 100%; height: 200px;
+    object-fit: cover; opacity: 0.4;
+    z-index: 0; pointer-events: none;
+    mask-image: linear-gradient(to bottom, #000 30%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent);
+}
+
+/* 品牌区 */
+.fl-brand {
+    text-align: center; padding: 8px 0 24px;
+}
+.fl-brand-icon {
+    width: 64px; height: 64px; margin: 0 auto 16px;
+    border-radius: 18px;
+    background: var(--brand-gradient);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; color: #fff;
+    box-shadow: 0 10px 36px rgba(168,85,247,0.4);
+}
+.fl-brand h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 8px; }
+.fl-brand p { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+
+/* 卡片与列表 */
+.fl-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 12px;
+}
+.fl-list-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 15px;
+}
+.fl-list-row:last-child { border-bottom: none; }
+.fl-list-row .l { color: var(--text-secondary); font-size: 14px; }
+.fl-list-row .r { display: flex; align-items: center; gap: 6px; color: var(--text-tertiary); font-size: 14px; }
+.fl-chevron { font-size: 12px; color: var(--text-muted); }
+
+/* 钱包行 */
+.fl-wallet-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px; margin-bottom: 10px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    position: relative;
+}
+.fl-wallet-item .w-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--brand-gradient-soft);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--brand-purple);
+    font-size: 20px; flex-shrink: 0;
+}
+.fl-wallet-item .w-info { flex: 1; min-width: 0; padding-right: 56px; } /* 避免与右上角「主钱包」等 tag 字叠 */
+.fl-wallet-item .w-addr { font-size: 14px; font-weight: 600; font-family: ui-monospace, monospace; letter-spacing: 0.3px; }
+.fl-wallet-item .w-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; }
+.fl-pill {
+    position: absolute; top: 10px; right: 10px;
+    font-size: 10px; font-weight: 700; padding: 2px 8px;
+    border-radius: 6px; background: rgba(245,158,11,0.15); color: var(--warning);
+    border: 1px solid rgba(245,158,11,0.25);
+}
+.fl-pill.default {
+    background: rgba(16,185,129,0.12); color: var(--success); border-color: rgba(16,185,129,0.25);
+}
+
+/* 模态/底部 sheet：z-index 高于可滚动主内容，遮罩不盖住底部 Tab 区时加上 fl-overlay--reserve-tab */
+.fl-overlay {
+    position: absolute; left: 0; right: 0; top: 0; bottom: 0;
+    z-index: 40;
+    background: rgba(0,0,0,0.5);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    box-sizing: border-box;
+    pointer-events: auto;
+}
+.fl-overlay--reserve-tab {
+    bottom: var(--tab-bar-height);
+}
+.fl-sheet {
+    background: var(--bg-secondary);
+    border-radius: 20px 20px 0 0;
+    padding: 8px 20px calc(20px + env(safe-area-inset-bottom, 0));
+    max-height: 70%;
+    border: 1px solid var(--border-color);
+    border-bottom: none;
+    animation: flIn 0.28s ease;
+}
+@keyframes flIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.fl-sheet h3 { text-align: center; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.fl-sheet .grab { width: 40px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 0 auto 16px; }
+.fl-btn-row {
+    display: flex; align-items: center; gap: 12px; padding: 16px; margin: 0 -4px 8px;
+    border-radius: var(--radius-md);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: 0.15s;
+}
+.fl-btn-row:active { transform: scale(0.99); }
+.fl-btn-row i.logo-mm { color: #E17726; }
+.fl-btn-row i.logo-wc { color: #3396FF; }
+
+/* 待签名区 */
+.fl-sign-box {
+    background: #0D0D14; border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 14px; font-family: ui-monospace, monospace; font-size: 12px;
+    color: var(--text-secondary); line-height: 1.6; max-height: 200px; overflow: hidden;
+}
+
+/* 提示/异常 */
+.fl-alert { padding: 12px 14px; border-radius: var(--radius-md); font-size: 13px; margin-bottom: 12px; line-height: 1.5; }
+.fl-alert.err { background: rgba(239,68,68,0.1); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.2); }
+.fl-alert.warn { background: rgba(245,158,11,0.1); color: #FCD34D; border: 1px solid rgba(245,158,11,0.2); }
+.fl-alert.info { background: rgba(59,130,246,0.1); color: #93C5FD; border: 1px solid rgba(59,130,246,0.2); }
+.fl-toast {
+    text-align: center; padding: 10px; font-size: 12px; color: var(--text-tertiary);
+}
+
+/* Section */
+.fl-section-h {
+    font-size: 12px; font-weight: 600; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin: 20px 0 10px;
+}
+.divider-text {
+    display: flex; align-items: center; gap: 12px;
+    color: var(--text-tertiary);
+    font-size: 12px;
+}
+.divider-text::before, .divider-text::after {
+    content: '';
+    flex: 1; height: 1px; background: var(--border-color);
+}
+.terms {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    line-height: 1.6;
+    text-align: center;
+}
+.terms a { color: var(--brand-purple); text-decoration: none; }
+
+/* Tab 文字副标题：避免换行与主标题重叠 */
+.tab-item .fl-tab-sub { font-size: 9px; line-height: 1; color: #A0A0B0; max-width: 100%; text-align: center; }
+.tab-item { line-height: 1.1; min-width: 0; }
+.tab-item i { flex-shrink: 0; }

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>首页</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body { background: #000; }
+
+.feed-video {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    overflow: hidden;
+}
+.feed-video img.cover {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* 顶部导航 */
+.top-nav {
+    position: absolute;
+    top: var(--status-bar-height);
+    left: 0; right: 0;
+    display: flex; align-items: center;
+    padding: 6px 16px;
+    z-index: 50;
+}
+.top-nav .search-icon {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 18px;
+}
+.top-nav .categories {
+    flex: 1;
+    display: flex; justify-content: center; gap: 20px;
+}
+.top-nav .cat {
+    color: rgba(255,255,255,0.65);
+    font-size: 15px; font-weight: 500;
+    position: relative;
+    padding-bottom: 6px;
+}
+.top-nav .cat.active {
+    color: #fff; font-weight: 700;
+}
+.top-nav .cat.active::after {
+    content: ''; position: absolute;
+    left: 50%; bottom: 0; transform: translateX(-50%);
+    width: 20px; height: 3px; border-radius: 2px;
+    background: var(--brand-gradient);
+}
+.top-nav .live-icon {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 18px;
+}
+
+/* 右侧动作栏 */
+.action-bar {
+    position: absolute;
+    right: 12px;
+    bottom: calc(var(--tab-bar-height) + 20px);
+    display: flex; flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    z-index: 10;
+}
+.action-bar .action {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 4px;
+    color: #fff;
+}
+.action-bar .action i {
+    font-size: 28px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+.action-bar .action .count {
+    font-size: 11px; font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.action-bar .action.liked i { color: #ff3b5c; }
+.action-bar .action.saved i { color: var(--crypto-gold); }
+
+.action-bar .creator-avatar {
+    position: relative;
+    margin-bottom: 4px;
+}
+.action-bar .creator-avatar img {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+.action-bar .creator-avatar .follow-btn {
+    position: absolute;
+    bottom: -6px; left: 50%;
+    transform: translateX(-50%);
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--brand-gradient);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 10px;
+    box-shadow: 0 2px 6px rgba(168,85,247,0.5);
+}
+
+/* 音乐转盘 */
+.music-disc {
+    margin-top: 4px;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #444 2px, #1a1a26 5px, #000);
+    padding: 3px;
+}
+.music-disc img {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* 底部信息 */
+.feed-info {
+    position: absolute;
+    left: 16px; right: 88px;
+    bottom: calc(var(--tab-bar-height) + 16px);
+    color: #fff;
+    z-index: 10;
+}
+.feed-info .creator {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px;
+}
+.feed-info .creator .name {
+    font-size: 16px; font-weight: 700;
+}
+.feed-info .creator .badge {
+    padding: 2px 8px;
+    font-size: 10px;
+}
+.feed-info .title {
+    font-size: 14px; line-height: 1.5;
+    margin-bottom: 8px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+.feed-info .tags {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 10px;
+}
+.feed-info .tags .hash {
+    font-size: 13px;
+    color: rgba(255,255,255,0.9);
+    font-weight: 600;
+}
+.feed-info .music-info {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: rgba(255,255,255,0.85);
+}
+
+/* 付费锁定卡 */
+.paywall {
+    position: absolute;
+    left: 24px; right: 24px;
+    top: 42%;
+    background: rgba(20, 20, 30, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: var(--radius-xl);
+    padding: 20px;
+    text-align: center;
+    z-index: 15;
+}
+.paywall .lock-icon {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--brand-gradient);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 24px; color: #fff;
+    margin-bottom: 12px;
+    box-shadow: 0 6px 20px rgba(168,85,247,0.5);
+}
+.paywall .tip {
+    font-size: 15px; font-weight: 600; color: #fff;
+    margin-bottom: 4px;
+}
+.paywall .sub {
+    font-size: 12px; color: rgba(255,255,255,0.7);
+    margin-bottom: 16px;
+}
+.paywall .price-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px; margin-bottom: 14px;
+}
+.paywall .price {
+    font-size: 22px; font-weight: 800;
+}
+.paywall .price-unit {
+    font-size: 12px; color: rgba(255,255,255,0.7);
+}
+
+/* Feed page indicator */
+.page-dots {
+    position: absolute;
+    right: 6px;
+    top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 6px;
+    z-index: 20;
+}
+.page-dots span {
+    width: 3px; height: 14px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.3);
+}
+.page-dots span.active {
+    background: var(--brand-gradient);
+    height: 20px;
+}
+
+.tab-bar { background: rgba(0,0,0,0.65); }
+
+/* 图文类型标识 */
+.media-type {
+    position: absolute;
+    top: 96px;
+    left: 16px;
+    padding: 4px 10px;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 20;
+}
+</style>
+</head>
+<body>
+
+<!-- 视频背景 -->
+<div class="feed-video">
+    <img class="cover" src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&q=80" alt="">
+    <div class="gradient-overlay-top"></div>
+    <div class="gradient-overlay-bottom"></div>
+</div>
+
+<!-- 状态栏 -->
+<div class="status-bar dark-mode">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<!-- 顶部导航 -->
+<div class="top-nav">
+    <div class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+    <div class="categories">
+        <span class="cat">关注</span>
+        <span class="cat active">推荐</span>
+        <span class="cat">同城</span>
+        <span class="cat">付费</span>
+    </div>
+    <div class="live-icon"><i class="fa-solid fa-video"></i></div>
+</div>
+
+<!-- 分页指示 -->
+<div class="page-dots">
+    <span></span><span class="active"></span><span></span><span></span>
+</div>
+
+<!-- 媒体类型标签 -->
+<div class="media-type">
+    <i class="fa-solid fa-circle-play"></i> 视频 · 02:38
+</div>
+
+<!-- 付费锁 -->
+<div class="paywall">
+    <div class="lock-icon"><i class="fa-solid fa-lock"></i></div>
+    <div class="tip">订阅后解锁全部内容</div>
+    <div class="sub">该创作者本月 62 条专属内容</div>
+    <div class="price-row">
+        <span class="price gradient-text">29.9</span>
+        <span class="price-unit">USDT / 月</span>
+    </div>
+    <button class="btn btn-primary btn-block btn-sm" style="height:40px">
+        <i class="fa-solid fa-bolt"></i> 立即订阅
+    </button>
+</div>
+
+<!-- 右侧动作栏 -->
+<div class="action-bar">
+    <div class="creator-avatar">
+        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=80" alt="">
+        <div class="follow-btn"><i class="fa-solid fa-plus"></i></div>
+    </div>
+    <div class="action liked">
+        <i class="fa-solid fa-heart"></i>
+        <span class="count">328.5K</span>
+    </div>
+    <div class="action">
+        <i class="fa-solid fa-comment-dots"></i>
+        <span class="count">12.4K</span>
+    </div>
+    <div class="action saved">
+        <i class="fa-solid fa-bookmark"></i>
+        <span class="count">8.2K</span>
+    </div>
+    <div class="action">
+        <i class="fa-solid fa-share"></i>
+        <span class="count">分享</span>
+    </div>
+    <div class="music-disc">
+        <img src="https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=100&q=80" alt="">
+    </div>
+</div>
+
+<!-- 底部信息 -->
+<div class="feed-info">
+    <div class="creator">
+        <span class="name">@luna_web3</span>
+        <span class="badge badge-brand"><i class="fa-solid fa-crown"></i> Pro</span>
+    </div>
+    <div class="title">
+        熬夜剪的新 vlog，东京夜色 × 电子乐，chill 到骨子里 🌆✨
+    </div>
+    <div class="tags">
+        <span class="hash">#东京夜拍</span>
+        <span class="hash">#私房vlog</span>
+        <span class="hash">#付费专享</span>
+    </div>
+    <div class="music-info">
+        <i class="fa-solid fa-music"></i>
+        <span>原声 · Luna · Midnight in Shibuya</span>
+    </div>
+</div>
+
+<!-- 底部 Tab -->
+<div class="tab-bar">
+    <div class="tab-item active">
+        <i class="fa-solid fa-house"></i>
+        <span>首页</span>
+    </div>
+    <div class="tab-item">
+        <i class="fa-regular fa-heart"></i>
+        <span>订阅</span>
+    </div>
+    <div class="tab-create">
+        <div class="create-btn"><i class="fa-solid fa-plus"></i></div>
+    </div>
+    <div class="tab-item">
+        <i class="fa-regular fa-message"></i>
+        <span>消息</span>
+    </div>
+    <div class="tab-item">
+        <i class="fa-regular fa-user"></i>
+        <span>我的</span>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

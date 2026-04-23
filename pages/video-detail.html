@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>视频详情</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body { background: #000; }
+
+.video-wrap {
+    position: absolute; inset: 0;
+}
+.video-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+}
+
+.top-controls {
+    position: absolute;
+    top: var(--status-bar-height);
+    left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 16px;
+    z-index: 50;
+}
+.ctrl-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 16px;
+}
+.top-controls .right-group { display: flex; gap: 10px; }
+
+.play-center {
+    position: absolute;
+    left: 50%; top: 35%;
+    transform: translate(-50%, -50%);
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 28px;
+    z-index: 10;
+}
+
+.video-progress {
+    position: absolute;
+    left: 16px; right: 16px;
+    bottom: calc(44px + 230px);
+    z-index: 10;
+}
+.progress-track {
+    height: 3px; background: rgba(255,255,255,0.25);
+    border-radius: 2px; overflow: hidden;
+    position: relative;
+}
+.progress-fill {
+    width: 42%; height: 100%;
+    background: var(--brand-gradient);
+}
+.progress-track::after {
+    content: '';
+    position: absolute;
+    left: 42%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 6px rgba(168,85,247,0.8);
+}
+.progress-time {
+    display: flex; justify-content: space-between;
+    margin-top: 6px;
+    font-size: 11px; color: rgba(255,255,255,0.8);
+    font-variant-numeric: tabular-nums;
+}
+
+/* 创作者卡片 */
+.creator-card {
+    position: absolute;
+    left: 16px; right: 16px;
+    bottom: calc(44px + 120px);
+    padding: 12px;
+    background: rgba(20,20,30,0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius-lg);
+    display: flex; align-items: center;
+    gap: 12px;
+    z-index: 10;
+}
+.creator-card .info { flex: 1; min-width: 0; }
+.creator-card .name {
+    font-size: 14px; font-weight: 700; color: #fff;
+    display: flex; align-items: center; gap: 6px;
+}
+.creator-card .sub-info {
+    font-size: 11px; color: rgba(255,255,255,0.7);
+    margin-top: 2px;
+}
+
+/* 评论输入 */
+.comment-bar {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 44px;
+    padding: 10px 16px;
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    z-index: 10;
+    border-top: 0.5px solid rgba(255,255,255,0.08);
+}
+.comment-input {
+    flex: 1;
+    height: 36px;
+    background: rgba(255,255,255,0.1);
+    border-radius: var(--radius-full);
+    padding: 0 16px;
+    display: flex; align-items: center;
+    font-size: 13px; color: rgba(255,255,255,0.6);
+}
+.comment-actions { display: flex; gap: 14px; }
+.comment-actions .c-btn {
+    color: #fff; font-size: 20px;
+    display: flex; flex-direction: column; align-items: center;
+}
+.comment-actions .c-btn .c-num {
+    font-size: 10px; margin-top: 2px;
+}
+.c-btn.liked { color: #ff3b5c; }
+.c-btn.saved { color: var(--crypto-gold); }
+
+.home-indicator { bottom: 10px; z-index: 20; }
+
+/* 弹幕示例 */
+.danmaku {
+    position: absolute;
+    top: 140px; left: 16px; right: 80px;
+    display: flex; flex-direction: column; gap: 8px;
+    z-index: 5;
+    pointer-events: none;
+}
+.dm-item {
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 12px; color: #fff;
+    align-self: flex-start;
+    max-width: 80%;
+}
+</style>
+</head>
+<body>
+
+<!-- 视频 -->
+<div class="video-wrap">
+    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" alt="">
+    <div class="gradient-overlay-top"></div>
+    <div class="gradient-overlay-bottom" style="height:60%"></div>
+</div>
+
+<!-- 状态栏 -->
+<div class="status-bar dark-mode">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<!-- 顶部控件 -->
+<div class="top-controls">
+    <div class="ctrl-btn"><i class="fa-solid fa-chevron-left"></i></div>
+    <div class="right-group">
+        <div class="ctrl-btn"><i class="fa-solid fa-closed-captioning"></i></div>
+        <div class="ctrl-btn"><i class="fa-solid fa-ellipsis"></i></div>
+    </div>
+</div>
+
+<!-- 弹幕 -->
+<div class="danmaku">
+    <div class="dm-item">🔥 这段构图绝了</div>
+    <div class="dm-item">灯光好赞，Luna 永远的神</div>
+    <div class="dm-item">已订阅一年了，从没失望过</div>
+</div>
+
+<!-- 中央播放按钮 -->
+<div class="play-center">
+    <i class="fa-solid fa-play" style="margin-left:4px"></i>
+</div>
+
+<!-- 进度条 -->
+<div class="video-progress">
+    <div class="progress-track">
+        <div class="progress-fill"></div>
+    </div>
+    <div class="progress-time">
+        <span>01:08</span>
+        <span>02:38</span>
+    </div>
+</div>
+
+<!-- 创作者卡片 -->
+<div class="creator-card">
+    <div class="avatar-ring">
+        <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80">
+    </div>
+    <div class="info">
+        <div class="name">
+            Luna · @luna_web3
+            <span class="badge badge-brand" style="padding:1px 6px; font-size:9px"><i class="fa-solid fa-crown"></i> Pro</span>
+        </div>
+        <div class="sub-info">62 条月度更新 · 12.5W 订阅</div>
+    </div>
+    <button class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-bolt"></i> 订阅 29.9U
+    </button>
+</div>
+
+<!-- 底部评论栏 -->
+<div class="comment-bar">
+    <div class="comment-input">
+        <i class="fa-regular fa-comment" style="margin-right:8px"></i>
+        <span>说点什么...</span>
+    </div>
+    <div class="comment-actions">
+        <div class="c-btn">
+            <i class="fa-regular fa-paper-plane"></i>
+        </div>
+        <div class="c-btn">
+            <i class="fa-solid fa-gift" style="color: var(--crypto-gold)"></i>
+        </div>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

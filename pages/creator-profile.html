@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>创作者详情</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.banner {
+    position: relative;
+    width: 100%; height: 200px;
+    overflow: hidden;
+}
+.banner img { width: 100%; height: 100%; object-fit: cover; }
+.banner::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 30%, rgba(10,10,18,0.95) 100%);
+}
+
+.nav-bar { z-index: 10; }
+.nav-bar .ctrl-btn {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.4); backdrop-filter: blur(10px);
+    border-radius: 50%;
+    color: #fff; font-size: 16px;
+}
+
+.profile-head {
+    position: relative;
+    margin-top: -60px;
+    padding: 0 16px;
+    z-index: 2;
+}
+.profile-head .avatar-wrap {
+    padding: 3px;
+    background: var(--brand-gradient);
+    border-radius: 50%;
+    display: inline-block;
+}
+.profile-head .avatar-wrap img {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    border: 3px solid var(--bg-primary);
+    display: block;
+}
+.profile-head .name-row {
+    margin-top: 12px;
+    display: flex; align-items: center; gap: 8px;
+}
+.profile-head .name {
+    font-size: 22px; font-weight: 800;
+}
+.profile-head .verified {
+    color: var(--info); font-size: 16px;
+}
+.profile-head .handle {
+    color: var(--text-tertiary);
+    font-size: 13px;
+    margin-top: 3px;
+}
+.profile-head .wallet-chip {
+    display: inline-flex; align-items: center;
+    gap: 6px;
+    background: var(--bg-card);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    color: var(--crypto-cyan);
+    margin-top: 8px;
+    font-family: "SF Mono", monospace;
+}
+.profile-head .bio {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+.profile-head .tags {
+    margin-top: 10px;
+    display: flex; flex-wrap: wrap; gap: 6px;
+}
+
+.stats-row {
+    display: flex; justify-content: space-around;
+    padding: 20px 16px 16px;
+}
+.stats-row .stat { text-align: center; }
+.stats-row .num { font-size: 20px; font-weight: 700; }
+.stats-row .label { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+
+/* CTA 按钮组 */
+.cta-row {
+    padding: 0 16px;
+    display: flex; gap: 10px;
+}
+.cta-row .btn { flex: 1; }
+
+/* 订阅卡片 */
+.sub-card {
+    margin: 16px;
+    padding: 16px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, rgba(168,85,247,0.2) 0%, rgba(236,72,153,0.15) 100%);
+    border: 1px solid rgba(168,85,247,0.3);
+    position: relative;
+    overflow: hidden;
+}
+.sub-card::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -30%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(168,85,247,0.3), transparent 70%);
+}
+.sub-card .sub-title {
+    font-size: 12px; color: var(--text-secondary);
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 8px;
+}
+.sub-card .price {
+    display: flex; align-items: baseline; gap: 6px;
+    margin-bottom: 6px;
+}
+.sub-card .price-num { font-size: 28px; font-weight: 800; }
+.sub-card .price-unit { font-size: 13px; color: var(--text-secondary); }
+.sub-card .price-note {
+    font-size: 11px; color: var(--text-tertiary);
+    margin-bottom: 12px;
+}
+.sub-card .benefits {
+    font-size: 12px; color: var(--text-secondary);
+    margin-bottom: 14px;
+}
+.sub-card .benefits .b-item {
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 4px;
+}
+.sub-card .benefits .b-item i { color: var(--crypto-green); font-size: 10px; }
+
+/* Tabs */
+.c-tabs {
+    display: flex;
+    padding: 0 16px;
+    border-bottom: 0.5px solid var(--border-color);
+    gap: 24px;
+}
+.c-tabs .c-tab {
+    padding: 12px 0;
+    font-size: 14px; color: var(--text-tertiary);
+    position: relative;
+}
+.c-tabs .c-tab.active { color: var(--text-primary); font-weight: 600; }
+.c-tabs .c-tab.active::after {
+    content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+    height: 2px; background: var(--brand-gradient); border-radius: 2px;
+}
+
+/* 视频网格 */
+.video-grid {
+    padding: 10px 10px 100px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 4px;
+}
+.video-grid .item {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--bg-card);
+}
+.video-grid .item img {
+    width: 100%; height: 100%; object-fit: cover;
+}
+.video-grid .item .info {
+    position: absolute; bottom: 4px; left: 4px; right: 4px;
+    display: flex; justify-content: space-between;
+    font-size: 10px; color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+.video-grid .item .info i { font-size: 9px; margin-right: 2px; }
+.video-grid .item .corner {
+    position: absolute;
+    top: 6px; right: 6px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 9px;
+    color: #fff;
+    background: rgba(0,0,0,0.5);
+}
+.video-grid .item .corner.paid { background: var(--brand-gradient); }
+.video-grid .item .duration {
+    position: absolute;
+    top: 6px; left: 6px;
+    font-size: 9px;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    display: flex; align-items: center; gap: 3px;
+}
+.video-grid .item .lock-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 20px;
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar dark-mode">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar" style="position:absolute">
+    <div class="nav-left"><div class="ctrl-btn"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-right">
+        <div class="ctrl-btn"><i class="fa-solid fa-share-nodes"></i></div>
+        <div class="ctrl-btn"><i class="fa-solid fa-ellipsis"></i></div>
+    </div>
+</div>
+
+<div class="app-content">
+    <!-- Banner -->
+    <div class="banner">
+        <img src="https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=900&q=80" alt="">
+    </div>
+
+    <!-- 个人资料 -->
+    <div class="profile-head">
+        <div class="avatar-wrap">
+            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=80">
+        </div>
+        <div class="name-row">
+            <span class="name">Luna</span>
+            <i class="fa-solid fa-circle-check verified"></i>
+            <span class="badge badge-brand"><i class="fa-solid fa-crown"></i> Pro 创作者</span>
+        </div>
+        <div class="handle">@luna_web3</div>
+        <div class="wallet-chip">
+            <i class="fa-solid fa-wallet"></i>
+            0x7F...a3B9
+            <i class="fa-regular fa-copy" style="margin-left:2px"></i>
+        </div>
+        <div class="bio">
+            东京 × 私房影像 🎬 每周更新专属 vlog<br>
+            所有收益上链透明 · 订阅即解锁全部
+        </div>
+        <div class="tags">
+            <span class="tag">#东京夜拍</span>
+            <span class="tag">#Vlog</span>
+            <span class="tag">#私房</span>
+            <span class="tag">#付费专享</span>
+        </div>
+    </div>
+
+    <!-- 数据 -->
+    <div class="stats-row">
+        <div class="stat">
+            <div class="num">125.4K</div>
+            <div class="label">粉丝</div>
+        </div>
+        <div class="stat">
+            <div class="num">238</div>
+            <div class="label">作品</div>
+        </div>
+        <div class="stat">
+            <div class="num">12.8M</div>
+            <div class="label">获赞</div>
+        </div>
+        <div class="stat">
+            <div class="num gradient-text">48.2K</div>
+            <div class="label">订阅者</div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-row">
+        <button class="btn btn-ghost btn-pill"><i class="fa-regular fa-message"></i> 私信</button>
+        <button class="btn btn-secondary btn-pill"><i class="fa-regular fa-heart"></i> 关注</button>
+        <button class="btn btn-primary btn-pill" style="flex:1.4">
+            <i class="fa-solid fa-bolt"></i> 立即订阅
+        </button>
+    </div>
+
+    <!-- 订阅卡 -->
+    <div class="sub-card">
+        <div class="sub-title">
+            <i class="fa-solid fa-gem" style="color:var(--brand-purple)"></i>
+            月度订阅 · 全部解锁
+        </div>
+        <div class="price">
+            <span class="price-num gradient-text">29.9</span>
+            <span class="price-unit">USDT / 月</span>
+            <span class="badge badge-crypto" style="margin-left:auto">≈ ¥218</span>
+        </div>
+        <div class="price-note">30 天无限观看 · 自动续费可随时取消</div>
+        <div class="benefits">
+            <div class="b-item"><i class="fa-solid fa-check"></i> 解锁全部 62 条月度专属内容</div>
+            <div class="b-item"><i class="fa-solid fa-check"></i> 创作者私信专属通道</div>
+            <div class="b-item"><i class="fa-solid fa-check"></i> 免广告 · 原画质观看</div>
+            <div class="b-item"><i class="fa-solid fa-check"></i> 订阅记录链上可查</div>
+        </div>
+        <button class="btn btn-primary btn-block"><i class="fa-solid fa-bolt"></i> 使用 USDT 订阅</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="c-tabs">
+        <div class="c-tab active">作品 238</div>
+        <div class="c-tab">付费 86</div>
+        <div class="c-tab">喜欢</div>
+        <div class="c-tab">合集</div>
+    </div>
+
+    <!-- 作品网格 -->
+    <div class="video-grid">
+        <div class="item">
+            <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&q=80">
+            <div class="duration"><i class="fa-solid fa-play"></i> 02:38</div>
+            <div class="info">
+                <span><i class="fa-solid fa-heart"></i> 328K</span>
+            </div>
+        </div>
+        <div class="item">
+            <img src="https://images.unsplash.com/photo-1520975916090-3105956dac38?w=400&q=80">
+            <div class="corner paid"><i class="fa-solid fa-lock" style="font-size:8px"></i> Pro</div>
+            <div class="lock-overlay"><i class="fa-solid fa-lock"></i></div>
+            <div class="info"><span><i class="fa-solid fa-heart"></i> 256K</span></div>
+        </div>
+        <div class="item">
+            <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80">
+            <div class="duration"><i class="fa-solid fa-play"></i> 01:02</div>
+            <div class="info"><span><i class="fa-solid fa-heart"></i> 189K</span></div>
+        </div>
+        <div class="item">
+            <img src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=400&q=80">
+            <div class="duration"><i class="fa-solid fa-play"></i> 03:45</div>
+            <div class="info"><span><i class="fa-solid fa-heart"></i> 142K</span></div>
+        </div>
+        <div class="item">
+            <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=400&q=80">
+            <div class="corner paid"><i class="fa-solid fa-lock" style="font-size:8px"></i> Pro</div>
+            <div class="lock-overlay"><i class="fa-solid fa-lock"></i></div>
+            <div class="info"><span><i class="fa-solid fa-heart"></i> 98K</span></div>
+        </div>
+        <div class="item">
+            <img src="https://images.unsplash.com/photo-1514222709107-a180c68d72b4?w=400&q=80">
+            <div class="duration"><i class="fa-solid fa-play"></i> 00:56</div>
+            <div class="info"><span><i class="fa-solid fa-heart"></i> 76K</span></div>
+        </div>
+        <div class="item">
+            <img src="https://images.unsplash.com/photo-1493612276216-ee3925520721?w=400&q=80">
+            <div class="corner paid"><i class="fa-solid fa-lock" style="font-size:8px"></i> Pro</div>
+            <div class="lock-overlay"><i class="fa-solid fa-lock"></i></div>
+            <div class="info"><span><i class="fa-solid fa-heart"></i> 64K</span></div>
+        </div>
+        <div class="item">
+            <img src="https://images.unsplash.com/photo-1512070679279-c7e7efd83c57?w=400&q=80">
+            <div class="duration"><i class="fa-solid fa-play"></i> 02:12</div>
+            <div class="info"><span><i class="fa-solid fa-heart"></i> 52K</span></div>
+        </div>
+        <div class="item">
+            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&q=80">
+            <div class="duration"><i class="fa-solid fa-play"></i> 01:34</div>
+            <div class="info"><span><i class="fa-solid fa-heart"></i> 48K</span></div>
+        </div>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

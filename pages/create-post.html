@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>发布图文</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 100px;
+}
+
+.media-editor { padding: 12px 16px; }
+.cover-select {
+    position: relative;
+    width: 100%; aspect-ratio: 4 / 3;
+    border-radius: var(--radius-lg);
+    background: var(--bg-card);
+    overflow: hidden;
+}
+.cover-select img { width: 100%; height: 100%; object-fit: cover; }
+.cover-select .cover-tag {
+    position: absolute;
+    top: 10px; left: 10px;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    color: #fff;
+}
+.cover-select .edit-btn {
+    position: absolute;
+    bottom: 10px; right: 10px;
+    padding: 6px 12px;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-full);
+    font-size: 12px; color: #fff;
+    display: flex; align-items: center; gap: 6px;
+}
+
+.img-thumbs {
+    margin-top: 10px;
+    display: flex; gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+}
+.img-thumbs::-webkit-scrollbar { display: none; }
+.img-thumbs .thumb {
+    width: 64px; height: 64px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+    position: relative;
+}
+.img-thumbs .thumb.active {
+    outline: 2px solid var(--brand-purple);
+    outline-offset: 1px;
+}
+.img-thumbs .add {
+    width: 64px; height: 64px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: var(--bg-card);
+    border: 1.5px dashed var(--border-strong);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-secondary);
+    font-size: 20px;
+}
+
+/* 表单 */
+.form-section { padding: 0 16px; }
+.input-title {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 16px 0;
+    border-bottom: 0.5px solid var(--border-color);
+}
+.input-title::placeholder { color: var(--text-tertiary); font-weight: 500; }
+
+.input-desc {
+    width: 100%;
+    min-height: 80px;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: var(--text-primary);
+    padding: 12px 0;
+    resize: none;
+    font-family: inherit;
+}
+.input-desc::placeholder { color: var(--text-tertiary); }
+
+/* 标签区 */
+.tag-bar {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 10px 0 14px;
+    border-bottom: 0.5px solid var(--border-color);
+}
+.tag-bar .tag { cursor: pointer; }
+.tag-bar .tag.add {
+    background: transparent;
+    border: 1px dashed var(--border-strong);
+    color: var(--text-secondary);
+}
+
+/* 设置项 */
+.option-row {
+    display: flex; align-items: center;
+    padding: 14px 0;
+    border-bottom: 0.5px solid var(--border-color);
+    gap: 12px;
+}
+.option-row .op-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+.option-row .op-main { flex: 1; min-width: 0; }
+.option-row .op-title { font-size: 14px; }
+.option-row .op-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.option-row .op-value {
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: flex; align-items: center; gap: 6px;
+}
+
+/* 付费选择 */
+.paid-toggle {
+    margin-top: 10px;
+    padding: 16px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+}
+.paid-toggle .head {
+    display: flex; align-items: center; gap: 10px;
+}
+.paid-toggle .head .icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(245,158,11,0.05));
+    color: var(--crypto-gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+}
+.paid-toggle .head .info { flex: 1; }
+.paid-toggle .head .title { font-size: 14px; font-weight: 600; }
+.paid-toggle .head .desc { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+
+/* 开关 */
+.switch {
+    width: 48px; height: 28px;
+    background: var(--bg-elevated);
+    border-radius: 14px;
+    position: relative;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+.switch.on { background: var(--brand-gradient); }
+.switch::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: #fff;
+    transition: all 0.2s;
+}
+.switch.on::after { left: 22px; }
+
+.price-input {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-primary);
+    border-radius: var(--radius-md);
+    padding: 0 14px;
+    height: 48px;
+}
+.price-input .symbol {
+    color: var(--crypto-cyan);
+    font-weight: 700;
+    font-size: 15px;
+}
+.price-input input {
+    flex: 1;
+    background: transparent;
+    border: none; outline: none;
+    font-size: 18px; font-weight: 700;
+    color: var(--text-primary);
+}
+.price-input .unit-switch {
+    display: flex; gap: 4px;
+    background: var(--bg-elevated);
+    padding: 3px;
+    border-radius: var(--radius-full);
+}
+.price-input .unit-switch span {
+    padding: 4px 10px;
+    font-size: 12px;
+    border-radius: var(--radius-full);
+    color: var(--text-secondary);
+}
+.price-input .unit-switch span.active {
+    background: var(--brand-gradient);
+    color: #fff; font-weight: 600;
+}
+
+.receive-bank {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239,68,68,0.25);
+    display: flex; align-items: center;
+    gap: 10px;
+}
+.receive-bank i { color: var(--danger); font-size: 16px; }
+.receive-bank .txt { flex: 1; font-size: 12px; color: var(--text-secondary); }
+.receive-bank .txt strong { color: var(--danger); }
+.receive-bank .link {
+    font-size: 12px; color: var(--brand-purple); font-weight: 600;
+}
+
+/* 底部提交栏 */
+.submit-bar {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 10px 16px 30px;
+    background: rgba(10,10,18,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 0.5px solid var(--border-color);
+    display: flex; gap: 10px;
+    z-index: 20;
+}
+.submit-bar .btn { flex: 1; }
+.submit-bar .draft { flex: 0 0 100px; }
+
+.counter {
+    text-align: right;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">发布图文</div>
+    <div class="nav-right"><span style="font-size:14px;color:var(--brand-purple)">预览</span></div>
+</div>
+
+<div class="app-content">
+
+    <div class="media-editor">
+        <div class="cover-select">
+            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80">
+            <span class="cover-tag">封面</span>
+            <span class="edit-btn"><i class="fa-solid fa-wand-magic-sparkles"></i> 编辑</span>
+        </div>
+        <div class="img-thumbs">
+            <img class="thumb active" src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=200&q=80">
+            <img class="thumb" src="https://images.unsplash.com/photo-1492288991661-058aa541ff43?w=200&q=80">
+            <img class="thumb" src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=200&q=80">
+            <img class="thumb" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&q=80">
+            <img class="thumb" src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200&q=80">
+            <div class="add"><i class="fa-solid fa-plus"></i></div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <input class="input-title" placeholder="写个吸引人的标题...">
+
+        <textarea class="input-desc" placeholder="描述一下你的作品，或分享创作故事...">今天光线太爱了，整组胶片风私房，完整版（18 张）上架订阅频道 🎞️ 感谢你们的支持～</textarea>
+        <div class="counter">58 / 1000</div>
+
+        <!-- 标签 -->
+        <div class="tag-bar">
+            <span class="tag">#私房摄影</span>
+            <span class="tag">#胶片感</span>
+            <span class="tag">#男大学生</span>
+            <span class="tag add"><i class="fa-solid fa-plus" style="font-size:10px"></i> 添加话题</span>
+        </div>
+
+        <!-- 选项 -->
+        <div class="option-row">
+            <div class="op-icon"><i class="fa-solid fa-at"></i></div>
+            <div class="op-main"><div class="op-title">@ 好友</div></div>
+            <div class="op-value">选择 <i class="fa-solid fa-chevron-right" style="font-size:11px"></i></div>
+        </div>
+        <div class="option-row">
+            <div class="op-icon"><i class="fa-solid fa-location-dot"></i></div>
+            <div class="op-main"><div class="op-title">所在位置</div></div>
+            <div class="op-value">东京 涩谷 <i class="fa-solid fa-chevron-right" style="font-size:11px"></i></div>
+        </div>
+        <div class="option-row">
+            <div class="op-icon"><i class="fa-solid fa-eye"></i></div>
+            <div class="op-main">
+                <div class="op-title">可见范围</div>
+                <div class="op-sub">仅订阅者可见</div>
+            </div>
+            <div class="op-value">订阅专属 <i class="fa-solid fa-chevron-right" style="font-size:11px"></i></div>
+        </div>
+    </div>
+
+    <!-- 付费设置 -->
+    <div style="padding:12px 16px">
+        <div class="paid-toggle">
+            <div class="head">
+                <div class="icon"><i class="fa-solid fa-coins"></i></div>
+                <div class="info">
+                    <div class="title">设为付费内容</div>
+                    <div class="desc">非订阅者需单独付费购买方可查看</div>
+                </div>
+                <div class="switch on"></div>
+            </div>
+
+            <div class="price-input">
+                <span class="symbol">$</span>
+                <input type="text" value="5.00">
+                <div class="unit-switch">
+                    <span class="active">USDT</span>
+                    <span>CNY</span>
+                </div>
+            </div>
+
+            <!-- 未绑定收款方式提示 -->
+            <div class="receive-bank">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div class="txt">
+                    <strong>你还未绑定收款方式</strong><br>
+                    绑定后收益将自动结算到你的账户
+                </div>
+                <span class="link">去绑定 →</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- 底部 -->
+<div class="submit-bar">
+    <button class="btn btn-ghost draft">存草稿</button>
+    <button class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> 立即发布</button>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

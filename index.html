@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VaultX · Web3 私密自媒体 App 高保真原型图</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Helvetica Neue", sans-serif;
+    background:
+        radial-gradient(circle at 15% 10%, rgba(168, 85, 247, 0.08), transparent 50%),
+        radial-gradient(circle at 85% 90%, rgba(236, 72, 153, 0.08), transparent 50%),
+        #0A0A12;
+    min-height: 100vh;
+    color: #fff;
+    padding: 48px 24px 64px;
+}
+
+/* 顶部标题 */
+.showcase-header {
+    max-width: 1400px;
+    margin: 0 auto 56px;
+    text-align: center;
+}
+.showcase-header .brand {
+    display: inline-flex; align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.showcase-header .brand-logo {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #A855F7 0%, #EC4899 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 22px;
+    box-shadow: 0 8px 32px rgba(168, 85, 247, 0.4);
+}
+.showcase-header h1 {
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+}
+.showcase-header h1 .grad {
+    background: linear-gradient(135deg, #A855F7 0%, #EC4899 50%, #F59E0B 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.showcase-header p.sub {
+    font-size: 16px;
+    color: #A0A0B0;
+    margin-top: 14px;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+.meta-row {
+    display: flex; justify-content: center;
+    gap: 10px;
+    margin-top: 22px;
+    flex-wrap: wrap;
+}
+.meta-row .chip {
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 12px;
+    color: #A0A0B0;
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.meta-row .chip i { color: #A855F7; }
+
+/* 分组标题 */
+.group-title {
+    max-width: 1400px;
+    margin: 64px auto 24px;
+    display: flex; align-items: center;
+    gap: 12px;
+}
+.group-title .num {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(168,85,247,0.25), rgba(236,72,153,0.15));
+    border: 1px solid rgba(168,85,247,0.3);
+    color: #A855F7;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+}
+.group-title h2 {
+    font-size: 22px;
+    font-weight: 700;
+}
+.group-title .dash {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, rgba(255,255,255,0.1), transparent);
+    margin-left: 8px;
+}
+.group-title .count {
+    font-size: 13px; color: #6B6B7B;
+}
+
+/* Grid */
+.phone-grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(375px, 1fr));
+    gap: 48px 32px;
+    justify-items: center;
+}
+
+/* iPhone 外壳 */
+.phone-frame {
+    position: relative;
+    width: 395px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.phone-label {
+    margin-bottom: 18px;
+    text-align: center;
+}
+.phone-label .label-num {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: rgba(168,85,247,0.15);
+    color: #A855F7;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+.phone-label .label-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: #fff;
+}
+.phone-label .label-desc {
+    font-size: 12px;
+    color: #6B6B7B;
+    margin-top: 4px;
+    max-width: 320px;
+}
+
+.phone-body {
+    position: relative;
+    width: 395px;
+    height: 832px;
+    border-radius: 54px;
+    background: #000;
+    padding: 10px;
+    box-shadow:
+        0 0 0 2px rgba(255,255,255,0.06),
+        0 25px 60px rgba(0,0,0,0.6),
+        0 0 120px rgba(168, 85, 247, 0.15);
+}
+.phone-body::before {
+    content: '';
+    position: absolute;
+    top: 22px; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 32px;
+    border-radius: 20px;
+    background: #000;
+    z-index: 100;
+    pointer-events: none;
+}
+
+.phone-screen {
+    width: 100%; height: 100%;
+    border-radius: 44px;
+    overflow: hidden;
+    background: #0A0A12;
+    position: relative;
+}
+.phone-screen iframe {
+    width: 375px;
+    height: 812px;
+    border: none;
+    display: block;
+}
+
+/* Footer */
+.footer {
+    max-width: 1400px;
+    margin: 80px auto 0;
+    padding: 32px 24px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 20px;
+    text-align: center;
+    color: #A0A0B0;
+    font-size: 13px;
+    line-height: 1.8;
+}
+.footer h3 {
+    color: #fff;
+    font-size: 16px;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+.footer .tech {
+    display: flex; justify-content: center; flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+.footer .tech span {
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 11px;
+    font-family: "SF Mono", monospace;
+}
+</style>
+</head>
+<body>
+
+<!-- 头部 -->
+<div class="showcase-header">
+    <div class="brand">
+        <div class="brand-logo"><i class="fa-solid fa-bolt"></i></div>
+        <span style="font-size:20px; font-weight:700; letter-spacing:-0.5px">VaultX</span>
+    </div>
+    <h1>
+        Web3 私密自媒体 App · <span class="grad">高保真原型图</span>
+    </h1>
+    <p class="sub">
+        去中心化内容创作平台 · 链上结算 · 零抽成收益 · 订阅/打赏/付费解锁一体化
+    </p>
+    <div class="meta-row">
+        <span class="chip"><i class="fa-solid fa-mobile-screen"></i> iOS 375 × 812</span>
+        <span class="chip"><i class="fa-solid fa-palette"></i> 暗色主题 + 紫粉渐变</span>
+        <span class="chip"><i class="fa-solid fa-code"></i> HTML + CSS + FontAwesome</span>
+        <span class="chip"><i class="fa-solid fa-image"></i> Unsplash 真实素材</span>
+        <span class="chip"><i class="fa-solid fa-layer-group"></i> 15 张高保真界面</span>
+    </div>
+</div>
+
+<!-- Group 1: 注册登录 -->
+<div class="group-title">
+    <div class="num">01</div>
+    <h2>认证流程</h2>
+    <div class="dash"></div>
+    <span class="count">2 个页面</span>
+</div>
+<div class="phone-grid">
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">1.1 登录</span>
+            <div class="label-name">Login · 登录</div>
+            <div class="label-desc">手机/邮箱 + 验证码/密码双模式，支持钱包 / Apple / Google / Telegram 第三方登录</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/login.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">1.2 注册</span>
+            <div class="label-name">Register · 注册</div>
+            <div class="label-desc">手机/邮箱 + 验证码 + 密码注册，支持邀请码奖励机制</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/register.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Group 2: 核心 Feed -->
+<div class="group-title">
+    <div class="num">02</div>
+    <h2>Feed 流与内容消费</h2>
+    <div class="dash"></div>
+    <span class="count">5 个页面</span>
+</div>
+<div class="phone-grid">
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">2.1 首页 Feed</span>
+            <div class="label-name">Home · 沉浸式首页</div>
+            <div class="label-desc">仿 TikTok 全屏下滑，关注/推荐/同城/付费分区，右侧点赞/评论/收藏/分享，底部创作者 & 付费锁定</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/home.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">2.2 搜索</span>
+            <div class="label-name">Search · 全局搜索</div>
+            <div class="label-desc">搜索历史 + 实时热搜榜 + 推荐创作者，支持搜创作者/视频/标签</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/search.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">2.3 视频详情</span>
+            <div class="label-name">Video Detail · 视频详情</div>
+            <div class="label-desc">沉浸式全屏播放，含进度条 / 弹幕 / 创作者订阅卡 / 评论栏 / 打赏入口</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/video-detail.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">2.4 创作者详情</span>
+            <div class="label-name">Creator Profile · 创作者主页</div>
+            <div class="label-desc">链上地址 ID、粉丝/订阅数据、月度订阅套餐、作品/付费/合集 Tab</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/creator-profile.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">2.5 订阅支付</span>
+            <div class="label-name">Subscribe · 订阅结算</div>
+            <div class="label-desc">月/季/年套餐，USDT / 法币 / 支付宝 / 微信 多通道支付，余额不足自动引导充值</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/subscribe.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Group 3: 订阅频道 -->
+<div class="group-title">
+    <div class="num">03</div>
+    <h2>订阅频道</h2>
+    <div class="dash"></div>
+    <span class="count">1 个页面</span>
+</div>
+<div class="phone-grid">
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">3.1 订阅 Feed</span>
+            <div class="label-name">Subscriptions · 我的订阅</div>
+            <div class="label-desc">横滑创作者列表 + 专属 Feed（视频/图文），动态/创作者/直播 分 Tab 查看</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/subscriptions.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Group 4: 创作 -->
+<div class="group-title">
+    <div class="num">04</div>
+    <h2>创作者工作流</h2>
+    <div class="dash"></div>
+    <span class="count">3 个页面</span>
+</div>
+<div class="phone-grid">
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">4.1 创建入口</span>
+            <div class="label-name">Create · 内容类型选择</div>
+            <div class="label-desc">视频 / 图文 / 直播 三种内容类型，支持草稿箱，底部 Tab 中央按钮一键进入</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/create.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">4.2 发布视频</span>
+            <div class="label-name">Create Video · 视频发布</div>
+            <div class="label-desc">预览 + 时间轴 + 配乐 + 封面编辑，免费 / 订阅 / 单独付费三种定价</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/create-video.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">4.3 发布图文</span>
+            <div class="label-name">Create Post · 图文发布</div>
+            <div class="label-desc">多图选择 + 标题 + 正文 + 标签 + 付费价格，未绑定收款方式自动弹窗引导</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/create-post.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Group 5: 我的 -->
+<div class="group-title">
+    <div class="num">05</div>
+    <h2>个人中心 & 钱包</h2>
+    <div class="dash"></div>
+    <span class="count">6 个页面</span>
+</div>
+<div class="phone-grid">
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">5.1 我的</span>
+            <div class="label-name">Profile · 个人中心</div>
+            <div class="label-desc">头像 / 昵称 / 链上地址（唯一 ID）、USDT & 法币余额卡、8 宫格工具入口</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/profile.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">5.2 消息</span>
+            <div class="label-name">Messages · 消息中心</div>
+            <div class="label-desc">赞/评论/粉丝/钱包四类通知快捷入口 + 最近会话列表</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/messages.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">5.3 设置</span>
+            <div class="label-name">Settings · 设置主页</div>
+            <div class="label-desc">账户/钱包、通知、聊天、隐私、安全、支付/收款方式、语言、外观 聚合入口</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/settings.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">5.4 账户/钱包</span>
+            <div class="label-name">Wallet · 账户详情</div>
+            <div class="label-desc">总资产估值、USDT & 法币双账户、充值/提现/兑换入口、最近交易明细</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/wallet.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">5.5 充值</span>
+            <div class="label-name">Recharge · 充值</div>
+            <div class="label-desc">USDT / 法币切换，链选择（TRC20/ERC20/BSC/Solana）、地址二维码 + 快速金额</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/recharge.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">5.6 提现</span>
+            <div class="label-name">Withdraw · 提现</div>
+            <div class="label-desc">链网络 + 提现地址 + 数量，0 平台手续费，网络费透明展示，到账时间预估</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/withdraw.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">5.7 收款方式</span>
+            <div class="label-name">Payment Methods · 收款方式</div>
+            <div class="label-desc">本月收益总览、绑定 USDT 钱包 / 支付宝 / 银行卡，支持多渠道分账比例</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/payment-methods.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Group FansLoop: 注册/登录/钱包（独立高保真，与上方并列展示） -->
+<div class="group-title" style="margin-top: 48px">
+    <div class="num" style="background: linear-gradient(135deg, rgba(99,102,241,0.3), rgba(236,72,153,0.2)); border-color: rgba(99,102,241,0.45); color: #A5B4FC">FL</div>
+    <h2>FansLoop · 注册与钱包账户</h2>
+    <div class="dash"></div>
+    <span class="count">12 个机位 / 13 个 HTML 文件</span>
+</div>
+<div class="phone-grid">
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">欢迎 & Web2 登录</span>
+            <div class="label-name">fansloop-welcome · 欢迎使用 FansLoop</div>
+            <div class="label-desc">手机号/邮箱、验证码 59s 频控、主入口登录、连接钱包、协议/隐私、底部 Tab 未登录态</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/fansloop-welcome.html" title="FansLoop welcome"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">钱包选择</span>
+            <div class="label-name">fansloop-wallet-pick · MetaMask / WC2</div>
+            <div class="label-desc">连接方式列表 + WalletConnect 半屏/底部面板（真二维码）</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/fansloop-wallet-pick.html" title="FansLoop wallet pick"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">签名登录</span>
+            <div class="label-name">fansloop-wallet-sign · 带 nonce 的 message</div>
+            <div class="label-desc">EIP-191/712 示意文案、已连接地址、打开钱包签名 CTA</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/fansloop-wallet-sign.html" title="FansLoop sign"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">首登补全</span>
+            <div class="label-name">fansloop-complete-info · 手机或邮箱</div>
+            <div class="label-desc">user_id 提示、推荐绑定、跳过与风控说明</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/fansloop-complete-info.html" title="FansLoop complete info"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">账户与安全</span>
+            <div class="label-name">fansloop-account-security · 入口</div>
+            <div class="label-desc">从个人中心进入；聚合手机/邮箱/钱包管理、策略说明</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/fansloop-account-security.html" title="FansLoop account security"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">钱包管理</span>
+            <div class="label-name">fansloop-wallet-manage</div>
+            <div class="label-desc">多钱包列表、主钱包标、绑定/主钱包/解绑入口，地址脱敏</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/fansloop-wallet-manage.html" title="FansLoop wallet manage"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">绑定新钱包</span>
+            <div class="label-name">fansloop-bind-wallet</div>
+            <div class="label-desc">两通道 + 绑定签名 payload 说明、防手动输地址</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/fansloop-bind-wallet.html" title="FansLoop bind wallet"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">解绑申请</span>
+            <div class="label-name">fansloop-unbind-wallet</div>
+            <div class="label-desc">24h 冷静期、规则说明、与平台资产关系、确认与取消</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/fansloop-unbind-wallet.html" title="FansLoop unbind"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">解绑待生效</span>
+            <div class="label-name">fansloop-unbind-pending</div>
+            <div class="label-desc">倒计时至完全解绑、时间线、可撤销、状态对提现影响</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/fansloop-unbind-pending.html" title="FansLoop unbind pending"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">主钱包</span>
+            <div class="label-name">fansloop-primary-wallet</div>
+            <div class="label-desc">全平台单主、默认收付、切换二次确认、对比当前主</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/fansloop-primary-wallet.html" title="FansLoop primary wallet"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">异常/风控</span>
+            <div class="label-name">fansloop-exceptions</div>
+            <div class="label-desc">连接失败、签名、验证码、已绑定、频控 等可拆组件</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/fansloop-exceptions.html" title="FansLoop exceptions"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="phone-label">
+            <span class="label-num">资产与流转</span>
+            <div class="label-name">fansloop-assets-legend</div>
+            <div class="label-desc">与资产产品说明对应：user_id 记账、钱包为通道；流程序列 + 真图</div>
+        </div>
+        <div class="phone-body">
+            <div class="phone-screen">
+                <iframe src="pages/fansloop-assets-legend.html" title="FansLoop assets"></iframe>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<div class="footer">
+    <h3>VaultX 原型图说明</h3>
+    <p>
+        完整覆盖 <strong style="color:#fff">注册登录 / Feed 流 / 搜索 / 订阅支付 / 创作者工作流 / 个人中心 / 钱包体系</strong> 全链路。<br>
+        所有页面独立 HTML 文件，采用共享 CSS 设计系统，可直接用于前端开发 / 进一步迭代。
+    </p>
+    <div class="tech">
+        <span>📁 pages/*.html</span>
+        <span>🎨 css/common.css</span>
+        <span>🧩 FontAwesome 6.5</span>
+        <span>🖼️ Unsplash CDN</span>
+        <span>📐 iPhone 13 Pro · 375×812</span>
+    </div>
+</div>
+
+</body>
+</html>

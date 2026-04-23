@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>订阅支付</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content { padding-top: calc(var(--status-bar-height) + var(--nav-bar-height)); padding-bottom: 120px; }
+
+/* 创作者卡 */
+.creator-banner {
+    margin: 16px; padding: 16px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, rgba(168,85,247,0.15) 0%, rgba(236,72,153,0.1) 100%);
+    border: 1px solid rgba(168,85,247,0.2);
+    display: flex; align-items: center; gap: 12px;
+}
+.creator-banner .info { flex: 1; }
+.creator-banner .name { font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.creator-banner .desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+/* 套餐选项 */
+.plan-list { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
+.plan {
+    position: relative;
+    padding: 16px;
+    border-radius: var(--radius-lg);
+    background: var(--bg-card);
+    border: 1.5px solid var(--border-color);
+    cursor: pointer;
+}
+.plan.active {
+    border-color: var(--brand-purple);
+    background: linear-gradient(135deg, rgba(168,85,247,0.15) 0%, rgba(236,72,153,0.08) 100%);
+}
+.plan.active::after {
+    content: '\f058';
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    position: absolute;
+    top: 12px; right: 12px;
+    color: var(--brand-purple);
+    font-size: 18px;
+}
+.plan.popular::before {
+    content: '热门';
+    position: absolute;
+    top: -9px; left: 14px;
+    padding: 2px 10px;
+    background: var(--brand-gradient);
+    border-radius: var(--radius-full);
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+}
+.plan .plan-name { font-size: 14px; color: var(--text-secondary); }
+.plan .plan-price { margin-top: 4px; display: flex; align-items: baseline; gap: 6px; }
+.plan .plan-price .num { font-size: 26px; font-weight: 800; }
+.plan .plan-price .unit { font-size: 13px; color: var(--text-secondary); }
+.plan .plan-save {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 11px;
+    padding: 2px 8px;
+    background: rgba(16,185,129,0.15);
+    color: var(--success);
+    border-radius: var(--radius-full);
+    font-weight: 600;
+}
+
+/* 支付方式 */
+.section-title {
+    padding: 20px 16px 10px;
+    font-size: 13px; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+.pay-method {
+    margin: 0 16px;
+    border-radius: var(--radius-lg);
+    background: var(--bg-card);
+    overflow: hidden;
+}
+.pay-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 0.5px solid var(--border-color);
+}
+.pay-item:last-child { border-bottom: none; }
+.pay-item .pay-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+.pay-item .icon-usdt { background: rgba(6,182,212,0.15); color: var(--crypto-cyan); }
+.pay-item .icon-cny { background: rgba(239,68,68,0.15); color: #EF4444; }
+.pay-item .icon-alipay { background: rgba(59,130,246,0.15); color: #1677FF; }
+.pay-item .icon-wechat { background: rgba(16,185,129,0.15); color: #07C160; }
+.pay-item .pay-info { flex: 1; }
+.pay-item .pay-name { font-size: 14px; font-weight: 600; }
+.pay-item .pay-balance { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+.pay-item .radio {
+    width: 20px; height: 20px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+}
+.pay-item.active .radio {
+    border-color: var(--brand-purple);
+    background: var(--brand-gradient);
+}
+.pay-item.active .radio::after {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #fff;
+}
+
+/* 协议 */
+.agreement {
+    padding: 16px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    line-height: 1.7;
+}
+.agreement a { color: var(--brand-purple); }
+
+/* 底部支付 */
+.pay-bar {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 0;
+    padding: 12px 16px 30px;
+    background: rgba(10,10,18,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 0.5px solid var(--border-color);
+    display: flex; align-items: center;
+    gap: 12px;
+    z-index: 20;
+}
+.pay-bar .total { flex: 1; }
+.pay-bar .total .label { font-size: 11px; color: var(--text-tertiary); }
+.pay-bar .total .price {
+    display: flex; align-items: baseline; gap: 4px;
+}
+.pay-bar .total .num { font-size: 22px; font-weight: 800; color: var(--brand-purple); }
+.pay-bar .total .unit { font-size: 12px; color: var(--text-secondary); }
+.pay-bar .btn-primary { min-width: 130px; }
+
+/* 订阅说明 */
+.notice {
+    margin: 12px 16px;
+    padding: 12px;
+    border-radius: var(--radius-md);
+    background: rgba(59,130,246,0.08);
+    border: 1px solid rgba(59,130,246,0.2);
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    display: flex; gap: 8px;
+}
+.notice i { color: var(--info); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">订阅创作者</div>
+    <div class="nav-right"><div class="nav-btn"><i class="fa-solid fa-circle-question"></i></div></div>
+</div>
+
+<div class="app-content">
+
+    <!-- 创作者卡 -->
+    <div class="creator-banner">
+        <div class="avatar-ring">
+            <img class="avatar avatar-lg" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=80">
+        </div>
+        <div class="info">
+            <div class="name">Luna <i class="fa-solid fa-circle-check" style="color:var(--info);font-size:13px"></i></div>
+            <div class="desc">@luna_web3 · 48.2K 订阅者</div>
+            <div class="desc" style="margin-top:6px">
+                <i class="fa-solid fa-unlock-keyhole" style="color:var(--crypto-green);font-size:10px"></i>
+                订阅后解锁全部 62 条付费内容
+            </div>
+        </div>
+    </div>
+
+    <!-- 套餐 -->
+    <div class="section-title">选择订阅周期</div>
+    <div class="plan-list">
+        <div class="plan">
+            <div class="plan-name">1 个月</div>
+            <div class="plan-price">
+                <span class="num">29.9</span>
+                <span class="unit">USDT</span>
+            </div>
+        </div>
+        <div class="plan active popular">
+            <div class="plan-name">3 个月</div>
+            <div class="plan-price">
+                <span class="num">79.9</span>
+                <span class="unit">USDT</span>
+            </div>
+            <span class="plan-save">省 10 USDT</span>
+        </div>
+        <div class="plan">
+            <div class="plan-name">12 个月 · 年度会员</div>
+            <div class="plan-price">
+                <span class="num">299</span>
+                <span class="unit">USDT</span>
+            </div>
+            <span class="plan-save">省 59.8 USDT · 相当于 8 折</span>
+        </div>
+    </div>
+
+    <!-- 支付方式 -->
+    <div class="section-title">支付方式</div>
+    <div class="pay-method">
+        <div class="pay-item active">
+            <div class="pay-icon icon-usdt"><i class="fa-brands fa-bitcoin"></i></div>
+            <div class="pay-info">
+                <div class="pay-name">USDT 余额</div>
+                <div class="pay-balance">余额 128.56 USDT · 链上结算 0 手续费</div>
+            </div>
+            <div class="radio"></div>
+        </div>
+        <div class="pay-item">
+            <div class="pay-icon icon-cny"><i class="fa-solid fa-yen-sign"></i></div>
+            <div class="pay-info">
+                <div class="pay-name">法币余额（¥）</div>
+                <div class="pay-balance">余额 ¥ 682.50</div>
+            </div>
+            <div class="radio"></div>
+        </div>
+        <div class="pay-item">
+            <div class="pay-icon icon-alipay"><i class="fa-brands fa-alipay"></i></div>
+            <div class="pay-info">
+                <div class="pay-name">支付宝</div>
+                <div class="pay-balance">直接扣款，系统自动换算</div>
+            </div>
+            <div class="radio"></div>
+        </div>
+        <div class="pay-item">
+            <div class="pay-icon icon-wechat"><i class="fa-brands fa-weixin"></i></div>
+            <div class="pay-info">
+                <div class="pay-name">微信支付</div>
+                <div class="pay-balance">直接扣款，系统自动换算</div>
+            </div>
+            <div class="radio"></div>
+        </div>
+    </div>
+
+    <!-- 余额不足提示（示例态） -->
+    <div class="notice" style="background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25)">
+        <i class="fa-solid fa-triangle-exclamation" style="color:var(--warning)"></i>
+        <div>
+            <strong style="color:var(--warning)">余额充足，可直接支付</strong><br>
+            若余额不足，系统将引导你充值后继续订阅
+        </div>
+    </div>
+
+    <!-- 协议 -->
+    <p class="agreement">
+        点击"确认订阅"即代表同意
+        <a>《订阅服务协议》</a> 与 <a>《自动续费规则》</a>。
+        订阅期内可随时取消，订阅记录将上链存证。
+    </p>
+
+</div>
+
+<!-- 底部支付栏 -->
+<div class="pay-bar">
+    <div class="total">
+        <div class="label">应付（3 个月）</div>
+        <div class="price">
+            <span class="num">79.9</span>
+            <span class="unit">USDT ≈ ¥582</span>
+        </div>
+    </div>
+    <button class="btn btn-primary"><i class="fa-solid fa-bolt"></i> 确认订阅</button>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>创建</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body { background: var(--bg-primary); }
+
+.create-bg {
+    position: absolute; top: 0; left: 0; right: 0; height: 100%;
+    background:
+        radial-gradient(circle at 30% 15%, rgba(168,85,247,0.2), transparent 50%),
+        radial-gradient(circle at 70% 85%, rgba(236,72,153,0.2), transparent 50%);
+    z-index: 0;
+}
+
+.close-top {
+    position: absolute;
+    top: calc(var(--status-bar-height) + 8px);
+    right: 16px;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    z-index: 10;
+}
+
+.create-title {
+    position: absolute;
+    top: calc(var(--status-bar-height) + 40px);
+    left: 20px; right: 20px;
+    z-index: 5;
+}
+.create-title h1 {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+.create-title p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+}
+
+.type-wrap {
+    position: absolute;
+    top: calc(var(--status-bar-height) + 120px);
+    left: 20px; right: 20px;
+    z-index: 5;
+    display: flex; flex-direction: column; gap: 14px;
+}
+
+.type-card {
+    position: relative;
+    padding: 24px 20px;
+    border-radius: var(--radius-xl);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    display: flex; align-items: center;
+    gap: 16px;
+}
+.type-card .cover-icon {
+    flex-shrink: 0;
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    color: #fff;
+}
+.type-card.video .cover-icon {
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    box-shadow: 0 4px 20px rgba(168,85,247,0.4);
+}
+.type-card.post .cover-icon {
+    background: linear-gradient(135deg, #06B6D4, #3B82F6);
+    box-shadow: 0 4px 20px rgba(6,182,212,0.4);
+}
+.type-card.live .cover-icon {
+    background: linear-gradient(135deg, #EF4444, #F59E0B);
+    box-shadow: 0 4px 20px rgba(239,68,68,0.35);
+}
+.type-card .info { flex: 1; }
+.type-card .t {
+    font-size: 17px;
+    font-weight: 700;
+    display: flex; align-items: center;
+    gap: 8px;
+}
+.type-card .desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+.type-card .arrow {
+    color: var(--text-tertiary);
+    font-size: 14px;
+}
+
+.type-card .ribbon {
+    position: absolute;
+    top: 14px; right: 14px;
+    background: var(--brand-gradient);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+}
+
+/* 近期草稿 */
+.drafts-section {
+    position: absolute;
+    left: 20px; right: 20px;
+    bottom: 120px;
+    z-index: 5;
+}
+.drafts-section .head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+}
+.drafts-section .head .title {
+    font-size: 14px; font-weight: 600;
+}
+.drafts-section .head .more {
+    font-size: 12px; color: var(--text-tertiary);
+}
+
+.draft-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px;
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+}
+.draft-row .d-cover {
+    width: 48px; height: 48px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+}
+.draft-row .d-cover img {
+    width: 100%; height: 100%; object-fit: cover;
+}
+.draft-row .d-cover .play-icon {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.3);
+    color: #fff; font-size: 14px;
+}
+.draft-row .d-info { flex: 1; min-width: 0; }
+.draft-row .d-title {
+    font-size: 13px; font-weight: 500;
+    overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.draft-row .d-meta {
+    font-size: 11px; color: var(--text-tertiary);
+    margin-top: 2px;
+}
+
+.bottom-tip {
+    position: absolute;
+    bottom: 40px; left: 0; right: 0;
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    z-index: 5;
+}
+.bottom-tip i { color: var(--crypto-green); }
+</style>
+</head>
+<body>
+
+<div class="create-bg"></div>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="close-top"><i class="fa-solid fa-xmark"></i></div>
+
+<div class="create-title">
+    <h1>开始 <span class="gradient-text">创作</span></h1>
+    <p>你的每一次发布都上链存证，收益零抽成到账</p>
+</div>
+
+<div class="type-wrap">
+    <div class="type-card video">
+        <div class="cover-icon"><i class="fa-solid fa-video"></i></div>
+        <div class="info">
+            <div class="t">发布视频</div>
+            <div class="desc">录制或上传短视频 / Vlog，支持付费解锁</div>
+        </div>
+        <i class="fa-solid fa-chevron-right arrow"></i>
+    </div>
+
+    <div class="type-card post">
+        <div class="cover-icon"><i class="fa-solid fa-image"></i></div>
+        <div class="info">
+            <div class="t">发布图文</div>
+            <div class="desc">最多 18 张图片 + 长文，适合私房合集</div>
+        </div>
+        <i class="fa-solid fa-chevron-right arrow"></i>
+    </div>
+
+    <div class="type-card live">
+        <div class="cover-icon"><i class="fa-solid fa-tower-broadcast"></i></div>
+        <div class="info">
+            <div class="t">开启直播</div>
+            <div class="desc">实时打赏、付费进场，USDT 秒到账</div>
+        </div>
+        <span class="ribbon">Beta</span>
+    </div>
+</div>
+
+<div class="drafts-section">
+    <div class="head">
+        <span class="title">草稿箱 · 2</span>
+        <span class="more">查看全部 <i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
+    </div>
+    <div class="draft-row">
+        <div class="d-cover">
+            <img src="https://images.unsplash.com/photo-1492288991661-058aa541ff43?w=200&q=80">
+            <div class="play-icon"><i class="fa-solid fa-play"></i></div>
+        </div>
+        <div class="d-info">
+            <div class="d-title">涩谷夜景完整版 vlog 剪辑</div>
+            <div class="d-meta">视频 · 00:58 · 2 天前保存</div>
+        </div>
+        <i class="fa-solid fa-ellipsis" style="color:var(--text-tertiary)"></i>
+    </div>
+    <div class="draft-row">
+        <div class="d-cover">
+            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=200&q=80">
+        </div>
+        <div class="d-info">
+            <div class="d-title">胶片私房摄影合集（18 张）</div>
+            <div class="d-meta">图文 · 18 图 · 昨天</div>
+        </div>
+        <i class="fa-solid fa-ellipsis" style="color:var(--text-tertiary)"></i>
+    </div>
+</div>
+
+<div class="bottom-tip">
+    <i class="fa-solid fa-shield-halved"></i> 所有内容端到端加密，仅订阅者可见
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

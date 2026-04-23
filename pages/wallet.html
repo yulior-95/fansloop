@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>账户 / 钱包</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 40px;
+}
+
+/* 总资产卡 */
+.total-card {
+    margin: 8px 16px 16px;
+    padding: 20px;
+    border-radius: var(--radius-xl);
+    background: linear-gradient(135deg, #A855F7 0%, #EC4899 80%, #F59E0B 120%);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(168,85,247,0.3);
+}
+.total-card::before {
+    content: ''; position: absolute;
+    top: -50%; right: -30%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(255,255,255,0.2), transparent 70%);
+}
+.total-card .label {
+    font-size: 12px;
+    opacity: 0.85;
+    display: flex; align-items: center; gap: 6px;
+}
+.total-card .amount {
+    font-size: 34px; font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-top: 8px;
+    font-variant-numeric: tabular-nums;
+    display: flex; align-items: baseline; gap: 6px;
+}
+.total-card .amount .unit { font-size: 15px; opacity: 0.9; font-weight: 500; }
+.total-card .sub {
+    font-size: 12px; opacity: 0.85;
+    margin-top: 4px;
+}
+.total-card .actions {
+    margin-top: 18px;
+    display: flex; gap: 8px;
+    position: relative;
+}
+.total-card .actions .btn-w {
+    flex: 1;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 10px 0;
+    text-align: center;
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px;
+}
+
+/* 账户卡片 */
+.wallet-section { padding: 0 16px 16px; }
+.wallet-card-lg {
+    padding: 16px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    margin-bottom: 10px;
+}
+.wallet-card-lg .head {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px;
+}
+.wallet-card-lg .head .ic {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.wallet-card-lg.usdt .head .ic { background: linear-gradient(135deg, rgba(6,182,212,0.25), rgba(6,182,212,0.1)); color: var(--crypto-cyan); }
+.wallet-card-lg.cny .head .ic { background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.05)); color: var(--danger); }
+
+.wallet-card-lg .head .main { flex: 1; }
+.wallet-card-lg .head .name { font-size: 14px; font-weight: 600; }
+.wallet-card-lg .head .subname { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.wallet-card-lg .balance {
+    font-size: 28px; font-weight: 800;
+    letter-spacing: -0.5px;
+    font-variant-numeric: tabular-nums;
+}
+.wallet-card-lg .balance .u { font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-left: 4px; }
+.wallet-card-lg .eq { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.wallet-card-lg .actions {
+    display: flex; gap: 8px;
+    margin-top: 14px;
+}
+.wallet-card-lg .actions .btn-s {
+    flex: 1;
+    height: 38px;
+    border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px;
+    font-size: 13px; font-weight: 500;
+}
+.wallet-card-lg .actions .btn-s.primary {
+    background: var(--brand-gradient);
+    color: #fff;
+}
+.wallet-card-lg .actions .btn-s.ghost {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+}
+
+/* 交易记录 */
+.section-title {
+    padding: 6px 16px 10px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.section-title .t { font-size: 13px; color: var(--text-secondary); font-weight: 600; }
+.section-title .m { font-size: 12px; color: var(--text-tertiary); }
+
+.tx-list {
+    margin: 0 16px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+.tx-item {
+    display: flex; align-items: center;
+    padding: 12px 14px;
+    gap: 12px;
+    border-bottom: 0.5px solid var(--border-color);
+}
+.tx-item:last-child { border-bottom: none; }
+.tx-item .tx-ic {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+.tx-item.in .tx-ic { background: rgba(16,185,129,0.15); color: var(--success); }
+.tx-item.out .tx-ic { background: rgba(239,68,68,0.15); color: var(--danger); }
+.tx-item.sub .tx-ic { background: rgba(168,85,247,0.15); color: var(--brand-purple); }
+.tx-item .main { flex: 1; min-width: 0; }
+.tx-item .title { font-size: 14px; }
+.tx-item .time { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.tx-item .amt {
+    font-size: 15px; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+.tx-item.in .amt { color: var(--success); }
+.tx-item.out .amt { color: var(--text-primary); }
+.tx-item.sub .amt { color: var(--text-primary); }
+.tx-item .unit { font-size: 10px; color: var(--text-tertiary); text-align: right; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">我的账户</div>
+    <div class="nav-right"><div class="nav-btn"><i class="fa-solid fa-clock-rotate-left"></i></div></div>
+</div>
+
+<div class="app-content">
+
+    <!-- 总资产 -->
+    <div class="total-card">
+        <div class="label"><i class="fa-solid fa-eye"></i> 总资产估值 (USD)</div>
+        <div class="amount">
+            $ 224.03 <span class="unit"></span>
+        </div>
+        <div class="sub">≈ ¥1,632.78 · 较昨日 <span style="color:#86efac">+2.4%</span></div>
+        <div class="actions">
+            <div class="btn-w"><i class="fa-solid fa-arrow-down"></i> 充值</div>
+            <div class="btn-w"><i class="fa-solid fa-arrow-up"></i> 提现</div>
+            <div class="btn-w"><i class="fa-solid fa-right-left"></i> 兑换</div>
+        </div>
+    </div>
+
+    <!-- 账户列表 -->
+    <div class="wallet-section">
+
+        <div class="wallet-card-lg usdt">
+            <div class="head">
+                <div class="ic"><i class="fa-brands fa-bitcoin"></i></div>
+                <div class="main">
+                    <div class="name">USDT 加密账户</div>
+                    <div class="subname">链上地址 0x8A...f2E6 · TRC20</div>
+                </div>
+                <span class="badge badge-crypto"><i class="fa-solid fa-bolt"></i> 链上</span>
+            </div>
+            <div class="balance">128.56 <span class="u">USDT</span></div>
+            <div class="eq">≈ $128.56 · ¥932.88</div>
+            <div class="actions">
+                <div class="btn-s primary"><i class="fa-solid fa-plus"></i> 充值</div>
+                <div class="btn-s ghost"><i class="fa-solid fa-arrow-up"></i> 提现</div>
+                <div class="btn-s ghost"><i class="fa-solid fa-right-left"></i> 兑换</div>
+            </div>
+        </div>
+
+        <div class="wallet-card-lg cny">
+            <div class="head">
+                <div class="ic"><i class="fa-solid fa-yen-sign"></i></div>
+                <div class="main">
+                    <div class="name">法币账户</div>
+                    <div class="subname">支付宝 / 微信 / 银行卡充值</div>
+                </div>
+                <span class="badge" style="background:rgba(239,68,68,0.15);color:var(--danger)">CNY</span>
+            </div>
+            <div class="balance">682.50 <span class="u">¥</span></div>
+            <div class="eq">可用于订阅 / 打赏</div>
+            <div class="actions">
+                <div class="btn-s primary"><i class="fa-solid fa-plus"></i> 充值</div>
+                <div class="btn-s ghost"><i class="fa-solid fa-arrow-up"></i> 提现</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 交易 -->
+    <div class="section-title">
+        <span class="t">最近交易</span>
+        <span class="m">查看全部 <i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
+    </div>
+
+    <div class="tx-list">
+        <div class="tx-item sub">
+            <div class="tx-ic"><i class="fa-solid fa-crown"></i></div>
+            <div class="main">
+                <div class="title">订阅 @luna_web3 · 3 月</div>
+                <div class="time">今天 14:32 · 链上已确认</div>
+            </div>
+            <div>
+                <div class="amt">-79.90</div>
+                <div class="unit">USDT</div>
+            </div>
+        </div>
+
+        <div class="tx-item in">
+            <div class="tx-ic"><i class="fa-solid fa-arrow-down"></i></div>
+            <div class="main">
+                <div class="title">USDT 充值</div>
+                <div class="time">昨天 09:15 · 链上已确认</div>
+            </div>
+            <div>
+                <div class="amt">+100.00</div>
+                <div class="unit">USDT</div>
+            </div>
+        </div>
+
+        <div class="tx-item out">
+            <div class="tx-ic"><i class="fa-solid fa-gift"></i></div>
+            <div class="main">
+                <div class="title">打赏 @mila_studio</div>
+                <div class="time">2 天前 15:42</div>
+            </div>
+            <div>
+                <div class="amt">-10.00</div>
+                <div class="unit">USDT</div>
+            </div>
+        </div>
+
+        <div class="tx-item in">
+            <div class="tx-ic"><i class="fa-solid fa-arrow-down"></i></div>
+            <div class="main">
+                <div class="title">法币充值 · 支付宝</div>
+                <div class="time">3 天前 10:28</div>
+            </div>
+            <div>
+                <div class="amt">+500.00</div>
+                <div class="unit">CNY</div>
+            </div>
+        </div>
+
+        <div class="tx-item out">
+            <div class="tx-ic"><i class="fa-solid fa-coins"></i></div>
+            <div class="main">
+                <div class="title">单独解锁 · 图文《胶片合集》</div>
+                <div class="time">5 天前 22:18</div>
+            </div>
+            <div>
+                <div class="amt">-5.00</div>
+                <div class="unit">USDT</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

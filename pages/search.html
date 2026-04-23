@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>搜索</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.search-header {
+    position: absolute;
+    top: var(--status-bar-height);
+    left: 0; right: 0;
+    padding: 6px 16px;
+    display: flex; align-items: center;
+    gap: 12px;
+    background: var(--bg-primary);
+    z-index: 50;
+}
+.search-box {
+    flex: 1;
+    display: flex; align-items: center;
+    gap: 8px;
+    background: var(--bg-card);
+    border-radius: var(--radius-full);
+    height: 36px;
+    padding: 0 14px;
+}
+.search-box input {
+    flex: 1; border: none; background: transparent;
+    color: var(--text-primary); font-size: 14px;
+    outline: none;
+}
+.search-box input::placeholder { color: var(--text-tertiary); }
+.search-cancel { color: var(--brand-purple); font-size: 14px; font-weight: 500; }
+
+.search-content {
+    padding: calc(var(--status-bar-height) + 48px) 16px 100px;
+}
+
+.section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 16px 0 12px;
+}
+.section-head .title { font-size: 16px; font-weight: 700; }
+.section-head .clear { color: var(--text-tertiary); font-size: 13px; }
+
+.history-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+    padding: 6px 12px;
+    background: var(--bg-card);
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.trending-list { display: flex; flex-direction: column; gap: 10px; }
+.trending-item {
+    display: flex; align-items: center;
+    gap: 12px;
+    padding: 6px 2px;
+}
+.trending-item .rank {
+    width: 20px; text-align: center;
+    font-size: 16px; font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+.trending-item .rank.top { color: #EF4444; }
+.trending-item .rank.mid { color: #F59E0B; }
+.trending-item .rank.low { color: var(--text-tertiary); }
+.trending-item .text {
+    flex: 1;
+    font-size: 14px;
+}
+.trending-item .text .tag {
+    margin-left: 6px;
+    padding: 1px 6px;
+    font-size: 9px;
+}
+.trending-item .heat {
+    font-size: 11px; color: var(--text-tertiary);
+    display: flex; align-items: center; gap: 4px;
+}
+
+/* 创作者推荐 */
+.creator-row {
+    display: flex; align-items: center;
+    gap: 12px; padding: 12px 0;
+    border-bottom: 0.5px solid var(--border-color);
+}
+.creator-row .info { flex: 1; min-width: 0; }
+.creator-row .name-line {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600;
+}
+.creator-row .desc {
+    font-size: 12px; color: var(--text-tertiary);
+    margin-top: 3px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.creator-row .stats {
+    font-size: 11px; color: var(--text-tertiary);
+    margin-top: 4px;
+}
+.creator-row .stats span { margin-right: 8px; }
+
+/* 搜索 tabs */
+.search-tabs {
+    display: flex; gap: 20px;
+    margin-bottom: 12px;
+    border-bottom: 0.5px solid var(--border-color);
+}
+.search-tabs .tab {
+    font-size: 14px; color: var(--text-tertiary);
+    padding: 8px 0; position: relative;
+}
+.search-tabs .tab.active { color: var(--text-primary); font-weight: 600; }
+.search-tabs .tab.active::after {
+    content: ''; position: absolute;
+    bottom: -1px; left: 0; right: 0; height: 2px;
+    border-radius: 2px;
+    background: var(--brand-gradient);
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="search-header">
+    <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass" style="color:var(--text-tertiary)"></i>
+        <input placeholder="搜创作者、视频、标签">
+    </div>
+    <span class="search-cancel">取消</span>
+</div>
+
+<div class="app-content">
+<div class="search-content">
+
+    <!-- 搜索历史 -->
+    <div class="section-head">
+        <span class="title">搜索历史</span>
+        <span class="clear"><i class="fa-regular fa-trash-can"></i></span>
+    </div>
+    <div class="history-chips">
+        <span class="chip">东京夜拍</span>
+        <span class="chip">luna_web3</span>
+        <span class="chip">健身小姐姐</span>
+        <span class="chip">NFT 艺术</span>
+        <span class="chip">私房摄影</span>
+        <span class="chip">#付费专享</span>
+    </div>
+
+    <!-- 热搜榜 -->
+    <div class="section-head">
+        <span class="title"><i class="fa-solid fa-fire" style="color:#EF4444"></i> 热搜榜</span>
+        <span class="clear">刷新 <i class="fa-solid fa-rotate" style="font-size:11px"></i></span>
+    </div>
+    <div class="trending-list">
+        <div class="trending-item">
+            <span class="rank top">1</span>
+            <span class="text">USDT 订阅模式上线 <span class="tag badge-brand">新</span></span>
+            <span class="heat"><i class="fa-solid fa-fire"></i> 285.3W</span>
+        </div>
+        <div class="trending-item">
+            <span class="rank top">2</span>
+            <span class="text">东京夜生活全记录</span>
+            <span class="heat"><i class="fa-solid fa-fire"></i> 196.1W</span>
+        </div>
+        <div class="trending-item">
+            <span class="rank top">3</span>
+            <span class="text">#男大学生日常</span>
+            <span class="heat"><i class="fa-solid fa-fire"></i> 128.7W</span>
+        </div>
+        <div class="trending-item">
+            <span class="rank mid">4</span>
+            <span class="text">NFT 艺术家创作直播 <span class="tag badge-crypto">直播</span></span>
+            <span class="heat"><i class="fa-solid fa-fire"></i> 102.5W</span>
+        </div>
+        <div class="trending-item">
+            <span class="rank mid">5</span>
+            <span class="text">链上打赏 TOP 榜单</span>
+            <span class="heat"><i class="fa-solid fa-fire"></i> 89.4W</span>
+        </div>
+        <div class="trending-item">
+            <span class="rank mid">6</span>
+            <span class="text">私房摄影教学合集</span>
+            <span class="heat"><i class="fa-solid fa-fire"></i> 76.2W</span>
+        </div>
+        <div class="trending-item">
+            <span class="rank low">7</span>
+            <span class="text">#健身打卡 挑战</span>
+            <span class="heat"><i class="fa-solid fa-fire"></i> 58.9W</span>
+        </div>
+        <div class="trending-item">
+            <span class="rank low">8</span>
+            <span class="text">Web3 创作者收益榜</span>
+            <span class="heat"><i class="fa-solid fa-fire"></i> 42.7W</span>
+        </div>
+    </div>
+
+    <!-- 推荐创作者 -->
+    <div class="section-head">
+        <span class="title">为你推荐</span>
+        <span class="clear">更多 <i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
+    </div>
+
+    <div class="creator-row">
+        <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80" alt="">
+        <div class="info">
+            <div class="name-line">
+                @mila_studio
+                <i class="fa-solid fa-circle-check" style="color:var(--info); font-size:12px"></i>
+                <span class="badge badge-brand" style="padding:1px 6px; font-size:9px">Pro</span>
+            </div>
+            <div class="desc">私房摄影师 · 专注光影叙事</div>
+            <div class="stats">
+                <span><i class="fa-solid fa-user-group" style="font-size:10px"></i> 12.5W 粉丝</span>
+                <span><i class="fa-solid fa-film" style="font-size:10px"></i> 238 作品</span>
+            </div>
+        </div>
+        <button class="btn btn-primary btn-sm">订阅</button>
+    </div>
+
+    <div class="creator-row">
+        <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=80" alt="">
+        <div class="info">
+            <div class="name-line">
+                @nova_art
+                <i class="fa-solid fa-circle-check" style="color:var(--info); font-size:12px"></i>
+            </div>
+            <div class="desc">链上艺术 / NFT 创作者</div>
+            <div class="stats">
+                <span><i class="fa-solid fa-user-group" style="font-size:10px"></i> 8.2W 粉丝</span>
+                <span><i class="fa-solid fa-film" style="font-size:10px"></i> 156 作品</span>
+            </div>
+        </div>
+        <button class="btn btn-ghost btn-sm">已订阅</button>
+    </div>
+
+    <div class="creator-row">
+        <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80" alt="">
+        <div class="info">
+            <div class="name-line">
+                @ryo.tokyo
+                <span class="badge badge-crypto" style="padding:1px 6px; font-size:9px"><i class="fa-solid fa-bolt"></i> 热门</span>
+            </div>
+            <div class="desc">东京 Vlogger · 每周三更</div>
+            <div class="stats">
+                <span><i class="fa-solid fa-user-group" style="font-size:10px"></i> 6.4W 粉丝</span>
+                <span><i class="fa-solid fa-film" style="font-size:10px"></i> 92 作品</span>
+            </div>
+        </div>
+        <button class="btn btn-primary btn-sm">订阅</button>
+    </div>
+
+</div>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

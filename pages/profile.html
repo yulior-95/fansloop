@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>我的</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.app-content {
+    padding-bottom: calc(var(--tab-bar-height) + 20px);
+}
+
+.profile-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 280px;
+    background:
+        radial-gradient(circle at 30% 20%, rgba(168,85,247,0.3), transparent 50%),
+        radial-gradient(circle at 70% 30%, rgba(236,72,153,0.2), transparent 50%),
+        var(--bg-primary);
+    z-index: 0;
+}
+.profile-bg::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, transparent 50%, var(--bg-primary) 100%);
+}
+
+.top-tools {
+    position: relative;
+    padding: calc(var(--status-bar-height) + 6px) 16px 0;
+    display: flex; align-items: center; justify-content: flex-end;
+    gap: 8px;
+    z-index: 5;
+}
+.top-tools .tool-btn {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    color: #fff; font-size: 16px;
+    position: relative;
+}
+.top-tools .tool-btn .dot {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #EF4444;
+    border: 2px solid var(--bg-primary);
+}
+
+/* Profile head */
+.profile-top {
+    position: relative;
+    padding: 20px 16px 0;
+    z-index: 3;
+}
+.profile-top .p-head {
+    display: flex; align-items: center; gap: 14px;
+}
+.profile-top .p-head .avatar-ring {
+    padding: 3px;
+    background: var(--brand-gradient);
+    border-radius: 50%;
+}
+.profile-top .p-head .avatar-ring img {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    border: 3px solid var(--bg-primary);
+    display: block;
+}
+.profile-top .p-head .info { flex: 1; min-width: 0; }
+.profile-top .p-head .name {
+    font-size: 22px; font-weight: 800;
+    display: flex; align-items: center; gap: 6px;
+}
+.profile-top .p-head .id-row {
+    margin-top: 4px;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+
+.wallet-chip-lg {
+    margin-top: 14px;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+.wallet-chip-lg .w-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, rgba(6,182,212,0.25), rgba(6,182,212,0.05));
+    color: var(--crypto-cyan);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+}
+.wallet-chip-lg .w-info { flex: 1; min-width: 0; }
+.wallet-chip-lg .w-label { font-size: 10px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; }
+.wallet-chip-lg .w-addr {
+    font-family: "SF Mono", monospace;
+    font-size: 13px;
+    margin-top: 2px;
+    color: var(--text-primary);
+}
+.wallet-chip-lg .w-copy {
+    display: flex; align-items: center; gap: 4px;
+    color: var(--brand-purple);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* 账户卡 */
+.wallets-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 16px;
+}
+.wallet-card {
+    padding: 14px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+.wallet-card.usdt {
+    background: linear-gradient(135deg, rgba(6,182,212,0.15), rgba(59,130,246,0.1));
+    border-color: rgba(6,182,212,0.3);
+}
+.wallet-card.cny {
+    background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(245,158,11,0.08));
+    border-color: rgba(239,68,68,0.25);
+}
+.wallet-card .wc-head {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+.wallet-card .wc-amount {
+    font-size: 22px; font-weight: 800;
+    letter-spacing: -0.5px;
+    font-variant-numeric: tabular-nums;
+}
+.wallet-card .wc-eq {
+    font-size: 11px; color: var(--text-tertiary); margin-top: 3px;
+}
+.wallet-card .wc-actions {
+    display: flex; gap: 6px;
+    margin-top: 12px;
+}
+.wallet-card .wc-btn {
+    flex: 1;
+    padding: 6px 0;
+    border-radius: var(--radius-full);
+    background: rgba(255,255,255,0.1);
+    text-align: center;
+    font-size: 11px;
+    color: #fff;
+    font-weight: 500;
+}
+
+/* 数据统计行 */
+.stat-row {
+    display: flex; justify-content: space-around;
+    padding: 12px 0;
+    margin: 0 16px 12px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+}
+.stat-row .s { text-align: center; }
+.stat-row .s .v { font-size: 17px; font-weight: 700; }
+.stat-row .s .l { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+
+/* 工具 grid */
+.tools-grid {
+    margin: 0 16px 12px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 16px 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px 0;
+}
+.tools-grid .tool {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 6px;
+}
+.tools-grid .tool-icon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    position: relative;
+}
+.tools-grid .tool-label { font-size: 11px; color: var(--text-secondary); }
+.tools-grid .tool-icon .notif {
+    position: absolute;
+    top: -4px; right: -6px;
+    min-width: 16px; height: 16px;
+    padding: 0 4px;
+    border-radius: 8px;
+    background: #EF4444;
+    color: #fff;
+    font-size: 10px;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid var(--bg-card);
+}
+
+.tool-color-1 { background: rgba(168,85,247,0.15); color: var(--brand-purple); }
+.tool-color-2 { background: rgba(6,182,212,0.15); color: var(--crypto-cyan); }
+.tool-color-3 { background: rgba(245,158,11,0.15); color: var(--crypto-gold); }
+.tool-color-4 { background: rgba(16,185,129,0.15); color: var(--crypto-green); }
+.tool-color-5 { background: rgba(239,68,68,0.15); color: var(--danger); }
+.tool-color-6 { background: rgba(59,130,246,0.15); color: var(--info); }
+.tool-color-7 { background: rgba(236,72,153,0.15); color: var(--brand-pink); }
+.tool-color-8 { background: rgba(168,85,247,0.15); color: var(--brand-purple); }
+
+/* 创作者中心卡 */
+.creator-cta {
+    margin: 0 16px 12px;
+    padding: 14px 16px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(236,72,153,0.1));
+    border: 1px solid rgba(168,85,247,0.25);
+    display: flex; align-items: center; gap: 12px;
+}
+.creator-cta .c-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: var(--brand-gradient);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 20px;
+    box-shadow: 0 4px 14px rgba(168,85,247,0.4);
+}
+.creator-cta .c-main { flex: 1; }
+.creator-cta .c-title { font-size: 14px; font-weight: 700; }
+.creator-cta .c-desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+.creator-cta .c-arrow { color: var(--brand-purple); font-size: 15px; }
+
+/* 标签页 */
+.section-head2 {
+    padding: 4px 16px 10px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.section-head2 .t { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+.section-head2 .m { font-size: 11px; color: var(--text-tertiary); }
+
+.tabs-mini {
+    padding: 0 16px;
+    display: flex; gap: 16px;
+    border-bottom: 0.5px solid var(--border-color);
+}
+.tabs-mini .t {
+    padding: 10px 0;
+    font-size: 13px;
+    color: var(--text-tertiary);
+    position: relative;
+}
+.tabs-mini .t.active { color: var(--text-primary); font-weight: 600; }
+.tabs-mini .t.active::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -1px;
+    height: 2px; border-radius: 2px; background: var(--brand-gradient);
+}
+
+.grid-small {
+    padding: 6px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+}
+.grid-small .item {
+    aspect-ratio: 1/1;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+.grid-small .item img { width: 100%; height: 100%; object-fit: cover; }
+.grid-small .item .corner {
+    position: absolute; top: 4px; right: 4px;
+    font-size: 9px; padding: 1px 5px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 6px;
+    color: #fff;
+}
+</style>
+</head>
+<body>
+
+<div class="profile-bg"></div>
+
+<div class="status-bar dark-mode">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="app-content" style="padding-top:0">
+
+    <div class="top-tools">
+        <div class="tool-btn"><i class="fa-regular fa-bell"></i><span class="dot"></span></div>
+        <div class="tool-btn"><i class="fa-solid fa-qrcode"></i></div>
+        <div class="tool-btn"><i class="fa-solid fa-gear"></i></div>
+    </div>
+
+    <div class="profile-top">
+        <div class="p-head">
+            <div class="avatar-ring">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80">
+            </div>
+            <div class="info">
+                <div class="name">
+                    Alex_K
+                    <i class="fa-solid fa-circle-check" style="color:var(--info); font-size:14px"></i>
+                </div>
+                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px">
+                    @alex_k · 加入 128 天
+                </div>
+                <div class="id-row">
+                    <span class="badge badge-crypto"><i class="fa-solid fa-bolt"></i> Lv.5 资深用户</span>
+                </div>
+            </div>
+            <div class="tool-btn"><i class="fa-solid fa-pen"></i></div>
+        </div>
+
+        <div class="wallet-chip-lg">
+            <div class="w-icon"><i class="fa-solid fa-wallet"></i></div>
+            <div class="w-info">
+                <div class="w-label">链上地址 · ID</div>
+                <div class="w-addr">0x8A...f2E6</div>
+            </div>
+            <div class="w-copy"><i class="fa-regular fa-copy"></i> 复制</div>
+        </div>
+    </div>
+
+    <!-- 数据统计 -->
+    <div class="stat-row" style="margin-top:16px">
+        <div class="s"><div class="v">128</div><div class="l">关注</div></div>
+        <div class="s"><div class="v">56</div><div class="l">粉丝</div></div>
+        <div class="s"><div class="v gradient-text">12</div><div class="l">已订阅</div></div>
+        <div class="s"><div class="v">328</div><div class="l">获赞</div></div>
+    </div>
+
+    <!-- 账户（法币 / USDT） -->
+    <div class="wallets-row">
+        <div class="wallet-card usdt">
+            <div class="wc-head"><i class="fa-brands fa-bitcoin"></i> USDT 账户</div>
+            <div class="wc-amount">128.56</div>
+            <div class="wc-eq">≈ $128.56 / ¥932.88</div>
+            <div class="wc-actions">
+                <div class="wc-btn">充值</div>
+                <div class="wc-btn">提现</div>
+            </div>
+        </div>
+        <div class="wallet-card cny">
+            <div class="wc-head"><i class="fa-solid fa-yen-sign"></i> 法币账户</div>
+            <div class="wc-amount">¥ 682.50</div>
+            <div class="wc-eq">可用于订阅 & 打赏</div>
+            <div class="wc-actions">
+                <div class="wc-btn">充值</div>
+                <div class="wc-btn">提现</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成为创作者 CTA -->
+    <div class="creator-cta">
+        <div class="c-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <div class="c-main">
+            <div class="c-title">开启创作，零抽成到账</div>
+            <div class="c-desc">USDT 秒到 · 无跨境手续费 · 链上透明</div>
+        </div>
+        <i class="fa-solid fa-chevron-right c-arrow"></i>
+    </div>
+
+    <!-- 工具 grid -->
+    <div class="tools-grid">
+        <div class="tool">
+            <div class="tool-icon tool-color-1"><i class="fa-regular fa-heart"></i></div>
+            <span class="tool-label">我的订阅</span>
+        </div>
+        <div class="tool">
+            <div class="tool-icon tool-color-2"><i class="fa-regular fa-bookmark"></i></div>
+            <span class="tool-label">收藏夹</span>
+        </div>
+        <div class="tool">
+            <div class="tool-icon tool-color-3"><i class="fa-solid fa-coins"></i><span class="notif">3</span></div>
+            <span class="tool-label">订单</span>
+        </div>
+        <div class="tool">
+            <div class="tool-icon tool-color-4"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            <span class="tool-label">观看历史</span>
+        </div>
+        <div class="tool">
+            <div class="tool-icon tool-color-5"><i class="fa-solid fa-gift"></i></div>
+            <span class="tool-label">打赏记录</span>
+        </div>
+        <div class="tool">
+            <div class="tool-icon tool-color-6"><i class="fa-solid fa-chart-line"></i></div>
+            <span class="tool-label">收益中心</span>
+        </div>
+        <div class="tool">
+            <div class="tool-icon tool-color-7"><i class="fa-solid fa-user-group"></i></div>
+            <span class="tool-label">邀请好友</span>
+        </div>
+        <div class="tool">
+            <div class="tool-icon tool-color-8"><i class="fa-solid fa-headset"></i></div>
+            <span class="tool-label">帮助反馈</span>
+        </div>
+    </div>
+
+    <!-- 我的动态 -->
+    <div class="section-head2">
+        <span class="t">我的内容</span>
+        <span class="m">管理 <i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
+    </div>
+
+    <div class="tabs-mini">
+        <div class="t active">作品 12</div>
+        <div class="t">喜欢</div>
+        <div class="t">收藏</div>
+        <div class="t">草稿</div>
+    </div>
+
+    <div class="grid-small">
+        <div class="item">
+            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&q=80">
+        </div>
+        <div class="item">
+            <img src="https://images.unsplash.com/photo-1512070679279-c7e7efd83c57?w=300&q=80">
+            <div class="corner"><i class="fa-solid fa-play" style="font-size:8px"></i> 01:12</div>
+        </div>
+        <div class="item">
+            <img src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300&q=80">
+        </div>
+        <div class="item">
+            <img src="https://images.unsplash.com/photo-1514222709107-a180c68d72b4?w=300&q=80">
+            <div class="corner"><i class="fa-solid fa-play" style="font-size:8px"></i> 00:45</div>
+        </div>
+        <div class="item">
+            <img src="https://images.unsplash.com/photo-1519659528534-7fd733a832a0?w=300&q=80">
+        </div>
+        <div class="item">
+            <img src="https://images.unsplash.com/photo-1554797589-7241bb691973?w=300&q=80">
+        </div>
+    </div>
+
+</div>
+
+<!-- Tab Bar -->
+<div class="tab-bar">
+    <div class="tab-item">
+        <i class="fa-regular fa-house"></i>
+        <span>首页</span>
+    </div>
+    <div class="tab-item">
+        <i class="fa-regular fa-heart"></i>
+        <span>订阅</span>
+    </div>
+    <div class="tab-create">
+        <div class="create-btn"><i class="fa-solid fa-plus"></i></div>
+    </div>
+    <div class="tab-item">
+        <i class="fa-regular fa-message"></i>
+        <span>消息</span>
+    </div>
+    <div class="tab-item active">
+        <i class="fa-solid fa-user"></i>
+        <span>我的</span>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>消息</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: calc(var(--tab-bar-height) + 10px);
+}
+
+.top-filters {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.top-filters::-webkit-scrollbar { display: none; }
+.top-filters .chip {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 13px;
+    border: 1px solid var(--border-color);
+}
+.top-filters .chip.active {
+    background: var(--brand-gradient);
+    color: #fff; font-weight: 600;
+    border-color: transparent;
+}
+.top-filters .chip .dot {
+    display: inline-block;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #EF4444;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+/* 快捷入口 */
+.quick-grid {
+    margin: 0 16px 12px;
+    padding: 16px 0;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+.quick-grid .q {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    position: relative;
+}
+.quick-grid .q .ic {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+}
+.quick-grid .q .label { font-size: 11px; color: var(--text-secondary); }
+.quick-grid .q .badge-num {
+    position: absolute;
+    top: -4px; right: 18%;
+    min-width: 16px; height: 16px;
+    padding: 0 4px;
+    border-radius: 8px;
+    background: #EF4444;
+    color: #fff;
+    font-size: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600;
+}
+
+.c-1 { background: rgba(239,68,68,0.15); color: var(--danger); }
+.c-2 { background: rgba(245,158,11,0.15); color: var(--crypto-gold); }
+.c-3 { background: rgba(168,85,247,0.15); color: var(--brand-purple); }
+.c-4 { background: rgba(16,185,129,0.15); color: var(--crypto-green); }
+
+/* 消息列表 */
+.section-title {
+    padding: 6px 16px 10px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.chat-list {
+    margin: 0 16px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+.chat-item {
+    display: flex; align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 0.5px solid var(--border-color);
+}
+.chat-item:last-child { border-bottom: none; }
+.chat-item .avatar-box {
+    position: relative;
+    flex-shrink: 0;
+}
+.chat-item .unread {
+    position: absolute;
+    top: -3px; right: -3px;
+    min-width: 18px; height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: #EF4444;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid var(--bg-card);
+}
+.chat-item .info { flex: 1; min-width: 0; }
+.chat-item .row1 {
+    display: flex; align-items: center;
+    gap: 6px;
+}
+.chat-item .name {
+    font-size: 14px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.chat-item .time {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+}
+.chat-item .msg {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.chat-item .tag-pre {
+    color: var(--brand-purple);
+    font-weight: 500;
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn"><i class="fa-solid fa-magnifying-glass"></i></div></div>
+    <div class="nav-title">消息</div>
+    <div class="nav-right"><div class="nav-btn"><i class="fa-regular fa-pen-to-square"></i></div></div>
+</div>
+
+<div class="app-content">
+
+    <div class="top-filters">
+        <span class="chip active">全部<span class="dot"></span></span>
+        <span class="chip">订阅者</span>
+        <span class="chip">互动</span>
+        <span class="chip">系统</span>
+        <span class="chip">钱包</span>
+    </div>
+
+    <!-- 快捷入口 -->
+    <div class="quick-grid">
+        <div class="q">
+            <div class="ic c-1"><i class="fa-regular fa-heart"></i></div>
+            <span class="label">赞和收藏</span>
+            <span class="badge-num">12</span>
+        </div>
+        <div class="q">
+            <div class="ic c-2"><i class="fa-regular fa-comment"></i></div>
+            <span class="label">评论 @</span>
+            <span class="badge-num">3</span>
+        </div>
+        <div class="q">
+            <div class="ic c-3"><i class="fa-solid fa-user-plus"></i></div>
+            <span class="label">新粉丝</span>
+        </div>
+        <div class="q">
+            <div class="ic c-4"><i class="fa-solid fa-wallet"></i></div>
+            <span class="label">钱包通知</span>
+        </div>
+    </div>
+
+    <div class="section-title">最近会话</div>
+    <div class="chat-list">
+        <div class="chat-item">
+            <div class="avatar-box">
+                <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80">
+                <div class="unread">5</div>
+            </div>
+            <div class="info">
+                <div class="row1">
+                    <span class="name">Luna</span>
+                    <i class="fa-solid fa-circle-check" style="color:var(--info); font-size:11px"></i>
+                    <span class="time">刚刚</span>
+                </div>
+                <div class="msg">已向你发送新的订阅专属视频 🎬</div>
+            </div>
+        </div>
+        <div class="chat-item">
+            <div class="avatar-box">
+                <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80">
+                <div class="unread">2</div>
+            </div>
+            <div class="info">
+                <div class="row1">
+                    <span class="name">Mila</span>
+                    <span class="time">14:32</span>
+                </div>
+                <div class="msg">谢谢你的打赏！已收到 10 USDT 💜</div>
+            </div>
+        </div>
+        <div class="chat-item">
+            <div class="avatar-box">
+                <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80">
+            </div>
+            <div class="info">
+                <div class="row1">
+                    <span class="name">Ryo</span>
+                    <span class="time">昨天</span>
+                </div>
+                <div class="msg">下周会去京都拍新的 vlog，敬请期待～</div>
+            </div>
+        </div>
+        <div class="chat-item">
+            <div class="avatar-box">
+                <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=80">
+            </div>
+            <div class="info">
+                <div class="row1">
+                    <span class="name">Nova</span>
+                    <span class="time">昨天</span>
+                </div>
+                <div class="msg"><span class="tag-pre">[图片]</span> 新作品～</div>
+            </div>
+        </div>
+        <div class="chat-item">
+            <div class="avatar-box">
+                <div class="avatar avatar-md" style="background: var(--brand-gradient); display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px">
+                    <i class="fa-solid fa-bell"></i>
+                </div>
+                <div class="unread">1</div>
+            </div>
+            <div class="info">
+                <div class="row1">
+                    <span class="name">系统通知</span>
+                    <span class="time">09:12</span>
+                </div>
+                <div class="msg">你的订阅【Luna】将在 3 天后续费 79.9 USDT</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Tab Bar -->
+<div class="tab-bar">
+    <div class="tab-item">
+        <i class="fa-regular fa-house"></i>
+        <span>首页</span>
+    </div>
+    <div class="tab-item">
+        <i class="fa-regular fa-heart"></i>
+        <span>订阅</span>
+    </div>
+    <div class="tab-create">
+        <div class="create-btn"><i class="fa-solid fa-plus"></i></div>
+    </div>
+    <div class="tab-item active">
+        <i class="fa-solid fa-message"></i>
+        <span>消息</span>
+    </div>
+    <div class="tab-item">
+        <i class="fa-regular fa-user"></i>
+        <span>我的</span>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>
