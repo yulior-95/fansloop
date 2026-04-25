@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>支付身份认证</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body {
+    background:
+        radial-gradient(ellipse at 50% 8%, rgba(22,119,255,0.12), transparent 55%),
+        #0A0A12;
+}
+.nav-bar { background: rgba(10,10,18,0.8); backdrop-filter: blur(12px); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 100px;
+}
+
+/* 三方服务商 Header */
+.provider-head {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px;
+    padding: 10px 16px 16px;
+}
+.provider-head .app-logo {
+    width: 32px; height: 32px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 15px;
+}
+.provider-head .link-dots {
+    display: flex; gap: 3px;
+}
+.provider-head .link-dots .d {
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--brand-purple);
+    animation: link-d 1.6s ease-in-out infinite;
+}
+.provider-head .link-dots .d:nth-child(2) { animation-delay: 0.15s; }
+.provider-head .link-dots .d:nth-child(3) { animation-delay: 0.3s; }
+@keyframes link-d {
+    0%, 100% { opacity: 0.3; transform: scale(0.7); }
+    50% { opacity: 1; transform: scale(1); }
+}
+.provider-head .prov-logo {
+    width: 32px; height: 32px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #10B981, #059669);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 14px;
+}
+.provider-head .prov-name {
+    font-size: 13px; font-weight: 600;
+}
+.provider-head .prov-name .tag {
+    font-size: 9px; padding: 2px 5px;
+    background: rgba(16,185,129,0.15);
+    color: #6EE7B7;
+    border-radius: 4px;
+    margin-left: 4px;
+    font-weight: 700;
+}
+
+/* 订单卡 */
+.order-card {
+    margin: 0 16px 14px;
+    background: linear-gradient(180deg, #1A1A26 0%, #12121C 100%);
+    border: 1px solid rgba(22,119,255,0.25);
+    border-radius: 18px;
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+}
+.order-card::before {
+    content: ''; position: absolute;
+    top: -40px; right: -40px;
+    width: 140px; height: 140px;
+    background: radial-gradient(circle, rgba(22,119,255,0.2), transparent 70%);
+}
+.order-title {
+    font-size: 12px; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    position: relative;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.order-title .status {
+    font-size: 10px; padding: 3px 8px;
+    background: rgba(245,158,11,0.15);
+    color: #FBBF24;
+    border-radius: 999px;
+    display: flex; align-items: center; gap: 4px;
+    letter-spacing: 0;
+    font-weight: 700;
+}
+.order-title .status .dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #FBBF24;
+    animation: pulse-d 1.8s ease-in-out infinite;
+}
+@keyframes pulse-d { 0%,100% { opacity: 1 } 50% { opacity: 0.3 } }
+
+.amount-big {
+    font-size: 34px; font-weight: 800;
+    letter-spacing: -1px;
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 4px;
+    position: relative;
+    display: flex; align-items: baseline; gap: 6px;
+}
+.amount-big .cur { font-size: 18px; color: var(--text-secondary); font-weight: 600; }
+.amount-big .eq {
+    font-size: 11px; color: var(--crypto-green);
+    font-weight: 500;
+    padding: 3px 8px;
+    background: rgba(16,185,129,0.1);
+    border-radius: 999px;
+    margin-left: 8px;
+}
+
+.order-lines {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed rgba(255,255,255,0.08);
+    position: relative;
+}
+.order-line {
+    display: flex; justify-content: space-between;
+    padding: 5px 0;
+    font-size: 12px;
+}
+.order-line .k { color: var(--text-tertiary); }
+.order-line .v { color: #fff; font-weight: 500; font-family: ui-monospace, monospace; }
+
+/* 分组 */
+.sec-h {
+    padding: 6px 20px 8px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-weight: 600;
+    display: flex; align-items: center; gap: 6px;
+}
+.sec-h i { color: var(--brand-purple); }
+
+/* 付款方式卡（精简） */
+.bank-mini {
+    margin: 0 16px 12px;
+    padding: 12px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    display: flex; align-items: center; gap: 12px;
+}
+.bank-mini .bm-logo {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: linear-gradient(135deg, #DC2626, #991B1B);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 16px;
+    flex-shrink: 0;
+}
+.bank-mini .bm-main { flex: 1; min-width: 0; }
+.bank-mini .bm-name { font-size: 14px; font-weight: 600; }
+.bank-mini .bm-num {
+    font-size: 11px; color: var(--text-tertiary);
+    font-family: ui-monospace, monospace;
+    margin-top: 2px;
+}
+.bank-mini .bm-chg {
+    font-size: 11px; color: var(--brand-purple);
+    display: flex; align-items: center; gap: 4px;
+}
+
+/* 身份认证区 */
+.verify-card {
+    margin: 0 16px 14px;
+    background: var(--bg-card);
+    border: 1px solid rgba(168,85,247,0.2);
+    border-radius: 16px;
+    overflow: hidden;
+}
+.verify-head {
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+    background: linear-gradient(90deg, rgba(168,85,247,0.08), transparent);
+}
+.verify-head .ic {
+    width: 32px; height: 32px; border-radius: 9px;
+    background: rgba(168,85,247,0.15);
+    color: var(--brand-purple);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+}
+.verify-head .txt {
+    flex: 1;
+}
+.verify-head .txt .t { font-size: 14px; font-weight: 600; }
+.verify-head .txt .s { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+
+/* 验证码输入格子 */
+.otp-grid {
+    padding: 16px;
+    display: flex; gap: 8px;
+    justify-content: center;
+}
+.otp-box {
+    width: 42px; height: 50px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    font-family: ui-monospace, monospace;
+    color: #fff;
+}
+.otp-box.filled {
+    border-color: var(--brand-purple);
+    background: rgba(168,85,247,0.1);
+}
+.otp-box.active {
+    border-color: var(--brand-purple);
+    background: rgba(168,85,247,0.1);
+    position: relative;
+}
+.otp-box.active::after {
+    content: '';
+    width: 2px; height: 22px;
+    background: var(--brand-purple);
+    animation: blink 1s ease-in-out infinite;
+}
+@keyframes blink { 0%, 100% { opacity: 1 } 50% { opacity: 0 } }
+
+.otp-info {
+    padding: 0 16px 14px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    display: flex; justify-content: center; align-items: center; gap: 4px;
+}
+.otp-info .phone { color: #fff; font-weight: 500; }
+.otp-info .resend {
+    color: var(--brand-purple);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* 生物识别选项 */
+.biometric {
+    margin: 0 16px 14px;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer;
+}
+.biometric .bio-ic {
+    width: 42px; height: 42px; border-radius: 12px;
+    background: linear-gradient(135deg, #06B6D4, #0891B2);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+.biometric .bio-main { flex: 1; }
+.biometric .bio-t { font-size: 14px; font-weight: 600; }
+.biometric .bio-s { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.biometric .bio-arrow { color: var(--text-tertiary); font-size: 13px; }
+
+/* 安全说明 */
+.risk-note {
+    margin: 0 16px 14px;
+    padding: 12px 14px;
+    background: rgba(59,130,246,0.08);
+    border: 1px solid rgba(59,130,246,0.18);
+    border-radius: 12px;
+    display: flex; gap: 10px; align-items: flex-start;
+}
+.risk-note .r-ic {
+    width: 24px; height: 24px; border-radius: 7px;
+    background: rgba(59,130,246,0.2);
+    color: #60A5FA;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+}
+.risk-note .r-txt {
+    flex: 1;
+    font-size: 11px;
+    color: #93C5FD;
+    line-height: 1.5;
+}
+.risk-note .r-txt b { color: #DBEAFE; }
+
+/* 订单号/订单信息 */
+.order-num {
+    margin: 0 16px 20px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.02);
+    border: 1px dashed rgba(255,255,255,0.08);
+    border-radius: 10px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+}
+.order-num .num-k { letter-spacing: 0.3px; }
+.order-num .num-v {
+    flex: 1;
+    font-family: ui-monospace, monospace;
+    color: var(--text-secondary);
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.order-num .copy {
+    color: var(--brand-purple);
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.submit-bar {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 10px 16px 30px;
+    background: rgba(10,10,18,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 0.5px solid var(--border-color);
+    z-index: 20;
+}
+.submit-bar .hint {
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+.submit-bar .hint i { color: var(--crypto-green); }
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" onclick="location.href='recharge-fiat.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">支付身份认证</div>
+    <div class="nav-right"><div class="nav-btn"><i class="fa-solid fa-xmark"></i></div></div>
+</div>
+
+<div class="app-content">
+
+    <!-- 订单概要 -->
+    <div class="order-card" style="margin-top: 10px">
+        <div class="order-title">
+            <span>待支付订单</span>
+        </div>
+        <div class="amount-big">
+            <span class="cur">¥</span>
+            500.00
+            <span class="eq">≈ 68.87 USDT</span>
+        </div>
+
+        <div class="order-lines">
+            <div class="order-line">
+                <span class="k">商户名称</span>
+                <span class="v" style="font-family:inherit">FansLoop 充值</span>
+            </div>
+            <div class="order-line">
+                <span class="k">订单类型</span>
+                <span class="v" style="font-family:inherit">法币快捷充值</span>
+            </div>
+            <div class="order-line">
+                <span class="k">订单超时</span>
+                <span class="v" style="color:#FBBF24">14:36</span>
+            </div>
+            <div class="order-line">
+                <span class="k">服务费</span>
+                <span class="v">¥3.00 (0.6%)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 付款银行卡 -->
+    <div class="sec-h">
+        <i class="fa-solid fa-credit-card"></i>
+        付款方式
+    </div>
+
+    <div class="bank-mini" onclick="location.href='recharge-fiat-switch-card.html'">
+        <div class="bm-logo">招</div>
+        <div class="bm-main">
+            <div class="bm-name">招商银行 储蓄卡</div>
+            <div class="bm-num">•••• •••• •••• 2025</div>
+        </div>
+        <div class="bm-chg">
+            <i class="fa-solid fa-arrow-right-arrow-left" style="font-size:10px"></i>
+            更换
+        </div>
+    </div>
+
+    <!-- 身份认证 -->
+    <div class="sec-h">
+        <i class="fa-solid fa-shield-halved"></i>
+        身份认证
+    </div>
+
+    <div class="verify-card">
+        <div class="verify-head">
+            <div class="ic"><i class="fa-solid fa-mobile-screen"></i></div>
+            <div class="txt">
+                <div class="t">银行预留手机号验证</div>
+                <div class="s">由招商银行发送验证码，非 FansLoop 发送</div>
+            </div>
+        </div>
+
+        <div class="otp-grid">
+            <div class="otp-box filled">6</div>
+            <div class="otp-box filled">8</div>
+            <div class="otp-box filled">5</div>
+            <div class="otp-box active"></div>
+            <div class="otp-box"></div>
+            <div class="otp-box"></div>
+        </div>
+
+        <div class="otp-info">
+            已发送至 <span class="phone">138 •••• 2025</span>
+            &nbsp;·&nbsp;
+            <span class="resend">重新发送 (58s)</span>
+        </div>
+    </div>
+
+    <!-- 生物识别备用 -->
+    <div class="sec-h">
+        <i class="fa-solid fa-fingerprint"></i>
+        或使用 · 备用验证
+    </div>
+
+    <div class="biometric">
+        <div class="bio-ic"><i class="fa-solid fa-face-smile-beam"></i></div>
+        <div class="bio-main">
+            <div class="bio-t">Face ID 刷脸验证</div>
+            <div class="bio-s">由公安部公民身份信息系统核验（eKYC）</div>
+        </div>
+        <i class="fa-solid fa-chevron-right bio-arrow"></i>
+    </div>
+
+    <!-- 安全说明 -->
+    <div class="risk-note">
+        <div class="r-ic"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="r-txt">
+            <b>资金安全承诺</b>：该笔交易由<b> 银保监会 </b>监管的持牌机构处理，资金不进入 FansLoop 账户。若 15 分钟未完成认证，订单将自动取消，资金原路返回
+        </div>
+    </div>
+
+    <!-- 订单号 -->
+    <div class="order-num">
+        <span class="num-k">订单号</span>
+        <span class="num-v">PS20260423094128A8F9E1C2D5B7</span>
+        <span class="copy"><i class="fa-regular fa-copy"></i></span>
+    </div>
+
+</div>
+
+<div class="submit-bar">
+    <div class="hint">
+        <i class="fa-solid fa-lock"></i>
+        银联加密传输，信息不会被第三方截获
+    </div>
+    <button class="btn btn-primary btn-block">
+        <i class="fa-solid fa-check"></i>
+        确认支付 ¥500.00
+    </button>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

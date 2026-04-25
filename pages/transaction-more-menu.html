@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>更多操作</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body { background: #0A0A12; }
+.nav-bar { background: rgba(10,10,18,0.6); backdrop-filter: blur(16px); z-index: 110; }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 20px;
+    opacity: 0.4;
+    filter: blur(1.5px);
+}
+.bg-hero { text-align: center; padding: 26px 20px 16px; }
+.bg-hero .ic-big {
+    width: 64px; height: 64px; border-radius: 18px;
+    margin: 0 auto 12px;
+    background: linear-gradient(135deg, #EC4899, #BE185D);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 24px;
+}
+.bg-hero .lbl { font-size: 10px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.bg-hero .amt { font-size: 32px; font-weight: 800; color: #6EE7B7; letter-spacing: -1px; }
+
+/* ===== Action Sheet ===== */
+.sheet-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 100;
+    display: flex; align-items: flex-end;
+    animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+/* iOS 风格 Action Sheet */
+.action-sheet {
+    width: 100%;
+    padding: 0 10px 10px;
+    animation: sheetUp 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.as-group {
+    background: rgba(36,36,48,0.95);
+    backdrop-filter: blur(30px);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+.as-header {
+    padding: 12px 16px;
+    text-align: center;
+    border-bottom: 0.5px solid rgba(255,255,255,0.08);
+}
+.as-header .t {
+    font-size: 14px;
+    color: #fff;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin-bottom: 2px;
+}
+.as-header .t .ic {
+    width: 20px; height: 20px; border-radius: 6px;
+    background: linear-gradient(135deg, #EC4899, #BE185D);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 9px;
+    color: #fff;
+}
+.as-header .s {
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    font-family: ui-monospace, monospace;
+}
+
+.as-row {
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 14px;
+    border-top: 0.5px solid rgba(255,255,255,0.06);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.as-row:first-of-type { border: none; }
+.as-row:active { background: rgba(255,255,255,0.08); }
+
+.as-row .ic-box {
+    width: 32px; height: 32px; border-radius: 9px;
+    background: rgba(255,255,255,0.05);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    color: var(--brand-purple);
+    flex-shrink: 0;
+}
+.as-row.purple .ic-box { background: rgba(168,85,247,0.18); color: #C084FC; }
+.as-row.blue .ic-box { background: rgba(59,130,246,0.18); color: #60A5FA; }
+.as-row.green .ic-box { background: rgba(16,185,129,0.18); color: #6EE7B7; }
+.as-row.orange .ic-box { background: rgba(245,158,11,0.18); color: #FBBF24; }
+.as-row.pink .ic-box { background: rgba(236,72,153,0.18); color: #F472B6; }
+.as-row.red .ic-box { background: rgba(239,68,68,0.18); color: #FCA5A5; }
+
+.as-row .m { flex: 1; min-width: 0; }
+.as-row .m .n {
+    font-size: 15px;
+    color: #fff;
+    font-weight: 500;
+    line-height: 1.3;
+}
+.as-row.danger .m .n { color: #FCA5A5; font-weight: 600; }
+.as-row .m .s {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 2px;
+    line-height: 1.3;
+}
+.as-row .arrow {
+    color: rgba(255,255,255,0.3);
+    font-size: 11px;
+}
+.as-row .chip {
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(251,191,36,0.2);
+    color: #FBBF24;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.as-cancel {
+    background: rgba(36,36,48,0.95);
+    backdrop-filter: blur(30px);
+    padding: 16px;
+    text-align: center;
+    border-radius: 14px;
+    color: #FF6060;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:42</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar">
+    <div class="nav-left"><div class="nav-btn" onclick="location.href='transaction-detail.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">账变详情</div>
+    <div class="nav-right">
+        <div class="nav-btn"><i class="fa-solid fa-share-nodes"></i></div>
+        <div class="nav-btn"><i class="fa-solid fa-ellipsis"></i></div>
+    </div>
+</div>
+
+<!-- 背景 -->
+<div class="app-content">
+    <div class="bg-hero">
+        <div class="ic-big"><i class="fa-solid fa-gift"></i></div>
+        <div class="lbl">TIP RECEIVED · 打赏收入</div>
+        <div class="amt">+$15.00</div>
+    </div>
+</div>
+
+<!-- ================== Action Sheet ================== -->
+<div class="sheet-overlay">
+    <div class="action-sheet">
+
+        <!-- 头部订单信息 -->
+        <div class="as-group">
+            <div class="as-header">
+                <div class="t"><span class="ic"><i class="fa-solid fa-gift"></i></span>打赏 · Emma_Jade</div>
+                <div class="s">T20260423092801F7A9</div>
+            </div>
+
+            <div class="as-row purple" onclick="location.href='transaction-share-poster.html'">
+                <div class="ic-box"><i class="fa-solid fa-image"></i></div>
+                <div class="m">
+                    <div class="n">生成收入海报</div>
+                    <div class="s">5 款模板，一键保存相册 / 分享</div>
+                </div>
+                <i class="fa-solid fa-chevron-right arrow"></i>
+            </div>
+
+            <div class="as-row blue">
+                <div class="ic-box"><i class="fa-regular fa-copy"></i></div>
+                <div class="m">
+                    <div class="n">复制交易单号</div>
+                    <div class="s">T20260423092801F7A9</div>
+                </div>
+                <i class="fa-solid fa-chevron-right arrow"></i>
+            </div>
+
+            <div class="as-row green">
+                <div class="ic-box"><i class="fa-solid fa-circle-check"></i></div>
+                <div class="m">
+                    <div class="n">查看结算凭证</div>
+                    <div class="s">分账批次 B-20260423-0928-A17</div>
+                </div>
+                <i class="fa-solid fa-chevron-right arrow"></i>
+            </div>
+
+            <div class="as-row pink">
+                <div class="ic-box"><i class="fa-solid fa-user-plus"></i></div>
+                <div class="m">
+                    <div class="n">查看粉丝主页</div>
+                    <div class="s">@emma_jade · 已关注 18 天</div>
+                </div>
+                <i class="fa-solid fa-chevron-right arrow"></i>
+            </div>
+
+            <div class="as-row pink">
+                <div class="ic-box"><i class="fa-regular fa-message"></i></div>
+                <div class="m">
+                    <div class="n">向该粉丝发送感谢</div>
+                    <div class="s">一键发送预设感谢私信</div>
+                </div>
+                <span class="chip">模板 × 3</span>
+            </div>
+        </div>
+
+        <!-- 问题处理 -->
+        <div class="as-group">
+            <div class="as-row orange" onclick="location.href='transaction-appeal.html'">
+                <div class="ic-box"><i class="fa-regular fa-flag"></i></div>
+                <div class="m">
+                    <div class="n">对该笔收入有疑问？发起申诉</div>
+                    <div class="s">72 小时内可提交申诉，平台 24h 内响应</div>
+                </div>
+                <i class="fa-solid fa-chevron-right arrow"></i>
+            </div>
+
+            <div class="as-row blue" onclick="location.href='transaction-contact.html'">
+                <div class="ic-box"><i class="fa-regular fa-comments"></i></div>
+                <div class="m">
+                    <div class="n">联系客服</div>
+                    <div class="s">7×24 在线 · 平均响应 &lt; 3 分钟</div>
+                </div>
+                <i class="fa-solid fa-chevron-right arrow"></i>
+            </div>
+
+            <div class="as-row red danger">
+                <div class="ic-box"><i class="fa-solid fa-user-slash"></i></div>
+                <div class="m">
+                    <div class="n">屏蔽该粉丝</div>
+                    <div class="s">对方将无法再向你打赏、订阅或发送消息</div>
+                </div>
+                <i class="fa-solid fa-chevron-right arrow"></i>
+            </div>
+
+            <div class="as-row red danger">
+                <div class="ic-box"><i class="fa-solid fa-ban"></i></div>
+                <div class="m">
+                    <div class="n">举报此笔交易</div>
+                    <div class="s">涉及违规 / 欺诈 / 恶意打赏等情形</div>
+                </div>
+                <i class="fa-solid fa-chevron-right arrow"></i>
+            </div>
+        </div>
+
+        <!-- 取消 -->
+        <div class="as-cancel" onclick="location.href='transaction-detail.html'">
+            取消
+        </div>
+
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>资金密码验证</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body {
+    background:
+        radial-gradient(ellipse at 50% 10%, rgba(168,85,247,0.12), transparent 55%),
+        radial-gradient(ellipse at 50% 95%, rgba(236,72,153,0.08), transparent 55%),
+        #0A0A12;
+}
+.nav-bar { background: rgba(10,10,18,0.8); backdrop-filter: blur(12px); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 20px;
+    opacity: 0.4;
+    filter: blur(1px);
+}
+
+.verify-hero { text-align: center; padding: 18px 20px 16px; }
+.verify-hero .ic {
+    width: 68px; height: 68px; margin: 0 auto 12px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 28px;
+    box-shadow: 0 16px 40px rgba(168,85,247,0.4);
+}
+.verify-hero h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+.verify-hero p { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+.tx-summary {
+    margin: 0 16px 16px;
+    padding: 16px;
+    background: linear-gradient(180deg, #1A1A26 0%, #12121C 100%);
+    border: 1px solid rgba(168,85,247,0.2);
+    border-radius: 16px;
+}
+.tx-big { text-align: center; padding: 8px 0 12px; }
+.tx-big .amt {
+    font-size: 34px; font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #fff, #C084FC);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.tx-big .cur { font-size: 18px; color: var(--text-secondary); font-weight: 600; margin-right: 2px; }
+
+/* ========= 弹窗 ========= */
+.verify-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.68);
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    backdrop-filter: blur(3px);
+    animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+.verify-sheet {
+    width: 100%;
+    background: linear-gradient(180deg, #1A1A26 0%, #12121C 100%);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 12px 0 30px;
+    box-shadow: 0 -20px 60px rgba(0,0,0,0.55);
+    animation: sheetUp 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.sheet-grab {
+    width: 44px; height: 5px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 3px;
+    margin: 0 auto 14px;
+}
+
+.sheet-head {
+    padding: 0 20px 4px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.sheet-head h2 {
+    font-size: 17px; font-weight: 700;
+    letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 8px;
+}
+.sheet-head h2 .ic {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(245,158,11,0.15);
+    color: #FBBF24;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+}
+.sheet-head .close {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: var(--text-secondary);
+}
+
+/* 上一步已通过提示 */
+.passed-row {
+    margin: 6px 20px 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(16,185,129,0.08);
+    border: 1px solid rgba(16,185,129,0.18);
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px;
+    color: #6EE7B7;
+}
+.passed-row .pic {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+}
+.passed-row b { color: #fff; font-weight: 600; }
+
+.sheet-sub {
+    padding: 0 20px 14px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    text-align: center;
+}
+.sheet-sub b { color: #fff; font-weight: 600; }
+
+/* 资金密码 dot */
+.pwd-dots {
+    display: flex; gap: 14px;
+    justify-content: center;
+    padding: 8px 0 16px;
+    position: relative;
+}
+.pwd-dots .pd {
+    width: 46px; height: 52px;
+    border-radius: 11px;
+    background: rgba(0,0,0,0.35);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+}
+.pwd-dots .pd .fill {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--brand-gradient);
+    box-shadow: 0 0 10px rgba(168,85,247,0.4);
+}
+.pwd-dots .pd.active {
+    border-color: var(--brand-purple);
+    background: rgba(168,85,247,0.08);
+    position: relative;
+}
+.pwd-dots .pd.active::after {
+    content: '';
+    width: 2px; height: 24px;
+    background: var(--brand-purple);
+    animation: blink 1s ease-in-out infinite;
+    position: absolute;
+}
+@keyframes blink { 0%, 100% { opacity: 1 } 50% { opacity: 0 } }
+
+.pwd-actions {
+    padding: 0 20px 10px;
+    display: flex; justify-content: space-between;
+    font-size: 11px;
+}
+.pwd-actions .forgot { color: var(--brand-purple); font-weight: 600; }
+.pwd-actions .info { color: var(--text-tertiary); }
+
+/* 安全数字键盘 */
+.keyboard {
+    margin: 4px 16px 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 8px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+}
+.kb-key {
+    height: 44px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.04);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    font-family: ui-monospace, monospace;
+    cursor: pointer;
+}
+.kb-key.grey { background: transparent; color: var(--text-tertiary); }
+
+/* 安全说明 */
+.safety-note {
+    margin: 4px 20px 14px;
+    padding: 10px 12px;
+    background: rgba(59,130,246,0.06);
+    border: 1px solid rgba(59,130,246,0.15);
+    border-radius: 10px;
+    display: flex; gap: 8px; align-items: flex-start;
+    font-size: 10px;
+    color: #93C5FD;
+    line-height: 1.5;
+}
+.safety-note i { color: #60A5FA; font-size: 10px; margin-top: 2px; }
+.safety-note b { color: #DBEAFE; }
+
+/* 底部按钮 */
+.sheet-bar {
+    padding: 10px 20px 0;
+    border-top: 0.5px solid rgba(255,255,255,0.06);
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" onclick="location.href='withdraw-fiat-verify.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">安全验证</div>
+    <div class="nav-right"><div class="nav-btn"><i class="fa-regular fa-circle-question"></i></div></div>
+</div>
+
+<!-- 背景页（模糊） -->
+<div class="app-content">
+    <div class="verify-hero">
+        <div class="ic"><i class="fa-solid fa-shield-halved"></i></div>
+        <h2>提现安全验证</h2>
+        <p>再完成最后一步</p>
+    </div>
+
+    <div class="tx-summary">
+        <div class="tx-big">
+            <span class="cur">¥</span><span class="amt">2,000.00</span>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 资金密码弹窗 ========== -->
+<div class="verify-overlay">
+    <div class="verify-sheet">
+        <div class="sheet-grab"></div>
+
+        <div class="sheet-head">
+            <h2>
+                <span class="ic"><i class="fa-solid fa-key"></i></span>
+                输入资金密码
+            </h2>
+            <div class="close"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+
+        <div class="passed-row">
+            <div class="pic"><i class="fa-solid fa-check"></i></div>
+            <span>身份验证已通过（手机号 138 •••• 2025）</span>
+        </div>
+
+        <div class="sheet-sub">
+            请输入 <b>6 位</b>资金密码以确认提交 <b>¥2,000.00</b> 提现订单
+        </div>
+
+        <!-- 密码 dot -->
+        <div class="pwd-dots">
+            <div class="pd"><div class="fill"></div></div>
+            <div class="pd"><div class="fill"></div></div>
+            <div class="pd"><div class="fill"></div></div>
+            <div class="pd"><div class="fill"></div></div>
+            <div class="pd active"></div>
+            <div class="pd"></div>
+        </div>
+
+        <div class="pwd-actions">
+            <span class="info"><i class="fa-solid fa-shield-halved" style="color:#6EE7B7; margin-right:3px"></i> 键盘每次随机排序</span>
+            <span class="forgot">忘记资金密码？</span>
+        </div>
+
+        <!-- 安全数字键盘（随机顺序） -->
+        <div class="keyboard">
+            <div class="kb-key">7</div>
+            <div class="kb-key">3</div>
+            <div class="kb-key">9</div>
+            <div class="kb-key">1</div>
+            <div class="kb-key">5</div>
+            <div class="kb-key">2</div>
+            <div class="kb-key">6</div>
+            <div class="kb-key">0</div>
+            <div class="kb-key">8</div>
+            <div class="kb-key grey"><i class="fa-solid fa-shuffle" style="font-size:14px"></i></div>
+            <div class="kb-key">4</div>
+            <div class="kb-key grey"><i class="fa-solid fa-delete-left" style="font-size:16px"></i></div>
+        </div>
+
+        <!-- 安全说明 -->
+        <div class="safety-note">
+            <i class="fa-solid fa-lock"></i>
+            <span>
+                <b>资金安全</b>：资金密码独立于登录密码，仅用于提现/支付场景。FansLoop 不会明文存储你的密码。
+            </span>
+        </div>
+
+        <!-- 底部按钮 -->
+        <div class="sheet-bar">
+            <button class="btn btn-primary btn-block" onclick="location.href='withdraw-fiat-success.html'">
+                <i class="fa-solid fa-fingerprint"></i>
+                确认并提交提现 ¥2,000.00
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

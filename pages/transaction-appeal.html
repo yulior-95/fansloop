@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>发起申诉</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body { background: #0A0A12; }
+.nav-bar {
+    background: rgba(10,10,18,0.6);
+    backdrop-filter: blur(16px);
+    z-index: 110;
+}
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 20px;
+    opacity: 0.38;
+    filter: blur(1.5px);
+}
+.bg-card {
+    margin: 8px 16px 12px;
+    padding: 14px;
+    background: var(--bg-card);
+    border-radius: 14px;
+    text-align: center;
+}
+.bg-card .t { font-size: 13px; color: #fff; font-weight: 600; }
+
+/* ===== 弹窗 ===== */
+.sheet-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.68);
+    z-index: 100;
+    display: flex; align-items: flex-end;
+    backdrop-filter: blur(3px);
+    animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+.sheet {
+    width: 100%;
+    background: linear-gradient(180deg, #1A1A26 0%, #12121C 100%);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 12px 0 30px;
+    max-height: 92%;
+    display: flex; flex-direction: column;
+    box-shadow: 0 -20px 60px rgba(0,0,0,0.5);
+    animation: sheetUp 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.grab { width: 44px; height: 5px; background: rgba(255,255,255,0.18); border-radius: 3px; margin: 0 auto 12px; }
+
+.head {
+    padding: 0 20px 14px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+    margin-bottom: 12px;
+}
+.head h2 {
+    font-size: 17px; font-weight: 700;
+    letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 8px;
+}
+.head h2 .ic {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: linear-gradient(135deg, #F59E0B, #DC2626);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+}
+.head h2 .sub {
+    display: block;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    margin-top: 2px;
+    letter-spacing: 0;
+}
+.head .close {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.body {
+    overflow-y: auto;
+    padding: 0 20px 4px;
+    flex: 1;
+}
+
+/* 订单简要 */
+.order-mini {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+.order-mini .oic {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, #EC4899, #BE185D);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 14px;
+}
+.order-mini .om {
+    flex: 1; min-width: 0;
+}
+.order-mini .om .t {
+    font-size: 13px; font-weight: 600; color: #fff;
+}
+.order-mini .om .s {
+    font-size: 10px; color: var(--text-tertiary);
+    margin-top: 2px;
+    font-family: ui-monospace, monospace;
+}
+.order-mini .or {
+    text-align: right;
+    flex-shrink: 0;
+}
+.order-mini .or .v {
+    font-size: 14px; font-weight: 700; color: #6EE7B7;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Section */
+.sec { margin-bottom: 16px; }
+.sec-title {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 5px;
+}
+.sec-title i { color: #FBBF24; font-size: 10px; }
+.sec-title .req {
+    color: #FCA5A5;
+    font-weight: 800;
+}
+
+/* 申诉类型 */
+.reason-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+.reason {
+    padding: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer;
+    position: relative;
+}
+.reason.active {
+    border-color: rgba(251,191,36,0.5);
+    background: rgba(251,191,36,0.08);
+    box-shadow: 0 0 0 3px rgba(251,191,36,0.08);
+}
+.reason .r-ic {
+    width: 32px; height: 32px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+.reason.fraud .r-ic { background: linear-gradient(135deg, #EF4444, #B91C1C); }
+.reason.miss .r-ic { background: linear-gradient(135deg, #F59E0B, #D97706); }
+.reason.mis .r-ic { background: linear-gradient(135deg, #3B82F6, #1D4ED8); }
+.reason.amount .r-ic { background: linear-gradient(135deg, #10B981, #059669); }
+.reason.other .r-ic { background: linear-gradient(135deg, #64748B, #475569); }
+
+.reason .r-m { flex: 1; min-width: 0; }
+.reason .r-m .n { font-size: 12.5px; font-weight: 600; color: #fff; }
+.reason .r-m .d { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; line-height: 1.3; }
+.reason .r-check {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    color: transparent;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 7px;
+}
+.reason.active .r-check {
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    color: #7C2D12;
+}
+
+/* 文本说明 */
+.textarea-wrap {
+    position: relative;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 10px 12px;
+}
+.textarea-wrap textarea {
+    width: 100%;
+    min-height: 84px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: none;
+}
+.textarea-wrap textarea::placeholder { color: var(--text-tertiary); }
+.textarea-wrap .counter {
+    position: absolute;
+    right: 10px; bottom: 8px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+}
+.textarea-wrap .counter .curr { color: #C084FC; font-weight: 600; }
+
+/* 证据上传 */
+.evidence-row {
+    display: flex; gap: 8px; flex-wrap: wrap;
+}
+.evidence-item {
+    width: 74px; height: 74px;
+    border-radius: 11px;
+    position: relative;
+    overflow: hidden;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    background-size: cover; background-position: center;
+}
+.evidence-item.img1 { background-image: url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=200&h=200&fit=crop'); }
+.evidence-item.img2 { background-image: url('https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?w=200&h=200&fit=crop'); }
+.evidence-item .del {
+    position: absolute;
+    top: 4px; right: 4px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+    cursor: pointer;
+}
+.evidence-upload {
+    width: 74px; height: 74px;
+    border-radius: 11px;
+    background: rgba(255,255,255,0.03);
+    border: 1.5px dashed rgba(168,85,247,0.35);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 4px;
+    color: var(--brand-purple);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+}
+.evidence-upload i { font-size: 18px; }
+
+.upload-hint {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+    display: flex; align-items: center; gap: 4px;
+}
+.upload-hint i { color: #60A5FA; font-size: 9px; }
+
+/* 联系方式 */
+.contact-row {
+    display: flex; gap: 8px;
+    align-items: center;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+}
+.contact-row .prefix {
+    color: var(--text-tertiary);
+    font-size: 12px;
+    padding-right: 8px;
+    border-right: 1px solid rgba(255,255,255,0.08);
+}
+.contact-row input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 13px;
+}
+.contact-row input::placeholder { color: var(--text-tertiary); }
+
+/* 流程提示 */
+.process-card {
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    background: rgba(251,191,36,0.06);
+    border: 1px solid rgba(251,191,36,0.18);
+    border-radius: 12px;
+}
+.process-card .pt {
+    font-size: 11px; font-weight: 700;
+    color: #FBBF24;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 5px;
+}
+.process-card .pt i { font-size: 10px; }
+.process-step {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 4px 0;
+}
+.process-step .p-n {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(251,191,36,0.2);
+    color: #FBBF24;
+    font-size: 9px;
+    font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.process-step .p-t { font-size: 11px; color: #fff; flex: 1; }
+.process-step .p-t .s { color: var(--text-tertiary); font-size: 10px; display: block; margin-top: 1px; }
+
+/* 底部按钮 */
+.sheet-bar {
+    padding: 10px 20px 0;
+    border-top: 0.5px solid rgba(255,255,255,0.06);
+    display: flex; gap: 10px;
+    margin-top: 4px;
+}
+.sheet-bar .btn.sec {
+    flex: 0 0 100px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text-secondary);
+    height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+.sheet-bar .btn.main { flex: 1; }
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:43</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar">
+    <div class="nav-left"><div class="nav-btn" onclick="location.href='transaction-detail.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">账变详情</div>
+</div>
+
+<div class="app-content">
+    <div class="bg-card">
+        <div class="t">打赏 · Emma_Jade · +$15.00</div>
+    </div>
+    <div style="height: 240px"></div>
+</div>
+
+<!-- ================= 申诉弹窗 ================= -->
+<div class="sheet-overlay">
+    <div class="sheet">
+        <div class="grab"></div>
+
+        <div class="head">
+            <h2>
+                <span class="ic"><i class="fa-regular fa-flag"></i></span>
+                <span>
+                    发起申诉
+                    <span class="sub">请尽可能详细描述，以便平台快速处理</span>
+                </span>
+            </h2>
+            <div class="close" onclick="location.href='transaction-detail.html'"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+
+        <div class="body">
+
+            <!-- 订单简要 -->
+            <div class="order-mini">
+                <div class="oic"><i class="fa-solid fa-gift"></i></div>
+                <div class="om">
+                    <div class="t">打赏 · Emma_Jade · 超级火箭 🚀</div>
+                    <div class="s">T20260423092801F7A9 · 2026-04-23 09:28</div>
+                </div>
+                <div class="or">
+                    <div class="v">+$15.00</div>
+                </div>
+            </div>
+
+            <!-- 申诉流程 -->
+            <div class="process-card">
+                <div class="pt"><i class="fa-solid fa-route"></i>申诉处理流程</div>
+                <div class="process-step"><div class="p-n">1</div><div class="p-t">你提交申诉材料<span class="s">须在交易 72 小时内</span></div></div>
+                <div class="process-step"><div class="p-n">2</div><div class="p-t">平台客服 24 小时内响应并核查<span class="s">涉及风控 / 内容 / 资金三部门</span></div></div>
+                <div class="process-step"><div class="p-n">3</div><div class="p-t">结果通知 + 资金调整<span class="s">若申诉成立，将冻结 / 扣除 / 退还相关金额</span></div></div>
+            </div>
+
+            <!-- 申诉类型 -->
+            <div class="sec">
+                <div class="sec-title"><i class="fa-solid fa-shapes"></i>申诉类型<span class="req"> · 必选</span></div>
+                <div class="reason-grid">
+                    <div class="reason fraud active">
+                        <div class="r-check"><i class="fa-solid fa-check"></i></div>
+                        <div class="r-ic"><i class="fa-solid fa-user-slash"></i></div>
+                        <div class="r-m">
+                            <div class="n">涉嫌欺诈</div>
+                            <div class="d">盗刷 / 钓鱼 / 身份冒用</div>
+                        </div>
+                    </div>
+                    <div class="reason miss">
+                        <div class="r-check"><i class="fa-solid fa-check"></i></div>
+                        <div class="r-ic"><i class="fa-solid fa-ban"></i></div>
+                        <div class="r-m">
+                            <div class="n">误操作</div>
+                            <div class="d">粉丝反馈为手滑 / 错送</div>
+                        </div>
+                    </div>
+                    <div class="reason mis">
+                        <div class="r-check"><i class="fa-solid fa-check"></i></div>
+                        <div class="r-ic"><i class="fa-solid fa-circle-exclamation"></i></div>
+                        <div class="r-m">
+                            <div class="n">内容违规</div>
+                            <div class="d">直播 / 订阅内容被误判</div>
+                        </div>
+                    </div>
+                    <div class="reason amount">
+                        <div class="r-check"><i class="fa-solid fa-check"></i></div>
+                        <div class="r-ic"><i class="fa-solid fa-calculator"></i></div>
+                        <div class="r-m">
+                            <div class="n">金额异常</div>
+                            <div class="d">实收金额与预期不符</div>
+                        </div>
+                    </div>
+                    <div class="reason other">
+                        <div class="r-check"><i class="fa-solid fa-check"></i></div>
+                        <div class="r-ic"><i class="fa-regular fa-comment-dots"></i></div>
+                        <div class="r-m">
+                            <div class="n">其他</div>
+                            <div class="d">需详细说明</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 描述 -->
+            <div class="sec">
+                <div class="sec-title"><i class="fa-regular fa-pen-to-square"></i>详细说明<span class="req"> · 必填 ≥ 20 字</span></div>
+                <div class="textarea-wrap">
+                    <textarea placeholder="例如：粉丝 Emma_Jade 反馈该笔打赏是家人误操作，希望可以配合退回该笔金额 …">粉丝 Emma_Jade 于昨天通过私信告知，该笔打赏为其家人误触所致，希望平台协助退回本笔金额。已协商，不影响双方关系。</textarea>
+                    <div class="counter"><span class="curr">54</span>/500</div>
+                </div>
+            </div>
+
+            <!-- 证据 -->
+            <div class="sec">
+                <div class="sec-title"><i class="fa-regular fa-image"></i>证据材料<span style="color:var(--text-tertiary); font-weight:500; margin-left: 4px">· 可选，最多 9 张</span></div>
+                <div class="evidence-row">
+                    <div class="evidence-item img1">
+                        <div class="del"><i class="fa-solid fa-xmark"></i></div>
+                    </div>
+                    <div class="evidence-item img2">
+                        <div class="del"><i class="fa-solid fa-xmark"></i></div>
+                    </div>
+                    <div class="evidence-upload">
+                        <i class="fa-solid fa-plus"></i>
+                        上传
+                    </div>
+                </div>
+                <div class="upload-hint">
+                    <i class="fa-solid fa-circle-info"></i>
+                    建议上传聊天记录截图 / 粉丝反馈 / 银行凭证等
+                </div>
+            </div>
+
+            <!-- 联系方式 -->
+            <div class="sec">
+                <div class="sec-title"><i class="fa-solid fa-phone"></i>联系方式<span class="req"> · 必填</span></div>
+                <div class="contact-row">
+                    <span class="prefix">+86</span>
+                    <input type="tel" value="138 **** 6688" />
+                </div>
+                <div class="upload-hint">
+                    <i class="fa-solid fa-circle-info"></i>
+                    客服可能通过短信 / 电话与你确认细节
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 底部 -->
+        <div class="sheet-bar">
+            <button class="btn sec" onclick="location.href='transaction-detail.html'">
+                <i class="fa-solid fa-xmark"></i>
+                取消
+            </button>
+            <button class="btn btn-primary main" onclick="location.href='transaction-contact.html'">
+                <i class="fa-regular fa-paper-plane"></i>
+                提交申诉（24h 内响应）
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

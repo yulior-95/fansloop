@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>订单超时取消</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body {
+    background:
+        radial-gradient(ellipse at 50% 10%, rgba(245,158,11,0.12), transparent 55%),
+        #0A0A12;
+}
+.nav-bar { background: rgba(10,10,18,0.8); backdrop-filter: blur(12px); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 120px;
+}
+
+/* Hero */
+.timeout-hero {
+    text-align: center;
+    padding: 32px 20px 24px;
+    position: relative;
+}
+
+.timeout-ring {
+    width: 120px; height: 120px;
+    margin: 0 auto 18px;
+    position: relative;
+}
+.timeout-ring .ring {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    border: 2px dashed rgba(245,158,11,0.3);
+    animation: rotate-slow 20s linear infinite;
+}
+@keyframes rotate-slow { to { transform: rotate(360deg); } }
+
+.timeout-ring .core {
+    position: absolute; inset: 14px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #F59E0B, #DC2626);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 42px;
+    box-shadow: 0 20px 50px rgba(245,158,11,0.4),
+                inset 0 2px 0 rgba(255,255,255,0.25);
+    position: relative;
+}
+.timeout-ring .core::after {
+    content: '';
+    position: absolute; inset: -8px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(245,158,11,0.4);
+    animation: halo-out 2.2s ease-out infinite;
+}
+@keyframes halo-out {
+    0% { transform: scale(0.9); opacity: 1; }
+    100% { transform: scale(1.3); opacity: 0; }
+}
+
+.timeout-hero h1 {
+    font-size: 22px; font-weight: 800;
+    letter-spacing: -0.3px;
+    background: linear-gradient(135deg, #fff 20%, #FBBF24 80%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.timeout-hero .sub {
+    font-size: 13px; color: var(--text-secondary);
+    margin-top: 6px; line-height: 1.5;
+    padding: 0 20px;
+}
+
+.timeout-hero .status-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px;
+    margin-top: 12px;
+    background: rgba(239,68,68,0.15);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 999px;
+    font-size: 11px;
+    color: #FCA5A5;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+.timeout-hero .status-chip i { font-size: 8px; }
+
+/* 订单凭证（收据样式） */
+.receipt {
+    margin: 0 16px 16px;
+    background: var(--bg-card);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 18px;
+    position: relative;
+    overflow: hidden;
+}
+.receipt::before, .receipt::after {
+    content: ''; position: absolute;
+    width: 16px; height: 16px;
+    background: #0A0A12;
+    border-radius: 50%;
+    top: 60px;
+}
+.receipt::before { left: -8px; }
+.receipt::after { right: -8px; }
+
+.r-top {
+    padding: 16px 18px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 2px dashed rgba(255,255,255,0.06);
+}
+.r-top .bl {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: rgba(245,158,11,0.15);
+    color: #FBBF24;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.r-top .bi { flex: 1; min-width: 0; }
+.r-top .bi .bn { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.r-top .bi .bn .tag {
+    font-size: 9px; padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(239,68,68,0.15);
+    color: #FCA5A5;
+    font-weight: 700;
+}
+.r-top .bi .bnum {
+    font-size: 11px; color: var(--text-tertiary);
+    font-family: ui-monospace, monospace;
+    margin-top: 3px;
+}
+
+.r-body { padding: 10px 18px 16px; }
+.r-row {
+    display: flex; justify-content: space-between;
+    padding: 6px 0;
+    font-size: 12px;
+    align-items: center;
+}
+.r-row .k { color: var(--text-tertiary); }
+.r-row .v {
+    color: #fff; font-weight: 500;
+    font-family: ui-monospace, monospace;
+    max-width: 60%;
+    text-align: right;
+    word-break: break-all;
+}
+.r-row .v.amount { color: #FBBF24; font-size: 15px; font-weight: 700; font-family: inherit; }
+.r-row .v.canceled { color: #FCA5A5; font-family: inherit; }
+.r-row .v.red { color: #FCA5A5; }
+
+/* 时间轴 */
+.timeline {
+    margin: 0 16px 16px;
+    padding: 16px 18px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+}
+.tl-title {
+    font-size: 11px; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 6px;
+}
+.tl-title i { color: #FBBF24; }
+
+.tl-track { position: relative; padding-left: 26px; }
+.tl-step { position: relative; padding-bottom: 14px; }
+.tl-step:last-child { padding-bottom: 0; }
+.tl-step::before {
+    content: ''; position: absolute;
+    left: -19px; top: 16px; bottom: -4px;
+    width: 2px;
+    background: rgba(245,158,11,0.2);
+}
+.tl-step:last-child::before { display: none; }
+
+.tl-dot {
+    position: absolute;
+    left: -24px; top: 2px;
+    width: 14px; height: 14px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 7px;
+    font-weight: 700;
+    z-index: 1;
+}
+.tl-step.done .tl-dot { background: linear-gradient(135deg, #10B981, #059669); }
+.tl-step.canceled .tl-dot { background: linear-gradient(135deg, #F59E0B, #DC2626); }
+.tl-step.canceled .tl-dot {
+    box-shadow: 0 2px 8px rgba(245,158,11,0.4);
+}
+
+.tl-step .tl-t { font-size: 13px; font-weight: 600; color: #fff; }
+.tl-step .tl-s {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+}
+.tl-step.canceled .tl-t { color: #FBBF24; }
+
+/* 常见问题 */
+.faq-box {
+    margin: 0 16px 14px;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border-radius: 14px;
+}
+.faq-title {
+    font-size: 12px; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+}
+.faq-title i { color: var(--brand-purple); }
+
+.faq-item {
+    padding: 8px 0;
+    border-top: 0.5px solid rgba(255,255,255,0.06);
+}
+.faq-item:first-of-type { border: none; padding-top: 4px; }
+.faq-q {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px;
+    color: #fff;
+    font-weight: 500;
+}
+.faq-q i {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: rgba(168,85,247,0.2);
+    color: var(--brand-purple);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+    flex-shrink: 0;
+}
+.faq-a {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    padding-left: 24px;
+    line-height: 1.6;
+}
+
+/* 联系客服 */
+.cs-card {
+    margin: 0 16px 14px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(59,130,246,0.04));
+    border: 1px solid rgba(168,85,247,0.18);
+    border-radius: 12px;
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer;
+}
+.cs-card .cs-ic {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+.cs-card .cs-txt {
+    flex: 1;
+    font-size: 12px;
+    color: #fff;
+    font-weight: 500;
+    line-height: 1.4;
+}
+.cs-card .cs-txt .sub { color: var(--text-tertiary); font-size: 11px; font-weight: 400; margin-top: 2px; }
+.cs-card .cs-arrow { color: var(--text-tertiary); font-size: 12px; }
+
+/* 底部按钮 */
+.submit-bar {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 10px 16px 30px;
+    background: rgba(10,10,18,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 0.5px solid var(--border-color);
+    z-index: 20;
+    display: flex; gap: 10px;
+}
+.submit-bar .btn.sec {
+    flex: 0 0 110px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-secondary);
+}
+.submit-bar .btn.main { flex: 1; }
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:56</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" onclick="location.href='recharge.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">订单详情</div>
+    <div class="nav-right"><div class="nav-btn"><i class="fa-solid fa-share-nodes"></i></div></div>
+</div>
+
+<div class="app-content">
+
+    <!-- Hero -->
+    <div class="timeout-hero">
+        <div class="timeout-ring">
+            <div class="ring"></div>
+            <div class="core">
+                <i class="fa-regular fa-hourglass"></i>
+            </div>
+        </div>
+
+        <h1>订单已超时取消</h1>
+        <p class="sub">因 15 分钟内未检测到链上转账，订单已自动关闭</p>
+        <div class="status-chip">
+            <i class="fa-solid fa-circle"></i>
+            订单已取消 · CANCELED
+        </div>
+    </div>
+
+    <!-- 订单凭证 -->
+    <div class="receipt">
+        <div class="r-top">
+            <div class="bl"><i class="fa-brands fa-bitcoin"></i></div>
+            <div class="bi">
+                <div class="bn">
+                    USDT 充值订单
+                    <span class="tag">已取消</span>
+                </div>
+                <div class="bnum">TRC20 · TRON Network</div>
+            </div>
+        </div>
+
+        <div class="r-body">
+            <div class="r-row">
+                <span class="k">充值数量</span>
+                <span class="v amount">100.00 USDT</span>
+            </div>
+            <div class="r-row">
+                <span class="k">订单号</span>
+                <span class="v">R20260423094128F7A9</span>
+            </div>
+            <div class="r-row">
+                <span class="k">收款地址</span>
+                <span class="v" style="font-size:11px">TF9K5y8a...qJcV3p</span>
+            </div>
+            <div class="r-row">
+                <span class="k">订单状态</span>
+                <span class="v canceled">已超时取消</span>
+            </div>
+            <div class="r-row">
+                <span class="k">创建时间</span>
+                <span class="v" style="font-family:inherit">2026-04-23 09:41:28</span>
+            </div>
+            <div class="r-row">
+                <span class="k">取消时间</span>
+                <span class="v" style="font-family:inherit">2026-04-23 09:56:28</span>
+            </div>
+            <div class="r-row">
+                <span class="k">订单有效期</span>
+                <span class="v red" style="font-family:inherit">15 分钟 · 已耗尽</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 时间轴 -->
+    <div class="timeline">
+        <div class="tl-title"><i class="fa-solid fa-route"></i>订单时间轴</div>
+        <div class="tl-track">
+            <div class="tl-step done">
+                <div class="tl-dot"><i class="fa-solid fa-check"></i></div>
+                <div class="tl-t">订单已创建</div>
+                <div class="tl-s">09:41:28 · 生成收款地址 + 15 分钟倒计时</div>
+            </div>
+            <div class="tl-step done">
+                <div class="tl-dot"><i class="fa-solid fa-eye"></i></div>
+                <div class="tl-t">链上监听中</div>
+                <div class="tl-s">09:41:30 - 09:56:28 · 持续监听 TRC20 入账</div>
+            </div>
+            <div class="tl-step canceled">
+                <div class="tl-dot"><i class="fa-solid fa-xmark"></i></div>
+                <div class="tl-t">订单超时关闭</div>
+                <div class="tl-s">09:56:28 · 未检测到链上转账，订单已取消</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 常见问题 -->
+    <div class="faq-box">
+        <div class="faq-title">
+            <i class="fa-regular fa-circle-question"></i>
+            常见问题
+        </div>
+        <div class="faq-item">
+            <div class="faq-q"><i class="fa-solid fa-circle-exclamation"></i> 我已经转账了，怎么办？</div>
+            <div class="faq-a">若链上已广播，资金会被自动退回至原地址（扣除 Gas 费）。若长时间未到账，可联系客服提供 TxID 核查。</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q"><i class="fa-solid fa-clock"></i> 为什么订单会超时？</div>
+            <div class="faq-a">为保证收款地址安全与资金追溯，每笔订单 15 分钟内需完成转账，超时后地址不再绑定本订单。</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q"><i class="fa-solid fa-arrow-rotate-right"></i> 如何再次充值？</div>
+            <div class="faq-a">点击下方「重新充值」将重新生成订单与新的收款地址（地址可能与本订单不同）。</div>
+        </div>
+    </div>
+
+    <!-- 联系客服 -->
+    <div class="cs-card">
+        <div class="cs-ic"><i class="fa-regular fa-message"></i></div>
+        <div class="cs-txt">
+            转账后未到账？联系客服核查
+            <div class="sub">7×24 小时在线支持 · 响应 &lt; 5 分钟</div>
+        </div>
+        <i class="fa-solid fa-chevron-right cs-arrow"></i>
+    </div>
+
+</div>
+
+<div class="submit-bar">
+    <button class="btn sec" onclick="location.href='transactions.html'">
+        <i class="fa-regular fa-clock-rotate-left"></i>
+        查看记录
+    </button>
+    <button class="btn btn-primary main" onclick="location.href='recharge.html'">
+        <i class="fa-solid fa-arrow-rotate-right"></i>
+        重新充值
+    </button>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

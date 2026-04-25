@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>法币充值</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 100px;
+}
+
+.currency-switch {
+    margin: 8px 16px 14px;
+    display: flex;
+    background: var(--bg-card);
+    border-radius: var(--radius-full);
+    padding: 4px;
+}
+.currency-switch .s {
+    flex: 1;
+    padding: 10px 0;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-secondary);
+    border-radius: var(--radius-full);
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px;
+    font-weight: 500;
+    cursor: pointer;
+}
+.currency-switch .s.active {
+    background: var(--brand-gradient);
+    color: #fff; font-weight: 700;
+    box-shadow: 0 4px 12px rgba(168,85,247,0.3);
+}
+
+/* 金额 */
+.amount-card {
+    margin: 0 16px 12px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(22,119,255,0.08), rgba(7,193,96,0.04));
+    border: 1px solid rgba(22,119,255,0.22);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.amount-card::before {
+    content: ''; position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(22,119,255,0.18), transparent 70%);
+}
+.amount-card .label {
+    font-size: 11px; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-weight: 600;
+    position: relative;
+}
+.amount-card .input-box {
+    display: flex; align-items: baseline; justify-content: center;
+    gap: 4px;
+    margin-top: 8px;
+    position: relative;
+}
+.amount-card .symbol { font-size: 24px; color: var(--text-secondary); font-weight: 600; }
+.amount-card .input {
+    font-size: 42px; font-weight: 800;
+    color: var(--text-primary);
+    min-width: 160px; max-width: 220px;
+    outline: none;
+    background: transparent;
+    border: none;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+    letter-spacing: -1px;
+}
+.amount-card .unit-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px;
+    background: rgba(22,119,255,0.15);
+    border: 1px solid rgba(22,119,255,0.3);
+    border-radius: 999px;
+    font-size: 11px; color: #60A5FA;
+    font-weight: 600;
+    margin-top: 6px;
+    position: relative;
+}
+.amount-card .equiv {
+    font-size: 12px; color: var(--text-tertiary);
+    margin-top: 8px;
+    position: relative;
+}
+.amount-card .equiv b { color: var(--crypto-green); font-weight: 600; }
+
+.quick-amounts {
+    margin: 0 16px 16px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+.quick-amounts .qa {
+    padding: 10px 0;
+    text-align: center;
+    border-radius: var(--radius-md);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+.quick-amounts .qa.active {
+    background: rgba(22,119,255,0.12);
+    border-color: #3B82F6;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.section-title {
+    padding: 4px 16px 10px;
+    font-size: 12px; color: var(--text-tertiary);
+    font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.section-title .more {
+    color: var(--brand-purple);
+    font-size: 11px; font-weight: 500;
+    text-transform: none; letter-spacing: 0;
+}
+
+/* 银行卡 */
+.bank-card {
+    margin: 0 16px 12px;
+    padding: 16px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 50%, #60A5FA 100%);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(30,64,175,0.35);
+    cursor: pointer;
+}
+.bank-card::before {
+    content: ''; position: absolute;
+    top: -30px; right: -30px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+}
+.bank-card::after {
+    content: ''; position: absolute;
+    bottom: -40px; left: -20px;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+}
+.bank-card .bc-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    position: relative;
+    margin-bottom: 18px;
+}
+.bank-card .bc-logo {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    color: #DC2626;
+    font-size: 14px;
+    font-weight: 900;
+}
+.bank-card .bc-name {
+    font-size: 14px; font-weight: 700;
+    margin-top: 2px;
+}
+.bank-card .bc-type {
+    font-size: 10px; color: rgba(255,255,255,0.8);
+    margin-top: 1px;
+}
+.bank-card .bc-default {
+    padding: 3px 8px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 600;
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; gap: 3px;
+}
+.bank-card .bc-default i { font-size: 8px; }
+.bank-card .bc-num {
+    position: relative;
+    font-family: ui-monospace, "SF Mono", monospace;
+    font-size: 17px;
+    letter-spacing: 3px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+.bank-card .bc-bottom {
+    position: relative;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    font-size: 11px;
+}
+.bank-card .bc-bottom .k { color: rgba(255,255,255,0.7); margin-bottom: 2px; }
+.bank-card .bc-bottom .v { font-weight: 600; }
+.bank-card .bc-switch {
+    padding: 4px 10px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 8px;
+    font-size: 11px;
+    display: flex; align-items: center; gap: 4px;
+    backdrop-filter: blur(6px);
+}
+
+/* 支付说明 */
+.pay-info {
+    margin: 0 16px 12px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 12px 16px;
+}
+.pay-info .row {
+    display: flex; justify-content: space-between;
+    padding: 6px 0;
+    font-size: 13px;
+}
+.pay-info .row .k { color: var(--text-tertiary); }
+.pay-info .row .v { color: #fff; font-weight: 500; }
+.pay-info .row .v.accent { color: #60A5FA; }
+
+/* 第三方服务商 */
+.provider {
+    margin: 0 16px 14px;
+    padding: 12px 14px;
+    background: rgba(16,185,129,0.06);
+    border: 1px solid rgba(16,185,129,0.18);
+    border-radius: var(--radius-md);
+    display: flex; align-items: center; gap: 10px;
+}
+.provider .ic {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, #10B981, #059669);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+.provider .txt {
+    flex: 1;
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+.provider .txt b { color: #6EE7B7; font-weight: 600; }
+
+/* 服务协议 */
+.protocol {
+    margin: 0 16px 16px;
+    padding: 0 4px;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+.protocol .chk {
+    width: 16px; height: 16px;
+    border-radius: 4px;
+    background: var(--brand-gradient);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 9px;
+    flex-shrink: 0;
+}
+.protocol a { color: var(--brand-purple); text-decoration: none; }
+
+.submit-bar {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 10px 16px 30px;
+    background: rgba(10,10,18,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 0.5px solid var(--border-color);
+    z-index: 20;
+}
+
+/* =========================================
+   未绑卡 · 快捷弹窗 overlay
+   ========================================= */
+.bind-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+.bind-sheet {
+    width: 100%;
+    background: linear-gradient(180deg, #1A1A26 0%, #12121C 100%);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 12px 20px 30px;
+    box-shadow: 0 -20px 60px rgba(0,0,0,0.5);
+    max-height: 82%;
+    overflow-y: auto;
+    animation: sheetUp 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes sheetUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.bind-sheet .grab {
+    width: 44px; height: 5px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 3px;
+    margin: 0 auto 16px;
+}
+
+/* 提醒横幅 */
+.bind-head {
+    text-align: center;
+    padding: 0 4px 16px;
+}
+.bind-head .ill {
+    width: 72px; height: 72px; margin: 0 auto 12px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(22,119,255,0.2), rgba(168,85,247,0.15));
+    border: 1px solid rgba(22,119,255,0.3);
+    display: flex; align-items: center; justify-content: center;
+    color: #60A5FA;
+    font-size: 30px;
+    position: relative;
+}
+.bind-head .ill::before {
+    content: '!';
+    position: absolute; top: -6px; right: -6px;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: #F59E0B;
+    border: 2px solid #12121C;
+    color: #fff;
+    font-weight: 800;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+}
+.bind-head h2 {
+    font-size: 20px; font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: -0.3px;
+}
+.bind-head p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* 快捷表单 */
+.quick-form {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 6px 14px;
+    margin-bottom: 14px;
+}
+.quick-field {
+    padding: 12px 0;
+    display: flex; align-items: center; gap: 10px;
+}
+.quick-field + .quick-field {
+    border-top: 0.5px solid rgba(255,255,255,0.08);
+}
+.quick-field .q-ic {
+    width: 32px; height: 32px; border-radius: 10px;
+    background: rgba(168,85,247,0.12);
+    color: var(--brand-purple);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+.quick-field .q-main {
+    flex: 1;
+    display: flex; flex-direction: column;
+    gap: 2px;
+}
+.quick-field .q-label {
+    font-size: 10px; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.quick-field .q-input {
+    background: transparent; border: none; outline: none;
+    color: #fff; font-size: 15px; font-weight: 500;
+    padding: 0;
+    font-family: inherit;
+}
+.quick-field .q-input::placeholder { color: var(--text-muted); }
+.quick-field .q-suffix {
+    flex-shrink: 0;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgba(168,85,247,0.15);
+    border: 1px solid rgba(168,85,247,0.25);
+    color: var(--brand-purple);
+    font-size: 11px;
+    font-weight: 600;
+}
+.quick-field .q-bank {
+    padding: 3px 8px;
+    background: rgba(220,38,38,0.15);
+    border-radius: 6px;
+    font-size: 10px;
+    color: #FCA5A5;
+    font-weight: 600;
+    display: flex; align-items: center; gap: 3px;
+}
+
+/* 安全说明 */
+.safety-row {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-bottom: 14px;
+    justify-content: center;
+}
+.safety-row .sb {
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(16,185,129,0.08);
+    color: #6EE7B7;
+    border: 1px solid rgba(16,185,129,0.2);
+    display: flex; align-items: center; gap: 4px;
+}
+.safety-row .sb i { font-size: 9px; }
+
+/* 双按钮 */
+.bind-btn-row {
+    display: flex; gap: 10px;
+    margin-top: 4px;
+}
+.bind-btn {
+    height: 48px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    border: none;
+}
+.bind-btn.secondary {
+    flex: 0 0 100px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-secondary);
+}
+.bind-btn.primary {
+    flex: 1;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    color: #fff;
+    box-shadow: 0 8px 22px rgba(168,85,247,0.4);
+}
+
+.full-form-link {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 12px;
+}
+.full-form-link a {
+    color: var(--brand-purple);
+    text-decoration: none;
+    font-weight: 600;
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" onclick="location.href='recharge.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">充值</div>
+    <div class="nav-right"><div class="nav-btn"><i class="fa-regular fa-clock-rotate-left"></i></div></div>
+</div>
+
+<div class="app-content">
+
+    <!-- 币种切换 -->
+    <div class="currency-switch">
+        <div class="s" onclick="location.href='recharge.html'"><i class="fa-brands fa-bitcoin"></i> USDT</div>
+        <div class="s active"><i class="fa-solid fa-yen-sign"></i> 法币 (¥)</div>
+    </div>
+
+    <!-- 金额 -->
+    <div class="amount-card">
+        <div class="label">充值金额</div>
+        <div class="input-box">
+            <span class="symbol">¥</span>
+            <input class="input" placeholder="0.00" value="500.00">
+        </div>
+        <div class="unit-badge">
+            <i class="fa-solid fa-circle" style="font-size:6px"></i>
+            人民币 CNY
+        </div>
+        <div class="equiv">
+            预计到账 <b>68.87 USDT</b> · 汇率 1 USDT ≈ ¥7.26
+        </div>
+    </div>
+
+    <!-- 快选 -->
+    <div class="quick-amounts">
+        <div class="qa">100</div>
+        <div class="qa active">500</div>
+        <div class="qa">1000</div>
+        <div class="qa">5000</div>
+    </div>
+
+    <!-- 银行卡 -->
+    <div class="section-title">
+        <span>付款方式</span>
+        <span class="more">管理银行卡 <i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
+    </div>
+
+    <div class="bank-card">
+        <div class="bc-head">
+            <div style="display:flex; gap:10px; align-items:center">
+                <div class="bc-logo">招</div>
+                <div>
+                    <div class="bc-name">招商银行 储蓄卡</div>
+                    <div class="bc-type">单日限额 ¥50,000</div>
+                </div>
+            </div>
+            <div class="bc-default">
+                <i class="fa-solid fa-check"></i>
+                默认
+            </div>
+        </div>
+
+        <div class="bc-num">6214 •••• •••• 2025</div>
+
+        <div class="bc-bottom">
+            <div>
+                <div class="k">持卡人</div>
+                <div class="v">LUNA *IPHER</div>
+            </div>
+            <div class="bc-switch">
+                <i class="fa-solid fa-arrow-right-arrow-left" style="font-size:10px"></i>
+                切换
+            </div>
+        </div>
+    </div>
+
+    <!-- 支付信息 -->
+    <div class="pay-info">
+        <div class="row">
+            <span class="k">充值金额</span>
+            <span class="v">¥500.00</span>
+        </div>
+        <div class="row">
+            <span class="k">服务费 (0.6%)</span>
+            <span class="v">¥3.00</span>
+        </div>
+        <div class="row">
+            <span class="k">预计到账</span>
+            <span class="v accent">68.87 USDT</span>
+        </div>
+        <div class="row">
+            <span class="k">支付时效</span>
+            <span class="v">实时到账</span>
+        </div>
+    </div>
+
+    <!-- 三方服务商说明 -->
+    <div class="provider">
+        <div class="ic"><i class="fa-solid fa-building-columns"></i></div>
+        <div class="txt">
+            由持牌机构 <b>PaySecure · 银通国际</b> 提供收单服务，受银保监会监管<br>
+            资金流向透明 · 24h 反欺诈监控 · 用户资金 100% 隔离
+        </div>
+    </div>
+
+    <!-- 协议 -->
+    <div class="protocol">
+        <div class="chk"><i class="fa-solid fa-check"></i></div>
+        <span>同意 <a href="#">《法币充值服务协议》</a> 与 <a href="#">《反洗钱风控须知》</a></span>
+    </div>
+
+</div>
+
+<div class="submit-bar">
+    <button class="btn btn-primary btn-block">
+        <i class="fa-solid fa-lock"></i>
+        提交充值订单 · ¥500
+    </button>
+</div>
+
+<!-- ==================== 未绑卡提示弹窗 ==================== -->
+<div class="bind-overlay">
+    <div class="bind-sheet">
+        <div class="grab"></div>
+
+        <div class="bind-head">
+            <div class="ill">
+                <i class="fa-solid fa-credit-card"></i>
+            </div>
+            <h2>尚未绑定银行卡</h2>
+            <p>为保障资金安全与实名合规，<br>首次法币充值前需绑定一张本人储蓄卡</p>
+        </div>
+
+        <!-- 快捷绑卡表单 -->
+        <div class="quick-form">
+            <div class="quick-field">
+                <div class="q-ic"><i class="fa-regular fa-user"></i></div>
+                <div class="q-main">
+                    <div class="q-label">持卡人姓名</div>
+                    <input class="q-input" placeholder="输入持卡人真实姓名">
+                </div>
+            </div>
+            <div class="quick-field">
+                <div class="q-ic" style="background: rgba(22,119,255,0.15); color: #60A5FA"><i class="fa-solid fa-credit-card"></i></div>
+                <div class="q-main">
+                    <div class="q-label">银行卡号</div>
+                    <input class="q-input" placeholder="输入或粘贴 16-19 位卡号">
+                </div>
+                <div class="q-suffix">
+                    <i class="fa-solid fa-camera"></i> OCR
+                </div>
+            </div>
+            <div class="quick-field">
+                <div class="q-ic" style="background: rgba(16,185,129,0.15); color: #10B981"><i class="fa-solid fa-mobile-screen"></i></div>
+                <div class="q-main">
+                    <div class="q-label">银行预留手机号</div>
+                    <input class="q-input" placeholder="用于接收验证码">
+                </div>
+            </div>
+        </div>
+
+        <!-- 安全提示 -->
+        <div class="safety-row">
+            <span class="sb"><i class="fa-solid fa-shield-halved"></i> 银联加密</span>
+            <span class="sb"><i class="fa-solid fa-lock"></i> 信息不存储</span>
+            <span class="sb"><i class="fa-solid fa-user-check"></i> 持卡人本人</span>
+        </div>
+
+        <!-- 按钮 -->
+        <div class="bind-btn-row">
+            <button class="bind-btn secondary">暂不绑定</button>
+            <button class="bind-btn primary">
+                <i class="fa-solid fa-paper-plane"></i>
+                获取验证码并绑定
+            </button>
+        </div>
+
+        <div class="full-form-link">
+            信息较多？<a href="recharge-fiat-bind.html">前往完整绑卡页面 →</a>
+        </div>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

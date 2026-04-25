@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>账变记录</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body {
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.1), transparent 50%),
+        #0A0A12;
+}
+/* 让 nav-bar 完全不透明（否则 sticky 时内容会透过去） */
+.nav-bar {
+    background: #0A0A12;
+    border-bottom: 0.5px solid rgba(255,255,255,0.05);
+    z-index: 110;
+}
+.status-bar { z-index: 1000; background: #0A0A12; }
+
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: calc(var(--tab-bar-height) + 20px);
+}
+
+/* ===== 顶部 · 本月资金动态 ===== */
+.tx-hero {
+    margin: 6px 16px 12px;
+    padding: 18px;
+    border-radius: 20px;
+    background:
+        radial-gradient(ellipse at top right, rgba(96,165,250,0.25), transparent 55%),
+        linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(96,165,250,0.2);
+}
+.tx-hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, rgba(168,85,247,0.15), transparent 65%);
+    border-radius: 50%;
+}
+.tx-hero .th-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+    position: relative;
+}
+.tx-hero .th-top .lbl {
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    font-weight: 500;
+    display: flex; align-items: center; gap: 5px;
+}
+.tx-hero .th-top .lbl i { color: #60A5FA; font-size: 9px; }
+.tx-hero .th-top .pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 999px;
+    font-size: 10px;
+    color: #fff;
+    font-weight: 500;
+}
+.tx-hero .th-top .pill i { font-size: 8px; }
+
+.th-stats {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    position: relative;
+}
+.th-stat {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 10px 12px;
+    backdrop-filter: blur(10px);
+}
+.th-stat .ts-top {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.6);
+    font-weight: 500;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.th-stat .ts-top.inc i { color: #6EE7B7; }
+.th-stat .ts-top.out i { color: #FCA5A5; }
+.th-stat .val {
+    font-size: 19px;
+    font-weight: 800;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.4px;
+}
+.th-stat .val .prefix { font-size: 14px; margin-right: 1px; }
+.th-stat .val.inc .prefix { color: #6EE7B7; }
+.th-stat .val.out .prefix { color: #FCA5A5; }
+.th-stat .cnt {
+    font-size: 10px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 2px;
+}
+
+.th-balance {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex; justify-content: space-between; align-items: center;
+    position: relative;
+}
+.th-balance .lbl {
+    font-size: 11px; color: rgba(255,255,255,0.6);
+}
+.th-balance .val {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.3px;
+}
+.th-balance .val .sub {
+    font-size: 10px;
+    color: #6EE7B7;
+    font-weight: 500;
+    margin-left: 4px;
+}
+
+/* ===== 筛选 & 工具条（sticky 吸附在 nav-bar 下方） ===== */
+.filter-bar {
+    position: sticky;
+    /* 吸附点：距离 scroll 容器顶部 = status + nav 高度，正好贴在 nav-bar 下沿 */
+    top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    z-index: 50;
+    margin: 0 0 8px;
+    padding: 10px 16px 10px;
+    background: #0A0A12;
+    border-bottom: 0.5px solid rgba(255,255,255,0.05);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+.filter-chips {
+    display: flex; gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-bottom: 8px;
+}
+.filter-chips::-webkit-scrollbar { display: none; }
+.chip {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 999px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    display: flex; align-items: center; gap: 5px;
+    font-weight: 500;
+    cursor: pointer;
+}
+.chip.active {
+    background: var(--brand-gradient);
+    border-color: transparent;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(168,85,247,0.3);
+}
+.chip .cnt {
+    font-size: 9px;
+    padding: 0 5px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 4px;
+}
+.chip.active .cnt { background: rgba(255,255,255,0.25); }
+
+.filter-tools {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+.filter-tools .ft-l {
+    flex: 1;
+    display: flex; align-items: center; gap: 4px;
+}
+.filter-tools .ft-btn {
+    padding: 4px 9px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 7px;
+    color: var(--text-secondary);
+    display: flex; align-items: center; gap: 4px;
+    font-size: 10px;
+    font-weight: 500;
+}
+.filter-tools .ft-btn i { font-size: 9px; color: #60A5FA; }
+
+/* ===== 时间分组 ===== */
+.tx-day {
+    padding: 10px 16px 6px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.tx-day .day-summary {
+    display: flex; gap: 10px;
+    font-family: ui-monospace, monospace;
+    font-weight: 500;
+}
+.tx-day .day-summary .inc { color: #6EE7B7; }
+.tx-day .day-summary .out { color: #FCA5A5; }
+
+/* ===== 账变条目 ===== */
+.tx-list {
+    margin: 0 16px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    overflow: hidden;
+}
+.tx-item {
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 12px;
+    border-top: 0.5px solid rgba(255,255,255,0.04);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.tx-item:first-child { border-top: none; }
+.tx-item:active { background: rgba(255,255,255,0.03); }
+
+.tx-item .tx-ic {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    color: #fff;
+    flex-shrink: 0;
+    position: relative;
+}
+/* 类型色 */
+.tx-ic.recharge { background: linear-gradient(135deg, #10B981, #059669); }
+.tx-ic.withdraw { background: linear-gradient(135deg, #EF4444, #DC2626); }
+.tx-ic.tip      { background: linear-gradient(135deg, #EC4899, #BE185D); }
+.tx-ic.sub      { background: linear-gradient(135deg, #A855F7, #7C3AED); }
+.tx-ic.live     { background: linear-gradient(135deg, #3B82F6, #1D4ED8); }
+.tx-ic.settle   { background: linear-gradient(135deg, #F59E0B, #D97706); }
+.tx-ic.refund   { background: linear-gradient(135deg, #64748B, #475569); }
+
+.tx-item .tx-m { flex: 1; min-width: 0; }
+.tx-item .tx-m .t {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    display: flex; align-items: center; gap: 6px;
+    flex-wrap: wrap;
+}
+.tx-item .tx-m .t .status {
+    font-size: 9px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.tx-item .tx-m .t .status.ok { background: rgba(16,185,129,0.15); color: #6EE7B7; }
+.tx-item .tx-m .t .status.pending { background: rgba(251,191,36,0.15); color: #FBBF24; }
+.tx-item .tx-m .t .status.fail { background: rgba(239,68,68,0.15); color: #FCA5A5; }
+.tx-item .tx-m .t .status.frozen { background: rgba(100,116,139,0.2); color: #94A3B8; }
+
+.tx-item .tx-m .meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+    display: flex; align-items: center; gap: 6px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.tx-item .tx-m .meta .sep { opacity: 0.4; }
+.tx-item .tx-m .meta .chain {
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    padding: 1px 5px;
+    background: rgba(239,68,68,0.1);
+    color: #F87171;
+    border-radius: 3px;
+}
+
+.tx-item .tx-r {
+    text-align: right;
+    flex-shrink: 0;
+}
+.tx-item .tx-r .v {
+    font-size: 14px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.3px;
+}
+.tx-item .tx-r .v.inc { color: #6EE7B7; }
+.tx-item .tx-r .v.out { color: #FCA5A5; }
+.tx-item .tx-r .v.gray { color: var(--text-tertiary); }
+.tx-item .tx-r .sub {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+    font-family: ui-monospace, monospace;
+}
+.tx-item .tx-r .sub.flag {
+    font-family: inherit;
+    font-style: italic;
+}
+
+/* 底部提示 */
+.list-end {
+    text-align: center;
+    padding: 18px 0 10px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+.list-end i { margin-right: 4px; }
+.list-end .line {
+    display: inline-block;
+    width: 24px; height: 1px;
+    background: rgba(255,255,255,0.1);
+    vertical-align: middle;
+    margin: 0 8px;
+}
+
+/* 悬浮筛选按钮 */
+.fab-filter {
+    position: absolute;
+    right: 16px;
+    bottom: calc(var(--tab-bar-height) + 30px);
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1A1A26, #2A2A3E);
+    border: 1px solid rgba(168,85,247,0.3);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 15px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.35),
+                0 0 0 4px rgba(168,85,247,0.06);
+    z-index: 8;
+}
+.fab-filter .dot {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #EF4444;
+    border: 1.5px solid #1A1A26;
+    animation: dot-pulse 2s ease-in-out infinite;
+}
+@keyframes dot-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); }
+    50%      { box-shadow: 0 0 0 5px rgba(239,68,68,0); }
+}
+
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar">
+    <div class="nav-left"><div class="nav-btn" onclick="location.href='creator-income.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">账变记录</div>
+    <div class="nav-right">
+        <div class="nav-btn" onclick="location.href='transactions-search.html'" title="搜索账变"><i class="fa-solid fa-magnifying-glass"></i></div>
+        <div class="nav-btn" onclick="location.href='transactions-export.html'" title="导出账单"><i class="fa-solid fa-file-export"></i></div>
+    </div>
+</div>
+
+<div class="app-content">
+
+    <!-- ===== 本月资金动态 ===== -->
+    <div class="tx-hero">
+        <div class="th-top">
+            <div class="lbl"><i class="fa-solid fa-circle"></i>本月资金动态 · 2026 年 4 月</div>
+            <div class="pill">
+                <i class="fa-solid fa-caret-down"></i>
+                本月
+            </div>
+        </div>
+        <div class="th-stats">
+            <div class="th-stat">
+                <div class="ts-top inc"><i class="fa-solid fa-arrow-down-long"></i>收入</div>
+                <div class="val inc"><span class="prefix">+$</span>386.20</div>
+                <div class="cnt">23 笔</div>
+            </div>
+            <div class="th-stat">
+                <div class="ts-top out"><i class="fa-solid fa-arrow-up-long"></i>支出</div>
+                <div class="val out"><span class="prefix">-$</span>98.50</div>
+                <div class="cnt">9 笔</div>
+            </div>
+        </div>
+        <div class="th-balance">
+            <div class="lbl">当前余额</div>
+            <div class="val">
+                520.00 USDT
+                <span class="sub">≈ $520.00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 筛选条 ===== -->
+    <div class="filter-bar">
+        <div class="filter-chips">
+            <div class="chip active">全部 <span class="cnt">237</span></div>
+            <div class="chip"><i class="fa-solid fa-arrow-down-long" style="color:#6EE7B7"></i>收入 <span class="cnt">168</span></div>
+            <div class="chip"><i class="fa-solid fa-arrow-up-long" style="color:#FCA5A5"></i>支出 <span class="cnt">42</span></div>
+            <div class="chip"><i class="fa-solid fa-wallet"></i>充值</div>
+            <div class="chip"><i class="fa-solid fa-arrow-up-right-from-square"></i>提现</div>
+            <div class="chip"><i class="fa-solid fa-gift"></i>打赏</div>
+            <div class="chip"><i class="fa-regular fa-heart"></i>订阅</div>
+        </div>
+        <div class="filter-tools">
+            <div class="ft-l">
+                <span>当前：</span><b style="color:#fff">全部类型</b><span class="sep">·</span><span>本月</span>
+            </div>
+            <div class="ft-btn">
+                <i class="fa-regular fa-calendar"></i>
+                时间
+            </div>
+            <div class="ft-btn">
+                <i class="fa-solid fa-sliders"></i>
+                高级筛选
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 4-23 今天 ===== -->
+    <div class="tx-day">
+        <span>今天 · 2026-04-23 周四</span>
+        <div class="day-summary">
+            <span class="inc">+$42.80</span>
+            <span class="out">-$0.00</span>
+        </div>
+    </div>
+    <div class="tx-list">
+
+        <div class="tx-item" onclick="location.href='transaction-detail.html'">
+            <div class="tx-ic tip"><i class="fa-solid fa-gift"></i></div>
+            <div class="tx-m">
+                <div class="t">打赏 · Emma_Jade <span class="status ok">已结算</span></div>
+                <div class="meta">超级火箭 🚀 · 09:28 <span class="sep">|</span> 单号 T20260423092801</div>
+            </div>
+            <div class="tx-r">
+                <div class="v inc">+$15.00</div>
+                <div class="sub">15 USDT</div>
+            </div>
+        </div>
+
+        <div class="tx-item">
+            <div class="tx-ic sub"><i class="fa-regular fa-heart"></i></div>
+            <div class="tx-m">
+                <div class="t">订阅 · MarcusBlack <span class="status ok">已结算</span></div>
+                <div class="meta">月度订阅续费 · 08:12 <span class="sep">|</span> 自动扣款</div>
+            </div>
+            <div class="tx-r">
+                <div class="v inc">+$10.00</div>
+                <div class="sub">10 USDT</div>
+            </div>
+        </div>
+
+        <div class="tx-item">
+            <div class="tx-ic tip"><i class="fa-solid fa-gift"></i></div>
+            <div class="tx-m">
+                <div class="t">打赏 · SophiaRose <span class="status pending">结算中</span></div>
+                <div class="meta">玫瑰花束 🌹 × 3 · 07:45 <span class="sep">|</span> 预计 24 小时到账</div>
+            </div>
+            <div class="tx-r">
+                <div class="v inc">+$9.00</div>
+                <div class="sub">9 USDT</div>
+            </div>
+        </div>
+
+        <div class="tx-item">
+            <div class="tx-ic live"><i class="fa-solid fa-video"></i></div>
+            <div class="tx-m">
+                <div class="t">直播门票 · RivenStark <span class="status ok">已结算</span></div>
+                <div class="meta">「深夜电台 · 04期」 · 02:14</div>
+            </div>
+            <div class="tx-r">
+                <div class="v inc">+$8.80</div>
+                <div class="sub">8.8 USDT</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== 4-22 昨天 ===== -->
+    <div class="tx-day">
+        <span>昨天 · 2026-04-22 周三</span>
+        <div class="day-summary">
+            <span class="inc">+$55.00</span>
+            <span class="out">-$50.00</span>
+        </div>
+    </div>
+    <div class="tx-list">
+
+        <div class="tx-item">
+            <div class="tx-ic withdraw"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+            <div class="tx-m">
+                <div class="t">提现至银行卡 <span class="status ok">已到账</span></div>
+                <div class="meta">招商银行 (*1234) · 23:58 <span class="sep">|</span> 手续费 $0.5</div>
+            </div>
+            <div class="tx-r">
+                <div class="v out">-$50.00</div>
+                <div class="sub">50 USDT</div>
+            </div>
+        </div>
+
+        <div class="tx-item">
+            <div class="tx-ic sub"><i class="fa-regular fa-heart"></i></div>
+            <div class="tx-m">
+                <div class="t">订阅 · NoahKlein <span class="status ok">已结算</span></div>
+                <div class="meta">季度订阅 · 23:41 <span class="sep">|</span> 订单号 S202604220241</div>
+            </div>
+            <div class="tx-r">
+                <div class="v inc">+$25.00</div>
+                <div class="sub">25 USDT</div>
+            </div>
+        </div>
+
+        <div class="tx-item">
+            <div class="tx-ic tip"><i class="fa-solid fa-gift"></i></div>
+            <div class="tx-m">
+                <div class="t">打赏 · LilyBrooks <span class="status ok">已结算</span></div>
+                <div class="meta">皇冠 👑 · 21:08</div>
+            </div>
+            <div class="tx-r">
+                <div class="v inc">+$20.00</div>
+                <div class="sub">20 USDT</div>
+            </div>
+        </div>
+
+        <div class="tx-item">
+            <div class="tx-ic tip"><i class="fa-solid fa-gift"></i></div>
+            <div class="tx-m">
+                <div class="t">打赏 · @Anonymous <span class="status ok">已结算</span></div>
+                <div class="meta">棒棒糖 🍭 × 5 · 14:26</div>
+            </div>
+            <div class="tx-r">
+                <div class="v inc">+$10.00</div>
+                <div class="sub">10 USDT</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== 4-21 ===== -->
+    <div class="tx-day">
+        <span>2026-04-21 周二</span>
+        <div class="day-summary">
+            <span class="inc">+$100.00</span>
+            <span class="out">-$48.50</span>
+        </div>
+    </div>
+    <div class="tx-list">
+
+        <div class="tx-item">
+            <div class="tx-ic recharge"><i class="fa-solid fa-wallet"></i></div>
+            <div class="tx-m">
+                <div class="t">USDT 充值 <span class="status ok">已到账</span></div>
+                <div class="meta"><span class="chain">TRC20</span> TF9K5y...V3p · 18:42</div>
+            </div>
+            <div class="tx-r">
+                <div class="v inc">+$100.00</div>
+                <div class="sub">100 USDT</div>
+            </div>
+        </div>
+
+        <div class="tx-item">
+            <div class="tx-ic settle"><i class="fa-solid fa-sack-dollar"></i></div>
+            <div class="tx-m">
+                <div class="t">结算释放 · 直播收入 <span class="status ok">已入账</span></div>
+                <div class="meta">04-18 直播收益结算完成 · 12:00</div>
+            </div>
+            <div class="tx-r">
+                <div class="v inc">+$48.50</div>
+                <div class="sub">48.5 USDT</div>
+            </div>
+        </div>
+
+        <div class="tx-item">
+            <div class="tx-ic withdraw"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+            <div class="tx-m">
+                <div class="t">提现申请 <span class="status fail">已取消</span></div>
+                <div class="meta">风控未通过 · 09:20 <span class="sep">|</span> 已退回余额</div>
+            </div>
+            <div class="tx-r">
+                <div class="v gray">-$48.50</div>
+                <div class="sub flag">已退回</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== 4-20 ===== -->
+    <div class="tx-day">
+        <span>2026-04-20 周一</span>
+        <div class="day-summary">
+            <span class="inc">+$38.00</span>
+            <span class="out">-$0.00</span>
+        </div>
+    </div>
+    <div class="tx-list">
+
+        <div class="tx-item">
+            <div class="tx-ic tip"><i class="fa-solid fa-gift"></i></div>
+            <div class="tx-m">
+                <div class="t">打赏 · Luna_77 <span class="status frozen">冻结中</span></div>
+                <div class="meta">钻石 💎 · 22:10 <span class="sep">|</span> 1-3 天后解冻</div>
+            </div>
+            <div class="tx-r">
+                <div class="v inc" style="opacity:0.7">+$30.00</div>
+                <div class="sub">30 USDT (冻结)</div>
+            </div>
+        </div>
+
+        <div class="tx-item">
+            <div class="tx-ic refund"><i class="fa-solid fa-rotate-left"></i></div>
+            <div class="tx-m">
+                <div class="t">平台手续费 <span class="status ok">已扣除</span></div>
+                <div class="meta">订阅收入 10% 分成 · 17:00</div>
+            </div>
+            <div class="tx-r">
+                <div class="v out">-$8.00</div>
+                <div class="sub">8 USDT</div>
+            </div>
+        </div>
+
+        <div class="tx-item">
+            <div class="tx-ic sub"><i class="fa-regular fa-heart"></i></div>
+            <div class="tx-m">
+                <div class="t">订阅 · LeoDays <span class="status ok">已结算</span></div>
+                <div class="meta">月度订阅 · 08:00</div>
+            </div>
+            <div class="tx-r">
+                <div class="v inc">+$8.00</div>
+                <div class="sub">8 USDT</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 到底 -->
+    <div class="list-end">
+        <span class="line"></span>
+        <i class="fa-solid fa-check"></i> 已显示近 30 天记录
+        <span class="line"></span>
+    </div>
+
+</div>
+
+<!-- 悬浮筛选 FAB -->
+<div class="fab-filter">
+    <i class="fa-solid fa-filter"></i>
+    <span class="dot"></span>
+</div>
+
+<!-- Tab Bar -->
+<div class="tab-bar">
+    <div class="tab-item"><i class="fa-solid fa-house"></i><span>首页</span></div>
+    <div class="tab-item"><i class="fa-regular fa-compass"></i><span>发现</span></div>
+    <div class="tab-item"><i class="fa-regular fa-message"></i><span>消息</span></div>
+    <div class="tab-item active"><i class="fa-solid fa-user"></i><span>我的</span></div>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

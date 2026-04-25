@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>创作者提现 · 选择方式</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body {
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.14), transparent 55%),
+        radial-gradient(ellipse at 80% 50%, rgba(59,130,246,0.1), transparent 55%),
+        #0A0A12;
+}
+.nav-bar {
+    background: rgba(10,10,18,0.7);
+    backdrop-filter: blur(16px);
+    z-index: 110;
+}
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 140px;
+}
+
+/* ===== 可提现 Hero ===== */
+.wd-hero {
+    margin: 10px 16px 14px;
+    padding: 22px 20px;
+    border-radius: 22px;
+    background:
+        radial-gradient(ellipse at top right, rgba(110,231,183,0.3), transparent 55%),
+        linear-gradient(135deg, #064E3B 0%, #065F46 55%, #0EA5E9 100%);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(16,185,129,0.2);
+}
+.wd-hero::before {
+    content: ''; position: absolute;
+    right: -40px; top: -60px;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1), transparent 60%);
+    border-radius: 50%;
+}
+.wd-hero .lbl {
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex; align-items: center; gap: 5px;
+    position: relative;
+}
+.wd-hero .lbl i { color: #6EE7B7; font-size: 9px; }
+.wd-hero .amt {
+    font-size: 40px;
+    font-weight: 800;
+    letter-spacing: -1.2px;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+    position: relative;
+}
+.wd-hero .amt .curr { font-size: 20px; color: rgba(255,255,255,0.85); font-weight: 700; }
+.wd-hero .usdt-eq {
+    position: relative;
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px;
+    margin-top: 6px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 999px;
+    font-size: 11px;
+    color: #fff;
+    font-weight: 600;
+}
+.wd-hero .usdt-eq i { color: #6EE7B7; }
+
+.wd-hero .quick-stats {
+    position: relative;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    display: flex; gap: 18px;
+}
+.wd-hero .qs {
+    display: flex; flex-direction: column; gap: 2px;
+}
+.wd-hero .qs .k { font-size: 10px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.4px; }
+.wd-hero .qs .v { font-size: 13px; font-weight: 600; color: #fff; }
+
+/* 推荐徽章（闪光） */
+.badge-recommend {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    color: #7C2D12;
+    box-shadow: 0 4px 10px rgba(251,191,36,0.3);
+    display: flex; align-items: center; gap: 3px;
+    text-transform: uppercase;
+}
+.badge-recommend i { font-size: 8px; }
+.badge-recommend::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    border-radius: 7px;
+    z-index: -1;
+    filter: blur(6px);
+    opacity: 0.5;
+}
+
+/* ===== 方式选择 ===== */
+.sec-title {
+    padding: 6px 16px 8px;
+    display: flex; align-items: center; justify-content: space-between;
+}
+.sec-title .t {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    display: flex; align-items: center; gap: 6px;
+}
+.sec-title .t i { color: var(--brand-purple); font-size: 11px; }
+.sec-title .s { font-size: 11px; color: var(--text-tertiary); }
+
+.method-card {
+    margin: 0 16px 12px;
+    padding: 18px;
+    border-radius: 18px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s;
+    overflow: hidden;
+}
+.method-card:active { transform: scale(0.985); }
+
+/* USDT 链上 */
+.method-card.usdt {
+    background:
+        radial-gradient(ellipse at right top, rgba(16,185,129,0.22), transparent 55%),
+        linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    border: 1.5px solid rgba(16,185,129,0.35);
+    box-shadow: 0 14px 30px rgba(16,185,129,0.12);
+}
+.method-card.usdt::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 140px; height: 140px;
+    background: radial-gradient(circle, rgba(110,231,183,0.18), transparent 65%);
+    border-radius: 50%;
+}
+
+/* 法币 */
+.method-card.fiat {
+    background:
+        radial-gradient(ellipse at right top, rgba(168,85,247,0.18), transparent 55%),
+        linear-gradient(135deg, #1A1A26 0%, #12121C 100%);
+    border: 1.5px solid rgba(168,85,247,0.22);
+}
+.method-card.fiat::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 140px; height: 140px;
+    background: radial-gradient(circle, rgba(192,132,252,0.14), transparent 65%);
+    border-radius: 50%;
+}
+
+.mc-top {
+    display: flex; align-items: flex-start; gap: 12px;
+    margin-bottom: 14px;
+    position: relative;
+}
+.mc-top .mc-ic {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 22px;
+    flex-shrink: 0;
+    box-shadow: 0 10px 22px rgba(0,0,0,0.3);
+}
+.method-card.usdt .mc-ic {
+    background: linear-gradient(135deg, #10B981, #059669);
+    box-shadow: 0 10px 22px rgba(16,185,129,0.4);
+}
+.method-card.fiat .mc-ic {
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    box-shadow: 0 10px 22px rgba(168,85,247,0.35);
+}
+
+.mc-top .mc-info { flex: 1; min-width: 0; }
+.mc-top .mc-info .title {
+    font-size: 17px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 3px;
+}
+.mc-top .mc-info .title .chip {
+    font-size: 9px; padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+.mc-top .mc-info .title .chip.fast {
+    background: rgba(110,231,183,0.2);
+    color: #6EE7B7;
+}
+.mc-top .mc-info .title .chip.secure {
+    background: rgba(96,165,250,0.2);
+    color: #60A5FA;
+}
+.mc-top .mc-info .desc {
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+.mc-arrow {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-tertiary);
+    font-size: 11px;
+    flex-shrink: 0;
+}
+
+/* 属性行 */
+.mc-props {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    position: relative;
+}
+.mc-prop {
+    padding: 9px 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+}
+.mc-prop .pk {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 3px;
+    display: flex; align-items: center; gap: 4px;
+}
+.mc-prop .pk i { font-size: 9px; }
+.mc-prop .pv {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+}
+.mc-prop .pv.ok { color: #6EE7B7; }
+.mc-prop .pv.warn { color: #FBBF24; }
+.mc-prop .pv .small {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    margin-left: 3px;
+}
+
+/* 亮点 */
+.mc-highlights {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 10px;
+    display: flex; flex-direction: column; gap: 5px;
+    position: relative;
+}
+.mc-highlights .hl {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+.mc-highlights .hl i {
+    width: 14px; height: 14px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 7px;
+    flex-shrink: 0;
+}
+.method-card.usdt .mc-highlights .hl i {
+    background: rgba(16,185,129,0.25);
+    color: #6EE7B7;
+}
+.method-card.fiat .mc-highlights .hl i {
+    background: rgba(168,85,247,0.25);
+    color: #C084FC;
+}
+.mc-highlights .hl b { color: #fff; }
+
+/* 法币部分的限制提示 */
+.method-card .limit-notice {
+    margin-top: 10px;
+    padding: 8px 10px;
+    font-size: 10px;
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 8px;
+    color: #FCD34D;
+    display: flex; align-items: center; gap: 6px;
+    line-height: 1.4;
+    position: relative;
+}
+.method-card .limit-notice i { color: var(--warning); font-size: 10px; }
+
+/* ===== 结算规则说明 ===== */
+.rules-box {
+    margin: 6px 16px 12px;
+    padding: 14px 16px;
+    background: rgba(59,130,246,0.06);
+    border: 1px solid rgba(59,130,246,0.18);
+    border-radius: 14px;
+}
+.rules-box .rt {
+    font-size: 12px;
+    color: #60A5FA;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 5px;
+}
+.rules-box ul {
+    list-style: none;
+    padding: 0; margin: 0;
+    display: flex; flex-direction: column; gap: 6px;
+}
+.rules-box li {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    display: flex; gap: 6px;
+}
+.rules-box li::before {
+    content: '';
+    width: 4px; height: 4px;
+    background: #60A5FA;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+}
+.rules-box li b { color: #fff; }
+
+/* ===== 对比表 ===== */
+.compare-card {
+    margin: 0 16px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    overflow: hidden;
+}
+.cmp-row {
+    display: grid; grid-template-columns: 1.2fr 1fr 1fr;
+    padding: 10px 12px;
+    font-size: 11px;
+    align-items: center;
+    border-top: 0.5px solid rgba(255,255,255,0.04);
+}
+.cmp-row:first-child { border: none; }
+.cmp-row.head {
+    background: rgba(0,0,0,0.2);
+    font-weight: 700;
+    color: var(--text-tertiary);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.cmp-row.head .usdt-h { color: #6EE7B7; }
+.cmp-row.head .fiat-h { color: #C084FC; }
+.cmp-row .k { color: var(--text-secondary); }
+.cmp-row .v {
+    color: #fff;
+    font-weight: 500;
+    text-align: center;
+}
+.cmp-row .v.ok { color: #6EE7B7; font-weight: 600; }
+.cmp-row .v.gray { color: var(--text-tertiary); font-weight: 500; }
+
+/* 底部 CTA */
+.submit-bar {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 10px 16px 30px;
+    background: rgba(10,10,18,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 0.5px solid var(--border-color);
+    z-index: 20;
+}
+.submit-bar .tip-line {
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.submit-bar .tip-line i { color: #6EE7B7; font-size: 9px; }
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar">
+    <div class="nav-left"><div class="nav-btn" onclick="location.href='creator-income.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">提现</div>
+    <div class="nav-right">
+        <div class="nav-btn" title="帮助"><i class="fa-regular fa-circle-question"></i></div>
+    </div>
+</div>
+
+<div class="app-content">
+
+    <!-- 可提现 Hero -->
+    <div class="wd-hero">
+        <div class="lbl"><i class="fa-solid fa-circle"></i>AVAILABLE · 可提现余额</div>
+        <div class="amt"><span class="curr">$</span>520.00</div>
+        <div class="usdt-eq"><i class="fa-brands fa-bitcoin"></i>≈ 520.00 USDT · 结算币种</div>
+
+        <div class="quick-stats">
+            <div class="qs"><span class="k">本月已提</span><span class="v">$150.00</span></div>
+            <div class="qs"><span class="k">今日可提次数</span><span class="v">3 / 3</span></div>
+            <div class="qs"><span class="k">冻结中</span><span class="v">$30.00</span></div>
+        </div>
+    </div>
+
+    <!-- 方式选择 -->
+    <div class="sec-title">
+        <div class="t"><i class="fa-solid fa-route"></i>选择提现方式</div>
+        <div class="s">即时到账 · 灵活选择</div>
+    </div>
+
+    <!-- USDT 链上提现（推荐） -->
+    <div class="method-card usdt" onclick="location.href='withdraw-fiat.html'">
+        <span class="badge-recommend"><i class="fa-solid fa-bolt"></i>推荐</span>
+
+        <div class="mc-top">
+            <div class="mc-ic"><i class="fa-brands fa-bitcoin"></i></div>
+            <div class="mc-info">
+                <div class="title">
+                    USDT 链上提现
+                    <span class="chip fast">极速</span>
+                </div>
+                <div class="desc">提现到你的 Web3 钱包地址，支持 TRC20 / ERC20 / BSC 等多链，链上确认后即刻到账</div>
+            </div>
+            <div class="mc-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+
+        <div class="mc-props">
+            <div class="mc-prop">
+                <div class="pk"><i class="fa-regular fa-clock"></i>到账时间</div>
+                <div class="pv ok">1 分钟内<span class="small">1 块确认</span></div>
+            </div>
+            <div class="mc-prop">
+                <div class="pk"><i class="fa-solid fa-dollar-sign"></i>手续费</div>
+                <div class="pv ok">免费<span class="small">Gas 由平台承担</span></div>
+            </div>
+            <div class="mc-prop">
+                <div class="pk"><i class="fa-solid fa-arrow-down"></i>最小提现</div>
+                <div class="pv">50 USDT</div>
+            </div>
+            <div class="mc-prop">
+                <div class="pk"><i class="fa-solid fa-arrow-up"></i>单日上限</div>
+                <div class="pv">10,000 USDT</div>
+            </div>
+        </div>
+
+        <div class="mc-highlights">
+            <div class="hl"><i class="fa-solid fa-check"></i>支持 <b>TRC20 / ERC20 / BSC / Polygon</b> 四大主流网络</div>
+            <div class="hl"><i class="fa-solid fa-check"></i>地址可绑定并保存，下次<b>一键提现</b></div>
+            <div class="hl"><i class="fa-solid fa-check"></i>链上公开可追溯，自由度最高</div>
+        </div>
+    </div>
+
+    <!-- 法币提现 -->
+    <div class="method-card fiat" onclick="location.href='withdraw-fiat.html'">
+        <div class="mc-top">
+            <div class="mc-ic"><i class="fa-regular fa-credit-card"></i></div>
+            <div class="mc-info">
+                <div class="title">
+                    法币提现到银行卡
+                    <span class="chip secure">合规</span>
+                </div>
+                <div class="desc">通过持牌三方机构结算为人民币/美元，直达你的银行卡；需完成实名认证与银行卡绑定</div>
+            </div>
+            <div class="mc-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+
+        <div class="mc-props">
+            <div class="mc-prop">
+                <div class="pk"><i class="fa-regular fa-clock"></i>到账时间</div>
+                <div class="pv">1-5 分钟<span class="small">工作日</span></div>
+            </div>
+            <div class="mc-prop">
+                <div class="pk"><i class="fa-solid fa-dollar-sign"></i>手续费</div>
+                <div class="pv warn">0.1%<span class="small">最低 $0.5</span></div>
+            </div>
+            <div class="mc-prop">
+                <div class="pk"><i class="fa-solid fa-arrow-down"></i>最小提现</div>
+                <div class="pv">$10</div>
+            </div>
+            <div class="mc-prop">
+                <div class="pk"><i class="fa-solid fa-arrow-up"></i>单日上限</div>
+                <div class="pv">$5,000</div>
+            </div>
+        </div>
+
+        <div class="mc-highlights">
+            <div class="hl"><i class="fa-solid fa-check"></i>合规持牌：<b>PaySecure · 银通国际</b>提供清结算</div>
+            <div class="hl"><i class="fa-solid fa-check"></i>支持 <b>中国/中国香港/新加坡</b>等主要银行</div>
+            <div class="hl"><i class="fa-solid fa-check"></i>账单可开具电子发票，方便记账</div>
+        </div>
+
+        <div class="limit-notice">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>首次法币提现需进行实名认证，若你已认证过银行卡则可跳过</span>
+        </div>
+    </div>
+
+    <!-- 对比表 -->
+    <div class="sec-title">
+        <div class="t"><i class="fa-solid fa-scale-balanced"></i>快速对比</div>
+    </div>
+    <div class="compare-card">
+        <div class="cmp-row head">
+            <span class="k">对比项</span>
+            <span class="v usdt-h">USDT 链上</span>
+            <span class="v fiat-h">法币银行卡</span>
+        </div>
+        <div class="cmp-row">
+            <span class="k">到账速度</span>
+            <span class="v ok">≈ 1 分钟</span>
+            <span class="v">1-5 分钟</span>
+        </div>
+        <div class="cmp-row">
+            <span class="k">手续费</span>
+            <span class="v ok">免费</span>
+            <span class="v">0.1% 起</span>
+        </div>
+        <div class="cmp-row">
+            <span class="k">单日上限</span>
+            <span class="v">10,000 USDT</span>
+            <span class="v">$5,000</span>
+        </div>
+        <div class="cmp-row">
+            <span class="k">实名要求</span>
+            <span class="v gray">无</span>
+            <span class="v">需实名</span>
+        </div>
+        <div class="cmp-row">
+            <span class="k">支持时段</span>
+            <span class="v ok">7 × 24</span>
+            <span class="v gray">工作日</span>
+        </div>
+    </div>
+
+    <!-- 规则说明 -->
+    <div class="rules-box">
+        <div class="rt"><i class="fa-solid fa-shield-halved"></i>结算与提现规则</div>
+        <ul>
+            <li>仅结算完成的收入可提现，冻结中收入需等 <b>1-3 天</b>结算周期</li>
+            <li>提现申请需通过 <b>手机验证码 + 资金密码</b>双重验证</li>
+            <li>异常大额 / 频繁提现将进入<b>风控审核</b>（≈ 30 分钟），审核期间资金不可再次提现</li>
+            <li>提现失败将 <b>全额退回</b>可提现余额，不扣手续费</li>
+        </ul>
+    </div>
+
+</div>
+
+<!-- 底部提示 -->
+<div class="submit-bar">
+    <div class="tip-line">
+        <i class="fa-solid fa-shield-halved"></i>
+        已为本次提现启用多重风控保护，请在安全环境下操作
+    </div>
+    <button class="btn btn-primary btn-block" onclick="location.href='withdraw-fiat.html'">
+        <i class="fa-solid fa-bolt"></i>
+        立即提现（推荐 USDT 链上）
+    </button>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

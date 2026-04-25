@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>导出账单</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body {
+    background: #0A0A12;
+}
+.nav-bar {
+    background: rgba(10,10,18,0.6);
+    backdrop-filter: blur(16px);
+    z-index: 110;
+}
+
+/* 背景页模糊态 */
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 20px;
+    opacity: 0.38;
+    filter: blur(1.5px);
+}
+.bg-card {
+    margin: 8px 16px 12px;
+    padding: 16px;
+    background: var(--bg-card);
+    border-radius: 14px;
+}
+.bg-card .t { font-size: 13px; color: #fff; font-weight: 600; margin-bottom: 8px; }
+.bg-card .rows .r {
+    display: flex; justify-content: space-between;
+    padding: 6px 0;
+    font-size: 12px;
+    border-top: 0.5px solid rgba(255,255,255,0.05);
+}
+.bg-card .rows .r:first-child { border: none; }
+.bg-card .rows .r .k { color: var(--text-tertiary); }
+.bg-card .rows .r .v { color: #fff; font-weight: 500; }
+
+/* ===== 弹窗 ===== */
+.sheet-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.68);
+    z-index: 100;
+    display: flex; align-items: flex-end;
+    backdrop-filter: blur(3px);
+    animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+.sheet {
+    width: 100%;
+    background: linear-gradient(180deg, #1A1A26 0%, #12121C 100%);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 12px 0 30px;
+    max-height: 92%;
+    display: flex; flex-direction: column;
+    box-shadow: 0 -20px 60px rgba(0,0,0,0.5);
+    animation: sheetUp 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.grab {
+    width: 44px; height: 5px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 3px;
+    margin: 0 auto 12px;
+}
+
+.head {
+    padding: 0 20px 14px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+    margin-bottom: 12px;
+}
+.head h2 {
+    font-size: 17px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+    letter-spacing: -0.3px;
+}
+.head h2 .ic {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+}
+.head h2 .sub {
+    display: block;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    margin-top: 2px;
+    letter-spacing: 0;
+}
+.head .close {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: var(--text-secondary);
+}
+
+.body {
+    overflow-y: auto;
+    padding: 0 20px 4px;
+    flex: 1;
+    scrollbar-width: thin;
+}
+
+/* Section */
+.sec {
+    margin-bottom: 16px;
+}
+.sec-title {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 5px;
+}
+.sec-title i { color: #60A5FA; font-size: 10px; }
+.sec-title .cnt {
+    margin-left: auto;
+    font-size: 10px;
+    color: #fff;
+    background: rgba(59,130,246,0.15);
+    padding: 2px 7px;
+    border-radius: 999px;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+/* 时间范围 */
+.date-presets {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
+}
+.date-presets .p {
+    padding: 8px 0;
+    text-align: center;
+    font-size: 11px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    cursor: pointer;
+}
+.date-presets .p.active {
+    background: var(--brand-gradient);
+    border-color: transparent;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(168,85,247,0.3);
+}
+.date-custom {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+}
+.date-custom .d {
+    flex: 1;
+    font-size: 12px;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+    display: flex; align-items: center; gap: 6px;
+}
+.date-custom .d i { color: var(--brand-purple); font-size: 11px; }
+.date-custom .arrow { color: var(--text-tertiary); font-size: 11px; }
+
+/* 账变类型 */
+.type-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+.type-cell {
+    padding: 10px 4px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    cursor: pointer;
+    position: relative;
+}
+.type-cell.active {
+    background: rgba(168,85,247,0.12);
+    border-color: rgba(168,85,247,0.4);
+}
+.type-cell .ic {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    color: #fff;
+}
+.type-cell.all .ic { background: linear-gradient(135deg, #A855F7, #EC4899); }
+.type-cell.recharge .ic { background: linear-gradient(135deg, #10B981, #059669); }
+.type-cell.withdraw .ic { background: linear-gradient(135deg, #EF4444, #DC2626); }
+.type-cell.tip .ic { background: linear-gradient(135deg, #EC4899, #BE185D); }
+.type-cell.sub .ic { background: linear-gradient(135deg, #A855F7, #7C3AED); }
+.type-cell.live .ic { background: linear-gradient(135deg, #3B82F6, #1D4ED8); }
+.type-cell.settle .ic { background: linear-gradient(135deg, #F59E0B, #D97706); }
+.type-cell.refund .ic { background: linear-gradient(135deg, #64748B, #475569); }
+
+.type-cell .lb { font-size: 10px; color: #fff; font-weight: 500; }
+.type-cell .check {
+    position: absolute;
+    top: 4px; right: 4px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    color: transparent;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 7px;
+    transition: 0.15s;
+}
+.type-cell.active .check {
+    background: var(--brand-gradient);
+    color: #fff;
+}
+
+/* 格式 */
+.format-row {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+.format-cell {
+    padding: 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 11px;
+    display: flex; align-items: center; gap: 9px;
+    cursor: pointer;
+    position: relative;
+}
+.format-cell.active {
+    background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(236,72,153,0.08));
+    border-color: rgba(168,85,247,0.45);
+}
+.format-cell .fic {
+    width: 28px; height: 28px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    color: #fff;
+    flex-shrink: 0;
+}
+.format-cell .csv .fic, .format-cell.csv .fic { background: linear-gradient(135deg, #10B981, #059669); }
+.format-cell .xlsx .fic, .format-cell.xlsx .fic { background: linear-gradient(135deg, #059669, #047857); }
+.format-cell .pdf .fic, .format-cell.pdf .fic { background: linear-gradient(135deg, #EF4444, #B91C1C); }
+.format-cell .fm { flex: 1; min-width: 0; }
+.format-cell .fm .fn { font-size: 12px; color: #fff; font-weight: 600; }
+.format-cell .fm .fs { font-size: 10px; color: var(--text-tertiary); margin-top: 1px; }
+
+/* 发送方式 */
+.send-row {
+    display: flex; flex-direction: column; gap: 8px;
+}
+.send-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 11px;
+    cursor: pointer;
+}
+.send-item.active {
+    background: linear-gradient(135deg, rgba(168,85,247,0.12), rgba(59,130,246,0.06));
+    border-color: rgba(168,85,247,0.35);
+}
+.send-item .sic {
+    width: 34px; height: 34px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    color: #fff;
+    flex-shrink: 0;
+}
+.send-item .sic.email { background: linear-gradient(135deg, #3B82F6, #1D4ED8); }
+.send-item .sic.direct { background: linear-gradient(135deg, #10B981, #059669); }
+.send-item .m { flex: 1; min-width: 0; }
+.send-item .m .n { font-size: 13px; color: #fff; font-weight: 600; }
+.send-item .m .s { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; display: flex; align-items: center; gap: 5px; }
+.send-item .m .s .badge {
+    font-size: 9px; font-weight: 600;
+    padding: 1px 6px; border-radius: 999px;
+    background: rgba(110,231,183,0.12);
+    color: #6EE7B7;
+}
+.send-item .radio {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.send-item.active .radio {
+    border-color: var(--brand-purple);
+}
+.send-item.active .radio::after {
+    content: '';
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--brand-purple);
+}
+
+/* 预览摘要 */
+.preview-card {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    background: rgba(16,185,129,0.06);
+    border: 1px solid rgba(16,185,129,0.22);
+    border-radius: 12px;
+}
+.preview-card .pt {
+    font-size: 11px;
+    color: #6EE7B7;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 5px;
+}
+.preview-card .pt i { font-size: 10px; }
+.pv-row {
+    display: flex; justify-content: space-between;
+    padding: 5px 0;
+    font-size: 12px;
+    border-top: 0.5px dashed rgba(255,255,255,0.06);
+}
+.pv-row:first-of-type { border: none; }
+.pv-row .k { color: var(--text-secondary); }
+.pv-row .v { color: #fff; font-weight: 500; }
+.pv-row .v.count { color: #6EE7B7; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* 备注 */
+.note-box {
+    margin: 0 0 16px;
+    padding: 10px 12px;
+    background: rgba(59,130,246,0.06);
+    border: 1px solid rgba(59,130,246,0.18);
+    border-radius: 10px;
+    font-size: 11px;
+    color: #93C5FD;
+    line-height: 1.5;
+    display: flex; gap: 8px; align-items: flex-start;
+}
+.note-box i { color: #60A5FA; font-size: 11px; margin-top: 2px; }
+.note-box b { color: #fff; }
+
+/* 底部按钮 */
+.sheet-bar {
+    padding: 10px 20px 0;
+    border-top: 0.5px solid rgba(255,255,255,0.06);
+    display: flex; gap: 10px;
+    margin-top: 4px;
+}
+.sheet-bar .btn.sec {
+    flex: 0 0 96px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text-secondary);
+    height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px;
+    border-radius: 12px;
+    font-size: 14px; font-weight: 600;
+}
+.sheet-bar .btn.main { flex: 1; }
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar">
+    <div class="nav-left"><div class="nav-btn" onclick="location.href='transactions.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">账变记录</div>
+</div>
+
+<!-- 背景页模糊态 -->
+<div class="app-content">
+    <div class="bg-card">
+        <div class="t">本月资金动态</div>
+        <div class="rows">
+            <div class="r"><span class="k">收入</span><span class="v">$386.20</span></div>
+            <div class="r"><span class="k">支出</span><span class="v">$98.50</span></div>
+            <div class="r"><span class="k">余额</span><span class="v">520.00 USDT</span></div>
+        </div>
+    </div>
+    <div style="height: 280px"></div>
+</div>
+
+<!-- ================== 导出弹窗 ================== -->
+<div class="sheet-overlay">
+    <div class="sheet">
+        <div class="grab"></div>
+
+        <div class="head">
+            <h2>
+                <span class="ic"><i class="fa-solid fa-file-export"></i></span>
+                <span>
+                    导出账单
+                    <span class="sub">自定义时间、类型、格式，通过邮件发送或直接下载</span>
+                </span>
+            </h2>
+            <div class="close" onclick="location.href='transactions.html'"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+
+        <div class="body">
+
+            <!-- 时间范围 -->
+            <div class="sec">
+                <div class="sec-title">
+                    <i class="fa-regular fa-calendar"></i>时间范围
+                    <span class="cnt">本月</span>
+                </div>
+                <div class="date-presets">
+                    <div class="p">7 天</div>
+                    <div class="p active">本月</div>
+                    <div class="p">上月</div>
+                    <div class="p">自定义</div>
+                </div>
+                <div class="date-custom">
+                    <div class="d"><i class="fa-regular fa-calendar"></i>2026-04-01</div>
+                    <div class="arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="d"><i class="fa-regular fa-calendar-check"></i>2026-04-23</div>
+                </div>
+            </div>
+
+            <!-- 账变类型 -->
+            <div class="sec">
+                <div class="sec-title">
+                    <i class="fa-solid fa-shapes"></i>账变类型
+                    <span class="cnt">全部</span>
+                </div>
+                <div class="type-grid">
+                    <div class="type-cell all active">
+                        <div class="check"><i class="fa-solid fa-check"></i></div>
+                        <div class="ic"><i class="fa-solid fa-infinity"></i></div>
+                        <div class="lb">全部</div>
+                    </div>
+                    <div class="type-cell recharge active">
+                        <div class="check"><i class="fa-solid fa-check"></i></div>
+                        <div class="ic"><i class="fa-solid fa-wallet"></i></div>
+                        <div class="lb">充值</div>
+                    </div>
+                    <div class="type-cell withdraw active">
+                        <div class="check"><i class="fa-solid fa-check"></i></div>
+                        <div class="ic"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                        <div class="lb">提现</div>
+                    </div>
+                    <div class="type-cell settle active">
+                        <div class="check"><i class="fa-solid fa-check"></i></div>
+                        <div class="ic"><i class="fa-solid fa-sack-dollar"></i></div>
+                        <div class="lb">结算</div>
+                    </div>
+                    <div class="type-cell tip active">
+                        <div class="check"><i class="fa-solid fa-check"></i></div>
+                        <div class="ic"><i class="fa-solid fa-gift"></i></div>
+                        <div class="lb">打赏</div>
+                    </div>
+                    <div class="type-cell sub active">
+                        <div class="check"><i class="fa-solid fa-check"></i></div>
+                        <div class="ic"><i class="fa-regular fa-heart"></i></div>
+                        <div class="lb">订阅</div>
+                    </div>
+                    <div class="type-cell live active">
+                        <div class="check"><i class="fa-solid fa-check"></i></div>
+                        <div class="ic"><i class="fa-solid fa-video"></i></div>
+                        <div class="lb">直播</div>
+                    </div>
+                    <div class="type-cell refund">
+                        <div class="check"><i class="fa-solid fa-check"></i></div>
+                        <div class="ic"><i class="fa-solid fa-rotate-left"></i></div>
+                        <div class="lb">退款</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 导出格式 -->
+            <div class="sec">
+                <div class="sec-title">
+                    <i class="fa-regular fa-file-lines"></i>导出格式
+                </div>
+                <div class="format-row">
+                    <div class="format-cell csv active">
+                        <div class="fic"><i class="fa-solid fa-file-csv"></i></div>
+                        <div class="fm">
+                            <div class="fn">CSV</div>
+                            <div class="fs">通用表格</div>
+                        </div>
+                    </div>
+                    <div class="format-cell xlsx">
+                        <div class="fic"><i class="fa-solid fa-file-excel"></i></div>
+                        <div class="fm">
+                            <div class="fn">XLSX</div>
+                            <div class="fs">Excel</div>
+                        </div>
+                    </div>
+                    <div class="format-cell pdf">
+                        <div class="fic"><i class="fa-solid fa-file-pdf"></i></div>
+                        <div class="fm">
+                            <div class="fn">PDF</div>
+                            <div class="fs">对账单</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 接收方式 -->
+            <div class="sec">
+                <div class="sec-title">
+                    <i class="fa-solid fa-paper-plane"></i>接收方式
+                </div>
+                <div class="send-row">
+                    <div class="send-item active">
+                        <div class="sic email"><i class="fa-regular fa-envelope"></i></div>
+                        <div class="m">
+                            <div class="n">发送到邮箱</div>
+                            <div class="s">luna.***@gmail.com <span class="badge">已验证</span></div>
+                        </div>
+                        <div class="radio"></div>
+                    </div>
+                    <div class="send-item">
+                        <div class="sic direct"><i class="fa-solid fa-download"></i></div>
+                        <div class="m">
+                            <div class="n">直接下载</div>
+                            <div class="s">仅限最近 30 天 · 文件 &lt; 10MB</div>
+                        </div>
+                        <div class="radio"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 预览摘要 -->
+            <div class="preview-card">
+                <div class="pt"><i class="fa-solid fa-eye"></i>导出预览</div>
+                <div class="pv-row"><span class="k">时间范围</span><span class="v">2026-04-01 ~ 2026-04-23</span></div>
+                <div class="pv-row"><span class="k">类型</span><span class="v">7 种 · 不含退款</span></div>
+                <div class="pv-row"><span class="k">格式</span><span class="v">CSV · UTF-8</span></div>
+                <div class="pv-row"><span class="k">接收</span><span class="v">luna.***@gmail.com</span></div>
+                <div class="pv-row"><span class="k">预计条数</span><span class="v count">237 笔账变</span></div>
+            </div>
+
+            <!-- 说明 -->
+            <div class="note-box">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>
+                    导出任务将在 <b>2-5 分钟</b>内完成，邮件将包含加密的账单附件；为保护资金信息，导出链接有效期 <b>24 小时</b>。若超过 30 天的大量数据，建议选择邮件发送。
+                </span>
+            </div>
+
+        </div>
+
+        <div class="sheet-bar">
+            <button class="btn sec" onclick="location.href='transactions.html'">
+                <i class="fa-solid fa-xmark"></i>
+                取消
+            </button>
+            <button class="btn btn-primary main" onclick="location.href='transactions.html'">
+                <i class="fa-solid fa-paper-plane"></i>
+                发送账单到邮箱
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

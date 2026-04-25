@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>账变详情</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body {
+    background:
+        radial-gradient(ellipse at 50% 10%, rgba(236,72,153,0.12), transparent 50%),
+        #0A0A12;
+}
+.nav-bar { background: rgba(10,10,18,0.7); backdrop-filter: blur(20px); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 120px;
+}
+
+/* ===== Hero 金额卡 ===== */
+.hero-amount {
+    text-align: center;
+    padding: 28px 20px 24px;
+    position: relative;
+}
+.hero-amount .ic-big {
+    width: 78px; height: 78px;
+    margin: 0 auto 14px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #EC4899, #BE185D);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 32px;
+    box-shadow: 0 20px 40px rgba(236,72,153,0.35),
+                inset 0 2px 0 rgba(255,255,255,0.25);
+    position: relative;
+}
+.hero-amount .ic-big::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 28px;
+    border: 1.5px solid rgba(236,72,153,0.4);
+    animation: halo 2.4s ease-out infinite;
+}
+@keyframes halo {
+    0% { transform: scale(0.9); opacity: 1; }
+    100% { transform: scale(1.2); opacity: 0; }
+}
+
+.hero-amount .type-lb {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+.hero-amount .amt {
+    font-size: 40px;
+    font-weight: 800;
+    letter-spacing: -1.2px;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+}
+.hero-amount .amt.inc { color: #6EE7B7; }
+.hero-amount .amt .sign { font-size: 28px; color: #6EE7B7; margin-right: 1px; }
+.hero-amount .eq {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px;
+    margin-top: 6px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 999px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+.hero-amount .eq i { color: #6EE7B7; font-size: 10px; }
+
+.hero-amount .st-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    margin-top: 10px;
+    padding: 5px 12px;
+    background: rgba(16,185,129,0.15);
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 999px;
+    font-size: 11px;
+    color: #6EE7B7;
+    font-weight: 700;
+}
+.hero-amount .st-chip i { font-size: 9px; }
+
+/* ===== 卡片样式 ===== */
+.card {
+    margin: 0 16px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+}
+.card .c-title {
+    padding: 12px 16px 6px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    display: flex; align-items: center; gap: 5px;
+}
+.card .c-title i { color: var(--brand-purple); font-size: 10px; }
+.card .c-body { padding: 4px 16px 14px; }
+
+/* 用户卡 */
+.user-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 4px 0 12px;
+    border-bottom: 1px dashed rgba(255,255,255,0.08);
+    margin-bottom: 10px;
+}
+.user-row .av {
+    width: 44px; height: 44px; border-radius: 50%;
+    background-image: url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&h=160&fit=crop&crop=faces');
+    background-size: cover; background-position: center;
+    flex-shrink: 0;
+    border: 2px solid rgba(236,72,153,0.35);
+}
+.user-row .info { flex: 1; }
+.user-row .info .n {
+    font-size: 14px; font-weight: 700; color: #fff;
+    display: flex; align-items: center; gap: 5px;
+}
+.user-row .info .n .vf {
+    width: 13px; height: 13px;
+    background: #3B82F6; color: #fff;
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 7px;
+}
+.user-row .info .s {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+.user-row .msg-btn {
+    padding: 6px 12px;
+    background: rgba(168,85,247,0.15);
+    border: 1px solid rgba(168,85,247,0.25);
+    border-radius: 8px;
+    color: var(--brand-purple);
+    font-size: 11px;
+    font-weight: 600;
+    display: flex; align-items: center; gap: 4px;
+}
+
+/* 行 */
+.kv-row {
+    display: flex; justify-content: space-between;
+    padding: 8px 0;
+    font-size: 12px;
+    align-items: flex-start;
+}
+.kv-row + .kv-row { border-top: 0.5px solid rgba(255,255,255,0.04); }
+.kv-row .k {
+    color: var(--text-tertiary);
+    display: flex; align-items: center; gap: 5px;
+    flex-shrink: 0;
+    padding-right: 10px;
+}
+.kv-row .k i { color: var(--text-tertiary); font-size: 10px; }
+.kv-row .v {
+    color: #fff;
+    font-weight: 500;
+    text-align: right;
+    word-break: break-all;
+    max-width: 70%;
+}
+.kv-row .v.mono {
+    font-family: ui-monospace, monospace;
+    font-size: 11.5px;
+}
+.kv-row .v .copy {
+    color: var(--brand-purple);
+    margin-left: 5px;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+/* 结算时间轴 */
+.timeline-box { padding: 4px 0 6px; }
+.tl-step {
+    display: flex; gap: 12px;
+    padding: 6px 0;
+    position: relative;
+}
+.tl-step::before {
+    content: '';
+    position: absolute;
+    left: 11px; top: 28px; bottom: -2px;
+    width: 2px;
+    background: rgba(16,185,129,0.2);
+}
+.tl-step:last-child::before { display: none; }
+.tl-step .dt {
+    width: 24px; height: 24px; border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 10px;
+    z-index: 1;
+}
+.tl-step.done .dt {
+    background: linear-gradient(135deg, #10B981, #059669);
+    box-shadow: 0 2px 6px rgba(16,185,129,0.3);
+}
+.tl-step.wait .dt {
+    background: rgba(255,255,255,0.08);
+    color: var(--text-tertiary);
+    border: 1px dashed rgba(255,255,255,0.15);
+}
+.tl-step .mt {
+    flex: 1;
+    padding-top: 2px;
+}
+.tl-step .mt .t {
+    font-size: 13px; font-weight: 600; color: #fff;
+    display: flex; align-items: center; gap: 6px;
+}
+.tl-step.wait .mt .t { color: var(--text-tertiary); font-weight: 500; }
+.tl-step .mt .s {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+
+/* 礼物预览 */
+.gift-preview {
+    padding: 4px 0 6px;
+    display: flex; align-items: center; gap: 14px;
+}
+.gift-preview .g-ic {
+    width: 64px; height: 64px;
+    border-radius: 14px;
+    background:
+        radial-gradient(ellipse at 40% 30%, rgba(251,191,36,0.3), transparent 60%),
+        linear-gradient(135deg, #EC4899, #A855F7);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+    box-shadow: 0 10px 22px rgba(236,72,153,0.3);
+}
+.gift-preview .g-info { flex: 1; }
+.gift-preview .g-info .g-n {
+    font-size: 14px; font-weight: 700; color: #fff;
+}
+.gift-preview .g-info .g-desc {
+    font-size: 11px; color: var(--text-tertiary);
+    margin-top: 3px;
+}
+.gift-preview .g-info .g-val {
+    margin-top: 6px;
+    display: flex; gap: 10px; align-items: center;
+    font-size: 11px;
+}
+.gift-preview .g-info .g-val .price {
+    color: #fff; font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+.gift-preview .g-info .g-val .qty {
+    padding: 1px 7px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* 费用分解 */
+.calc-box {
+    padding: 4px 0 6px;
+}
+.calc-row {
+    display: flex; justify-content: space-between;
+    padding: 6px 0;
+    font-size: 12px;
+    align-items: center;
+}
+.calc-row .k { color: var(--text-secondary); }
+.calc-row .k .tip {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-left: 4px;
+}
+.calc-row .v {
+    font-weight: 500;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+}
+.calc-row.total {
+    margin-top: 4px;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(255,255,255,0.1);
+}
+.calc-row.total .k { font-size: 13px; font-weight: 600; color: #fff; }
+.calc-row.total .v {
+    font-size: 17px; font-weight: 800;
+    color: #6EE7B7;
+    letter-spacing: -0.3px;
+}
+
+/* 提示 */
+.info-note {
+    margin: 0 16px 14px;
+    padding: 12px 14px;
+    background: rgba(59,130,246,0.06);
+    border: 1px solid rgba(59,130,246,0.18);
+    border-radius: 12px;
+    display: flex; gap: 10px; align-items: flex-start;
+    font-size: 11px;
+    color: #93C5FD;
+    line-height: 1.5;
+}
+.info-note i {
+    color: #60A5FA;
+    font-size: 12px;
+    margin-top: 2px;
+}
+.info-note b { color: #fff; }
+
+/* 底部按钮 */
+.submit-bar {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 10px 12px 30px;
+    background: rgba(10,10,18,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 0.5px solid var(--border-color);
+    z-index: 20;
+    display: flex; gap: 8px;
+}
+.submit-bar .btn {
+    white-space: nowrap;
+    padding: 0 10px;
+}
+.submit-bar .btn.sec {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text-secondary);
+    height: 46px;
+    display: flex; align-items: center; justify-content: center;
+    gap: 5px;
+    border-radius: 11px;
+    font-size: 12.5px; font-weight: 600;
+    white-space: nowrap;
+}
+.submit-bar .btn.sec i { font-size: 11px; }
+.submit-bar .btn.btn-primary {
+    flex: 1.2;
+    white-space: nowrap;
+    font-size: 13px;
+    padding: 0 10px;
+    gap: 5px;
+}
+.submit-bar .btn.btn-primary i { font-size: 12px; }
+
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:42</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar blur">
+    <div class="nav-left"><div class="nav-btn" onclick="location.href='transactions.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">账变详情</div>
+    <div class="nav-right">
+        <div class="nav-btn" onclick="location.href='transaction-share-poster.html'" title="分享"><i class="fa-solid fa-share-nodes"></i></div>
+        <div class="nav-btn" onclick="location.href='transaction-more-menu.html'" title="更多操作"><i class="fa-solid fa-ellipsis"></i></div>
+    </div>
+</div>
+
+<div class="app-content">
+
+    <!-- Hero -->
+    <div class="hero-amount">
+        <div class="ic-big"><i class="fa-solid fa-gift"></i></div>
+        <div class="type-lb">TIP RECEIVED · 打赏收入</div>
+        <div class="amt inc"><span class="sign">+$</span>15.00</div>
+        <div class="eq"><i class="fa-brands fa-bitcoin"></i> 15.00 USDT · 结算金额</div>
+        <br>
+        <div class="st-chip"><i class="fa-solid fa-circle-check"></i>已结算</div>
+    </div>
+
+    <!-- 用户 + 礼物 -->
+    <div class="card">
+        <div class="c-title"><i class="fa-solid fa-user-heart"></i>来自</div>
+        <div class="c-body">
+            <div class="user-row">
+                <div class="av"></div>
+                <div class="info">
+                    <div class="n">Emma_Jade <span class="vf"><i class="fa-solid fa-check"></i></span></div>
+                    <div class="s">@emma_jade · 已关注 18 天</div>
+                </div>
+                <div class="msg-btn"><i class="fa-regular fa-message"></i>私信</div>
+            </div>
+
+            <div class="gift-preview">
+                <div class="g-ic">🚀</div>
+                <div class="g-info">
+                    <div class="g-n">超级火箭</div>
+                    <div class="g-desc">高级动态礼物 · 全频道横幅展示 5 秒</div>
+                    <div class="g-val">
+                        <span class="price">$15.00 / 个</span>
+                        <span class="qty">× 1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 订单信息 -->
+    <div class="card">
+        <div class="c-title"><i class="fa-solid fa-receipt"></i>订单信息</div>
+        <div class="c-body">
+            <div class="kv-row">
+                <span class="k"><i class="fa-regular fa-hashtag"></i>交易单号</span>
+                <span class="v mono">T20260423092801F7A9<span class="copy"><i class="fa-regular fa-copy"></i></span></span>
+            </div>
+            <div class="kv-row">
+                <span class="k"><i class="fa-regular fa-clock"></i>交易时间</span>
+                <span class="v">2026-04-23 09:28:01</span>
+            </div>
+            <div class="kv-row">
+                <span class="k"><i class="fa-solid fa-tags"></i>交易类型</span>
+                <span class="v">直播间打赏 · 礼物</span>
+            </div>
+            <div class="kv-row">
+                <span class="k"><i class="fa-solid fa-video"></i>来源场景</span>
+                <span class="v">「深夜电台 · 04期」 · 直播间</span>
+            </div>
+            <div class="kv-row">
+                <span class="k"><i class="fa-regular fa-calendar-check"></i>结算状态</span>
+                <span class="v" style="color:#6EE7B7">已结算 · 已入账可提现</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 金额分解 -->
+    <div class="card">
+        <div class="c-title"><i class="fa-solid fa-calculator"></i>收益分解</div>
+        <div class="c-body calc-box">
+            <div class="calc-row">
+                <span class="k">礼物原价<span class="tip">（粉丝支付）</span></span>
+                <span class="v">$15.00</span>
+            </div>
+            <div class="calc-row">
+                <span class="k">通道手续费<span class="tip">（0%）</span></span>
+                <span class="v">-$0.00</span>
+            </div>
+            <div class="calc-row">
+                <span class="k">平台分成<span class="tip">（已在粉丝侧扣除）</span></span>
+                <span class="v" style="color:var(--text-tertiary)">$0.00</span>
+            </div>
+            <div class="calc-row total">
+                <span class="k">创作者实收</span>
+                <span class="v">+$15.00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 结算时间轴 -->
+    <div class="card">
+        <div class="c-title"><i class="fa-solid fa-timeline"></i>状态时间轴</div>
+        <div class="c-body timeline-box">
+            <div class="tl-step done">
+                <div class="dt"><i class="fa-solid fa-bolt"></i></div>
+                <div class="mt">
+                    <div class="t">粉丝发起打赏</div>
+                    <div class="s">2026-04-23 09:28:01 · 粉丝钱包扣款成功</div>
+                </div>
+            </div>
+            <div class="tl-step done">
+                <div class="dt"><i class="fa-regular fa-square-check"></i></div>
+                <div class="mt">
+                    <div class="t">平台确认收款</div>
+                    <div class="s">2026-04-23 09:28:03 · 记入「打赏收入」待结算</div>
+                </div>
+            </div>
+            <div class="tl-step done">
+                <div class="dt"><i class="fa-solid fa-sack-dollar"></i></div>
+                <div class="mt">
+                    <div class="t">结算完成 · 进入可提现余额</div>
+                    <div class="s">2026-04-23 09:28:05 · +15 USDT</div>
+                </div>
+            </div>
+            <div class="tl-step wait">
+                <div class="dt"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                <div class="mt">
+                    <div class="t">可随时发起提现</div>
+                    <div class="s">已并入可提现余额 $520.00</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 链上关联（选填，如为 USDT 收款时才显示此类卡） -->
+    <div class="card">
+        <div class="c-title"><i class="fa-solid fa-link"></i>关联结算凭证</div>
+        <div class="c-body">
+            <div class="kv-row">
+                <span class="k">结算币种</span>
+                <span class="v" style="color:#6EE7B7">USDT (TRC20)</span>
+            </div>
+            <div class="kv-row">
+                <span class="k">内部分账批次</span>
+                <span class="v mono">B-20260423-0928-A17<span class="copy"><i class="fa-regular fa-copy"></i></span></span>
+            </div>
+            <div class="kv-row">
+                <span class="k">入账账户</span>
+                <span class="v">FansLoop 创作者钱包 · Primary</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 说明 -->
+    <div class="info-note">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>
+            本条账变为 <b>礼物打赏收入</b>，已自动完成结算并计入可提现余额。若你对本笔交易有疑问（如粉丝误操作、内容违规等），可在交易完成后 <b>72 小时</b>内发起申诉。
+        </span>
+    </div>
+
+</div>
+
+<div class="submit-bar">
+    <button class="btn sec" onclick="location.href='transaction-appeal.html'">
+        <i class="fa-regular fa-flag"></i>
+        发起申诉
+    </button>
+    <button class="btn sec" onclick="location.href='transaction-contact.html'">
+        <i class="fa-regular fa-circle-question"></i>
+        联系客服
+    </button>
+    <button class="btn btn-primary" onclick="location.href='creator-withdraw.html'">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        去提现
+    </button>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

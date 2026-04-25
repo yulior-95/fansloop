@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>账变搜索</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body {
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(168,85,247,0.12), transparent 55%),
+        #0A0A12;
+}
+.status-bar { z-index: 1000; background: #0A0A12; }
+.nav-bar {
+    background: #0A0A12;
+    border-bottom: 0.5px solid rgba(255,255,255,0.05);
+    z-index: 110;
+}
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 40px;
+}
+
+/* ===== 搜索头 ===== */
+.search-head {
+    padding: 10px 16px 14px;
+    display: flex; align-items: center; gap: 10px;
+}
+.search-head .sinp {
+    flex: 1;
+    position: relative;
+    height: 40px;
+}
+.search-head .sinp i {
+    position: absolute;
+    left: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--text-tertiary);
+    font-size: 13px;
+}
+.search-head .sinp input {
+    width: 100%; height: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(168,85,247,0.3);
+    border-radius: 12px;
+    padding: 0 36px 0 38px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(168,85,247,0.08);
+}
+.search-head .sinp .clear {
+    position: absolute;
+    right: 10px; top: 50%; transform: translateY(-50%);
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.7);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+    cursor: pointer;
+}
+.search-head .cancel {
+    color: var(--brand-purple);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 4px 6px;
+    cursor: pointer;
+}
+
+/* 当前输入 + 实时联想 */
+.current-q {
+    padding: 6px 20px 2px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 5px;
+}
+.current-q i { color: var(--brand-purple); font-size: 8px; }
+
+.sugg-list {
+    margin: 0 16px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    overflow: hidden;
+}
+.sugg {
+    padding: 11px 14px;
+    display: flex; align-items: center; gap: 11px;
+    border-top: 0.5px solid rgba(255,255,255,0.04);
+}
+.sugg:first-child { border: none; }
+.sugg .ic {
+    width: 32px; height: 32px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+.sugg .ic.sub { background: linear-gradient(135deg, #A855F7, #7C3AED); }
+.sugg .ic.tip { background: linear-gradient(135deg, #EC4899, #BE185D); }
+.sugg .ic.recharge { background: linear-gradient(135deg, #10B981, #059669); }
+.sugg .ic.withdraw { background: linear-gradient(135deg, #EF4444, #DC2626); }
+.sugg .ic.live { background: linear-gradient(135deg, #3B82F6, #1D4ED8); }
+
+.sugg .m { flex: 1; min-width: 0; }
+.sugg .m .n { font-size: 13px; font-weight: 600; color: #fff; }
+.sugg .m .n em {
+    color: var(--brand-purple);
+    font-style: normal;
+    font-weight: 700;
+    background: rgba(168,85,247,0.12);
+    padding: 0 3px;
+    border-radius: 3px;
+}
+.sugg .m .s { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.sugg .r { text-align: right; flex-shrink: 0; }
+.sugg .r .v {
+    font-size: 13px; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+.sugg .r .v.inc { color: #6EE7B7; }
+.sugg .r .v.out { color: #FCA5A5; }
+.sugg .r .t { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
+
+/* 分类搜索 */
+.quick-filter {
+    margin: 0 16px 16px;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+}
+.qf-title {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 5px;
+}
+.qf-title i { color: var(--brand-purple); font-size: 10px; }
+.qf-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+.qf-cell {
+    padding: 12px 6px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 11px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    cursor: pointer;
+    transition: 0.15s;
+}
+.qf-cell .ic {
+    width: 32px; height: 32px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 13px;
+}
+.qf-cell.sub .ic { background: linear-gradient(135deg, #A855F7, #7C3AED); }
+.qf-cell.tip .ic { background: linear-gradient(135deg, #EC4899, #BE185D); }
+.qf-cell.live .ic { background: linear-gradient(135deg, #3B82F6, #1D4ED8); }
+.qf-cell.recharge .ic { background: linear-gradient(135deg, #10B981, #059669); }
+.qf-cell.withdraw .ic { background: linear-gradient(135deg, #EF4444, #DC2626); }
+.qf-cell.settle .ic { background: linear-gradient(135deg, #F59E0B, #D97706); }
+.qf-cell.refund .ic { background: linear-gradient(135deg, #64748B, #475569); }
+.qf-cell.all .ic { background: linear-gradient(135deg, #A855F7, #EC4899); }
+
+.qf-cell .lb { font-size: 11px; color: #fff; font-weight: 500; }
+
+/* 最近搜索 / 热门搜索 */
+.section {
+    margin: 0 16px 16px;
+}
+.sec-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 2px 4px 10px;
+}
+.sec-head .t {
+    font-size: 13px;
+    font-weight: 700;
+    display: flex; align-items: center; gap: 6px;
+}
+.sec-head .t i { color: var(--brand-purple); font-size: 11px; }
+.sec-head .clr {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    display: flex; align-items: center; gap: 3px;
+}
+
+.tag-cloud {
+    display: flex; flex-wrap: wrap; gap: 8px;
+}
+.tag-cloud .t {
+    padding: 6px 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex; align-items: center; gap: 5px;
+    cursor: pointer;
+    transition: 0.15s;
+}
+.tag-cloud .t:active, .tag-cloud .t:hover {
+    background: rgba(168,85,247,0.12);
+    border-color: rgba(168,85,247,0.3);
+    color: #fff;
+}
+.tag-cloud .t .rank {
+    font-size: 9px;
+    font-weight: 700;
+    color: #FBBF24;
+    font-variant-numeric: tabular-nums;
+}
+.tag-cloud .t.hot {
+    background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(239,68,68,0.08));
+    border-color: rgba(245,158,11,0.3);
+    color: #FBBF24;
+}
+.tag-cloud .t.hot .rank { color: #FCA5A5; }
+.tag-cloud .t .dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #EF4444;
+    box-shadow: 0 0 4px #EF4444;
+}
+
+/* 金额区间搜索 */
+.amount-range {
+    margin: 0 16px 16px;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+}
+.amount-range .ar-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 8px;
+}
+.amount-range .ar-inp {
+    flex: 1;
+    height: 38px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 0 12px;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px;
+    color: #fff;
+}
+.amount-range .ar-inp .pr { color: var(--text-tertiary); }
+.amount-range .ar-sep {
+    color: var(--text-tertiary);
+    font-size: 16px;
+}
+.amount-range .ar-apply {
+    padding: 9px 14px;
+    background: var(--brand-gradient);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(168,85,247,0.3);
+}
+
+/* 无结果（备用，可由 JS 切换） */
+.empty-hint {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-tertiary);
+}
+.empty-hint .emp-ic {
+    width: 68px; height: 68px; border-radius: 50%;
+    margin: 0 auto 14px;
+    background: rgba(168,85,247,0.08);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--brand-purple);
+    font-size: 24px;
+}
+.empty-hint .et { font-size: 14px; color: #fff; font-weight: 600; margin-bottom: 4px; }
+.empty-hint .ed { font-size: 11px; }
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar">
+    <div class="nav-left"><div class="nav-btn" onclick="location.href='transactions.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">搜索账变</div>
+    <div class="nav-right"></div>
+</div>
+
+<div class="app-content">
+
+    <!-- 搜索框 -->
+    <div class="search-head">
+        <div class="sinp">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" value="Emma" placeholder="搜索昵称 / 订单号 / 交易类型…" />
+            <span class="clear"><i class="fa-solid fa-xmark"></i></span>
+        </div>
+        <span class="cancel" onclick="location.href='transactions.html'">取消</span>
+    </div>
+
+    <!-- 当前查询结果 -->
+    <div class="current-q"><i class="fa-solid fa-circle"></i>联想结果 · 找到 12 条与 "Emma" 相关账变</div>
+
+    <div class="sugg-list">
+        <div class="sugg">
+            <div class="ic tip"><i class="fa-solid fa-gift"></i></div>
+            <div class="m">
+                <div class="n"><em>Emma</em>_Jade · 打赏 · 超级火箭</div>
+                <div class="s">2026-04-23 09:28 · 已结算</div>
+            </div>
+            <div class="r"><div class="v inc">+$15.00</div><div class="t">15 USDT</div></div>
+        </div>
+        <div class="sugg">
+            <div class="ic sub"><i class="fa-regular fa-heart"></i></div>
+            <div class="m">
+                <div class="n"><em>Emma</em>_Jade · 月度订阅续费</div>
+                <div class="s">2026-04-01 00:00 · 自动扣款</div>
+            </div>
+            <div class="r"><div class="v inc">+$10.00</div><div class="t">10 USDT</div></div>
+        </div>
+        <div class="sugg">
+            <div class="ic tip"><i class="fa-solid fa-gift"></i></div>
+            <div class="m">
+                <div class="n"><em>Emma</em>_Jade · 打赏 · 皇冠 👑</div>
+                <div class="s">2026-03-24 22:14 · 已结算</div>
+            </div>
+            <div class="r"><div class="v inc">+$20.00</div><div class="t">20 USDT</div></div>
+        </div>
+        <div class="sugg">
+            <div class="ic live"><i class="fa-solid fa-video"></i></div>
+            <div class="m">
+                <div class="n"><em>Emma</em>_Jade · 直播门票 · 深夜电台03</div>
+                <div class="s">2026-03-18 21:00 · 已结算</div>
+            </div>
+            <div class="r"><div class="v inc">+$8.80</div><div class="t">8.8 USDT</div></div>
+        </div>
+    </div>
+
+    <!-- 快速分类 -->
+    <div class="quick-filter">
+        <div class="qf-title"><i class="fa-solid fa-shapes"></i>按类型搜索</div>
+        <div class="qf-grid">
+            <div class="qf-cell all">
+                <div class="ic"><i class="fa-solid fa-infinity"></i></div>
+                <div class="lb">全部</div>
+            </div>
+            <div class="qf-cell recharge">
+                <div class="ic"><i class="fa-solid fa-wallet"></i></div>
+                <div class="lb">充值</div>
+            </div>
+            <div class="qf-cell withdraw">
+                <div class="ic"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                <div class="lb">提现</div>
+            </div>
+            <div class="qf-cell settle">
+                <div class="ic"><i class="fa-solid fa-sack-dollar"></i></div>
+                <div class="lb">结算</div>
+            </div>
+            <div class="qf-cell tip">
+                <div class="ic"><i class="fa-solid fa-gift"></i></div>
+                <div class="lb">打赏</div>
+            </div>
+            <div class="qf-cell sub">
+                <div class="ic"><i class="fa-regular fa-heart"></i></div>
+                <div class="lb">订阅</div>
+            </div>
+            <div class="qf-cell live">
+                <div class="ic"><i class="fa-solid fa-video"></i></div>
+                <div class="lb">直播</div>
+            </div>
+            <div class="qf-cell refund">
+                <div class="ic"><i class="fa-solid fa-rotate-left"></i></div>
+                <div class="lb">退款</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 金额区间 -->
+    <div class="amount-range">
+        <div class="qf-title"><i class="fa-solid fa-dollar-sign"></i>按金额搜索</div>
+        <div class="ar-row">
+            <div class="ar-inp"><span class="pr">$</span><span>10.00</span></div>
+            <span class="ar-sep">—</span>
+            <div class="ar-inp"><span class="pr">$</span><span style="color:var(--text-tertiary)">不限</span></div>
+            <div class="ar-apply">应用</div>
+        </div>
+    </div>
+
+    <!-- 最近搜索 -->
+    <div class="section">
+        <div class="sec-head">
+            <div class="t"><i class="fa-regular fa-clock-rotate-left"></i>最近搜索</div>
+            <div class="clr"><i class="fa-regular fa-trash-can"></i> 清空</div>
+        </div>
+        <div class="tag-cloud">
+            <div class="t">Emma</div>
+            <div class="t">打赏</div>
+            <div class="t">超级火箭</div>
+            <div class="t">提现 $50</div>
+            <div class="t">订阅 04月</div>
+            <div class="t">R20260421184</div>
+        </div>
+    </div>
+
+    <!-- 热门搜索 -->
+    <div class="section">
+        <div class="sec-head">
+            <div class="t"><i class="fa-solid fa-fire"></i>热门搜索</div>
+            <div class="clr">24H · <i class="fa-solid fa-arrow-rotate-right"></i></div>
+        </div>
+        <div class="tag-cloud">
+            <div class="t hot"><span class="rank">01</span>本月总收入<span class="dot"></span></div>
+            <div class="t hot"><span class="rank">02</span>冻结中的打赏</div>
+            <div class="t hot"><span class="rank">03</span>提现失败记录</div>
+            <div class="t"><span class="rank">04</span>平台手续费</div>
+            <div class="t"><span class="rank">05</span>季度订阅</div>
+            <div class="t"><span class="rank">06</span>USDT 充值</div>
+        </div>
+    </div>
+
+    <!-- 无结果 hint（默认隐藏） -->
+    <div class="empty-hint">
+        <div class="emp-ic"><i class="fa-solid fa-magnifying-glass"></i></div>
+        <div class="et">未找到相关账变</div>
+        <div class="ed">换个关键词试试，或调整筛选条件</div>
+    </div>
+
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

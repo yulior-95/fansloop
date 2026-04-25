@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>安全验证</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body {
+    background:
+        radial-gradient(ellipse at 50% 10%, rgba(168,85,247,0.12), transparent 55%),
+        radial-gradient(ellipse at 50% 95%, rgba(236,72,153,0.08), transparent 55%),
+        #0A0A12;
+}
+.nav-bar { background: rgba(10,10,18,0.8); backdrop-filter: blur(12px); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 20px;
+    opacity: 0.4;
+    filter: blur(1px);
+}
+
+/* Hero */
+.verify-hero {
+    text-align: center;
+    padding: 18px 20px 16px;
+}
+.verify-hero .ic {
+    width: 68px; height: 68px; margin: 0 auto 12px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 28px;
+    box-shadow: 0 16px 40px rgba(168,85,247,0.4);
+}
+.verify-hero h2 {
+    font-size: 20px; font-weight: 700;
+    letter-spacing: -0.3px;
+}
+.verify-hero p {
+    font-size: 12px; color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+/* 提现概要 */
+.tx-summary {
+    margin: 0 16px 16px;
+    padding: 16px;
+    background: linear-gradient(180deg, #1A1A26 0%, #12121C 100%);
+    border: 1px solid rgba(168,85,247,0.2);
+    border-radius: 16px;
+}
+.tx-title {
+    font-size: 11px; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.tx-title .edit {
+    color: var(--brand-purple);
+    font-size: 11px;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 500;
+}
+.tx-big {
+    text-align: center;
+    padding: 8px 0 12px;
+}
+.tx-big .amt {
+    font-size: 34px; font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #fff, #C084FC);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.tx-big .cur { font-size: 18px; color: var(--text-secondary); font-weight: 600; margin-right: 2px; }
+
+.tx-lines {
+    border-top: 1px dashed rgba(255,255,255,0.1);
+    padding-top: 10px;
+}
+.tx-line {
+    display: flex; justify-content: space-between;
+    padding: 5px 0;
+    font-size: 12px;
+    align-items: center;
+}
+.tx-line .k { color: var(--text-tertiary); }
+.tx-line .v { color: #fff; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+.tx-line .v .bl {
+    width: 16px; height: 16px; border-radius: 4px;
+    background: linear-gradient(135deg, #DC2626, #991B1B);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 9px; font-weight: 900;
+}
+
+/* ===================================
+   验证弹窗（手机 OTP + 生物识别二选一）
+   =================================== */
+.verify-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.68);
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    backdrop-filter: blur(3px);
+    animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+.verify-sheet {
+    width: 100%;
+    background: linear-gradient(180deg, #1A1A26 0%, #12121C 100%);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 12px 0 30px;
+    box-shadow: 0 -20px 60px rgba(0,0,0,0.55);
+    max-height: 88%;
+    display: flex; flex-direction: column;
+    animation: sheetUp 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes sheetUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+.sheet-grab {
+    width: 44px; height: 5px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 3px;
+    margin: 0 auto 14px;
+}
+.sheet-head {
+    padding: 0 20px 4px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.sheet-head h2 {
+    font-size: 17px; font-weight: 700;
+    letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 8px;
+}
+.sheet-head h2 .ic {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(168,85,247,0.15);
+    color: var(--brand-purple);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+}
+.sheet-head .close {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: var(--text-secondary);
+}
+.sheet-sub {
+    padding: 6px 20px 14px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+.sheet-sub b { color: #fff; }
+
+/* 验证方式切换 Tab */
+.method-tabs {
+    margin: 0 20px 14px;
+    display: flex;
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 4px;
+    border: 1px solid rgba(255,255,255,0.06);
+}
+.method-tab {
+    flex: 1;
+    padding: 10px 8px;
+    border-radius: 9px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px;
+    transition: all 0.25s;
+}
+.method-tab.active {
+    background: var(--brand-gradient);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(168,85,247,0.35);
+}
+.method-tab i { font-size: 13px; }
+
+/* ------ OTP 面板 ------ */
+.panel {
+    padding: 0 20px 16px;
+}
+
+.otp-head {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    background: rgba(16,185,129,0.08);
+    border: 1px solid rgba(16,185,129,0.18);
+    border-radius: 10px;
+}
+.otp-head .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #10B981;
+    box-shadow: 0 0 8px #10B981;
+    animation: pulse-d 1.6s ease-in-out infinite;
+}
+@keyframes pulse-d { 0%,100% { opacity: 1 } 50% { opacity: 0.3 } }
+.otp-head .txt {
+    flex: 1;
+    font-size: 11px;
+    color: #6EE7B7;
+}
+.otp-head .txt b { color: #fff; }
+
+.otp-grid {
+    display: flex; gap: 8px;
+    justify-content: center;
+    margin-bottom: 14px;
+}
+.otp-box {
+    width: 44px; height: 54px;
+    border-radius: 11px;
+    background: rgba(0,0,0,0.35);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    font-family: ui-monospace, monospace;
+    color: #fff;
+}
+.otp-box.filled {
+    border-color: var(--brand-purple);
+    background: rgba(168,85,247,0.1);
+}
+.otp-box.active {
+    border-color: var(--brand-purple);
+    background: rgba(168,85,247,0.1);
+    position: relative;
+}
+.otp-box.active::after {
+    content: '';
+    width: 2px; height: 22px;
+    background: var(--brand-purple);
+    animation: blink 1s ease-in-out infinite;
+}
+@keyframes blink { 0%, 100% { opacity: 1 } 50% { opacity: 0 } }
+
+.otp-foot {
+    display: flex; justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    padding: 0 4px;
+}
+.otp-foot .resend { color: var(--brand-purple); font-weight: 600; }
+
+/* ------ 生物识别面板 ------ */
+.bio-panel {
+    text-align: center;
+    padding: 6px 20px 8px;
+    display: none;
+}
+.bio-panel.show { display: block; }
+.panel.otp-panel.hidden { display: none; }
+
+.bio-ring {
+    width: 140px; height: 140px;
+    margin: 14px auto 12px;
+    position: relative;
+}
+.bio-ring .ring {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    border: 2px dashed rgba(6,182,212,0.35);
+    animation: rotate 18s linear infinite;
+}
+@keyframes rotate { to { transform: rotate(360deg); } }
+.bio-ring .halo {
+    position: absolute; inset: 10px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(6,182,212,0.18), transparent 70%);
+    animation: halo-pulse 2.2s ease-in-out infinite;
+}
+@keyframes halo-pulse { 0%,100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 0.4; } }
+.bio-ring .face {
+    position: absolute; inset: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #06B6D4, #0891B2);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 46px;
+    box-shadow: 0 10px 30px rgba(6,182,212,0.4),
+                inset 0 2px 0 rgba(255,255,255,0.25);
+}
+.bio-ring .scan {
+    position: absolute; inset: 26px;
+    border-radius: 50%;
+    overflow: hidden;
+    pointer-events: none;
+}
+.bio-ring .scan::before {
+    content: ''; position: absolute;
+    left: 0; right: 0; top: 0; height: 3px;
+    background: linear-gradient(90deg, transparent, #67E8F9, transparent);
+    box-shadow: 0 0 14px #67E8F9;
+    animation: scan-line 2.4s ease-in-out infinite;
+}
+@keyframes scan-line {
+    0%, 100% { top: 0; opacity: 0.6; }
+    50% { top: calc(100% - 3px); opacity: 1; }
+}
+
+.bio-title {
+    font-size: 16px; font-weight: 700;
+    margin-top: 6px;
+}
+.bio-desc {
+    font-size: 12px; color: var(--text-secondary);
+    margin-top: 6px;
+    line-height: 1.5;
+}
+
+.bio-status {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px;
+    background: rgba(6,182,212,0.12);
+    border: 1px solid rgba(6,182,212,0.3);
+    border-radius: 999px;
+    font-size: 11px;
+    color: #67E8F9;
+    font-weight: 600;
+    margin-top: 12px;
+}
+.bio-status i {
+    font-size: 8px;
+    animation: pulse-d 1.4s ease-in-out infinite;
+}
+
+/* 安全提示 */
+.safety-note {
+    margin: 0 20px 14px;
+    padding: 10px 12px;
+    background: rgba(59,130,246,0.06);
+    border: 1px solid rgba(59,130,246,0.15);
+    border-radius: 10px;
+    display: flex; gap: 8px; align-items: flex-start;
+    font-size: 10px;
+    color: #93C5FD;
+    line-height: 1.5;
+}
+.safety-note i { color: #60A5FA; font-size: 10px; margin-top: 2px; }
+.safety-note b { color: #DBEAFE; }
+
+/* 底部按钮 */
+.sheet-bar {
+    padding: 10px 20px 0;
+    border-top: 0.5px solid rgba(255,255,255,0.06);
+}
+.sheet-bar .btn-primary.btn-block {
+    margin: 6px 0 0;
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" onclick="location.href='withdraw-fiat.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">安全验证</div>
+    <div class="nav-right"><div class="nav-btn"><i class="fa-regular fa-circle-question"></i></div></div>
+</div>
+
+<!-- 背景页（模糊展示提现概要） -->
+<div class="app-content">
+    <div class="verify-hero">
+        <div class="ic"><i class="fa-solid fa-shield-halved"></i></div>
+        <h2>提现安全验证</h2>
+        <p>为保障你的资金安全，需完成身份核验</p>
+    </div>
+
+    <div class="tx-summary">
+        <div class="tx-title">
+            <span>提现概要</span>
+            <span class="edit" onclick="location.href='withdraw-fiat-edit.html'"><i class="fa-regular fa-pen-to-square"></i> 修改</span>
+        </div>
+        <div class="tx-big">
+            <span class="cur">¥</span><span class="amt">2,000.00</span>
+        </div>
+
+        <div class="tx-lines">
+            <div class="tx-line">
+                <span class="k">到账银行</span>
+                <span class="v">
+                    <span class="bl">招</span>
+                    招商银行 · •••• 2025
+                </span>
+            </div>
+            <div class="tx-line">
+                <span class="k">实际到账</span>
+                <span class="v" style="color:#6EE7B7">¥1,996.00</span>
+            </div>
+            <div class="tx-line">
+                <span class="k">预计到账</span>
+                <span class="v">≈ 2 分钟</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============= 验证弹窗：手机 OTP ⇄ 生物识别 ============= -->
+<div class="verify-overlay">
+    <div class="verify-sheet">
+        <div class="sheet-grab"></div>
+
+        <div class="sheet-head">
+            <h2>
+                <span class="ic"><i class="fa-solid fa-shield-halved"></i></span>
+                身份验证
+            </h2>
+            <div class="close"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+
+        <div class="sheet-sub">
+            请选择任一方式完成验证，验证通过后将提交 <b>¥2,000.00</b> 提现申请
+        </div>
+
+        <!-- 方式切换 Tab -->
+        <div class="method-tabs">
+            <div class="method-tab active">
+                <i class="fa-solid fa-mobile-screen"></i>
+                手机验证码
+            </div>
+            <div class="method-tab">
+                <i class="fa-solid fa-face-smile-beam"></i>
+                Face ID
+            </div>
+        </div>
+
+        <!-- 面板：OTP（默认显示） -->
+        <div class="panel otp-panel">
+            <div class="otp-head">
+                <span class="dot"></span>
+                <div class="txt">
+                    验证码已发送至 <b>138 •••• 2025</b>
+                </div>
+            </div>
+
+            <div class="otp-grid">
+                <div class="otp-box filled">2</div>
+                <div class="otp-box filled">8</div>
+                <div class="otp-box filled">5</div>
+                <div class="otp-box filled">9</div>
+                <div class="otp-box active"></div>
+                <div class="otp-box"></div>
+            </div>
+
+            <div class="otp-foot">
+                <span>60 秒内收不到短信？</span>
+                <span class="resend">重新发送 (52s)</span>
+            </div>
+        </div>
+
+        <!-- 面板：生物识别（切换显示） -->
+        <div class="bio-panel">
+            <div class="bio-ring">
+                <div class="ring"></div>
+                <div class="halo"></div>
+                <div class="face"><i class="fa-solid fa-face-smile-beam"></i></div>
+                <div class="scan"></div>
+            </div>
+            <div class="bio-title">请正对屏幕完成 Face ID</div>
+            <div class="bio-desc">眨眼、张嘴动作可提升识别成功率</div>
+            <div class="bio-status"><i class="fa-solid fa-circle"></i> 识别中…</div>
+        </div>
+
+        <!-- 安全说明 -->
+        <div class="safety-note">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>
+                <b>反欺诈声明</b>：FansLoop 工作人员不会索要你的验证码或让你截图人脸，如遇可疑请求，请立即联系客服。
+            </span>
+        </div>
+
+        <!-- 底部按钮（OTP 提交 → 切换到资金密码弹窗） -->
+        <div class="sheet-bar">
+            <button class="btn btn-primary btn-block" onclick="location.href='withdraw-fiat-verify-pwd.html'">
+                <i class="fa-solid fa-check"></i>
+                验证并继续
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

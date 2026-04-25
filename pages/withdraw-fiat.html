@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>法币提现</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 100px;
+}
+
+/* 币种切换 */
+.currency-switch {
+    margin: 8px 16px 14px;
+    display: flex;
+    background: var(--bg-card);
+    border-radius: var(--radius-full);
+    padding: 4px;
+}
+.currency-switch .s {
+    flex: 1;
+    padding: 10px 0;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-secondary);
+    border-radius: var(--radius-full);
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px;
+    font-weight: 500;
+    cursor: pointer;
+}
+.currency-switch .s.active {
+    background: var(--brand-gradient);
+    color: #fff; font-weight: 700;
+    box-shadow: 0 4px 12px rgba(168,85,247,0.3);
+}
+
+/* 余额总览 */
+.balance-hero {
+    margin: 0 16px 14px;
+    padding: 18px;
+    background: linear-gradient(135deg, #16A34A 0%, #10B981 50%, #06B6D4 100%);
+    border-radius: 18px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(16,163,74,0.3);
+}
+.balance-hero::before {
+    content: ''; position: absolute;
+    top: -40px; right: -40px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+}
+.balance-hero::after {
+    content: ''; position: absolute;
+    bottom: -30px; left: -20px;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+}
+.balance-hero .bh-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.85);
+    display: flex; align-items: center; gap: 5px;
+    position: relative;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-weight: 600;
+}
+.balance-hero .bh-amount {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+    position: relative;
+}
+.balance-hero .bh-amount .cur { font-size: 16px; opacity: 0.85; font-weight: 600; margin-right: 4px; }
+.balance-hero .bh-meta {
+    display: flex; justify-content: space-between;
+    position: relative;
+    margin-top: 12px;
+    font-size: 11px;
+}
+.balance-hero .bh-eye {
+    position: absolute;
+    top: 0; right: 0;
+    color: rgba(255,255,255,0.7);
+    font-size: 14px;
+}
+
+/* 金额输入卡 */
+.amount-card {
+    margin: 0 16px 12px;
+    padding: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    text-align: center;
+    position: relative;
+}
+.amount-card .label {
+    font-size: 11px; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-weight: 600;
+}
+.amount-card .input-box {
+    display: flex; align-items: baseline; justify-content: center;
+    gap: 4px;
+    margin-top: 8px;
+}
+.amount-card .symbol { font-size: 22px; color: var(--text-secondary); font-weight: 600; }
+.amount-card .input {
+    font-size: 42px; font-weight: 800;
+    color: var(--text-primary);
+    min-width: 160px; max-width: 220px;
+    outline: none;
+    background: transparent;
+    border: none;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+    letter-spacing: -1px;
+}
+.amount-card .actions-row {
+    display: flex; justify-content: center; gap: 8px;
+    margin-top: 12px;
+}
+.amount-card .chip {
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 11px;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+.amount-card .chip.all {
+    background: rgba(168,85,247,0.15);
+    border-color: rgba(168,85,247,0.3);
+    color: var(--brand-purple);
+    font-weight: 600;
+}
+
+/* 分组 */
+.sec-h {
+    padding: 8px 20px 8px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-weight: 600;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.sec-h i { color: var(--brand-purple); margin-right: 5px; }
+.sec-h .more {
+    color: var(--brand-purple);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: none; letter-spacing: 0;
+}
+
+/* 收款卡列表 */
+.bank-list {
+    margin: 0 16px 12px;
+    background: var(--bg-card);
+    border-radius: 16px;
+    overflow: hidden;
+}
+.bank-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    position: relative;
+}
+.bank-item + .bank-item {
+    border-top: 0.5px solid rgba(255,255,255,0.06);
+}
+.bank-item.selected {
+    background: linear-gradient(90deg, rgba(168,85,247,0.08), transparent);
+}
+.bank-item .bi-logo {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 15px;
+    color: #fff;
+    flex-shrink: 0;
+}
+.bank-item .bi-logo.cmb { background: linear-gradient(135deg, #DC2626, #991B1B); }
+.bank-item .bi-logo.icbc { background: linear-gradient(135deg, #DC2626, #7F1D1D); }
+.bank-item .bi-logo.abc { background: linear-gradient(135deg, #16A34A, #166534); }
+.bank-item .bi-logo.add {
+    background: rgba(168,85,247,0.15);
+    color: var(--brand-purple);
+    border: 1px dashed rgba(168,85,247,0.4);
+}
+.bank-item .bi-main {
+    flex: 1; min-width: 0;
+}
+.bank-item .bi-name {
+    font-size: 14px; font-weight: 600;
+    display: flex; align-items: center; gap: 6px;
+}
+.bank-item .bi-num {
+    font-size: 11px; color: var(--text-tertiary);
+    font-family: ui-monospace, monospace;
+    margin-top: 3px;
+    letter-spacing: 0.3px;
+}
+.bank-item .bi-tag {
+    font-size: 9px; padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(16,185,129,0.15);
+    color: #10B981;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+.bank-item .bi-radio {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.bank-item.selected .bi-radio {
+    background: var(--brand-gradient);
+    border-color: var(--brand-purple);
+}
+.bank-item.selected .bi-radio::after {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #fff;
+}
+.bank-item.add-new .bi-main .bi-name { color: var(--brand-purple); }
+.bank-item.add-new .bi-main .bi-num { color: var(--text-tertiary); }
+
+/* 费用卡 */
+.fee-card {
+    margin: 0 16px 12px;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border-radius: 14px;
+}
+.fee-row {
+    display: flex; justify-content: space-between;
+    padding: 6px 0;
+    font-size: 13px;
+}
+.fee-row .k { color: var(--text-tertiary); }
+.fee-row .v { color: #fff; font-weight: 500; }
+.fee-row.total {
+    border-top: 1px dashed rgba(255,255,255,0.08);
+    margin-top: 6px;
+    padding-top: 10px;
+}
+.fee-row.total .v {
+    font-size: 18px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* 到账时间 */
+.eta-card {
+    margin: 0 16px 14px;
+    padding: 12px 14px;
+    background: rgba(16,185,129,0.06);
+    border: 1px solid rgba(16,185,129,0.18);
+    border-radius: 12px;
+    display: flex; gap: 10px; align-items: center;
+}
+.eta-card .e-ic {
+    width: 32px; height: 32px; border-radius: 9px;
+    background: rgba(16,185,129,0.15);
+    color: #10B981;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+.eta-card .e-txt {
+    flex: 1;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+.eta-card .e-txt b { color: #6EE7B7; font-weight: 600; }
+.eta-card .e-time {
+    font-size: 13px; font-weight: 700;
+    color: #6EE7B7;
+}
+
+/* 风控提示 */
+.risk-note {
+    margin: 0 16px 14px;
+    padding: 12px 14px;
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 12px;
+    display: flex; gap: 10px; align-items: flex-start;
+}
+.risk-note .r-ic {
+    width: 26px; height: 26px; border-radius: 8px;
+    background: rgba(245,158,11,0.2);
+    color: var(--warning);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+.risk-note .r-txt {
+    flex: 1;
+    font-size: 11px;
+    color: #FCD34D;
+    line-height: 1.5;
+}
+.risk-note .r-txt b { color: #fff; }
+
+.submit-bar {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 10px 16px 30px;
+    background: rgba(10,10,18,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 0.5px solid var(--border-color);
+    z-index: 20;
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" onclick="location.href='wallet.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">法币提现</div>
+    <div class="nav-right"><span style="font-size:13px; color:var(--brand-purple)">记录</span></div>
+</div>
+
+<div class="app-content">
+
+    <!-- 币种切换 -->
+    <div class="currency-switch">
+        <div class="s" onclick="location.href='withdraw.html'"><i class="fa-brands fa-bitcoin"></i> USDT</div>
+        <div class="s active"><i class="fa-solid fa-yen-sign"></i> 法币 (¥)</div>
+    </div>
+
+    <!-- 余额 -->
+    <div class="balance-hero">
+        <div class="bh-eye"><i class="fa-regular fa-eye"></i></div>
+        <div class="bh-label"><i class="fa-solid fa-wallet"></i> 可提现法币余额</div>
+        <div class="bh-amount">
+            <span class="cur">¥</span>6,128.56
+        </div>
+        <div class="bh-meta">
+            <span>≈ 843.93 USDT</span>
+            <span>本月已提 <b style="font-weight:700">¥2,000 / ¥50,000</b></span>
+        </div>
+    </div>
+
+    <!-- 金额输入 -->
+    <div class="amount-card">
+        <div class="label">提现金额</div>
+        <div class="input-box">
+            <span class="symbol">¥</span>
+            <input class="input" value="2000.00" placeholder="0.00">
+        </div>
+        <div class="actions-row">
+            <div class="chip">¥500</div>
+            <div class="chip">¥1,000</div>
+            <div class="chip">¥2,000</div>
+            <div class="chip all"><i class="fa-solid fa-bolt" style="font-size:9px"></i> 全部</div>
+        </div>
+    </div>
+
+    <!-- 收款银行卡 -->
+    <div class="sec-h">
+        <span><i class="fa-solid fa-building-columns"></i>到账银行卡</span>
+        <span class="more">管理 <i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
+    </div>
+
+    <div class="bank-list">
+        <div class="bank-item selected">
+            <div class="bi-logo cmb">招</div>
+            <div class="bi-main">
+                <div class="bi-name">
+                    招商银行
+                    <span class="bi-tag">默认</span>
+                </div>
+                <div class="bi-num">储蓄卡 · 6214 •••• •••• 2025</div>
+            </div>
+            <div class="bi-radio"></div>
+        </div>
+        <div class="bank-item">
+            <div class="bi-logo icbc">工</div>
+            <div class="bi-main">
+                <div class="bi-name">中国工商银行</div>
+                <div class="bi-num">储蓄卡 · 6222 •••• •••• 8869</div>
+            </div>
+            <div class="bi-radio"></div>
+        </div>
+        <div class="bank-item add-new">
+            <div class="bi-logo add"><i class="fa-solid fa-plus"></i></div>
+            <div class="bi-main">
+                <div class="bi-name">绑定新的银行卡</div>
+                <div class="bi-num">单笔最高 ¥50,000 · 秒到账</div>
+            </div>
+            <i class="fa-solid fa-chevron-right" style="color:var(--text-tertiary); font-size:13px"></i>
+        </div>
+    </div>
+
+    <!-- 费用详情 -->
+    <div class="sec-h">
+        <span><i class="fa-solid fa-receipt"></i>费用明细</span>
+    </div>
+
+    <div class="fee-card">
+        <div class="fee-row">
+            <span class="k">提现金额</span>
+            <span class="v">¥2,000.00</span>
+        </div>
+        <div class="fee-row">
+            <span class="k">银联通道费 (0.2%)</span>
+            <span class="v">¥4.00</span>
+        </div>
+        <div class="fee-row">
+            <span class="k">平台手续费</span>
+            <span class="v" style="color:var(--crypto-green)">¥0 · 免费</span>
+        </div>
+        <div class="fee-row total">
+            <span class="k" style="font-size:14px; color:#fff; font-weight:600">实际到账</span>
+            <span class="v">¥1,996.00</span>
+        </div>
+    </div>
+
+    <!-- 到账时间 -->
+    <div class="eta-card">
+        <div class="e-ic"><i class="fa-solid fa-bolt"></i></div>
+        <div class="e-txt">
+            <b>预计到账时间</b><br>
+            工作日 <span style="color:#fff">09:00-17:00</span> 内实时到账，其他时间下一工作日到账
+        </div>
+        <div class="e-time">≈ 2min</div>
+    </div>
+
+    <!-- 风控提示 -->
+    <div class="risk-note">
+        <div class="r-ic"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="r-txt">
+            <b>安全验证</b> · 大额提现（≥ ¥1,000）需完成<b style="color:#fff">短信验证码 + 资金密码</b>双重验证。首次提现建议小额测试。
+        </div>
+    </div>
+
+</div>
+
+<div class="submit-bar">
+    <button class="btn btn-primary btn-block" onclick="location.href='withdraw-fiat-verify.html'">
+        <i class="fa-solid fa-shield-halved"></i>
+        下一步 · 安全验证
+    </button>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

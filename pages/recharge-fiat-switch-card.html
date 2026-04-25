@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>切换银行卡</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body {
+    background:
+        radial-gradient(ellipse at 50% 8%, rgba(22,119,255,0.12), transparent 55%),
+        #0A0A12;
+}
+.nav-bar { background: rgba(10,10,18,0.8); backdrop-filter: blur(12px); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 20px;
+}
+
+/* 订单概要缩略（让弹窗背后仍能看到上下文） */
+.order-mini {
+    margin: 10px 16px 14px;
+    background: linear-gradient(180deg, #1A1A26 0%, #12121C 100%);
+    border: 1px solid rgba(22,119,255,0.2);
+    border-radius: 14px;
+    padding: 14px 16px;
+    opacity: 0.55;
+    filter: blur(1px);
+}
+.order-mini .ot {
+    font-size: 10px; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+.order-mini .oa {
+    font-size: 28px; font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -1px;
+}
+.order-mini .oa .cur { font-size: 16px; color: var(--text-secondary); font-weight: 600; }
+.order-mini .os {
+    display: flex; justify-content: space-between;
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px dashed rgba(255,255,255,0.08);
+    font-size: 11px; color: var(--text-tertiary);
+}
+
+.bank-mini-ghost {
+    margin: 0 16px;
+    padding: 12px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    display: flex; align-items: center; gap: 12px;
+    opacity: 0.35;
+    filter: blur(1px);
+}
+.bank-mini-ghost .bl {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: linear-gradient(135deg, #DC2626, #991B1B);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 16px;
+}
+.bank-mini-ghost .m { flex: 1; }
+.bank-mini-ghost .n { font-size: 14px; font-weight: 600; }
+.bank-mini-ghost .d { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+
+/* =======================
+   切换银行卡弹窗
+   ======================= */
+.switch-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    backdrop-filter: blur(2px);
+    animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+.switch-sheet {
+    width: 100%;
+    background: linear-gradient(180deg, #1A1A26 0%, #12121C 100%);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 12px 0 30px;
+    box-shadow: 0 -20px 60px rgba(0,0,0,0.5);
+    max-height: 78%;
+    display: flex; flex-direction: column;
+    animation: sheetUp 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes sheetUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.sheet-grab {
+    width: 44px; height: 5px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 3px;
+    margin: 0 auto 14px;
+}
+
+.sheet-head {
+    padding: 0 20px 10px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.sheet-head h2 {
+    font-size: 17px; font-weight: 700;
+    letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 8px;
+}
+.sheet-head h2 .ic {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(168,85,247,0.15);
+    color: var(--brand-purple);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+}
+.sheet-head .close {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.sheet-sub {
+    padding: 0 20px 12px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+}
+
+.cards-scroll {
+    overflow-y: auto;
+    padding: 4px 16px 12px;
+    flex: 1;
+    scrollbar-width: thin;
+}
+
+.card-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    cursor: pointer;
+    position: relative;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+}
+.card-item.selected {
+    background: linear-gradient(90deg, rgba(168,85,247,0.12), rgba(168,85,247,0.04));
+    border-color: rgba(168,85,247,0.4);
+    box-shadow: 0 4px 14px rgba(168,85,247,0.15);
+}
+.card-item .bi-logo {
+    width: 42px; height: 42px; border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 16px;
+    color: #fff;
+    flex-shrink: 0;
+}
+.card-item .bi-logo.cmb { background: linear-gradient(135deg, #DC2626, #991B1B); box-shadow: 0 4px 12px rgba(220,38,38,0.25); }
+.card-item .bi-logo.icbc { background: linear-gradient(135deg, #DC2626, #7F1D1D); }
+.card-item .bi-logo.abc { background: linear-gradient(135deg, #16A34A, #166534); }
+.card-item .bi-logo.boc { background: linear-gradient(135deg, #991B1B, #DC2626); }
+
+.card-item .bi-main {
+    flex: 1; min-width: 0;
+}
+.card-item .bi-top {
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 4px;
+}
+.card-item .bi-name {
+    font-size: 14px; font-weight: 600;
+}
+.card-item .bi-tag {
+    font-size: 9px; padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(16,185,129,0.15);
+    color: #10B981;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+.card-item .bi-tag.fast {
+    background: rgba(245,158,11,0.15);
+    color: #FBBF24;
+}
+.card-item .bi-num {
+    font-size: 11px; color: var(--text-tertiary);
+    font-family: ui-monospace, monospace;
+    margin-top: 2px;
+    letter-spacing: 0.3px;
+}
+.card-item .bi-limit {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+}
+.card-item .bi-limit b { color: var(--text-secondary); font-weight: 600; }
+
+.card-item .bi-radio {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.card-item.selected .bi-radio {
+    background: var(--brand-gradient);
+    border-color: var(--brand-purple);
+}
+.card-item.selected .bi-radio::after {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #fff;
+}
+
+.card-item.disabled { opacity: 0.45; cursor: not-allowed; }
+.card-item.disabled .bi-num { color: #EF4444; }
+
+/* 底部添加卡按钮 */
+.sheet-footer {
+    border-top: 0.5px solid rgba(255,255,255,0.06);
+    padding: 14px 16px 0;
+    margin-top: 4px;
+}
+.add-card-btn {
+    width: 100%;
+    padding: 14px;
+    border: 1.5px dashed rgba(168,85,247,0.35);
+    border-radius: 14px;
+    background: rgba(168,85,247,0.06);
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--brand-purple);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.add-card-btn:hover {
+    background: rgba(168,85,247,0.12);
+    border-style: solid;
+}
+.add-card-btn i {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--brand-gradient);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+}
+
+.sheet-safety {
+    margin-top: 10px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-align: center;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.sheet-safety i { color: var(--crypto-green); font-size: 9px; }
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" onclick="location.href='recharge-fiat-verify.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">支付身份认证</div>
+    <div class="nav-right"><div class="nav-btn"><i class="fa-solid fa-xmark"></i></div></div>
+</div>
+
+<!-- 背景内容（订单缩略 + 当前银行卡模糊展示，表明弹窗位于支付认证页之上） -->
+<div class="app-content">
+    <div class="order-mini">
+        <div class="ot">待支付订单</div>
+        <div class="oa"><span class="cur">¥</span> 500.00</div>
+        <div class="os">
+            <span>商户 · FansLoop 充值</span>
+            <span>超时 14:36</span>
+        </div>
+    </div>
+
+    <div class="bank-mini-ghost">
+        <div class="bl">招</div>
+        <div class="m">
+            <div class="n">招商银行 储蓄卡</div>
+            <div class="d">•••• •••• •••• 2025</div>
+        </div>
+    </div>
+</div>
+
+<!-- ============== 切换银行卡弹窗 ============== -->
+<div class="switch-overlay">
+    <div class="switch-sheet">
+        <div class="sheet-grab"></div>
+
+        <div class="sheet-head">
+            <h2>
+                <span class="ic"><i class="fa-solid fa-arrow-right-arrow-left"></i></span>
+                选择付款银行卡
+            </h2>
+            <div class="close"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+
+        <div class="sheet-sub">
+            共 <b style="color:#fff">3 张</b>已绑定银行卡，选择后将用于当前订单付款
+        </div>
+
+        <!-- 卡列表 -->
+        <div class="cards-scroll">
+            <!-- 当前选中 -->
+            <div class="card-item selected">
+                <div class="bi-logo cmb">招</div>
+                <div class="bi-main">
+                    <div class="bi-top">
+                        <span class="bi-name">招商银行 储蓄卡</span>
+                        <span class="bi-tag">默认</span>
+                        <span class="bi-tag fast">快捷</span>
+                    </div>
+                    <div class="bi-num">•••• •••• •••• 2025</div>
+                    <div class="bi-limit">单笔 <b>¥50,000</b> · 日累计 <b>¥100,000</b></div>
+                </div>
+                <div class="bi-radio"></div>
+            </div>
+
+            <!-- 其他已绑卡 -->
+            <div class="card-item">
+                <div class="bi-logo icbc">工</div>
+                <div class="bi-main">
+                    <div class="bi-top">
+                        <span class="bi-name">中国工商银行</span>
+                        <span class="bi-tag fast">快捷</span>
+                    </div>
+                    <div class="bi-num">•••• •••• •••• 8869</div>
+                    <div class="bi-limit">单笔 <b>¥20,000</b> · 日累计 <b>¥50,000</b></div>
+                </div>
+                <div class="bi-radio"></div>
+            </div>
+
+            <div class="card-item">
+                <div class="bi-logo abc">农</div>
+                <div class="bi-main">
+                    <div class="bi-top">
+                        <span class="bi-name">中国农业银行</span>
+                    </div>
+                    <div class="bi-num">•••• •••• •••• 3356</div>
+                    <div class="bi-limit">单笔 <b>¥30,000</b> · 日累计 <b>¥80,000</b></div>
+                </div>
+                <div class="bi-radio"></div>
+            </div>
+
+            <div class="card-item disabled">
+                <div class="bi-logo boc">中</div>
+                <div class="bi-main">
+                    <div class="bi-top">
+                        <span class="bi-name">中国银行</span>
+                    </div>
+                    <div class="bi-num">该卡暂不支持此商户，请更换其他卡</div>
+                    <div class="bi-limit">卡号 •••• 7812</div>
+                </div>
+                <div class="bi-radio"></div>
+            </div>
+        </div>
+
+        <!-- 底部绑卡 -->
+        <div class="sheet-footer">
+            <div class="add-card-btn" onclick="location.href='recharge-fiat-bind.html'">
+                <i class="fa-solid fa-plus"></i>
+                绑定新的银行卡
+            </div>
+            <div class="sheet-safety">
+                <i class="fa-solid fa-shield-halved"></i>
+                由银联加密通道传输，支持招行/工行/建行/农行等 50+ 银行
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>

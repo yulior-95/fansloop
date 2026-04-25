@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FansLoop · 原型演示台</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", sans-serif;
+    background:
+        radial-gradient(ellipse at 15% 20%, rgba(168,85,247,0.18), transparent 55%),
+        radial-gradient(ellipse at 85% 80%, rgba(236,72,153,0.12), transparent 55%),
+        #0A0A12;
+    color: #fff;
+    overflow: hidden;
+}
+
+/* ===== 全局布局 ===== */
+.demo-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    height: 100vh;
+}
+
+/* ===== 侧边栏 ===== */
+.side {
+    background: rgba(18,18,28,0.92);
+    border-right: 1px solid rgba(255,255,255,0.06);
+    display: flex; flex-direction: column;
+    backdrop-filter: blur(18px);
+}
+
+.brand {
+    padding: 18px 20px 14px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; gap: 10px;
+}
+.brand .logo {
+    width: 38px; height: 38px; border-radius: 11px;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    box-shadow: 0 10px 20px rgba(168,85,247,0.35);
+    position: relative;
+}
+.brand .logo::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 13px;
+    border: 1.5px solid rgba(168,85,247,0.25);
+    animation: brand-halo 3s ease-in-out infinite;
+}
+@keyframes brand-halo {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50%      { transform: scale(1.08); opacity: 0.3; }
+}
+.brand .bt {
+    font-size: 15px; font-weight: 800;
+    letter-spacing: -0.3px;
+}
+.brand .bs {
+    font-size: 11px; color: rgba(255,255,255,0.5);
+    margin-top: 1px;
+}
+
+.side-search {
+    padding: 12px 14px;
+}
+.side-search .inp {
+    position: relative;
+}
+.side-search input {
+    width: 100%;
+    height: 36px;
+    padding: 0 12px 0 34px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 12px;
+    outline: none;
+    transition: 0.2s;
+}
+.side-search input:focus {
+    border-color: rgba(168,85,247,0.5);
+    background: rgba(255,255,255,0.07);
+}
+.side-search input::placeholder { color: rgba(255,255,255,0.35); }
+.side-search .inp i {
+    position: absolute;
+    left: 12px; top: 50%; transform: translateY(-50%);
+    color: rgba(255,255,255,0.4);
+    font-size: 12px;
+}
+.side-search .inp .k {
+    position: absolute;
+    right: 10px; top: 50%; transform: translateY(-50%);
+    font-size: 9px; color: rgba(255,255,255,0.5);
+    padding: 2px 5px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+}
+
+.side-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 10px 20px;
+}
+.side-list::-webkit-scrollbar { width: 6px; }
+.side-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+.grp {
+    padding: 10px 10px 4px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 700;
+    display: flex; align-items: center; gap: 6px;
+}
+.grp .ic {
+    width: 16px; height: 16px;
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px;
+    color: #fff;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+}
+.grp .num {
+    margin-left: auto;
+    font-size: 9px;
+    padding: 1px 5px;
+    background: rgba(168,85,247,0.12);
+    color: #C084FC;
+    border-radius: 10px;
+}
+
+.item {
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer;
+    transition: 0.15s;
+    margin-bottom: 1px;
+}
+.item:hover {
+    background: rgba(255,255,255,0.04);
+    color: #fff;
+}
+.item.active {
+    background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(236,72,153,0.12));
+    color: #fff;
+    border: 1px solid rgba(168,85,247,0.3);
+    padding: 7px 9px;
+}
+.item .ic {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.04);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    color: rgba(255,255,255,0.6);
+    flex-shrink: 0;
+}
+.item.active .ic {
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(168,85,247,0.3);
+}
+.item .name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.item .tag {
+    font-size: 9px;
+    padding: 1px 5px;
+    background: rgba(251,191,36,0.15);
+    color: #FBBF24;
+    border-radius: 3px;
+    font-weight: 700;
+}
+
+/* ===== 主舞台 ===== */
+.stage {
+    display: grid;
+    grid-template-rows: 56px 1fr;
+    overflow: hidden;
+}
+
+/* 顶部工具条 */
+.toolbar {
+    display: flex; align-items: center;
+    padding: 0 20px;
+    background: rgba(18,18,28,0.6);
+    backdrop-filter: blur(14px);
+    border-bottom: 0.5px solid rgba(255,255,255,0.05);
+    gap: 12px;
+}
+.tb-btn {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.6);
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.15s;
+}
+.tb-btn:hover:not(:disabled) {
+    background: rgba(168,85,247,0.15);
+    border-color: rgba(168,85,247,0.35);
+    color: #fff;
+}
+.tb-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.tb-url {
+    flex: 1;
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 12px;
+    height: 34px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    font-family: ui-monospace, "SF Mono", monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    overflow: hidden;
+}
+.tb-url .lock { color: #6EE7B7; font-size: 10px; }
+.tb-url .host { color: rgba(255,255,255,0.4); }
+.tb-url .path { color: #fff; font-weight: 500; }
+.tb-url .copy {
+    margin-left: auto;
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    font-size: 11px;
+    padding: 2px;
+}
+.tb-url .copy:hover { color: #C084FC; }
+
+.tb-device {
+    display: flex; align-items: center; gap: 4px;
+    padding: 3px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 9px;
+}
+.tb-device .d {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    display: flex; align-items: center; gap: 5px;
+    cursor: pointer;
+}
+.tb-device .d.active {
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(168,85,247,0.3);
+}
+
+.tb-quick-chips {
+    display: flex; gap: 6px;
+    margin-left: 6px;
+}
+.qc {
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    cursor: pointer;
+    display: flex; align-items: center; gap: 4px;
+}
+.qc:hover { background: rgba(168,85,247,0.1); color: #fff; }
+.qc i { font-size: 10px; }
+
+/* ===== 舞台中央 · 设备 ===== */
+.viewport {
+    position: relative;
+    overflow: auto;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 40px 24px;
+}
+.viewport::-webkit-scrollbar { width: 8px; height: 8px; }
+.viewport::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+/* iPhone 框 */
+.device {
+    position: relative;
+    width: 400px;
+    height: 830px;
+    padding: 12px;
+    border-radius: 56px;
+    background: linear-gradient(145deg, #2A2A38, #0F0F18);
+    box-shadow:
+        0 30px 80px rgba(0,0,0,0.5),
+        0 8px 16px rgba(168,85,247,0.12),
+        inset 0 0 0 1.5px rgba(255,255,255,0.08),
+        inset 0 2px 3px rgba(255,255,255,0.15);
+    flex-shrink: 0;
+}
+.device::before {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    left: -2.5px;
+    width: 3px;
+    background: linear-gradient(180deg, #505060, #30303A);
+    border-radius: 4px 0 0 4px;
+}
+.device::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    right: -2.5px;
+    width: 3px;
+    background: linear-gradient(180deg, #505060, #30303A);
+    border-radius: 0 4px 4px 0;
+}
+.vol-up {
+    position: absolute;
+    left: -3.5px;
+    top: 140px;
+    width: 4px; height: 60px;
+    background: linear-gradient(90deg, #505060, #30303A);
+    border-radius: 2px 0 0 2px;
+}
+.vol-down {
+    position: absolute;
+    left: -3.5px;
+    top: 215px;
+    width: 4px; height: 60px;
+    background: linear-gradient(90deg, #505060, #30303A);
+    border-radius: 2px 0 0 2px;
+}
+.power {
+    position: absolute;
+    right: -3.5px;
+    top: 180px;
+    width: 4px; height: 90px;
+    background: linear-gradient(-90deg, #505060, #30303A);
+    border-radius: 0 2px 2px 0;
+}
+
+.screen {
+    position: relative;
+    width: 100%; height: 100%;
+    border-radius: 44px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: inset 0 0 0 2px #000;
+}
+.screen iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* 右侧面板 */
+.aside {
+    position: absolute;
+    right: 30px;
+    top: 40px;
+    width: 260px;
+    background: rgba(18,18,28,0.85);
+    border: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(18px);
+    border-radius: 14px;
+    padding: 14px;
+    z-index: 5;
+}
+.aside .at {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 5px;
+}
+.aside .at i { color: #C084FC; }
+.aside .atitle {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 3px;
+    letter-spacing: -0.2px;
+}
+.aside .adesc {
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.5;
+}
+.aside .abadges {
+    display: flex; gap: 5px; flex-wrap: wrap;
+    margin-top: 10px;
+}
+.aside .abadges .b {
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 600;
+    background: rgba(168,85,247,0.12);
+    color: #C084FC;
+    border: 1px solid rgba(168,85,247,0.22);
+}
+.aside .divider {
+    height: 0.5px; background: rgba(255,255,255,0.08);
+    margin: 12px 0;
+}
+.aside .shortcut {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    display: flex; justify-content: space-between;
+    padding: 5px 0;
+}
+.aside .shortcut kbd {
+    padding: 1px 6px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    font-size: 10px;
+    font-family: ui-monospace, monospace;
+    color: #fff;
+}
+
+/* 历史面板 */
+.aside.history-panel { top: 340px; }
+.aside.history-panel .hline {
+    display: flex; gap: 8px;
+    align-items: center;
+    padding: 6px 8px;
+    border-radius: 8px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.65);
+    cursor: pointer;
+    transition: 0.15s;
+}
+.aside.history-panel .hline:hover { background: rgba(255,255,255,0.04); color: #fff; }
+.aside.history-panel .hline .n {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    font-size: 9px;
+    background: rgba(168,85,247,0.15);
+    color: #C084FC;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.aside.history-panel .hline .p {
+    flex: 1;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.aside.history-panel .hline .t {
+    font-size: 9px;
+    color: rgba(255,255,255,0.4);
+    flex-shrink: 0;
+}
+
+/* 底部状态栏 */
+.bottom-status {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 6px 20px;
+    background: rgba(18,18,28,0.85);
+    backdrop-filter: blur(14px);
+    border-top: 0.5px solid rgba(255,255,255,0.05);
+    display: flex; align-items: center; gap: 16px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.45);
+}
+.bottom-status .bs-item {
+    display: flex; align-items: center; gap: 5px;
+}
+.bottom-status .bs-item i { font-size: 9px; color: #6EE7B7; }
+.bottom-status .sep {
+    width: 1px; height: 10px;
+    background: rgba(255,255,255,0.1);
+}
+.bottom-status .live {
+    display: inline-flex; align-items: center; gap: 4px;
+    color: #6EE7B7;
+}
+.bottom-status .live .dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #6EE7B7;
+    box-shadow: 0 0 6px #6EE7B7;
+    animation: blink 1.4s ease-in-out infinite;
+}
+@keyframes blink { 0%,100% { opacity: 1 } 50% { opacity: 0.3 } }
+
+/* Toast */
+.toast {
+    position: fixed;
+    bottom: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 16px;
+    background: rgba(18,18,28,0.95);
+    border: 1px solid rgba(168,85,247,0.35);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 12px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.4);
+    z-index: 100;
+    animation: t-pop 0.25s ease;
+}
+.toast.show { display: flex; }
+.toast i { color: #6EE7B7; }
+@keyframes t-pop {
+    from { opacity: 0; transform: translate(-50%, 8px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* 滚动条全局 */
+.side-list::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+</style>
+</head>
+<body>
+
+<div class="demo-layout">
+
+    <!-- =================== 侧边栏 =================== -->
+    <aside class="side">
+        <div class="brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div>
+                <div class="bt">FansLoop Studio</div>
+                <div class="bs">原型演示台 · Prototype Lab</div>
+            </div>
+        </div>
+
+        <div class="side-search">
+            <div class="inp">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input id="searchInput" type="text" placeholder="搜索页面 / 功能名…" />
+                <span class="k">⌘ K</span>
+            </div>
+        </div>
+
+        <div class="side-list" id="sideList">
+
+            <!-- ========== 钱包登录 ========== -->
+            <div class="grp">
+                <div class="ic"><i class="fa-solid fa-wallet"></i></div>
+                钱包登录 / 注册
+                <span class="num">11</span>
+            </div>
+            <div class="item" data-src="pages/fl2-entry.html" data-name="钱包登录入口" data-desc="MetaMask / WalletConnect 双通道入口，含 3 步说明">
+                <div class="ic"><i class="fa-solid fa-door-open"></i></div>
+                <div class="name">fl2-entry · 登录入口</div>
+            </div>
+            <div class="item" data-src="pages/fl2-select-method.html" data-name="选择钱包方式" data-desc="MetaMask / WalletConnect / 其他 三大通道">
+                <div class="ic"><i class="fa-solid fa-list"></i></div>
+                <div class="name">fl2-select-method · 选择钱包</div>
+            </div>
+            <div class="item" data-src="pages/fl2-walletconnect-qr.html" data-name="WalletConnect 二维码" data-desc="WC v2 二维码 + 扫描动画">
+                <div class="ic"><i class="fa-solid fa-qrcode"></i></div>
+                <div class="name">fl2-walletconnect-qr · 扫码</div>
+            </div>
+            <div class="item" data-src="pages/fl2-metamask-invoke.html" data-name="MetaMask 唤起中" data-desc="Universal Link 唤起 + 等待动效">
+                <div class="ic"><i class="fa-brands fa-ethereum"></i></div>
+                <div class="name">fl2-metamask-invoke · 唤起</div>
+            </div>
+            <div class="item" data-src="pages/fl2-sign-request.html" data-name="EIP-4361 签名" data-desc="SIWE 消息展示 + 签名按钮">
+                <div class="ic"><i class="fa-solid fa-signature"></i></div>
+                <div class="name">fl2-sign-request · 签名请求</div>
+            </div>
+            <div class="item" data-src="pages/fl2-signing.html" data-name="签名中" data-desc="等待钱包返回签名">
+                <div class="ic"><i class="fa-solid fa-spinner"></i></div>
+                <div class="name">fl2-signing · 签名进行中</div>
+            </div>
+            <div class="item" data-src="pages/fl2-success.html" data-name="登录成功" data-desc="成功动画 + 进入首页">
+                <div class="ic"><i class="fa-solid fa-circle-check"></i></div>
+                <div class="name">fl2-success · 登录成功</div>
+            </div>
+            <div class="item" data-src="pages/fl2-new-user-role.html" data-name="新用户选择角色" data-desc="粉丝 / 创作者 二选一">
+                <div class="ic"><i class="fa-solid fa-user-plus"></i></div>
+                <div class="name">fl2-new-user-role · 选择角色</div>
+            </div>
+            <div class="item" data-src="pages/fl2-new-user-profile.html" data-name="完善资料" data-desc="头像 / 昵称 / 标签">
+                <div class="ic"><i class="fa-regular fa-id-card"></i></div>
+                <div class="name">fl2-new-user-profile · 完善资料</div>
+            </div>
+            <div class="item" data-src="pages/fl2-new-user-interests.html" data-name="兴趣选择" data-desc="6-10 个兴趣标签">
+                <div class="ic"><i class="fa-solid fa-heart-pulse"></i></div>
+                <div class="name">fl2-new-user-interests · 兴趣</div>
+            </div>
+            <div class="item" data-src="pages/fl2-error-states.html" data-name="错误状态" data-desc="6 种错误场景集合">
+                <div class="ic"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div class="name">fl2-error-states · 错误状态</div>
+            </div>
+
+            <!-- ========== 主场景 ========== -->
+            <div class="grp">
+                <div class="ic" style="background: linear-gradient(135deg, #10B981, #3B82F6)"><i class="fa-solid fa-house"></i></div>
+                主场景
+                <span class="num">5</span>
+            </div>
+            <div class="item active" data-src="pages/home.html" data-name="首页 Feed" data-desc="沉浸式瀑布流 + 悬浮金币奖励 + 下拉刷新">
+                <div class="ic"><i class="fa-solid fa-house"></i></div>
+                <div class="name">home · 首页</div>
+                <span class="tag">金币</span>
+            </div>
+            <div class="item" data-src="pages/discover.html" data-name="发现" data-desc="推荐 / 热门 / 附近 / 直播中">
+                <div class="ic"><i class="fa-regular fa-compass"></i></div>
+                <div class="name">discover · 发现</div>
+            </div>
+            <div class="item" data-src="pages/message.html" data-name="消息" data-desc="私信 / 互动 / 系统通知">
+                <div class="ic"><i class="fa-regular fa-message"></i></div>
+                <div class="name">message · 消息</div>
+            </div>
+            <div class="item" data-src="pages/profile.html" data-name="我的" data-desc="个人主页 + 粉丝 / 订阅 / 钱包">
+                <div class="ic"><i class="fa-solid fa-user"></i></div>
+                <div class="name">profile · 我的</div>
+            </div>
+            <div class="item" data-src="pages/wallet.html" data-name="钱包" data-desc="余额 / 收入 / 充提 / 记录">
+                <div class="ic"><i class="fa-solid fa-wallet"></i></div>
+                <div class="name">wallet · 钱包</div>
+            </div>
+
+            <!-- ========== 充提现 ========== -->
+            <div class="grp">
+                <div class="ic" style="background: linear-gradient(135deg, #10B981, #3B82F6)">$</div>
+                充提现闭环
+                <span class="num">12</span>
+            </div>
+            <div class="item" data-src="pages/recharge.html" data-name="USDT 充值" data-desc="订单预览 + 4 步流程指引">
+                <div class="ic"><i class="fa-brands fa-bitcoin"></i></div>
+                <div class="name">recharge · USDT 充值</div>
+            </div>
+            <div class="item" data-src="pages/recharge-qr-modal.html" data-name="扫码充值弹窗" data-desc="QR + 15 分钟倒计时">
+                <div class="ic"><i class="fa-solid fa-qrcode"></i></div>
+                <div class="name">recharge-qr-modal · 扫码弹窗</div>
+                <span class="tag">新</span>
+            </div>
+            <div class="item" data-src="pages/recharge-timeout.html" data-name="订单超时" data-desc="沙漏 Hero + 时间轴">
+                <div class="ic"><i class="fa-regular fa-hourglass"></i></div>
+                <div class="name">recharge-timeout · 超时取消</div>
+                <span class="tag">新</span>
+            </div>
+            <div class="item" data-src="pages/recharge-fiat.html" data-name="法币充值" data-desc="金额 + 银行卡 + 绑卡弹窗">
+                <div class="ic"><i class="fa-regular fa-credit-card"></i></div>
+                <div class="name">recharge-fiat · 法币充值</div>
+            </div>
+            <div class="item" data-src="pages/recharge-fiat-bind.html" data-name="绑定银行卡" data-desc="实时卡片预览 + OCR 扫卡">
+                <div class="ic"><i class="fa-solid fa-shield-halved"></i></div>
+                <div class="name">recharge-fiat-bind · 绑定卡</div>
+            </div>
+            <div class="item" data-src="pages/recharge-fiat-verify.html" data-name="三方认证" data-desc="银行 OTP + Face ID 备选">
+                <div class="ic"><i class="fa-solid fa-lock"></i></div>
+                <div class="name">recharge-fiat-verify · 三方认证</div>
+            </div>
+            <div class="item" data-src="pages/recharge-fiat-switch-card.html" data-name="切换付款卡" data-desc="已绑卡列表 + 绑定新卡">
+                <div class="ic"><i class="fa-solid fa-arrows-rotate"></i></div>
+                <div class="name">recharge-fiat-switch-card · 切卡</div>
+            </div>
+            <div class="item" data-src="pages/withdraw-fiat.html" data-name="法币提现" data-desc="金额 + 收款卡 + 费用明细">
+                <div class="ic"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                <div class="name">withdraw-fiat · 法币提现</div>
+            </div>
+            <div class="item" data-src="pages/withdraw-fiat-verify.html" data-name="OTP 弹窗" data-desc="Tab 切换 OTP / Face ID">
+                <div class="ic"><i class="fa-solid fa-mobile-screen"></i></div>
+                <div class="name">withdraw-fiat-verify · OTP</div>
+            </div>
+            <div class="item" data-src="pages/withdraw-fiat-verify-pwd.html" data-name="资金密码弹窗" data-desc="6 位 dot + 随机键盘">
+                <div class="ic"><i class="fa-solid fa-key"></i></div>
+                <div class="name">withdraw-fiat-verify-pwd · 资金密码</div>
+            </div>
+            <div class="item" data-src="pages/withdraw-fiat-edit.html" data-name="修改提现" data-desc="金额 + 卡 diff 对比">
+                <div class="ic"><i class="fa-solid fa-pen-to-square"></i></div>
+                <div class="name">withdraw-fiat-edit · 修改</div>
+            </div>
+            <div class="item" data-src="pages/withdraw-fiat-success.html" data-name="提现成功" data-desc="三环扩散 + 彩纸 + 收据">
+                <div class="ic"><i class="fa-solid fa-circle-check"></i></div>
+                <div class="name">withdraw-fiat-success · 成功</div>
+            </div>
+
+            <!-- ========== 创作者收入 + 账变 ========== -->
+            <div class="grp">
+                <div class="ic" style="background: linear-gradient(135deg, #EC4899, #A855F7)">✦</div>
+                创作者收入 · 账变
+                <span class="num">9</span>
+            </div>
+            <div class="item" data-src="pages/creator-income.html" data-name="创作者收入" data-desc="总收入 + 可提 + 分布 + 趋势">
+                <div class="ic"><i class="fa-solid fa-chart-line"></i></div>
+                <div class="name">creator-income · 收入仪表盘</div>
+                <span class="tag">新</span>
+            </div>
+            <div class="item" data-src="pages/creator-withdraw.html" data-name="创作者提现" data-desc="USDT / 法币 提现方式选择">
+                <div class="ic"><i class="fa-solid fa-sack-dollar"></i></div>
+                <div class="name">creator-withdraw · 提现分流</div>
+                <span class="tag">新</span>
+            </div>
+            <div class="item" data-src="pages/transactions.html" data-name="账变记录" data-desc="按日分组 + 7 色分类 + 筛选">
+                <div class="ic"><i class="fa-solid fa-rectangle-list"></i></div>
+                <div class="name">transactions · 账变记录</div>
+                <span class="tag">新</span>
+            </div>
+            <div class="item" data-src="pages/transactions-search.html" data-name="账变搜索" data-desc="关键字 + 最近 + 热门搜索">
+                <div class="ic"><i class="fa-solid fa-magnifying-glass"></i></div>
+                <div class="name">transactions-search · 搜索</div>
+                <span class="tag">新</span>
+            </div>
+            <div class="item" data-src="pages/transactions-export.html" data-name="导出账单" data-desc="时间范围 + 格式 + 邮箱发送">
+                <div class="ic"><i class="fa-solid fa-file-export"></i></div>
+                <div class="name">transactions-export · 导出</div>
+                <span class="tag">新</span>
+            </div>
+            <div class="item" data-src="pages/transaction-detail.html" data-name="账变详情" data-desc="金额 + 礼物 + 时间轴">
+                <div class="ic"><i class="fa-solid fa-receipt"></i></div>
+                <div class="name">transaction-detail · 详情</div>
+            </div>
+            <div class="item" data-src="pages/transaction-share-poster.html" data-name="收入海报" data-desc="渐变卡片 + QR 长按保存">
+                <div class="ic"><i class="fa-solid fa-image"></i></div>
+                <div class="name">transaction-share-poster · 海报</div>
+                <span class="tag">新</span>
+            </div>
+            <div class="item" data-src="pages/transaction-more-menu.html" data-name="更多操作" data-desc="Action Sheet 操作菜单">
+                <div class="ic"><i class="fa-solid fa-ellipsis"></i></div>
+                <div class="name">transaction-more-menu · 操作</div>
+                <span class="tag">新</span>
+            </div>
+            <div class="item" data-src="pages/transaction-appeal.html" data-name="发起申诉" data-desc="申诉类型 + 证据上传">
+                <div class="ic"><i class="fa-regular fa-flag"></i></div>
+                <div class="name">transaction-appeal · 申诉</div>
+                <span class="tag">新</span>
+            </div>
+            <div class="item" data-src="pages/transaction-contact.html" data-name="联系客服" data-desc="实时 IM + 快捷问题">
+                <div class="ic"><i class="fa-regular fa-comments"></i></div>
+                <div class="name">transaction-contact · 客服</div>
+                <span class="tag">新</span>
+            </div>
+
+        </div>
+    </aside>
+
+    <!-- =================== 主舞台 =================== -->
+    <section class="stage">
+        <!-- 工具条 -->
+        <div class="toolbar">
+            <button class="tb-btn" id="btnBack" title="后退 (Alt+←)" disabled><i class="fa-solid fa-arrow-left"></i></button>
+            <button class="tb-btn" id="btnForward" title="前进 (Alt+→)" disabled><i class="fa-solid fa-arrow-right"></i></button>
+            <button class="tb-btn" id="btnReload" title="刷新 (Cmd+R)"><i class="fa-solid fa-arrow-rotate-right"></i></button>
+
+            <div class="tb-url">
+                <i class="fa-solid fa-lock lock"></i>
+                <span class="host">fansloop.io</span>
+                <span>/</span>
+                <span class="path" id="urlPath">home.html</span>
+                <span class="copy" id="copyUrl" title="复制路径"><i class="fa-regular fa-copy"></i></span>
+            </div>
+
+            <div class="tb-device">
+                <div class="d active" data-w="400"><i class="fa-solid fa-mobile-screen"></i>iPhone</div>
+                <div class="d" data-w="480"><i class="fa-solid fa-tablet"></i>Pro Max</div>
+            </div>
+
+            <div class="tb-quick-chips">
+                <div class="qc" id="btnHome"><i class="fa-solid fa-house"></i>Home</div>
+                <div class="qc" id="btnFullscreen"><i class="fa-solid fa-expand"></i>全屏</div>
+            </div>
+        </div>
+
+        <!-- 视口 -->
+        <div class="viewport" id="viewport">
+            <div class="device" id="device">
+                <div class="vol-up"></div>
+                <div class="vol-down"></div>
+                <div class="power"></div>
+                <div class="screen">
+                    <iframe id="demoFrame" src="pages/home.html" allow="clipboard-read; clipboard-write"></iframe>
+                </div>
+            </div>
+
+            <!-- 右侧信息面板 -->
+            <div class="aside">
+                <div class="at"><i class="fa-solid fa-info-circle"></i>当前页信息</div>
+                <div class="atitle" id="infoTitle">首页 Feed</div>
+                <div class="adesc" id="infoDesc">沉浸式瀑布流 + 悬浮金币奖励 + 下拉刷新</div>
+                <div class="abadges">
+                    <span class="b">沉浸式</span>
+                    <span class="b">奖励</span>
+                    <span class="b">Feed</span>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="at"><i class="fa-regular fa-keyboard"></i>快捷键</div>
+                <div class="shortcut"><span>后退</span><kbd>Alt + ←</kbd></div>
+                <div class="shortcut"><span>前进</span><kbd>Alt + →</kbd></div>
+                <div class="shortcut"><span>刷新</span><kbd>⌘ + R</kbd></div>
+                <div class="shortcut"><span>搜索页面</span><kbd>⌘ + K</kbd></div>
+                <div class="shortcut"><span>回首页</span><kbd>⌘ + H</kbd></div>
+            </div>
+
+            <!-- 历史面板 -->
+            <div class="aside history-panel">
+                <div class="at"><i class="fa-regular fa-clock-rotate-left"></i>浏览历史 <span style="margin-left:auto; color: rgba(255,255,255,0.4); font-weight: 500; font-size: 10px" id="historyCount">1</span></div>
+                <div id="historyList">
+                    <!-- dynamic -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部状态 -->
+        <div class="bottom-status">
+            <span class="live">
+                <span class="dot"></span>
+                LIVE
+            </span>
+            <div class="bs-item"><i class="fa-solid fa-circle-check"></i>Frame 就绪</div>
+            <div class="sep"></div>
+            <div class="bs-item">视口 <b style="color: #fff; margin-left: 3px">iPhone 13 Pro · 375×812</b></div>
+            <div class="sep"></div>
+            <div class="bs-item">共 <b style="color: #fff; margin: 0 3px">53</b> 张高保真界面</div>
+            <div style="margin-left:auto"></div>
+            <div class="bs-item">基于 iframe + history.pushState</div>
+        </div>
+    </section>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="toastText">已跳转</span>
+</div>
+
+<script>
+(function() {
+    const frame = document.getElementById('demoFrame');
+    const sideList = document.getElementById('sideList');
+    const urlPath = document.getElementById('urlPath');
+    const infoTitle = document.getElementById('infoTitle');
+    const infoDesc = document.getElementById('infoDesc');
+    const btnBack = document.getElementById('btnBack');
+    const btnForward = document.getElementById('btnForward');
+    const btnReload = document.getElementById('btnReload');
+    const btnHome = document.getElementById('btnHome');
+    const btnFullscreen = document.getElementById('btnFullscreen');
+    const copyUrl = document.getElementById('copyUrl');
+    const searchInput = document.getElementById('searchInput');
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+    const historyList = document.getElementById('historyList');
+    const historyCount = document.getElementById('historyCount');
+    const device = document.getElementById('device');
+
+    // 历史栈
+    let history = [];
+    let historyIdx = -1;
+    let suppressPushOnNavigation = false;
+
+    function showToast(msg) {
+        toastText.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(() => toast.classList.remove('show'), 1400);
+    }
+
+    function findItemBySrc(src) {
+        const items = document.querySelectorAll('.item');
+        for (const it of items) {
+            if (it.dataset.src === src) return it;
+        }
+        return null;
+    }
+
+    function updateActive(src) {
+        document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
+        const it = findItemBySrc(src);
+        if (it) {
+            it.classList.add('active');
+            infoTitle.textContent = it.dataset.name || it.querySelector('.name').textContent;
+            infoDesc.textContent = it.dataset.desc || '原型界面';
+            it.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        } else {
+            infoTitle.textContent = '子页 / 子状态';
+            infoDesc.textContent = '从主页面触发的交互跳转';
+        }
+
+        const name = src.replace(/^pages\//, '');
+        urlPath.textContent = name;
+    }
+
+    function updateButtons() {
+        btnBack.disabled = historyIdx <= 0;
+        btnForward.disabled = historyIdx >= history.length - 1;
+    }
+
+    function renderHistory() {
+        historyCount.textContent = history.length;
+        historyList.innerHTML = history
+            .slice()
+            .reverse()
+            .slice(0, 6)
+            .map((h, i) => {
+                const realIdx = history.length - 1 - i;
+                const active = realIdx === historyIdx;
+                const shortPath = h.replace(/^pages\//, '');
+                return `
+                    <div class="hline" data-idx="${realIdx}" style="${active ? 'background:rgba(168,85,247,0.15);' : ''}">
+                        <div class="n">${realIdx + 1}</div>
+                        <div class="p">${shortPath}</div>
+                        <div class="t">${active ? '当前' : ''}</div>
+                    </div>
+                `;
+            })
+            .join('');
+
+        historyList.querySelectorAll('.hline').forEach(line => {
+            line.addEventListener('click', () => {
+                const idx = parseInt(line.dataset.idx, 10);
+                if (idx !== historyIdx) {
+                    historyIdx = idx;
+                    suppressPushOnNavigation = true;
+                    frame.src = history[historyIdx];
+                    updateActive(history[historyIdx]);
+                    updateButtons();
+                    renderHistory();
+                }
+            });
+        });
+    }
+
+    function navigate(src, { pushHistory = true } = {}) {
+        if (!src) return;
+        if (pushHistory) {
+            history = history.slice(0, historyIdx + 1);
+            history.push(src);
+            historyIdx = history.length - 1;
+        }
+        suppressPushOnNavigation = true;
+        frame.src = src;
+        updateActive(src);
+        updateButtons();
+        renderHistory();
+    }
+
+    // 侧边栏点击
+    sideList.addEventListener('click', (e) => {
+        const item = e.target.closest('.item');
+        if (!item) return;
+        const src = item.dataset.src;
+        navigate(src);
+        showToast('已切换到 ' + (item.dataset.name || '页面'));
+    });
+
+    // 初始化
+    navigate('pages/home.html');
+
+    // iframe 加载后：更新 URL + 捕获子页点击跳转
+    frame.addEventListener('load', () => {
+        let currentSrc;
+        try {
+            const loc = frame.contentWindow.location;
+            const path = loc.pathname;
+            const idx = path.indexOf('/pages/');
+            currentSrc = idx >= 0 ? 'pages/' + path.substring(idx + 7) : path;
+        } catch (err) {
+            currentSrc = frame.getAttribute('src');
+        }
+
+        // 若非来自点击侧边栏，则将该页加入历史
+        if (!suppressPushOnNavigation) {
+            history = history.slice(0, historyIdx + 1);
+            history.push(currentSrc);
+            historyIdx = history.length - 1;
+        }
+        suppressPushOnNavigation = false;
+
+        updateActive(currentSrc);
+        updateButtons();
+        renderHistory();
+    });
+
+    // 按钮事件
+    btnBack.addEventListener('click', () => {
+        if (historyIdx <= 0) return;
+        historyIdx--;
+        suppressPushOnNavigation = true;
+        frame.src = history[historyIdx];
+        updateActive(history[historyIdx]);
+        updateButtons();
+        renderHistory();
+    });
+    btnForward.addEventListener('click', () => {
+        if (historyIdx >= history.length - 1) return;
+        historyIdx++;
+        suppressPushOnNavigation = true;
+        frame.src = history[historyIdx];
+        updateActive(history[historyIdx]);
+        updateButtons();
+        renderHistory();
+    });
+    btnReload.addEventListener('click', () => {
+        frame.contentWindow.location.reload();
+        showToast('已刷新');
+    });
+    btnHome.addEventListener('click', () => {
+        navigate('pages/home.html');
+        showToast('回到首页');
+    });
+    btnFullscreen.addEventListener('click', () => {
+        const el = document.querySelector('.stage');
+        if (!document.fullscreenElement) {
+            el.requestFullscreen?.();
+        } else {
+            document.exitFullscreen?.();
+        }
+    });
+    copyUrl.addEventListener('click', () => {
+        navigator.clipboard?.writeText(urlPath.textContent);
+        showToast('已复制路径');
+    });
+
+    // 视口尺寸切换
+    document.querySelectorAll('.tb-device .d').forEach(d => {
+        d.addEventListener('click', () => {
+            document.querySelectorAll('.tb-device .d').forEach(x => x.classList.remove('active'));
+            d.classList.add('active');
+            const w = parseInt(d.dataset.w, 10);
+            if (w === 400) {
+                device.style.width = '400px';
+                device.style.height = '830px';
+                device.style.borderRadius = '56px';
+            } else {
+                device.style.width = '440px';
+                device.style.height = '920px';
+                device.style.borderRadius = '60px';
+            }
+        });
+    });
+
+    // 搜索过滤
+    searchInput.addEventListener('input', () => {
+        const q = searchInput.value.trim().toLowerCase();
+        document.querySelectorAll('.item').forEach(it => {
+            const name = (it.dataset.name || '').toLowerCase();
+            const src = (it.dataset.src || '').toLowerCase();
+            const vis = !q || name.includes(q) || src.includes(q);
+            it.style.display = vis ? '' : 'none';
+        });
+        document.querySelectorAll('.grp').forEach(g => {
+            let sibling = g.nextElementSibling;
+            let anyVisible = false;
+            while (sibling && !sibling.classList.contains('grp')) {
+                if (sibling.style.display !== 'none') anyVisible = true;
+                sibling = sibling.nextElementSibling;
+            }
+            g.style.display = anyVisible ? '' : 'none';
+        });
+    });
+
+    // 快捷键
+    document.addEventListener('keydown', (e) => {
+        const mod = e.metaKey || e.ctrlKey;
+        if (e.altKey && e.key === 'ArrowLeft') { e.preventDefault(); btnBack.click(); }
+        else if (e.altKey && e.key === 'ArrowRight') { e.preventDefault(); btnForward.click(); }
+        else if (mod && e.key.toLowerCase() === 'r') { e.preventDefault(); btnReload.click(); }
+        else if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); searchInput.focus(); searchInput.select(); }
+        else if (mod && e.key.toLowerCase() === 'h') { e.preventDefault(); btnHome.click(); }
+    });
+})();
+</script>
+
+</body>
+</html>

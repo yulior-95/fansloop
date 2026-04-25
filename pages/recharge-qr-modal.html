@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>充值订单 · 扫码付款</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body {
+    background:
+        radial-gradient(ellipse at 50% 8%, rgba(168,85,247,0.12), transparent 55%),
+        #0A0A12;
+}
+.nav-bar { background: rgba(10,10,18,0.8); backdrop-filter: blur(12px); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 20px;
+    opacity: 0.38;
+    filter: blur(1.5px);
+}
+
+/* 背景页简略概况 */
+.bg-hero { text-align: center; padding: 16px; }
+.bg-hero h2 { font-size: 22px; font-weight: 700; }
+.bg-hero p { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; }
+.bg-card {
+    margin: 8px 16px 12px;
+    padding: 16px;
+    background: var(--bg-card);
+    border-radius: 14px;
+    text-align: center;
+}
+.bg-card .a { font-size: 26px; font-weight: 800; }
+.bg-card .s { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; }
+
+/* =========================
+   充值订单 · 扫码付款 弹窗
+   ========================= */
+.qr-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.68);
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    backdrop-filter: blur(3px);
+    animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+.qr-sheet {
+    width: 100%;
+    background: linear-gradient(180deg, #1A1A26 0%, #12121C 100%);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 12px 0 30px;
+    box-shadow: 0 -20px 60px rgba(0,0,0,0.5);
+    max-height: 92%;
+    display: flex; flex-direction: column;
+    animation: sheetUp 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes sheetUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.sheet-grab {
+    width: 44px; height: 5px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 3px;
+    margin: 0 auto 12px;
+}
+
+/* 头部 */
+.qr-head {
+    padding: 0 20px 14px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+    margin-bottom: 14px;
+}
+.qr-head h2 {
+    font-size: 17px; font-weight: 700;
+    letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 8px;
+}
+.qr-head h2 .ic {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+}
+.qr-head h2 .sub {
+    display: block;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    margin-top: 2px;
+    letter-spacing: 0;
+}
+.qr-head .close {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: var(--text-secondary);
+}
+
+/* 可滚动容器 */
+.qr-scroll {
+    overflow-y: auto;
+    padding: 0 20px 10px;
+    flex: 1;
+    scrollbar-width: thin;
+}
+
+/* 倒计时横幅 */
+.countdown-bar {
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    background: linear-gradient(90deg, rgba(245,158,11,0.12), rgba(236,72,153,0.08));
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 12px;
+    display: flex; align-items: center; gap: 10px;
+}
+.countdown-bar .cd-ic {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    color: #7C2D12;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    animation: cd-pulse 1.8s ease-in-out infinite;
+}
+@keyframes cd-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(251,191,36,0.5); }
+    50%      { box-shadow: 0 0 0 6px rgba(251,191,36,0); }
+}
+.countdown-bar .cd-txt {
+    flex: 1;
+    font-size: 11px;
+    color: #FCD34D;
+    line-height: 1.4;
+}
+.countdown-bar .cd-txt b { color: #fff; }
+.countdown-bar .cd-time {
+    font-family: ui-monospace, "SF Mono", monospace;
+    font-size: 17px;
+    font-weight: 800;
+    color: #FBBF24;
+    letter-spacing: 0.5px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* 金额 + 链徽章 */
+.amt-badge-row {
+    text-align: center;
+    margin-bottom: 12px;
+}
+.amt-badge-row .amt {
+    font-size: 30px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -1px;
+    color: #fff;
+}
+.amt-badge-row .amt .unit {
+    font-size: 14px;
+    color: #6EE7B7;
+    font-weight: 700;
+    margin-left: 3px;
+}
+.amt-badge-row .chain-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px;
+    margin-top: 6px;
+    background: rgba(239,68,68,0.15);
+    border: 1px solid rgba(239,68,68,0.25);
+    color: #FCA5A5;
+    border-radius: 999px;
+    font-size: 10px; font-weight: 600;
+}
+.amt-badge-row .chain-badge .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #EF4444;
+    box-shadow: 0 0 6px #EF4444;
+}
+
+/* QR 大码 */
+.qr-wrap {
+    width: 196px; height: 196px;
+    margin: 0 auto 12px;
+    padding: 14px;
+    background: #fff;
+    border-radius: 18px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(168,85,247,0.22),
+                0 6px 12px rgba(0,0,0,0.3);
+}
+.qr-wrap img { width: 100%; height: 100%; display: block; }
+/* 四角 */
+.qr-wrap::before, .qr-wrap::after,
+.qr-wrap .c1, .qr-wrap .c2 {
+    content: ''; position: absolute;
+    width: 20px; height: 20px;
+    border: 2.5px solid var(--brand-purple);
+}
+.qr-wrap::before { top: -2px; left: -2px; border-right: none; border-bottom: none; border-top-left-radius: 6px; }
+.qr-wrap::after  { top: -2px; right: -2px; border-left: none; border-bottom: none; border-top-right-radius: 6px; }
+.qr-wrap .c1 { bottom: -2px; left: -2px; border-right: none; border-top: none; border-bottom-left-radius: 6px; }
+.qr-wrap .c2 { bottom: -2px; right: -2px; border-left: none; border-top: none; border-bottom-right-radius: 6px; }
+
+.qr-center {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px; height: 40px; border-radius: 11px;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 16px;
+    box-shadow: 0 4px 12px rgba(168,85,247,0.4),
+                0 0 0 4px #fff;
+}
+
+/* 扫码提示 */
+.scan-tip {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.scan-tip i { color: var(--crypto-green); font-size: 9px; animation: blink 1.4s ease-in-out infinite; }
+@keyframes blink { 0%,100% { opacity: 1 } 50% { opacity: 0.3 } }
+
+/* 地址 */
+.addr-row {
+    background: rgba(0,0,0,0.35);
+    border: 1px dashed rgba(168,85,247,0.25);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 14px;
+}
+.addr-row .addr {
+    flex: 1;
+    font-family: ui-monospace, "SF Mono", monospace;
+    font-size: 11px;
+    color: #fff;
+    word-break: break-all;
+    line-height: 1.4;
+}
+.addr-row .copy-btn {
+    padding: 5px 10px;
+    background: var(--brand-gradient);
+    border-radius: 7px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #fff;
+    display: flex; align-items: center; gap: 3px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(168,85,247,0.3);
+}
+
+/* 订单信息 */
+.order-info {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+}
+.order-info .oi-row {
+    display: flex; justify-content: space-between;
+    padding: 5px 0;
+    font-size: 11px;
+}
+.order-info .oi-row .k { color: var(--text-tertiary); }
+.order-info .oi-row .v {
+    color: #fff; font-weight: 500;
+    font-family: ui-monospace, monospace;
+    display: flex; align-items: center; gap: 4px;
+}
+.order-info .oi-row .v .copy {
+    color: var(--brand-purple);
+    font-size: 10px;
+    cursor: pointer;
+}
+.order-info .oi-row .status-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px;
+    background: rgba(251,191,36,0.15);
+    color: #FBBF24;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 700;
+    font-family: inherit;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.order-info .oi-row .status-chip .d {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #FBBF24;
+    animation: blink 1.4s ease-in-out infinite;
+}
+
+/* 警告 */
+.warn-note {
+    padding: 10px 12px;
+    background: rgba(245,158,11,0.06);
+    border: 1px solid rgba(245,158,11,0.18);
+    border-radius: 10px;
+    display: flex; gap: 8px; align-items: flex-start;
+    font-size: 10px;
+    color: #FCD34D;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+.warn-note i { color: var(--warning); font-size: 10px; margin-top: 1px; }
+.warn-note b { color: #fff; }
+
+/* 底部双按钮 */
+.sheet-bar {
+    padding: 10px 20px 0;
+    border-top: 0.5px solid rgba(255,255,255,0.06);
+    display: flex; gap: 10px;
+    margin-top: 4px;
+}
+.sheet-bar .btn.sec {
+    flex: 0 0 100px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text-secondary);
+    height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px;
+    border-radius: 12px;
+    font-size: 14px; font-weight: 600;
+}
+.sheet-bar .btn.main { flex: 1; }
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" onclick="location.href='recharge.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">充值</div>
+    <div class="nav-right"><div class="nav-btn"><i class="fa-regular fa-clock-rotate-left"></i></div></div>
+</div>
+
+<!-- 背景页（模糊展示订单预览上下文） -->
+<div class="app-content">
+    <div class="bg-hero">
+        <h2>USDT 充值</h2>
+        <p>订单已生成，等待链上确认</p>
+    </div>
+    <div class="bg-card">
+        <div class="a">100.00 <span style="font-size:14px; color:#6EE7B7">USDT</span></div>
+        <div class="s">TRC20 · 订单有效期 15 分钟</div>
+    </div>
+</div>
+
+<!-- ================== 充值订单 · 扫码付款弹窗 ================== -->
+<div class="qr-overlay">
+    <div class="qr-sheet">
+        <div class="sheet-grab"></div>
+
+        <!-- 头部 -->
+        <div class="qr-head">
+            <h2>
+                <span class="ic"><i class="fa-solid fa-qrcode"></i></span>
+                <span>
+                    扫码充值
+                    <span class="sub">订单已创建，请在倒计时内完成转账</span>
+                </span>
+            </h2>
+            <div class="close" onclick="location.href='recharge.html'"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+
+        <!-- 可滚动区域 -->
+        <div class="qr-scroll">
+
+            <!-- 倒计时 -->
+            <div class="countdown-bar">
+                <div class="cd-ic"><i class="fa-regular fa-hourglass-half"></i></div>
+                <div class="cd-txt">
+                    订单将于 <b>14:36</b> 后超时取消<br>
+                    超时未转账，资金将不再入账
+                </div>
+                <div class="cd-time">14:36</div>
+            </div>
+
+            <!-- 金额 + 链 -->
+            <div class="amt-badge-row">
+                <div class="amt">100.00<span class="unit">USDT</span></div>
+                <div class="chain-badge">
+                    <span class="dot"></span>
+                    TRON (TRC20) · 充值专用地址
+                </div>
+            </div>
+
+            <!-- QR -->
+            <div class="qr-wrap">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=340x340&margin=0&data=tron%3ATF9K5y8aNh29zrXqL4p8wNxk2Yn6qJcV3p%3Famount%3D100.00" alt="USDT QR">
+                <span class="c1"></span>
+                <span class="c2"></span>
+                <div class="qr-center"><i class="fa-solid fa-infinity"></i></div>
+            </div>
+
+            <div class="scan-tip">
+                <i class="fa-solid fa-circle"></i>
+                使用钱包 APP 扫码，或复制下方地址转账
+            </div>
+
+            <!-- 地址 -->
+            <div class="addr-row">
+                <div class="addr">TF9K5y8aNh29zrXqL4p8wNxk2Yn6qJcV3p</div>
+                <div class="copy-btn">
+                    <i class="fa-regular fa-copy"></i>
+                    复制
+                </div>
+            </div>
+
+            <!-- 订单信息 -->
+            <div class="order-info">
+                <div class="oi-row">
+                    <span class="k">订单号</span>
+                    <span class="v">R20260423094128F7A9<span class="copy"><i class="fa-regular fa-copy"></i></span></span>
+                </div>
+                <div class="oi-row">
+                    <span class="k">创建时间</span>
+                    <span class="v" style="font-family:inherit">2026-04-23 09:41:28</span>
+                </div>
+                <div class="oi-row">
+                    <span class="k">订单状态</span>
+                    <span class="v">
+                        <span class="status-chip"><span class="d"></span>等待付款</span>
+                    </span>
+                </div>
+                <div class="oi-row">
+                    <span class="k">到账币种</span>
+                    <span class="v" style="font-family:inherit; color: #6EE7B7">100 USDT</span>
+                </div>
+            </div>
+
+            <!-- 警告 -->
+            <div class="warn-note">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>
+                    <b>仅支持 TRC20 网络</b>转账，且单笔金额需 ≥ <b>1 USDT</b>。非 TRC20 或少于最小金额的转账将不会到账
+                </span>
+            </div>
+        </div>
+
+        <!-- 双按钮 -->
+        <div class="sheet-bar">
+            <button class="btn sec" onclick="location.href='recharge.html'">
+                <i class="fa-solid fa-xmark"></i>
+                取消
+            </button>
+            <button class="btn btn-primary main">
+                <i class="fa-solid fa-bell"></i>
+                我已转账，通知到账
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+</body>
+</html>
