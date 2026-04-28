@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>创作者主页 · Luna 🌙</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+/* HERO Cover */
+.cp-cover {
+    height: 280px;
+    background: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=2000') center/cover;
+    border-radius: var(--r-xl);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: -90px;
+}
+.cp-cover::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(7,7,13,0.2), rgba(7,7,13,0.95));
+}
+.cp-cover .cv-tools {
+    position: absolute;
+    top: 16px; right: 16px;
+    z-index: 2;
+    display: flex; gap: 6px;
+}
+.cp-cover .cv-tools button {
+    width: 36px; height: 36px;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 12px;
+}
+
+.cp-info-card {
+    position: relative;
+    z-index: 2;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-xl);
+    padding: 22px 28px;
+    margin: 0 28px 18px;
+    display: flex; gap: 20px; align-items: center;
+    flex-wrap: wrap;
+}
+.cp-info-card .av-ring {
+    width: 120px; height: 120px;
+    margin-top: -60px;
+    padding: 4px;
+    border-radius: 50%;
+    background: var(--brand-grad);
+    flex-shrink: 0;
+}
+.cp-info-card .av-ring .av-img {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    background-size: cover; background-position: center;
+    border: 4px solid var(--bg-card);
+}
+
+.cp-info-card .info { flex: 1; min-width: 280px; }
+.cp-info-card .info h1 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    display: flex; align-items: center; gap: 10px;
+}
+.cp-info-card .info h1 .vfd { color: #06B6D4; font-size: 22px; }
+.cp-info-card .info h1 .pro {
+    font-size: 11px;
+    padding: 3px 9px;
+    background: linear-gradient(135deg, rgba(251,191,36,0.18), rgba(245,158,11,0.06));
+    border: 1px solid rgba(251,191,36,0.3);
+    color: var(--warning-light);
+    border-radius: 5px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+.cp-info-card .info .role {
+    font-size: 13px;
+    color: var(--t-tertiary);
+    margin-top: 6px;
+    display: flex; align-items: center; gap: 14px;
+    flex-wrap: wrap;
+}
+.cp-info-card .info .role span { display: inline-flex; align-items: center; gap: 5px; }
+.cp-info-card .info .bio {
+    font-size: 13.5px;
+    color: var(--t-secondary);
+    margin-top: 12px;
+    max-width: 600px;
+    line-height: 1.6;
+}
+.cp-info-card .info .links {
+    display: flex; gap: 8px;
+    margin-top: 12px;
+}
+.cp-info-card .info .links a {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--t-secondary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    transition: 0.15s;
+}
+.cp-info-card .info .links a:hover { background: var(--brand-grad); color: #fff; border-color: transparent; }
+
+.cp-info-card .actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+.cp-info-card .actions .row { display: flex; gap: 8px; }
+
+.cp-stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 18px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 18px;
+    margin: 0 28px 22px;
+    width: calc(100% - 56px);
+}
+.cp-stats .st {
+    display: flex; flex-direction: column; gap: 4px;
+    text-align: center;
+}
+.cp-stats .st .v { font-size: 22px; font-weight: 800; letter-spacing: -0.4px; font-variant-numeric: tabular-nums; }
+.cp-stats .st .v.brand { background: var(--brand-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.cp-stats .st .k { font-size: 11px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }
+
+/* 订阅档卡 */
+.sub-tier-row {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+}
+.sub-tier {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 22px 20px;
+    transition: 0.18s;
+    position: relative;
+    overflow: hidden;
+}
+.sub-tier:hover { transform: translateY(-3px); border-color: var(--border-strong); }
+.sub-tier.recommended {
+    border-color: rgba(168,85,247,0.45);
+    background: linear-gradient(180deg, rgba(168,85,247,0.08), var(--bg-card));
+    box-shadow: 0 14px 36px rgba(168,85,247,0.16);
+}
+.sub-tier .pop-tag {
+    position: absolute;
+    top: 14px; right: 14px;
+    padding: 3px 9px;
+    background: var(--brand-grad);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+.sub-tier .ic-tile {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 17px;
+    margin-bottom: 12px;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+}
+.sub-tier.t1 .ic-tile { background: linear-gradient(135deg, #6B7280, #4B5563); }
+.sub-tier.t2 .ic-tile { background: linear-gradient(135deg, #A855F7, #EC4899); }
+.sub-tier.t3 .ic-tile { background: linear-gradient(135deg, #FBBF24, #F59E0B); }
+.sub-tier h3 { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
+.sub-tier .price { font-size: 26px; font-weight: 800; letter-spacing: -0.3px; }
+.sub-tier .price .u { font-size: 12px; color: var(--t-tertiary); font-weight: 600; }
+.sub-tier ul { list-style: none; margin-top: 14px; padding: 0; }
+.sub-tier li { font-size: 12.5px; color: var(--t-secondary); margin: 8px 0; display: flex; gap: 8px; }
+.sub-tier li i { color: var(--success-light); margin-top: 3px; font-size: 11px; }
+.sub-tier li.dim { color: var(--t-quaternary); }
+.sub-tier li.dim i { color: var(--t-quaternary); }
+.sub-tier button {
+    width: 100%; height: 38px;
+    margin-top: 16px;
+    border-radius: 10px;
+    font-size: 12.5px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-strong);
+    color: var(--t-secondary);
+}
+.sub-tier.recommended button { background: var(--brand-grad); color: #fff; border: none; box-shadow: 0 8px 20px rgba(168,85,247,0.35); }
+.sub-tier.t3 button { background: linear-gradient(135deg, #FBBF24, #F59E0B); color: #1a1a2e; border: none; }
+
+/* 内容 tab */
+.cp-tabs {
+    display: flex; gap: 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+}
+.cp-tabs .tt {
+    padding: 12px 18px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--t-tertiary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    display: flex; align-items: center; gap: 7px;
+}
+.cp-tabs .tt.active { color: #fff; border-bottom-color: var(--brand-purple); }
+.cp-tabs .tt .cnt {
+    font-size: 10px;
+    padding: 1px 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 999px;
+    color: var(--t-tertiary);
+    font-weight: 600;
+}
+.cp-tabs .tt.active .cnt { background: rgba(168,85,247,0.18); color: #C084FC; }
+
+/* 作品 grid */
+.work-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+}
+.work {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    cursor: pointer;
+    transition: 0.18s;
+    position: relative;
+}
+.work:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+.work .cv {
+    aspect-ratio: 4/5;
+    background-size: cover; background-position: center;
+    position: relative;
+}
+.work .cv::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.7));
+}
+.work .top {
+    position: absolute;
+    top: 8px; left: 8px;
+    z-index: 2;
+    padding: 3px 8px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    border-radius: 5px;
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 600;
+}
+.work .top.paid { background: linear-gradient(135deg, rgba(251,191,36,0.95), rgba(245,158,11,0.95)); color: #1a1a2e; }
+.work .bot {
+    position: absolute;
+    bottom: 10px; left: 10px; right: 10px;
+    z-index: 2;
+    color: #fff;
+}
+.work .bot .ti {
+    font-size: 12.5px;
+    font-weight: 700;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+.work .bot .met {
+    font-size: 10.5px;
+    color: rgba(255,255,255,0.85);
+    display: flex; gap: 9px;
+}
+.work .paid-mask {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.6));
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #fff;
+}
+.work .paid-mask .lk {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(251,191,36,0.95), rgba(245,158,11,0.95));
+    color: #1a1a2e;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+.work .paid-mask .tx { font-size: 10.5px; font-weight: 700; }
+
+.cp-grid { display: grid; grid-template-columns: 1fr 320px; gap: 22px; padding: 0 28px; }
+@media (max-width: 1280px) { .cp-grid { grid-template-columns: 1fr; padding: 0 18px; } .cp-aside { display: none; } }
+
+.aside-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 16px 18px; margin-bottom: 14px; }
+.aside-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 7px; }
+.aside-card h4 .dt { width: 3px; height: 14px; background: var(--brand-grad); border-radius: 2px; }
+
+.tip-supporters {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.tip-supporters .sp {
+    text-align: center;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 6px;
+}
+.tip-supporters .sp .av { width: 36px; height: 36px; border-radius: 50%; background-size: cover; margin: 0 auto 6px; }
+.tip-supporters .sp .nm { font-size: 11px; font-weight: 600; }
+.tip-supporters .sp .am { font-size: 10px; color: var(--warning-light); font-weight: 700; margin-top: 2px; }
+.tip-supporters .sp.gold { background: linear-gradient(180deg, rgba(251,191,36,0.18), transparent); border-color: rgba(251,191,36,0.35); }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+    <aside class="app-sidebar">
+        <div class="s-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator</span></div>
+        </div>
+        <div class="s-section">主导航</div>
+        <div class="s-item active" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+
+        <div class="s-bottom">
+            <div class="s-pro-card">
+                <div class="crown"><i class="fa-solid fa-crown"></i></div>
+                <h4>升级 Creator Pro</h4>
+                <p>解锁高级数据 / 优先推流</p>
+                <button>立即升级</button>
+            </div>
+            <div class="s-user">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div>
+                <i class="fa-solid fa-ellipsis-vertical more"></i>
+            </div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索创作者、内容或话题…</span><span class="kbd">⌘ K</span></div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i><span class="dot"></span></button>
+            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
+        </div>
+    </header>
+
+    <main class="app-main" style="padding: 18px 0 60px">
+
+        <div style="padding: 0 28px; margin-bottom: 14px">
+            <div class="crumb">
+                <a onclick="location.href='home.html'" style="cursor:pointer"><i class="fa-solid fa-house"></i></a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a onclick="location.href='discover.html'" style="cursor:pointer">发现创作者</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <span class="curr">Luna 🌙</span>
+            </div>
+        </div>
+
+        <div style="padding: 0 28px">
+            <div class="cp-cover">
+                <div class="cv-tools">
+                    <button><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+                    <button><i class="fa-solid fa-flag"></i></button>
+                    <button><i class="fa-solid fa-ellipsis"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 信息卡 -->
+        <div class="cp-info-card">
+            <div class="av-ring">
+                <div class="av-img" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400')"></div>
+            </div>
+            <div class="info">
+                <h1>Luna 🌙 <span class="vfd"><i class="fa-solid fa-circle-check"></i></span> <span class="pro">认证创作者</span></h1>
+                <div class="role">
+                    <span><i class="fa-solid fa-camera"></i> 摄影师</span>
+                    <span><i class="fa-solid fa-globe"></i> 日本 · 东京</span>
+                    <span><i class="fa-regular fa-calendar"></i> 加入于 2024.08</span>
+                    <span><i class="fa-solid fa-trophy" style="color: var(--warning-light)"></i> LV 7 · 周榜 TOP 12</span>
+                </div>
+                <div class="bio">摄影 · 旅行 · 把云朵装进口袋。每周三 / 周六固定更新。和你分享凌晨 5 点的色彩与一杯还冒着热气的拿铁。</div>
+                <div class="links">
+                    <a><i class="fa-brands fa-x-twitter"></i></a>
+                    <a><i class="fa-brands fa-instagram"></i></a>
+                    <a><i class="fa-brands fa-youtube"></i></a>
+                    <a><i class="fa-solid fa-link"></i></a>
+                </div>
+            </div>
+            <div class="actions">
+                <div class="row">
+                    <button class="btn"><i class="fa-regular fa-bell"></i> 关注</button>
+                    <button class="btn"><i class="fa-regular fa-comments"></i> 私信</button>
+                </div>
+                <div class="row">
+                    <button class="btn" style="background: linear-gradient(135deg, #FBBF24, #F59E0B); color: #1a1a2e; border: none; font-weight: 700"><i class="fa-solid fa-gift"></i> 打赏</button>
+                    <button class="btn btn-primary btn-lg"><i class="fa-solid fa-crown"></i> 订阅 28 USDT/月</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据 -->
+        <div class="cp-stats">
+            <div class="st"><div class="v">186</div><div class="k">作品</div></div>
+            <div class="st"><div class="v">86.4K</div><div class="k">粉丝</div></div>
+            <div class="st"><div class="v brand">1,287</div><div class="k">订阅者</div></div>
+            <div class="st"><div class="v">2.4M</div><div class="k">总观看</div></div>
+            <div class="st"><div class="v" style="color: var(--warning-light)">12,840</div><div class="k">USDT 累计打赏</div></div>
+        </div>
+
+        <div class="cp-grid">
+            <div>
+                <!-- 订阅档 -->
+                <div class="sub-tier-row">
+                    <div class="sub-tier t1">
+                        <div class="ic-tile"><i class="fa-regular fa-eye"></i></div>
+                        <h3>免费关注</h3>
+                        <div class="price">$0<span class="u"> USDT</span></div>
+                        <ul>
+                            <li><i class="fa-solid fa-check"></i> 公开图文、短视频</li>
+                            <li><i class="fa-solid fa-check"></i> 直播观看（无弹幕）</li>
+                            <li class="dim"><i class="fa-solid fa-xmark"></i> 高清原图</li>
+                            <li class="dim"><i class="fa-solid fa-xmark"></i> 月度专属合辑</li>
+                            <li class="dim"><i class="fa-solid fa-xmark"></i> 专属直播群聊</li>
+                        </ul>
+                        <button>当前等级</button>
+                    </div>
+                    <div class="sub-tier t2 recommended">
+                        <span class="pop-tag">最受欢迎</span>
+                        <div class="ic-tile"><i class="fa-solid fa-crown"></i></div>
+                        <h3>优质订阅</h3>
+                        <div class="price">28<span class="u"> USDT/月</span></div>
+                        <ul>
+                            <li><i class="fa-solid fa-check"></i> 全部免费内容</li>
+                            <li><i class="fa-solid fa-check"></i> 4K 高清原图与 RAW</li>
+                            <li><i class="fa-solid fa-check"></i> 月度专属合辑（24 张）</li>
+                            <li><i class="fa-solid fa-check"></i> 直播弹幕 + 订阅徽章</li>
+                            <li><i class="fa-solid fa-check"></i> 评论享受优先回复</li>
+                        </ul>
+                        <button><i class="fa-solid fa-bolt"></i> 立即订阅</button>
+                    </div>
+                    <div class="sub-tier t3">
+                        <div class="ic-tile"><i class="fa-solid fa-gem"></i></div>
+                        <h3>挚友订阅</h3>
+                        <div class="price">128<span class="u"> USDT/月</span></div>
+                        <ul>
+                            <li><i class="fa-solid fa-check"></i> 优质订阅全部权益</li>
+                            <li><i class="fa-solid fa-check"></i> 私信优先回复（24h 内）</li>
+                            <li><i class="fa-solid fa-check"></i> 季度面对面线下活动</li>
+                            <li><i class="fa-solid fa-check"></i> 1v1 摄影 1 次（30 min）</li>
+                            <li><i class="fa-solid fa-check"></i> 限定打印版作品 1 幅</li>
+                        </ul>
+                        <button><i class="fa-solid fa-gem"></i> 升级挚友</button>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="cp-tabs">
+                    <div class="tt active"><i class="fa-solid fa-image"></i> 作品 <span class="cnt">186</span></div>
+                    <div class="tt"><i class="fa-solid fa-video"></i> 视频 <span class="cnt">42</span></div>
+                    <div class="tt"><i class="fa-solid fa-tower-broadcast"></i> 直播回放 <span class="cnt">18</span></div>
+                    <div class="tt"><i class="fa-solid fa-crown"></i> 订阅独享 <span class="cnt">36</span></div>
+                    <div class="tt"><i class="fa-solid fa-circle-info"></i> 关于</div>
+                </div>
+
+                <!-- 作品 grid -->
+                <div class="work-grid">
+                    <div class="work">
+                        <div class="cv" style="background-image: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=600')">
+                            <div class="top"><i class="fa-solid fa-image"></i> 9 张</div>
+                            <div class="bot"><div class="ti">富士山五合目 · 零下 4℃ 的清晨</div><div class="met"><span><i class="fa-regular fa-heart"></i> 2.4K</span><span><i class="fa-regular fa-comment"></i> 186</span></div></div>
+                        </div>
+                    </div>
+                    <div class="work">
+                        <div class="cv" style="background-image: url('https://images.unsplash.com/photo-1497636577773-f1231844b336?w=600')">
+                            <div class="top"><i class="fa-solid fa-image"></i> 12 张</div>
+                            <div class="bot"><div class="ti">京都祇园 · 樱花季的清晨长卷</div><div class="met"><span><i class="fa-regular fa-heart"></i> 1.8K</span></div></div>
+                        </div>
+                    </div>
+                    <div class="work">
+                        <div class="cv" style="background-image: url('https://images.unsplash.com/photo-1542435503-956c469947f6?w=600')">
+                            <div class="paid-mask"><div class="lk"><i class="fa-solid fa-crown"></i></div><div class="tx">订阅可见</div></div>
+                            <div class="top paid"><i class="fa-solid fa-lock"></i> 优质</div>
+                            <div class="bot"><div class="ti">银盐时代 · 暗房工作流详解</div><div class="met"><span><i class="fa-solid fa-image"></i> 24 张</span></div></div>
+                        </div>
+                    </div>
+                    <div class="work">
+                        <div class="cv" style="background-image: url('https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=600')">
+                            <div class="top"><i class="fa-solid fa-video"></i> 4:32</div>
+                            <div class="bot"><div class="ti">凌晨登顶富士山 vlog 全记录</div><div class="met"><span><i class="fa-regular fa-eye"></i> 18.2K</span></div></div>
+                        </div>
+                    </div>
+                    <div class="work">
+                        <div class="cv" style="background-image: url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=600')">
+                            <div class="top"><i class="fa-solid fa-image"></i> 6 张</div>
+                            <div class="bot"><div class="ti">东京地铁里的色彩与故事</div><div class="met"><span><i class="fa-regular fa-heart"></i> 1.2K</span></div></div>
+                        </div>
+                    </div>
+                    <div class="work">
+                        <div class="cv" style="background-image: url('https://images.unsplash.com/photo-1551763150-a3b62f3c4b50?w=600')">
+                            <div class="paid-mask"><div class="lk"><i class="fa-solid fa-crown"></i></div><div class="tx">订阅可见</div></div>
+                            <div class="top paid"><i class="fa-solid fa-lock"></i> 优质</div>
+                            <div class="bot"><div class="ti">月度合辑 · 4 月精选 24 张</div></div>
+                        </div>
+                    </div>
+                    <div class="work">
+                        <div class="cv" style="background-image: url('https://images.unsplash.com/photo-1493612276216-ee3925520721?w=600')">
+                            <div class="top"><i class="fa-solid fa-image"></i> 4 张</div>
+                            <div class="bot"><div class="ti">五合目咖啡馆地图与心情</div></div>
+                        </div>
+                    </div>
+                    <div class="work">
+                        <div class="cv" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600')">
+                            <div class="top"><i class="fa-solid fa-image"></i> 8 张</div>
+                            <div class="bot"><div class="ti">河口湖晨雾与胶片质感</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧 -->
+            <aside class="cp-aside">
+                <!-- 直播中 -->
+                <div class="aside-card" style="background: linear-gradient(180deg, rgba(220,38,38,0.08), var(--bg-card)); border-color: rgba(220,38,38,0.2)">
+                    <h4 style="color: #FCA5A5"><span class="dt" style="background: linear-gradient(135deg,#DC2626,#F59E0B)"></span><i class="fa-solid fa-tower-broadcast" style="color: #F87171"></i> 暂无直播</h4>
+                    <p style="font-size: 12px; color: var(--t-tertiary); line-height: 1.5">下次开播：周日 19:00<br/>主题：京都樱花季的拍摄技巧</p>
+                    <button class="btn btn-secondary" style="width: 100%; margin-top: 10px"><i class="fa-regular fa-bell"></i> 提前预约</button>
+                </div>
+
+                <div class="aside-card">
+                    <h4><span class="dt"></span>本月打赏 TOP</h4>
+                    <div class="tip-supporters">
+                        <div class="sp gold">
+                            <div class="av" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
+                            <div class="nm">WhaleX</div>
+                            <div class="am">1,200</div>
+                        </div>
+                        <div class="sp">
+                            <div class="av" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></div>
+                            <div class="nm">BlockTrader</div>
+                            <div class="am">412</div>
+                        </div>
+                        <div class="sp">
+                            <div class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></div>
+                            <div class="nm">Aria</div>
+                            <div class="am">188</div>
+                        </div>
+                    </div>
+                    <button class="btn" style="width: 100%; font-size: 11.5px"><i class="fa-solid fa-list"></i> 查看完整榜单</button>
+                </div>
+
+                <div class="aside-card">
+                    <h4><span class="dt"></span>最近订阅</h4>
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border)">
+                        <div class="av av-sm" style="background-image: url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=80')"></div>
+                        <div style="flex: 1"><div style="font-size: 12px; font-weight: 600">NeoMaster</div><div style="font-size: 10.5px; color: var(--t-tertiary)">5 分钟前 · 优质</div></div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border)">
+                        <div class="av av-sm" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80')"></div>
+                        <div style="flex: 1"><div style="font-size: 12px; font-weight: 600">Maya</div><div style="font-size: 10.5px; color: var(--t-tertiary)">2 小时前 · 优质</div></div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0">
+                        <div class="av av-sm" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80')"></div>
+                        <div style="flex: 1"><div style="font-size: 12px; font-weight: 600">Echo</div><div style="font-size: 10.5px; color: var(--t-tertiary)">昨天 · 挚友</div></div>
+                    </div>
+                </div>
+
+                <div class="aside-card">
+                    <h4><span class="dt"></span>常用话题</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px">
+                        <div class="chip"># 富士山日出</div>
+                        <div class="chip"># 旅行摄影</div>
+                        <div class="chip"># 京都之春</div>
+                        <div class="chip"># 银盐时代</div>
+                        <div class="chip"># 城市街拍</div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+</div>
+
+</body>
+</html>

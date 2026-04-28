@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>选择钱包 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.search-box {
+    position: relative;
+    margin: 22px 0 16px;
+}
+.search-box input {
+    width: 100%; height: 42px;
+    padding: 0 14px 0 40px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    color: var(--t-primary);
+    font-size: 13px; outline: none;
+}
+.search-box input:focus { border-color: var(--border-focus); background: var(--bg-input-focus); }
+.search-box i {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--t-tertiary); font-size: 13px;
+}
+
+.cat-strip { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+
+.wallet-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+    margin-bottom: 18px;
+}
+.w-cell {
+    display: flex; align-items: center; gap: 11px;
+    padding: 12px;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: 0.15s;
+    position: relative;
+}
+.w-cell:hover { border-color: var(--border-strong); background: var(--bg-input-focus); }
+.w-cell .wic {
+    width: 36px; height: 36px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 15px;
+    flex-shrink: 0;
+}
+.w-cell.metamask .wic { background: linear-gradient(135deg, #F6851B, #E2761B); }
+.w-cell.wc .wic       { background: linear-gradient(135deg, #3B99FC, #1976D2); }
+.w-cell.coinbase .wic { background: linear-gradient(135deg, #1652F0, #0A3DDB); }
+.w-cell.trust .wic    { background: linear-gradient(135deg, #3375BB, #1F4980); }
+.w-cell.okx .wic      { background: linear-gradient(135deg, #1F1F1F, #000); }
+.w-cell.imtoken .wic  { background: linear-gradient(135deg, #11C4D1, #0891A8); }
+.w-cell.rainbow .wic  { background: linear-gradient(135deg, #FF6B6B, #FF8E53); }
+.w-cell.phantom .wic  { background: linear-gradient(135deg, #AB9FF2, #6F5DDC); }
+
+.w-cell .info { flex: 1; min-width: 0; }
+.w-cell .info .n { font-size: 13px; font-weight: 700; }
+.w-cell .info .d { font-size: 10px; color: var(--t-tertiary); margin-top: 2px; }
+.w-cell .badge-installed {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 0 3px rgba(16,185,129,0.18);
+}
+
+.recommend {
+    margin-bottom: 16px;
+    padding: 14px;
+    background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.04));
+    border: 1px solid rgba(168,85,247,0.25);
+    border-radius: var(--r-md);
+}
+.recommend .rt {
+    font-size: 11px; font-weight: 700;
+    color: #C084FC;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex; align-items: center; gap: 5px;
+}
+</style>
+</head>
+<body>
+
+<div class="auth-shell">
+    <div class="auth-stage">
+        <div class="as-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator Economy</span></div>
+        </div>
+        <div class="as-mid">
+            <h1>选一个你<br><span class="grad">最熟悉的钱包</span></h1>
+            <p>支持全球 350+ 主流 Web3 钱包，无论你常用 MetaMask、Coinbase 还是 OKX，都可一键安全登录 FansLoop。</p>
+
+            <div class="as-feat">
+                <div class="feat-card">
+                    <div class="ic"><i class="fa-solid fa-link"></i></div>
+                    <h4>WalletConnect v2</h4>
+                    <p>跨链 / 跨设备 标准协议</p>
+                </div>
+                <div class="feat-card">
+                    <div class="ic"><i class="fa-solid fa-puzzle-piece"></i></div>
+                    <h4>浏览器扩展</h4>
+                    <p>MetaMask / Phantom 等</p>
+                </div>
+                <div class="feat-card">
+                    <div class="ic"><i class="fa-solid fa-mobile-screen"></i></div>
+                    <h4>移动 App</h4>
+                    <p>Trust / imToken / Rainbow</p>
+                </div>
+            </div>
+        </div>
+        <div class="as-foot"><div>v 2.0 · 钱包目录每周更新</div><div>© FansLoop 2026</div></div>
+    </div>
+
+    <div class="auth-form">
+        <div class="af-top">
+            <a href="login-entry.html"><i class="fa-solid fa-arrow-left"></i> 返回</a>
+            <a href="#">查看完整列表 →</a>
+        </div>
+        <div class="af-mid">
+            <h2>选择钱包</h2>
+            <p>支持 350+ 主流 Web3 钱包，下方为最常用的 8 款</p>
+
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="搜索钱包名称（如 MetaMask、OKX…）" />
+            </div>
+
+            <div class="cat-strip">
+                <span class="chip active">全部</span>
+                <span class="chip">浏览器扩展</span>
+                <span class="chip">移动 App</span>
+                <span class="chip">硬件钱包</span>
+                <span class="chip">智能合约钱包</span>
+            </div>
+
+            <div class="recommend">
+                <div class="rt"><i class="fa-solid fa-star"></i>已检测到的浏览器钱包</div>
+                <div class="wallet-grid" style="margin-bottom:0">
+                    <div class="w-cell metamask" onclick="location.href='login-metamask.html'">
+                        <div class="wic"><i class="fa-brands fa-ethereum"></i></div>
+                        <div class="info">
+                            <div class="n">MetaMask</div>
+                            <div class="d">v 12.4 · 0x7A...3F2C</div>
+                        </div>
+                        <span class="badge-installed"></span>
+                    </div>
+                    <div class="w-cell phantom">
+                        <div class="wic"><i class="fa-solid fa-ghost"></i></div>
+                        <div class="info">
+                            <div class="n">Phantom</div>
+                            <div class="d">Solana / Ethereum 多链</div>
+                        </div>
+                        <span class="badge-installed"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wallet-grid">
+                <div class="w-cell wc" onclick="location.href='login-walletconnect-qr.html'">
+                    <div class="wic"><i class="fa-solid fa-qrcode"></i></div>
+                    <div class="info">
+                        <div class="n">WalletConnect</div>
+                        <div class="d">扫码 · 350+ 钱包</div>
+                    </div>
+                </div>
+                <div class="w-cell coinbase">
+                    <div class="wic"><i class="fa-solid fa-c"></i></div>
+                    <div class="info">
+                        <div class="n">Coinbase Wallet</div>
+                        <div class="d">扩展 + 移动版</div>
+                    </div>
+                </div>
+                <div class="w-cell trust">
+                    <div class="wic"><i class="fa-solid fa-shield"></i></div>
+                    <div class="info">
+                        <div class="n">Trust Wallet</div>
+                        <div class="d">移动 App · 多链</div>
+                    </div>
+                </div>
+                <div class="w-cell okx">
+                    <div class="wic"><i class="fa-solid fa-x"></i></div>
+                    <div class="info">
+                        <div class="n">OKX Wallet</div>
+                        <div class="d">交易所 + Web3</div>
+                    </div>
+                </div>
+                <div class="w-cell imtoken">
+                    <div class="wic"><i class="fa-solid fa-key"></i></div>
+                    <div class="info">
+                        <div class="n">imToken</div>
+                        <div class="d">移动 App · 中文友好</div>
+                    </div>
+                </div>
+                <div class="w-cell rainbow">
+                    <div class="wic"><i class="fa-solid fa-rainbow"></i></div>
+                    <div class="info">
+                        <div class="n">Rainbow</div>
+                        <div class="d">移动 App · 极简</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="notice notice-info">
+                <i class="fa-solid fa-circle-info ni"></i>
+                <span>没找到你的钱包？所有支持 <b>WalletConnect v2</b> 的钱包都可以通过扫码登录。</span>
+            </div>
+        </div>
+        <div class="af-foot">遇到问题？<a href="#">查看登录帮助</a></div>
+    </div>
+</div>
+
+</body>
+</html>

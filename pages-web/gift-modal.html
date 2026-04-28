@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>送礼 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+body { background: linear-gradient(135deg, #1B0B3A, #2D1B69 50%, #4A1063); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+
+.gift-modal {
+    width: 100%;
+    max-width: 720px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+    overflow: hidden;
+}
+
+/* HERO */
+.gift-hero {
+    padding: 22px 24px 18px;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(251,191,36,0.18), transparent 55%),
+      radial-gradient(circle at 80% 70%, rgba(236,72,153,0.16), transparent 55%),
+      linear-gradient(135deg, rgba(168,85,247,0.12), rgba(236,72,153,0.06));
+    border-bottom: 1px solid var(--border);
+    position: relative;
+}
+.gift-hero .close {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,0.06);
+    color: var(--t-secondary);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+}
+.gift-hero h2 { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 12px; letter-spacing: -0.3px; }
+.gift-hero h2 .ic {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 8px 18px rgba(251,191,36,0.4);
+}
+.gift-hero p { font-size: 12.5px; color: var(--t-tertiary); margin-top: 6px; padding-left: 48px; }
+
+/* 接收方 */
+.recipient {
+    margin: 16px 24px;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    display: flex; align-items: center; gap: 12px;
+}
+.recipient .av { width: 44px; height: 44px; border-radius: 50%; background-size: cover; flex-shrink: 0; }
+.recipient .info { flex: 1; min-width: 0; }
+.recipient .info .nm { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.recipient .info .nm .vfd { color: #06B6D4; font-size: 12px; }
+.recipient .info .sub { font-size: 11.5px; color: var(--t-tertiary); margin-top: 1px; }
+.recipient .ctx {
+    background: rgba(168,85,247,0.1);
+    border: 1px solid rgba(168,85,247,0.2);
+    color: #C084FC;
+    padding: 5px 11px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* 礼物分类 tabs */
+.gift-tabs {
+    display: flex; gap: 4px;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--border);
+}
+.gift-tabs .tt {
+    padding: 11px 14px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--t-tertiary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    display: flex; align-items: center; gap: 6px;
+}
+.gift-tabs .tt.active { color: #fff; border-bottom-color: var(--brand-purple); }
+
+/* 礼物 grid */
+.gift-grid {
+    padding: 16px 24px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+.gift-item {
+    aspect-ratio: 1;
+    background: rgba(255,255,255,0.03);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: 0.18s;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 8px;
+    position: relative;
+    text-align: center;
+}
+.gift-item:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+.gift-item.selected {
+    background: linear-gradient(135deg, rgba(251,191,36,0.18), rgba(236,72,153,0.06));
+    border-color: rgba(251,191,36,0.5);
+    box-shadow: 0 12px 26px rgba(251,191,36,0.18);
+}
+.gift-item.selected::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 18px; height: 18px;
+    background: var(--brand-grad);
+    color: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+}
+
+.gift-item .emoji { font-size: 32px; margin-bottom: 4px; line-height: 1; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)); }
+.gift-item .nm { font-size: 11px; font-weight: 600; color: var(--t-primary); }
+.gift-item .pr { font-size: 10.5px; color: var(--warning-light); font-weight: 700; margin-top: 3px; font-variant-numeric: tabular-nums; }
+
+.gift-item .hot {
+    position: absolute;
+    top: 4px; left: 4px;
+    background: linear-gradient(135deg, #DC2626, #F59E0B);
+    color: #fff;
+    font-size: 8px;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+}
+
+/* 数量 / 价格汇总 */
+.gift-summary {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    background: rgba(0,0,0,0.18);
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.gift-summary .sel-info {
+    display: flex; align-items: center; gap: 12px;
+    flex: 1; min-width: 200px;
+}
+.gift-summary .sel-info .em { font-size: 28px; line-height: 1; }
+.gift-summary .sel-info .right .lb { font-size: 11px; color: var(--t-tertiary); margin-bottom: 1px; }
+.gift-summary .sel-info .right .nm { font-size: 13px; font-weight: 700; }
+
+.qty-stepper {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 4px;
+}
+.qty-stepper button {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--t-secondary);
+    font-size: 12px;
+}
+.qty-stepper button:hover { background: var(--bg-hover); color: #fff; }
+.qty-stepper input {
+    width: 50px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    outline: none;
+}
+.qty-quick { display: flex; gap: 4px; }
+.qty-quick .qq {
+    padding: 4px 8px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 10.5px;
+    color: var(--t-tertiary);
+    cursor: pointer;
+}
+.qty-quick .qq:hover { color: #fff; border-color: var(--border-strong); }
+
+.total-pill {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 14px;
+    background: linear-gradient(135deg, rgba(251,191,36,0.18), rgba(245,158,11,0.06));
+    border: 1px solid rgba(251,191,36,0.3);
+    border-radius: 999px;
+    color: var(--warning-light);
+    font-size: 12px;
+    font-weight: 700;
+}
+.total-pill b { color: #fff; font-size: 14px; }
+
+/* 留言 */
+.gift-msg-input {
+    margin: 14px 24px 0;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    display: flex; align-items: center; gap: 10px;
+}
+.gift-msg-input i { color: var(--t-tertiary); }
+.gift-msg-input input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 13px;
+}
+
+/* 钱包余额 + 操作 */
+.gift-foot {
+    padding: 14px 24px;
+    background: rgba(0,0,0,0.25);
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+}
+.gift-foot .bal {
+    flex: 1;
+    font-size: 12px;
+    color: var(--t-tertiary);
+    line-height: 1.5;
+}
+.gift-foot .bal b { color: #fff; font-size: 14px; font-weight: 700; }
+.gift-foot .bal a { color: var(--brand-purple); font-weight: 600; cursor: pointer; }
+
+.send-btn {
+    height: 46px;
+    padding: 0 26px;
+    background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 60%, #EC4899 100%);
+    color: #1a1a2e;
+    font-size: 14px;
+    font-weight: 800;
+    border-radius: 12px;
+    box-shadow: 0 12px 28px rgba(251,191,36,0.4);
+    display: inline-flex; align-items: center; gap: 8px;
+}
+
+/* 飘屏礼物预览 */
+.preview-fly {
+    position: absolute;
+    bottom: 40px; left: 30px;
+    padding: 8px 14px 8px 8px;
+    background: linear-gradient(135deg, rgba(251,191,36,0.95), rgba(245,158,11,0.95));
+    border-radius: 999px;
+    color: #1a1a2e;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex; align-items: center; gap: 8px;
+    box-shadow: 0 12px 30px rgba(245,158,11,0.4);
+    animation: floatUp 3s ease-in-out infinite;
+}
+.preview-fly .av { width: 22px; height: 22px; border-radius: 50%; background-size: cover; }
+@keyframes floatUp {
+    0%,100% { transform: translateY(0); opacity: 1; }
+    50% { transform: translateY(-8px); opacity: 0.95; }
+}
+</style>
+</head>
+<body>
+
+<div class="gift-modal">
+
+    <div class="gift-hero">
+        <span class="close"><i class="fa-solid fa-xmark"></i></span>
+        <h2><span class="ic"><i class="fa-solid fa-gift"></i></span>送出心意</h2>
+        <p>礼物会以飘屏 / 全屏特效送达，并出现在创作者打赏榜前列</p>
+        <div class="preview-fly">
+            <span class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></span>
+            <span>🎁 你刚刚送出 钻石礼物！</span>
+        </div>
+    </div>
+
+    <div class="recipient">
+        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120')"></div>
+        <div class="info">
+            <div class="nm">NovaPlay <span class="vfd"><i class="fa-solid fa-circle-check"></i></span></div>
+            <div class="sub">游戏主播 · LV 9 · 正在直播 Apex</div>
+        </div>
+        <div class="ctx"><i class="fa-solid fa-tower-broadcast"></i> 直播打赏</div>
+    </div>
+
+    <div class="gift-tabs">
+        <div class="tt active"><i class="fa-solid fa-fire"></i> 热门</div>
+        <div class="tt"><i class="fa-solid fa-heart"></i> 心意</div>
+        <div class="tt"><i class="fa-solid fa-rocket"></i> 助力</div>
+        <div class="tt"><i class="fa-solid fa-gem"></i> 豪华</div>
+        <div class="tt"><i class="fa-solid fa-clock"></i> 限定</div>
+    </div>
+
+    <div class="gift-grid">
+
+        <div class="gift-item">
+            <span class="hot">HOT</span>
+            <div class="emoji">🌹</div>
+            <div class="nm">玫瑰</div>
+            <div class="pr">1 USDT</div>
+        </div>
+        <div class="gift-item">
+            <div class="emoji">🍻</div>
+            <div class="nm">啤酒</div>
+            <div class="pr">3 USDT</div>
+        </div>
+        <div class="gift-item">
+            <div class="emoji">🎂</div>
+            <div class="nm">蛋糕</div>
+            <div class="pr">5 USDT</div>
+        </div>
+        <div class="gift-item">
+            <div class="emoji">💝</div>
+            <div class="nm">心意盒</div>
+            <div class="pr">9 USDT</div>
+        </div>
+        <div class="gift-item">
+            <span class="hot">HOT</span>
+            <div class="emoji">🚀</div>
+            <div class="nm">火箭</div>
+            <div class="pr">50 USDT</div>
+        </div>
+        <div class="gift-item selected">
+            <div class="emoji">💎</div>
+            <div class="nm">钻石</div>
+            <div class="pr">200 USDT</div>
+        </div>
+        <div class="gift-item">
+            <div class="emoji">🦄</div>
+            <div class="nm">独角兽</div>
+            <div class="pr">288 USDT</div>
+        </div>
+        <div class="gift-item">
+            <div class="emoji">🏰</div>
+            <div class="nm">城堡</div>
+            <div class="pr">520 USDT</div>
+        </div>
+        <div class="gift-item">
+            <div class="emoji">🛸</div>
+            <div class="nm">飞碟</div>
+            <div class="pr">888 USDT</div>
+        </div>
+        <div class="gift-item">
+            <span class="hot">限定</span>
+            <div class="emoji">👑</div>
+            <div class="nm">皇冠</div>
+            <div class="pr">1314 USDT</div>
+        </div>
+
+    </div>
+
+    <!-- 留言 -->
+    <div class="gift-msg-input">
+        <i class="fa-solid fa-pen"></i>
+        <input placeholder="说点什么吧（最多 30 字，会显示在飘屏上）" value="一起冲分到大师 I！🚀" maxlength="30" />
+        <span style="color: var(--t-quaternary); font-size: 11px">10 / 30</span>
+    </div>
+
+    <!-- 数量 / 总价 -->
+    <div class="gift-summary">
+        <div class="sel-info">
+            <div class="em">💎</div>
+            <div class="right">
+                <div class="lb">已选礼物</div>
+                <div class="nm">钻石礼物 · 200 USDT/个</div>
+            </div>
+        </div>
+        <div class="qty-stepper">
+            <button><i class="fa-solid fa-minus"></i></button>
+            <input value="1" />
+            <button><i class="fa-solid fa-plus"></i></button>
+        </div>
+        <div class="qty-quick">
+            <span class="qq">×6</span>
+            <span class="qq">×30</span>
+            <span class="qq">×66</span>
+            <span class="qq">×520</span>
+        </div>
+        <div class="total-pill"><i class="fa-solid fa-coins"></i> 合计 <b>200</b> USDT</div>
+    </div>
+
+    <!-- 操作 -->
+    <div class="gift-foot">
+        <div class="bal">
+            <i class="fa-solid fa-wallet" style="color: #6EE7B7; margin-right: 4px"></i>
+            钱包余额：<b>2,840.50 USDT</b><br/>
+            <a><i class="fa-solid fa-bolt"></i> 余额不足？立即充值</a>
+        </div>
+        <button class="btn btn-secondary"><i class="fa-solid fa-xmark"></i> 取消</button>
+        <button class="send-btn"><i class="fa-solid fa-paper-plane"></i> 立即送出</button>
+    </div>
+
+</div>
+
+</body>
+</html>

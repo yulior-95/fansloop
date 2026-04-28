@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>充值二维码</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+body { background: var(--bg-app); }
+.modal-mask { background: rgba(0,0,0,0.7); }
+.modal { max-width: 540px; }
+
+.order-bar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, rgba(168,85,247,0.06), rgba(236,72,153,0.03));
+    border: 1px solid rgba(168,85,247,0.2);
+    border-radius: var(--r-md);
+    margin-bottom: 18px;
+}
+.order-bar .o-ic {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--brand-grad);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-glow);
+}
+.order-bar .info { flex: 1; }
+.order-bar .info .n { font-size: 13px; font-weight: 700; }
+.order-bar .info .s { font-size: 11px; color: var(--t-tertiary); margin-top: 2px; font-family: ui-monospace, monospace; }
+.order-bar .countdown {
+    text-align: right;
+}
+.order-bar .countdown .v {
+    font-size: 18px; font-weight: 800;
+    color: var(--warning-light);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.5px;
+}
+.order-bar .countdown .k { font-size: 10px; color: var(--t-tertiary); margin-top: 1px; }
+
+.qr-stage {
+    text-align: center;
+    padding: 18px 0;
+}
+.qr-frame {
+    width: 220px; height: 220px;
+    margin: 0 auto;
+    padding: 14px;
+    background: #fff;
+    border-radius: 14px;
+    position: relative;
+    box-shadow: 0 14px 40px rgba(168,85,247,0.18);
+}
+.qr-frame img { width: 100%; height: 100%; }
+.qr-frame .center {
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, #26A17B, #1A7A5C);
+    border-radius: 12px;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    font-weight: 900;
+    border: 3px solid #fff;
+}
+.qr-frame .scan-line {
+    position: absolute;
+    inset: 14px;
+    pointer-events: none;
+}
+.qr-frame .scan-line::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, #26A17B, transparent);
+    box-shadow: 0 0 14px #26A17B;
+    animation: scanline 2.4s ease-in-out infinite;
+}
+@keyframes scanline { 0% { top: 0 } 50% { top: calc(100% - 2px) } 100% { top: 0 } }
+
+.amt-display {
+    margin-top: 16px;
+    padding: 16px 20px;
+    background: var(--bg-input);
+    border-radius: var(--r-md);
+    text-align: center;
+}
+.amt-display .lbl { font-size: 11px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.amt-display .v {
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: -0.6px;
+    margin: 4px 0;
+    font-variant-numeric: tabular-nums;
+}
+.amt-display .v .unit { font-size: 16px; color: var(--t-secondary); font-weight: 700; }
+
+.copy-row {
+    margin-top: 14px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    overflow: hidden;
+}
+.copy-row .head {
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px;
+    color: var(--t-tertiary);
+}
+.copy-row .head .net-tag { color: var(--success-light); font-weight: 600; }
+.copy-row .body {
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px;
+}
+.copy-row .body code {
+    flex: 1;
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--t-primary);
+    word-break: break-all;
+}
+.copy-row .body button {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: var(--bg-input-focus);
+    color: var(--brand-purple);
+    font-size: 11px; font-weight: 600;
+    border: 1px solid var(--border-strong);
+    display: flex; align-items: center; gap: 4px;
+}
+</style>
+</head>
+<body>
+
+<div class="modal-mask">
+    <div class="modal">
+        <div class="modal-head">
+            <h2><span class="ic"><i class="fa-solid fa-qrcode"></i></span>扫码完成充值
+                <span class="sub">订单 #FL2604251108 · 请在 30 分钟内完成</span>
+            </h2>
+            <button class="close" onclick="location.href='recharge.html'"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="modal-body">
+
+            <div class="order-bar">
+                <div class="o-ic"><i class="fa-solid fa-bolt"></i></div>
+                <div class="info">
+                    <div class="n">充值订单已创建</div>
+                    <div class="s">FL2604251108 · ERC20 网络</div>
+                </div>
+                <div class="countdown">
+                    <div class="v">29:48</div>
+                    <div class="k">剩余有效期</div>
+                </div>
+            </div>
+
+            <div class="qr-stage">
+                <div class="qr-frame">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=0&data=ethereum:0x9F8aC8A3aB1C8D5E6F7A8B9C0D1E2F3F2C9D8B72?amount=200.00" alt="">
+                    <div class="center">₮</div>
+                    <div class="scan-line"></div>
+                </div>
+
+                <div class="amt-display">
+                    <div class="lbl">请准确转账以下金额</div>
+                    <div class="v t-grad">200.00 <span class="unit">USDT</span></div>
+                    <div style="font-size: 11.5px; color: var(--t-tertiary)">≈ $200.00 · 多转或少转将无法自动到账</div>
+                </div>
+
+                <div class="copy-row">
+                    <div class="head">
+                        <span><i class="fa-solid fa-wallet"></i> 收款地址</span>
+                        <span class="net-tag">Ethereum (ERC20)</span>
+                    </div>
+                    <div class="body">
+                        <code>0x9F8aC8A3aB1C8D5E6F7A8B9C0D1E2F3F2C9D8B72</code>
+                        <button><i class="fa-regular fa-copy"></i>复制</button>
+                    </div>
+                </div>
+
+                <div class="notice notice-warning" style="margin-top: 14px; text-align: left">
+                    <i class="fa-solid fa-triangle-exclamation ni"></i>
+                    <span><b>仅支持 ERC20 网络的 USDT</b><br>转入其他币种（如 ETH/USDC）或其他网络将无法自动入账，请联系客服。</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="modal-foot">
+            <button class="btn" onclick="location.href='recharge.html'"><i class="fa-solid fa-xmark"></i>取消订单</button>
+            <button class="btn btn-primary"><i class="fa-solid fa-check"></i>我已转账，通知到账</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

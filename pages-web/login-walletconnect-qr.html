@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>扫码连接 · WalletConnect</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.qr-box {
+    width: 280px; height: 280px;
+    margin: 0 auto;
+    padding: 16px;
+    background: #fff;
+    border-radius: 18px;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(168,85,247,0.18);
+}
+.qr-box img { width: 100%; height: 100%; }
+.qr-box .center-logo {
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #3B99FC, #1976D2);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 22px;
+    border: 4px solid #fff;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+}
+.qr-box .scan-frame {
+    position: absolute;
+    inset: 16px;
+    pointer-events: none;
+}
+.qr-box .scan-frame::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, #3B99FC, transparent);
+    box-shadow: 0 0 12px #3B99FC;
+    animation: scan 2.4s ease-in-out infinite;
+}
+@keyframes scan { 0% { top: 0 } 50% { top: calc(100% - 2px) } 100% { top: 0 } }
+
+.qr-actions {
+    display: flex; align-items: center; gap: 12px;
+    margin: 18px 0;
+    justify-content: center;
+}
+.qr-actions .btn { height: 32px; padding: 0 12px; font-size: 12px; }
+
+.session-meta {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 14px;
+    margin-top: 14px;
+}
+.session-meta .row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 12px; }
+.session-meta .row .k { color: var(--t-tertiary); }
+.session-meta .row .v { color: var(--t-primary); font-family: ui-monospace, monospace; font-size: 11.5px; }
+
+.wallet-pills {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-top: 16px;
+    justify-content: center;
+}
+.wp {
+    padding: 5px 10px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 11px;
+    color: var(--t-secondary);
+    display: flex; align-items: center; gap: 5px;
+}
+.wp .ic-mini {
+    width: 14px; height: 14px; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px; color: #fff;
+}
+</style>
+</head>
+<body>
+
+<div class="auth-shell">
+    <div class="auth-stage">
+        <div class="as-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator Economy</span></div>
+        </div>
+        <div class="as-mid">
+            <h1><span class="grad">扫码连接</span><br>移动钱包</h1>
+            <p>使用 WalletConnect v2 协议，跨链、跨设备的 Web3 标准。会话端到端加密，每次连接生成独立 sessionId，登出即销毁。</p>
+
+            <div class="as-feat">
+                <div class="feat-card">
+                    <div class="ic"><i class="fa-solid fa-mobile-screen"></i></div>
+                    <h4>1. 打开手机钱包</h4>
+                    <p>Trust / imToken / OKX …</p>
+                </div>
+                <div class="feat-card">
+                    <div class="ic"><i class="fa-solid fa-camera"></i></div>
+                    <h4>2. 点击"扫一扫"</h4>
+                    <p>在钱包内的扫描入口</p>
+                </div>
+                <div class="feat-card">
+                    <div class="ic"><i class="fa-solid fa-check"></i></div>
+                    <h4>3. 确认连接</h4>
+                    <p>钱包内点击 Approve</p>
+                </div>
+            </div>
+        </div>
+        <div class="as-foot"><div><i class="fa-solid fa-shield-halved"></i> 端到端加密 · 私钥永不离开你的设备</div></div>
+    </div>
+
+    <div class="auth-form">
+        <div class="af-top">
+            <a href="login-entry.html"><i class="fa-solid fa-arrow-left"></i> 返回钱包选择</a>
+            <span><i class="fa-solid fa-circle" style="color:var(--success);font-size:8px"></i> WalletConnect 服务正常</span>
+        </div>
+
+        <div class="af-mid" style="text-align:center">
+            <h2>使用钱包扫码</h2>
+            <p>打开你的手机钱包 App，扫描下方二维码完成连接</p>
+
+            <div class="qr-box">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=0&data=wc:a85f9b3e7c2d4e8a9f6b1c3d5e7f8a2b@2?relay-protocol=irn&symKey=8c2a4f6e9d1b3c5e7a8f9d2b4c6e8f1a&methods=eth_signTypedData_v4" alt="WalletConnect QR">
+                <div class="center-logo"><i class="fa-solid fa-link"></i></div>
+                <div class="scan-frame"></div>
+            </div>
+
+            <div class="qr-actions">
+                <button class="btn btn-secondary"><i class="fa-regular fa-copy"></i>复制链接</button>
+                <button class="btn btn-secondary"><i class="fa-solid fa-arrow-rotate-right"></i>刷新二维码</button>
+            </div>
+
+            <div class="session-meta" style="text-align:left">
+                <div class="row"><span class="k">SessionId</span><span class="v">a85f9b3e...8a2b@2</span></div>
+                <div class="row"><span class="k">协议版本</span><span class="v">WalletConnect v2 · IRN</span></div>
+                <div class="row"><span class="k">过期时间</span><span class="v" style="color:#FBBF24">04:58 后失效</span></div>
+            </div>
+
+            <div class="wallet-pills">
+                <span class="wp"><span class="ic-mini" style="background:#3375BB"><i class="fa-solid fa-shield"></i></span>Trust</span>
+                <span class="wp"><span class="ic-mini" style="background:#11C4D1"><i class="fa-solid fa-key"></i></span>imToken</span>
+                <span class="wp"><span class="ic-mini" style="background:#000"><i class="fa-solid fa-x"></i></span>OKX</span>
+                <span class="wp"><span class="ic-mini" style="background:#FF6B6B"><i class="fa-solid fa-rainbow"></i></span>Rainbow</span>
+                <span class="wp" style="color:var(--brand-purple)">+346 个钱包 →</span>
+            </div>
+        </div>
+
+        <div class="af-foot">
+            遇到问题？<a href="#">扫码失败排查</a> · <a href="#">联系客服</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

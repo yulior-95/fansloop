@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>隐私设置 · 设置 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.set-grid { display: grid; grid-template-columns: 240px 1fr; gap: 24px; }
+@media (max-width: 1100px) { .set-grid { grid-template-columns: 1fr; } .set-nav { display: none; } }
+
+.crumb { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--t-tertiary); margin-bottom: 8px; }
+.crumb a { color: var(--t-secondary); }
+.crumb a:hover { color: #fff; }
+.crumb .curr { color: #fff; font-weight: 600; }
+
+.set-nav { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 80px; align-self: flex-start; }
+.set-nav .group-ti { padding: 14px 12px 6px; font-size: 10px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+.set-nav .nav-item { padding: 10px 12px; border-radius: 8px; font-size: 13px; color: var(--t-secondary); display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.set-nav .nav-item:hover { background: var(--bg-hover); color: #fff; }
+.set-nav .nav-item.active { background: linear-gradient(135deg, rgba(168,85,247,0.16), rgba(236,72,153,0.06)); color: #fff; font-weight: 600; border: 1px solid rgba(168,85,247,0.3); }
+.set-nav .nav-item .ic { width: 24px; height: 24px; border-radius: 6px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: var(--t-tertiary); font-size: 11px; }
+.set-nav .nav-item.active .ic { background: var(--brand-grad); color: #fff; }
+
+.set-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg); margin-bottom: 18px; overflow: hidden; }
+.set-card .ssh { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.set-card .ssh .ic-circle { width: 36px; height: 36px; border-radius: 10px; background: var(--brand-grad); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.set-card .ssh h3 { font-size: 15px; font-weight: 700; }
+.set-card .ssh p { font-size: 12px; color: var(--t-tertiary); margin-top: 2px; }
+.set-card .body { padding: 22px; }
+
+/* segmented */
+.seg { display: inline-flex; padding: 3px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px; gap: 2px; }
+.seg button { padding: 7px 14px; border-radius: 7px; background: transparent; color: var(--t-secondary); font-size: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.seg button.on { background: var(--brand-grad); color: #fff; box-shadow: 0 4px 10px rgba(168,85,247,0.3); }
+
+/* row */
+.pri-row { display: flex; align-items: flex-start; gap: 14px; padding: 16px 22px; border-bottom: 1px solid var(--border); }
+.pri-row:last-child { border-bottom: none; }
+.pri-row .row-ic { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: var(--t-secondary); font-size: 14px; flex-shrink: 0; }
+.pri-row .row-info { flex: 1; min-width: 0; }
+.pri-row .row-info .ti { font-size: 13.5px; font-weight: 600; }
+.pri-row .row-info .sub { font-size: 11.5px; color: var(--t-tertiary); margin-top: 4px; line-height: 1.55; max-width: 580px; }
+.pri-row .row-action { flex-shrink: 0; padding-top: 4px; }
+
+/* block list user */
+.bl-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.bl-row:last-child { border-bottom: none; }
+.bl-row .av { width: 38px; height: 38px; border-radius: 50%; background-size: cover; background-position: center; flex-shrink: 0; }
+.bl-row .info { flex: 1; }
+.bl-row .info .n { font-size: 13px; font-weight: 600; }
+.bl-row .info .m { font-size: 11.5px; color: var(--t-tertiary); margin-top: 2px; }
+
+/* keyword chip */
+.kw-pool { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px; min-height: 56px; }
+.kw-pool .kw { padding: 5px 9px 5px 12px; background: rgba(239,68,68,0.12); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.3); border-radius: 999px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
+.kw-pool .kw .x { width: 16px; height: 16px; border-radius: 50%; background: rgba(239,68,68,0.2); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.kw-pool .add-kw { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; background: transparent; border: 1px dashed var(--border-strong); border-radius: 999px; font-size: 12px; color: var(--t-secondary); cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+    <aside class="app-sidebar">
+        <div class="s-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator</span></div>
+        </div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item active" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+        <div class="s-bottom">
+            <div class="s-user">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索创作者、内容或话题…</span><span class="kbd">⌘ K</span></div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i></button>
+            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <div class="crumb">
+                    <a href="settings.html"><i class="fa-solid fa-gear"></i> 设置</a>
+                    <span><i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
+                    <span class="curr">隐私设置</span>
+                </div>
+                <h1>隐私设置</h1>
+                <p>管理谁可以查看你的内容、与你互动以及如何使用你的数据。我们认真对待每一项你的隐私选择。</p>
+            </div>
+            <div class="ph-r">
+                <button class="btn" onclick="location.href='settings.html'"><i class="fa-solid fa-arrow-left"></i> 返回设置</button>
+                <button class="btn"><i class="fa-solid fa-file-export"></i> 导出我的数据</button>
+            </div>
+        </div>
+
+        <div class="set-grid">
+
+            <aside class="set-nav">
+                <div class="group-ti">账户</div>
+                <div class="nav-item" onclick="location.href='settings-account.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span>账户资料</span></div>
+                <div class="nav-item" onclick="location.href='settings-security.html'"><span class="ic"><i class="fa-solid fa-shield-halved"></i></span><span>账户安全</span></div>
+                <div class="nav-item" onclick="location.href='settings-wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span>钱包与支付</span></div>
+                <div class="group-ti">体验</div>
+                <div class="nav-item" onclick="location.href='settings-notification.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span>通知偏好</span></div>
+                <div class="nav-item active"><span class="ic"><i class="fa-solid fa-user-shield"></i></span><span>隐私设置</span></div>
+                <div class="nav-item" onclick="location.href='settings-display.html'"><span class="ic"><i class="fa-solid fa-palette"></i></span><span>外观语言</span></div>
+                <div class="group-ti">创作者</div>
+                <div class="nav-item"><span class="ic"><i class="fa-solid fa-crown"></i></span><span>会员订阅设置</span></div>
+                <div class="nav-item"><span class="ic"><i class="fa-solid fa-coins"></i></span><span>收益与提现</span></div>
+                <div class="nav-item"><span class="ic"><i class="fa-solid fa-tower-broadcast"></i></span><span>直播配置</span></div>
+            </aside>
+
+            <div>
+
+                <!-- 公开可见性 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#06B6D4,#3B82F6)"><i class="fa-solid fa-eye"></i></div>
+                        <div><h3>公开可见性</h3><p>谁可以看到你的主页与活动</p></div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic"><i class="fa-solid fa-house-user"></i></div>
+                        <div class="row-info">
+                            <div class="ti">主页可见性</div>
+                            <div class="sub">控制谁能查看你的主页和动态。私密账户的关注请求需要审核。</div>
+                        </div>
+                        <div class="row-action">
+                            <div class="seg">
+                                <button class="on"><i class="fa-solid fa-globe"></i> 公开</button>
+                                <button><i class="fa-solid fa-user-group"></i> 仅订阅者</button>
+                                <button><i class="fa-solid fa-lock"></i> 私密</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic"><i class="fa-solid fa-magnifying-glass"></i></div>
+                        <div class="row-info">
+                            <div class="ti">允许搜索引擎收录</div>
+                            <div class="sub">关闭后，Google、Bing 等搜索引擎将不会索引你的主页</div>
+                        </div>
+                        <div class="row-action"><div class="switch on"></div></div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic"><i class="fa-solid fa-list-ul"></i></div>
+                        <div class="row-info">
+                            <div class="ti">允许出现在推荐位</div>
+                            <div class="sub">是否允许你出现在「发现页」「猜你喜欢」等推荐位</div>
+                        </div>
+                        <div class="row-action"><div class="switch on"></div></div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic"><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="row-info">
+                            <div class="ti">在线状态显示</div>
+                            <div class="sub">控制谁能看到你的「最近活跃于 X 分钟前」</div>
+                        </div>
+                        <div class="row-action">
+                            <div class="seg">
+                                <button class="on">所有人</button>
+                                <button>关注 / 订阅</button>
+                                <button>仅自己</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 互动权限 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#A855F7,#EC4899)"><i class="fa-regular fa-comments"></i></div>
+                        <div><h3>互动权限</h3><p>控制谁可以评论、私信、@ 你</p></div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic"><i class="fa-regular fa-comments"></i></div>
+                        <div class="row-info">
+                            <div class="ti">谁可以私信我</div>
+                            <div class="sub">陌生人私信将进入「请求」文件夹，需主动接受</div>
+                        </div>
+                        <div class="row-action">
+                            <div class="seg">
+                                <button>所有人</button>
+                                <button class="on">仅订阅者</button>
+                                <button>仅关注我的人</button>
+                                <button>关闭</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic"><i class="fa-solid fa-comment"></i></div>
+                        <div class="row-info">
+                            <div class="ti">谁可以评论我的内容</div>
+                            <div class="sub">免费内容可单独控制，付费内容默认仅订阅者可评论</div>
+                        </div>
+                        <div class="row-action">
+                            <div class="seg">
+                                <button class="on">所有人</button>
+                                <button>已认证用户</button>
+                                <button>仅关注 ≥ 1 周</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic"><i class="fa-solid fa-at"></i></div>
+                        <div class="row-info">
+                            <div class="ti">谁可以 @ 我</div>
+                            <div class="sub">不在权限内的 @ 不会触达通知</div>
+                        </div>
+                        <div class="row-action">
+                            <div class="seg">
+                                <button>所有人</button>
+                                <button class="on">关注列表</button>
+                                <button>仅订阅者</button>
+                                <button>关闭</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic"><i class="fa-solid fa-gift"></i></div>
+                        <div class="row-info">
+                            <div class="ti">接受打赏 / 礼物</div>
+                            <div class="sub">关闭后他人无法对你打赏，但仍可订阅</div>
+                        </div>
+                        <div class="row-action"><div class="switch on"></div></div>
+                    </div>
+                </div>
+
+                <!-- 屏蔽列表 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#EF4444,#F472B6)"><i class="fa-solid fa-ban"></i></div>
+                        <div><h3>屏蔽列表</h3><p>已屏蔽的用户与关键词，被屏蔽方将无法查看你的内容或与你互动</p></div>
+                    </div>
+                    <div class="body">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px">
+                            <span style="font-size: 13px; font-weight: 600">已屏蔽用户</span>
+                            <span class="tag" style="background: rgba(239,68,68,0.15); color: var(--danger-light); border: 1px solid rgba(239,68,68,0.25)">2 人</span>
+                            <button class="btn btn-sm" style="margin-left: auto"><i class="fa-solid fa-plus"></i> 添加</button>
+                        </div>
+                        <div class="bl-row">
+                            <div class="av" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></div>
+                            <div class="info"><div class="n">noisy_troll</div><div class="m">已屏蔽 12 天前 · 原因：恶意评论</div></div>
+                            <button class="btn btn-sm">解除</button>
+                        </div>
+                        <div class="bl-row">
+                            <div class="av" style="background-image: url('https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=80')"></div>
+                            <div class="info"><div class="n">ad_robot_888</div><div class="m">已屏蔽 5 天前 · 原因：营销垃圾</div></div>
+                            <button class="btn btn-sm">解除</button>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 8px; margin: 22px 0 10px">
+                            <span style="font-size: 13px; font-weight: 600">关键词屏蔽</span>
+                            <span class="tag" style="background: rgba(239,68,68,0.15); color: var(--danger-light); border: 1px solid rgba(239,68,68,0.25)">4 个</span>
+                            <span style="font-size: 11.5px; color: var(--t-tertiary); margin-left: auto">包含这些词的评论与私信将被自动隐藏</span>
+                        </div>
+                        <div class="kw-pool">
+                            <span class="kw">广告 <span class="x"><i class="fa-solid fa-xmark" style="font-size: 9px"></i></span></span>
+                            <span class="kw">免费送 <span class="x"><i class="fa-solid fa-xmark" style="font-size: 9px"></i></span></span>
+                            <span class="kw">加微信 <span class="x"><i class="fa-solid fa-xmark" style="font-size: 9px"></i></span></span>
+                            <span class="kw">私聊 <span class="x"><i class="fa-solid fa-xmark" style="font-size: 9px"></i></span></span>
+                            <span class="add-kw"><i class="fa-solid fa-plus"></i> 添加关键词</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 内容偏好 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#F59E0B,#EC4899)"><i class="fa-solid fa-eye-slash"></i></div>
+                        <div><h3>内容偏好</h3><p>调整你看到的内容类型</p></div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic" style="color: #F87171"><i class="fa-solid fa-fire"></i></div>
+                        <div class="row-info">
+                            <div class="ti">敏感内容过滤</div>
+                            <div class="sub">默认隐藏带有「敏感」标签的内容（暴力、惊悚、成人主题等）</div>
+                        </div>
+                        <div class="row-action">
+                            <div class="seg">
+                                <button class="on">严格</button>
+                                <button>标准</button>
+                                <button>关闭</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic"><i class="fa-solid fa-language"></i></div>
+                        <div class="row-info">
+                            <div class="ti">内容语言偏好</div>
+                            <div class="sub">推荐和发现页将优先展示这些语言的内容</div>
+                        </div>
+                        <div class="row-action">
+                            <select style="width: 200px"><option>中文 + 英语</option><option>仅中文</option><option>所有语言</option></select>
+                        </div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic"><i class="fa-solid fa-shield-virus"></i></div>
+                        <div class="row-info">
+                            <div class="ti">陌生人付费内容警告</div>
+                            <div class="sub">购买未关注创作者的付费内容前显示二次确认</div>
+                        </div>
+                        <div class="row-action"><div class="switch on"></div></div>
+                    </div>
+                </div>
+
+                <!-- 数据与个性化 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#10B981,#06B6D4)"><i class="fa-solid fa-database"></i></div>
+                        <div><h3>数据与个性化</h3><p>控制 FansLoop 如何使用你的数据</p></div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic"><i class="fa-solid fa-sparkles"></i></div>
+                        <div class="row-info">
+                            <div class="ti">个性化推荐</div>
+                            <div class="sub">基于你的浏览、点赞、订阅历史推荐内容。关闭后将看到通用推荐。</div>
+                        </div>
+                        <div class="row-action"><div class="switch on"></div></div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic"><i class="fa-solid fa-cookie-bite"></i></div>
+                        <div class="row-info">
+                            <div class="ti">分析与 Cookie</div>
+                            <div class="sub">允许我们使用匿名分析数据改进产品体验</div>
+                        </div>
+                        <div class="row-action"><div class="switch on"></div></div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic"><i class="fa-solid fa-bullseye"></i></div>
+                        <div class="row-info">
+                            <div class="ti">个性化广告</div>
+                            <div class="sub">允许根据你的兴趣展示相关广告（FansLoop 不会出售你的数据）</div>
+                        </div>
+                        <div class="row-action"><div class="switch"></div></div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic"><i class="fa-solid fa-handshake"></i></div>
+                        <div class="row-info">
+                            <div class="ti">第三方数据共享</div>
+                            <div class="sub">仅与 OAuth 授权时同意的第三方应用共享必要的资料</div>
+                        </div>
+                        <div class="row-action"><button class="btn btn-sm">管理 (3 个授权)</button></div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic"><i class="fa-solid fa-history"></i></div>
+                        <div class="row-info">
+                            <div class="ti">浏览历史</div>
+                            <div class="sub">FansLoop 仅保留你的浏览历史 90 天，可随时清除</div>
+                        </div>
+                        <div class="row-action"><button class="btn btn-sm" style="color: var(--danger-light)"><i class="fa-solid fa-broom"></i> 立即清除</button></div>
+                    </div>
+                </div>
+
+                <!-- 数据导出与删除 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#3B82F6,#A855F7)"><i class="fa-solid fa-file-export"></i></div>
+                        <div><h3>你的数据</h3><p>下载或永久删除你的全部数据，符合 GDPR / 个人信息保护法要求</p></div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic"><i class="fa-solid fa-download"></i></div>
+                        <div class="row-info">
+                            <div class="ti">导出我的数据</div>
+                            <div class="sub">打包下载所有发布内容、消息、收藏、交易记录（ZIP / JSON）</div>
+                        </div>
+                        <div class="row-action"><button class="btn btn-sm btn-primary"><i class="fa-solid fa-file-zipper"></i> 申请导出</button></div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic" style="color: var(--warning-light)"><i class="fa-solid fa-pause"></i></div>
+                        <div class="row-info">
+                            <div class="ti">暂时隐藏账户</div>
+                            <div class="sub">隐藏你的内容 30 天，到期后自动恢复（资金与订阅不受影响）</div>
+                        </div>
+                        <div class="row-action"><button class="btn btn-sm">暂时隐藏</button></div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic" style="color: var(--danger-light)"><i class="fa-solid fa-trash"></i></div>
+                        <div class="row-info">
+                            <div class="ti">永久删除账户</div>
+                            <div class="sub">所有内容、订阅、收益、链上记录将无法恢复，请先提现余额</div>
+                        </div>
+                        <div class="row-action"><button class="btn btn-sm btn-danger"><i class="fa-solid fa-skull-crossbones"></i> 删除我的账户</button></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+</body>
+</html>

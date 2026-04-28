@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>交易详情 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.detail-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; max-width: 1280px; }
+@media (max-width: 1100px) { .detail-grid { grid-template-columns: 1fr; } }
+
+.tx-hero {
+    background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(110,231,183,0.04));
+    border: 1px solid rgba(16,185,129,0.25);
+    border-radius: var(--r-xl);
+    padding: 32px;
+    text-align: center;
+    margin-bottom: 18px;
+    position: relative; overflow: hidden;
+}
+.tx-hero .ic-c {
+    width: 80px; height: 80px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10B981, #6EE7B7);
+    color: #fff;
+    font-size: 32px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 24px rgba(16,185,129,0.4);
+}
+.tx-hero .ttl { font-size: 16px; color: var(--t-secondary); margin-bottom: 8px; }
+.tx-hero .am { font-size: 48px; font-weight: 900; letter-spacing: -1.5px; color: var(--success-light); }
+.tx-hero .am sup { font-size: 24px; font-weight: 700; opacity: 0.7; }
+.tx-hero .meta { font-size: 13px; color: var(--t-tertiary); margin-top: 6px; }
+.tx-hero .meta b { color: #fff; font-weight: 600; }
+
+.detail-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 24px 28px; margin-bottom: 18px; }
+.detail-card .ds-head { font-size: 13px; font-weight: 700; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+.detail-card .ds-head a { color: var(--brand-purple); font-size: 11px; font-weight: 500; }
+
+.kv-detail .row { display: flex; padding: 10px 0; border-bottom: 1px dashed var(--border); }
+.kv-detail .row:last-child { border-bottom: none; }
+.kv-detail .row .l { width: 130px; font-size: 12px; color: var(--t-tertiary); flex-shrink: 0; }
+.kv-detail .row .v { flex: 1; font-size: 12.5px; color: #fff; word-break: break-all; font-variant-numeric: tabular-nums; }
+.kv-detail .row .v .copy { color: var(--brand-purple); margin-left: 6px; cursor: pointer; }
+
+.tx-progress { display: flex; align-items: stretch; gap: 0; margin: 18px 0 4px; }
+.tx-progress .step {
+    flex: 1; text-align: center;
+    position: relative;
+    padding: 0 6px;
+}
+.tx-progress .step .dot {
+    width: 28px; height: 28px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: var(--bg-input);
+    border: 2px solid var(--border-strong);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    color: var(--t-tertiary);
+    position: relative; z-index: 2;
+}
+.tx-progress .step.done .dot { background: var(--success); border-color: var(--success); color: #fff; }
+.tx-progress .step:not(:last-child)::after {
+    content: ''; position: absolute;
+    left: 50%; top: 13px; right: -50%;
+    height: 2px; background: var(--border-strong);
+    z-index: 1;
+}
+.tx-progress .step.done:not(:last-child)::after { background: var(--success); }
+.tx-progress .step .nm { font-size: 11.5px; margin-top: 8px; color: var(--t-secondary); font-weight: 600; }
+.tx-progress .step .ti { font-size: 10.5px; color: var(--t-tertiary); margin-top: 2px; }
+.tx-progress .step.done .nm { color: #fff; }
+
+.related-post {
+    display: flex; gap: 12px;
+    background: var(--bg-input); border-radius: var(--r-md);
+    padding: 12px;
+}
+.related-post .pic {
+    width: 70px; height: 70px;
+    border-radius: 8px;
+    background-size: cover; background-position: center;
+    flex-shrink: 0;
+}
+.related-post .info { flex: 1; }
+.related-post .info .ti { font-size: 13px; font-weight: 600; }
+.related-post .info .meta { font-size: 11px; color: var(--t-tertiary); margin-top: 4px; }
+
+.user-card { display: flex; gap: 14px; align-items: center; padding: 14px 16px; background: var(--bg-input); border-radius: var(--r-md); }
+.user-card .av { width: 52px; height: 52px; border-radius: 50%; background-size: cover; background-position: center; }
+.user-card .info { flex: 1; }
+.user-card .info .nm { font-size: 14px; font-weight: 700; }
+.user-card .info .nm i { color: #3B82F6; font-size: 11px; margin-left: 4px; }
+.user-card .info .e { font-size: 11.5px; color: var(--t-tertiary); margin-top: 2px; }
+.user-card .info .stats { display: flex; gap: 12px; margin-top: 4px; font-size: 11px; color: var(--t-tertiary); }
+.user-card .info .stats b { color: #fff; font-weight: 700; }
+
+.action-row {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;
+}
+.action-row .btn { flex: 1; white-space: nowrap; min-width: 110px; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span><span class="chip">+$28</span></div>
+        <div class="s-item active" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+        <div class="s-bottom"><div class="s-user"><div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div><div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div></div></div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索…</span></div>
+        <div class="h-actions"><button class="h-icon"><i class="fa-regular fa-bell"></i></button><div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div></div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <div class="crumb"><a href="transactions.html">账变记录</a><i class="fa-solid fa-chevron-right"></i><span class="curr">交易详情</span></div>
+                <h1>交易详情 <span class="tag tag-success" style="vertical-align: 4px; margin-left: 6px">已结算</span></h1>
+                <p>订单号 <span class="num" style="color:#fff">TXN20260425190832</span></p>
+            </div>
+            <div class="ph-r">
+                <button class="btn" onclick="location.href='transactions.html'"><i class="fa-solid fa-arrow-left"></i>返回</button>
+                <button class="btn btn-secondary" onclick="location.href='transaction-share-poster.html'"><i class="fa-solid fa-share-nodes"></i>分享</button>
+                <button class="btn btn-secondary" onclick="location.href='transaction-more-menu.html'"><i class="fa-solid fa-ellipsis"></i></button>
+            </div>
+        </div>
+
+        <div class="detail-grid">
+            <div>
+                <div class="tx-hero">
+                    <div class="ic-c"><i class="fa-solid fa-arrow-down"></i></div>
+                    <div class="ttl">订阅收入 · 已到账</div>
+                    <div class="am"><sup>+ $</sup>10.00</div>
+                    <div class="meta">≈ <b>10.00 USDT</b> · 来自 Alex Chen 的 Pro 月度订阅</div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="ds-head"><i class="fa-solid fa-route"></i> 处理流程</div>
+                    <div class="tx-progress">
+                        <div class="step done"><div class="dot"><i class="fa-solid fa-check"></i></div><div class="nm">下单</div><div class="ti">19:08:32</div></div>
+                        <div class="step done"><div class="dot"><i class="fa-solid fa-check"></i></div><div class="nm">链上确认</div><div class="ti">19:08:45</div></div>
+                        <div class="step done"><div class="dot"><i class="fa-solid fa-check"></i></div><div class="nm">平台扣分成</div><div class="ti">19:08:46</div></div>
+                        <div class="step done"><div class="dot"><i class="fa-solid fa-check"></i></div><div class="nm">已结算</div><div class="ti">19:08:46</div></div>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="ds-head"><span><i class="fa-solid fa-receipt"></i> 交易明细</span></div>
+                    <div class="kv-detail">
+                        <div class="row"><div class="l">交易类型</div><div class="v">订阅收入 · Pro 月度</div></div>
+                        <div class="row"><div class="l">订单号</div><div class="v">TXN20260425190832<i class="fa-regular fa-copy copy"></i></div></div>
+                        <div class="row"><div class="l">订阅周期</div><div class="v">2026-04-25 ~ 2026-05-25 · 30 天</div></div>
+                        <div class="row"><div class="l">订阅费</div><div class="v">$11.76 USDT</div></div>
+                        <div class="row"><div class="l">平台分成 (15%)</div><div class="v" style="color: var(--danger-light)">- $1.76 USDT</div></div>
+                        <div class="row"><div class="l">链上 Gas</div><div class="v" style="color: var(--danger-light)">- $0.00 USDT（平台承担）</div></div>
+                        <div class="row"><div class="l">实际到账</div><div class="v" style="color: var(--success-light); font-weight: 700">+ $10.00 USDT</div></div>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="ds-head"><span><i class="fa-solid fa-link"></i> 链上信息</span><a><i class="fa-solid fa-up-right-from-square"></i> 浏览器查看</a></div>
+                    <div class="kv-detail">
+                        <div class="row"><div class="l">网络</div><div class="v">USDT-TRC20 (Tron)</div></div>
+                        <div class="row"><div class="l">区块高度</div><div class="v">#62,418,532</div></div>
+                        <div class="row"><div class="l">交易哈希</div><div class="v" style="font-family: ui-monospace, monospace; font-size: 11.5px">0x8a72f9b3e8c1d6f5...4e29a8b1c3f29e<i class="fa-regular fa-copy copy"></i></div></div>
+                        <div class="row"><div class="l">链上确认</div><div class="v">28 / 12 (已最终确认)</div></div>
+                        <div class="row"><div class="l">From</div><div class="v" style="font-family: ui-monospace, monospace; font-size: 11.5px">TG3X…aSJozs (Alex Chen)</div></div>
+                        <div class="row"><div class="l">To</div><div class="v" style="font-family: ui-monospace, monospace; font-size: 11.5px">TZ9P…kQmL2j (FansLoop 收款)</div></div>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="ds-head"><span><i class="fa-solid fa-image"></i> 关联内容</span></div>
+                    <div class="related-post">
+                        <div class="pic" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200')"></div>
+                        <div class="info">
+                            <div class="ti">Pro 月度订阅 · 包含 12 项专属权益</div>
+                            <div class="meta">订阅有效期：2026-04-25 ~ 2026-05-25</div>
+                            <div class="meta">已享受：4K 直播 · 独家帖子 · 专属客服 · …</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="detail-card">
+                    <div class="ds-head"><i class="fa-solid fa-user"></i> 交易方</div>
+                    <div class="user-card">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></div>
+                        <div class="info">
+                            <div class="nm">Alex Chen <i class="fa-solid fa-circle-check"></i></div>
+                            <div class="e">@alex_chen · 注册 8 个月</div>
+                            <div class="stats"><span>累计订阅 <b>12</b> 月</span> · <span>累计 <b>$120</b></span></div>
+                        </div>
+                    </div>
+                    <div class="action-row" style="margin-top: 16px">
+                        <button class="btn btn-secondary"><i class="fa-solid fa-message"></i>发消息</button>
+                        <button class="btn btn-secondary"><i class="fa-solid fa-user"></i>查看主页</button>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="ds-head"><i class="fa-solid fa-circle-info"></i> 备注</div>
+                    <div style="font-size: 12.5px; color: var(--t-secondary); line-height: 1.7">
+                        系统自动生成的订阅订单，会在每月 25 日自动续订。如需取消，请通知粉丝在订阅设置中关闭自动续订。
+                    </div>
+                </div>
+
+                <div class="detail-card" style="background: linear-gradient(135deg, rgba(245,158,11,0.06), rgba(245,158,11,0.02)); border-color: rgba(245,158,11,0.25)">
+                    <div class="ds-head" style="color: var(--warning-light)"><i class="fa-solid fa-shield-halved"></i> 交易问题？</div>
+                    <div style="font-size: 12px; color: var(--t-secondary); line-height: 1.7; margin-bottom: 12px">
+                        如对该笔交易有疑问，可发起申诉、联系客服，或直接申请提现。
+                    </div>
+                    <div class="action-row">
+                        <button class="btn btn-secondary" onclick="location.href='transaction-appeal.html'"><i class="fa-solid fa-gavel"></i>发起申诉</button>
+                        <button class="btn btn-secondary" onclick="location.href='transaction-contact.html'"><i class="fa-solid fa-headset"></i>联系客服</button>
+                        <button class="btn btn-primary" onclick="location.href='creator-withdraw.html'"><i class="fa-solid fa-arrow-up-from-bracket"></i>去提现</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

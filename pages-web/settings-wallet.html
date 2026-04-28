@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>钱包与支付 · 设置 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.set-grid { display: grid; grid-template-columns: 240px 1fr; gap: 24px; }
+@media (max-width: 1100px) { .set-grid { grid-template-columns: 1fr; } .set-nav { display: none; } }
+
+.crumb { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--t-tertiary); margin-bottom: 8px; }
+.crumb a { color: var(--t-secondary); }
+.crumb a:hover { color: #fff; }
+.crumb .curr { color: #fff; font-weight: 600; }
+
+.set-nav { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 80px; align-self: flex-start; }
+.set-nav .group-ti { padding: 14px 12px 6px; font-size: 10px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+.set-nav .nav-item { padding: 10px 12px; border-radius: 8px; font-size: 13px; color: var(--t-secondary); display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.set-nav .nav-item:hover { background: var(--bg-hover); color: #fff; }
+.set-nav .nav-item.active { background: linear-gradient(135deg, rgba(168,85,247,0.16), rgba(236,72,153,0.06)); color: #fff; font-weight: 600; border: 1px solid rgba(168,85,247,0.3); }
+.set-nav .nav-item .ic { width: 24px; height: 24px; border-radius: 6px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: var(--t-tertiary); font-size: 11px; }
+.set-nav .nav-item.active .ic { background: var(--brand-grad); color: #fff; }
+
+.set-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg); margin-bottom: 18px; overflow: hidden; }
+.set-card .ssh { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.set-card .ssh .ic-circle { width: 36px; height: 36px; border-radius: 10px; background: var(--brand-grad); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: var(--shadow-glow); }
+.set-card .ssh h3 { font-size: 15px; font-weight: 700; }
+.set-card .ssh p { font-size: 12px; color: var(--t-tertiary); margin-top: 2px; }
+.set-card .body { padding: 22px; }
+
+/* wallet card */
+.w-card { background: linear-gradient(135deg, #1a1a2e, #2D1B4E); border-radius: 14px; padding: 20px; position: relative; overflow: hidden; }
+.w-card::before { content: ''; position: absolute; right: -60px; top: -60px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(168,85,247,0.4), transparent 70%); }
+.w-card .w-top { display: flex; justify-content: space-between; align-items: flex-start; position: relative; }
+.w-card .w-top .chain-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,0.1); color: #fff; font-size: 11px; font-weight: 600; }
+.w-card .w-top .chain-badge.eth { background: rgba(98,126,234,0.25); color: #a8b8ff; border: 1px solid rgba(98,126,234,0.4); }
+.w-card .w-name { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 16px; }
+.w-card .w-addr { font-size: 14px; color: #fff; font-family: ui-monospace, monospace; margin-top: 4px; display: flex; align-items: center; gap: 10px; }
+.w-card .w-addr .ic-cp { width: 22px; height: 22px; border-radius: 6px; background: rgba(255,255,255,0.1); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.w-card .w-bal { display: flex; gap: 18px; margin-top: 16px; flex-wrap: wrap; }
+.w-card .w-bal .b { display: flex; gap: 6px; align-items: baseline; font-size: 13px; color: rgba(255,255,255,0.85); }
+.w-card .w-bal .b .v { font-size: 18px; font-weight: 800; color: #fff; }
+.w-card .w-actions { position: absolute; top: 16px; right: 16px; display: flex; gap: 6px; }
+.w-card .w-actions button { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.1); color: #fff; border: none; font-size: 12px; cursor: pointer; }
+.w-card .w-actions button:hover { background: rgba(255,255,255,0.18); }
+
+/* bank card */
+.bk-card { padding: 18px; border-radius: 14px; color: #fff; position: relative; overflow: hidden; min-height: 130px; }
+.bk-card.visa { background: linear-gradient(135deg, #1A1F71, #4F46E5); }
+.bk-card.master { background: linear-gradient(135deg, #EB001B, #F79E1B); }
+.bk-card .b-row { display: flex; justify-content: space-between; align-items: center; }
+.bk-card .b-brand { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+.bk-card .b-default { padding: 3px 8px; background: rgba(255,255,255,0.18); border-radius: 5px; font-size: 10px; font-weight: 700; }
+.bk-card .b-num { margin-top: 22px; font-family: ui-monospace, monospace; font-size: 16px; letter-spacing: 1px; }
+.bk-card .b-foot { display: flex; justify-content: space-between; margin-top: 14px; font-size: 11px; opacity: 0.85; }
+
+/* sub list */
+.sub-row { display: flex; align-items: center; gap: 14px; padding: 14px 22px; border-bottom: 1px solid var(--border); }
+.sub-row:last-child { border-bottom: none; }
+.sub-row .av { width: 40px; height: 40px; border-radius: 50%; background-size: cover; background-position: center; flex-shrink: 0; border: 2px solid var(--border); }
+.sub-row .info { flex: 1; }
+.sub-row .info .n { font-size: 13.5px; font-weight: 600; }
+.sub-row .info .m { font-size: 11.5px; color: var(--t-tertiary); margin-top: 3px; }
+.sub-row .pr { font-size: 13px; font-weight: 700; color: var(--warning-light); }
+.sub-row .act { display: flex; align-items: center; gap: 8px; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+    <aside class="app-sidebar">
+        <div class="s-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator</span></div>
+        </div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item active" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+        <div class="s-bottom">
+            <div class="s-user">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索创作者、内容或话题…</span><span class="kbd">⌘ K</span></div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i></button>
+            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <div class="crumb">
+                    <a href="settings.html"><i class="fa-solid fa-gear"></i> 设置</a>
+                    <span><i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
+                    <span class="curr">钱包与支付</span>
+                </div>
+                <h1>钱包与支付</h1>
+                <p>统一管理你的链上钱包、银行卡、订阅自动续费与默认充提偏好。</p>
+            </div>
+            <div class="ph-r">
+                <button class="btn" onclick="location.href='settings.html'"><i class="fa-solid fa-arrow-left"></i> 返回设置</button>
+                <button class="btn btn-primary" onclick="location.href='wallet.html'"><i class="fa-solid fa-wallet"></i> 进入钱包</button>
+            </div>
+        </div>
+
+        <div class="set-grid">
+
+            <aside class="set-nav">
+                <div class="group-ti">账户</div>
+                <div class="nav-item" onclick="location.href='settings-account.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span>账户资料</span></div>
+                <div class="nav-item" onclick="location.href='settings-security.html'"><span class="ic"><i class="fa-solid fa-shield-halved"></i></span><span>账户安全</span></div>
+                <div class="nav-item active"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span>钱包与支付</span></div>
+                <div class="group-ti">体验</div>
+                <div class="nav-item" onclick="location.href='settings-notification.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span>通知偏好</span></div>
+                <div class="nav-item" onclick="location.href='settings-privacy.html'"><span class="ic"><i class="fa-solid fa-user-shield"></i></span><span>隐私设置</span></div>
+                <div class="nav-item" onclick="location.href='settings-display.html'"><span class="ic"><i class="fa-solid fa-palette"></i></span><span>外观语言</span></div>
+                <div class="group-ti">创作者</div>
+                <div class="nav-item"><span class="ic"><i class="fa-solid fa-crown"></i></span><span>会员订阅设置</span></div>
+                <div class="nav-item"><span class="ic"><i class="fa-solid fa-coins"></i></span><span>收益与提现</span></div>
+                <div class="nav-item"><span class="ic"><i class="fa-solid fa-tower-broadcast"></i></span><span>直播配置</span></div>
+            </aside>
+
+            <div>
+
+                <!-- 链上钱包 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#A855F7,#3B82F6)"><i class="fa-brands fa-ethereum"></i></div>
+                        <div><h3>链上钱包</h3><p>当前已连接 2 个 Web3 钱包，可设置主钱包用于默认收款</p></div>
+                    </div>
+                    <div class="body">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px">
+                            <div class="w-card">
+                                <div class="w-actions">
+                                    <button title="QR"><i class="fa-solid fa-qrcode"></i></button>
+                                    <button title="编辑"><i class="fa-solid fa-pen"></i></button>
+                                </div>
+                                <div class="w-top">
+                                    <span class="chain-badge eth"><i class="fa-brands fa-ethereum"></i> Ethereum</span>
+                                </div>
+                                <div class="w-name">主钱包 · MetaMask <span class="tag tag-success" style="margin-left:6px; font-size:10px">默认</span></div>
+                                <div class="w-addr">0x7Bf2…c3D9 <span class="ic-cp"><i class="fa-regular fa-copy"></i></span></div>
+                                <div class="w-bal">
+                                    <div class="b"><span class="v">2,485.32</span> USDT</div>
+                                    <div class="b"><span class="v">0.42</span> ETH</div>
+                                </div>
+                            </div>
+                            <div class="w-card" style="background: linear-gradient(135deg, #0F1F3D, #1F3B7A)">
+                                <div class="w-actions">
+                                    <button title="QR"><i class="fa-solid fa-qrcode"></i></button>
+                                    <button title="解绑"><i class="fa-solid fa-link-slash"></i></button>
+                                </div>
+                                <div class="w-top">
+                                    <span class="chain-badge" style="background: rgba(31,184,232,0.25); color:#7DD3FC; border:1px solid rgba(31,184,232,0.4)"><i class="fa-solid fa-circle-nodes"></i> Polygon</span>
+                                </div>
+                                <div class="w-name">备用钱包 · WalletConnect</div>
+                                <div class="w-addr">0xA9c1…F7e2 <span class="ic-cp"><i class="fa-regular fa-copy"></i></span></div>
+                                <div class="w-bal">
+                                    <div class="b"><span class="v">126.40</span> USDC</div>
+                                    <div class="b"><span class="v">82.5</span> MATIC</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap">
+                            <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> 连接新钱包</button>
+                            <button class="btn"><i class="fa-solid fa-shuffle"></i> 切换主钱包</button>
+                            <span style="margin-left: auto; font-size: 11.5px; color: var(--t-tertiary); align-self: center"><i class="fa-solid fa-circle-info"></i> 支持 350+ 钱包，包含 MetaMask、Rainbow、WalletConnect、OKX 等</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 银行卡 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#3B82F6,#06B6D4)"><i class="fa-solid fa-credit-card"></i></div>
+                        <div><h3>银行卡 / 信用卡</h3><p>用于法币充值与到账，需通过 KYC 验证</p></div>
+                    </div>
+                    <div class="body">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px">
+                            <div class="bk-card visa">
+                                <div class="b-row">
+                                    <div class="b-brand">VISA</div>
+                                    <span class="b-default">默认充值</span>
+                                </div>
+                                <div class="b-num">**** **** **** 4321</div>
+                                <div class="b-foot">
+                                    <div>持卡人 · LUNA Y.</div>
+                                    <div>有效期 · 09/28</div>
+                                </div>
+                            </div>
+                            <div class="bk-card master">
+                                <div class="b-row">
+                                    <div class="b-brand">Mastercard</div>
+                                    <span class="b-default" style="background:rgba(255,255,255,0.18)">备用</span>
+                                </div>
+                                <div class="b-num">**** **** **** 8866</div>
+                                <div class="b-foot">
+                                    <div>持卡人 · LUNA Y.</div>
+                                    <div>有效期 · 03/27</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap">
+                            <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> 添加新卡</button>
+                            <button class="btn"><i class="fa-solid fa-pen"></i> 修改默认</button>
+                            <button class="btn btn-ghost" style="color: var(--danger-light); margin-left: auto"><i class="fa-solid fa-trash"></i> 删除卡片</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快捷支付 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#10B981,#06B6D4)"><i class="fa-solid fa-bolt"></i></div>
+                        <div><h3>快捷支付方式</h3><p>第三方一键支付，无需输入卡信息</p></div>
+                    </div>
+                    <div style="padding: 4px 22px 10px">
+                        <div style="display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border)">
+                            <div style="width: 44px; height: 44px; border-radius: 10px; background: #000; color: #fff; font-size: 18px; display: flex; align-items: center; justify-content: center"><i class="fa-brands fa-apple-pay"></i></div>
+                            <div style="flex: 1">
+                                <div style="font-size: 13.5px; font-weight: 600">Apple Pay</div>
+                                <div style="font-size: 11.5px; color: var(--t-tertiary); margin-top: 3px">已绑定 · 支持 Touch ID / Face ID 一键支付</div>
+                            </div>
+                            <div class="switch on"></div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border)">
+                            <div style="width: 44px; height: 44px; border-radius: 10px; background: #fff; color: #000; font-size: 18px; display: flex; align-items: center; justify-content: center"><i class="fa-brands fa-google-pay"></i></div>
+                            <div style="flex: 1">
+                                <div style="font-size: 13.5px; font-weight: 600">Google Pay</div>
+                                <div style="font-size: 11.5px; color: var(--t-tertiary); margin-top: 3px">未绑定 · 适用于 Android / Chrome 用户</div>
+                            </div>
+                            <button class="btn btn-sm">连接</button>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border)">
+                            <div style="width: 44px; height: 44px; border-radius: 10px; background: #00C800; color: #fff; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center">支付</div>
+                            <div style="flex: 1">
+                                <div style="font-size: 13.5px; font-weight: 600">支付宝</div>
+                                <div style="font-size: 11.5px; color: var(--t-tertiary); margin-top: 3px">未绑定 · 支持 CNY 充值</div>
+                            </div>
+                            <button class="btn btn-sm">连接</button>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 14px; padding: 14px 0">
+                            <div style="width: 44px; height: 44px; border-radius: 10px; background: #07C160; color: #fff; font-size: 18px; display: flex; align-items: center; justify-content: center"><i class="fa-brands fa-weixin"></i></div>
+                            <div style="flex: 1">
+                                <div style="font-size: 13.5px; font-weight: 600">微信支付</div>
+                                <div style="font-size: 11.5px; color: var(--t-tertiary); margin-top: 3px">未绑定 · 仅支持中国大陆地区</div>
+                            </div>
+                            <button class="btn btn-sm">连接</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 订阅自动续费 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#F59E0B,#EC4899)"><i class="fa-solid fa-rotate"></i></div>
+                        <div><h3>订阅自动续费</h3><p>当前 4 个订阅开启了自动续费，可单独管理或一键关闭</p></div>
+                    </div>
+                    <div class="sub-row">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></div>
+                        <div class="info"><div class="n">Lens 旅记</div><div class="m">Premium · 28 USDT/月 · 下次扣款 5 月 15 日</div></div>
+                        <div class="pr">28 USDT</div>
+                        <div class="act"><div class="switch on"></div></div>
+                    </div>
+                    <div class="sub-row">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
+                        <div class="info"><div class="n">夜雨听弦</div><div class="m">VIP · 88 USDT/月 · 下次扣款 5 月 22 日</div></div>
+                        <div class="pr">88 USDT</div>
+                        <div class="act"><div class="switch on"></div></div>
+                    </div>
+                    <div class="sub-row">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80')"></div>
+                        <div class="info"><div class="n">代码诗人</div><div class="m">Free → Premium 试用中 · 5 月 30 日转 18 USDT/月</div></div>
+                        <div class="pr">18 USDT</div>
+                        <div class="act"><div class="switch on"></div></div>
+                    </div>
+                    <div class="sub-row">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=80')"></div>
+                        <div class="info"><div class="n">银盐时代</div><div class="m">Premium · 32 USDT/月 · 下次扣款 6 月 1 日</div></div>
+                        <div class="pr">32 USDT</div>
+                        <div class="act"><div class="switch on"></div></div>
+                    </div>
+                    <div style="display: flex; align-items: center; padding: 14px 22px; gap: 12px; background: var(--bg-elevated); border-top: 1px solid var(--border)">
+                        <span style="font-size: 12.5px; color: var(--t-tertiary)">本月预计扣款总额：<b style="color:#fff">166 USDT</b> · 下个续费日：<b style="color:#fff">5 月 15 日</b></span>
+                        <button class="btn btn-sm btn-ghost" style="color: var(--danger-light); margin-left: auto">全部关闭</button>
+                        <button class="btn btn-sm" onclick="location.href='subscriptions.html'">订阅管理</button>
+                    </div>
+                </div>
+
+                <!-- 默认充提偏好 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#A855F7,#EC4899)"><i class="fa-solid fa-sliders"></i></div>
+                        <div><h3>默认充提偏好</h3><p>每次操作时自动填入这些选项，可在使用时修改</p></div>
+                    </div>
+                    <div class="body">
+                        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; padding: 14px 0; border-bottom: 1px solid var(--border)">
+                            <div style="font-size: 13.5px; font-weight: 600">默认充值方式</div>
+                            <div>
+                                <select style="max-width: 360px">
+                                    <option>USDT 链上充值（推荐 · 0 手续费）</option>
+                                    <option>Visa **** 4321</option>
+                                    <option>Apple Pay</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; padding: 14px 0; border-bottom: 1px solid var(--border)">
+                            <div style="font-size: 13.5px; font-weight: 600">默认充值链网络</div>
+                            <div>
+                                <select style="max-width: 360px">
+                                    <option>Ethereum (ERC-20) · 高 Gas</option>
+                                    <option selected>Polygon (Matic) · 推荐</option>
+                                    <option>BNB Chain (BEP-20)</option>
+                                    <option>Arbitrum One</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; padding: 14px 0; border-bottom: 1px solid var(--border)">
+                            <div style="font-size: 13.5px; font-weight: 600">快捷充值金额</div>
+                            <div>
+                                <div style="display: flex; gap: 6px; flex-wrap: wrap; max-width: 460px">
+                                    <button class="btn btn-sm">10 USDT</button>
+                                    <button class="btn btn-sm" style="background: var(--brand-grad); color:#fff; border: none">50 USDT</button>
+                                    <button class="btn btn-sm">100 USDT</button>
+                                    <button class="btn btn-sm">500 USDT</button>
+                                    <button class="btn btn-sm">1000 USDT</button>
+                                    <button class="btn btn-sm">自定义</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; padding: 14px 0; border-bottom: 1px solid var(--border)">
+                            <div style="font-size: 13.5px; font-weight: 600">默认提现方式</div>
+                            <div>
+                                <select style="max-width: 360px">
+                                    <option>USDT 链上 · 主钱包</option>
+                                    <option>法币 · Visa **** 4321</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; padding: 14px 0">
+                            <div style="font-size: 13.5px; font-weight: 600">小额自动结算<div style="font-size: 11.5px; color: var(--t-tertiary); margin-top: 4px; font-weight: 400">可提现余额 ≥ 100 USDT 时自动提现到主钱包</div></div>
+                            <div>
+                                <div class="switch"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+</body>
+</html>

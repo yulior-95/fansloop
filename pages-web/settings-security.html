@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>账户安全 · 设置 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.set-grid { display: grid; grid-template-columns: 240px 1fr; gap: 24px; }
+@media (max-width: 1100px) { .set-grid { grid-template-columns: 1fr; } .set-nav { display: none; } }
+
+.crumb { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--t-tertiary); margin-bottom: 8px; }
+.crumb a { color: var(--t-secondary); }
+.crumb a:hover { color: #fff; }
+.crumb .curr { color: #fff; font-weight: 600; }
+
+.set-nav { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 80px; align-self: flex-start; }
+.set-nav .group-ti { padding: 14px 12px 6px; font-size: 10px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+.set-nav .nav-item { padding: 10px 12px; border-radius: 8px; font-size: 13px; color: var(--t-secondary); display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.set-nav .nav-item:hover { background: var(--bg-hover); color: #fff; }
+.set-nav .nav-item.active { background: linear-gradient(135deg, rgba(168,85,247,0.16), rgba(236,72,153,0.06)); color: #fff; font-weight: 600; border: 1px solid rgba(168,85,247,0.3); }
+.set-nav .nav-item .ic { width: 24px; height: 24px; border-radius: 6px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: var(--t-tertiary); font-size: 11px; }
+.set-nav .nav-item.active .ic { background: var(--brand-grad); color: #fff; }
+
+.set-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg); margin-bottom: 18px; overflow: hidden; }
+.set-card .ssh { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.set-card .ssh .ic-circle { width: 36px; height: 36px; border-radius: 10px; background: var(--brand-grad); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: var(--shadow-glow); }
+.set-card .ssh h3 { font-size: 15px; font-weight: 700; }
+.set-card .ssh p { font-size: 12px; color: var(--t-tertiary); margin-top: 2px; }
+.set-card .body { padding: 22px; }
+
+/* security score */
+.sec-score-card { background: linear-gradient(135deg, rgba(168,85,247,0.10), rgba(16,185,129,0.06)); border: 1px solid rgba(168,85,247,0.25); border-radius: var(--r-lg); padding: 22px; margin-bottom: 18px; display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center; }
+.sec-ring { width: 130px; height: 130px; position: relative; }
+.sec-ring svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+.sec-ring svg circle { fill: none; stroke-width: 10; stroke-linecap: round; }
+.sec-ring .bg-c { stroke: rgba(255,255,255,0.08); }
+.sec-ring .fg-c { stroke: url(#sgrad); stroke-dasharray: 314; stroke-dashoffset: 56; }
+.sec-ring .num { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.sec-ring .num .v { font-size: 32px; font-weight: 800; letter-spacing: -1px; }
+.sec-ring .num .l { font-size: 10px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: -2px; }
+.sec-info h3 { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+.sec-info p { font-size: 13px; color: var(--t-secondary); margin-bottom: 14px; line-height: 1.55; }
+.sec-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.sec-tags .tg { padding: 5px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+.sec-tags .tg.ok { background: rgba(16,185,129,0.15); color: var(--success-light); border: 1px solid rgba(16,185,129,0.3); }
+.sec-tags .tg.warn { background: rgba(251,191,36,0.15); color: var(--warning-light); border: 1px solid rgba(251,191,36,0.3); }
+.sec-tags .tg.bad { background: rgba(239,68,68,0.15); color: var(--danger-light); border: 1px solid rgba(239,68,68,0.3); }
+
+/* sec rows */
+.sec-row { display: flex; align-items: center; gap: 14px; padding: 16px 22px; border-bottom: 1px solid var(--border); }
+.sec-row:last-child { border-bottom: none; }
+.sec-row .row-ic { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: var(--t-secondary); font-size: 14px; flex-shrink: 0; }
+.sec-row .row-info { flex: 1; min-width: 0; }
+.sec-row .row-info .ti { font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.sec-row .row-info .sub { font-size: 11.5px; color: var(--t-tertiary); margin-top: 3px; line-height: 1.5; }
+.sec-row .row-action { display: flex; align-items: center; gap: 10px; }
+
+/* devices */
+.dev-row { display: flex; align-items: center; gap: 14px; padding: 14px; border-bottom: 1px solid var(--border); }
+.dev-row:last-child { border-bottom: none; }
+.dev-row .dv-ic { width: 44px; height: 44px; border-radius: 10px; background: rgba(168,85,247,0.12); color: #C084FC; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.dev-row .dv-info { flex: 1; min-width: 0; }
+.dev-row .dv-info .nm { font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.dev-row .dv-info .meta { font-size: 11.5px; color: var(--t-tertiary); margin-top: 3px; }
+.dev-row .dv-action button { font-size: 11px; }
+
+/* 2FA methods */
+.fa-method { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; cursor: pointer; }
+.fa-method:hover { border-color: var(--brand-purple); background: rgba(168,85,247,0.04); }
+.fa-method.active { border-color: rgba(168,85,247,0.5); background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.04)); }
+.fa-method .m-ic { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; color: #fff; }
+.fa-method .m-info { flex: 1; min-width: 0; }
+.fa-method .m-info .nm { font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.fa-method .m-info .desc { font-size: 11.5px; color: var(--t-tertiary); margin-top: 3px; line-height: 1.45; }
+.fa-method .m-action { font-size: 12px; color: var(--t-tertiary); }
+
+/* log */
+.log-row { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+.log-row:last-child { border-bottom: none; }
+.log-row .l-ic { width: 30px; height: 30px; border-radius: 8px; background: rgba(255,255,255,0.05); color: var(--t-secondary); font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.log-row .l-ic.success { background: rgba(16,185,129,0.15); color: var(--success-light); }
+.log-row .l-ic.warn { background: rgba(251,191,36,0.15); color: var(--warning-light); }
+.log-row .l-ic.danger { background: rgba(239,68,68,0.15); color: var(--danger-light); }
+.log-row .l-info { flex: 1; }
+.log-row .l-info .ti { font-size: 13px; font-weight: 600; }
+.log-row .l-info .meta { font-size: 11px; color: var(--t-tertiary); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+    <aside class="app-sidebar">
+        <div class="s-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator</span></div>
+        </div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item active" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+        <div class="s-bottom">
+            <div class="s-user">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索创作者、内容或话题…</span><span class="kbd">⌘ K</span></div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i></button>
+            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <div class="crumb">
+                    <a href="settings.html"><i class="fa-solid fa-gear"></i> 设置</a>
+                    <span><i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
+                    <span class="curr">账户安全</span>
+                </div>
+                <h1>账户安全</h1>
+                <p>管理你的密码、二次验证、登录设备和恢复方式。强烈建议同时开启「2FA」与「生物识别」以最大程度保护资产。</p>
+            </div>
+            <div class="ph-r">
+                <button class="btn" onclick="location.href='settings.html'"><i class="fa-solid fa-arrow-left"></i> 返回设置</button>
+            </div>
+        </div>
+
+        <div class="set-grid">
+
+            <!-- 左侧导航 -->
+            <aside class="set-nav">
+                <div class="group-ti">账户</div>
+                <div class="nav-item" onclick="location.href='settings-account.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span>账户资料</span></div>
+                <div class="nav-item active"><span class="ic"><i class="fa-solid fa-shield-halved"></i></span><span>账户安全</span></div>
+                <div class="nav-item" onclick="location.href='settings-wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span>钱包与支付</span></div>
+                <div class="group-ti">体验</div>
+                <div class="nav-item" onclick="location.href='settings-notification.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span>通知偏好</span></div>
+                <div class="nav-item" onclick="location.href='settings-privacy.html'"><span class="ic"><i class="fa-solid fa-user-shield"></i></span><span>隐私设置</span></div>
+                <div class="nav-item" onclick="location.href='settings-display.html'"><span class="ic"><i class="fa-solid fa-palette"></i></span><span>外观语言</span></div>
+                <div class="group-ti">创作者</div>
+                <div class="nav-item"><span class="ic"><i class="fa-solid fa-crown"></i></span><span>会员订阅设置</span></div>
+                <div class="nav-item"><span class="ic"><i class="fa-solid fa-coins"></i></span><span>收益与提现</span></div>
+                <div class="nav-item"><span class="ic"><i class="fa-solid fa-tower-broadcast"></i></span><span>直播配置</span></div>
+            </aside>
+
+            <!-- 主区 -->
+            <div>
+                <!-- 安全评分 -->
+                <div class="sec-score-card">
+                    <div class="sec-ring">
+                        <svg viewBox="0 0 110 110">
+                            <defs>
+                                <linearGradient id="sgrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#10B981"/>
+                                    <stop offset="100%" stop-color="#06B6D4"/>
+                                </linearGradient>
+                            </defs>
+                            <circle class="bg-c" cx="55" cy="55" r="50"/>
+                            <circle class="fg-c" cx="55" cy="55" r="50"/>
+                        </svg>
+                        <div class="num">
+                            <div class="v">82</div>
+                            <div class="l">SCORE</div>
+                        </div>
+                    </div>
+                    <div class="sec-info">
+                        <h3>安全等级：良好 <i class="fa-solid fa-shield-halved" style="color:#10B981; margin-left:6px"></i></h3>
+                        <p>你已开启 2FA、生物识别与提现密码，账户安全状况良好。建议补充<b style="color:#fff">备用恢复邮箱</b>与<b style="color:#fff">硬件安全密钥</b>，将分数提升至 95+ 并解锁「VIP 创作者保险」福利。</p>
+                        <div class="sec-tags">
+                            <span class="tg ok"><i class="fa-solid fa-check"></i> 强密码</span>
+                            <span class="tg ok"><i class="fa-solid fa-check"></i> 2FA 已开启</span>
+                            <span class="tg ok"><i class="fa-solid fa-check"></i> 生物识别</span>
+                            <span class="tg warn"><i class="fa-solid fa-triangle-exclamation"></i> 建议绑定备用邮箱</span>
+                            <span class="tg bad"><i class="fa-solid fa-circle-xmark"></i> 未绑定硬件密钥</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 账户验证方式 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#06B6D4,#3B82F6)"><i class="fa-solid fa-id-badge"></i></div>
+                        <div><h3>账户验证方式</h3><p>验证邮箱与手机用于密码找回与重要操作通知</p></div>
+                    </div>
+                    <div class="sec-row">
+                        <div class="row-ic"><i class="fa-regular fa-envelope"></i></div>
+                        <div class="row-info">
+                            <div class="ti">主邮箱 <span class="tag tag-success">已验证</span></div>
+                            <div class="sub">l***@fansloop.io · 注册时绑定 · 用于密码找回与重要登录通知</div>
+                        </div>
+                        <div class="row-action"><button class="btn btn-sm">修改</button></div>
+                    </div>
+                    <div class="sec-row">
+                        <div class="row-ic"><i class="fa-solid fa-mobile-screen"></i></div>
+                        <div class="row-info">
+                            <div class="ti">手机号 <span class="tag tag-success">已验证</span></div>
+                            <div class="sub">+81 *** **** 8862 · 用于 SMS 二次验证与异常登录警报</div>
+                        </div>
+                        <div class="row-action"><button class="btn btn-sm">修改</button></div>
+                    </div>
+                    <div class="sec-row">
+                        <div class="row-ic"><i class="fa-regular fa-envelope-open"></i></div>
+                        <div class="row-info">
+                            <div class="ti">备用邮箱 <span class="tag tag-warning">未设置</span></div>
+                            <div class="sub">推荐使用与主邮箱不同的服务商以避免单点故障</div>
+                        </div>
+                        <div class="row-action"><button class="btn btn-sm btn-primary">立即添加</button></div>
+                    </div>
+                </div>
+
+                <!-- 密码 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#A855F7,#EC4899)"><i class="fa-solid fa-key"></i></div>
+                        <div><h3>登录密码</h3><p>定期更换密码可显著提升账户安全</p></div>
+                    </div>
+                    <div class="body">
+                        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; margin-bottom: 18px">
+                            <div style="font-size: 13.5px; font-weight: 600">当前密码</div>
+                            <input type="password" value="••••••••••" style="max-width: 360px">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; margin-bottom: 18px">
+                            <div style="font-size: 13.5px; font-weight: 600">新密码<div style="font-size: 11.5px; color: var(--t-tertiary); margin-top: 4px; font-weight: 400">至少 12 字符，含大小写、数字与符号</div></div>
+                            <div style="max-width: 360px">
+                                <input type="password" placeholder="输入新密码">
+                                <div style="display: flex; gap: 4px; margin-top: 8px">
+                                    <div style="flex:1; height:5px; border-radius:3px; background: #10B981"></div>
+                                    <div style="flex:1; height:5px; border-radius:3px; background: #10B981"></div>
+                                    <div style="flex:1; height:5px; border-radius:3px; background: #10B981"></div>
+                                    <div style="flex:1; height:5px; border-radius:3px; background: rgba(255,255,255,0.1)"></div>
+                                </div>
+                                <div style="font-size: 11px; color: var(--success-light); margin-top: 6px"><i class="fa-solid fa-shield-halved"></i> 强 — 破解需 152 年</div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; margin-bottom: 18px">
+                            <div style="font-size: 13.5px; font-weight: 600">确认新密码</div>
+                            <input type="password" placeholder="再次输入新密码" style="max-width: 360px">
+                        </div>
+                        <div style="display: flex; gap: 10px; padding-top: 12px; border-top: 1px solid var(--border)">
+                            <button class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> 修改密码</button>
+                            <button class="btn">取消</button>
+                            <span style="margin-left: auto; font-size: 11.5px; color: var(--t-tertiary); align-self: center"><i class="fa-solid fa-clock"></i> 上次修改：38 天前</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 双因素验证 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#10B981,#06B6D4)"><i class="fa-solid fa-lock"></i></div>
+                        <div><h3>双因素验证 (2FA)</h3><p>登录、提现、修改密码等敏感操作需要二次验证</p></div>
+                    </div>
+                    <div class="body">
+                        <div class="fa-method active">
+                            <div class="m-ic" style="background: linear-gradient(135deg,#10B981,#06B6D4)"><i class="fa-solid fa-mobile-screen-button"></i></div>
+                            <div class="m-info">
+                                <div class="nm">认证器 APP <span class="tag tag-success">主要方式</span></div>
+                                <div class="desc">Google Authenticator / Authy / 1Password · 已配置 2 个设备</div>
+                            </div>
+                            <div class="m-action"><div class="switch on"></div></div>
+                        </div>
+                        <div class="fa-method">
+                            <div class="m-ic" style="background: linear-gradient(135deg,#3B82F6,#06B6D4)"><i class="fa-solid fa-comment-sms"></i></div>
+                            <div class="m-info">
+                                <div class="nm">短信验证 SMS</div>
+                                <div class="desc">+81 *** **** 8862 · 备用方式（建议关闭，SIM 攻击风险）</div>
+                            </div>
+                            <div class="m-action"><div class="switch on"></div></div>
+                        </div>
+                        <div class="fa-method">
+                            <div class="m-ic" style="background: linear-gradient(135deg,#A855F7,#EC4899)"><i class="fa-solid fa-fingerprint"></i></div>
+                            <div class="m-info">
+                                <div class="nm">生物识别（WebAuthn）</div>
+                                <div class="desc">Touch ID / Face ID / Windows Hello · 已注册 1 台 MacBook</div>
+                            </div>
+                            <div class="m-action"><div class="switch on"></div></div>
+                        </div>
+                        <div class="fa-method">
+                            <div class="m-ic" style="background: linear-gradient(135deg,#F59E0B,#EC4899)"><i class="fa-solid fa-key"></i></div>
+                            <div class="m-info">
+                                <div class="nm">硬件安全密钥（YubiKey）</div>
+                                <div class="desc">最高级别保护，推荐用于持有大额资产的创作者 · 未配置</div>
+                            </div>
+                            <div class="m-action"><button class="btn btn-sm btn-primary">添加</button></div>
+                        </div>
+                        <div class="fa-method">
+                            <div class="m-ic" style="background: linear-gradient(135deg,#64748B,#475569)"><i class="fa-solid fa-list-ol"></i></div>
+                            <div class="m-info">
+                                <div class="nm">恢复码</div>
+                                <div class="desc">10 个一次性恢复码，请打印或保存到密码管理器 · 剩余 8 个</div>
+                            </div>
+                            <div class="m-action"><button class="btn btn-sm">查看</button></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 提现安全 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#F59E0B,#EC4899)"><i class="fa-solid fa-coins"></i></div>
+                        <div><h3>提现安全</h3><p>资金类操作的额外保护策略</p></div>
+                    </div>
+                    <div class="sec-row">
+                        <div class="row-ic"><i class="fa-solid fa-key"></i></div>
+                        <div class="row-info">
+                            <div class="ti">提现密码（6 位）</div>
+                            <div class="sub">区别于登录密码，仅用于提现 · 上次修改 12 天前</div>
+                        </div>
+                        <div class="row-action"><button class="btn btn-sm">修改</button></div>
+                    </div>
+                    <div class="sec-row">
+                        <div class="row-ic"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                        <div class="row-info">
+                            <div class="ti">大额提现冷静期</div>
+                            <div class="sub">单笔 ≥ 5000 USDT 时延迟 24 小时，期间可撤销</div>
+                        </div>
+                        <div class="row-action"><div class="switch on"></div></div>
+                    </div>
+                    <div class="sec-row">
+                        <div class="row-ic"><i class="fa-solid fa-list-check"></i></div>
+                        <div class="row-info">
+                            <div class="ti">地址白名单</div>
+                            <div class="sub">仅允许向白名单地址链上提现 · 当前 2 个地址</div>
+                        </div>
+                        <div class="row-action"><button class="btn btn-sm">管理</button></div>
+                    </div>
+                    <div class="sec-row">
+                        <div class="row-ic"><i class="fa-solid fa-envelope"></i></div>
+                        <div class="row-info">
+                            <div class="ti">提现邮件确认</div>
+                            <div class="sub">每次提现都会发送邮件，需点击链接确认</div>
+                        </div>
+                        <div class="row-action"><div class="switch on"></div></div>
+                    </div>
+                </div>
+
+                <!-- 登录设备 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#3B82F6,#A855F7)"><i class="fa-solid fa-laptop"></i></div>
+                        <div><h3>登录设备</h3><p>查看正在登录账户的设备并随时强制下线</p></div>
+                    </div>
+                    <div class="body">
+                        <div class="dev-row">
+                            <div class="dv-ic"><i class="fa-brands fa-apple"></i></div>
+                            <div class="dv-info">
+                                <div class="nm">MacBook Pro 16" · Chrome 138 <span class="tag tag-success">当前设备</span></div>
+                                <div class="meta">日本 · 东京 · 192.168.*.* · 最近活跃 1 分钟前</div>
+                            </div>
+                            <div class="dv-action"><span style="font-size: 11px; color: var(--t-tertiary)">本设备</span></div>
+                        </div>
+                        <div class="dev-row">
+                            <div class="dv-ic"><i class="fa-solid fa-mobile-screen-button"></i></div>
+                            <div class="dv-info">
+                                <div class="nm">iPhone 17 Pro · FansLoop App 2.4.0</div>
+                                <div class="meta">日本 · 横滨 · 4G 移动 · 最近活跃 2 小时前</div>
+                            </div>
+                            <div class="dv-action"><button class="btn btn-sm btn-danger">下线</button></div>
+                        </div>
+                        <div class="dev-row">
+                            <div class="dv-ic"><i class="fa-brands fa-windows"></i></div>
+                            <div class="dv-info">
+                                <div class="nm">Windows 11 · Edge 132</div>
+                                <div class="meta">中国 · 上海 · 联通宽带 · 最近活跃 3 天前 · <span style="color: var(--warning-light)"><i class="fa-solid fa-triangle-exclamation"></i> 异地登录</span></div>
+                            </div>
+                            <div class="dv-action"><button class="btn btn-sm btn-danger">下线</button></div>
+                        </div>
+                        <div style="padding-top: 14px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); margin-top: 6px">
+                            <span style="font-size: 12px; color: var(--t-tertiary)"><i class="fa-solid fa-circle-info"></i> 不在你信任范围内的设备请立即下线并修改密码</span>
+                            <button class="btn btn-danger btn-sm"><i class="fa-solid fa-power-off"></i> 全部下线（除当前）</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 安全日志 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#64748B,#475569)"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                        <div><h3>近期安全活动</h3><p>过去 30 天的关键安全事件，可帮助发现异常行为</p></div>
+                    </div>
+                    <div class="body">
+                        <div class="log-row">
+                            <div class="l-ic success"><i class="fa-solid fa-arrow-right-to-bracket"></i></div>
+                            <div class="l-info">
+                                <div class="ti">从 MacBook Pro 登录</div>
+                                <div class="meta">日本 · 东京 · Chrome 138 · 1 分钟前</div>
+                            </div>
+                        </div>
+                        <div class="log-row">
+                            <div class="l-ic success"><i class="fa-solid fa-coins"></i></div>
+                            <div class="l-info">
+                                <div class="ti">完成 USDT 链上提现 · 218 USDT</div>
+                                <div class="meta">已通过 2FA · 2 小时前</div>
+                            </div>
+                        </div>
+                        <div class="log-row">
+                            <div class="l-ic warn"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <div class="l-info">
+                                <div class="ti">异地登录尝试 - 已阻止</div>
+                                <div class="meta">中国 · 上海 · 未通过 2FA · 已发送邮件警报 · 3 天前</div>
+                            </div>
+                        </div>
+                        <div class="log-row">
+                            <div class="l-ic success"><i class="fa-solid fa-key"></i></div>
+                            <div class="l-info">
+                                <div class="ti">修改提现密码</div>
+                                <div class="meta">从 MacBook Pro · 12 天前</div>
+                            </div>
+                        </div>
+                        <div class="log-row">
+                            <div class="l-ic"><i class="fa-solid fa-mobile-screen"></i></div>
+                            <div class="l-info">
+                                <div class="ti">添加新认证设备 · iPhone 17 Pro</div>
+                                <div class="meta">已通过邮件验证 · 18 天前</div>
+                            </div>
+                        </div>
+                        <div style="text-align: center; padding-top: 12px"><a href="#" style="font-size: 12px; color: var(--brand-purple)">查看全部安全日志 <i class="fa-solid fa-arrow-right" style="font-size: 10px"></i></a></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+</body>
+</html>

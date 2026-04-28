@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>高级搜索 · 账变</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.search-grid { display: grid; grid-template-columns: 320px 1fr; gap: 22px; max-width: 1320px; }
+@media (max-width: 1100px) { .search-grid { grid-template-columns: 1fr; } }
+
+.filter-panel {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 22px;
+}
+.fp-section { padding: 14px 0; border-bottom: 1px solid var(--border); }
+.fp-section:last-child { border-bottom: none; }
+.fp-section h4 { font-size: 12px; font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; }
+.fp-section h4 a { font-size: 11px; color: var(--brand-purple); font-weight: 500; }
+
+.fp-list { display: flex; flex-direction: column; gap: 6px; }
+.fp-row { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; padding: 4px 0; }
+.fp-row .cb {
+    width: 16px; height: 16px;
+    background: var(--bg-input); border: 1px solid var(--border);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    color: transparent; font-size: 9px;
+}
+.fp-row.checked .cb { background: var(--brand-grad); border-color: transparent; color: #fff; }
+.fp-row .cnt { margin-left: auto; font-size: 11px; color: var(--t-tertiary); }
+
+.range-inputs { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; }
+.range-inputs input {
+    background: var(--bg-input); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px; color: #fff;
+    font-size: 12px; outline: none; width: 100%;
+}
+.range-inputs i { color: var(--t-tertiary); }
+
+.search-result-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px;
+    padding: 14px 18px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+}
+.search-result-head .info { font-size: 13px; }
+.search-result-head .info b { color: #fff; font-weight: 700; }
+.search-result-head .info span { color: var(--t-tertiary); }
+
+.tag-chip { padding: 4px 8px; background: var(--bg-input); border-radius: 6px; font-size: 11px; color: var(--t-secondary); display: inline-flex; align-items: center; gap: 5px; margin: 0 4px 4px 0; }
+.tag-chip i { color: var(--t-tertiary); cursor: pointer; }
+
+.result-list .row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--r-md); margin-bottom: 8px;
+    cursor: pointer;
+    transition: 0.15s;
+}
+.result-list .row:hover { border-color: var(--border-strong); transform: translateX(2px); }
+.result-list .row .ic { width: 36px; height: 36px; border-radius: 9px; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+.result-list .row .info { flex: 1; }
+.result-list .row .info .nm { font-size: 13px; font-weight: 600; }
+.result-list .row .info .nm em { background: rgba(168,85,247,0.25); color: #C084FC; padding: 0 3px; border-radius: 3px; font-style: normal; font-weight: 700; }
+.result-list .row .info .meta { font-size: 11.5px; color: var(--t-tertiary); margin-top: 2px; }
+.result-list .row .am { font-size: 14px; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span><span class="chip">+$28</span></div>
+        <div class="s-item active" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+        <div class="s-bottom"><div class="s-user"><div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div><div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div></div></div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索…</span></div>
+        <div class="h-actions"><button class="h-icon"><i class="fa-regular fa-bell"></i></button><div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div></div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <div class="crumb"><a href="transactions.html">账变记录</a><i class="fa-solid fa-chevron-right"></i><span class="curr">高级搜索</span></div>
+                <h1>高级搜索</h1>
+                <p>使用多维度筛选条件快速定位历史交易记录</p>
+            </div>
+            <div class="ph-r">
+                <button class="btn" onclick="location.href='transactions.html'"><i class="fa-solid fa-arrow-left"></i>返回列表</button>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="card" style="padding: 16px 18px; margin-bottom: 18px; display: flex; gap: 10px; align-items: center">
+            <i class="fa-solid fa-magnifying-glass" style="font-size: 16px; color: var(--t-tertiary)"></i>
+            <input type="text" class="input" value="alex" style="border: none; background: transparent; font-size: 16px; padding: 4px 0" placeholder="搜索关键词、订单号、TXID、用户昵称…">
+            <button class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i>搜索</button>
+        </div>
+
+        <div class="search-grid">
+            <!-- 左侧筛选 -->
+            <div class="filter-panel">
+                <div class="fp-section" style="padding-top: 0">
+                    <h4>类型 <a>清空</a></h4>
+                    <div class="fp-list">
+                        <div class="fp-row checked"><div class="cb"><i class="fa-solid fa-check"></i></div><span>收入</span><span class="cnt">86</span></div>
+                        <div class="fp-row"><div class="cb"></div><span>提现</span><span class="cnt">12</span></div>
+                        <div class="fp-row"><div class="cb"></div><span>充值</span><span class="cnt">5</span></div>
+                        <div class="fp-row"><div class="cb"></div><span>消费</span><span class="cnt">8</span></div>
+                        <div class="fp-row"><div class="cb"></div><span>链上转账</span><span class="cnt">17</span></div>
+                    </div>
+                </div>
+
+                <div class="fp-section">
+                    <h4>状态 <a>清空</a></h4>
+                    <div class="fp-list">
+                        <div class="fp-row checked"><div class="cb"><i class="fa-solid fa-check"></i></div><span>已结算</span><span class="cnt">94</span></div>
+                        <div class="fp-row checked"><div class="cb"><i class="fa-solid fa-check"></i></div><span>结算中</span><span class="cnt">8</span></div>
+                        <div class="fp-row"><div class="cb"></div><span>失败 / 退回</span><span class="cnt">3</span></div>
+                    </div>
+                </div>
+
+                <div class="fp-section">
+                    <h4>金额范围（USD）</h4>
+                    <div class="range-inputs">
+                        <input type="text" placeholder="最小" value="0">
+                        <i class="fa-solid fa-minus"></i>
+                        <input type="text" placeholder="最大" value="10000">
+                    </div>
+                </div>
+
+                <div class="fp-section">
+                    <h4>时间范围</h4>
+                    <div class="range-inputs">
+                        <input type="text" value="2026-01-01">
+                        <i class="fa-solid fa-arrow-right"></i>
+                        <input type="text" value="2026-04-25">
+                    </div>
+                    <div style="display: flex; gap: 6px; margin-top: 10px">
+                        <span class="tag-chip">今天</span>
+                        <span class="tag-chip">7 天</span>
+                        <span class="tag-chip">30 天</span>
+                        <span class="tag-chip">自定义</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-top: 14px">
+                    <button class="btn" style="flex: 1">重置</button>
+                    <button class="btn btn-primary" style="flex: 2"><i class="fa-solid fa-filter"></i>应用筛选</button>
+                </div>
+            </div>
+
+            <!-- 右侧结果 -->
+            <div>
+                <div class="search-result-head">
+                    <div class="info">
+                        找到 <b>3</b> 条结果 · 关键词 <span class="t-grad" style="font-weight: 600">"alex"</span>
+                    </div>
+                    <div>
+                        <span class="tag-chip">类型: 收入 <i class="fa-solid fa-xmark"></i></span>
+                        <span class="tag-chip">2026-01 ~ 04 <i class="fa-solid fa-xmark"></i></span>
+                    </div>
+                </div>
+
+                <div class="result-list">
+                    <div class="row" onclick="location.href='transaction-detail.html'">
+                        <div class="ic" style="background: linear-gradient(135deg, #10B981, #059669)"><i class="fa-solid fa-arrow-down"></i></div>
+                        <div class="info">
+                            <div class="nm">订阅收入 · <em>Alex</em> Chen</div>
+                            <div class="meta">订阅 Pro 月度 · 2026-04-25 19:08:32</div>
+                        </div>
+                        <div class="am" style="color: var(--success-light)">+ $10.00</div>
+                    </div>
+                    <div class="row">
+                        <div class="ic" style="background: linear-gradient(135deg, #10B981, #059669)"><i class="fa-solid fa-heart"></i></div>
+                        <div class="info">
+                            <div class="nm">打赏收入 · <em>Alex</em> Chen</div>
+                            <div class="meta">打赏帖子《周末旅行随拍》 · 2026-04-18 14:32:08</div>
+                        </div>
+                        <div class="am" style="color: var(--success-light)">+ $3.00</div>
+                    </div>
+                    <div class="row">
+                        <div class="ic" style="background: linear-gradient(135deg, #10B981, #059669)"><i class="fa-solid fa-star"></i></div>
+                        <div class="info">
+                            <div class="nm">订阅收入 · <em>Alex</em> Chen</div>
+                            <div class="meta">订阅 Pro 月度 · 2026-03-25 19:08:08</div>
+                        </div>
+                        <div class="am" style="color: var(--success-light)">+ $10.00</div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 18px; font-size: 12px; color: var(--t-tertiary)">已显示全部结果</div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

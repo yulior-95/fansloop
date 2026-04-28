@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>法币充值 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.fiat-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; max-width: 1280px; }
+@media (max-width: 1100px) { .fiat-grid { grid-template-columns: 1fr; } }
+
+.method-tabs { display: flex; gap: 10px; margin-bottom: 22px; }
+.mt-card {
+    flex: 1; padding: 18px 20px;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    cursor: pointer; transition: 0.15s;
+    display: flex; align-items: center; gap: 14px;
+}
+.mt-card:hover { border-color: var(--border-strong); }
+.mt-card.active {
+    background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(236,72,153,0.05));
+    border-color: var(--brand-purple);
+}
+.mt-card .ic-big {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; color: #fff; flex-shrink: 0;
+}
+.mt-card.usdt .ic-big { background: linear-gradient(135deg, #26A17B, #1A7A5C); }
+.mt-card.fiat .ic-big { background: linear-gradient(135deg, #3B82F6, #6366F1); }
+.mt-card .info .t { font-size: 14px; font-weight: 700; }
+.mt-card .info .s { font-size: 11.5px; color: var(--t-tertiary); margin-top: 2px; }
+
+.amt-input {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 28px; margin-bottom: 18px;
+}
+.amt-input .lbl { font-size: 12px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+.amt-input .currency-switch {
+    display: inline-flex; gap: 0;
+    background: var(--bg-input); border-radius: 8px; padding: 3px;
+}
+.amt-input .currency-switch span {
+    padding: 5px 12px; font-size: 11px; color: var(--t-tertiary); cursor: pointer; border-radius: 5px; font-weight: 600;
+}
+.amt-input .currency-switch span.on {
+    background: var(--brand-grad); color: #fff;
+}
+
+.amt-input .input-row { display: flex; align-items: baseline; gap: 8px; }
+.amt-input .input-row .currency { font-size: 32px; color: var(--t-secondary); font-weight: 700; }
+.amt-input .input-row input {
+    flex: 1; background: transparent; border: none;
+    font-size: 56px; font-weight: 900; color: #fff;
+    letter-spacing: -1.5px; outline: none;
+    font-variant-numeric: tabular-nums; min-width: 0;
+}
+.amt-input .input-row .unit { font-size: 18px; color: var(--t-tertiary); font-weight: 600; }
+.amt-input .equiv { font-size: 13px; color: var(--t-tertiary); margin-top: 6px; }
+.amt-input .equiv b { color: var(--success-light); }
+
+.preset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 18px; }
+.preset-grid .pst {
+    padding: 12px 0; background: var(--bg-input);
+    border: 1px solid var(--border); border-radius: 8px;
+    text-align: center; cursor: pointer;
+    font-size: 13px; font-weight: 600; transition: 0.15s;
+}
+.preset-grid .pst.active { background: var(--brand-grad); color: #fff; border-color: transparent; }
+
+.bank-card-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 22px 24px; margin-bottom: 18px;
+}
+.bank-card-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 14px; display: flex; justify-content: space-between; }
+.bank-card-card h4 a { font-size: 11px; color: var(--brand-purple); font-weight: 500; }
+
+.card-pick {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 18px;
+    background: var(--bg-input); border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    cursor: pointer; transition: 0.15s;
+}
+.card-pick:hover { border-color: var(--border-strong); }
+.card-pick .bank-logo {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, #C8102E, #8B0000);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 14px; font-weight: 800;
+    flex-shrink: 0;
+}
+.card-pick .info { flex: 1; }
+.card-pick .info .n { font-size: 13.5px; font-weight: 700; }
+.card-pick .info .a { font-size: 11.5px; color: var(--t-tertiary); margin-top: 2px; font-family: ui-monospace, monospace; }
+.card-pick .arr { color: var(--t-tertiary); }
+
+.add-card-btn {
+    width: 100%;
+    padding: 14px;
+    background: rgba(168,85,247,0.06);
+    border: 1.5px dashed rgba(168,85,247,0.3);
+    border-radius: var(--r-md);
+    color: #C084FC;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: 0.15s;
+}
+.add-card-btn:hover { background: rgba(168,85,247,0.1); }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item active" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span><span class="chip">+$28</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+        <div class="s-bottom">
+            <div class="s-user"><div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div><div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div></div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索…</span><span class="kbd">⌘ K</span></div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-regular fa-bell"></i></button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <div class="crumb"><a href="wallet.html">我的钱包</a><i class="fa-solid fa-chevron-right"></i><span class="curr">法币充值</span></div>
+                <h1>法币充值（银行卡）</h1>
+                <p>使用人民币 / 美元，通过 PaySecure 银通国际通道完成快捷充值</p>
+            </div>
+        </div>
+
+        <div class="fiat-grid">
+            <div>
+                <div class="method-tabs">
+                    <div class="mt-card usdt" onclick="location.href='recharge.html'">
+                        <div class="ic-big">₮</div>
+                        <div class="info">
+                            <div class="t">USDT 链上充值</div>
+                            <div class="s">即时到账 · 链上手续费</div>
+                        </div>
+                    </div>
+                    <div class="mt-card fiat active">
+                        <div class="ic-big"><i class="fa-solid fa-credit-card"></i></div>
+                        <div class="info">
+                            <div class="t">法币 / 银行卡 <span class="tag tag-warning">合规通道</span></div>
+                            <div class="s">CNY / USD · 0.5% 通道费</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="amt-input">
+                    <div class="lbl">
+                        <span>充值金额</span>
+                        <div class="currency-switch">
+                            <span>USD</span>
+                            <span class="on">CNY</span>
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <span class="currency">¥</span>
+                        <input type="text" value="1,500.00" />
+                        <span class="unit">CNY</span>
+                    </div>
+                    <div class="equiv">≈ $211.27 ≈ <b>211.27 USDT</b> · 当前汇率 1 USD = ¥7.1 (PaySecure 实时)</div>
+                    <div class="preset-grid">
+                        <div class="pst"><div>¥500</div><div style="font-size:10px;opacity:0.7">≈ $70</div></div>
+                        <div class="pst"><div>¥1,000</div><div style="font-size:10px;opacity:0.7">≈ $141</div></div>
+                        <div class="pst active"><div>¥1,500</div><div style="font-size:10px;opacity:0.7">≈ $211</div></div>
+                        <div class="pst"><div>¥3,000</div><div style="font-size:10px;opacity:0.7">≈ $422</div></div>
+                    </div>
+                </div>
+
+                <!-- 银行卡 -->
+                <div class="bank-card-card">
+                    <h4>选择支付银行卡<a href="recharge-fiat-switch-card.html">管理银行卡 →</a></h4>
+                    <div class="card-pick" onclick="location.href='recharge-fiat-switch-card.html'">
+                        <div class="bank-logo">招</div>
+                        <div class="info">
+                            <div class="n">招商银行 · 储蓄卡</div>
+                            <div class="a">**** **** **** 6618</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right arr"></i>
+                    </div>
+                    <button class="add-card-btn" style="margin-top: 10px" onclick="location.href='recharge-fiat-bind.html'">
+                        <i class="fa-solid fa-plus"></i>添加新银行卡
+                    </button>
+                </div>
+
+                <!-- 摘要 -->
+                <div class="card" style="padding: 22px 24px">
+                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 14px"><i class="fa-solid fa-receipt"></i> 充值摘要</h4>
+                    <div class="kv-list">
+                        <div class="kv-row"><span class="k">充值金额</span><span class="v num">¥1,500.00 ≈ $211.27</span></div>
+                        <div class="kv-row"><span class="k">支付方式</span><span class="v">招商银行 · ****6618</span></div>
+                        <div class="kv-row"><span class="k">通道费 (0.5%)</span><span class="v num">¥7.50</span></div>
+                        <div class="kv-row"><span class="k">汇率锁定时长</span><span class="v">15 分钟</span></div>
+                        <div class="kv-row"><span class="k">预计到账</span><span class="v">1-3 分钟（实时通道）</span></div>
+                        <div class="kv-row" style="border-bottom: none; padding-top: 12px">
+                            <span class="k" style="color:#fff;font-weight:600">实际到账</span>
+                            <span class="v num t-grad" style="font-size: 18px; font-weight: 800">≈ 210.21 USDT</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-block btn-lg" style="margin-top: 18px" onclick="location.href='recharge-fiat-verify.html'">
+                        <i class="fa-solid fa-bolt"></i>下一步：身份认证 + 支付
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <div class="card" style="padding: 22px 24px">
+                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 14px"><i class="fa-solid fa-shield-halved" style="color:#3B82F6"></i> 合规与安全</h4>
+                    <div class="tip-list" style="display:flex; flex-direction:column; gap:10px">
+                        <div style="font-size: 12px; line-height: 1.6">
+                            <div style="display:flex; align-items: flex-start; gap: 8px; padding: 8px 0">
+                                <i class="fa-solid fa-circle-check" style="color: var(--success-light); margin-top: 3px"></i>
+                                <span><b>PaySecure 银通国际</b> · 持牌支付服务商</span>
+                            </div>
+                            <div style="display:flex; align-items: flex-start; gap: 8px; padding: 8px 0">
+                                <i class="fa-solid fa-circle-check" style="color: var(--success-light); margin-top: 3px"></i>
+                                <span>每笔限额 ¥50,000 · 单日累计 ¥200,000</span>
+                            </div>
+                            <div style="display:flex; align-items: flex-start; gap: 8px; padding: 8px 0">
+                                <i class="fa-solid fa-circle-check" style="color: var(--success-light); margin-top: 3px"></i>
+                                <span>支持中国内地 28 家主流银行</span>
+                            </div>
+                            <div style="display:flex; align-items: flex-start; gap: 8px; padding: 8px 0">
+                                <i class="fa-solid fa-circle-check" style="color: var(--success-light); margin-top: 3px"></i>
+                                <span>需通过姓名 + 身份证 + 手机号实名认证</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

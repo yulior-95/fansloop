@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>账变记录 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.tx-toolbar {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: center; margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+.tx-toolbar .search-mini { flex: 1; min-width: 240px; display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bg-input); border-radius: 10px; border: 1px solid var(--border); }
+.tx-toolbar .search-mini i { color: var(--t-tertiary); font-size: 12px; }
+.tx-toolbar .search-mini input { flex: 1; background: transparent; border: none; color: #fff; font-size: 13px; outline: none; }
+
+.tx-toolbar .filter-chips { display: flex; gap: 6px; }
+.tx-toolbar .fc { padding: 7px 12px; font-size: 12px; background: var(--bg-input); border: 1px solid var(--border); color: var(--t-secondary); border-radius: 8px; cursor: pointer; }
+.tx-toolbar .fc.active { background: var(--brand-grad); color: #fff; border-color: transparent; }
+
+.tx-summary {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px;
+}
+.tx-summary .ts {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 18px 22px;
+}
+.tx-summary .ts .lb { font-size: 11px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }
+.tx-summary .ts .v { font-size: 22px; font-weight: 800; margin-top: 6px; font-variant-numeric: tabular-nums; }
+.tx-summary .ts.in .v { color: var(--success-light); }
+.tx-summary .ts.out .v { color: var(--danger-light); }
+.tx-summary .ts .delta { font-size: 11px; color: var(--t-tertiary); margin-top: 3px; }
+@media (max-width: 1100px) { .tx-summary { grid-template-columns: repeat(2, 1fr); } }
+
+.section-pill { display: inline-block; font-size: 11px; padding: 4px 10px; background: var(--bg-input); border-radius: 999px; color: var(--t-tertiary); margin: 16px 0 10px; font-weight: 600; }
+
+.tx-table .table th, .tx-table .table td { padding: 14px 16px; }
+.tx-cell-info { display: flex; gap: 12px; align-items: center; }
+.tx-cell-info .ic { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; flex-shrink: 0; }
+.ic.in { background: linear-gradient(135deg, #10B981, #059669); }
+.ic.out { background: linear-gradient(135deg, #EF4444, #B91C1C); }
+.ic.swap { background: linear-gradient(135deg, #3B82F6, #1E40AF); }
+.ic.fee { background: linear-gradient(135deg, #6B7280, #4B5563); }
+.tx-cell-info .nm { font-size: 13px; font-weight: 600; }
+.tx-cell-info .meta { font-size: 11.5px; color: var(--t-tertiary); margin-top: 2px; }
+
+.amt-pos { color: var(--success-light); font-weight: 700; font-variant-numeric: tabular-nums; }
+.amt-neg { color: var(--danger-light); font-weight: 700; font-variant-numeric: tabular-nums; }
+.amt-neu { color: var(--t-secondary); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.row-action { display: flex; gap: 6px; justify-content: flex-end; }
+.row-action button {
+    width: 30px; height: 30px;
+    background: var(--bg-input); border: 1px solid var(--border);
+    color: var(--t-secondary); border-radius: 8px;
+    cursor: pointer; font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+}
+.row-action button:hover { background: var(--bg-card-2); color: #fff; }
+
+.pagination { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; }
+.pagination .info { font-size: 12px; color: var(--t-tertiary); }
+.pagination .pages { display: flex; gap: 4px; }
+.pagination .pages .pg { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; font-size: 12px; cursor: pointer; }
+.pagination .pages .pg.active { background: var(--brand-grad); border-color: transparent; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span><span class="chip">+$28</span></div>
+        <div class="s-item active" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+        <div class="s-bottom">
+            <div class="s-user"><div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div><div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div></div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索…</span></div>
+        <div class="h-actions"><button class="h-icon"><i class="fa-regular fa-bell"></i></button><div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div></div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <div class="crumb"><a href="wallet.html">我的钱包</a><i class="fa-solid fa-chevron-right"></i><span class="curr">账变记录</span></div>
+                <h1>账变记录</h1>
+                <p>所有收入、提现、充值、消费、链上转账记录 · 实时同步链上数据</p>
+            </div>
+            <div class="ph-r">
+                <button class="btn btn-secondary" onclick="location.href='transactions-search.html'"><i class="fa-solid fa-magnifying-glass"></i>高级搜索</button>
+                <button class="btn btn-secondary" onclick="location.href='transactions-export.html'"><i class="fa-solid fa-file-export"></i>导出</button>
+            </div>
+        </div>
+
+        <div class="tx-summary">
+            <div class="ts in">
+                <div class="lb">本月收入</div>
+                <div class="v">+ $298.40</div>
+                <div class="delta">较上月 ↑ 12.4%</div>
+            </div>
+            <div class="ts out">
+                <div class="lb">本月提现</div>
+                <div class="v">- $200.00</div>
+                <div class="delta">3 笔提现</div>
+            </div>
+            <div class="ts">
+                <div class="lb">本月充值</div>
+                <div class="v">+ $50.00</div>
+                <div class="delta">1 笔充值</div>
+            </div>
+            <div class="ts">
+                <div class="lb">交易笔数</div>
+                <div class="v">128</div>
+                <div class="delta">本月新增</div>
+            </div>
+        </div>
+
+        <div class="tx-toolbar">
+            <div class="search-mini">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input placeholder="按订单号、用户、金额、链上 TXID 搜索…" />
+            </div>
+            <div class="filter-chips">
+                <div class="fc active">全部</div>
+                <div class="fc">收入</div>
+                <div class="fc">支出</div>
+                <div class="fc">充值</div>
+                <div class="fc">提现</div>
+                <div class="fc">链上</div>
+            </div>
+            <button class="btn btn-secondary" style="font-size: 12px"><i class="fa-solid fa-calendar"></i>2026-04</button>
+        </div>
+
+        <div class="section-pill">2026 年 4 月 25 日 · 今日</div>
+
+        <div class="card tx-table" style="padding: 0">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width: 38%">类型 / 备注</th>
+                        <th>金额</th>
+                        <th>状态</th>
+                        <th>时间</th>
+                        <th style="text-align: right">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr onclick="location.href='transaction-detail.html'" style="cursor:pointer">
+                        <td>
+                            <div class="tx-cell-info">
+                                <div class="ic in"><i class="fa-solid fa-arrow-down"></i></div>
+                                <div><div class="nm">订阅收入 · Alex Chen</div><div class="meta">订阅 Pro 月度 · 平台分成 15% 已扣除</div></div>
+                            </div>
+                        </td>
+                        <td><span class="amt-pos">+ $10.00</span></td>
+                        <td><span class="tag tag-success">已结算</span></td>
+                        <td><span class="t-ter fs-12">19:08:32</span></td>
+                        <td><div class="row-action"><button><i class="fa-solid fa-eye"></i></button><button><i class="fa-solid fa-share-nodes"></i></button></div></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="tx-cell-info">
+                                <div class="ic in"><i class="fa-solid fa-heart"></i></div>
+                                <div><div class="nm">打赏收入 · Sophie 🌸</div><div class="meta">打赏帖子《今日穿搭分享》</div></div>
+                            </div>
+                        </td>
+                        <td><span class="amt-pos">+ $5.00</span></td>
+                        <td><span class="tag tag-warning">结算中</span></td>
+                        <td><span class="t-ter fs-12">18:51:08</span></td>
+                        <td><div class="row-action"><button><i class="fa-solid fa-eye"></i></button></div></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="tx-cell-info">
+                                <div class="ic out"><i class="fa-solid fa-arrow-up"></i></div>
+                                <div><div class="nm">提现到银行卡 · 招商 ****6618</div><div class="meta">兑换 ¥3,532.25 已到账</div></div>
+                            </div>
+                        </td>
+                        <td><span class="amt-neg">- $50.00</span></td>
+                        <td><span class="tag tag-success">已到账</span></td>
+                        <td><span class="t-ter fs-12">14:22:18</span></td>
+                        <td><div class="row-action"><button><i class="fa-solid fa-eye"></i></button><button><i class="fa-solid fa-rotate-right"></i></button></div></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="tx-cell-info">
+                                <div class="ic swap"><i class="fa-solid fa-video"></i></div>
+                                <div><div class="nm">直播收入 · Marcus 🚀</div><div class="meta">火箭礼物 ×3</div></div>
+                            </div>
+                        </td>
+                        <td><span class="amt-pos">+ $30.00</span></td>
+                        <td><span class="tag tag-success">已结算</span></td>
+                        <td><span class="t-ter fs-12">12:08:45</span></td>
+                        <td><div class="row-action"><button><i class="fa-solid fa-eye"></i></button></div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section-pill">2026 年 4 月 24 日 · 昨天</div>
+
+        <div class="card tx-table" style="padding: 0">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <td style="width: 38%">
+                            <div class="tx-cell-info">
+                                <div class="ic in"><i class="fa-solid fa-star"></i></div>
+                                <div><div class="nm">订阅收入 · Diana 💜</div><div class="meta">订阅了「年度会员」</div></div>
+                            </div>
+                        </td>
+                        <td><span class="amt-pos">+ $96.00</span></td>
+                        <td><span class="tag tag-success">已结算</span></td>
+                        <td><span class="t-ter fs-12">22:14:08</span></td>
+                        <td style="text-align: right"><div class="row-action"><button><i class="fa-solid fa-eye"></i></button></div></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="tx-cell-info">
+                                <div class="ic out"><i class="fa-solid fa-link"></i></div>
+                                <div><div class="nm">链上转账 · USDT-TRC20</div><div class="meta">TG3X…aSJozs · TXID: 0x8a7…f29e</div></div>
+                            </div>
+                        </td>
+                        <td><span class="amt-neg">- 199.00</span></td>
+                        <td><span class="tag tag-success">已确认</span></td>
+                        <td><span class="t-ter fs-12">16:32:08</span></td>
+                        <td style="text-align: right"><div class="row-action"><button><i class="fa-solid fa-up-right-from-square"></i></button></div></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="tx-cell-info">
+                                <div class="ic in"><i class="fa-solid fa-credit-card"></i></div>
+                                <div><div class="nm">法币充值 · 招商 ****6618</div><div class="meta">¥710 → 100 USDT</div></div>
+                            </div>
+                        </td>
+                        <td><span class="amt-pos">+ 100.00</span></td>
+                        <td><span class="tag tag-success">已到账</span></td>
+                        <td><span class="t-ter fs-12">10:18:46</span></td>
+                        <td style="text-align: right"><div class="row-action"><button><i class="fa-solid fa-eye"></i></button></div></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <div class="info">显示 1-7 条 · 共 128 条记录</div>
+                <div class="pages">
+                    <div class="pg"><i class="fa-solid fa-chevron-left"></i></div>
+                    <div class="pg active">1</div>
+                    <div class="pg">2</div>
+                    <div class="pg">3</div>
+                    <div class="pg">…</div>
+                    <div class="pg">19</div>
+                    <div class="pg"><i class="fa-solid fa-chevron-right"></i></div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

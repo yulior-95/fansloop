@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>发起申诉</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+body { background: var(--bg-app); }
+.modal-mask { background: rgba(0,0,0,0.7); }
+.modal { max-width: 580px; }
+
+.appeal-hero {
+    background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.03));
+    border: 1px solid rgba(245,158,11,0.25);
+    border-radius: var(--r-md);
+    padding: 16px;
+    display: flex; gap: 14px; align-items: flex-start;
+    margin-bottom: 18px;
+}
+.appeal-hero .ic-h { width: 42px; height: 42px; border-radius: 10px; background: linear-gradient(135deg, #F59E0B, #D97706); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.appeal-hero .info .ti { font-size: 14px; font-weight: 700; }
+.appeal-hero .info .desc { font-size: 12px; color: var(--t-secondary); margin-top: 4px; line-height: 1.6; }
+
+.reason-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.reason-grid .r-card {
+    padding: 12px;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    transition: 0.15s;
+}
+.reason-grid .r-card:hover { border-color: var(--border-strong); }
+.reason-grid .r-card.active {
+    border-color: var(--brand-purple);
+    background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.04));
+}
+.reason-grid .r-card .ic-r { width: 30px; height: 30px; border-radius: 8px; background: var(--bg-card-2); color: var(--brand-purple); display: flex; align-items: center; justify-content: center; font-size: 12px; }
+.reason-grid .r-card .nm { font-size: 12.5px; font-weight: 600; }
+
+.upload-zone {
+    padding: 22px;
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--r-md);
+    text-align: center;
+    cursor: pointer;
+    transition: 0.15s;
+}
+.upload-zone:hover { border-color: var(--brand-purple); background: rgba(168,85,247,0.04); }
+.upload-zone i { font-size: 22px; color: var(--brand-purple); margin-bottom: 6px; }
+.upload-zone .ti { font-size: 13px; font-weight: 600; }
+.upload-zone .desc { font-size: 11px; color: var(--t-tertiary); margin-top: 3px; }
+
+.upload-list { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.upload-item {
+    width: 64px; height: 64px;
+    border-radius: 8px;
+    background-size: cover; background-position: center;
+    position: relative;
+    border: 1px solid var(--border);
+}
+.upload-item .x {
+    position: absolute; top: -6px; right: -6px;
+    width: 18px; height: 18px;
+    background: var(--danger);
+    border-radius: 50%;
+    color: #fff; font-size: 9px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="modal-mask">
+    <div class="modal">
+        <div class="modal-head">
+            <h2 style="font-size: 16px"><span class="ic"><i class="fa-solid fa-gavel"></i></span>发起交易申诉
+                <span class="sub">订单 TXN20260425190832 · 我们将在 24 小时内回复</span>
+            </h2>
+            <button class="close" onclick="location.href='transaction-detail.html'"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="modal-body">
+            <div class="appeal-hero">
+                <div class="ic-h"><i class="fa-solid fa-circle-info"></i></div>
+                <div class="info">
+                    <div class="ti">在申诉前请先尝试沟通</div>
+                    <div class="desc">大部分交易问题可以通过私信对方快速解决。申诉一旦提交将由风控团队介入，期间相关资金将临时冻结。</div>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="field-label">申诉类型 <span class="req">*</span></label>
+                <div class="reason-grid">
+                    <div class="r-card active"><div class="ic-r"><i class="fa-solid fa-money-bill-wave"></i></div><div class="nm">未收到款项</div></div>
+                    <div class="r-card"><div class="ic-r"><i class="fa-solid fa-rotate-left"></i></div><div class="nm">订单异常 / 重复</div></div>
+                    <div class="r-card"><div class="ic-r"><i class="fa-solid fa-coins"></i></div><div class="nm">金额错误</div></div>
+                    <div class="r-card"><div class="ic-r"><i class="fa-solid fa-user-secret"></i></div><div class="nm">疑似欺诈</div></div>
+                    <div class="r-card"><div class="ic-r"><i class="fa-solid fa-image"></i></div><div class="nm">内容侵权</div></div>
+                    <div class="r-card"><div class="ic-r"><i class="fa-solid fa-comment"></i></div><div class="nm">其他原因</div></div>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="field-label">详细描述 <span class="req">*</span> <span style="font-size: 11px; color: var(--t-tertiary); font-weight: 400">请尽可能详细描述问题</span></label>
+                <textarea class="input" rows="4" placeholder="请描述具体问题，例如：&#10;1. 该订单显示已支付，但我未在钱包余额中看到对应入账&#10;2. 已确认链上交易状态为成功&#10;3. 截图见附件…">该订单链上显示已确认 28/12，但平台未给我入账，希望平台核查并尽快补入账。</textarea>
+                <div class="field-help" style="margin-top: 6px; display: flex; justify-content: space-between"><span>0 / 500</span><span style="color: var(--t-tertiary)">支持 Markdown 格式</span></div>
+            </div>
+
+            <div class="field">
+                <label class="field-label">证据材料 <span style="font-size: 11px; color: var(--t-tertiary); font-weight: 400">最多 6 张图片，单张 ≤ 5MB</span></label>
+                <div class="upload-zone">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <div class="ti">点击或拖拽上传证据截图</div>
+                    <div class="desc">支持 JPG / PNG / WEBP · 链上交易截图、聊天记录、收据等</div>
+                </div>
+                <div class="upload-list">
+                    <div class="upload-item" style="background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?w=200')">
+                        <div class="x"><i class="fa-solid fa-xmark"></i></div>
+                    </div>
+                    <div class="upload-item" style="background-image: url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=200')">
+                        <div class="x"><i class="fa-solid fa-xmark"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="field-label">联系方式（可选）</label>
+                <input class="input" placeholder="邮箱 / Telegram / Discord，便于客服与你沟通" value="luna_creator@example.com">
+            </div>
+
+            <div class="notice notice-info">
+                <i class="fa-solid fa-circle-info ni"></i>
+                <span>申诉提交后会自动生成工单。处理时长通常为 24-48 小时。期间请保留所有证据材料。</span>
+            </div>
+        </div>
+
+        <div class="modal-foot">
+            <button class="btn" onclick="location.href='transaction-detail.html'">取消</button>
+            <button class="btn btn-primary" onclick="location.href='transaction-detail.html'">
+                <i class="fa-solid fa-paper-plane"></i>提交申诉
+            </button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

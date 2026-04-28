@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>发现 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.disc-hero {
+    position: relative;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    margin-bottom: 22px;
+    height: 220px;
+    background: url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1600&q=80') center/cover;
+}
+.disc-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(168,85,247,0.55), rgba(236,72,153,0.4) 50%, rgba(0,0,0,0.6));
+}
+.disc-hero .content {
+    position: relative;
+    z-index: 2;
+    padding: 32px;
+    height: 100%;
+    display: flex; flex-direction: column; justify-content: center;
+    max-width: 600px;
+}
+.disc-hero h1 { font-size: 32px; font-weight: 900; color: #fff; letter-spacing: -0.6px; margin-bottom: 8px; }
+.disc-hero p { color: rgba(255,255,255,0.85); font-size: 14px; max-width: 420px; line-height: 1.5; margin-bottom: 16px; }
+.disc-hero .search-big {
+    width: 100%; max-width: 480px;
+    height: 50px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(20px);
+    border: 1.5px solid rgba(255,255,255,0.25);
+    border-radius: var(--r-md);
+    padding: 0 18px 0 46px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    position: relative;
+}
+.disc-hero .search-wrap { position: relative; }
+.disc-hero .search-wrap i {
+    position: absolute;
+    left: 16px; top: 50%; transform: translateY(-50%);
+    color: rgba(255,255,255,0.6);
+}
+
+.cat-row {
+    display: flex; gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 22px;
+}
+.cat-row::-webkit-scrollbar { height: 0; }
+.cat-pill {
+    padding: 9px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 12.5px;
+    color: var(--t-secondary);
+    white-space: nowrap;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+}
+.cat-pill:hover { background: var(--bg-input-focus); }
+.cat-pill.active {
+    background: var(--brand-grad);
+    color: #fff;
+    border-color: transparent;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(168,85,247,0.3);
+}
+.cat-pill .ico {
+    width: 18px; height: 18px;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+}
+
+.section-head {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 16px;
+}
+.section-head h3 { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
+.section-head h3 .ic-circle {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(236,72,153,0.1));
+    border: 1px solid rgba(168,85,247,0.3);
+    color: #C084FC;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+}
+.section-head .more { font-size: 12px; color: var(--brand-purple); }
+
+/* Trending creators row */
+.creators-rail {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 32px;
+}
+.creator-tile {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    transition: 0.2s;
+    cursor: pointer;
+}
+.creator-tile:hover { transform: translateY(-3px); border-color: var(--border-strong); box-shadow: var(--shadow-md); }
+.creator-tile .tile-cover { height: 80px; background-size: cover; background-position: center; position: relative; }
+.creator-tile .tile-cover::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.5));
+}
+.creator-tile .tile-av {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background-size: cover; background-position: center;
+    border: 3px solid var(--bg-card);
+    margin: -28px auto 0;
+    display: block;
+    position: relative;
+    z-index: 2;
+}
+.creator-tile .body { padding: 8px 14px 14px; text-align: center; }
+.creator-tile .body .name { font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 5px; }
+.creator-tile .body .name .verify { color: #3B82F6; font-size: 10px; }
+.creator-tile .body .handle { font-size: 11px; color: var(--t-tertiary); margin-bottom: 8px; }
+.creator-tile .body .stats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    margin: 10px 0 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+}
+.creator-tile .body .stats .stat-box .v { font-size: 13px; font-weight: 800; }
+.creator-tile .body .stats .stat-box .k { font-size: 9px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.3px; }
+.creator-tile .body button {
+    width: 100%; height: 32px;
+    border-radius: 8px;
+    background: var(--brand-grad);
+    color: #fff; font-size: 12px; font-weight: 700;
+    box-shadow: 0 4px 10px rgba(168,85,247,0.25);
+}
+
+/* Content masonry */
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 32px;
+}
+.content-tile {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    cursor: pointer;
+    transition: 0.2s;
+    position: relative;
+}
+.content-tile:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+.content-tile .ct-cover {
+    height: 220px;
+    background-size: cover; background-position: center;
+    position: relative;
+}
+.content-tile .ct-cover::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.7));
+}
+.content-tile.tall .ct-cover { height: 320px; }
+.content-tile .ct-tags {
+    position: absolute; top: 10px; left: 10px;
+    display: flex; gap: 5px; z-index: 2;
+}
+.content-tile .ct-tags .tg {
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    backdrop-filter: blur(10px);
+    background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; gap: 4px;
+}
+.content-tile .ct-tags .tg.live { background: #EF4444; }
+.content-tile .ct-tags .tg.premium { background: linear-gradient(135deg, #F59E0B, #EC4899); }
+.content-tile .ct-meta {
+    position: absolute; bottom: 12px; left: 12px; right: 12px;
+    color: #fff; z-index: 2;
+}
+.content-tile .ct-meta .ct-title { font-size: 13px; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
+.content-tile .ct-meta .ct-author { display: flex; align-items: center; gap: 6px; font-size: 10px; color: rgba(255,255,255,0.8); }
+.content-tile .ct-meta .ct-author .av { width: 18px; height: 18px; border-radius: 50%; background-size: cover; }
+.content-tile .ct-stats {
+    padding: 10px 12px;
+    display: flex; gap: 16px;
+    font-size: 11px;
+    color: var(--t-tertiary);
+}
+.content-tile .ct-stats span { display: flex; align-items: center; gap: 4px; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator</span></div>
+        </div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item active" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span><span class="chip">+$28</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+        <div class="s-bottom">
+            <div class="s-user">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div>
+                <i class="fa-solid fa-ellipsis-vertical more"></i>
+            </div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span>搜索创作者、内容或话题…</span>
+            <span class="kbd">⌘ K</span>
+        </div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i><span class="dot"></span></button>
+            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+
+        <div class="disc-hero">
+            <div class="content">
+                <h1>发现你的<br>下一个心动创作者</h1>
+                <p>2.4M+ 创作者 · 12 大领域 · 你想找的，FansLoop 一定有</p>
+                <div class="search-wrap">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" class="search-big" placeholder="搜索 摄影 / 旅行 / 音乐 / 创作者…" />
+                </div>
+            </div>
+        </div>
+
+        <div class="cat-row">
+            <span class="cat-pill active"><span class="ico">🔥</span>全部</span>
+            <span class="cat-pill"><span class="ico">📷</span>摄影</span>
+            <span class="cat-pill"><span class="ico">🎬</span>影视</span>
+            <span class="cat-pill"><span class="ico">🎵</span>音乐</span>
+            <span class="cat-pill"><span class="ico">🎮</span>游戏</span>
+            <span class="cat-pill"><span class="ico">🎨</span>绘画</span>
+            <span class="cat-pill"><span class="ico">✈️</span>旅行</span>
+            <span class="cat-pill"><span class="ico">🍽️</span>美食</span>
+            <span class="cat-pill"><span class="ico">💪</span>健身</span>
+            <span class="cat-pill"><span class="ico">📖</span>读书</span>
+            <span class="cat-pill"><span class="ico">💻</span>科技</span>
+            <span class="cat-pill"><span class="ico">👗</span>时尚</span>
+        </div>
+
+        <!-- 热门创作者 -->
+        <div class="section-head">
+            <h3><span class="ic-circle"><i class="fa-solid fa-fire"></i></span>本周热门创作者</h3>
+            <a class="more" href="#">查看全部 →</a>
+        </div>
+        <div class="creators-rail">
+            <div class="creator-tile">
+                <div class="tile-cover" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400')"></div>
+                <div class="tile-av" style="background-image: url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=120')"></div>
+                <div class="body">
+                    <div class="name">山野食光 <i class="fa-solid fa-circle-check verify"></i></div>
+                    <div class="handle">@yamano · 摄影 · 旅行</div>
+                    <div class="stats">
+                        <div class="stat-box"><div class="v">28k</div><div class="k">粉丝</div></div>
+                        <div class="stat-box"><div class="v">142</div><div class="k">作品</div></div>
+                        <div class="stat-box"><div class="v">98%</div><div class="k">活跃度</div></div>
+                    </div>
+                    <button>+ 关注</button>
+                </div>
+            </div>
+            <div class="creator-tile">
+                <div class="tile-cover" style="background-image: url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400')"></div>
+                <div class="tile-av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120')"></div>
+                <div class="body">
+                    <div class="name">Lens 旅记 <i class="fa-solid fa-circle-check verify"></i></div>
+                    <div class="handle">@lensjourney · 旅行</div>
+                    <div class="stats">
+                        <div class="stat-box"><div class="v">64k</div><div class="k">粉丝</div></div>
+                        <div class="stat-box"><div class="v">312</div><div class="k">作品</div></div>
+                        <div class="stat-box"><div class="v">88%</div><div class="k">活跃度</div></div>
+                    </div>
+                    <button>+ 关注</button>
+                </div>
+            </div>
+            <div class="creator-tile">
+                <div class="tile-cover" style="background-image: url('https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=400')"></div>
+                <div class="tile-av" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120')"></div>
+                <div class="body">
+                    <div class="name">夜雨听弦 <i class="fa-solid fa-circle-check verify"></i></div>
+                    <div class="handle">@nightrain · 音乐</div>
+                    <div class="stats">
+                        <div class="stat-box"><div class="v">42k</div><div class="k">粉丝</div></div>
+                        <div class="stat-box"><div class="v">86</div><div class="k">作品</div></div>
+                        <div class="stat-box"><div class="v">95%</div><div class="k">活跃度</div></div>
+                    </div>
+                    <button>+ 关注</button>
+                </div>
+            </div>
+            <div class="creator-tile">
+                <div class="tile-cover" style="background-image: url('https://images.unsplash.com/photo-1542435503-956c469947f6?w=400')"></div>
+                <div class="tile-av" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=120')"></div>
+                <div class="body">
+                    <div class="name">代码诗人 <i class="fa-solid fa-circle-check verify"></i></div>
+                    <div class="handle">@codepoet · 科技</div>
+                    <div class="stats">
+                        <div class="stat-box"><div class="v">38k</div><div class="k">粉丝</div></div>
+                        <div class="stat-box"><div class="v">204</div><div class="k">作品</div></div>
+                        <div class="stat-box"><div class="v">92%</div><div class="k">活跃度</div></div>
+                    </div>
+                    <button>+ 关注</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 精选内容 -->
+        <div class="section-head">
+            <h3><span class="ic-circle"><i class="fa-solid fa-sparkles"></i></span>为你精选</h3>
+            <a class="more" href="#">换一批 →</a>
+        </div>
+        <div class="content-grid">
+
+            <div class="content-tile tall" onclick="location.href='home.html'">
+                <div class="ct-cover" style="background-image: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=600&q=80')">
+                    <div class="ct-tags">
+                        <span class="tg premium"><i class="fa-solid fa-crown"></i>PREMIUM</span>
+                    </div>
+                    <div class="ct-meta">
+                        <div class="ct-title">京都樱花季隐秘机位 · 18 张原图</div>
+                        <div class="ct-author">
+                            <span class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></span>
+                            Lens 旅记 · @lensjourney
+                        </div>
+                    </div>
+                </div>
+                <div class="ct-stats">
+                    <span><i class="fa-solid fa-heart"></i> 2.4k</span>
+                    <span><i class="fa-regular fa-comment"></i> 312</span>
+                    <span><i class="fa-solid fa-eye"></i> 18k</span>
+                </div>
+            </div>
+
+            <div class="content-tile">
+                <div class="ct-cover" style="background-image: url('https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=600&q=80')">
+                    <div class="ct-tags">
+                        <span class="tg live">● LIVE</span>
+                    </div>
+                    <div class="ct-meta">
+                        <div class="ct-title">雨夜小提琴现场 · 1,284 观看</div>
+                        <div class="ct-author">
+                            <span class="av" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></span>
+                            夜雨听弦
+                        </div>
+                    </div>
+                </div>
+                <div class="ct-stats">
+                    <span><i class="fa-solid fa-eye"></i> 1,284 直播观看</span>
+                    <span style="color: #EF4444"><i class="fa-solid fa-circle"></i> 直播中</span>
+                </div>
+            </div>
+
+            <div class="content-tile">
+                <div class="ct-cover" style="background-image: url('https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=600&q=80')">
+                    <div class="ct-meta">
+                        <div class="ct-title">富士山五合目零下 4℃ 拍摄手记</div>
+                        <div class="ct-author">
+                            <span class="av" style="background-image: url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=80')"></span>
+                            山野食光
+                        </div>
+                    </div>
+                </div>
+                <div class="ct-stats">
+                    <span><i class="fa-solid fa-heart"></i> 2.1k</span>
+                    <span><i class="fa-regular fa-comment"></i> 342</span>
+                    <span><i class="fa-solid fa-eye"></i> 14k</span>
+                </div>
+            </div>
+
+            <div class="content-tile">
+                <div class="ct-cover" style="background-image: url('https://images.unsplash.com/photo-1542435503-956c469947f6?w=600&q=80')">
+                    <div class="ct-meta">
+                        <div class="ct-title">从 0 到 1 学会写一首钢琴曲</div>
+                        <div class="ct-author">
+                            <span class="av" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80')"></span>
+                            音乐工作室
+                        </div>
+                    </div>
+                </div>
+                <div class="ct-stats">
+                    <span><i class="fa-solid fa-heart"></i> 1.2k</span>
+                    <span><i class="fa-regular fa-comment"></i> 89</span>
+                    <span><i class="fa-solid fa-eye"></i> 8.2k</span>
+                </div>
+            </div>
+
+            <div class="content-tile tall">
+                <div class="ct-cover" style="background-image: url('https://images.unsplash.com/photo-1493612276216-ee3925520721?w=600&q=80')">
+                    <div class="ct-tags">
+                        <span class="tg premium"><i class="fa-solid fa-crown"></i>PREMIUM</span>
+                    </div>
+                    <div class="ct-meta">
+                        <div class="ct-title">咖啡店主的 30 天生活观察</div>
+                        <div class="ct-author">
+                            <span class="av" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></span>
+                            咖啡店主
+                        </div>
+                    </div>
+                </div>
+                <div class="ct-stats">
+                    <span><i class="fa-solid fa-heart"></i> 968</span>
+                    <span><i class="fa-regular fa-comment"></i> 124</span>
+                    <span><i class="fa-solid fa-eye"></i> 5.6k</span>
+                </div>
+            </div>
+
+            <div class="content-tile">
+                <div class="ct-cover" style="background-image: url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80')">
+                    <div class="ct-meta">
+                        <div class="ct-title">环游 Vlog #023 · 北海道冬日</div>
+                        <div class="ct-author">
+                            <span class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></span>
+                            Lens 旅记
+                        </div>
+                    </div>
+                </div>
+                <div class="ct-stats">
+                    <span><i class="fa-solid fa-heart"></i> 1.8k</span>
+                    <span><i class="fa-regular fa-comment"></i> 240</span>
+                    <span><i class="fa-solid fa-video"></i> 12 分钟</span>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+</div>
+
+</body>
+</html>

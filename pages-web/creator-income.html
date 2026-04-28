@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>创作者收入 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.income-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; max-width: 1400px; margin-bottom: 22px; }
+@media (max-width: 1100px) { .income-grid { grid-template-columns: 1fr; } }
+
+.total-card {
+    background: linear-gradient(135deg, #6D28D9 0%, #BE185D 50%, #F59E0B 100%);
+    border-radius: var(--r-xl);
+    padding: 30px 32px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+.total-card::before {
+    content: ''; position: absolute; right: -60px; top: -60px;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%);
+    border-radius: 50%;
+}
+.total-card::after {
+    content: ''; position: absolute; left: -40px; bottom: -80px;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1), transparent 70%);
+    border-radius: 50%;
+}
+.total-card .lb { font-size: 12px; letter-spacing: 0.6px; text-transform: uppercase; opacity: 0.85; font-weight: 600; position: relative; z-index: 2; }
+.total-card .num { font-size: 52px; font-weight: 900; letter-spacing: -1.5px; margin: 10px 0 6px; position: relative; z-index: 2; line-height: 1; }
+.total-card .num span { font-size: 22px; opacity: 0.85; margin-left: 6px; font-weight: 700; }
+.total-card .equiv { font-size: 13px; opacity: 0.85; position: relative; z-index: 2; }
+.total-card .deltas { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.2); position: relative; z-index: 2; }
+.total-card .delta { }
+.total-card .delta .l { font-size: 11px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }
+.total-card .delta .v { font-size: 22px; font-weight: 800; margin-top: 4px; }
+.total-card .delta .v small { font-size: 11px; font-weight: 600; opacity: 0.85; margin-left: 4px; }
+
+.withdraw-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--r-xl); padding: 26px 28px;
+    display: flex; flex-direction: column; justify-content: space-between;
+}
+.withdraw-card .top .lb { font-size: 11px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.withdraw-card .top .v { font-size: 32px; font-weight: 900; letter-spacing: -0.8px; margin: 6px 0 4px; }
+.withdraw-card .top .v small { font-size: 14px; color: var(--t-tertiary); margin-left: 4px; }
+.withdraw-card .top .equiv { font-size: 12px; color: var(--success-light); font-weight: 600; }
+.withdraw-card .pending {
+    margin: 14px 0 16px;
+    padding: 10px 12px;
+    background: rgba(245,158,11,0.08);
+    border-left: 3px solid var(--warning);
+    border-radius: 6px;
+    font-size: 11.5px; color: var(--warning-light); line-height: 1.5;
+}
+.withdraw-card .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.dist-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 24px 26px; margin-bottom: 22px;
+}
+.dist-card .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.dist-card .head h3 { font-size: 15px; font-weight: 700; }
+.dist-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.dist-row .left { display: flex; align-items: center; gap: 10px; flex: 1; }
+.dist-row .ic-d { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; }
+.dist-row.sub .ic-d { background: linear-gradient(135deg, #A855F7, #7E22CE); }
+.dist-row.tip .ic-d { background: linear-gradient(135deg, #EC4899, #BE185D); }
+.dist-row.live .ic-d { background: linear-gradient(135deg, #10B981, #059669); }
+.dist-row.ppv .ic-d { background: linear-gradient(135deg, #3B82F6, #1E40AF); }
+.dist-row.gift .ic-d { background: linear-gradient(135deg, #F59E0B, #D97706); }
+.dist-row .nm { font-size: 13px; font-weight: 600; }
+.dist-row .pc { font-size: 11px; color: var(--t-tertiary); margin-top: 1px; }
+.dist-row .right { text-align: right; min-width: 110px; }
+.dist-row .am { font-size: 14px; font-weight: 700; }
+.dist-row .pcc { font-size: 11px; color: var(--t-tertiary); }
+.dist-bar { height: 6px; background: var(--bg-input); border-radius: 999px; overflow: hidden; margin-top: 6px; }
+.dist-bar .fill { height: 100%; border-radius: 999px; }
+.dist-row.sub .fill { background: linear-gradient(90deg, #A855F7, #7E22CE); width: 50%; }
+.dist-row.tip .fill { background: linear-gradient(90deg, #EC4899, #BE185D); width: 28%; }
+.dist-row.live .fill { background: linear-gradient(90deg, #10B981, #059669); width: 14%; }
+.dist-row.ppv .fill { background: linear-gradient(90deg, #3B82F6, #1E40AF); width: 6%; }
+.dist-row.gift .fill { background: linear-gradient(90deg, #F59E0B, #D97706); width: 2%; }
+
+.chart-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 24px 26px; margin-bottom: 22px;
+}
+.chart-card .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.chart-card .head h3 { font-size: 15px; font-weight: 700; }
+.chart-tabs { display: flex; gap: 4px; padding: 3px; background: var(--bg-input); border-radius: 8px; }
+.chart-tabs .ct { padding: 6px 12px; font-size: 11.5px; color: var(--t-tertiary); border-radius: 5px; cursor: pointer; font-weight: 600; }
+.chart-tabs .ct.active { background: var(--brand-grad); color: #fff; }
+
+.chart-stage {
+    height: 240px; position: relative;
+    background: linear-gradient(to top, rgba(168,85,247,0.06), transparent);
+    border-radius: var(--r-md);
+    padding: 14px;
+}
+.chart-svg { width: 100%; height: 100%; }
+.chart-x { display: flex; justify-content: space-between; padding: 8px 14px 0; font-size: 10.5px; color: var(--t-tertiary); }
+
+.list-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 24px 26px;
+}
+.list-card .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.list-card .head h3 { font-size: 15px; font-weight: 700; }
+.fl-tabs { display: flex; gap: 8px; padding: 3px; background: var(--bg-input); border-radius: 8px; }
+.fl-tabs .ft { padding: 6px 12px; font-size: 11.5px; color: var(--t-tertiary); border-radius: 5px; cursor: pointer; }
+.fl-tabs .ft.active { background: var(--brand-grad); color: #fff; }
+
+.income-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+}
+.income-row:last-child { border-bottom: none; }
+.income-row .av { width: 38px; height: 38px; border-radius: 50%; background-size: cover; background-position: center; flex-shrink: 0; }
+.income-row .info { flex: 1; }
+.income-row .info .nm { font-size: 13px; font-weight: 600; }
+.income-row .info .nm .tag { font-size: 9.5px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; vertical-align: 1px; font-weight: 600; }
+.income-row .info .nm .tag.sub { background: rgba(168,85,247,0.18); color: #C084FC; }
+.income-row .info .nm .tag.tip { background: rgba(236,72,153,0.18); color: #F9A8D4; }
+.income-row .info .nm .tag.live { background: rgba(16,185,129,0.18); color: var(--success-light); }
+.income-row .info .meta { font-size: 11.5px; color: var(--t-tertiary); margin-top: 2px; }
+.income-row .right { text-align: right; }
+.income-row .right .am { font-size: 14px; font-weight: 700; color: var(--success-light); font-variant-numeric: tabular-nums; }
+.income-row .right .stt { font-size: 10.5px; color: var(--t-tertiary); margin-top: 2px; }
+
+.note-card { background: linear-gradient(135deg, rgba(245,158,11,0.06), rgba(245,158,11,0.02)); border: 1px solid rgba(245,158,11,0.2); border-radius: var(--r-lg); padding: 20px 22px; }
+.note-card h4 { font-size: 13px; font-weight: 700; color: var(--warning-light); margin-bottom: 8px; }
+.note-card p { font-size: 12px; color: var(--t-secondary); line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item active" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span><span class="chip">+$28</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+        <div class="s-bottom">
+            <div class="s-user"><div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div><div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div></div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索…</span></div>
+        <div class="h-actions"><button class="h-icon"><i class="fa-regular fa-bell"></i></button><div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div></div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <div class="crumb"><a href="home.html">FansLoop</a><i class="fa-solid fa-chevron-right"></i><span class="curr">创作者收入</span></div>
+                <h1>创作者收入</h1>
+                <p>清晰展示收益结构，引导提现操作。所有收入以 USDT 结算，前端以美元展示。</p>
+            </div>
+            <div class="ph-r">
+                <button class="btn btn-secondary" onclick="location.href='transactions.html'"><i class="fa-solid fa-list-ul"></i>账变记录</button>
+                <button class="btn btn-secondary" onclick="location.href='transactions-export.html'"><i class="fa-solid fa-file-export"></i>导出报表</button>
+            </div>
+        </div>
+
+        <div class="income-grid">
+            <div class="total-card">
+                <div class="lb"><i class="fa-solid fa-trophy"></i> 累计总收入</div>
+                <div class="num">$1,280.50<span>USD</span></div>
+                <div class="equiv">≈ 1,280.50 USDT · 平台累计结算 100%</div>
+                <div class="deltas">
+                    <div class="delta"><div class="l">今日收入</div><div class="v">$32.80<small>↑ 12.4%</small></div></div>
+                    <div class="delta"><div class="l">本月收入</div><div class="v">$298.40<small>↑ 8.2%</small></div></div>
+                    <div class="delta"><div class="l">订阅人数</div><div class="v">1,248<small>位粉丝</small></div></div>
+                </div>
+            </div>
+
+            <div class="withdraw-card">
+                <div class="top">
+                    <div class="lb"><i class="fa-solid fa-vault"></i> 可提现余额</div>
+                    <div class="v">$520.00<small>USD</small></div>
+                    <div class="equiv">≈ 520.00 USDT · 仅结算完成可提现</div>
+                </div>
+                <div class="pending">
+                    <i class="fa-solid fa-clock"></i> <b>$148.20</b> 处于结算锁定期 · 通常 1-3 天后可提现
+                </div>
+                <div class="actions">
+                    <button class="btn btn-primary btn-lg" onclick="location.href='creator-withdraw.html'"><i class="fa-solid fa-arrow-up-from-bracket"></i>提现</button>
+                    <button class="btn btn-secondary btn-lg"><i class="fa-solid fa-circle-question"></i>规则</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 收入来源 + 趋势 -->
+        <div class="income-grid">
+            <div class="dist-card">
+                <div class="head">
+                    <h3><i class="fa-solid fa-chart-pie"></i> 收入来源分布</h3>
+                    <div class="chart-tabs">
+                        <div class="ct">7 天</div>
+                        <div class="ct active">30 天</div>
+                        <div class="ct">90 天</div>
+                    </div>
+                </div>
+
+                <div class="dist-row sub">
+                    <div class="left"><div class="ic-d"><i class="fa-solid fa-star"></i></div><div><div class="nm">付费订阅</div><div class="pc">月度订阅 / 包年订阅</div></div></div>
+                    <div class="right"><div class="am">$640.25</div><div class="pcc">50.0%</div></div>
+                </div>
+                <div class="dist-bar"><div class="fill"></div></div>
+
+                <div class="dist-row tip" style="margin-top: 18px">
+                    <div class="left"><div class="ic-d"><i class="fa-solid fa-heart"></i></div><div><div class="nm">粉丝打赏</div><div class="pc">单帖打赏 / 评论打赏</div></div></div>
+                    <div class="right"><div class="am">$358.54</div><div class="pcc">28.0%</div></div>
+                </div>
+                <div class="dist-bar"><div class="fill"></div></div>
+
+                <div class="dist-row live" style="margin-top: 18px">
+                    <div class="left"><div class="ic-d"><i class="fa-solid fa-video"></i></div><div><div class="nm">直播收入</div><div class="pc">直播打赏 / 礼物</div></div></div>
+                    <div class="right"><div class="am">$179.27</div><div class="pcc">14.0%</div></div>
+                </div>
+                <div class="dist-bar"><div class="fill"></div></div>
+
+                <div class="dist-row ppv" style="margin-top: 18px">
+                    <div class="left"><div class="ic-d"><i class="fa-solid fa-lock"></i></div><div><div class="nm">付费内容</div><div class="pc">单次解锁付费内容</div></div></div>
+                    <div class="right"><div class="am">$76.83</div><div class="pcc">6.0%</div></div>
+                </div>
+                <div class="dist-bar"><div class="fill"></div></div>
+
+                <div class="dist-row gift" style="margin-top: 18px">
+                    <div class="left"><div class="ic-d"><i class="fa-solid fa-gift"></i></div><div><div class="nm">私信礼物</div><div class="pc">私信中收到的礼物</div></div></div>
+                    <div class="right"><div class="am">$25.61</div><div class="pcc">2.0%</div></div>
+                </div>
+                <div class="dist-bar"><div class="fill"></div></div>
+            </div>
+
+            <div>
+                <div class="chart-card" style="margin-bottom: 18px">
+                    <div class="head"><h3><i class="fa-solid fa-chart-line"></i> 趋势</h3></div>
+                    <div class="chart-stage">
+                        <svg class="chart-svg" viewBox="0 0 320 180" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stop-color="#A855F7" stop-opacity="0.5"/>
+                                    <stop offset="100%" stop-color="#A855F7" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M0,140 Q30,120 60,108 T120,90 T180,72 T240,54 T320,36 L320,180 L0,180 Z" fill="url(#grad1)"/>
+                            <path d="M0,140 Q30,120 60,108 T120,90 T180,72 T240,54 T320,36" fill="none" stroke="#A855F7" stroke-width="2.5"/>
+                            <circle cx="320" cy="36" r="5" fill="#fff"/>
+                            <circle cx="320" cy="36" r="3" fill="#A855F7"/>
+                        </svg>
+                    </div>
+                    <div class="chart-x">
+                        <span>4/1</span><span>4/7</span><span>4/14</span><span>4/21</span><span>4/25</span>
+                    </div>
+                </div>
+                <div class="note-card">
+                    <h4><i class="fa-solid fa-circle-info"></i> 结算与说明</h4>
+                    <p>所有收入以 USDT 结算，前端以美元展示。平台分成 15% + 链上手续费已包含。新订阅 / 打赏在 1-3 天结算锁定期后进入可提现余额。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 收入明细 -->
+        <div class="list-card">
+            <div class="head">
+                <h3><i class="fa-solid fa-list-check"></i> 收入明细</h3>
+                <div class="fl-tabs">
+                    <div class="ft active">全部</div>
+                    <div class="ft">订阅</div>
+                    <div class="ft">打赏</div>
+                    <div class="ft">直播</div>
+                    <div class="ft">付费</div>
+                </div>
+            </div>
+
+            <div class="income-row">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></div>
+                <div class="info"><div class="nm">Alex Chen <span class="tag sub">订阅</span></div><div class="meta">订阅了你的「Pro 月度」 · 2 分钟前</div></div>
+                <div class="right"><div class="am">+$10.00</div><div class="stt">已结算</div></div>
+            </div>
+            <div class="income-row">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></div>
+                <div class="info"><div class="nm">Sophie 🌸 <span class="tag tip">打赏</span></div><div class="meta">打赏了你的帖子《今日穿搭》 · 12 分钟前</div></div>
+                <div class="right"><div class="am">+$5.00</div><div class="stt"><i class="fa-solid fa-clock"></i> 结算中</div></div>
+            </div>
+            <div class="income-row">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
+                <div class="info"><div class="nm">Marcus 🚀 <span class="tag live">直播</span></div><div class="meta">直播间送出 · 火箭礼物 ×3 · 1 小时前</div></div>
+                <div class="right"><div class="am">+$30.00</div><div class="stt">已结算</div></div>
+            </div>
+            <div class="income-row">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80')"></div>
+                <div class="info"><div class="nm">Diana 💜 <span class="tag sub">订阅</span></div><div class="meta">订阅了你的「年度会员」 · 3 小时前</div></div>
+                <div class="right"><div class="am">+$96.00</div><div class="stt">已结算</div></div>
+            </div>
+            <div class="income-row">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80')"></div>
+                <div class="info"><div class="nm">James 🎯 <span class="tag tip">打赏</span></div><div class="meta">私信打赏 · 6 小时前</div></div>
+                <div class="right"><div class="am">+$2.00</div><div class="stt">已结算</div></div>
+            </div>
+            <div class="income-row">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80')"></div>
+                <div class="info"><div class="nm">Emma 🌟 <span class="tag sub">订阅</span></div><div class="meta">续订了「Pro 月度」 · 昨天</div></div>
+                <div class="right"><div class="am">+$10.00</div><div class="stt">已结算</div></div>
+            </div>
+
+            <div style="text-align: center; margin-top: 18px">
+                <button class="btn btn-secondary" onclick="location.href='transactions.html'">查看完整账变记录 <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

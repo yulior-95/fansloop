@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>登录 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.wallet-options { display: flex; flex-direction: column; gap: 10px; margin: 24px 0 20px; }
+.wallet-card {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 18px;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: 0.15s;
+    position: relative;
+}
+.wallet-card:hover { background: var(--bg-input-focus); border-color: var(--border-strong); transform: translateX(2px); }
+.wallet-card.primary {
+    background: linear-gradient(135deg, rgba(168,85,247,0.12), rgba(236,72,153,0.06));
+    border-color: rgba(168,85,247,0.4);
+    box-shadow: 0 0 0 4px rgba(168,85,247,0.07);
+}
+.wallet-card .ic-wrap {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 19px;
+    flex-shrink: 0;
+}
+.wallet-card .ic-wrap.metamask { background: linear-gradient(135deg, #F6851B, #E2761B); }
+.wallet-card .ic-wrap.wc { background: linear-gradient(135deg, #3B99FC, #1976D2); }
+.wallet-card .ic-wrap.more { background: linear-gradient(135deg, #6B7280, #4B5563); }
+.wallet-card .info { flex: 1; }
+.wallet-card .info .n { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.wallet-card .info .d { font-size: 11px; color: var(--t-tertiary); margin-top: 2px; }
+.wallet-card .arrow { color: var(--t-tertiary); }
+.wallet-card.primary .arrow { color: var(--brand-purple); }
+
+.divider {
+    display: flex; align-items: center; gap: 12px;
+    color: var(--t-tertiary); font-size: 11px;
+    margin: 8px 0;
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px;
+    background: var(--border);
+}
+
+.legal-row {
+    display: flex; align-items: center; gap: 9px;
+    margin-top: 18px;
+    padding: 12px 14px;
+    background: var(--bg-input);
+    border-radius: var(--r-md);
+    font-size: 11px;
+    color: var(--t-tertiary);
+    line-height: 1.4;
+}
+.legal-row .chk-mini {
+    width: 16px; height: 16px;
+    border-radius: 4px;
+    background: var(--brand-grad);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 8px;
+    flex-shrink: 0;
+}
+.legal-row a { color: var(--brand-purple); }
+
+</style>
+</head>
+<body>
+
+<div class="auth-shell">
+
+    <!-- 左 · 叙事 -->
+    <div class="auth-stage">
+        <div class="as-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator Economy</span></div>
+        </div>
+
+        <div class="as-mid">
+            <h1>用钱包登录<br><span class="grad">即拥有数字身份</span></h1>
+            <p>FansLoop 不收集你的密码、邮箱与手机号。<br>你的钱包就是你的账号 · 你的内容就是你的资产 · 你的粉丝就是你的同行者。</p>
+
+            <div class="as-feat">
+                <div class="feat-card">
+                    <div class="ic"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h4>无密码登录</h4>
+                    <p>EIP-4361 SIWE 标准签名</p>
+                </div>
+                <div class="feat-card">
+                    <div class="ic"><i class="fa-solid fa-bolt"></i></div>
+                    <h4>USDT 即时结算</h4>
+                    <p>打赏 / 订阅 / 直播一键到账</p>
+                </div>
+                <div class="feat-card">
+                    <div class="ic"><i class="fa-solid fa-users"></i></div>
+                    <h4>2.4M+ 创作者</h4>
+                    <p>已累计支付 $185M 创作收入</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="as-foot">
+            <div class="stats">
+                <div class="stat">
+                    <div class="v">2.4M</div>
+                    <div class="k">活跃创作者</div>
+                </div>
+                <div class="stat">
+                    <div class="v">$185M+</div>
+                    <div class="k">已发放收益</div>
+                </div>
+                <div class="stat">
+                    <div class="v">28K</div>
+                    <div class="k">日活粉丝</div>
+                </div>
+            </div>
+            <div>v 2.0 · 2026.04 © FansLoop</div>
+        </div>
+    </div>
+
+    <!-- 右 · 表单 -->
+    <div class="auth-form">
+        <div class="af-top">
+            <span>还没有钱包？</span>
+            <a href="#"><i class="fa-solid fa-circle-question"></i> 查看创建教程</a>
+        </div>
+
+        <div class="af-mid">
+            <h2>欢迎回来 👋</h2>
+            <p>选择你的 Web3 钱包，即可一键登录或注册</p>
+
+            <div class="wallet-options">
+                <div class="wallet-card primary" onclick="location.href='login-metamask.html'">
+                    <div class="ic-wrap metamask"><i class="fa-brands fa-ethereum"></i></div>
+                    <div class="info">
+                        <div class="n">MetaMask <span class="tag tag-success" style="font-size:9px">已检测到</span></div>
+                        <div class="d">浏览器扩展 · 推荐 · 0x7A...3F2C</div>
+                    </div>
+                    <i class="fa-solid fa-arrow-right arrow"></i>
+                </div>
+
+                <div class="wallet-card" onclick="location.href='login-walletconnect-qr.html'">
+                    <div class="ic-wrap wc"><i class="fa-solid fa-qrcode"></i></div>
+                    <div class="info">
+                        <div class="n">WalletConnect</div>
+                        <div class="d">扫码连接 · 支持 350+ 移动钱包</div>
+                    </div>
+                    <i class="fa-solid fa-arrow-right arrow"></i>
+                </div>
+
+                <div class="wallet-card" onclick="location.href='login-select-method.html'">
+                    <div class="ic-wrap more"><i class="fa-solid fa-ellipsis"></i></div>
+                    <div class="info">
+                        <div class="n">其他钱包</div>
+                        <div class="d">Coinbase · Trust · OKX · imToken …</div>
+                    </div>
+                    <i class="fa-solid fa-arrow-right arrow"></i>
+                </div>
+            </div>
+
+            <div class="divider">或</div>
+
+            <button class="btn btn-secondary btn-block btn-lg">
+                <i class="fa-regular fa-envelope"></i>
+                继续使用邮箱（创建钱包账户）
+            </button>
+
+            <div class="legal-row">
+                <div class="chk-mini"><i class="fa-solid fa-check"></i></div>
+                <span>登录即表示我已阅读并同意 <a href="#">服务协议</a> 与 <a href="#">隐私政策</a>，并理解 Web3 钱包的私钥由我自行保管</span>
+            </div>
+        </div>
+
+        <div class="af-foot">
+            遇到问题？<a href="#">联系客服</a> · <a href="#">查看教程</a> · <a href="#">English</a>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

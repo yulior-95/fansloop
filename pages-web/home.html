@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>首页 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.feed-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+}
+@media (max-width: 1280px) { .feed-grid { grid-template-columns: 1fr; } .feed-aside { display: none; } }
+
+/* Composer */
+.composer {
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    margin-bottom: 18px;
+    display: flex; gap: 12px;
+}
+.composer .av { flex-shrink: 0; }
+.composer .body { flex: 1; }
+.composer .body input {
+    width: 100%; height: 42px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 0 14px;
+    color: var(--t-primary); font-size: 14px;
+    outline: none;
+}
+.composer .body input:focus { border-color: var(--border-focus); }
+.composer .actions { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+.composer .act-btn {
+    padding: 6px 10px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--t-secondary);
+    display: inline-flex; align-items: center; gap: 5px;
+    cursor: pointer; transition: 0.15s;
+}
+.act-btn:hover { background: var(--bg-input-focus); }
+.act-btn.image i { color: #10B981; }
+.act-btn.video i { color: #3B82F6; }
+.act-btn.live i  { color: #EF4444; }
+.act-btn.poll i  { color: #F59E0B; }
+.act-btn.subscribe i { color: #A855F7; }
+
+/* Feed item */
+.feed-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+    align-items: center;
+    gap: 4px;
+}
+.feed-tabs .tab {
+    padding: 13px 14px;
+    color: var(--t-tertiary);
+    font-size: 14px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+}
+.feed-tabs .tab.active { color: #fff; border-bottom-color: var(--brand-purple); font-weight: 600; }
+.feed-tabs .grow { flex: 1; }
+.feed-tabs .more {
+    padding: 7px 11px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--t-secondary);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.post-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: 0.2s;
+}
+.post-card:hover { border-color: var(--border-strong); }
+.post-head { display: flex; align-items: center; gap: 12px; padding: 14px 18px 12px; }
+.post-head .pi-info { flex: 1; }
+.post-head .pi-info .name { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.post-head .pi-info .name .verified { color: #3B82F6; font-size: 12px; }
+.post-head .pi-info .meta { font-size: 11px; color: var(--t-tertiary); }
+.post-head .pi-info .meta .dot { margin: 0 4px; }
+.post-head .pi-actions { display: flex; gap: 6px; }
+.post-head .pi-actions .ic-btn { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--t-tertiary); cursor: pointer; }
+.post-head .pi-actions .ic-btn:hover { background: var(--bg-input); color: var(--t-primary); }
+.post-head .pi-actions .follow-btn {
+    height: 28px; padding: 0 12px;
+    background: var(--brand-grad);
+    border-radius: 999px;
+    color: #fff;
+    font-size: 11px; font-weight: 600;
+}
+
+.post-text { padding: 0 18px 12px; font-size: 14px; line-height: 1.55; color: var(--t-primary); }
+.post-text .hashtag { color: var(--brand-purple); cursor: pointer; }
+.post-text .mention { color: var(--info-light); cursor: pointer; }
+
+.post-media { background: #000; }
+.post-media img { width: 100%; display: block; }
+.post-media.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.post-media.grid-2 img { height: 240px; object-fit: cover; }
+
+.post-paywall {
+    margin: 0 18px 12px;
+    padding: 18px;
+    background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(236,72,153,0.05));
+    border: 1.5px dashed rgba(168,85,247,0.3);
+    border-radius: var(--r-md);
+    text-align: center;
+}
+.post-paywall .lock-ic {
+    width: 44px; height: 44px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    background: var(--brand-grad);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    box-shadow: var(--shadow-glow);
+}
+.post-paywall h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.post-paywall p { font-size: 11.5px; color: var(--t-tertiary); margin-bottom: 12px; }
+.post-paywall .price-row { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.post-paywall .price-row .pr { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.4px; }
+.post-paywall .price-row .pr-sub { font-size: 11px; color: var(--t-tertiary); }
+.post-paywall .unlock-btn {
+    height: 38px; padding: 0 22px;
+    background: var(--brand-grad);
+    border-radius: var(--r-md);
+    color: #fff; font-size: 13px; font-weight: 700;
+    box-shadow: var(--shadow-glow);
+    display: inline-flex; align-items: center; gap: 7px;
+}
+
+.post-actions {
+    padding: 12px 18px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 4px;
+}
+.post-actions .a-btn {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--t-secondary);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    cursor: pointer; transition: 0.15s;
+}
+.post-actions .a-btn:hover { background: var(--bg-input); color: var(--t-primary); }
+.post-actions .a-btn.liked { color: #F472B6; }
+.post-actions .a-btn.tip-cta {
+    flex: 1.4;
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    color: #1a1a2e !important;
+    font-weight: 800;
+    box-shadow: 0 6px 14px rgba(251,191,36,0.3);
+}
+.post-actions .a-btn.tip-cta i { color: #1a1a2e !important; }
+.post-actions .a-btn.tip-cta:hover { background: linear-gradient(135deg, #F59E0B, #EC4899); color: #fff !important; box-shadow: 0 8px 18px rgba(245,158,11,0.4); }
+.post-actions .a-btn.tip-cta:hover i { color: #fff !important; }
+
+/* 付费内容封面（替换纯色 paywall） */
+.paid-cover {
+    position: relative;
+    aspect-ratio: 16/9;
+    background-size: cover; background-position: center;
+    overflow: hidden;
+}
+.paid-cover::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.85) 100%);
+    backdrop-filter: blur(2px);
+}
+.paid-cover .pc-blur-mask {
+    position: absolute; inset: 0;
+    backdrop-filter: blur(14px) saturate(120%);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+    background: rgba(0,0,0,0.18);
+    z-index: 1;
+}
+.paid-cover .pc-content {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #fff;
+    text-align: center;
+    padding: 24px;
+}
+.paid-cover .pc-content .pc-lock {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    color: #1a1a2e;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    margin-bottom: 12px;
+    box-shadow: 0 12px 28px rgba(251,191,36,0.4);
+}
+.paid-cover .pc-content h4 { font-size: 18px; font-weight: 800; margin-bottom: 6px; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+.paid-cover .pc-content p { font-size: 12.5px; color: rgba(255,255,255,0.85); margin-bottom: 16px; max-width: 320px; }
+.paid-cover .pc-content .pc-ctas { display: flex; gap: 8px; }
+.paid-cover .pc-content .pc-ctas button {
+    height: 38px; padding: 0 18px;
+    border-radius: 10px;
+    font-size: 12.5px;
+    font-weight: 700;
+    display: inline-flex; align-items: center; gap: 7px;
+}
+.paid-cover .pc-content .pc-ctas .pc-buy {
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    color: #1a1a2e;
+    box-shadow: 0 8px 18px rgba(251,191,36,0.35);
+}
+.paid-cover .pc-content .pc-ctas .pc-sub {
+    background: rgba(255,255,255,0.14);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+}
+.paid-cover .pc-tag {
+    position: absolute;
+    top: 12px; left: 12px;
+    z-index: 3;
+    padding: 4px 10px;
+    background: linear-gradient(135deg, rgba(251,191,36,0.95), rgba(245,158,11,0.95));
+    border-radius: 6px;
+    color: #1a1a2e;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 5px;
+}
+.paid-cover .pc-blurred-thumbs {
+    position: absolute;
+    bottom: 10px; right: 10px;
+    z-index: 3;
+    display: flex; gap: 4px;
+}
+.paid-cover .pc-blurred-thumbs .ti {
+    width: 32px; height: 32px;
+    background-size: cover;
+    border-radius: 6px;
+    border: 2px solid rgba(255,255,255,0.3);
+    filter: blur(2px) brightness(0.7);
+}
+.paid-cover .pc-blurred-thumbs .more-cnt {
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    background: rgba(0,0,0,0.65);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid rgba(255,255,255,0.3);
+}
+
+/* Aside cards */
+.aside-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    margin-bottom: 14px;
+    overflow: hidden;
+}
+.aside-card .ah {
+    padding: 14px 16px 8px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.aside-card .ah h4 { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.aside-card .ah a { font-size: 11px; color: var(--brand-purple); }
+.aside-card .ab { padding: 6px 14px 14px; }
+
+.trend-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; cursor: pointer; }
+.trend-row:hover { padding-left: 4px; }
+.trend-row .rank { width: 22px; font-size: 14px; font-weight: 800; color: var(--t-tertiary); }
+.trend-row .rank.top1 { color: #FBBF24; }
+.trend-row .rank.top2 { color: #F472B6; }
+.trend-row .rank.top3 { color: #C084FC; }
+.trend-row .info { flex: 1; }
+.trend-row .info .t { font-size: 12.5px; font-weight: 600; }
+.trend-row .info .s { font-size: 10px; color: var(--t-tertiary); }
+.trend-row .info .s .fire { color: #F472B6; }
+
+.who-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+.who-row .info { flex: 1; min-width: 0; }
+.who-row .info .n { font-size: 12px; font-weight: 600; }
+.who-row .info .h { font-size: 10px; color: var(--t-tertiary); }
+.who-row button {
+    padding: 5px 12px;
+    background: var(--brand-grad);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 11px; font-weight: 700;
+}
+
+.live-row { display: flex; gap: 10px; padding: 8px 0; cursor: pointer; }
+.live-row .cover {
+    width: 64px; height: 44px; border-radius: 6px; flex-shrink: 0;
+    background-size: cover; background-position: center;
+    position: relative;
+}
+.live-row .cover .live-dot {
+    position: absolute;
+    top: 4px; left: 4px;
+    background: #EF4444;
+    color: #fff;
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-weight: 700;
+    display: flex; align-items: center; gap: 3px;
+}
+.live-row .cover .live-dot::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: #fff; }
+.live-row .info { flex: 1; min-width: 0; }
+.live-row .info .t { font-size: 12px; font-weight: 600; }
+.live-row .info .s { font-size: 10px; color: var(--t-tertiary); }
+
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- Sidebar -->
+    <aside class="app-sidebar">
+        <div class="s-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator</span></div>
+        </div>
+
+        <div class="s-section">主导航</div>
+        <div class="s-item active" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span><span class="chip">+$28</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+
+        <div class="s-bottom">
+            <div class="s-pro-card">
+                <div class="crown"><i class="fa-solid fa-crown"></i></div>
+                <h4>升级 Creator Pro</h4>
+                <p>解锁高级数据 / 优先推流</p>
+                <button>立即升级</button>
+            </div>
+            <div class="s-user">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info">
+                    <div class="n">Luna 🌙</div>
+                    <div class="e">Creator</div>
+                </div>
+                <i class="fa-solid fa-ellipsis-vertical more"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Header -->
+    <header class="app-header">
+        <div class="h-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span>搜索创作者、内容或话题…</span>
+            <span class="kbd">⌘ K</span>
+        </div>
+        <div class="h-actions">
+            <button class="h-icon" title="发布"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="h-icon" title="通知"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" title="消息" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i><span class="dot"></span></button>
+            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="app-main">
+        <div class="feed-grid">
+
+            <!-- 主 Feed -->
+            <div>
+                <!-- Composer -->
+                <div class="composer">
+                    <div class="av av-md" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                    <div class="body">
+                        <input type="text" placeholder="Luna，今天想分享点什么？" />
+                        <div class="actions">
+                            <span class="act-btn image"><i class="fa-regular fa-image"></i>图片</span>
+                            <span class="act-btn video"><i class="fa-solid fa-video"></i>视频</span>
+                            <span class="act-btn live"><i class="fa-solid fa-tower-broadcast"></i>开直播</span>
+                            <span class="act-btn poll"><i class="fa-solid fa-square-poll-vertical"></i>投票</span>
+                            <span class="act-btn subscribe"><i class="fa-solid fa-crown"></i>付费</span>
+                            <span style="flex:1"></span>
+                            <button class="btn btn-primary btn-sm">发布</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feed Tabs · 推荐(默认) / 关注 / 订阅 -->
+                <div class="feed-tabs">
+                    <div class="tab active"><i class="fa-solid fa-compass"></i>推荐</div>
+                    <div class="tab"><i class="fa-solid fa-fire"></i>关注</div>
+                    <div class="tab" onclick="location.href='subscriptions.html'"><i class="fa-solid fa-crown"></i>订阅</div>
+                    <div class="grow"></div>
+                    <button class="more"><i class="fa-solid fa-sliders"></i> 筛选</button>
+                </div>
+
+                <!-- Post 1 · 普通图文 -->
+                <article class="post-card">
+                    <div class="post-head">
+                        <div class="av av-md" style="background-image: url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100')"></div>
+                        <div class="pi-info">
+                            <div class="name">山野食光 <i class="fa-solid fa-circle-check verified" title="认证创作者"></i></div>
+                            <div class="meta">摄影师 · 创作者 LV 6 · 2 小时前 · 摄影 · 旅行</div>
+                        </div>
+                        <div class="pi-actions">
+                            <button class="follow-btn">+ 关注</button>
+                            <button class="ic-btn"><i class="fa-solid fa-ellipsis"></i></button>
+                        </div>
+                    </div>
+                    <div class="post-text">
+                        清晨 5:40 的富士山五合目，云海像被风轻轻吹散的奶油 ☁️
+                        <br>这次用 35mm 定焦在零下 4℃ 拍了三个小时，每一张都是冻出来的浪漫
+                        <br><span class="hashtag">#富士山</span> <span class="hashtag">#旅行摄影</span> <span class="hashtag">#日出</span>
+                    </div>
+                    <div class="post-media grid-2">
+                        <img src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=900&q=80" alt="">
+                        <img src="https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=900&q=80" alt="">
+                    </div>
+                    <div class="post-actions">
+                        <span class="a-btn liked" onclick="location.href='comment-modal.html'"><i class="fa-solid fa-heart"></i>2,148</span>
+                        <span class="a-btn" onclick="location.href='comment-modal.html'"><i class="fa-regular fa-comment"></i>342</span>
+                        <span class="a-btn" onclick="location.href='share-modal.html'"><i class="fa-solid fa-arrow-up-right-from-square"></i>分享</span>
+                        <span class="a-btn tip-cta" onclick="location.href='gift-modal.html'"><i class="fa-solid fa-gift"></i>打赏</span>
+                        <span class="a-btn"><i class="fa-regular fa-bookmark"></i>收藏</span>
+                    </div>
+                </article>
+
+                <!-- Post 2 · 付费内容（带封面） -->
+                <article class="post-card">
+                    <div class="post-head">
+                        <div class="av av-md" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100')"></div>
+                        <div class="pi-info">
+                            <div class="name">Lens 旅记 <i class="fa-solid fa-circle-check verified"></i> <span class="tag tag-warning">优质</span></div>
+                            <div class="meta">认证创作者 · 5 小时前 · 已发布到 1.2k 订阅者</div>
+                        </div>
+                        <div class="pi-actions">
+                            <button class="follow-btn">已订阅 ✓</button>
+                            <button class="ic-btn"><i class="fa-solid fa-ellipsis"></i></button>
+                        </div>
+                    </div>
+                    <div class="post-text">
+                        【会员专享】京都 4 月樱花季隐秘机位整理 · 含 GPS 坐标 + 拍摄建议 + 18 张原图…
+                    </div>
+                    <div class="paid-cover" style="background-image: url('https://images.unsplash.com/photo-1522383225653-ed111181a951?w=1200&q=80')">
+                        <span class="pc-tag"><i class="fa-solid fa-crown"></i> 优质付费</span>
+                        <div class="pc-blur-mask"></div>
+                        <div class="pc-content">
+                            <div class="pc-lock"><i class="fa-solid fa-lock"></i></div>
+                            <h4>京都 4 月樱花季 · 18 张原图与拍摄机位</h4>
+                            <p>包含 GPS 坐标、最佳光线时段与构图建议 · 5 USDT 单帖解锁，或订阅创作者解锁所有专享内容</p>
+                            <div class="pc-ctas">
+                                <button class="pc-buy"><i class="fa-solid fa-bolt"></i> 立即解锁 · $5.00</button>
+                                <button class="pc-sub"><i class="fa-solid fa-crown"></i> 订阅 28 USDT/月</button>
+                            </div>
+                        </div>
+                        <div class="pc-blurred-thumbs">
+                            <div class="ti" style="background-image:url('https://images.unsplash.com/photo-1522383225653-ed111181a951?w=200&q=60')"></div>
+                            <div class="ti" style="background-image:url('https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=200&q=60')"></div>
+                            <div class="ti" style="background-image:url('https://images.unsplash.com/photo-1545569310-a85ba70d54e3?w=200&q=60')"></div>
+                            <div class="more-cnt">+15</div>
+                        </div>
+                    </div>
+                    <div class="post-actions">
+                        <span class="a-btn"><i class="fa-regular fa-heart"></i>986</span>
+                        <span class="a-btn" onclick="location.href='comment-modal.html'"><i class="fa-regular fa-comment"></i>148</span>
+                        <span class="a-btn" onclick="location.href='share-modal.html'"><i class="fa-solid fa-arrow-up-right-from-square"></i>分享</span>
+                        <span class="a-btn tip-cta" onclick="location.href='gift-modal.html'"><i class="fa-solid fa-gift"></i>打赏</span>
+                    </div>
+                </article>
+
+                <!-- Post 3 · 直播 -->
+                <article class="post-card">
+                    <div class="post-head">
+                        <div class="av av-md" onclick="location.href='creator-profile.html'" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100'); cursor: pointer"></div>
+                        <div class="pi-info">
+                            <div class="name" onclick="location.href='creator-profile.html'" style="cursor: pointer">夜雨听弦 <i class="fa-solid fa-circle-check verified"></i> <span class="tag tag-danger">直播中</span></div>
+                            <div class="meta">音乐人 · 正在直播 · 1,284 人观看</div>
+                        </div>
+                        <div class="pi-actions">
+                            <button class="follow-btn">+ 关注</button>
+                        </div>
+                    </div>
+                    <div class="post-text">🎻 雨夜小提琴现场，全程不带预告，欢迎来听</div>
+                    <div class="post-media" style="position: relative; cursor: pointer" onclick="location.href='live-detail.html'">
+                        <img src="https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=1200&q=80" style="height:300px; object-fit:cover">
+                        <div style="position:absolute; inset:0; background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.7))"></div>
+                        <div style="position:absolute; bottom:14px; left:14px; right:14px; display:flex; justify-content:space-between; align-items:flex-end">
+                            <div style="display:flex; gap:8px; align-items:center">
+                                <span class="tag tag-danger" style="font-size:11px; padding: 4px 9px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#fff;margin-right:4px;animation:pulse-live 1.2s ease-in-out infinite"></span>LIVE</span>
+                                <span style="color:#fff; font-size:12px"><i class="fa-solid fa-eye"></i> 1,284</span>
+                            </div>
+                            <button class="btn btn-primary btn-sm"><i class="fa-solid fa-play"></i>进入直播间</button>
+                        </div>
+                    </div>
+                    <div class="post-actions">
+                        <span class="a-btn"><i class="fa-regular fa-heart"></i>2,389</span>
+                        <span class="a-btn" onclick="location.href='comment-modal.html'"><i class="fa-regular fa-comment"></i>实时弹幕</span>
+                        <span class="a-btn tip-cta" onclick="location.href='gift-modal.html'"><i class="fa-solid fa-gift"></i>送礼</span>
+                        <span class="a-btn" onclick="location.href='share-modal.html'"><i class="fa-solid fa-arrow-up-right-from-square"></i>分享</span>
+                    </div>
+                </article>
+            </div>
+
+            <!-- 右侧 -->
+            <aside class="feed-aside">
+
+                <div class="aside-card">
+                    <div class="ah"><h4><i class="fa-solid fa-fire" style="color:#F472B6"></i>热门话题</h4><a href="topics.html">更多</a></div>
+                    <div class="ab">
+                        <div class="trend-row" onclick="location.href='topic-detail.html'" style="cursor:pointer">
+                            <span class="rank top1">1</span>
+                            <div class="info">
+                                <div class="t"># 富士山日出</div>
+                                <div class="s"><span class="fire">🔥 28k</span> · 2.1k 帖子 · 趋势 +18%</div>
+                            </div>
+                        </div>
+                        <div class="trend-row" onclick="location.href='topic-detail.html'" style="cursor:pointer">
+                            <span class="rank top2">2</span>
+                            <div class="info">
+                                <div class="t"># Web3 创作者经济</div>
+                                <div class="s"><span class="fire">🔥 22k</span> · 8.4k 帖子</div>
+                            </div>
+                        </div>
+                        <div class="trend-row" onclick="location.href='topic-detail.html'" style="cursor:pointer">
+                            <span class="rank top3">3</span>
+                            <div class="info">
+                                <div class="t"># 春日 Vlog</div>
+                                <div class="s"><span class="fire">🔥 18k</span> · 1.2k 帖子</div>
+                            </div>
+                        </div>
+                        <div class="trend-row" onclick="location.href='topic-detail.html'" style="cursor:pointer">
+                            <span class="rank">4</span>
+                            <div class="info">
+                                <div class="t"># 一首歌的故事</div>
+                                <div class="s"><span class="fire">🔥 12k</span> · 920 帖子</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="aside-card">
+                    <div class="ah"><h4><i class="fa-solid fa-tower-broadcast" style="color:#EF4444"></i>正在直播</h4><a href="#">全部</a></div>
+                    <div class="ab">
+                        <div class="live-row" onclick="location.href='live-detail.html'" style="cursor:pointer">
+                            <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=200')">
+                                <div class="live-dot">LIVE</div>
+                            </div>
+                            <div class="info">
+                                <div class="t">雨夜小提琴现场</div>
+                                <div class="s">夜雨听弦 · 1,284 观看</div>
+                            </div>
+                        </div>
+                        <div class="live-row" onclick="location.href='live-detail.html'" style="cursor:pointer">
+                            <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1493612276216-ee3925520721?w=200')">
+                                <div class="live-dot">LIVE</div>
+                            </div>
+                            <div class="info">
+                                <div class="t">深夜咖啡馆问答</div>
+                                <div class="s">咖啡店主 · 642 观看</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="aside-card">
+                    <div class="ah"><h4><i class="fa-solid fa-user-plus" style="color:#A855F7"></i>推荐关注</h4><a href="#">换一批</a></div>
+                    <div class="ab">
+                        <div class="who-row" onclick="location.href='creator-profile.html'" style="cursor:pointer">
+                            <div class="av av-sm" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></div>
+                            <div class="info">
+                                <div class="n">银盐时代</div>
+                                <div class="h">摄影 · 1.2k 粉丝</div>
+                            </div>
+                            <button>+ 关注</button>
+                        </div>
+                        <div class="who-row" onclick="location.href='creator-profile.html'" style="cursor:pointer">
+                            <div class="av av-sm" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
+                            <div class="info">
+                                <div class="n">夜间速写</div>
+                                <div class="h">绘画 · 856 粉丝</div>
+                            </div>
+                            <button>+ 关注</button>
+                        </div>
+                        <div class="who-row" onclick="location.href='creator-profile.html'" style="cursor:pointer">
+                            <div class="av av-sm" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80')"></div>
+                            <div class="info">
+                                <div class="n">代码诗人</div>
+                                <div class="h">科技 · 2.4k 粉丝</div>
+                            </div>
+                            <button>+ 关注</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="font-size: 11px; color: var(--t-tertiary); padding: 8px 14px; line-height: 1.6">
+                    <a href="#">关于</a> · <a href="#">服务</a> · <a href="#">隐私</a> · <a href="#">规范</a> · <a href="#">帮助</a><br>
+                    © FansLoop 2026 · v 2.0
+                </div>
+            </aside>
+
+        </div>
+    </main>
+
+</div>
+
+<style>
+@keyframes pulse-live {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+}
+</style>
+
+</body>
+</html>

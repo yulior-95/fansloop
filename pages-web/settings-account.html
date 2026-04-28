@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>账户资料 · 设置 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.set-grid { display: grid; grid-template-columns: 240px 1fr; gap: 24px; }
+@media (max-width: 1100px) { .set-grid { grid-template-columns: 1fr; } .set-nav { display: none; } }
+
+/* breadcrumb */
+.crumb { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--t-tertiary); margin-bottom: 8px; }
+.crumb a { color: var(--t-secondary); }
+.crumb a:hover { color: #fff; }
+.crumb .sep { font-size: 10px; }
+.crumb .curr { color: #fff; font-weight: 600; }
+
+/* nav */
+.set-nav { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 80px; align-self: flex-start; }
+.set-nav .group-ti { padding: 14px 12px 6px; font-size: 10px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+.set-nav .nav-item { padding: 10px 12px; border-radius: 8px; font-size: 13px; color: var(--t-secondary); display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.15s; }
+.set-nav .nav-item:hover { background: var(--bg-hover); color: #fff; }
+.set-nav .nav-item.active { background: linear-gradient(135deg, rgba(168,85,247,0.16), rgba(236,72,153,0.06)); color: #fff; font-weight: 600; border: 1px solid rgba(168,85,247,0.3); }
+.set-nav .nav-item .ic { width: 24px; height: 24px; border-radius: 6px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: var(--t-tertiary); font-size: 11px; }
+.set-nav .nav-item.active .ic { background: var(--brand-grad); color: #fff; }
+
+/* card */
+.set-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg); margin-bottom: 18px; overflow: hidden; }
+.set-card .ssh { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.set-card .ssh .ic-circle { width: 36px; height: 36px; border-radius: 10px; background: var(--brand-grad); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: var(--shadow-glow); }
+.set-card .ssh h3 { font-size: 15px; font-weight: 700; }
+.set-card .ssh p { font-size: 12px; color: var(--t-tertiary); margin-top: 2px; }
+.set-card .body { padding: 22px; }
+
+/* avatar uploader */
+.av-uploader { display: flex; gap: 24px; align-items: flex-start; }
+.av-uploader .av-large { width: 120px; height: 120px; border-radius: 50%; padding: 4px; background: var(--brand-grad); flex-shrink: 0; position: relative; }
+.av-uploader .av-large .av-img { width: 100%; height: 100%; border-radius: 50%; background-size: cover; background-position: center; border: 4px solid var(--bg-card); }
+.av-uploader .av-large .edit-fab { position: absolute; right: 4px; bottom: 4px; width: 32px; height: 32px; border-radius: 50%; background: #1a1a2e; border: 3px solid var(--bg-card); color: #fff; font-size: 12px; cursor: pointer; display:flex; align-items:center; justify-content:center; box-shadow: 0 6px 14px rgba(0,0,0,0.35); }
+.av-uploader .av-meta h4 { font-size: 14.5px; font-weight: 700; margin-bottom: 6px; }
+.av-uploader .av-meta p { font-size: 12.5px; color: var(--t-tertiary); margin-bottom: 14px; line-height: 1.55; }
+.av-uploader .av-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.av-history { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.av-history .h-thumb { width: 42px; height: 42px; border-radius: 50%; background-size: cover; background-position: center; border: 2px solid var(--border); cursor: pointer; }
+.av-history .h-thumb:hover { border-color: var(--brand-purple); }
+
+/* form */
+.form-row { display: grid; grid-template-columns: 220px 1fr; gap: 22px; padding: 18px 0; border-bottom: 1px solid var(--border); }
+.form-row:last-child { border-bottom: none; }
+.form-row .label { font-size: 13.5px; font-weight: 600; }
+.form-row .label .req { color: #F87171; margin-left: 4px; }
+.form-row .label .desc { font-size: 11.5px; color: var(--t-tertiary); margin-top: 4px; font-weight: 400; line-height: 1.5; }
+.form-row .control input[type=text], .form-row .control textarea, .form-row .control select { width: 100%; max-width: 460px; }
+.form-row .control textarea { min-height: 92px; resize: vertical; padding: 12px 14px; }
+.form-row .help { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--t-tertiary); margin-top: 6px; max-width: 460px; }
+
+/* tag editor */
+.tag-pool { display: flex; flex-wrap: wrap; gap: 8px; max-width: 540px; }
+.tag-pool .tg { padding: 6px 12px; border-radius: 999px; background: var(--bg-input); border: 1px solid var(--border); font-size: 12px; color: var(--t-secondary); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.tag-pool .tg:hover { border-color: var(--brand-purple); color: #fff; }
+.tag-pool .tg.on { background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(236,72,153,0.08)); color: #fff; border-color: rgba(168,85,247,0.5); }
+.tag-pool .tg.on i { color: #C084FC; }
+
+/* social link rows */
+.sl-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.sl-row:last-child { border-bottom: none; }
+.sl-row .sl-ic { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; flex-shrink: 0; }
+.sl-row .sl-info { flex: 1; min-width: 0; }
+.sl-row .sl-info .n { font-size: 13px; font-weight: 600; }
+.sl-row .sl-info .h { font-size: 11.5px; color: var(--t-tertiary); margin-top: 2px; font-family: ui-monospace, monospace; }
+.sl-row .sl-action { font-size: 12px; }
+
+/* footer save bar */
+.save-bar { position: sticky; bottom: 0; padding: 14px 22px; background: linear-gradient(180deg, rgba(11,11,20,0), rgba(11,11,20,0.95) 30%); display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; backdrop-filter: blur(12px); border-top: 1px solid var(--border); border-radius: 0 0 var(--r-lg) var(--r-lg); }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+    <aside class="app-sidebar">
+        <div class="s-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator</span></div>
+        </div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item active" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+        <div class="s-bottom">
+            <div class="s-user">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索创作者、内容或话题…</span><span class="kbd">⌘ K</span></div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i></button>
+            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <div class="crumb">
+                    <a href="settings.html"><i class="fa-solid fa-gear"></i> 设置</a>
+                    <span class="sep"><i class="fa-solid fa-chevron-right"></i></span>
+                    <span class="curr">账户资料</span>
+                </div>
+                <h1>账户资料</h1>
+                <p>管理你公开的昵称、简介、地区与个性标签等基础资料。这些信息将展示在你的主页与动态中。</p>
+            </div>
+            <div class="ph-r">
+                <button class="btn" onclick="location.href='settings.html'"><i class="fa-solid fa-arrow-left"></i> 返回设置</button>
+                <button class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> 保存全部</button>
+            </div>
+        </div>
+
+        <div class="set-grid">
+
+            <!-- 左侧导航 -->
+            <aside class="set-nav">
+                <div class="group-ti">账户</div>
+                <div class="nav-item active"><span class="ic"><i class="fa-regular fa-user"></i></span><span>账户资料</span></div>
+                <div class="nav-item" onclick="location.href='settings-security.html'"><span class="ic"><i class="fa-solid fa-shield-halved"></i></span><span>账户安全</span></div>
+                <div class="nav-item" onclick="location.href='settings-wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span>钱包与支付</span></div>
+                <div class="group-ti">体验</div>
+                <div class="nav-item" onclick="location.href='settings-notification.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span>通知偏好</span></div>
+                <div class="nav-item" onclick="location.href='settings-privacy.html'"><span class="ic"><i class="fa-solid fa-user-shield"></i></span><span>隐私设置</span></div>
+                <div class="nav-item" onclick="location.href='settings-display.html'"><span class="ic"><i class="fa-solid fa-palette"></i></span><span>外观语言</span></div>
+                <div class="group-ti">创作者</div>
+                <div class="nav-item"><span class="ic"><i class="fa-solid fa-crown"></i></span><span>会员订阅设置</span></div>
+                <div class="nav-item"><span class="ic"><i class="fa-solid fa-coins"></i></span><span>收益与提现</span></div>
+                <div class="nav-item"><span class="ic"><i class="fa-solid fa-tower-broadcast"></i></span><span>直播配置</span></div>
+                <div class="group-ti">关于</div>
+                <div class="nav-item"><span class="ic"><i class="fa-solid fa-circle-info"></i></span><span>关于 FansLoop</span></div>
+                <div class="nav-item"><span class="ic"><i class="fa-solid fa-file-lines"></i></span><span>条款与协议</span></div>
+            </aside>
+
+            <!-- 主区 -->
+            <div>
+
+                <!-- 头像 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle"><i class="fa-solid fa-image-portrait"></i></div>
+                        <div><h3>头像</h3><p>上传一张能代表你的图片，PNG/JPG，建议 ≥ 400×400</p></div>
+                    </div>
+                    <div class="body">
+                        <div class="av-uploader">
+                            <div class="av-large">
+                                <div class="av-img" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400')"></div>
+                                <span class="edit-fab"><i class="fa-solid fa-camera"></i></span>
+                            </div>
+                            <div class="av-meta">
+                                <h4>上传新头像</h4>
+                                <p>支持 PNG / JPG / WEBP，单个文件 ≤ 5 MB。建议正方形以获得最佳显示效果。</p>
+                                <div class="av-actions">
+                                    <button class="btn btn-primary"><i class="fa-solid fa-upload"></i> 选择文件</button>
+                                    <button class="btn"><i class="fa-solid fa-camera"></i> 拍照</button>
+                                    <button class="btn btn-ghost" style="color: var(--danger-light)"><i class="fa-solid fa-trash"></i> 移除</button>
+                                </div>
+                                <div class="av-history">
+                                    <div class="h-thumb" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120')"></div>
+                                    <div class="h-thumb" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120')"></div>
+                                    <div class="h-thumb" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=120')"></div>
+                                    <div class="h-thumb" style="background-image: url('https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=120')"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 基础资料 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#06B6D4,#3B82F6)"><i class="fa-regular fa-id-card"></i></div>
+                        <div><h3>基础资料</h3><p>这些信息将展示在你的主页与动态中</p></div>
+                    </div>
+                    <div class="body">
+                        <div class="form-row">
+                            <div class="label">昵称<span class="req">*</span><div class="desc">2-20 个字符，可包含 emoji</div></div>
+                            <div class="control">
+                                <input type="text" value="Luna 🌙">
+                                <div class="help"><span><i class="fa-solid fa-circle-check" style="color:var(--success-light)"></i> 昵称可用</span><span>5/20</span></div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="label">Handle<div class="desc">用于个性域名 fansloop.io/@xxx，仅限字母数字和下划线</div></div>
+                            <div class="control">
+                                <input type="text" value="luna_creator">
+                                <div class="help"><span><i class="fa-solid fa-circle-check" style="color:var(--success-light)"></i> 当前 Handle 已使用 14 个月，每 6 个月可修改一次</span></div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="label">个人简介<div class="desc">最多 160 字，支持 emoji 与简单 Markdown</div></div>
+                            <div class="control">
+                                <textarea>📷 摄影 · 🌍 旅行 · ☁️ 把云朵装进口袋
+正在记录富士山的每一天，喜欢请打个招呼～</textarea>
+                                <div class="help"><span>支持 #话题 与 @ 提及</span><span>62/160</span></div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="label">所在地区<span class="req">*</span><div class="desc">用于推荐本地内容与货币展示</div></div>
+                            <div class="control">
+                                <div style="display:flex; gap:10px; max-width:460px">
+                                    <select style="flex:1">
+                                        <option>🇯🇵 日本</option>
+                                        <option>🇺🇸 美国</option>
+                                        <option>🇨🇳 中国</option>
+                                        <option>🇬🇧 英国</option>
+                                        <option>🇸🇬 新加坡</option>
+                                    </select>
+                                    <select style="flex:1">
+                                        <option>东京 Tokyo</option>
+                                        <option>大阪 Osaka</option>
+                                        <option>京都 Kyoto</option>
+                                        <option>横滨 Yokohama</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="label">性别<div class="desc">公开选项决定是否在主页显示</div></div>
+                            <div class="control">
+                                <div style="display:flex; gap:8px; flex-wrap:wrap">
+                                    <button class="btn btn-sm" style="background: var(--brand-grad); color: #fff; border: none">👩 女</button>
+                                    <button class="btn btn-sm">👨 男</button>
+                                    <button class="btn btn-sm">⚧ 非二元</button>
+                                    <button class="btn btn-sm">🤐 不愿透露</button>
+                                </div>
+                                <div style="margin-top: 10px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--t-tertiary)">
+                                    <div class="switch on"></div> 在主页公开显示
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="label">生日<div class="desc">用于年龄验证与生日特别推荐</div></div>
+                            <div class="control">
+                                <div style="display:flex; gap:8px; max-width:460px">
+                                    <select style="flex:1"><option>1995</option><option>1996</option><option>1997</option></select>
+                                    <select style="flex:1"><option>3 月</option><option>4 月</option></select>
+                                    <select style="flex:1"><option>15 日</option></select>
+                                </div>
+                                <div style="margin-top: 10px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--t-tertiary)">
+                                    <div class="switch"></div> 在主页公开显示生日
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 兴趣标签 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#A855F7,#EC4899)"><i class="fa-solid fa-tag"></i></div>
+                        <div><h3>兴趣标签</h3><p>选择最多 6 个标签，影响首页推荐与发现页内容</p></div>
+                    </div>
+                    <div class="body">
+                        <div class="tag-pool">
+                            <span class="tg on"><i class="fa-solid fa-camera"></i> 摄影</span>
+                            <span class="tg on"><i class="fa-solid fa-plane"></i> 旅行</span>
+                            <span class="tg on"><i class="fa-solid fa-music"></i> 音乐</span>
+                            <span class="tg"><i class="fa-solid fa-utensils"></i> 美食</span>
+                            <span class="tg"><i class="fa-solid fa-palette"></i> 绘画</span>
+                            <span class="tg"><i class="fa-solid fa-gamepad"></i> 游戏</span>
+                            <span class="tg"><i class="fa-solid fa-film"></i> 电影</span>
+                            <span class="tg"><i class="fa-solid fa-book"></i> 阅读</span>
+                            <span class="tg"><i class="fa-solid fa-microphone"></i> 播客</span>
+                            <span class="tg"><i class="fa-solid fa-pen-fancy"></i> 文学</span>
+                            <span class="tg"><i class="fa-solid fa-running"></i> 运动</span>
+                            <span class="tg"><i class="fa-solid fa-dumbbell"></i> 健身</span>
+                            <span class="tg"><i class="fa-solid fa-laptop-code"></i> 科技</span>
+                            <span class="tg"><i class="fa-brands fa-ethereum"></i> Web3</span>
+                            <span class="tg"><i class="fa-solid fa-paintbrush"></i> 设计</span>
+                            <span class="tg"><i class="fa-solid fa-leaf"></i> 自然</span>
+                        </div>
+                        <div style="font-size: 11.5px; color: var(--t-tertiary); margin-top: 14px"><i class="fa-solid fa-circle-info"></i> 已选 3 / 6 · 30 天内可调整 5 次（剩 4 次）</div>
+                    </div>
+                </div>
+
+                <!-- 外链账号 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#F59E0B,#EC4899)"><i class="fa-solid fa-link"></i></div>
+                        <div><h3>外链账号</h3><p>展示在主页的社交账号链接，最多 5 个</p></div>
+                    </div>
+                    <div class="body">
+                        <div class="sl-row">
+                            <div class="sl-ic" style="background: #1DA1F2"><i class="fa-brands fa-x-twitter"></i></div>
+                            <div class="sl-info"><div class="n">X (Twitter)</div><div class="h">https://x.com/luna_creator</div></div>
+                            <div class="sl-action"><span class="tag tag-success">已绑定</span> <button class="btn btn-sm" style="margin-left: 8px">编辑</button></div>
+                        </div>
+                        <div class="sl-row">
+                            <div class="sl-ic" style="background: linear-gradient(135deg,#C13584,#FD1D1D,#F77737)"><i class="fa-brands fa-instagram"></i></div>
+                            <div class="sl-info"><div class="n">Instagram</div><div class="h">@lunamoon.travel</div></div>
+                            <div class="sl-action"><span class="tag tag-success">已绑定</span> <button class="btn btn-sm" style="margin-left: 8px">编辑</button></div>
+                        </div>
+                        <div class="sl-row">
+                            <div class="sl-ic" style="background: #FF0000"><i class="fa-brands fa-youtube"></i></div>
+                            <div class="sl-info"><div class="n">YouTube</div><div class="h">@LunaTravels</div></div>
+                            <div class="sl-action"><span class="tag tag-success">已绑定</span> <button class="btn btn-sm" style="margin-left: 8px">编辑</button></div>
+                        </div>
+                        <div class="sl-row">
+                            <div class="sl-ic" style="background: rgba(255,255,255,0.06); border: 1px dashed var(--border-strong); color: var(--t-tertiary)"><i class="fa-solid fa-plus"></i></div>
+                            <div class="sl-info"><div class="n" style="color: var(--t-secondary)">添加外链账号</div><div class="h" style="color: var(--t-tertiary); font-family: inherit">支持 Twitter / IG / YouTube / TikTok / Telegram / Discord / Github 等</div></div>
+                            <div class="sl-action"><button class="btn btn-sm btn-primary"><i class="fa-solid fa-plus"></i> 新增</button></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 个性域名 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#10B981,#06B6D4)"><i class="fa-solid fa-globe"></i></div>
+                        <div><h3>个性域名</h3><p>专属链接 + Web3 域名（ENS / Lens）支持</p></div>
+                    </div>
+                    <div class="body">
+                        <div class="form-row">
+                            <div class="label">FansLoop 主页<div class="desc">基于 Handle 自动生成，可自定义</div></div>
+                            <div class="control">
+                                <div style="display:flex; align-items:center; gap:8px; max-width: 460px">
+                                    <span style="font-size: 13px; color: var(--t-tertiary); white-space: nowrap">fansloop.io/</span>
+                                    <input type="text" value="luna" style="flex:1">
+                                </div>
+                                <div class="help"><span><i class="fa-solid fa-circle-check" style="color:var(--success-light)"></i> 此短链可用</span></div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="label">绑定 ENS<div class="desc">使用以太坊域名解析你的链上身份</div></div>
+                            <div class="control">
+                                <div style="display:flex; align-items:center; gap:10px; padding: 12px 14px; background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.25); border-radius: 10px; max-width: 460px">
+                                    <i class="fa-solid fa-circle-check" style="color: var(--success-light); font-size: 16px"></i>
+                                    <div style="flex:1">
+                                        <div style="font-size: 13px; font-weight: 600">luna.eth</div>
+                                        <div style="font-size: 11px; color: var(--t-tertiary)">已通过 0x7Bf2…c3D9 验证</div>
+                                    </div>
+                                    <button class="btn btn-sm">解绑</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 保存条 -->
+                <div class="set-card" style="background: transparent; border: none">
+                    <div class="save-bar" style="background: var(--bg-elevated); border-radius: var(--r-lg); border: 1px solid var(--border)">
+                        <button class="btn"><i class="fa-solid fa-rotate-left"></i> 重置</button>
+                        <button class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> 保存修改</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+</body>
+</html>

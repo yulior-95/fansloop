@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>收藏 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.bk-grid { display: grid; grid-template-columns: 240px 1fr; gap: 22px; }
+@media (max-width: 1100px) { .bk-grid { grid-template-columns: 1fr; } .bk-folders { display: none; } }
+
+/* 收藏夹侧栏 */
+.bk-folders { display: flex; flex-direction: column; gap: 6px; }
+.bk-folder {
+    padding: 12px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: 0.15s;
+    display: flex; align-items: center; gap: 11px;
+}
+.bk-folder:hover { background: var(--bg-card-2); }
+.bk-folder.active {
+    background: linear-gradient(135deg, rgba(168,85,247,0.14), rgba(236,72,153,0.06));
+    border-color: rgba(168,85,247,0.35);
+    box-shadow: 0 6px 14px rgba(168,85,247,0.15);
+}
+.bk-folder .ic-tile {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+.bk-folder .info { flex: 1; min-width: 0; }
+.bk-folder .info .ti { font-size: 13px; font-weight: 600; }
+.bk-folder .info .sub { font-size: 11px; color: var(--t-tertiary); margin-top: 1px; }
+.bk-folder .cnt {
+    font-size: 11px;
+    color: var(--t-tertiary);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+.bk-folder.active .cnt { color: var(--brand-purple); }
+
+.new-folder {
+    padding: 12px 14px;
+    background: rgba(168,85,247,0.06);
+    border: 1.5px dashed rgba(168,85,247,0.3);
+    border-radius: var(--r-md);
+    color: #C084FC;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    margin-top: 6px;
+}
+.new-folder:hover { background: rgba(168,85,247,0.1); }
+
+/* 顶部工具栏 */
+.bk-toolbar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+.bk-toolbar .tb-search {
+    flex: 1; min-width: 200px;
+    height: 34px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0 12px;
+    color: var(--t-secondary);
+    font-size: 12.5px;
+    display: flex; align-items: center; gap: 8px;
+}
+.bk-toolbar .tb-search input { background: transparent; border: none; outline: none; flex: 1; color: #fff; }
+
+.bk-toolbar .tb-tabs {
+    display: inline-flex;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 3px;
+}
+.bk-toolbar .tb-tabs .tt {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    color: var(--t-tertiary);
+    cursor: pointer;
+}
+.bk-toolbar .tb-tabs .tt.active { background: var(--brand-grad); color: #fff; font-weight: 600; }
+
+.bk-toolbar .view-toggle {
+    display: inline-flex;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 3px;
+}
+.bk-toolbar .view-toggle .vt {
+    width: 30px; height: 26px;
+    border-radius: 5px;
+    color: var(--t-tertiary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    cursor: pointer;
+}
+.bk-toolbar .view-toggle .vt.active { background: var(--bg-card-2); color: #fff; }
+
+/* 收藏卡片 grid */
+.bk-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.bk-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    cursor: pointer;
+    transition: 0.2s;
+    position: relative;
+}
+.bk-card:hover { transform: translateY(-3px); border-color: var(--border-strong); box-shadow: 0 14px 34px rgba(0,0,0,0.4); }
+
+.bk-card .cover {
+    aspect-ratio: 16/10;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+.bk-card .cover::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.7));
+}
+.bk-card .cover .top-row {
+    position: absolute;
+    top: 10px; left: 10px; right: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 2;
+}
+.bk-card .cover .type-pill {
+    padding: 4px 9px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    display: inline-flex; align-items: center; gap: 5px;
+}
+.bk-card .cover .bookmarked {
+    width: 30px; height: 30px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--warning-light);
+    font-size: 12px;
+}
+.bk-card .cover .bot-row {
+    position: absolute;
+    bottom: 10px; left: 12px; right: 12px;
+    z-index: 2;
+    color: #fff;
+}
+.bk-card .cover .bot-row .ti {
+    font-size: 14px; font-weight: 700;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.bk-card .cover .bot-row .meta {
+    margin-top: 6px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.85);
+    display: flex; align-items: center; gap: 9px;
+}
+
+.bk-card .body { padding: 12px 14px; }
+.bk-card .body .author {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 8px;
+}
+.bk-card .body .author .av { width: 26px; height: 26px; border-radius: 50%; background-size: cover; }
+.bk-card .body .author .nm { font-size: 12px; font-weight: 600; }
+.bk-card .body .author .role { font-size: 10.5px; color: var(--t-tertiary); margin-left: auto; }
+
+.bk-card .body .footer {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; color: var(--t-tertiary);
+}
+.bk-card .body .footer span { display: inline-flex; align-items: center; gap: 4px; }
+
+.bk-card .quick-act {
+    position: absolute;
+    top: 10px; right: 10px;
+    display: flex; gap: 6px;
+    opacity: 0;
+    transition: 0.2s;
+    z-index: 3;
+}
+.bk-card:hover .quick-act { opacity: 1; }
+.bk-card .quick-act button {
+    width: 30px; height: 30px;
+    background: rgba(0,0,0,0.7);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 11px;
+    backdrop-filter: blur(8px);
+}
+
+.live-badge {
+    background: var(--danger) !important;
+    animation: pulse-live 2s infinite;
+}
+@keyframes pulse-live {
+    0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); }
+    50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+}
+
+.paid-watermark {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.2), rgba(0,0,0,0.55));
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #fff;
+    z-index: 1;
+}
+.paid-watermark .lock-ic {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(251,191,36,0.95), rgba(245,158,11,0.95));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    color: #1a1a2e;
+    box-shadow: 0 8px 24px rgba(251,191,36,0.4);
+    margin-bottom: 8px;
+}
+.paid-watermark .pw-tx { font-size: 12px; font-weight: 700; }
+
+/* 标签筛选 */
+.tag-bar {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+    <aside class="app-sidebar">
+        <div class="s-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator</span></div>
+        </div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item active" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+
+        <div class="s-bottom">
+            <div class="s-pro-card">
+                <div class="crown"><i class="fa-solid fa-crown"></i></div>
+                <h4>升级 Creator Pro</h4>
+                <p>解锁高级数据 / 优先推流</p>
+                <button>立即升级</button>
+            </div>
+            <div class="s-user">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div>
+                <i class="fa-solid fa-ellipsis-vertical more"></i>
+            </div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索创作者、内容或话题…</span><span class="kbd">⌘ K</span></div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i><span class="dot"></span></button>
+            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <h1>我的收藏 <span class="chip-pro">142 ITEMS</span></h1>
+                <p>统一管理收藏的图文、视频、直播回放与创作者，按收藏夹归类，快速查找。</p>
+            </div>
+            <div class="ph-r">
+                <button class="btn"><i class="fa-solid fa-folder-plus"></i> 新建收藏夹</button>
+                <button class="btn btn-primary"><i class="fa-solid fa-shuffle"></i> 整理</button>
+            </div>
+        </div>
+
+        <div class="bk-grid">
+
+            <!-- 左侧：收藏夹 -->
+            <aside class="bk-folders">
+                <div class="bk-folder active">
+                    <div class="ic-tile" style="background: linear-gradient(135deg, #A855F7, #EC4899)"><i class="fa-solid fa-bookmark"></i></div>
+                    <div class="info"><div class="ti">全部收藏</div><div class="sub">所有收藏内容</div></div>
+                    <div class="cnt">142</div>
+                </div>
+                <div class="bk-folder">
+                    <div class="ic-tile" style="background: linear-gradient(135deg, #F59E0B, #EC4899)"><i class="fa-solid fa-camera"></i></div>
+                    <div class="info"><div class="ti">摄影灵感</div><div class="sub">42 项 · 旅行 / 人像</div></div>
+                    <div class="cnt">42</div>
+                </div>
+                <div class="bk-folder">
+                    <div class="ic-tile" style="background: linear-gradient(135deg, #3B82F6, #06B6D4)"><i class="fa-solid fa-music"></i></div>
+                    <div class="info"><div class="ti">音乐合辑</div><div class="sub">28 项 · 古典 / 电子</div></div>
+                    <div class="cnt">28</div>
+                </div>
+                <div class="bk-folder">
+                    <div class="ic-tile" style="background: linear-gradient(135deg, #10B981, #14B8A6)"><i class="fa-solid fa-gamepad"></i></div>
+                    <div class="info"><div class="ti">游戏直播回放</div><div class="sub">18 项</div></div>
+                    <div class="cnt">18</div>
+                </div>
+                <div class="bk-folder">
+                    <div class="ic-tile" style="background: linear-gradient(135deg, #EF4444, #F59E0B)"><i class="fa-solid fa-fire"></i></div>
+                    <div class="info"><div class="ti">优质付费</div><div class="sub">已购买 + 已收藏</div></div>
+                    <div class="cnt">12</div>
+                </div>
+                <div class="bk-folder">
+                    <div class="ic-tile" style="background: linear-gradient(135deg, #8B5CF6, #06B6D4)"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <div class="info"><div class="ti">学习教程</div><div class="sub">16 项</div></div>
+                    <div class="cnt">16</div>
+                </div>
+                <div class="bk-folder">
+                    <div class="ic-tile" style="background: linear-gradient(135deg, #6B7280, #4B5563)"><i class="fa-solid fa-user-group"></i></div>
+                    <div class="info"><div class="ti">关注的创作者</div><div class="sub">26 位</div></div>
+                    <div class="cnt">26</div>
+                </div>
+                <div class="new-folder"><i class="fa-solid fa-plus"></i> 新建收藏夹</div>
+            </aside>
+
+            <!-- 主内容 -->
+            <div>
+                <div class="bk-toolbar">
+                    <div class="tb-search">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input placeholder="在收藏中搜索…" />
+                    </div>
+                    <div class="tb-tabs">
+                        <div class="tt active">全部</div>
+                        <div class="tt">图文</div>
+                        <div class="tt">视频</div>
+                        <div class="tt">直播</div>
+                        <div class="tt">付费</div>
+                    </div>
+                    <div class="view-toggle">
+                        <div class="vt active"><i class="fa-solid fa-grip"></i></div>
+                        <div class="vt"><i class="fa-solid fa-list-ul"></i></div>
+                    </div>
+                    <button class="btn btn-sm"><i class="fa-solid fa-arrow-down-wide-short"></i> 最近收藏</button>
+                </div>
+
+                <div class="tag-bar">
+                    <div class="chip active">全部标签</div>
+                    <div class="chip"># 旅行摄影 (24)</div>
+                    <div class="chip"># 古典音乐 (18)</div>
+                    <div class="chip"># 街拍 (16)</div>
+                    <div class="chip"># Apex (12)</div>
+                    <div class="chip"># 美食 (9)</div>
+                    <div class="chip"># 教程 (7)</div>
+                </div>
+
+                <div class="bk-cards">
+
+                    <div class="bk-card">
+                        <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=600')">
+                            <div class="quick-act">
+                                <button><i class="fa-solid fa-share"></i></button>
+                                <button><i class="fa-solid fa-folder"></i></button>
+                            </div>
+                            <div class="top-row">
+                                <span class="type-pill"><i class="fa-solid fa-image"></i> 图文 · 9</span>
+                                <span class="bookmarked"><i class="fa-solid fa-bookmark"></i></span>
+                            </div>
+                            <div class="bot-row">
+                                <div class="ti">富士山五合目 · 零下 4℃ 的清晨日出全记录</div>
+                                <div class="meta"><span><i class="fa-regular fa-heart"></i> 2.4K</span><span><i class="fa-regular fa-comment"></i> 186</span><span><i class="fa-regular fa-bookmark"></i> 412</span></div>
+                            </div>
+                        </div>
+                        <div class="body">
+                            <div class="author">
+                                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                                <div class="nm">Luna 🌙</div>
+                                <span class="role">3 天前收藏</span>
+                            </div>
+                            <div class="footer">
+                                <span><i class="fa-solid fa-folder" style="color: #C084FC"></i> 摄影灵感</span>
+                                <span style="margin-left: auto"><i class="fa-solid fa-hashtag"></i> 旅行</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bk-card">
+                        <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=600')">
+                            <div class="quick-act">
+                                <button><i class="fa-solid fa-share"></i></button>
+                                <button><i class="fa-solid fa-folder"></i></button>
+                            </div>
+                            <div class="top-row">
+                                <span class="type-pill"><i class="fa-solid fa-video"></i> 视频 · 12:34</span>
+                                <span class="bookmarked"><i class="fa-solid fa-bookmark"></i></span>
+                            </div>
+                            <div class="bot-row">
+                                <div class="ti">雨夜小提琴 · 暴雨中的现场即兴</div>
+                                <div class="meta"><span><i class="fa-regular fa-eye"></i> 18.2K</span><span><i class="fa-regular fa-heart"></i> 3.1K</span></div>
+                            </div>
+                        </div>
+                        <div class="body">
+                            <div class="author">
+                                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1463453091185-61582044d556?w=80')"></div>
+                                <div class="nm">Mason</div>
+                                <span class="role">5 天前</span>
+                            </div>
+                            <div class="footer">
+                                <span><i class="fa-solid fa-folder" style="color: var(--info-light)"></i> 音乐合辑</span>
+                                <span style="margin-left: auto"><i class="fa-solid fa-hashtag"></i> 古典</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bk-card">
+                        <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600')">
+                            <div class="quick-act">
+                                <button><i class="fa-solid fa-share"></i></button>
+                                <button><i class="fa-solid fa-folder"></i></button>
+                            </div>
+                            <div class="top-row">
+                                <span class="type-pill live-badge"><i class="fa-solid fa-circle"></i> 直播回放</span>
+                                <span class="bookmarked"><i class="fa-solid fa-bookmark"></i></span>
+                            </div>
+                            <div class="bot-row">
+                                <div class="ti">Apex 大师之路 · 周五开黑全程回放</div>
+                                <div class="meta"><span><i class="fa-regular fa-eye"></i> 24.8K</span><span><i class="fa-regular fa-clock"></i> 3:24:18</span></div>
+                            </div>
+                        </div>
+                        <div class="body">
+                            <div class="author">
+                                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></div>
+                                <div class="nm">NovaPlay</div>
+                                <span class="role">1 周前</span>
+                            </div>
+                            <div class="footer">
+                                <span><i class="fa-solid fa-folder" style="color: var(--success-light)"></i> 游戏直播回放</span>
+                                <span style="margin-left: auto"><i class="fa-solid fa-hashtag"></i> Apex</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bk-card">
+                        <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1542435503-956c469947f6?w=600')">
+                            <div class="paid-watermark">
+                                <div class="lock-ic"><i class="fa-solid fa-crown"></i></div>
+                                <div class="pw-tx">订阅可见 · 已订阅</div>
+                            </div>
+                            <div class="quick-act">
+                                <button><i class="fa-solid fa-share"></i></button>
+                                <button><i class="fa-solid fa-folder"></i></button>
+                            </div>
+                            <div class="top-row">
+                                <span class="type-pill"><i class="fa-solid fa-lock"></i> 优质 · 28 USDT</span>
+                                <span class="bookmarked"><i class="fa-solid fa-bookmark"></i></span>
+                            </div>
+                            <div class="bot-row">
+                                <div class="ti">银盐时代 · 长卷胶片暗房工作流</div>
+                                <div class="meta"><span><i class="fa-solid fa-image"></i> 24 张</span><span><i class="fa-regular fa-bookmark"></i> 612</span></div>
+                            </div>
+                        </div>
+                        <div class="body">
+                            <div class="author">
+                                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></div>
+                                <div class="nm">Aria</div>
+                                <span class="role">2 周前</span>
+                            </div>
+                            <div class="footer">
+                                <span><i class="fa-solid fa-folder" style="color: var(--warning-light)"></i> 优质付费</span>
+                                <span style="margin-left: auto"><i class="fa-solid fa-hashtag"></i> 摄影</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bk-card">
+                        <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1493612276216-ee3925520721?w=600')">
+                            <div class="quick-act">
+                                <button><i class="fa-solid fa-share"></i></button>
+                                <button><i class="fa-solid fa-folder"></i></button>
+                            </div>
+                            <div class="top-row">
+                                <span class="type-pill"><i class="fa-solid fa-video"></i> 视频 · 25:16</span>
+                                <span class="bookmarked"><i class="fa-solid fa-bookmark"></i></span>
+                            </div>
+                            <div class="bot-row">
+                                <div class="ti">咖啡馆问答 · 第 4 期 · 关于成长的几件小事</div>
+                                <div class="meta"><span><i class="fa-regular fa-eye"></i> 9.8K</span><span><i class="fa-regular fa-heart"></i> 1.2K</span></div>
+                            </div>
+                        </div>
+                        <div class="body">
+                            <div class="author">
+                                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80')"></div>
+                                <div class="nm">Echo</div>
+                                <span class="role">3 周前</span>
+                            </div>
+                            <div class="footer">
+                                <span><i class="fa-solid fa-folder" style="color: var(--info-light)"></i> 音乐合辑</span>
+                                <span style="margin-left: auto"><i class="fa-solid fa-hashtag"></i> 谈话</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bk-card">
+                        <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1551434678-e076c223a692?w=600')">
+                            <div class="quick-act">
+                                <button><i class="fa-solid fa-share"></i></button>
+                                <button><i class="fa-solid fa-folder"></i></button>
+                            </div>
+                            <div class="top-row">
+                                <span class="type-pill"><i class="fa-solid fa-graduation-cap"></i> 教程</span>
+                                <span class="bookmarked"><i class="fa-solid fa-bookmark"></i></span>
+                            </div>
+                            <div class="bot-row">
+                                <div class="ti">Solidity 智能合约入门 · 从零写一个 NFT</div>
+                                <div class="meta"><span><i class="fa-regular fa-eye"></i> 14.6K</span><span><i class="fa-regular fa-bookmark"></i> 2.1K</span></div>
+                            </div>
+                        </div>
+                        <div class="body">
+                            <div class="author">
+                                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
+                                <div class="nm">DevHub</div>
+                                <span class="role">1 个月前</span>
+                            </div>
+                            <div class="footer">
+                                <span><i class="fa-solid fa-folder" style="color: #6EE7B7"></i> 学习教程</span>
+                                <span style="margin-left: auto"><i class="fa-solid fa-hashtag"></i> Web3</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>

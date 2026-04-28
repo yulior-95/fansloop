@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>FansLoop Web · 交互演示</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+html, body { height: 100%; overflow: hidden; }
+body { display: grid; grid-template-rows: auto 1fr; }
+
+.demo-bar {
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 22px;
+    display: flex; align-items: center; gap: 14px;
+    height: 56px;
+}
+.demo-bar .brand { display: flex; align-items: center; gap: 10px; padding-right: 18px; border-right: 1px solid var(--border); margin-right: 6px; }
+.demo-bar .brand .lo { width: 32px; height: 32px; border-radius: 8px; background: var(--brand-grad); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; }
+.demo-bar .brand .nm { font-size: 14px; font-weight: 800; }
+.demo-bar .brand .sub { font-size: 10px; color: var(--t-tertiary); }
+
+.nav-btns { display: flex; gap: 4px; }
+.nav-btns button {
+    width: 32px; height: 32px;
+    background: var(--bg-input); border: 1px solid var(--border);
+    color: var(--t-secondary); border-radius: 8px;
+    cursor: pointer; font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+}
+.nav-btns button:hover { background: var(--bg-card-2); color: #fff; }
+
+.url-bar {
+    flex: 1;
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 7px 14px;
+    font-size: 12.5px;
+    color: var(--t-secondary);
+    height: 36px;
+}
+.url-bar i.lock { color: var(--success); font-size: 11px; }
+.url-bar .path { color: var(--t-tertiary); }
+.url-bar .page { color: #fff; font-weight: 600; }
+
+.viewport-toggle { display: flex; gap: 2px; padding: 3px; background: var(--bg-input); border-radius: 8px; }
+.viewport-toggle button { background: transparent; border: none; padding: 6px 10px; font-size: 11px; color: var(--t-tertiary); border-radius: 5px; cursor: pointer; }
+.viewport-toggle button.active { background: var(--brand-grad); color: #fff; }
+
+.page-picker {
+    position: relative;
+}
+.page-picker > button {
+    height: 36px;
+    padding: 0 14px; gap: 8px;
+    background: var(--bg-input); border: 1px solid var(--border);
+    color: #fff; border-radius: 10px;
+    font-size: 12.5px; font-weight: 600;
+    display: flex; align-items: center;
+    cursor: pointer;
+}
+.dropdown {
+    position: absolute; right: 0; top: calc(100% + 6px);
+    width: 720px; max-height: 70vh; overflow-y: auto;
+    background: var(--bg-card); border: 1px solid var(--border-strong);
+    border-radius: var(--r-lg); padding: 16px;
+    box-shadow: var(--shadow-lg);
+    z-index: 999;
+    display: none;
+}
+.dropdown.show { display: block; }
+.dropdown .group-title { font-size: 11px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.4px; margin: 12px 0 8px; font-weight: 600; }
+.dropdown .group-title:first-child { margin-top: 0; }
+.dropdown .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; }
+.dropdown .pg-item {
+    padding: 8px 10px;
+    font-size: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--t-secondary);
+    display: flex; align-items: center; gap: 8px;
+}
+.dropdown .pg-item:hover { background: var(--bg-input); color: #fff; }
+.dropdown .pg-item.active { background: var(--brand-grad); color: #fff; }
+.dropdown .pg-item i { font-size: 10px; color: var(--t-tertiary); width: 14px; }
+.dropdown .pg-item.active i { color: #fff; }
+
+.stage-wrap {
+    background: var(--bg-canvas);
+    overflow: auto;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 22px;
+}
+.stage {
+    width: 100%; max-width: 1440px;
+    height: calc(100vh - 56px - 44px);
+    background: var(--bg-app);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+.stage iframe { width: 100%; height: 100%; border: none; display: block; }
+
+.stage.tablet { max-width: 1024px; }
+.stage.mobile { max-width: 480px; }
+</style>
+</head>
+<body>
+
+<div class="demo-bar">
+    <div class="brand">
+        <div class="lo"><i class="fa-solid fa-infinity"></i></div>
+        <div><div class="nm">FansLoop Web Demo</div><div class="sub">交互式高保真原型</div></div>
+    </div>
+
+    <div class="nav-btns">
+        <button id="btn-back" title="后退"><i class="fa-solid fa-arrow-left"></i></button>
+        <button id="btn-forward" title="前进"><i class="fa-solid fa-arrow-right"></i></button>
+        <button id="btn-reload" title="刷新"><i class="fa-solid fa-rotate-right"></i></button>
+        <button id="btn-home" title="首页"><i class="fa-solid fa-house"></i></button>
+    </div>
+
+    <div class="url-bar">
+        <i class="fa-solid fa-lock lock"></i>
+        <span><span class="path">https://fansloop.io/</span><span class="page" id="urlPage">login-entry.html</span></span>
+    </div>
+
+    <div class="viewport-toggle">
+        <button class="active" data-vp="desktop"><i class="fa-solid fa-desktop"></i> 桌面</button>
+        <button data-vp="tablet"><i class="fa-solid fa-tablet"></i> 平板</button>
+        <button data-vp="mobile"><i class="fa-solid fa-mobile"></i> 移动</button>
+    </div>
+
+    <div class="page-picker">
+        <button id="picker-toggle">
+            <i class="fa-solid fa-table-cells"></i>
+            <span id="curr-page-name">登录入口</span>
+            <i class="fa-solid fa-chevron-down" style="font-size: 9px"></i>
+        </button>
+        <div class="dropdown" id="dropdown">
+            <div class="group-title">钱包登录 / 注册</div>
+            <div class="grid">
+                <div class="pg-item active" data-page="login-entry.html"><i class="fa-solid fa-right-to-bracket"></i>登录入口</div>
+                <div class="pg-item" data-page="login-select-method.html"><i class="fa-solid fa-list"></i>选择钱包</div>
+                <div class="pg-item" data-page="login-walletconnect-qr.html"><i class="fa-solid fa-qrcode"></i>WalletConnect</div>
+                <div class="pg-item" data-page="login-metamask.html"><i class="fa-brands fa-ethereum"></i>MetaMask</div>
+                <div class="pg-item" data-page="login-sign-request.html"><i class="fa-solid fa-signature"></i>签名请求</div>
+                <div class="pg-item" data-page="login-signing.html"><i class="fa-solid fa-spinner"></i>签名中</div>
+                <div class="pg-item" data-page="login-success.html"><i class="fa-solid fa-circle-check"></i>登录成功</div>
+                <div class="pg-item" data-page="register-role.html"><i class="fa-solid fa-user-plus"></i>选择身份</div>
+                <div class="pg-item" data-page="register-profile.html"><i class="fa-solid fa-id-card"></i>完善资料</div>
+                <div class="pg-item" data-page="register-interests.html"><i class="fa-solid fa-heart"></i>选择兴趣</div>
+                <div class="pg-item" data-page="login-errors.html"><i class="fa-solid fa-circle-exclamation"></i>错误状态</div>
+            </div>
+
+            <div class="group-title">主场景</div>
+            <div class="grid">
+                <div class="pg-item" data-page="home.html"><i class="fa-solid fa-house"></i>首页</div>
+                <div class="pg-item" data-page="subscriptions.html"><i class="fa-solid fa-crown"></i>订阅</div>
+                <div class="pg-item" data-page="discover.html"><i class="fa-solid fa-compass"></i>发现</div>
+                <div class="pg-item" data-page="create.html"><i class="fa-solid fa-pen-to-square"></i>创建内容</div>
+                <div class="pg-item" data-page="messages.html"><i class="fa-regular fa-comments"></i>消息</div>
+                <div class="pg-item" data-page="notifications.html"><i class="fa-regular fa-bell"></i>通知</div>
+                <div class="pg-item" data-page="bookmarks.html"><i class="fa-regular fa-bookmark"></i>收藏</div>
+                <div class="pg-item" data-page="profile.html"><i class="fa-solid fa-user"></i>个人主页</div>
+                <div class="pg-item" data-page="settings.html"><i class="fa-solid fa-gear"></i>设置</div>
+                <div class="pg-item" data-page="wallet.html"><i class="fa-solid fa-wallet"></i>我的钱包</div>
+            </div>
+
+            <div class="group-title">话题 / 直播 / 创作者</div>
+            <div class="grid">
+                <div class="pg-item" data-page="topics.html"><i class="fa-solid fa-fire"></i>热门话题</div>
+                <div class="pg-item" data-page="topic-detail.html"><i class="fa-solid fa-hashtag"></i>话题详情</div>
+                <div class="pg-item" data-page="live-detail.html"><i class="fa-solid fa-tower-broadcast"></i>直播详情</div>
+                <div class="pg-item" data-page="creator-profile.html"><i class="fa-solid fa-user-tie"></i>创作者详情</div>
+            </div>
+
+            <div class="group-title">交互弹窗</div>
+            <div class="grid">
+                <div class="pg-item" data-page="gift-modal.html"><i class="fa-solid fa-gift"></i>送礼</div>
+                <div class="pg-item" data-page="share-modal.html"><i class="fa-solid fa-arrow-up-right-from-square"></i>分享</div>
+                <div class="pg-item" data-page="comment-modal.html"><i class="fa-regular fa-comment"></i>评论</div>
+            </div>
+
+            <div class="group-title">设置中心</div>
+            <div class="grid">
+                <div class="pg-item" data-page="settings.html"><i class="fa-solid fa-gear"></i>设置总览</div>
+                <div class="pg-item" data-page="settings-account.html"><i class="fa-regular fa-user"></i>账户资料</div>
+                <div class="pg-item" data-page="settings-security.html"><i class="fa-solid fa-shield-halved"></i>账户安全</div>
+                <div class="pg-item" data-page="settings-wallet.html"><i class="fa-solid fa-wallet"></i>钱包与支付</div>
+                <div class="pg-item" data-page="settings-notification.html"><i class="fa-regular fa-bell"></i>通知偏好</div>
+                <div class="pg-item" data-page="settings-privacy.html"><i class="fa-solid fa-user-shield"></i>隐私设置</div>
+                <div class="pg-item" data-page="settings-display.html"><i class="fa-solid fa-palette"></i>外观语言</div>
+            </div>
+
+            <div class="group-title">充值 / 提现</div>
+            <div class="grid">
+                <div class="pg-item" data-page="recharge.html"><i class="fa-solid fa-arrow-down"></i>USDT 充值</div>
+                <div class="pg-item" data-page="recharge-qr-modal.html"><i class="fa-solid fa-qrcode"></i>充值二维码</div>
+                <div class="pg-item" data-page="recharge-timeout.html"><i class="fa-solid fa-clock"></i>订单超时</div>
+                <div class="pg-item" data-page="recharge-fiat.html"><i class="fa-solid fa-credit-card"></i>法币充值</div>
+                <div class="pg-item" data-page="recharge-fiat-bind.html"><i class="fa-solid fa-link"></i>绑定银行卡</div>
+                <div class="pg-item" data-page="recharge-fiat-verify.html"><i class="fa-solid fa-shield"></i>支付验证</div>
+                <div class="pg-item" data-page="recharge-fiat-switch-card.html"><i class="fa-solid fa-arrows-rotate"></i>切换银行卡</div>
+                <div class="pg-item" data-page="creator-withdraw.html"><i class="fa-solid fa-arrow-up"></i>提现方式</div>
+                <div class="pg-item" data-page="withdraw-fiat.html"><i class="fa-solid fa-money-bill"></i>法币提现</div>
+                <div class="pg-item" data-page="withdraw-fiat-verify.html"><i class="fa-solid fa-mobile"></i>短信验证</div>
+                <div class="pg-item" data-page="withdraw-fiat-verify-pwd.html"><i class="fa-solid fa-key"></i>资金密码</div>
+                <div class="pg-item" data-page="withdraw-fiat-edit.html"><i class="fa-solid fa-pen"></i>修改银行卡</div>
+                <div class="pg-item" data-page="withdraw-fiat-success.html"><i class="fa-solid fa-circle-check"></i>提现成功</div>
+                <div class="pg-item" data-page="withdraw-usdt.html"><i class="fa-brands fa-ethereum"></i>USDT 链上提现</div>
+            </div>
+
+            <div class="group-title">收入 / 账变</div>
+            <div class="grid">
+                <div class="pg-item" data-page="creator-income.html"><i class="fa-solid fa-coins"></i>创作者收入</div>
+                <div class="pg-item" data-page="transactions.html"><i class="fa-solid fa-list-ul"></i>账变记录</div>
+                <div class="pg-item" data-page="transactions-search.html"><i class="fa-solid fa-magnifying-glass"></i>高级搜索</div>
+                <div class="pg-item" data-page="transactions-export.html"><i class="fa-solid fa-file-export"></i>导出报表</div>
+                <div class="pg-item" data-page="transaction-detail.html"><i class="fa-solid fa-receipt"></i>交易详情</div>
+                <div class="pg-item" data-page="transaction-share-poster.html"><i class="fa-solid fa-share-nodes"></i>分享海报</div>
+                <div class="pg-item" data-page="transaction-more-menu.html"><i class="fa-solid fa-ellipsis"></i>更多菜单</div>
+                <div class="pg-item" data-page="transaction-appeal.html"><i class="fa-solid fa-gavel"></i>发起申诉</div>
+                <div class="pg-item" data-page="transaction-contact.html"><i class="fa-solid fa-headset"></i>联系客服</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stage-wrap">
+    <div class="stage" id="stage">
+        <iframe id="frame" src="login-entry.html"></iframe>
+    </div>
+</div>
+
+<script>
+const frame = document.getElementById('frame');
+const urlPage = document.getElementById('urlPage');
+const currName = document.getElementById('curr-page-name');
+const dropdown = document.getElementById('dropdown');
+const stage = document.getElementById('stage');
+
+let history = ['login-entry.html'];
+let cursor = 0;
+
+function navigate(page, name, push=true) {
+    frame.src = page;
+    urlPage.textContent = page;
+    if (name) currName.textContent = name;
+    if (push) {
+        history = history.slice(0, cursor+1);
+        history.push(page);
+        cursor = history.length-1;
+    }
+    document.querySelectorAll('.pg-item').forEach(it => it.classList.toggle('active', it.dataset.page === page));
+}
+
+document.querySelectorAll('.pg-item').forEach(it => {
+    it.addEventListener('click', () => {
+        navigate(it.dataset.page, it.textContent.trim());
+        dropdown.classList.remove('show');
+    });
+});
+
+document.getElementById('picker-toggle').addEventListener('click', e => {
+    e.stopPropagation();
+    dropdown.classList.toggle('show');
+});
+document.addEventListener('click', () => dropdown.classList.remove('show'));
+
+document.getElementById('btn-back').addEventListener('click', () => {
+    if (cursor > 0) { cursor--; navigate(history[cursor], null, false); }
+});
+document.getElementById('btn-forward').addEventListener('click', () => {
+    if (cursor < history.length-1) { cursor++; navigate(history[cursor], null, false); }
+});
+document.getElementById('btn-reload').addEventListener('click', () => frame.src = frame.src);
+document.getElementById('btn-home').addEventListener('click', () => navigate('login-entry.html', '登录入口'));
+
+document.querySelectorAll('.viewport-toggle button').forEach(b => {
+    b.addEventListener('click', () => {
+        document.querySelectorAll('.viewport-toggle button').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        stage.className = 'stage ' + (b.dataset.vp === 'desktop' ? '' : b.dataset.vp);
+    });
+});
+</script>
+</body>
+</html>

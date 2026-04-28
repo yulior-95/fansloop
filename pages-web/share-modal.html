@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>分享 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+body { background: linear-gradient(135deg, #1B0B3A, #2D1B69 50%, #4A1063); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+
+.share-modal {
+    width: 100%;
+    max-width: 560px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+    overflow: hidden;
+}
+
+.share-head {
+    padding: 22px 24px 18px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+}
+.share-head .close {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,0.06);
+    color: var(--t-secondary);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+}
+.share-head h2 { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 12px; letter-spacing: -0.3px; }
+.share-head h2 .ic {
+    width: 32px; height: 32px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #3B82F6, #06B6D4);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    box-shadow: 0 8px 18px rgba(59,130,246,0.35);
+}
+.share-head p { font-size: 12px; color: var(--t-tertiary); margin-top: 6px; padding-left: 44px; }
+
+/* 卡片预览 */
+.share-preview {
+    margin: 18px 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    display: flex; gap: 12px;
+    padding: 12px;
+}
+.share-preview .thumb {
+    width: 90px; height: 90px;
+    border-radius: 8px;
+    background: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400') center/cover;
+    flex-shrink: 0;
+    position: relative;
+}
+.share-preview .thumb::after {
+    content: '\f03e';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    bottom: 6px; right: 6px;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+.share-preview .info { flex: 1; min-width: 0; }
+.share-preview .info .ti {
+    font-size: 13.5px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--t-primary);
+    margin-bottom: 5px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.share-preview .info .by {
+    font-size: 11px;
+    color: var(--t-tertiary);
+    display: flex; align-items: center; gap: 5px;
+    margin-bottom: 6px;
+}
+.share-preview .info .by .av { width: 18px; height: 18px; border-radius: 50%; background-size: cover; }
+.share-preview .info .stats { display: flex; gap: 12px; font-size: 10.5px; color: var(--t-tertiary); }
+.share-preview .info .stats span { display: inline-flex; align-items: center; gap: 4px; }
+
+/* 平台 grid */
+.platform-section { padding: 0 24px; }
+.platform-section h4 {
+    font-size: 11px;
+    color: var(--t-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.platform-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+}
+.plat {
+    text-align: center;
+    cursor: pointer;
+    transition: 0.18s;
+    padding: 14px 8px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+}
+.plat:hover { background: var(--bg-hover); transform: translateY(-2px); }
+.plat .ic-circle {
+    width: 44px; height: 44px;
+    margin: 0 auto 8px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+}
+.plat .ic-circle.tw { background: linear-gradient(135deg, #1DA1F2, #0EA5E9); }
+.plat .ic-circle.fb { background: linear-gradient(135deg, #1877F2, #4267B2); }
+.plat .ic-circle.ig { background: linear-gradient(135deg, #FBBF24, #EC4899, #8B5CF6); }
+.plat .ic-circle.tg { background: linear-gradient(135deg, #0EA5E9, #06B6D4); }
+.plat .ic-circle.dc { background: linear-gradient(135deg, #5865F2, #4752C4); }
+.plat .ic-circle.wx { background: linear-gradient(135deg, #07C160, #10B981); }
+.plat .ic-circle.qq { background: linear-gradient(135deg, #12B7F5, #06B6D4); }
+.plat .ic-circle.wb { background: linear-gradient(135deg, #E6162D, #DC2626); }
+.plat .ic-circle.rd { background: linear-gradient(135deg, #FF4500, #F97316); }
+.plat .ic-circle.ln { background: linear-gradient(135deg, #00B900, #10B981); }
+.plat .nm { font-size: 11px; font-weight: 600; color: var(--t-secondary); }
+
+/* 链接卡 */
+.link-card {
+    margin: 0 24px 18px;
+    padding: 14px;
+    background: rgba(168,85,247,0.05);
+    border: 1px solid rgba(168,85,247,0.18);
+    border-radius: var(--r-md);
+}
+.link-card .lk-row {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--t-secondary);
+    margin-bottom: 10px;
+}
+.link-card .lk-row .url {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: ui-monospace, monospace;
+    color: #C084FC;
+}
+.link-card .lk-row .copy {
+    padding: 4px 12px;
+    background: var(--brand-grad);
+    color: #fff;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.link-card .lk-options {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 11.5px;
+    color: var(--t-tertiary);
+}
+.link-card .lk-options label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.link-card .lk-options input { accent-color: var(--brand-purple); }
+
+/* QR + 海报 */
+.share-extra {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 0 24px 18px;
+}
+.extra-card {
+    padding: 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: 0.18s;
+    display: flex; gap: 12px; align-items: center;
+}
+.extra-card:hover { background: var(--bg-hover); border-color: var(--border-strong); }
+.extra-card .ic-tile {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+.extra-card.qr .ic-tile { background: linear-gradient(135deg, #10B981, #14B8A6); }
+.extra-card.poster .ic-tile { background: linear-gradient(135deg, #A855F7, #EC4899); }
+.extra-card .info .ti { font-size: 12.5px; font-weight: 700; }
+.extra-card .info .sub { font-size: 10.5px; color: var(--t-tertiary); margin-top: 2px; }
+
+/* 奖励提示 */
+.share-bonus {
+    margin: 0 24px 14px;
+    padding: 12px 14px;
+    background: linear-gradient(90deg, rgba(251,191,36,0.1), rgba(245,158,11,0.04));
+    border: 1px solid rgba(251,191,36,0.22);
+    border-radius: var(--r-md);
+    display: flex; gap: 10px; align-items: center;
+    font-size: 12px;
+    color: var(--warning-light);
+}
+.share-bonus i { font-size: 16px; }
+.share-bonus b { color: #fff; font-weight: 700; }
+
+.share-foot {
+    padding: 14px 24px;
+    background: rgba(0,0,0,0.18);
+    border-top: 1px solid var(--border);
+    display: flex; gap: 8px;
+}
+.share-foot .btn { flex: 1; }
+</style>
+</head>
+<body>
+
+<div class="share-modal">
+
+    <div class="share-head">
+        <span class="close"><i class="fa-solid fa-xmark"></i></span>
+        <h2><span class="ic"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>分享到</h2>
+        <p>分享后，每完成 1 次有效访问，你可获得 0.2 USDT 推广奖励</p>
+    </div>
+
+    <!-- 内容预览 -->
+    <div class="share-preview">
+        <div class="thumb"></div>
+        <div class="info">
+            <div class="ti">富士山五合目 · 零下 4℃ 的清晨日出全记录</div>
+            <div class="by">
+                <span class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></span>
+                <span>Luna 🌙</span>
+                <span style="color: #06B6D4"><i class="fa-solid fa-circle-check" style="font-size: 9px"></i></span>
+            </div>
+            <div class="stats">
+                <span><i class="fa-regular fa-heart"></i> 2.4K</span>
+                <span><i class="fa-regular fa-comment"></i> 186</span>
+                <span><i class="fa-regular fa-bookmark"></i> 412</span>
+                <span><i class="fa-regular fa-eye"></i> 18.6K</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 第三方平台 -->
+    <div class="platform-section">
+        <h4>分享到第三方平台</h4>
+        <div class="platform-grid">
+            <div class="plat"><div class="ic-circle tw"><i class="fa-brands fa-x-twitter"></i></div><div class="nm">X</div></div>
+            <div class="plat"><div class="ic-circle fb"><i class="fa-brands fa-facebook-f"></i></div><div class="nm">Facebook</div></div>
+            <div class="plat"><div class="ic-circle ig"><i class="fa-brands fa-instagram"></i></div><div class="nm">Instagram</div></div>
+            <div class="plat"><div class="ic-circle tg"><i class="fa-brands fa-telegram"></i></div><div class="nm">Telegram</div></div>
+            <div class="plat"><div class="ic-circle dc"><i class="fa-brands fa-discord"></i></div><div class="nm">Discord</div></div>
+            <div class="plat"><div class="ic-circle wx"><i class="fa-brands fa-weixin"></i></div><div class="nm">微信</div></div>
+            <div class="plat"><div class="ic-circle qq"><i class="fa-brands fa-qq"></i></div><div class="nm">QQ</div></div>
+            <div class="plat"><div class="ic-circle wb"><i class="fa-brands fa-weibo"></i></div><div class="nm">微博</div></div>
+            <div class="plat"><div class="ic-circle rd"><i class="fa-brands fa-reddit-alien"></i></div><div class="nm">Reddit</div></div>
+            <div class="plat"><div class="ic-circle ln"><i class="fa-brands fa-line"></i></div><div class="nm">LINE</div></div>
+        </div>
+    </div>
+
+    <!-- 复制链接 -->
+    <div class="link-card">
+        <div class="lk-row">
+            <i class="fa-solid fa-link" style="color: var(--brand-purple)"></i>
+            <span class="url">https://fansloop.io/p/luna-mt-fuji-sunrise?ref=0x7Bf2c3D9</span>
+            <span class="copy"><i class="fa-solid fa-copy"></i> 复制链接</span>
+        </div>
+        <div class="lk-options">
+            <label><input type="checkbox" checked /> 携带我的推广 ID（可获得分润）</label>
+            <span style="color: var(--success-light); font-weight: 700">+0.2 USDT / 访客</span>
+        </div>
+    </div>
+
+    <!-- 二维码 / 海报 -->
+    <div class="share-extra">
+        <div class="extra-card qr">
+            <div class="ic-tile"><i class="fa-solid fa-qrcode"></i></div>
+            <div class="info">
+                <div class="ti">生成二维码</div>
+                <div class="sub">可打印 / 截屏分享</div>
+            </div>
+        </div>
+        <div class="extra-card poster">
+            <div class="ic-tile"><i class="fa-solid fa-image"></i></div>
+            <div class="info">
+                <div class="ti">生成精美海报</div>
+                <div class="sub">9:16 适配 IG / 朋友圈</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 奖励提示 -->
+    <div class="share-bonus">
+        <i class="fa-solid fa-gift"></i>
+        <div>
+            分享激励：每位通过你链接登录的新用户，<b>立得 5 USDT 推广奖励</b>，到账你的钱包。
+        </div>
+    </div>
+
+    <div class="share-foot">
+        <button class="btn"><i class="fa-solid fa-xmark"></i> 取消</button>
+        <button class="btn btn-primary"><i class="fa-solid fa-check"></i> 完成</button>
+    </div>
+
+</div>
+
+</body>
+</html>

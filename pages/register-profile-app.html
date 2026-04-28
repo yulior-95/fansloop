@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>完善个人资料 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body {
+    background:
+        radial-gradient(ellipse at 20% 10%, rgba(168,85,247,0.15), transparent 55%),
+        radial-gradient(ellipse at 80% 90%, rgba(236,72,153,0.12), transparent 55%),
+        #0A0A12;
+}
+
+.rp-wrap {
+    position: absolute;
+    top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    bottom: 0; left: 0; right: 0;
+    overflow-y: auto;
+    padding: 6px 22px 20px;
+}
+.rp-wrap::-webkit-scrollbar { display: none; }
+
+/* 步骤进度 */
+.rp-steps {
+    display: flex; gap: 5px;
+    margin-bottom: 14px;
+}
+.rp-step {
+    flex: 1; height: 3px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.08);
+}
+.rp-step.done { background: var(--brand-gradient); }
+.rp-step.active {
+    background: linear-gradient(90deg, #A855F7 75%, rgba(168,85,247,0.25) 75%);
+}
+
+.rp-meta {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--text-tertiary);
+    margin-bottom: 18px;
+    text-transform: uppercase; letter-spacing: 0.4px;
+}
+.rp-meta b { color: #fff; font-weight: 700; }
+
+/* Hero */
+.rp-title {
+    font-size: 26px; font-weight: 800;
+    letter-spacing: -0.4px;
+    line-height: 1.18;
+    margin-bottom: 8px;
+}
+.rp-title .grad {
+    background: linear-gradient(90deg, #C084FC, #F472B6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.rp-sub {
+    font-size: 13px; color: var(--text-secondary);
+    line-height: 1.55;
+    margin-bottom: 22px;
+}
+
+/* 头像上传 */
+.rp-avatar-wrap {
+    display: flex; flex-direction: column; align-items: center;
+    margin-bottom: 22px;
+}
+.rp-avatar {
+    width: 92px; height: 92px;
+    border-radius: 50%;
+    background-image: linear-gradient(135deg, rgba(168,85,247,0.4), rgba(236,72,153,0.3)),
+        url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80');
+    background-size: cover; background-position: center;
+    background-blend-mode: overlay;
+    border: 3px solid rgba(255,255,255,0.1);
+    position: relative;
+    box-shadow: 0 12px 24px rgba(168,85,247,0.18);
+}
+.rp-avatar .edit-btn {
+    position: absolute;
+    bottom: -2px; right: -2px;
+    width: 30px; height: 30px;
+    background: var(--brand-gradient);
+    border: 3px solid #0A0A12;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 11px;
+    box-shadow: 0 4px 10px rgba(168,85,247,0.4);
+}
+.rp-avatar-tip {
+    margin-top: 10px;
+    font-size: 11px; color: var(--text-tertiary);
+}
+
+/* 表单字段 */
+.rp-field { margin-bottom: 18px; }
+.rp-label {
+    display: flex; align-items: center;
+    font-size: 12px; color: var(--text-secondary);
+    font-weight: 600;
+    margin-bottom: 8px;
+    gap: 6px;
+}
+.rp-label .req {
+    color: #F472B6;
+    font-size: 11px;
+}
+.rp-label .opt {
+    color: var(--text-tertiary);
+    margin-left: auto;
+    font-weight: 400;
+    font-size: 11px;
+}
+.rp-input,
+.rp-textarea,
+.rp-select-trigger {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 0 14px;
+    height: 46px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: 0.18s;
+}
+.rp-input:focus,
+.rp-textarea:focus {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(168,85,247,0.5);
+    box-shadow: 0 0 0 3px rgba(168,85,247,0.12);
+}
+.rp-textarea {
+    height: auto;
+    min-height: 96px;
+    padding: 13px 14px;
+    line-height: 1.55;
+    resize: none;
+    font-family: inherit;
+}
+.rp-help {
+    font-size: 11px; color: var(--text-tertiary);
+    margin-top: 6px;
+    line-height: 1.5;
+}
+.rp-help b { color: #6EE7B7; font-weight: 600; }
+.rp-counter {
+    text-align: right;
+    font-size: 11px; color: var(--text-tertiary);
+    margin-top: 6px;
+}
+.rp-counter b { color: #fff; font-weight: 700; }
+
+/* 地区选择器 */
+.rp-select-trigger {
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer;
+}
+.rp-select-trigger .flag { font-size: 18px; }
+.rp-select-trigger .text { flex: 1; color: #fff; font-size: 14px; }
+.rp-select-trigger .text .sub {
+    display: block;
+    color: var(--text-tertiary);
+    font-size: 11px;
+    margin-top: 1px;
+}
+.rp-select-trigger .ic-caret {
+    color: var(--text-tertiary);
+    font-size: 12px;
+}
+
+/* 推荐区域 chips */
+.rp-region-chips {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-top: 8px;
+}
+.rp-chip {
+    padding: 6px 11px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 999px;
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: 0.15s;
+    display: inline-flex; align-items: center; gap: 4px;
+}
+.rp-chip.active {
+    background: linear-gradient(135deg, rgba(168,85,247,0.18), rgba(236,72,153,0.1));
+    border-color: rgba(168,85,247,0.5);
+    color: #C084FC;
+    font-weight: 600;
+}
+
+/* 提示卡片 */
+.rp-tip {
+    display: flex; gap: 11px;
+    padding: 13px 14px;
+    background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(168,85,247,0.05));
+    border: 1px solid rgba(59,130,246,0.22);
+    border-radius: 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin-bottom: 18px;
+}
+.rp-tip i {
+    color: #60A5FA;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.rp-tip b { color: #fff; font-weight: 700; }
+
+/* 按钮组 */
+.rp-actions {
+    display: flex; gap: 10px;
+    margin-top: 26px;
+    padding-bottom: 12px;
+}
+.rp-btn-skip {
+    flex: 1;
+    height: 50px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    color: var(--text-secondary);
+    font-size: 14px; font-weight: 600;
+}
+.rp-btn-confirm {
+    flex: 2;
+    height: 50px;
+    background: var(--brand-gradient);
+    border: none;
+    border-radius: 14px;
+    color: #fff;
+    font-size: 15px; font-weight: 700;
+    box-shadow: 0 10px 24px rgba(168,85,247,0.35);
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px;
+}
+
+/* 底部 */
+.rp-foot {
+    text-align: center;
+    font-size: 11px; color: var(--text-tertiary);
+    line-height: 1.6;
+}
+.rp-foot a { color: var(--brand-purple); }
+
+/* 地区选择半屏 */
+.region-sheet {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+}
+.region-sheet.show { display: flex; animation: fadeIn .2s ease; }
+.region-sheet .sheet {
+    width: 100%; max-width: 375px;
+    background: #15151F;
+    border-radius: 20px 20px 0 0;
+    padding: 14px 18px 26px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    max-height: 70vh;
+    display: flex; flex-direction: column;
+    animation: slideUp .28s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.region-sheet .grip {
+    width: 36px; height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    margin: 0 auto 14px;
+}
+.region-sheet h3 {
+    font-size: 17px; font-weight: 700;
+    margin-bottom: 6px;
+}
+.region-sheet .h-sub {
+    font-size: 12px; color: var(--text-tertiary);
+    margin-bottom: 12px;
+}
+.region-sheet .search {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 0 12px;
+    height: 38px;
+    margin-bottom: 12px;
+}
+.region-sheet .search i { color: var(--text-tertiary); font-size: 13px; }
+.region-sheet .search input {
+    flex: 1;
+    background: transparent;
+    border: none; outline: none;
+    color: #fff; font-size: 13px;
+}
+.region-sheet .list {
+    overflow-y: auto;
+    flex: 1;
+    margin: 0 -4px;
+}
+.region-sheet .list::-webkit-scrollbar { display: none; }
+.region-sheet .list .group-h {
+    padding: 8px 4px 4px;
+    font-size: 10px; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-weight: 700;
+}
+.region-sheet .list .row {
+    padding: 11px 12px;
+    border-radius: 9px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer;
+}
+.region-sheet .list .row:hover,
+.region-sheet .list .row.active {
+    background: rgba(168,85,247,0.1);
+}
+.region-sheet .list .row .flag { font-size: 18px; }
+.region-sheet .list .row .info { flex: 1; }
+.region-sheet .list .row .info .n { font-size: 13px; font-weight: 600; }
+.region-sheet .list .row .info .s { font-size: 10.5px; color: var(--text-tertiary); margin-top: 1px; }
+.region-sheet .list .row .check {
+    color: #C084FC; font-size: 14px;
+    opacity: 0;
+}
+.region-sheet .list .row.active .check { opacity: 1; }
+
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar">
+    <div class="nav-left">
+        <div class="nav-btn" onclick="history.back()"><i class="fa-solid fa-chevron-left"></i></div>
+    </div>
+    <div class="nav-title">完善资料</div>
+    <div class="nav-right">
+        <span style="font-size: 13px; color: var(--text-secondary); cursor: pointer">跳过</span>
+    </div>
+</div>
+
+<div class="rp-wrap">
+
+    <!-- 步骤 -->
+    <div class="rp-steps">
+        <div class="rp-step done"></div>
+        <div class="rp-step active"></div>
+    </div>
+    <div class="rp-meta">
+        <span>新用户引导</span>
+        <span><b>第 2 步</b> / 共 2 步</span>
+    </div>
+
+    <!-- 标题 -->
+    <h1 class="rp-title">让大家<br/>认识<span class="grad">真实的你</span></h1>
+    <p class="rp-sub">仅需 30 秒，一份完整的资料能帮你快速被推荐、获得第一批关注与订阅。</p>
+
+    <!-- 头像 -->
+    <div class="rp-avatar-wrap">
+        <div class="rp-avatar">
+            <div class="edit-btn"><i class="fa-solid fa-camera"></i></div>
+        </div>
+        <div class="rp-avatar-tip">点击头像上传照片（推荐 ≥ 400×400）</div>
+    </div>
+
+    <!-- 昵称 -->
+    <div class="rp-field">
+        <label class="rp-label">
+            <span>昵称</span>
+            <span class="req">*</span>
+            <span class="opt">2-20 字符</span>
+        </label>
+        <input class="rp-input" value="Luna 🌙" placeholder="请输入你的昵称" maxlength="20" />
+        <div class="rp-help"><b><i class="fa-solid fa-circle-check"></i> 该昵称可用</b> · 显示在动态、评论、私信中</div>
+    </div>
+
+    <!-- 个人简介 -->
+    <div class="rp-field">
+        <label class="rp-label">
+            <span>个人简介</span>
+            <span class="opt">选填 · 最多 120 字</span>
+        </label>
+        <textarea class="rp-textarea" id="bio" placeholder="介绍一下你自己，比如你的创作领域、风格、经历…">📷 旅行 / 美食 / 慢生活 摄影师 ｜ 📍现居东京</textarea>
+        <div class="rp-counter"><b id="bioCount">26</b> / 120</div>
+    </div>
+
+    <!-- 所在地区 -->
+    <div class="rp-field">
+        <label class="rp-label">
+            <span>所在地区</span>
+            <span class="req">*</span>
+        </label>
+        <div class="rp-select-trigger" onclick="document.getElementById('regionSheet').classList.add('show')">
+            <span class="flag">🇯🇵</span>
+            <div class="text">
+                日本 · 东京
+                <span class="sub">UTC+9 · 用于本地化时区与推荐</span>
+            </div>
+            <i class="fa-solid fa-chevron-right ic-caret"></i>
+        </div>
+        <div class="rp-region-chips">
+            <span class="rp-chip active">🇯🇵 东京</span>
+            <span class="rp-chip">🇨🇳 上海</span>
+            <span class="rp-chip">🇨🇳 北京</span>
+            <span class="rp-chip">🇺🇸 旧金山</span>
+            <span class="rp-chip"><i class="fa-solid fa-location-arrow" style="font-size:10px"></i>使用定位</span>
+        </div>
+    </div>
+
+    <!-- 提示 -->
+    <div class="rp-tip">
+        <i class="fa-solid fa-circle-info"></i>
+        <div><b>资料可随时修改</b> · 头像、昵称、简介、地区均可在「设置 → 个人资料」中重新编辑。地区信息仅用于本地化体验，<b>不会公开展示具体街道</b>。</div>
+    </div>
+
+    <!-- 操作 -->
+    <div class="rp-actions">
+        <button class="rp-btn-skip">稍后完善</button>
+        <button class="rp-btn-confirm">
+            完成 · 进入 FansLoop
+            <i class="fa-solid fa-arrow-right"></i>
+        </button>
+    </div>
+
+    <p class="rp-foot">
+        点击完成代表你已阅读并同意 <a>《用户协议》</a> · <a>《隐私政策》</a>
+    </p>
+
+</div>
+
+<!-- 地区选择 Sheet -->
+<div class="region-sheet" id="regionSheet" onclick="if(event.target===this) this.classList.remove('show')">
+    <div class="sheet">
+        <div class="grip"></div>
+        <h3>选择所在地区</h3>
+        <div class="h-sub">影响推荐时区、直播开播提醒等本地化功能</div>
+        <div class="search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input placeholder="搜索国家 / 城市" />
+        </div>
+        <div class="list">
+            <div class="group-h">最近使用</div>
+            <div class="row active">
+                <span class="flag">🇯🇵</span>
+                <div class="info"><div class="n">日本 · 东京</div><div class="s">Tokyo · UTC+9</div></div>
+                <i class="fa-solid fa-circle-check check"></i>
+            </div>
+            <div class="row">
+                <span class="flag">🇨🇳</span>
+                <div class="info"><div class="n">中国 · 上海</div><div class="s">Shanghai · UTC+8</div></div>
+                <i class="fa-solid fa-circle-check check"></i>
+            </div>
+
+            <div class="group-h">热门城市</div>
+            <div class="row">
+                <span class="flag">🇨🇳</span>
+                <div class="info"><div class="n">中国 · 北京</div><div class="s">Beijing · UTC+8</div></div>
+                <i class="fa-solid fa-circle-check check"></i>
+            </div>
+            <div class="row">
+                <span class="flag">🇨🇳</span>
+                <div class="info"><div class="n">中国 · 深圳</div><div class="s">Shenzhen · UTC+8</div></div>
+                <i class="fa-solid fa-circle-check check"></i>
+            </div>
+            <div class="row">
+                <span class="flag">🇨🇳</span>
+                <div class="info"><div class="n">中国 · 广州</div><div class="s">Guangzhou · UTC+8</div></div>
+                <i class="fa-solid fa-circle-check check"></i>
+            </div>
+            <div class="row">
+                <span class="flag">🇭🇰</span>
+                <div class="info"><div class="n">中国 · 香港</div><div class="s">Hong Kong · UTC+8</div></div>
+                <i class="fa-solid fa-circle-check check"></i>
+            </div>
+            <div class="row">
+                <span class="flag">🇸🇬</span>
+                <div class="info"><div class="n">新加坡</div><div class="s">Singapore · UTC+8</div></div>
+                <i class="fa-solid fa-circle-check check"></i>
+            </div>
+            <div class="row">
+                <span class="flag">🇺🇸</span>
+                <div class="info"><div class="n">美国 · 纽约</div><div class="s">New York · UTC-5</div></div>
+                <i class="fa-solid fa-circle-check check"></i>
+            </div>
+            <div class="row">
+                <span class="flag">🇺🇸</span>
+                <div class="info"><div class="n">美国 · 旧金山</div><div class="s">San Francisco · UTC-8</div></div>
+                <i class="fa-solid fa-circle-check check"></i>
+            </div>
+            <div class="row">
+                <span class="flag">🇬🇧</span>
+                <div class="info"><div class="n">英国 · 伦敦</div><div class="s">London · UTC+0</div></div>
+                <i class="fa-solid fa-circle-check check"></i>
+            </div>
+            <div class="row">
+                <span class="flag">🇰🇷</span>
+                <div class="info"><div class="n">韩国 · 首尔</div><div class="s">Seoul · UTC+9</div></div>
+                <i class="fa-solid fa-circle-check check"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+
+<script>
+const bio = document.getElementById('bio');
+const cnt = document.getElementById('bioCount');
+if (bio && cnt) {
+    const update = () => cnt.textContent = bio.value.length;
+    bio.addEventListener('input', update);
+    update();
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>安全验证</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+body { background: var(--bg-app); }
+.modal-mask { background: rgba(0,0,0,0.7); }
+.modal { max-width: 460px; }
+
+.tab-switch {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 4px;
+    margin-bottom: 22px;
+}
+.tab-switch .ts {
+    padding: 10px 0;
+    text-align: center;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--t-tertiary);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.tab-switch .ts.active {
+    background: var(--brand-grad);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(168,85,247,0.25);
+}
+
+.code-input { display: flex; gap: 10px; margin: 12px 0; justify-content: center; }
+.code-input input {
+    width: 50px; height: 56px;
+    text-align: center;
+    font-size: 22px; font-weight: 800;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: #fff;
+    outline: none;
+}
+.code-input input.filled { border-color: var(--success); background: rgba(16,185,129,0.04); }
+
+.send-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+.send-row a { color: var(--brand-purple); font-weight: 600; }
+.send-row .countdown { color: var(--t-tertiary); }
+
+.bio-stage {
+    text-align: center;
+    padding: 18px 0;
+}
+.bio-stage .face-frame {
+    width: 140px; height: 140px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(236,72,153,0.08));
+    border: 3px dashed rgba(168,85,247,0.4);
+    display: flex; align-items: center; justify-content: center;
+    color: #C084FC;
+    font-size: 50px;
+    position: relative;
+    animation: scan-pulse 2s ease-in-out infinite;
+}
+@keyframes scan-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(168,85,247,0.3); }
+    50% { box-shadow: 0 0 0 14px rgba(168,85,247,0); }
+}
+.bio-stage h4 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.bio-stage p { font-size: 12.5px; color: var(--t-tertiary); max-width: 280px; margin: 0 auto; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="modal-mask">
+    <div class="modal">
+        <div class="modal-head">
+            <h2 style="font-size: 16px"><span class="ic"><i class="fa-solid fa-shield-halved"></i></span>安全验证 · 第 1/2 步
+                <span class="sub">提现 ¥3,550 ≈ 500 USDT</span>
+            </h2>
+            <button class="close" onclick="location.href='withdraw-fiat.html'"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="modal-body">
+
+            <div class="tab-switch">
+                <div class="ts active"><i class="fa-solid fa-mobile-screen"></i>短信验证</div>
+                <div class="ts"><i class="fa-solid fa-fingerprint"></i>生物识别</div>
+            </div>
+
+            <p style="font-size: 13px; color: var(--t-secondary); margin-bottom: 16px; text-align: center;">
+                短信验证码已发送至 <b style="color:#fff">+86 138 **** 8866</b>
+            </p>
+
+            <div class="code-input">
+                <input type="text" maxlength="1" value="9" class="filled">
+                <input type="text" maxlength="1" value="2" class="filled">
+                <input type="text" maxlength="1" value="6" class="filled">
+                <input type="text" maxlength="1" value="3" class="filled">
+                <input type="text" maxlength="1">
+                <input type="text" maxlength="1">
+            </div>
+
+            <div class="send-row" style="margin-top: 12px">
+                <span class="countdown">52 秒后可重发</span>
+                <a>切换语音验证</a>
+            </div>
+
+            <div class="notice notice-info" style="margin-top: 18px">
+                <i class="fa-solid fa-shield-halved ni"></i>
+                <span>验证码仅用于验证操作者身份，请勿向任何人透露。FansLoop 客服不会向你索要验证码。</span>
+            </div>
+        </div>
+
+        <div class="modal-foot">
+            <button class="btn" onclick="location.href='withdraw-fiat.html'">取消</button>
+            <button class="btn btn-primary" onclick="location.href='withdraw-fiat-verify-pwd.html'">
+                验证并继续 <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

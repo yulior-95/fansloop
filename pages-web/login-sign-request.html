@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>签名请求 · SIWE</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.acct-card {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px;
+    background: linear-gradient(135deg, rgba(16,185,129,0.06), rgba(59,130,246,0.04));
+    border: 1px solid rgba(16,185,129,0.2);
+    border-radius: var(--r-md);
+    margin-bottom: 18px;
+}
+.acct-card .av {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #10B981, #3B82F6, #A855F7);
+    flex-shrink: 0;
+}
+.acct-card .info { flex: 1; min-width: 0; }
+.acct-card .info .n {
+    font-size: 12px; color: var(--t-tertiary);
+    text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; margin-bottom: 2px;
+}
+.acct-card .info .a {
+    font-size: 14px; font-weight: 700;
+    font-family: ui-monospace, monospace;
+}
+.acct-card .info .b {
+    font-size: 11px; color: var(--t-tertiary);
+    font-family: ui-monospace, monospace; margin-top: 1px;
+}
+.acct-card .net-tag {
+    padding: 4px 10px;
+    background: rgba(16,185,129,0.15);
+    border: 1px solid rgba(16,185,129,0.3);
+    color: var(--success-light);
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.siwe-card {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+.siwe-head {
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px;
+    color: var(--t-tertiary);
+}
+.siwe-head .badge {
+    padding: 3px 7px;
+    background: rgba(168,85,247,0.15);
+    color: #C084FC;
+    border-radius: 5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+.siwe-body {
+    padding: 14px;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 11.5px;
+    color: var(--t-secondary);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+.siwe-body .key { color: #C084FC; }
+.siwe-body .val { color: #fff; }
+.siwe-body .url { color: #6EE7B7; }
+.siwe-body .note { color: var(--t-quaternary); }
+
+.permissions {
+    display: flex; flex-direction: column; gap: 6px;
+    margin-bottom: 18px;
+}
+.perm-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg-input);
+    border-radius: var(--r-sm);
+    font-size: 12px;
+}
+.perm-row .ic-tick {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(16,185,129,0.18);
+    color: var(--success-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+}
+.perm-row.deny .ic-tick {
+    background: rgba(239,68,68,0.18);
+    color: var(--danger-light);
+}
+.perm-row .info { flex: 1; }
+.perm-row .info .t { font-size: 12px; font-weight: 600; }
+.perm-row .info .d { font-size: 10px; color: var(--t-tertiary); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="auth-shell">
+    <div class="auth-stage">
+        <div class="as-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator Economy</span></div>
+        </div>
+        <div class="as-mid">
+            <h1>请在钱包内<br><span class="grad">完成离线签名</span></h1>
+            <p>FansLoop 使用 EIP-4361 (Sign-In with Ethereum) 标准登录协议。该签名是离线、免 Gas 的，仅用于证明你拥有这个钱包地址，不会触发任何链上交易。</p>
+
+            <div class="as-feat" style="grid-template-columns: 1fr; gap: 12px; margin-top: 28px">
+                <div class="feat-card">
+                    <div class="ic"><i class="fa-solid fa-gas-pump"></i></div>
+                    <h4>免 Gas 费</h4>
+                    <p>纯离线签名 · 不上链 · 不消耗任何代币</p>
+                </div>
+                <div class="feat-card">
+                    <div class="ic"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h4>无转账权限</h4>
+                    <p>FansLoop 永远不会请求转账权限</p>
+                </div>
+                <div class="feat-card">
+                    <div class="ic"><i class="fa-solid fa-clock"></i></div>
+                    <h4>会话有效期 24h</h4>
+                    <p>过期自动登出 · 无单次签名授权</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-form">
+        <div class="af-top">
+            <a href="login-metamask.html"><i class="fa-solid fa-arrow-left"></i> 返回</a>
+            <span class="t-success"><i class="fa-solid fa-circle" style="font-size:8px"></i> 钱包已连接</span>
+        </div>
+
+        <div class="af-mid">
+            <h2>签名以确认登录</h2>
+            <p>查看下方签名内容，在 MetaMask 弹窗中点击"签名"</p>
+
+            <!-- 账户卡 -->
+            <div class="acct-card">
+                <div class="av"></div>
+                <div class="info">
+                    <div class="n">连接的账户</div>
+                    <div class="a">0x7A3F...3F2C</div>
+                    <div class="b">余额 1.2456 ETH · 580 USDT</div>
+                </div>
+                <span class="net-tag">Ethereum Mainnet</span>
+            </div>
+
+            <!-- SIWE 签名内容 -->
+            <div class="siwe-card">
+                <div class="siwe-head">
+                    <span><i class="fa-solid fa-file-signature"></i> 待签名内容（EIP-4361）</span>
+                    <span class="badge">SIWE</span>
+                </div>
+                <div class="siwe-body"><span class="url">fansloop.io</span> wants you to sign in with your Ethereum account:
+<span class="val">0x7A3FfA3D9aB1C8D5E6F7A8B9C0D1E2F3F2C9D8B7</span>
+
+Sign in to FansLoop · Web3 Creator Economy
+
+URI: <span class="url">https://fansloop.io</span>
+Version: 1
+Chain ID: 1
+Nonce: <span class="val">8h2A4f6E9</span>
+Issued At: 2026-04-25T11:08:42.130Z
+Expiration Time: 2026-04-26T11:08:42.130Z
+<span class="note"># 该签名将在 24 小时后过期</span></div>
+            </div>
+
+            <!-- 权限 -->
+            <div class="permissions">
+                <div class="perm-row">
+                    <div class="ic-tick"><i class="fa-solid fa-check"></i></div>
+                    <div class="info">
+                        <div class="t">读取你的钱包地址</div>
+                        <div class="d">用于建立会话</div>
+                    </div>
+                </div>
+                <div class="perm-row">
+                    <div class="ic-tick"><i class="fa-solid fa-check"></i></div>
+                    <div class="info">
+                        <div class="t">读取你的代币余额（公开链上数据）</div>
+                        <div class="d">用于显示钱包概览，不读取交易历史</div>
+                    </div>
+                </div>
+                <div class="perm-row deny">
+                    <div class="ic-tick"><i class="fa-solid fa-xmark"></i></div>
+                    <div class="info">
+                        <div class="t">不请求转账权限</div>
+                        <div class="d">FansLoop 永远不会执行任何链上交易</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px">
+                <button class="btn btn-secondary" style="flex:0 0 100px" onclick="location.href='login-entry.html'">
+                    <i class="fa-solid fa-xmark"></i>取消
+                </button>
+                <button class="btn btn-primary btn-lg" style="flex:1" onclick="location.href='login-signing.html'">
+                    <i class="fa-solid fa-signature"></i>
+                    在钱包内签名
+                </button>
+            </div>
+        </div>
+        <div class="af-foot">
+            <a href="#"><i class="fa-solid fa-circle-question"></i> 什么是 SIWE 签名？</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

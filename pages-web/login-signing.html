@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>签名进行中</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.signing-hero {
+    text-align: center;
+    padding: 30px 20px 22px;
+}
+.sig-rings {
+    width: 180px; height: 180px;
+    margin: 0 auto 24px;
+    position: relative;
+}
+.sig-rings .r {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(168,85,247,0.18);
+    border-top-color: var(--brand-purple);
+    animation: spin 1.6s linear infinite;
+}
+.sig-rings .r.r2 { inset: 16px; border-top-color: var(--brand-pink); animation-direction: reverse; animation-duration: 2.2s; }
+.sig-rings .r.r3 { inset: 32px; border-top-color: var(--warning-light); animation-duration: 2.8s; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.sig-rings .center {
+    position: absolute;
+    inset: 50px;
+    border-radius: 50%;
+    background: var(--brand-grad);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 30px;
+    box-shadow: 0 14px 36px rgba(168,85,247,0.4);
+}
+
+.signing-hero h2 { font-size: 24px; font-weight: 800; margin-bottom: 6px; letter-spacing: -0.4px; }
+.signing-hero p { font-size: 13px; color: var(--t-tertiary); }
+
+.dots-text { display: inline-flex; gap: 3px; margin-left: 4px; }
+.dots-text .d {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--brand-purple);
+    animation: bounce 1.2s ease-in-out infinite;
+}
+.dots-text .d:nth-child(2) { animation-delay: 0.15s; }
+.dots-text .d:nth-child(3) { animation-delay: 0.3s; }
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); opacity: 0.4; }
+    50%      { transform: translateY(-4px); opacity: 1; }
+}
+
+.timeline {
+    margin: 24px 0 18px;
+    padding: 18px;
+    background: var(--bg-input);
+    border-radius: var(--r-md);
+    border: 1px solid var(--border);
+}
+.tl-row {
+    display: flex; gap: 12px;
+    padding: 6px 0;
+    align-items: flex-start;
+    position: relative;
+}
+.tl-row::before {
+    content: '';
+    position: absolute;
+    left: 9px; top: 22px;
+    width: 1.5px;
+    bottom: -6px;
+    background: var(--border);
+}
+.tl-row:last-child::before { display: none; }
+.tl-row .ic {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border-strong);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+    color: var(--t-tertiary);
+    flex-shrink: 0;
+    z-index: 2;
+}
+.tl-row.done .ic { background: var(--success); border-color: transparent; color: #fff; }
+.tl-row.active .ic { background: var(--brand-grad); border-color: transparent; color: #fff; }
+.tl-row.active .ic { animation: ping 1.6s ease-in-out infinite; }
+@keyframes ping {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(168,85,247,0.4); }
+    50%      { box-shadow: 0 0 0 6px rgba(168,85,247,0); }
+}
+.tl-row .info .t { font-size: 13px; font-weight: 600; }
+.tl-row .info .s { font-size: 11px; color: var(--t-tertiary); margin-top: 1px; }
+.tl-row .time {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--t-tertiary);
+    font-family: ui-monospace, monospace;
+}
+</style>
+</head>
+<body>
+
+<div class="auth-shell">
+    <div class="auth-stage">
+        <div class="as-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator Economy</span></div>
+        </div>
+        <div class="as-mid">
+            <h1>请在钱包内<br><span class="grad">点击签名</span></h1>
+            <p>FansLoop 已向你的钱包发送了签名请求。这是一次离线签名，不会消耗任何 Gas，也不会触发任何链上交易。</p>
+        </div>
+        <div class="as-foot"><div><i class="fa-solid fa-shield-halved"></i> 端到端加密 · 私钥永不离开你的设备</div></div>
+    </div>
+
+    <div class="auth-form">
+        <div class="af-top">
+            <a href="login-sign-request.html"><i class="fa-solid fa-arrow-left"></i> 返回上一步</a>
+            <span class="t-purple"><i class="fa-solid fa-circle" style="font-size:8px"></i> 等待钱包响应</span>
+        </div>
+
+        <div class="af-mid">
+
+            <div class="signing-hero">
+                <div class="sig-rings">
+                    <div class="r"></div>
+                    <div class="r r2"></div>
+                    <div class="r r3"></div>
+                    <div class="center"><i class="fa-solid fa-signature"></i></div>
+                </div>
+                <h2>签名进行中
+                    <span class="dots-text"><span class="d"></span><span class="d"></span><span class="d"></span></span>
+                </h2>
+                <p>请打开 MetaMask 扩展，在弹窗中点击"签名"按钮</p>
+            </div>
+
+            <div class="timeline">
+                <div class="tl-row done">
+                    <div class="ic"><i class="fa-solid fa-check"></i></div>
+                    <div class="info">
+                        <div class="t">钱包已连接</div>
+                        <div class="s">0x7A3F...3F2C · Ethereum Mainnet</div>
+                    </div>
+                    <div class="time">11:08:42</div>
+                </div>
+                <div class="tl-row done">
+                    <div class="ic"><i class="fa-solid fa-check"></i></div>
+                    <div class="info">
+                        <div class="t">签名请求已发送</div>
+                        <div class="s">EIP-4361 · Nonce 8h2A4f6E9</div>
+                    </div>
+                    <div class="time">11:08:43</div>
+                </div>
+                <div class="tl-row active">
+                    <div class="ic"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                    <div class="info">
+                        <div class="t">等待用户签名</div>
+                        <div class="s">请在钱包中点击"签名"按钮</div>
+                    </div>
+                    <div class="time">…</div>
+                </div>
+                <div class="tl-row">
+                    <div class="ic"><i class="fa-regular fa-circle"></i></div>
+                    <div class="info">
+                        <div class="t">验证签名 + 创建会话</div>
+                        <div class="s">服务端验证签名后建立 24h JWT 会话</div>
+                    </div>
+                </div>
+                <div class="tl-row">
+                    <div class="ic"><i class="fa-regular fa-circle"></i></div>
+                    <div class="info">
+                        <div class="t">登录完成</div>
+                        <div class="s">跳转到首页 / Onboarding</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px">
+                <button class="btn btn-secondary" style="flex:1" onclick="location.href='login-entry.html'">
+                    <i class="fa-solid fa-xmark"></i>取消签名
+                </button>
+                <button class="btn btn-primary" style="flex:1" onclick="location.href='login-success.html'">
+                    模拟签名完成 →
+                </button>
+            </div>
+        </div>
+        <div class="af-foot">超过 30 秒未响应？<a href="#">查看排错指南</a></div>
+    </div>
+</div>
+
+</body>
+</html>

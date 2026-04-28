@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>外观与语言 · 设置 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.set-grid { display: grid; grid-template-columns: 240px 1fr; gap: 24px; }
+@media (max-width: 1100px) { .set-grid { grid-template-columns: 1fr; } .set-nav { display: none; } }
+
+.crumb { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--t-tertiary); margin-bottom: 8px; }
+.crumb a { color: var(--t-secondary); }
+.crumb a:hover { color: #fff; }
+.crumb .curr { color: #fff; font-weight: 600; }
+
+.set-nav { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 80px; align-self: flex-start; }
+.set-nav .group-ti { padding: 14px 12px 6px; font-size: 10px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+.set-nav .nav-item { padding: 10px 12px; border-radius: 8px; font-size: 13px; color: var(--t-secondary); display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.set-nav .nav-item:hover { background: var(--bg-hover); color: #fff; }
+.set-nav .nav-item.active { background: linear-gradient(135deg, rgba(168,85,247,0.16), rgba(236,72,153,0.06)); color: #fff; font-weight: 600; border: 1px solid rgba(168,85,247,0.3); }
+.set-nav .nav-item .ic { width: 24px; height: 24px; border-radius: 6px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: var(--t-tertiary); font-size: 11px; }
+.set-nav .nav-item.active .ic { background: var(--brand-grad); color: #fff; }
+
+.set-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg); margin-bottom: 18px; overflow: hidden; }
+.set-card .ssh { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.set-card .ssh .ic-circle { width: 36px; height: 36px; border-radius: 10px; background: var(--brand-grad); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.set-card .ssh h3 { font-size: 15px; font-weight: 700; }
+.set-card .ssh p { font-size: 12px; color: var(--t-tertiary); margin-top: 2px; }
+.set-card .body { padding: 22px; }
+
+/* theme cards */
+.theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.theme-card { padding: 14px; border: 2px solid var(--border); border-radius: 14px; cursor: pointer; transition: 0.2s; background: var(--bg-elevated); }
+.theme-card:hover { border-color: var(--brand-purple); transform: translateY(-2px); }
+.theme-card.active { border-color: rgba(168,85,247,0.6); background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.04)); box-shadow: 0 12px 30px rgba(168,85,247,0.15); }
+.theme-preview { aspect-ratio: 16/10; border-radius: 10px; padding: 8px; display: flex; gap: 6px; margin-bottom: 12px; overflow: hidden; }
+.theme-preview .tp-side { width: 28%; border-radius: 6px; padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+.theme-preview .tp-side .tp-l { height: 6px; border-radius: 3px; opacity: 0.6; }
+.theme-preview .tp-main { flex: 1; border-radius: 6px; padding: 6px; display: flex; flex-direction: column; gap: 5px; }
+.theme-preview .tp-main .tp-h { height: 8px; border-radius: 4px; }
+.theme-preview .tp-main .tp-card { flex: 1; border-radius: 6px; }
+
+.theme-card.dark .theme-preview { background: #0B0B14; }
+.theme-card.dark .theme-preview .tp-side { background: #1a1a2e; }
+.theme-card.dark .theme-preview .tp-side .tp-l { background: #C4B5FD; }
+.theme-card.dark .theme-preview .tp-main { background: #14141F; }
+.theme-card.dark .theme-preview .tp-main .tp-h { background: linear-gradient(90deg,#A855F7,#EC4899); width: 60%; }
+.theme-card.dark .theme-preview .tp-main .tp-card { background: #1f1f30; }
+
+.theme-card.light .theme-preview { background: #F3F4F6; }
+.theme-card.light .theme-preview .tp-side { background: #fff; }
+.theme-card.light .theme-preview .tp-side .tp-l { background: #A855F7; }
+.theme-card.light .theme-preview .tp-main { background: #FAFAFA; }
+.theme-card.light .theme-preview .tp-main .tp-h { background: linear-gradient(90deg,#A855F7,#EC4899); width: 60%; }
+.theme-card.light .theme-preview .tp-main .tp-card { background: #fff; border: 1px solid #E5E7EB; }
+
+.theme-card.auto .theme-preview { background: linear-gradient(135deg, #0B0B14 0%, #0B0B14 50%, #F3F4F6 50%, #F3F4F6 100%); position: relative; }
+.theme-card.auto .theme-preview .tp-side { background: linear-gradient(135deg, #1a1a2e 0%, #1a1a2e 50%, #fff 50%, #fff 100%); }
+.theme-card.auto .theme-preview .tp-side .tp-l { background: #A855F7; }
+.theme-card.auto .theme-preview .tp-main { background: linear-gradient(135deg, #14141F 0%, #14141F 50%, #FAFAFA 50%, #FAFAFA 100%); }
+.theme-card.auto .theme-preview .tp-main .tp-h { background: linear-gradient(90deg,#A855F7,#EC4899); width: 60%; }
+.theme-card.auto .theme-preview .tp-main .tp-card { background: linear-gradient(135deg, #1f1f30 0%, #1f1f30 50%, #fff 50%, #fff 100%); }
+
+.theme-card .name { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.theme-card .name .check { margin-left: auto; color: var(--success-light); display: none; }
+.theme-card.active .name .check { display: inline-block; }
+.theme-card .desc { font-size: 11.5px; color: var(--t-tertiary); margin-top: 4px; line-height: 1.45; }
+
+/* accent picker */
+.accent-row { display: flex; gap: 12px; align-items: center; padding: 18px 22px; border-bottom: 1px solid var(--border); }
+.accent-row .lb { font-size: 13.5px; font-weight: 600; min-width: 200px; }
+.accent-row .colors { display: flex; gap: 10px; flex-wrap: wrap; }
+.accent-row .colors .c-chip { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.25); border: 3px solid transparent; transition: 0.15s; }
+.accent-row .colors .c-chip:hover { transform: scale(1.08); }
+.accent-row .colors .c-chip.on { border-color: #fff; box-shadow: 0 0 0 4px rgba(168,85,247,0.4); }
+.accent-row .colors .c-chip.on::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; }
+
+/* size sliders */
+.range-row { display: flex; gap: 16px; align-items: center; padding: 18px 22px; border-bottom: 1px solid var(--border); }
+.range-row:last-child { border-bottom: none; }
+.range-row .lb { min-width: 200px; }
+.range-row .lb .ti { font-size: 13.5px; font-weight: 600; }
+.range-row .lb .sub { font-size: 11.5px; color: var(--t-tertiary); margin-top: 3px; }
+.range-row .ctrl { flex: 1; max-width: 480px; }
+.range-row input[type=range] { width: 100%; -webkit-appearance: none; height: 6px; background: linear-gradient(90deg, var(--brand-purple) 0%, var(--brand-pink) 50%, var(--bg-input) 50%, var(--bg-input) 100%); border-radius: 3px; outline: none; }
+.range-row input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #fff; cursor: pointer; box-shadow: 0 4px 14px rgba(168,85,247,0.5); border: 3px solid var(--brand-purple); }
+.range-row .scale { display: flex; justify-content: space-between; margin-top: 6px; font-size: 10.5px; color: var(--t-tertiary); }
+.range-row .val { min-width: 60px; text-align: right; font-size: 13px; font-weight: 700; color: var(--brand-purple); }
+
+/* font preview */
+.font-preview { padding: 18px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; }
+.font-preview .fp-h { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.font-preview .fp-b { font-size: 13.5px; color: var(--t-secondary); line-height: 1.65; }
+
+/* lang grid */
+.lang-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-height: 260px; overflow-y: auto; padding-right: 6px; }
+.lang-grid::-webkit-scrollbar { width: 6px; }
+.lang-grid::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+.lang-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 12.5px; }
+.lang-item:hover { background: var(--bg-hover); border-color: var(--brand-purple); }
+.lang-item.on { background: linear-gradient(135deg, rgba(168,85,247,0.12), rgba(236,72,153,0.04)); border-color: rgba(168,85,247,0.5); color: #fff; }
+.lang-item .flag { font-size: 18px; }
+.lang-item .nm { flex: 1; font-weight: 600; }
+.lang-item .ck { color: var(--success-light); font-size: 11px; opacity: 0; }
+.lang-item.on .ck { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+    <aside class="app-sidebar">
+        <div class="s-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator</span></div>
+        </div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item active" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+        <div class="s-bottom">
+            <div class="s-user">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索创作者、内容或话题…</span><span class="kbd">⌘ K</span></div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i></button>
+            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <div class="crumb">
+                    <a href="settings.html"><i class="fa-solid fa-gear"></i> 设置</a>
+                    <span><i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
+                    <span class="curr">外观与语言</span>
+                </div>
+                <h1>外观与语言</h1>
+                <p>根据自己的喜好定制 FansLoop 的视觉效果与本地化体验。所有更改即刻生效。</p>
+            </div>
+            <div class="ph-r">
+                <button class="btn" onclick="location.href='settings.html'"><i class="fa-solid fa-arrow-left"></i> 返回设置</button>
+                <button class="btn"><i class="fa-solid fa-rotate-left"></i> 恢复默认</button>
+            </div>
+        </div>
+
+        <div class="set-grid">
+
+            <aside class="set-nav">
+                <div class="group-ti">账户</div>
+                <div class="nav-item" onclick="location.href='settings-account.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span>账户资料</span></div>
+                <div class="nav-item" onclick="location.href='settings-security.html'"><span class="ic"><i class="fa-solid fa-shield-halved"></i></span><span>账户安全</span></div>
+                <div class="nav-item" onclick="location.href='settings-wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span>钱包与支付</span></div>
+                <div class="group-ti">体验</div>
+                <div class="nav-item" onclick="location.href='settings-notification.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span>通知偏好</span></div>
+                <div class="nav-item" onclick="location.href='settings-privacy.html'"><span class="ic"><i class="fa-solid fa-user-shield"></i></span><span>隐私设置</span></div>
+                <div class="nav-item active"><span class="ic"><i class="fa-solid fa-palette"></i></span><span>外观语言</span></div>
+                <div class="group-ti">创作者</div>
+                <div class="nav-item"><span class="ic"><i class="fa-solid fa-crown"></i></span><span>会员订阅设置</span></div>
+                <div class="nav-item"><span class="ic"><i class="fa-solid fa-coins"></i></span><span>收益与提现</span></div>
+                <div class="nav-item"><span class="ic"><i class="fa-solid fa-tower-broadcast"></i></span><span>直播配置</span></div>
+            </aside>
+
+            <div>
+
+                <!-- 主题 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#1F2937,#A855F7)"><i class="fa-solid fa-moon"></i></div>
+                        <div><h3>主题</h3><p>选择最适合你眼睛的色彩模式</p></div>
+                    </div>
+                    <div class="body">
+                        <div class="theme-grid">
+                            <div class="theme-card dark active">
+                                <div class="theme-preview">
+                                    <div class="tp-side"><div class="tp-l"></div><div class="tp-l" style="width:60%"></div><div class="tp-l" style="width:80%"></div></div>
+                                    <div class="tp-main"><div class="tp-h"></div><div class="tp-card"></div></div>
+                                </div>
+                                <div class="name">深色 Dark <span class="check"><i class="fa-solid fa-circle-check"></i></span></div>
+                                <div class="desc">护眼舒适，适合夜晚 · 当前主题</div>
+                            </div>
+                            <div class="theme-card light">
+                                <div class="theme-preview">
+                                    <div class="tp-side"><div class="tp-l"></div><div class="tp-l" style="width:60%"></div><div class="tp-l" style="width:80%"></div></div>
+                                    <div class="tp-main"><div class="tp-h"></div><div class="tp-card"></div></div>
+                                </div>
+                                <div class="name">浅色 Light <span class="check"><i class="fa-solid fa-circle-check"></i></span></div>
+                                <div class="desc">明亮清新，适合日间办公</div>
+                            </div>
+                            <div class="theme-card auto">
+                                <div class="theme-preview">
+                                    <div class="tp-side"><div class="tp-l"></div><div class="tp-l" style="width:60%"></div><div class="tp-l" style="width:80%"></div></div>
+                                    <div class="tp-main"><div class="tp-h"></div><div class="tp-card"></div></div>
+                                </div>
+                                <div class="name">跟随系统 Auto <span class="check"><i class="fa-solid fa-circle-check"></i></span></div>
+                                <div class="desc">自动随系统昼夜模式切换</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accent-row">
+                        <div class="lb">强调色 Accent</div>
+                        <div class="colors">
+                            <div class="c-chip on" style="background: linear-gradient(135deg,#A855F7,#EC4899)"></div>
+                            <div class="c-chip" style="background: linear-gradient(135deg,#3B82F6,#06B6D4)"></div>
+                            <div class="c-chip" style="background: linear-gradient(135deg,#10B981,#059669)"></div>
+                            <div class="c-chip" style="background: linear-gradient(135deg,#F59E0B,#EF4444)"></div>
+                            <div class="c-chip" style="background: linear-gradient(135deg,#EC4899,#F472B6)"></div>
+                            <div class="c-chip" style="background: linear-gradient(135deg,#06B6D4,#10B981)"></div>
+                            <div class="c-chip" style="background: linear-gradient(135deg,#FBBF24,#F59E0B)"></div>
+                            <div class="c-chip" style="background: linear-gradient(135deg,#475569,#1F2937)"></div>
+                        </div>
+                    </div>
+                    <div class="accent-row" style="border-bottom: none">
+                        <div class="lb">高对比模式<div style="font-size:11.5px;color:var(--t-tertiary);margin-top:3px;font-weight:400">提升文字与背景的对比度，符合 WCAG AAA</div></div>
+                        <div style="margin-left: auto"><div class="switch"></div></div>
+                    </div>
+                </div>
+
+                <!-- 字体与密度 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#06B6D4,#3B82F6)"><i class="fa-solid fa-text-height"></i></div>
+                        <div><h3>字体与显示密度</h3><p>影响文字大小、行间距与界面留白</p></div>
+                    </div>
+                    <div class="range-row">
+                        <div class="lb">
+                            <div class="ti">字体大小</div>
+                            <div class="sub">影响所有界面文字的基准大小</div>
+                        </div>
+                        <div class="ctrl">
+                            <input type="range" min="0" max="4" value="2">
+                            <div class="scale">
+                                <span>极小</span><span>较小</span><span>标准</span><span>较大</span><span>极大</span>
+                            </div>
+                        </div>
+                        <div class="val">100%</div>
+                    </div>
+                    <div class="range-row">
+                        <div class="lb">
+                            <div class="ti">显示密度</div>
+                            <div class="sub">紧凑可在一屏看到更多内容，宽松更易阅读</div>
+                        </div>
+                        <div class="ctrl">
+                            <input type="range" min="0" max="2" value="1">
+                            <div class="scale"><span>紧凑</span><span>标准</span><span>宽松</span></div>
+                        </div>
+                        <div class="val">标准</div>
+                    </div>
+                    <div class="range-row" style="display: block">
+                        <div class="lb"><div class="ti">字体预览</div></div>
+                        <div class="font-preview" style="margin-top: 12px">
+                            <div class="fp-h">这是一段标题示例 · Heading Sample</div>
+                            <div class="fp-b">FansLoop 是面向加密原生用户与创作者的内容订阅与打赏平台。在这里，你可以发现优质创作者、订阅他们的会员档位、打赏喜爱的作品，并通过 USDT / ETH 等加密资产完成所有支付与结算。Lorem ipsum dolor sit amet 1234567890.</div>
+                        </div>
+                    </div>
+                    <div class="accent-row" style="border-bottom: none; padding-top: 16px">
+                        <div class="lb">无衬线字体<div style="font-size:11.5px;color:var(--t-tertiary);margin-top:3px;font-weight:400">更现代的字体外观，关闭则使用系统默认</div></div>
+                        <div style="margin-left: auto"><div class="switch on"></div></div>
+                    </div>
+                </div>
+
+                <!-- 动画与效果 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#A855F7,#EC4899)"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                        <div><h3>动画与视觉效果</h3><p>调整界面动画与特效，可降低视觉负担</p></div>
+                    </div>
+                    <div class="accent-row">
+                        <div class="lb">界面动画<div style="font-size:11.5px;color:var(--t-tertiary);margin-top:3px;font-weight:400">页面切换、按钮反馈、滚动等动效</div></div>
+                        <div style="margin-left: auto"><div class="switch on"></div></div>
+                    </div>
+                    <div class="accent-row">
+                        <div class="lb">背景毛玻璃<div style="font-size:11.5px;color:var(--t-tertiary);margin-top:3px;font-weight:400">半透明卡片背景效果，可能影响低端设备性能</div></div>
+                        <div style="margin-left: auto"><div class="switch on"></div></div>
+                    </div>
+                    <div class="accent-row">
+                        <div class="lb">送礼特效<div style="font-size:11.5px;color:var(--t-tertiary);margin-top:3px;font-weight:400">直播间送礼物时的飘屏特效</div></div>
+                        <div style="margin-left: auto"><div class="switch on"></div></div>
+                    </div>
+                    <div class="accent-row" style="border-bottom: none">
+                        <div class="lb">减少动效（无障碍）<div style="font-size:11.5px;color:var(--t-tertiary);margin-top:3px;font-weight:400">前庭功能障碍用户推荐启用</div></div>
+                        <div style="margin-left: auto"><div class="switch"></div></div>
+                    </div>
+                </div>
+
+                <!-- 语言 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#10B981,#06B6D4)"><i class="fa-solid fa-language"></i></div>
+                        <div><h3>界面语言</h3><p>支持 18 种语言 · 影响菜单、按钮、系统消息</p></div>
+                    </div>
+                    <div class="body">
+                        <div style="position: relative; margin-bottom: 14px">
+                            <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--t-tertiary);font-size:12px"></i>
+                            <input type="text" placeholder="搜索语言…" style="padding-left: 38px; max-width: 340px">
+                        </div>
+                        <div class="lang-grid">
+                            <div class="lang-item on"><span class="flag">🇨🇳</span><span class="nm">简体中文</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item"><span class="flag">🇹🇼</span><span class="nm">繁體中文</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item"><span class="flag">🇺🇸</span><span class="nm">English</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item"><span class="flag">🇯🇵</span><span class="nm">日本語</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item"><span class="flag">🇰🇷</span><span class="nm">한국어</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item"><span class="flag">🇪🇸</span><span class="nm">Español</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item"><span class="flag">🇫🇷</span><span class="nm">Français</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item"><span class="flag">🇩🇪</span><span class="nm">Deutsch</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item"><span class="flag">🇵🇹</span><span class="nm">Português</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item"><span class="flag">🇷🇺</span><span class="nm">Русский</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item"><span class="flag">🇸🇦</span><span class="nm">العربية</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item"><span class="flag">🇹🇭</span><span class="nm">ไทย</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item"><span class="flag">🇻🇳</span><span class="nm">Tiếng Việt</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item"><span class="flag">🇮🇩</span><span class="nm">Indonesia</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item"><span class="flag">🇮🇹</span><span class="nm">Italiano</span><i class="fa-solid fa-check ck"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 区域与货币 -->
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#F59E0B,#EC4899)"><i class="fa-solid fa-globe"></i></div>
+                        <div><h3>区域与货币</h3><p>影响价格、收益的展示单位与时间格式</p></div>
+                    </div>
+                    <div class="body">
+                        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; padding: 14px 0; border-bottom: 1px solid var(--border); align-items: center">
+                            <div style="font-size: 13.5px; font-weight: 600">显示货币</div>
+                            <div>
+                                <select style="max-width: 320px">
+                                    <option selected>USDT - Tether（推荐）</option>
+                                    <option>USDC - USD Coin</option>
+                                    <option>ETH - Ethereum</option>
+                                    <option>USD - 美元 ($)</option>
+                                    <option>CNY - 人民币 (¥)</option>
+                                    <option>JPY - 日元 (¥)</option>
+                                    <option>EUR - 欧元 (€)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; padding: 14px 0; border-bottom: 1px solid var(--border); align-items: center">
+                            <div style="font-size: 13.5px; font-weight: 600">时区</div>
+                            <div>
+                                <select style="max-width: 320px">
+                                    <option selected>UTC+9 · 日本 / 东京</option>
+                                    <option>UTC+8 · 中国 / 上海</option>
+                                    <option>UTC+0 · UTC</option>
+                                    <option>UTC-5 · 美国 / 纽约</option>
+                                    <option>UTC+2 · 欧洲 / 巴黎</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; padding: 14px 0; border-bottom: 1px solid var(--border); align-items: center">
+                            <div style="font-size: 13.5px; font-weight: 600">日期格式</div>
+                            <div>
+                                <div style="display: flex; gap: 6px; flex-wrap: wrap">
+                                    <button class="btn btn-sm" style="background: var(--brand-grad); color:#fff; border: none">2026-04-27</button>
+                                    <button class="btn btn-sm">04/27/2026</button>
+                                    <button class="btn btn-sm">27/04/2026</button>
+                                    <button class="btn btn-sm">2026 年 4 月 27 日</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; padding: 14px 0; border-bottom: 1px solid var(--border); align-items: center">
+                            <div style="font-size: 13.5px; font-weight: 600">时间格式</div>
+                            <div>
+                                <div style="display: flex; gap: 6px">
+                                    <button class="btn btn-sm" style="background: var(--brand-grad); color:#fff; border: none">24 小时制 · 14:30</button>
+                                    <button class="btn btn-sm">12 小时制 · 2:30 PM</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; padding: 14px 0; align-items: center">
+                            <div style="font-size: 13.5px; font-weight: 600">每周第一天</div>
+                            <div>
+                                <div style="display: flex; gap: 6px">
+                                    <button class="btn btn-sm" style="background: var(--brand-grad); color:#fff; border: none">周一</button>
+                                    <button class="btn btn-sm">周日</button>
+                                    <button class="btn btn-sm">周六</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+</body>
+</html>

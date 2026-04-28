@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>创建内容 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.cr-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
+@media (max-width: 1280px) { .cr-grid { grid-template-columns: 1fr; } .cr-aside { display: none; } }
+
+/* 创建类型卡片 */
+.type-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+}
+.type-card {
+    padding: 22px;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-lg);
+    cursor: pointer;
+    transition: 0.18s;
+    position: relative;
+    overflow: hidden;
+}
+.type-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    opacity: 0.15;
+    transition: 0.3s;
+}
+.type-card.t1::before { background: linear-gradient(135deg, #A855F7, #EC4899); }
+.type-card.t2::before { background: linear-gradient(135deg, #3B82F6, #06B6D4); }
+.type-card.t3::before { background: linear-gradient(135deg, #EF4444, #F59E0B); }
+.type-card.t4::before { background: linear-gradient(135deg, #10B981, #14B8A6); }
+.type-card:hover::before { opacity: 0.3; transform: scale(1.2); }
+.type-card:hover { border-color: var(--border-strong); transform: translateY(-3px); }
+.type-card.selected {
+    border-color: var(--brand-purple);
+    background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.04));
+}
+.type-card .ic-circle {
+    width: 50px; height: 50px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 22px;
+    margin-bottom: 14px;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+    position: relative; z-index: 2;
+}
+.type-card.t1 .ic-circle { background: linear-gradient(135deg, #A855F7, #EC4899); }
+.type-card.t2 .ic-circle { background: linear-gradient(135deg, #3B82F6, #06B6D4); }
+.type-card.t3 .ic-circle { background: linear-gradient(135deg, #EF4444, #F59E0B); }
+.type-card.t4 .ic-circle { background: linear-gradient(135deg, #10B981, #14B8A6); }
+.type-card h3 { font-size: 16px; font-weight: 800; margin-bottom: 5px; position: relative; z-index: 2; }
+.type-card p { font-size: 12px; color: var(--t-tertiary); line-height: 1.55; position: relative; z-index: 2; min-height: 36px; }
+.type-card .pop {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 3px 9px;
+    background: rgba(168,85,247,0.18);
+    border: 1px solid rgba(168,85,247,0.3);
+    color: #C084FC;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 6px;
+    position: relative; z-index: 2;
+}
+
+/* 编辑器 */
+.editor-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+}
+.editor-head {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+}
+.editor-head h3 { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.editor-head h3 .ic { width: 28px; height: 28px; border-radius: 8px; background: var(--brand-grad); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; }
+.editor-body { padding: 18px; }
+
+.title-input {
+    width: 100%;
+    height: 50px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    outline: none;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+}
+.title-input:focus { border-bottom-color: var(--brand-purple); }
+.title-input::placeholder { color: var(--t-quaternary); }
+
+.editor-text {
+    width: 100%;
+    min-height: 200px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    line-height: 1.65;
+    outline: none;
+    resize: none;
+    margin-top: 14px;
+}
+.editor-text::placeholder { color: var(--t-quaternary); }
+
+.upload-zone {
+    margin-top: 14px;
+    border: 2px dashed rgba(168,85,247,0.3);
+    border-radius: var(--r-md);
+    padding: 36px 22px;
+    text-align: center;
+    background: rgba(168,85,247,0.04);
+    cursor: pointer;
+    transition: 0.18s;
+}
+.upload-zone:hover { background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.5); }
+.upload-zone .uz-ic {
+    width: 56px; height: 56px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(168,85,247,0.18), rgba(236,72,153,0.1));
+    display: flex; align-items: center; justify-content: center;
+    color: #C084FC;
+    font-size: 22px;
+}
+.upload-zone h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.upload-zone p { font-size: 12px; color: var(--t-tertiary); margin-bottom: 12px; }
+.upload-zone .formats { font-size: 11px; color: var(--t-quaternary); margin-top: 10px; }
+
+/* 已上传图片预览 */
+.media-preview {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+.mp-cell {
+    aspect-ratio: 1;
+    background-size: cover; background-position: center;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+.mp-cell .del {
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 22px; height: 22px;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+}
+.mp-cell.add {
+    background: rgba(255,255,255,0.04);
+    border: 1.5px dashed rgba(255,255,255,0.12);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--t-tertiary);
+    font-size: 22px;
+    cursor: pointer;
+}
+.mp-cell.cover-tag::after {
+    content: '封面';
+    position: absolute;
+    bottom: 6px; left: 6px;
+    background: var(--brand-grad);
+    color: #fff;
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-weight: 700;
+}
+
+/* 设置卡 */
+.setting-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+.setting-row {
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 14px;
+    border-bottom: 1px solid var(--border);
+}
+.setting-row:last-child { border-bottom: none; }
+.setting-row .ic-cell {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--t-secondary);
+    font-size: 14px;
+    flex-shrink: 0;
+}
+.setting-row .info { flex: 1; min-width: 0; }
+.setting-row .info .ti { font-size: 13px; font-weight: 600; }
+.setting-row .info .sub { font-size: 11px; color: var(--t-tertiary); margin-top: 2px; }
+
+/* 价格选择 */
+.price-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 8px;
+}
+.price-cell {
+    padding: 14px 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    text-align: center;
+    transition: 0.15s;
+}
+.price-cell.selected {
+    background: linear-gradient(135deg, rgba(168,85,247,0.12), rgba(236,72,153,0.06));
+    border-color: var(--brand-purple);
+}
+.price-cell .ti { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.price-cell .sub { font-size: 11px; color: var(--t-tertiary); }
+.price-cell.selected .sub { color: #C084FC; }
+.price-cell .price-amt {
+    margin-top: 6px;
+    font-size: 16px; font-weight: 800;
+}
+.price-cell .price-amt .u { font-size: 11px; font-weight: 600; color: var(--t-tertiary); margin-left: 2px; }
+
+/* 标签 */
+.tag-input {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    padding: 10px 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    min-height: 44px;
+}
+.tag-input .tag-pill {
+    padding: 4px 10px;
+    background: rgba(168,85,247,0.18);
+    border: 1px solid rgba(168,85,247,0.3);
+    color: #C084FC;
+    border-radius: 999px;
+    font-size: 12px;
+    display: inline-flex; align-items: center; gap: 5px;
+}
+.tag-input .tag-pill .x { cursor: pointer; opacity: 0.6; }
+.tag-input input {
+    flex: 1; min-width: 100px;
+    background: transparent;
+    border: none; outline: none;
+    color: #fff;
+    font-size: 13px;
+}
+
+/* 底部操作栏 */
+.action-bar {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 10px;
+    position: sticky; bottom: 12px; margin-top: 18px;
+    backdrop-filter: blur(20px);
+}
+.action-bar .left-info { flex: 1; }
+.action-bar .left-info .li-ti { font-size: 12px; color: var(--t-tertiary); }
+.action-bar .left-info .li-sub { font-size: 11px; color: var(--t-quaternary); margin-top: 2px; }
+
+/* 草稿列表 */
+.aside-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg); margin-bottom: 14px; overflow: hidden; }
+.aside-card .ah { padding: 14px 16px 8px; display: flex; justify-content: space-between; align-items: center; }
+.aside-card .ah h4 { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.aside-card .ab { padding: 6px 14px 14px; }
+
+.draft-row {
+    display: flex; gap: 10px; padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+}
+.draft-row:hover { background: var(--bg-hover); margin: 0 -8px; padding: 10px 8px; border-radius: 8px; border-bottom-color: transparent; }
+.draft-row:last-child { border-bottom: none; }
+.draft-row .thumb { width: 50px; height: 50px; border-radius: 8px; background-size: cover; background-position: center; flex-shrink: 0; }
+.draft-row .info { flex: 1; min-width: 0; }
+.draft-row .info .t { font-size: 12.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.draft-row .info .s { font-size: 10.5px; color: var(--t-tertiary); margin-top: 4px; display: flex; gap: 8px; }
+
+/* 提示 */
+.tip-card {
+    padding: 14px;
+    background: linear-gradient(135deg, rgba(251,191,36,0.08), rgba(245,158,11,0.04));
+    border: 1px solid rgba(251,191,36,0.22);
+    border-radius: var(--r-md);
+    display: flex; gap: 10px;
+    margin-bottom: 14px;
+}
+.tip-card i { color: var(--warning-light); font-size: 16px; flex-shrink: 0; }
+.tip-card .txt { font-size: 12px; line-height: 1.55; color: var(--t-secondary); }
+.tip-card .txt b { color: #fff; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+    <aside class="app-sidebar">
+        <div class="s-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator</span></div>
+        </div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item active" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+
+        <div class="s-bottom">
+            <div class="s-pro-card">
+                <div class="crown"><i class="fa-solid fa-crown"></i></div>
+                <h4>升级 Creator Pro</h4>
+                <p>解锁高级数据 / 优先推流</p>
+                <button>立即升级</button>
+            </div>
+            <div class="s-user">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div>
+                <i class="fa-solid fa-ellipsis-vertical more"></i>
+            </div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索创作者、内容或话题…</span><span class="kbd">⌘ K</span></div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i><span class="dot"></span></button>
+            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <h1>创建内容 <span class="chip-pro">Creator Studio</span></h1>
+                <p>把你的想法变成图文、视频、直播或专属订阅，秒级发布到 FansLoop。</p>
+            </div>
+            <div class="ph-r">
+                <button class="btn"><i class="fa-regular fa-floppy-disk"></i> 保存草稿</button>
+                <button class="btn"><i class="fa-solid fa-eye"></i> 预览</button>
+            </div>
+        </div>
+
+        <!-- 类型选择 -->
+        <div class="type-grid">
+            <div class="type-card t1 selected">
+                <div class="ic-circle"><i class="fa-regular fa-image"></i></div>
+                <h3>图文动态</h3>
+                <p>1-9 张图 + 文字 + 标签，最快的创作方式</p>
+                <span class="pop">最受欢迎</span>
+            </div>
+            <div class="type-card t2">
+                <div class="ic-circle"><i class="fa-solid fa-video"></i></div>
+                <h3>视频作品</h3>
+                <p>≤ 30 分钟 4K 视频，自动生成 HLS 流媒体</p>
+            </div>
+            <div class="type-card t3">
+                <div class="ic-circle"><i class="fa-solid fa-tower-broadcast"></i></div>
+                <h3>开始直播</h3>
+                <p>实时连接粉丝，支持打赏 / 礼物 / 弹幕</p>
+            </div>
+            <div class="type-card t4">
+                <div class="ic-circle"><i class="fa-solid fa-square-poll-vertical"></i></div>
+                <h3>投票 / 问答</h3>
+                <p>2-4 选项投票，激发粉丝互动</p>
+            </div>
+        </div>
+
+        <div class="cr-grid">
+            <div>
+                <!-- 编辑器 -->
+                <div class="editor-card">
+                    <div class="editor-head">
+                        <h3><span class="ic"><i class="fa-regular fa-image"></i></span> 图文动态编辑器</h3>
+                        <span class="tag tag-success"><i class="fa-solid fa-circle"></i> 自动保存</span>
+                    </div>
+                    <div class="editor-body">
+                        <input class="title-input" placeholder="给你的动态加个标题（选填）" value="富士山五合目 · 零下 4℃ 的清晨" />
+                        <textarea class="editor-text" placeholder="写点什么吧…">清晨 5:40，云海被风轻轻吹散，每一帧都是冻出来的浪漫。35mm 定焦，三个小时，三张可用——分享给所有在等日出的你。</textarea>
+
+                        <!-- 已上传媒体 -->
+                        <div class="media-preview">
+                            <div class="mp-cell cover-tag" style="background-image: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400&q=80')">
+                                <span class="del"><i class="fa-solid fa-xmark"></i></span>
+                            </div>
+                            <div class="mp-cell" style="background-image: url('https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=400&q=80')">
+                                <span class="del"><i class="fa-solid fa-xmark"></i></span>
+                            </div>
+                            <div class="mp-cell" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80')">
+                                <span class="del"><i class="fa-solid fa-xmark"></i></span>
+                            </div>
+                            <div class="mp-cell add"><i class="fa-solid fa-plus"></i></div>
+                        </div>
+
+                        <!-- 标签 -->
+                        <div style="margin-top: 18px">
+                            <label class="field-label" style="display: block; margin-bottom: 8px"><i class="fa-solid fa-hashtag"></i> 添加标签</label>
+                            <div class="tag-input">
+                                <span class="tag-pill"># 富士山 <span class="x">×</span></span>
+                                <span class="tag-pill"># 旅行摄影 <span class="x">×</span></span>
+                                <span class="tag-pill"># 日出 <span class="x">×</span></span>
+                                <input placeholder="输入后回车，最多 8 个" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 内容定价 -->
+                <div class="setting-card" style="margin-top: 16px">
+                    <div class="editor-head">
+                        <h3><span class="ic" style="background: linear-gradient(135deg,#F59E0B,#EC4899)"><i class="fa-solid fa-tag"></i></span> 内容定价</h3>
+                    </div>
+                    <div class="editor-body">
+                        <div class="price-grid">
+                            <div class="price-cell">
+                                <div class="ti">免费</div>
+                                <div class="sub">所有用户可见</div>
+                                <div class="price-amt">$0<span class="u">USDT</span></div>
+                            </div>
+                            <div class="price-cell selected">
+                                <div class="ti">订阅可见</div>
+                                <div class="sub">仅订阅者可见</div>
+                                <div class="price-amt">订阅 28<span class="u">/月</span></div>
+                            </div>
+                            <div class="price-cell">
+                                <div class="ti">单独付费</div>
+                                <div class="sub">付费解锁单条</div>
+                                <div class="price-amt">$5<span class="u">USDT</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 高级设置 -->
+                <div class="setting-card" style="margin-top: 16px">
+                    <div class="editor-head"><h3><span class="ic" style="background: linear-gradient(135deg,#3B82F6,#06B6D4)"><i class="fa-solid fa-sliders"></i></span> 高级设置</h3></div>
+                    <div>
+                        <div class="setting-row">
+                            <div class="ic-cell"><i class="fa-solid fa-eye"></i></div>
+                            <div class="info"><div class="ti">谁可以看</div><div class="sub">所有人 / 仅粉丝 / 仅订阅者</div></div>
+                            <span style="font-size: 12px; color: var(--t-secondary)">所有人 <i class="fa-solid fa-chevron-right" style="font-size: 10px; margin-left: 6px"></i></span>
+                        </div>
+                        <div class="setting-row">
+                            <div class="ic-cell"><i class="fa-solid fa-comments"></i></div>
+                            <div class="info"><div class="ti">允许评论</div><div class="sub">关闭后用户无法在此动态下评论</div></div>
+                            <div class="switch on"></div>
+                        </div>
+                        <div class="setting-row">
+                            <div class="ic-cell"><i class="fa-solid fa-gift"></i></div>
+                            <div class="info"><div class="ti">允许打赏</div><div class="sub">读者可向你打赏 USDT</div></div>
+                            <div class="switch on"></div>
+                        </div>
+                        <div class="setting-row">
+                            <div class="ic-cell"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                            <div class="info"><div class="ti">允许分享</div><div class="sub">关闭后无法被分享到其它平台</div></div>
+                            <div class="switch on"></div>
+                        </div>
+                        <div class="setting-row">
+                            <div class="ic-cell"><i class="fa-solid fa-clock"></i></div>
+                            <div class="info"><div class="ti">定时发布</div><div class="sub">设置自动发布时间</div></div>
+                            <span style="font-size: 12px; color: var(--t-tertiary)">立即发布 <i class="fa-solid fa-chevron-right" style="font-size: 10px; margin-left: 6px"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作栏 -->
+                <div class="action-bar">
+                    <div class="left-info">
+                        <div class="li-ti"><b style="color: #fff">3 张图片</b> · 字数 64 · 标签 3</div>
+                        <div class="li-sub">即将发布到 1.2k 订阅者</div>
+                    </div>
+                    <button class="btn btn-secondary"><i class="fa-regular fa-floppy-disk"></i> 存草稿</button>
+                    <button class="btn btn-secondary"><i class="fa-solid fa-eye"></i> 预览</button>
+                    <button class="btn btn-primary btn-lg"><i class="fa-solid fa-paper-plane"></i> 立即发布</button>
+                </div>
+            </div>
+
+            <!-- 右侧 -->
+            <aside class="cr-aside">
+                <div class="tip-card">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <div class="txt">
+                        <b>发布建议</b><br>
+                        添加封面 + 标签可使曝光率提升 <b>3.5×</b>。视频建议 9:16 竖版以获得更佳推荐。
+                    </div>
+                </div>
+
+                <div class="aside-card">
+                    <div class="ah"><h4><i class="fa-regular fa-floppy-disk" style="color:#C084FC"></i>草稿箱 (3)</h4><a style="font-size: 11px; color: var(--brand-purple)" href="#">全部</a></div>
+                    <div class="ab" style="padding-top: 0">
+                        <div class="draft-row">
+                            <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=200')"></div>
+                            <div class="info">
+                                <div class="t">雨夜小提琴 · 现场</div>
+                                <div class="s"><span><i class="fa-regular fa-clock"></i> 2 小时前</span><span><i class="fa-solid fa-image"></i> 4</span></div>
+                            </div>
+                        </div>
+                        <div class="draft-row">
+                            <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1493612276216-ee3925520721?w=200')"></div>
+                            <div class="info">
+                                <div class="t">咖啡馆问答 · 第 4 期</div>
+                                <div class="s"><span><i class="fa-regular fa-clock"></i> 昨天</span><span><i class="fa-solid fa-video"></i> 1</span></div>
+                            </div>
+                        </div>
+                        <div class="draft-row">
+                            <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1542435503-956c469947f6?w=200')"></div>
+                            <div class="info">
+                                <div class="t">银盐时代 · 长卷</div>
+                                <div class="s"><span><i class="fa-regular fa-clock"></i> 3 天前</span><span><i class="fa-solid fa-image"></i> 9</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="aside-card">
+                    <div class="ah"><h4><i class="fa-solid fa-chart-line" style="color:#6EE7B7"></i>本周创作数据</h4></div>
+                    <div class="ab" style="padding-top: 0">
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px">
+                            <span style="color: var(--t-tertiary)">已发布</span><b>8 篇</b>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px">
+                            <span style="color: var(--t-tertiary)">总曝光</span><b>2.6 万</b>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px">
+                            <span style="color: var(--t-tertiary)">新增订阅</span><b style="color: var(--success-light)">+ 38</b>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 12px">
+                            <span style="color: var(--t-tertiary)">收益</span><b style="color: var(--warning-light)">128 USDT</b>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>

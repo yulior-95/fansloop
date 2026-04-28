@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>导出报表</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+body { background: var(--bg-app); }
+.modal-mask { background: rgba(0,0,0,0.7); }
+.modal { max-width: 580px; }
+
+.fmt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.fmt-card {
+    padding: 14px 12px;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.15s;
+}
+.fmt-card .ic-f {
+    width: 38px; height: 38px;
+    border-radius: 9px;
+    margin: 0 auto 8px;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+}
+.fmt-card.csv .ic-f { background: linear-gradient(135deg, #3B82F6, #1E40AF); }
+.fmt-card.xlsx .ic-f { background: linear-gradient(135deg, #10B981, #059669); }
+.fmt-card.pdf .ic-f { background: linear-gradient(135deg, #EF4444, #B91C1C); }
+.fmt-card .nm { font-size: 12px; font-weight: 700; }
+.fmt-card .desc { font-size: 10.5px; color: var(--t-tertiary); margin-top: 2px; }
+.fmt-card.active {
+    border-color: var(--brand-purple);
+    background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.04));
+}
+
+.range-card {
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    background: var(--bg-input);
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
+}
+.range-card.active { border-color: var(--brand-purple); background: rgba(168,85,247,0.06); }
+.range-card .nm { font-size: 13px; font-weight: 600; }
+.range-card .meta { font-size: 11px; color: var(--t-tertiary); margin-top: 2px; }
+.range-card .check { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--border-strong); display: flex; align-items: center; justify-content: center; color: transparent; font-size: 10px; }
+.range-card.active .check { background: var(--brand-grad); border-color: transparent; color: #fff; }
+
+.cb-list { display: flex; flex-direction: column; gap: 4px; }
+.cb-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; cursor: pointer; font-size: 12.5px; }
+.cb-row .cb {
+    width: 16px; height: 16px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    color: transparent; font-size: 9px;
+}
+.cb-row.checked .cb { background: var(--brand-grad); border-color: transparent; color: #fff; }
+
+.summary-card {
+    background: linear-gradient(135deg, rgba(168,85,247,0.06), rgba(236,72,153,0.03));
+    border: 1px solid rgba(168,85,247,0.2);
+    border-radius: var(--r-md);
+    padding: 12px 14px;
+    margin-top: 14px;
+}
+.summary-card .row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 12px; }
+.summary-card .row .l { color: var(--t-tertiary); }
+.summary-card .row .v { color: #fff; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="modal-mask">
+    <div class="modal">
+        <div class="modal-head">
+            <h2 style="font-size: 16px"><span class="ic"><i class="fa-solid fa-file-export"></i></span>导出账变报表
+                <span class="sub">选择格式 / 时间范围 / 字段，可导出 CSV / Excel / PDF</span>
+            </h2>
+            <button class="close" onclick="location.href='transactions.html'"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="modal-body">
+
+            <!-- Format -->
+            <div style="margin-bottom: 16px">
+                <div style="font-size: 12px; color: var(--t-tertiary); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px">格式</div>
+                <div class="fmt-grid">
+                    <div class="fmt-card csv active"><div class="ic-f"><i class="fa-solid fa-file-csv"></i></div><div class="nm">CSV</div><div class="desc">适合二次分析</div></div>
+                    <div class="fmt-card xlsx"><div class="ic-f"><i class="fa-solid fa-file-excel"></i></div><div class="nm">Excel</div><div class="desc">含分类汇总</div></div>
+                    <div class="fmt-card pdf"><div class="ic-f"><i class="fa-solid fa-file-pdf"></i></div><div class="nm">PDF</div><div class="desc">税务报告</div></div>
+                </div>
+            </div>
+
+            <!-- Range -->
+            <div style="margin-bottom: 16px">
+                <div style="font-size: 12px; color: var(--t-tertiary); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px">时间范围</div>
+                <div class="range-card">
+                    <div><div class="nm">最近 7 天</div><div class="meta">2026-04-19 ~ 2026-04-25 · 21 条</div></div>
+                    <div class="check"></div>
+                </div>
+                <div class="range-card active">
+                    <div><div class="nm">本月（2026-04）</div><div class="meta">2026-04-01 ~ 2026-04-25 · 128 条</div></div>
+                    <div class="check"><i class="fa-solid fa-check"></i></div>
+                </div>
+                <div class="range-card">
+                    <div><div class="nm">本季度（Q2 2026）</div><div class="meta">2026-04-01 ~ 2026-06-30 · 128 条</div></div>
+                    <div class="check"></div>
+                </div>
+                <div class="range-card">
+                    <div><div class="nm">自定义日期</div><div class="meta">指定开始 / 结束日期</div></div>
+                    <div class="check"></div>
+                </div>
+            </div>
+
+            <!-- Fields -->
+            <div style="margin-bottom: 14px">
+                <div style="font-size: 12px; color: var(--t-tertiary); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; display: flex; justify-content: space-between">
+                    <span>导出字段</span>
+                    <a href="#" style="color: var(--brand-purple); font-size: 11px; text-transform: none">全选 (12)</a>
+                </div>
+                <div class="cb-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px">
+                    <div class="cb-row checked"><div class="cb"><i class="fa-solid fa-check"></i></div>订单号</div>
+                    <div class="cb-row checked"><div class="cb"><i class="fa-solid fa-check"></i></div>类型</div>
+                    <div class="cb-row checked"><div class="cb"><i class="fa-solid fa-check"></i></div>金额（USD）</div>
+                    <div class="cb-row checked"><div class="cb"><i class="fa-solid fa-check"></i></div>金额（USDT）</div>
+                    <div class="cb-row checked"><div class="cb"><i class="fa-solid fa-check"></i></div>状态</div>
+                    <div class="cb-row checked"><div class="cb"><i class="fa-solid fa-check"></i></div>时间</div>
+                    <div class="cb-row checked"><div class="cb"><i class="fa-solid fa-check"></i></div>对方用户</div>
+                    <div class="cb-row checked"><div class="cb"><i class="fa-solid fa-check"></i></div>平台分成</div>
+                    <div class="cb-row"><div class="cb"></div>链上 TXID</div>
+                    <div class="cb-row"><div class="cb"></div>链上确认数</div>
+                    <div class="cb-row"><div class="cb"></div>备注</div>
+                    <div class="cb-row"><div class="cb"></div>关联帖子</div>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <div class="row"><span class="l">导出格式</span><span class="v">CSV (UTF-8 BOM)</span></div>
+                <div class="row"><span class="l">数据范围</span><span class="v">2026-04-01 ~ 2026-04-25</span></div>
+                <div class="row"><span class="l">数据条数</span><span class="v">128 条</span></div>
+                <div class="row"><span class="l">字段数</span><span class="v">8 / 12</span></div>
+                <div class="row"><span class="l">预估文件大小</span><span class="v">~ 14 KB</span></div>
+            </div>
+
+            <div class="notice notice-info" style="margin-top: 12px">
+                <i class="fa-solid fa-circle-info ni"></i>
+                <span>导出文件将通过浏览器直接下载，并发送一份副本至 luna_creator@example.com</span>
+            </div>
+        </div>
+
+        <div class="modal-foot">
+            <button class="btn" onclick="location.href='transactions.html'">取消</button>
+            <button class="btn btn-primary" onclick="location.href='transactions.html'">
+                <i class="fa-solid fa-download"></i>开始导出
+            </button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

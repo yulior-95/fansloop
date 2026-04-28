@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>登录错误状态合集</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+body {
+    padding: 36px 32px;
+    background: var(--bg-app);
+}
+.gallery {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.g-head { margin-bottom: 22px; }
+.g-head h1 { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+.g-head p { font-size: 13px; color: var(--t-tertiary); }
+.g-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+
+.err-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+}
+.err-head {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+}
+.err-head .lbl { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--t-secondary); font-weight: 600; }
+.err-head .num {
+    font-size: 10px;
+    padding: 2px 8px;
+    background: rgba(168,85,247,0.18);
+    color: #C084FC;
+    border-radius: 5px;
+    font-family: ui-monospace, monospace;
+    font-weight: 700;
+}
+
+.err-body {
+    padding: 30px 22px;
+    text-align: center;
+}
+.err-body .ic-lg {
+    width: 72px; height: 72px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+}
+.err-body .ic-lg.warn { background: rgba(245,158,11,0.12); color: var(--warning-light); }
+.err-body .ic-lg.danger { background: rgba(239,68,68,0.12); color: var(--danger-light); }
+.err-body .ic-lg.info { background: rgba(59,130,246,0.12); color: var(--info-light); }
+.err-body .ic-lg.purple { background: rgba(168,85,247,0.12); color: #C084FC; }
+.err-body h3 { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+.err-body p { font-size: 12.5px; color: var(--t-tertiary); line-height: 1.5; max-width: 320px; margin: 0 auto 16px; }
+.err-body .btns { display: flex; gap: 8px; justify-content: center; }
+.err-body .btns .btn { font-size: 12px; height: 32px; padding: 0 12px; }
+
+.err-meta {
+    background: rgba(0,0,0,0.18);
+    padding: 10px 18px;
+    font-size: 11px;
+    font-family: ui-monospace, monospace;
+    color: var(--t-tertiary);
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between;
+}
+</style>
+</head>
+<body>
+
+<div class="gallery">
+    <div class="g-head">
+        <h1>登录错误状态合集</h1>
+        <p>本页集中展示登录流程中可能遇到的各种异常状态。每个状态都有清晰的提示与下一步操作建议。</p>
+    </div>
+
+    <div class="g-grid">
+
+        <!-- E01 未安装钱包 -->
+        <div class="err-card">
+            <div class="err-head">
+                <div class="lbl"><i class="fa-solid fa-puzzle-piece"></i>未安装钱包</div>
+                <div class="num">E01 · NoWallet</div>
+            </div>
+            <div class="err-body">
+                <div class="ic-lg purple"><i class="fa-solid fa-circle-question"></i></div>
+                <h3>未检测到 Web3 钱包</h3>
+                <p>你的浏览器中尚未安装钱包扩展。请安装 MetaMask 或使用扫码登录。</p>
+                <div class="btns">
+                    <button class="btn"><i class="fa-brands fa-chrome"></i>安装 MetaMask</button>
+                    <button class="btn btn-primary"><i class="fa-solid fa-qrcode"></i>改用扫码</button>
+                </div>
+            </div>
+            <div class="err-meta"><span>error.code = WALLET_NOT_DETECTED</span><span>FE-1100</span></div>
+        </div>
+
+        <!-- E02 用户拒绝 -->
+        <div class="err-card">
+            <div class="err-head">
+                <div class="lbl"><i class="fa-solid fa-ban"></i>用户拒绝授权</div>
+                <div class="num">E02 · UserRejected</div>
+            </div>
+            <div class="err-body">
+                <div class="ic-lg warn"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <h3>你在钱包中点击了"拒绝"</h3>
+                <p>登录已取消。如需登录 FansLoop，请重新发起连接并在钱包中点击"连接"。</p>
+                <div class="btns">
+                    <button class="btn">取消</button>
+                    <button class="btn btn-primary">重新尝试</button>
+                </div>
+            </div>
+            <div class="err-meta"><span>error.code = 4001 (USER_REJECTED)</span><span>FE-1201</span></div>
+        </div>
+
+        <!-- E03 网络错误 -->
+        <div class="err-card">
+            <div class="err-head">
+                <div class="lbl"><i class="fa-solid fa-network-wired"></i>钱包网络不匹配</div>
+                <div class="num">E03 · WrongChain</div>
+            </div>
+            <div class="err-body">
+                <div class="ic-lg warn"><i class="fa-solid fa-link-slash"></i></div>
+                <h3>当前网络不支持</h3>
+                <p>你的钱包当前位于 BSC 网络。FansLoop 仅支持 Ethereum / Polygon / Base 等 EVM 主网。</p>
+                <div class="btns">
+                    <button class="btn">查看支持网络</button>
+                    <button class="btn btn-primary">切换到 Ethereum</button>
+                </div>
+            </div>
+            <div class="err-meta"><span>chainId = 56 (BSC)</span><span>expected = 1, 137, 8453</span></div>
+        </div>
+
+        <!-- E04 签名超时 -->
+        <div class="err-card">
+            <div class="err-head">
+                <div class="lbl"><i class="fa-regular fa-clock"></i>签名请求超时</div>
+                <div class="num">E04 · Timeout</div>
+            </div>
+            <div class="err-body">
+                <div class="ic-lg info"><i class="fa-solid fa-hourglass-end"></i></div>
+                <h3>签名请求已超时</h3>
+                <p>你在 30 秒内未完成签名。这可能是钱包窗口被遮挡。请重新发起登录并尽快完成签名。</p>
+                <div class="btns">
+                    <button class="btn">取消</button>
+                    <button class="btn btn-primary">重新登录</button>
+                </div>
+            </div>
+            <div class="err-meta"><span>error.code = SIGN_TIMEOUT</span><span>elapsed = 30s</span></div>
+        </div>
+
+        <!-- E05 签名验证失败 -->
+        <div class="err-card">
+            <div class="err-head">
+                <div class="lbl"><i class="fa-solid fa-shield-virus"></i>签名验证失败</div>
+                <div class="num">E05 · InvalidSig</div>
+            </div>
+            <div class="err-body">
+                <div class="ic-lg danger"><i class="fa-solid fa-circle-xmark"></i></div>
+                <h3>签名校验失败</h3>
+                <p>服务器无法验证你的签名。这可能是 Nonce 已失效或签名内容被篡改。请重新登录。</p>
+                <div class="btns">
+                    <button class="btn">联系客服</button>
+                    <button class="btn btn-primary">重新登录</button>
+                </div>
+            </div>
+            <div class="err-meta"><span>error.code = INVALID_SIGNATURE</span><span>BE-2305</span></div>
+        </div>
+
+        <!-- E06 账号被封 -->
+        <div class="err-card">
+            <div class="err-head">
+                <div class="lbl"><i class="fa-solid fa-lock"></i>账号已被限制</div>
+                <div class="num">E06 · Banned</div>
+            </div>
+            <div class="err-body">
+                <div class="ic-lg danger"><i class="fa-solid fa-user-slash"></i></div>
+                <h3>该地址已被封禁</h3>
+                <p>因违反社区规范，该钱包地址 (0x7A3F...3F2C) 已被永久封禁。如有异议请申诉。</p>
+                <div class="btns">
+                    <button class="btn">查看规范</button>
+                    <button class="btn btn-primary">提交申诉</button>
+                </div>
+            </div>
+            <div class="err-meta"><span>error.code = ADDRESS_BANNED</span><span>banned_at = 2026-03-12</span></div>
+        </div>
+
+        <!-- E07 服务繁忙 -->
+        <div class="err-card">
+            <div class="err-head">
+                <div class="lbl"><i class="fa-solid fa-server"></i>服务繁忙</div>
+                <div class="num">E07 · ServerBusy</div>
+            </div>
+            <div class="err-body">
+                <div class="ic-lg warn"><i class="fa-solid fa-server"></i></div>
+                <h3>服务暂时繁忙</h3>
+                <p>登录服务正在处理大量请求。请稍后再试，或<a href="#" style="color:var(--brand-purple)">查看实时状态页</a>。</p>
+                <div class="btns">
+                    <button class="btn">查看状态</button>
+                    <button class="btn btn-primary">重试登录</button>
+                </div>
+            </div>
+            <div class="err-meta"><span>HTTP 503</span><span>retry-after = 30s</span></div>
+        </div>
+
+        <!-- E08 WC 失效 -->
+        <div class="err-card">
+            <div class="err-head">
+                <div class="lbl"><i class="fa-solid fa-qrcode"></i>WalletConnect 二维码失效</div>
+                <div class="num">E08 · QRExpired</div>
+            </div>
+            <div class="err-body">
+                <div class="ic-lg purple"><i class="fa-solid fa-arrow-rotate-right"></i></div>
+                <h3>二维码已过期</h3>
+                <p>WalletConnect 会话已超过 5 分钟未连接。请刷新二维码后重新扫码。</p>
+                <div class="btns">
+                    <button class="btn">取消</button>
+                    <button class="btn btn-primary">刷新二维码</button>
+                </div>
+            </div>
+            <div class="err-meta"><span>session.expired = true</span><span>WC-Relay</span></div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>提现申请已提交 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.success-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 22px; max-width: 1200px; }
+@media (max-width: 1100px) { .success-grid { grid-template-columns: 1fr; } }
+
+.success-hero {
+    background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(110,231,183,0.04));
+    border: 1px solid rgba(16,185,129,0.25);
+    border-radius: var(--r-xl);
+    padding: 36px 30px;
+    text-align: center;
+    position: relative; overflow: hidden;
+    margin-bottom: 18px;
+}
+.success-hero::before, .success-hero::after {
+    content: ''; position: absolute;
+    border: 2px solid rgba(16,185,129,0.18);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    left: 50%; top: 90px;
+    width: 140px; height: 140px;
+    animation: ringExpand 2.4s ease-out infinite;
+}
+.success-hero::after { animation-delay: 1.2s; }
+@keyframes ringExpand { from { width: 80px; height: 80px; opacity: 1; } to { width: 280px; height: 280px; opacity: 0; } }
+
+.success-hero .check-circle {
+    width: 96px; height: 96px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10B981, #6EE7B7);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 42px;
+    box-shadow: 0 12px 30px rgba(16,185,129,0.5);
+    position: relative; z-index: 2;
+}
+.success-hero h2 { font-size: 26px; font-weight: 800; margin-bottom: 6px; position: relative; z-index: 2; }
+.success-hero .amt { font-size: 36px; font-weight: 900; letter-spacing: -0.8px; margin: 6px 0; color: #fff; position: relative; z-index: 2; }
+.success-hero .desc { font-size: 13.5px; color: var(--t-secondary); position: relative; z-index: 2; max-width: 420px; margin: 0 auto; line-height: 1.6; }
+
+.timeline-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 24px; }
+.timeline-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 18px; }
+.steps {
+    position: relative;
+    padding-left: 28px;
+}
+.steps::before {
+    content: ''; position: absolute;
+    left: 12px; top: 8px; bottom: 8px;
+    width: 2px; background: var(--border-strong);
+}
+.step { position: relative; padding-bottom: 18px; }
+.step:last-child { padding-bottom: 0; }
+.step .dot {
+    position: absolute; left: -28px; top: 0;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 2px solid var(--border-strong);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    color: var(--t-tertiary);
+}
+.step.done .dot { background: var(--success); border-color: var(--success); color: #fff; }
+.step.active .dot { background: var(--brand-grad); border-color: transparent; color: #fff; box-shadow: 0 0 0 4px rgba(168,85,247,0.18); }
+.step .ttl { font-size: 13.5px; font-weight: 600; }
+.step.active .ttl { color: var(--brand-purple); }
+.step .txt { font-size: 11.5px; color: var(--t-tertiary); margin-top: 2px; }
+.step .time { font-size: 11px; color: var(--t-quaternary); margin-top: 3px; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item active" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span><span class="chip">+$28</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+        <div class="s-bottom">
+            <div class="s-user"><div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div><div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div></div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索…</span></div>
+        <div class="h-actions"><button class="h-icon"><i class="fa-regular fa-bell"></i></button><div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div></div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <div class="crumb"><a href="wallet.html">我的钱包</a><i class="fa-solid fa-chevron-right"></i><span class="curr">提现申请已提交</span></div>
+                <h1>提现申请已提交</h1>
+                <p>我们已收到你的提现申请，资金将在 1-5 分钟内到账</p>
+            </div>
+        </div>
+
+        <div class="success-grid">
+            <div>
+                <div class="success-hero">
+                    <div class="check-circle"><i class="fa-solid fa-check"></i></div>
+                    <h2>申请提交成功</h2>
+                    <div class="amt">¥3,532.25</div>
+                    <div class="desc">资金将在 1-5 分钟内到账你的招商银行 ****6618 储蓄卡<br>实际到账时间以银行处理为准</div>
+                </div>
+
+                <div class="timeline-card">
+                    <h3><i class="fa-solid fa-route"></i> 处理进度</h3>
+                    <div class="steps">
+                        <div class="step done">
+                            <div class="dot"><i class="fa-solid fa-check"></i></div>
+                            <div class="ttl">提现申请已提交</div>
+                            <div class="txt">系统已收到你的提现申请</div>
+                            <div class="time">2026-04-25 19:08:32</div>
+                        </div>
+                        <div class="step done">
+                            <div class="dot"><i class="fa-solid fa-check"></i></div>
+                            <div class="ttl">风控审核通过</div>
+                            <div class="txt">自动化风控秒级通过</div>
+                            <div class="time">2026-04-25 19:08:34</div>
+                        </div>
+                        <div class="step active">
+                            <div class="dot"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                            <div class="ttl">银行通道处理中</div>
+                            <div class="txt">银行实时通道正在处理资金到账</div>
+                            <div class="time">预计 1-5 分钟</div>
+                        </div>
+                        <div class="step">
+                            <div class="dot">4</div>
+                            <div class="ttl">资金到账</div>
+                            <div class="txt">¥3,532.25 将到账招商 ****6618</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card" style="padding: 22px 24px; margin-bottom: 14px">
+                    <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 14px"><i class="fa-solid fa-receipt"></i> 提现详情</h3>
+                    <div class="kv-list">
+                        <div class="kv-row"><span class="k">提现单号</span><span class="v num" style="font-size: 11.5px">WD20260425190832</span></div>
+                        <div class="kv-row"><span class="k">提现金额</span><span class="v num">500.00 USDT</span></div>
+                        <div class="kv-row"><span class="k">汇率</span><span class="v num">¥7.10 / USDT</span></div>
+                        <div class="kv-row"><span class="k">兑换金额</span><span class="v num">¥3,550.00</span></div>
+                        <div class="kv-row"><span class="k">通道费</span><span class="v num">- ¥17.75</span></div>
+                        <div class="kv-row"><span class="k">收款卡</span><span class="v">招商 ****6618</span></div>
+                        <div class="kv-row" style="border-bottom: none"><span class="k">实际到账</span><span class="v num t-grad" style="font-weight: 800">¥3,532.25</span></div>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 18px 22px">
+                    <div style="display: flex; flex-direction: column; gap: 10px">
+                        <button class="btn btn-secondary btn-block" onclick="location.href='transaction-detail.html'"><i class="fa-solid fa-file-lines"></i>查看交易详情</button>
+                        <button class="btn btn-secondary btn-block" onclick="location.href='transactions.html'"><i class="fa-solid fa-list-ul"></i>账变记录</button>
+                        <button class="btn btn-primary btn-block" onclick="location.href='wallet.html'"><i class="fa-solid fa-wallet"></i>返回钱包</button>
+                    </div>
+                </div>
+
+                <div class="notice notice-info" style="margin-top: 14px">
+                    <i class="fa-solid fa-circle-info ni"></i>
+                    <span>如遇延迟到账，请在 30 分钟后联系客服。客服热线 400-823-8888</span>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

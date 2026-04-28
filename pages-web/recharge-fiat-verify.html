@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>三方支付验证</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.verify-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 22px; max-width: 1200px; }
+@media (max-width: 1100px) { .verify-grid { grid-template-columns: 1fr; } }
+
+.verify-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--r-lg); overflow: hidden;
+}
+.verify-card .vh {
+    padding: 18px 24px;
+    background: linear-gradient(135deg, rgba(168,85,247,0.06), rgba(236,72,153,0.03));
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+}
+.verify-card .vh .lo {
+    display: flex; align-items: center; gap: 10px;
+}
+.verify-card .vh .lo .pay-logo {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #1E3A8A, #1E40AF);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+}
+.verify-card .vh .lo .info .n { font-size: 13px; font-weight: 700; }
+.verify-card .vh .lo .info .s { font-size: 10px; color: var(--t-tertiary); margin-top: 1px; }
+
+.steps-tab { display: flex; padding: 0 24px; border-bottom: 1px solid var(--border); }
+.steps-tab .stp {
+    flex: 1; padding: 16px 0;
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--t-tertiary);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+.steps-tab .stp.done { color: var(--success-light); }
+.steps-tab .stp.done .n { background: var(--success); color: #fff; border-color: transparent; }
+.steps-tab .stp.active { color: #fff; border-bottom-color: var(--brand-purple); font-weight: 600; }
+.steps-tab .stp.active .n { background: var(--brand-grad); color: #fff; border-color: transparent; }
+.steps-tab .stp .n {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border-strong);
+    color: var(--t-tertiary);
+    margin-right: 7px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.verify-form {
+    padding: 24px;
+}
+.amt-display {
+    background: linear-gradient(135deg, rgba(16,185,129,0.06), rgba(59,130,246,0.04));
+    border: 1px solid rgba(16,185,129,0.18);
+    border-radius: var(--r-md);
+    padding: 16px 18px;
+    margin-bottom: 20px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.amt-display .lbl { font-size: 11px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.4px; }
+.amt-display .v { font-size: 22px; font-weight: 800; letter-spacing: -0.4px; margin-top: 3px; }
+
+.code-input { display: flex; gap: 10px; margin: 12px 0; }
+.code-input input {
+    width: 50px; height: 56px;
+    text-align: center;
+    font-size: 22px; font-weight: 800;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: #fff;
+    outline: none;
+}
+.code-input input:focus { border-color: var(--brand-purple); background: var(--bg-input-focus); }
+.code-input input.filled { border-color: var(--success); }
+
+.send-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+.send-row a { color: var(--brand-purple); font-weight: 600; }
+.send-row .countdown { color: var(--t-tertiary); }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item active" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span><span class="chip">+$28</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+        <div class="s-bottom">
+            <div class="s-user"><div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div><div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div></div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索…</span><span class="kbd">⌘ K</span></div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-regular fa-bell"></i></button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <div class="crumb"><a href="recharge-fiat.html">法币充值</a><i class="fa-solid fa-chevron-right"></i><span class="curr">支付验证</span></div>
+                <h1>身份认证 + 支付确认</h1>
+                <p>由 PaySecure 银通国际处理 · 全程加密 · 你不会离开 FansLoop</p>
+            </div>
+        </div>
+
+        <div class="verify-grid">
+
+            <div class="verify-card">
+                <div class="vh">
+                    <div class="lo">
+                        <div class="pay-logo">PS</div>
+                        <div class="info">
+                            <div class="n">支付订单 #FL2604251108</div>
+                            <div class="s">由 PaySecure 银通国际安全处理 · ICP 11020034</div>
+                        </div>
+                    </div>
+                    <span class="tag tag-info"><i class="fa-solid fa-lock"></i> SSL · 256bit</span>
+                </div>
+
+                <div class="steps-tab">
+                    <div class="stp done"><span class="n"><i class="fa-solid fa-check"></i></span>身份核验</div>
+                    <div class="stp active"><span class="n">2</span>短信验证</div>
+                    <div class="stp"><span class="n">3</span>支付确认</div>
+                </div>
+
+                <div class="verify-form">
+
+                    <div class="amt-display">
+                        <div>
+                            <div class="lbl">支付金额</div>
+                            <div class="v">¥1,500.00 ≈ $211.27</div>
+                        </div>
+                        <div style="text-align:right">
+                            <div class="lbl">支付银行卡</div>
+                            <div class="v" style="font-size: 13px; font-weight: 600; margin-top: 4px">招商 ****6618 <a href="recharge-fiat-switch-card.html" style="color:var(--brand-purple); font-size:11px; font-weight:500">更换</a></div>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="field-label">银行预留手机号</label>
+                        <input type="text" class="input" value="138 **** 8866" disabled />
+                    </div>
+
+                    <div class="field">
+                        <label class="field-label">短信验证码 <span class="req">*</span><span class="opt">已发送至上方手机号</span></label>
+                        <div class="code-input">
+                            <input type="text" maxlength="1" value="1" class="filled">
+                            <input type="text" maxlength="1" value="3" class="filled">
+                            <input type="text" maxlength="1" value="8" class="filled">
+                            <input type="text" maxlength="1" value="2" class="filled">
+                            <input type="text" maxlength="1" value="0">
+                            <input type="text" maxlength="1">
+                        </div>
+                        <div class="send-row">
+                            <span class="countdown">52 秒后可重新发送</span>
+                            <a>没收到？切换语音验证</a>
+                        </div>
+                    </div>
+
+                    <div class="notice notice-info" style="margin-top: 14px">
+                        <i class="fa-solid fa-circle-info ni"></i>
+                        <span>验证码由招商银行直接发送，请勿向任何人透露。FansLoop 客服不会向你索要验证码。</span>
+                    </div>
+
+                    <button class="btn btn-primary btn-block btn-lg" style="margin-top: 22px" onclick="location.href='wallet.html'">
+                        <i class="fa-solid fa-shield-halved"></i>验证并支付 ¥1,500.00
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <div class="card" style="padding: 20px 22px; margin-bottom: 14px">
+                    <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 14px">订单详情</h4>
+                    <div class="kv-list">
+                        <div class="kv-row"><span class="k">订单号</span><span class="v code">FL2604251108</span></div>
+                        <div class="kv-row"><span class="k">充值金额</span><span class="v num">¥1,500.00</span></div>
+                        <div class="kv-row"><span class="k">通道费</span><span class="v num">¥7.50</span></div>
+                        <div class="kv-row"><span class="k">汇率</span><span class="v num">1 USD = ¥7.10</span></div>
+                        <div class="kv-row"><span class="k">实际到账</span><span class="v num t-success">≈ 210.21 USDT</span></div>
+                        <div class="kv-row" style="border-bottom:none"><span class="k">订单有效期</span><span class="v warning">14:48</span></div>
+                    </div>
+                </div>
+                <div class="card" style="padding: 20px 22px">
+                    <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 14px">安全须知</h4>
+                    <div style="font-size: 12px; line-height: 1.6; color: var(--t-secondary)">
+                        ✓ 此订单仅在本浏览器有效<br>
+                        ✓ FansLoop 不会询问你的银行密码<br>
+                        ✓ 所有数据使用 TLS 1.3 加密<br>
+                        ✓ 通道由 PaySecure 持牌处理
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+</body>
+</html>

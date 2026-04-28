@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>富士山日出 · 话题</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.td-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
+@media (max-width: 1280px) { .td-grid { grid-template-columns: 1fr; } .td-aside { display: none; } }
+
+.td-hero {
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    margin-bottom: 22px;
+    position: relative;
+    height: 340px;
+    background: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=1600') center/cover;
+}
+.td-hero::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(7,7,13,0.2) 0%, rgba(7,7,13,0.85) 100%);
+}
+.td-hero .hero-content {
+    position: absolute;
+    bottom: 28px; left: 32px; right: 32px;
+    z-index: 2;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 24px;
+}
+.td-hero .hero-l h1 {
+    font-size: 38px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+    text-shadow: 0 4px 18px rgba(0,0,0,0.5);
+}
+.td-hero .hero-l h1 .hashtag {
+    background: linear-gradient(90deg, #FBBF24, #F472B6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.td-hero .hero-l p { color: rgba(255,255,255,0.85); font-size: 14px; max-width: 580px; line-height: 1.6; margin-bottom: 14px; }
+.td-hero .hero-l .stats {
+    display: flex; gap: 20px;
+    color: rgba(255,255,255,0.85);
+    font-size: 12.5px;
+}
+.td-hero .hero-l .stats span { display: inline-flex; align-items: center; gap: 6px; }
+.td-hero .hero-l .stats b { color: #fff; font-weight: 700; font-variant-numeric: tabular-nums; }
+.td-hero .hero-r { display: flex; gap: 8px; }
+.td-hero .hero-r .btn-follow {
+    background: var(--brand-grad);
+    color: #fff;
+    padding: 0 22px;
+    height: 42px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 13px;
+    box-shadow: 0 12px 30px rgba(168,85,247,0.4);
+    display: inline-flex; align-items: center; gap: 8px;
+}
+.td-hero .hero-r .btn-share {
+    height: 42px; padding: 0 16px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 13px;
+    display: inline-flex; align-items: center; gap: 7px;
+}
+
+.td-hero .float-pill {
+    position: absolute;
+    top: 24px; left: 32px;
+    z-index: 2;
+    display: flex; gap: 8px;
+}
+.td-hero .float-pill .fp {
+    padding: 6px 14px;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 999px;
+    color: #fff;
+    font-size: 11.5px;
+    font-weight: 600;
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.td-hero .float-pill .fp.fire { background: linear-gradient(135deg,#EF4444,#F59E0B); border: none; }
+
+/* tabs */
+.td-tabs {
+    display: flex; gap: 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+}
+.td-tabs .tt {
+    padding: 12px 18px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--t-tertiary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    display: flex; align-items: center; gap: 7px;
+}
+.td-tabs .tt.active { color: #fff; border-bottom-color: var(--brand-purple); }
+.td-tabs .tt .cnt { font-size: 10px; padding: 1px 6px; background: rgba(255,255,255,0.06); border-radius: 999px; color: var(--t-tertiary); }
+.td-tabs .tt.active .cnt { background: rgba(168,85,247,0.18); color: #C084FC; }
+
+/* posts */
+.post-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    transition: 0.15s;
+}
+.post-card:hover { border-color: var(--border-strong); }
+
+.post-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.post-head .av { width: 42px; height: 42px; border-radius: 50%; background-size: cover; background-position: center; flex-shrink: 0; }
+.post-head .info { flex: 1; min-width: 0; }
+.post-head .info .nm { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.post-head .info .nm .vfd { color: #06B6D4; font-size: 12px; }
+.post-head .info .nm .pro {
+    font-size: 9px;
+    padding: 2px 6px;
+    background: linear-gradient(135deg, rgba(251,191,36,0.18), rgba(245,158,11,0.06));
+    border: 1px solid rgba(251,191,36,0.3);
+    color: var(--warning-light);
+    border-radius: 4px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+.post-head .info .meta { font-size: 11.5px; color: var(--t-tertiary); display: flex; gap: 10px; align-items: center; margin-top: 2px; }
+.post-head .info .meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--t-quaternary); }
+.post-head .more {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--bg-input);
+    color: var(--t-tertiary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; cursor: pointer;
+}
+
+.post-text {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--t-primary);
+    margin-bottom: 12px;
+}
+.post-text .hashtag { color: var(--brand-purple); font-weight: 600; cursor: pointer; }
+
+.post-media-grid {
+    display: grid;
+    gap: 4px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+.post-media-grid.g3 { grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; aspect-ratio: 16/10; }
+.post-media-grid.g3 > :first-child { grid-row: span 2; }
+.post-media-grid.g4 { grid-template-columns: 1fr 1fr; aspect-ratio: 16/10; }
+.post-media-grid.g1 { aspect-ratio: 16/9; }
+.post-media-grid > * {
+    background-size: cover; background-position: center;
+}
+
+.post-actions {
+    display: flex; align-items: center; gap: 22px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    color: var(--t-tertiary);
+    font-size: 12.5px;
+}
+.post-actions span {
+    display: inline-flex; align-items: center; gap: 6px;
+    cursor: pointer; transition: 0.15s;
+}
+.post-actions span:hover { color: var(--t-primary); }
+.post-actions .liked { color: var(--brand-pink); }
+.post-actions .tip-cta {
+    margin-left: auto;
+    padding: 6px 14px;
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    color: #1a1a2e !important;
+    border-radius: 999px;
+    font-weight: 700;
+    box-shadow: 0 6px 14px rgba(251,191,36,0.3);
+    font-size: 12px;
+}
+
+/* aside */
+.aside-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 16px 18px;
+    margin-bottom: 14px;
+}
+.aside-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 7px; }
+.aside-card h4 .dt { width: 3px; height: 14px; background: var(--brand-grad); border-radius: 2px; }
+
+.creator-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.creator-row:last-child { border-bottom: none; }
+.creator-row .av { width: 36px; height: 36px; border-radius: 50%; background-size: cover; }
+.creator-row .info { flex: 1; min-width: 0; }
+.creator-row .info .n { font-size: 12.5px; font-weight: 600; }
+.creator-row .info .s { font-size: 11px; color: var(--t-tertiary); margin-top: 1px; }
+.creator-row button {
+    padding: 5px 11px;
+    background: var(--brand-grad);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+}
+.creator-row button.subbed { background: rgba(255,255,255,0.06); color: var(--t-secondary); }
+
+.related-topic {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 6px;
+    cursor: pointer;
+}
+.related-topic:hover { border-color: var(--border-strong); background: var(--bg-hover); }
+.related-topic .tag-ic {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: rgba(168,85,247,0.18);
+    color: #C084FC;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+}
+.related-topic .info { flex: 1; min-width: 0; }
+.related-topic .info .ti { font-size: 12px; font-weight: 600; }
+.related-topic .info .sub { font-size: 10.5px; color: var(--t-tertiary); margin-top: 1px; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+    <aside class="app-sidebar">
+        <div class="s-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator</span></div>
+        </div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item active" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+
+        <div class="s-bottom">
+            <div class="s-pro-card">
+                <div class="crown"><i class="fa-solid fa-crown"></i></div>
+                <h4>升级 Creator Pro</h4>
+                <p>解锁高级数据 / 优先推流</p>
+                <button>立即升级</button>
+            </div>
+            <div class="s-user">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div>
+                <i class="fa-solid fa-ellipsis-vertical more"></i>
+            </div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索创作者、内容或话题…</span><span class="kbd">⌘ K</span></div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i><span class="dot"></span></button>
+            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+
+        <div class="crumb">
+            <a onclick="location.href='home.html'" style="cursor:pointer"><i class="fa-solid fa-house"></i></a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <a onclick="location.href='topics.html'" style="cursor:pointer">热门话题</a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span class="curr">富士山日出</span>
+        </div>
+
+        <!-- HERO -->
+        <div class="td-hero">
+            <div class="float-pill">
+                <span class="fp fire"><i class="fa-solid fa-fire"></i> 本周 TOP 1</span>
+                <span class="fp"><i class="fa-solid fa-camera"></i> 摄影 · 旅行</span>
+                <span class="fp"><i class="fa-solid fa-arrow-trend-up"></i> +186%</span>
+            </div>
+            <div class="hero-content">
+                <div class="hero-l">
+                    <h1><span class="hashtag">#</span> 富士山日出</h1>
+                    <p>4 月里日本各地摄影师纷纷上山，分享凌晨 4 点的零下世界与火红地平线——已有 18,600+ 帖子和 4.2M 浏览参与本话题。</p>
+                    <div class="stats">
+                        <span><i class="fa-solid fa-fire"></i> <b>18,624</b> 帖</span>
+                        <span><i class="fa-regular fa-eye"></i> <b>4.2M</b> 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i> <b>1,824</b> 创作者</span>
+                        <span><i class="fa-regular fa-clock"></i> 持续 8 天</span>
+                    </div>
+                </div>
+                <div class="hero-r">
+                    <button class="btn-follow"><i class="fa-solid fa-bell"></i> 关注话题</button>
+                    <button class="btn-share"><i class="fa-solid fa-arrow-up-right-from-square"></i> 分享</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="td-grid">
+            <div>
+                <!-- 排序 / 筛选 -->
+                <div class="td-tabs">
+                    <div class="tt active"><i class="fa-solid fa-fire"></i> 最热 <span class="cnt">18.6K</span></div>
+                    <div class="tt"><i class="fa-regular fa-clock"></i> 最新 <span class="cnt">2.1K</span></div>
+                    <div class="tt"><i class="fa-solid fa-video"></i> 视频 <span class="cnt">486</span></div>
+                    <div class="tt"><i class="fa-solid fa-tower-broadcast"></i> 直播 <span class="cnt">12</span></div>
+                    <div class="tt"><i class="fa-solid fa-crown"></i> 创作者</div>
+                </div>
+
+                <!-- 帖子 #1 -->
+                <div class="post-card">
+                    <div class="post-head">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120')"></div>
+                        <div class="info">
+                            <div class="nm">Luna 🌙 <span class="vfd"><i class="fa-solid fa-circle-check"></i></span> <span class="pro">优质</span></div>
+                            <div class="meta"><span>摄影师 · 创作者 LV7</span><span class="dot"></span><span>8 分钟前</span><span class="dot"></span><span><i class="fa-solid fa-location-dot"></i> 富士山五合目</span></div>
+                        </div>
+                        <div class="more"><i class="fa-solid fa-ellipsis"></i></div>
+                    </div>
+                    <div class="post-text">清晨 5:40，云海被风轻轻吹散，每一帧都是冻出来的浪漫。35mm 定焦，三个小时，三张可用——分享给所有在等日出的你。<br/><span class="hashtag"># 富士山日出</span> <span class="hashtag"># 旅行摄影</span> <span class="hashtag"># 日出</span></div>
+                    <div class="post-media-grid g3">
+                        <div style="background-image: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=800')"></div>
+                        <div style="background-image: url('https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=400')"></div>
+                        <div style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400')"></div>
+                    </div>
+                    <div class="post-actions">
+                        <span class="liked"><i class="fa-solid fa-heart"></i> 2,418</span>
+                        <span><i class="fa-regular fa-comment"></i> 186</span>
+                        <span><i class="fa-regular fa-bookmark"></i> 412</span>
+                        <span><i class="fa-solid fa-arrow-up-right-from-square"></i> 分享</span>
+                        <span class="tip-cta"><i class="fa-solid fa-gift"></i> 打赏</span>
+                    </div>
+                </div>
+
+                <!-- 帖子 #2 -->
+                <div class="post-card">
+                    <div class="post-head">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120')"></div>
+                        <div class="info">
+                            <div class="nm">Aria <span class="vfd"><i class="fa-solid fa-circle-check"></i></span></div>
+                            <div class="meta"><span>胶片摄影师</span><span class="dot"></span><span>32 分钟前</span><span class="dot"></span><span><i class="fa-solid fa-location-dot"></i> 河口湖</span></div>
+                        </div>
+                        <div class="more"><i class="fa-solid fa-ellipsis"></i></div>
+                    </div>
+                    <div class="post-text">用 Hasselblad 500CM + Portra 400，晨雾在画面里更显胶片质感。湖面反射的色温接近 7200K，胶片自带的温度让画面非常治愈。</div>
+                    <div class="post-media-grid g4">
+                        <div style="background-image: url('https://images.unsplash.com/photo-1542435503-956c469947f6?w=600')"></div>
+                        <div style="background-image: url('https://images.unsplash.com/photo-1551763150-a3b62f3c4b50?w=600')"></div>
+                    </div>
+                    <div class="post-actions">
+                        <span><i class="fa-regular fa-heart"></i> 1,624</span>
+                        <span><i class="fa-regular fa-comment"></i> 92</span>
+                        <span><i class="fa-regular fa-bookmark"></i> 318</span>
+                        <span><i class="fa-solid fa-arrow-up-right-from-square"></i> 分享</span>
+                        <span class="tip-cta"><i class="fa-solid fa-gift"></i> 打赏</span>
+                    </div>
+                </div>
+
+                <!-- 帖子 #3 (视频) -->
+                <div class="post-card">
+                    <div class="post-head">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=120')"></div>
+                        <div class="info">
+                            <div class="nm">Echo</div>
+                            <div class="meta"><span>视频博主</span><span class="dot"></span><span>1 小时前</span><span class="dot"></span><span><i class="fa-solid fa-video"></i> 视频 · 4:32</span></div>
+                        </div>
+                        <div class="more"><i class="fa-solid fa-ellipsis"></i></div>
+                    </div>
+                    <div class="post-text">凌晨 3 点出发，4 个小时车程，富士山五合目登顶 vlog 全记录。这次拍到了百年一遇的火烧云！</div>
+                    <div class="post-media-grid g1" style="position: relative">
+                        <div style="background-image: url('https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=1000')"></div>
+                        <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none">
+                            <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px; padding-left: 4px">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                        </div>
+                        <div style="position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.7); padding: 4px 10px; border-radius: 6px; color: #fff; font-size: 11px; font-weight: 700">4:32</div>
+                    </div>
+                    <div class="post-actions">
+                        <span><i class="fa-regular fa-heart"></i> 3,224</span>
+                        <span><i class="fa-regular fa-comment"></i> 218</span>
+                        <span><i class="fa-regular fa-bookmark"></i> 526</span>
+                        <span><i class="fa-solid fa-arrow-up-right-from-square"></i> 分享</span>
+                        <span class="tip-cta"><i class="fa-solid fa-gift"></i> 打赏</span>
+                    </div>
+                </div>
+
+                <!-- 帖子 #4 -->
+                <div class="post-card">
+                    <div class="post-head">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=120')"></div>
+                        <div class="info">
+                            <div class="nm">Maya</div>
+                            <div class="meta"><span>旅行博主</span><span class="dot"></span><span>2 小时前</span></div>
+                        </div>
+                        <div class="more"><i class="fa-solid fa-ellipsis"></i></div>
+                    </div>
+                    <div class="post-text">附上一张五合目附近的咖啡馆地图 ☕，凌晨等日出冷得发抖，但喝到温热的咖啡那一刻，整个旅程都被治愈了。</div>
+                    <div class="post-media-grid g1">
+                        <div style="background-image: url('https://images.unsplash.com/photo-1493612276216-ee3925520721?w=1000')"></div>
+                    </div>
+                    <div class="post-actions">
+                        <span><i class="fa-regular fa-heart"></i> 824</span>
+                        <span><i class="fa-regular fa-comment"></i> 56</span>
+                        <span><i class="fa-regular fa-bookmark"></i> 184</span>
+                        <span><i class="fa-solid fa-arrow-up-right-from-square"></i> 分享</span>
+                        <span class="tip-cta"><i class="fa-solid fa-gift"></i> 打赏</span>
+                    </div>
+                </div>
+
+                <div style="text-align: center; padding: 24px"><button class="btn btn-secondary"><i class="fa-solid fa-rotate"></i> 加载更多帖子</button></div>
+            </div>
+
+            <!-- 右侧 -->
+            <aside class="td-aside">
+                <div class="aside-card">
+                    <h4><span class="dt"></span>本话题创作者 TOP</h4>
+                    <div class="creator-row">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120')"></div>
+                        <div class="info">
+                            <div class="n">Luna 🌙</div>
+                            <div class="s">42 帖 · 12.6K 互动</div>
+                        </div>
+                        <button>关注</button>
+                    </div>
+                    <div class="creator-row">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120')"></div>
+                        <div class="info">
+                            <div class="n">Aria</div>
+                            <div class="s">28 帖 · 8.4K 互动</div>
+                        </div>
+                        <button class="subbed">已关注</button>
+                    </div>
+                    <div class="creator-row">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=120')"></div>
+                        <div class="info">
+                            <div class="n">Echo</div>
+                            <div class="s">18 帖 · 6.2K 互动</div>
+                        </div>
+                        <button>关注</button>
+                    </div>
+                    <div class="creator-row">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=120')"></div>
+                        <div class="info">
+                            <div class="n">Maya</div>
+                            <div class="s">14 帖 · 3.1K 互动</div>
+                        </div>
+                        <button>关注</button>
+                    </div>
+                </div>
+
+                <div class="aside-card">
+                    <h4><span class="dt"></span>话题热度趋势</h4>
+                    <div style="height: 90px; background: linear-gradient(180deg, rgba(168,85,247,0.18), transparent); border-radius: 8px; position: relative; overflow: hidden">
+                        <svg width="100%" height="100%" viewBox="0 0 240 90" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="lg" x1="0" y1="0" x2="1" y2="0">
+                                    <stop offset="0" stop-color="#A855F7"/>
+                                    <stop offset="1" stop-color="#EC4899"/>
+                                </linearGradient>
+                            </defs>
+                            <polyline points="0,75 24,68 48,72 72,55 96,48 120,38 144,32 168,28 192,18 216,14 240,8" fill="none" stroke="url(#lg)" stroke-width="2.2" stroke-linecap="round"/>
+                            <polyline points="0,75 24,68 48,72 72,55 96,48 120,38 144,32 168,28 192,18 216,14 240,8 240,90 0,90" fill="rgba(168,85,247,0.15)" stroke="none"/>
+                        </svg>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--t-tertiary); margin-top: 8px">
+                        <span>4/19</span><span>4/22</span><span>4/25</span><span>今天</span>
+                    </div>
+                    <div style="margin-top: 12px; padding: 10px 12px; background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.18); border-radius: 8px; font-size: 11.5px; color: var(--success-light); display: flex; gap: 7px; align-items: center">
+                        <i class="fa-solid fa-arrow-trend-up"></i> 持续上升 8 天 · 周环比 +186%
+                    </div>
+                </div>
+
+                <div class="aside-card">
+                    <h4><span class="dt"></span>相关话题</h4>
+                    <div class="related-topic" onclick="location.href='topic-detail.html'"><div class="tag-ic"><i class="fa-solid fa-hashtag"></i></div><div class="info"><div class="ti">京都之春</div><div class="sub">4.8K 帖 · 旅行摄影</div></div></div>
+                    <div class="related-topic" onclick="location.href='topic-detail.html'"><div class="tag-ic"><i class="fa-solid fa-hashtag"></i></div><div class="info"><div class="ti">银盐时代</div><div class="sub">3.4K 帖 · 胶片摄影</div></div></div>
+                    <div class="related-topic" onclick="location.href='topic-detail.html'"><div class="tag-ic"><i class="fa-solid fa-hashtag"></i></div><div class="info"><div class="ti">城市街拍</div><div class="sub">7.6K 帖 · 摄影</div></div></div>
+                    <div class="related-topic" onclick="location.href='topic-detail.html'"><div class="tag-ic"><i class="fa-solid fa-hashtag"></i></div><div class="info"><div class="ti">日落余晖</div><div class="sub">5.2K 帖 · 自然</div></div></div>
+                </div>
+            </aside>
+
+        </div>
+    </main>
+
+</div>
+
+</body>
+</html>

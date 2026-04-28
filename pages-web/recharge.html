@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>USDT 充值 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.recharge-grid {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 22px;
+    max-width: 1280px;
+}
+@media (max-width: 1100px) { .recharge-grid { grid-template-columns: 1fr; } }
+
+.method-tabs {
+    display: flex; gap: 10px;
+    margin-bottom: 22px;
+}
+.mt-card {
+    flex: 1;
+    padding: 18px 20px;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: 0.15s;
+    display: flex; align-items: center; gap: 14px;
+}
+.mt-card:hover { border-color: var(--border-strong); }
+.mt-card.active {
+    background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(236,72,153,0.05));
+    border-color: var(--brand-purple);
+    box-shadow: 0 6px 16px rgba(168,85,247,0.18);
+}
+.mt-card .ic-big {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; color: #fff;
+    flex-shrink: 0;
+}
+.mt-card.usdt .ic-big { background: linear-gradient(135deg, #26A17B, #1A7A5C); }
+.mt-card.fiat .ic-big { background: linear-gradient(135deg, #3B82F6, #6366F1); }
+.mt-card .info .t { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.mt-card .info .s { font-size: 11.5px; color: var(--t-tertiary); margin-top: 2px; }
+
+.amt-input {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 28px;
+    margin-bottom: 18px;
+}
+.amt-input .lbl { font-size: 12px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; font-weight: 600; }
+.amt-input .input-row { display: flex; align-items: baseline; gap: 8px; }
+.amt-input .input-row .currency { font-size: 32px; color: var(--t-secondary); font-weight: 700; }
+.amt-input .input-row input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    font-size: 56px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -1.5px;
+    outline: none;
+    font-variant-numeric: tabular-nums;
+    min-width: 0;
+}
+.amt-input .input-row .unit { font-size: 18px; color: var(--t-tertiary); font-weight: 600; }
+.amt-input .equiv { font-size: 13px; color: var(--t-tertiary); margin-top: 6px; }
+
+.preset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 18px; }
+.preset-grid .pst {
+    padding: 12px 0;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.15s;
+}
+.preset-grid .pst:hover { border-color: var(--brand-purple); color: #C084FC; }
+.preset-grid .pst.active {
+    background: var(--brand-grad);
+    color: #fff;
+    border-color: transparent;
+}
+.preset-grid .pst .equiv { font-size: 10px; opacity: 0.7; margin-top: 2px; font-weight: 400; }
+
+/* Network selector */
+.network-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 22px 24px;
+    margin-bottom: 18px;
+}
+.network-section h4 {
+    font-size: 13px; font-weight: 700; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 7px;
+}
+.network-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.net-card {
+    padding: 14px 10px;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    text-align: center;
+    cursor: pointer;
+    transition: 0.15s;
+    position: relative;
+}
+.net-card:hover { border-color: var(--border-strong); }
+.net-card.active { border-color: var(--brand-purple); background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(236,72,153,0.04)); }
+.net-card .ic {
+    width: 32px; height: 32px;
+    margin: 0 auto 6px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: #fff;
+    font-weight: 700;
+}
+.net-card.eth .ic { background: linear-gradient(135deg, #627EEA, #3C5BC9); }
+.net-card.tron .ic { background: linear-gradient(135deg, #FF060A, #C20507); }
+.net-card.bsc .ic { background: linear-gradient(135deg, #F0B90B, #C49906); }
+.net-card.poly .ic { background: linear-gradient(135deg, #8247E5, #5F2DAC); }
+.net-card .n { font-size: 12px; font-weight: 700; }
+.net-card .fee { font-size: 10px; color: var(--t-tertiary); margin-top: 2px; }
+.net-card .recommend {
+    position: absolute; top: -7px; right: -7px;
+    padding: 1px 6px;
+    background: linear-gradient(135deg, #FBBF24, #EC4899);
+    color: #fff;
+    font-size: 9px; font-weight: 700;
+    border-radius: 4px;
+}
+
+/* Side panel */
+.side-info {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 22px 24px;
+}
+.side-info h4 {
+    font-size: 14px; font-weight: 700;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 7px;
+}
+
+.tip-list { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.tip-list .tp {
+    display: flex; gap: 10px;
+    padding: 11px 12px;
+    background: var(--bg-input);
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+.tip-list .tp .ic {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(168,85,247,0.18);
+    color: #C084FC;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+}
+.tip-list .tp.warn .ic { background: rgba(245,158,11,0.18); color: var(--warning-light); }
+.tip-list .tp.danger .ic { background: rgba(239,68,68,0.18); color: var(--danger-light); }
+
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item active" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span><span class="chip">+$28</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+        <div class="s-bottom">
+            <div class="s-user">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索…</span><span class="kbd">⌘ K</span></div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i></button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <div class="crumb"><a href="home.html">首页</a><i class="fa-solid fa-chevron-right"></i><a href="wallet.html">我的钱包</a><i class="fa-solid fa-chevron-right"></i><span class="curr">充值</span></div>
+                <h1>充值钱包</h1>
+                <p>选择充值方式，FansLoop 支持 USDT 链上充值与法币（人民币 / 美元）银行卡充值，最快 30 秒到账</p>
+            </div>
+        </div>
+
+        <div class="recharge-grid">
+
+            <div>
+                <!-- 方式切换 -->
+                <div class="method-tabs">
+                    <div class="mt-card usdt active">
+                        <div class="ic-big">₮</div>
+                        <div class="info">
+                            <div class="t">USDT 链上充值 <span class="tag tag-success">推荐</span></div>
+                            <div class="s">即时到账 · 链上手续费由你支付</div>
+                        </div>
+                    </div>
+                    <div class="mt-card fiat" onclick="location.href='recharge-fiat.html'">
+                        <div class="ic-big"><i class="fa-solid fa-credit-card"></i></div>
+                        <div class="info">
+                            <div class="t">法币 / 银行卡</div>
+                            <div class="s">CNY / USD · 0.5% 通道费</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 金额输入 -->
+                <div class="amt-input">
+                    <div class="lbl">充值金额</div>
+                    <div class="input-row">
+                        <span class="currency">$</span>
+                        <input type="text" value="200.00" />
+                        <span class="unit">USD</span>
+                    </div>
+                    <div class="equiv">≈ 200 USDT · 当前汇率 1 USDT = $1.00</div>
+                    <div class="preset-grid">
+                        <div class="pst"><div>$50</div><div class="equiv">50 USDT</div></div>
+                        <div class="pst"><div>$100</div><div class="equiv">100 USDT</div></div>
+                        <div class="pst active"><div>$200</div><div class="equiv">200 USDT</div></div>
+                        <div class="pst"><div>$500</div><div class="equiv">500 USDT</div></div>
+                    </div>
+                </div>
+
+                <!-- 网络选择 -->
+                <div class="network-section">
+                    <h4><i class="fa-solid fa-network-wired" style="color:#C084FC"></i>选择充值网络</h4>
+                    <div class="network-grid">
+                        <div class="net-card eth active">
+                            <div class="ic"><i class="fa-brands fa-ethereum"></i></div>
+                            <div class="n">ERC20</div>
+                            <div class="fee">手续费 ≈ $5</div>
+                        </div>
+                        <div class="net-card tron">
+                            <span class="recommend">省手续费</span>
+                            <div class="ic">T</div>
+                            <div class="n">TRC20</div>
+                            <div class="fee">手续费 ≈ $1</div>
+                        </div>
+                        <div class="net-card bsc">
+                            <div class="ic">B</div>
+                            <div class="n">BEP20</div>
+                            <div class="fee">手续费 ≈ $0.3</div>
+                        </div>
+                        <div class="net-card poly">
+                            <div class="ic"><i class="fa-solid fa-cube"></i></div>
+                            <div class="n">Polygon</div>
+                            <div class="fee">手续费 ≈ $0.01</div>
+                        </div>
+                    </div>
+                    <div class="notice notice-warning" style="margin-top: 14px">
+                        <i class="fa-solid fa-triangle-exclamation ni"></i>
+                        <span><b>请确保充值的代币与网络一致</b><br>错选网络将导致资产丢失，FansLoop 无法找回。建议小额测试后再充值大额。</span>
+                    </div>
+                </div>
+
+                <!-- 摘要 + 确认 -->
+                <div class="card" style="padding: 22px 24px">
+                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 14px"><i class="fa-solid fa-receipt"></i> 充值摘要</h4>
+                    <div class="kv-list">
+                        <div class="kv-row"><span class="k">充值金额</span><span class="v num">200.00 USDT</span></div>
+                        <div class="kv-row"><span class="k">充值网络</span><span class="v">Ethereum (ERC20)</span></div>
+                        <div class="kv-row"><span class="k">网络手续费</span><span class="v num">≈ $5.00（由你的钱包支付）</span></div>
+                        <div class="kv-row"><span class="k">FansLoop 通道费</span><span class="v success">免费</span></div>
+                        <div class="kv-row"><span class="k">预计到账时间</span><span class="v">12 个区块确认 · ≈ 3 分钟</span></div>
+                        <div class="kv-row" style="border-bottom:none; padding-top: 12px">
+                            <span class="k" style="color:#fff;font-weight:600">实际到账</span>
+                            <span class="v num t-grad" style="font-size: 18px; font-weight: 800">≈ 200.00 USDT</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-block btn-lg" style="margin-top: 18px" onclick="location.href='recharge-qr-modal.html'">
+                        <i class="fa-solid fa-bolt"></i>确认充值，生成收款二维码
+                    </button>
+                </div>
+            </div>
+
+            <!-- 侧边 · 提示 -->
+            <div>
+                <div class="side-info">
+                    <h4><i class="fa-solid fa-circle-info" style="color:#3B82F6"></i>充值须知</h4>
+                    <div class="tip-list">
+                        <div class="tp">
+                            <div class="ic"><i class="fa-solid fa-bolt"></i></div>
+                            <div><b>即时到账</b><br>通常 3-5 分钟，依网络拥堵程度</div>
+                        </div>
+                        <div class="tp">
+                            <div class="ic"><i class="fa-solid fa-shield-halved"></i></div>
+                            <div><b>资产安全</b><br>FansLoop 采用多签冷钱包托管</div>
+                        </div>
+                        <div class="tp warn">
+                            <div class="ic"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <div><b>注意网络</b><br>切勿混淆 ERC20 与 TRC20</div>
+                        </div>
+                        <div class="tp danger">
+                            <div class="ic"><i class="fa-solid fa-ban"></i></div>
+                            <div><b>禁止合约转账</b><br>仅支持普通钱包转账</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="side-info" style="margin-top: 16px">
+                    <h4><i class="fa-solid fa-headset" style="color:#10B981"></i>需要帮助？</h4>
+                    <p style="font-size: 12.5px; color: var(--t-tertiary); line-height: 1.5; margin-bottom: 12px">
+                        充值未到账？联系客服，可凭哈希加急处理。
+                    </p>
+                    <button class="btn btn-secondary btn-block"><i class="fa-regular fa-comments"></i>联系客服</button>
+                    <button class="btn btn-block" style="margin-top: 8px"><i class="fa-solid fa-book"></i>查看充值教程</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+</body>
+</html>

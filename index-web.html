@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>FansLoop · Web 端高保真原型</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css-web/common-web.css">
+<style>
+html, body { overflow-x: hidden; }
+body { background: var(--bg-canvas); }
+
+/* ===== Hero ===== */
+.hero-wrap {
+    position: relative; overflow: hidden;
+    padding: 80px 32px 60px;
+    text-align: center;
+    background: linear-gradient(160deg, #0B0B14 0%, #1A0B2E 50%, #2D1B4E 100%);
+    border-bottom: 1px solid var(--border);
+}
+.hero-wrap::before {
+    content: ''; position: absolute;
+    width: 600px; height: 600px;
+    left: 50%; top: -300px;
+    transform: translateX(-50%);
+    background: radial-gradient(circle, rgba(168,85,247,0.3) 0%, transparent 70%);
+    pointer-events: none;
+}
+.hero-wrap::after {
+    content: ''; position: absolute;
+    width: 400px; height: 400px;
+    right: -150px; bottom: -200px;
+    background: radial-gradient(circle, rgba(236,72,153,0.25), transparent 70%);
+    pointer-events: none;
+}
+.hero-wrap > * { position: relative; z-index: 2; }
+
+.hero-tag { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.4); border-radius: 999px; font-size: 12px; font-weight: 600; margin-bottom: 22px; color: #C084FC; }
+.hero-tag .dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.hero-wrap h1 { font-size: 56px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 18px; line-height: 1.1; }
+.hero-wrap h1 .grad { background: linear-gradient(135deg, #A855F7 0%, #EC4899 50%, #F59E0B 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero-wrap p { font-size: 17px; color: var(--t-secondary); max-width: 720px; margin: 0 auto 32px; line-height: 1.6; }
+
+.hero-stats { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
+.hero-stat {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    border-radius: var(--r-lg);
+    padding: 16px 26px;
+    min-width: 140px;
+}
+.hero-stat .num { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+.hero-stat .lb { font-size: 11.5px; color: var(--t-tertiary); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+
+.hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+.hero-marquee { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; margin-top: 40px; opacity: 0.7; }
+.hero-marquee span { font-size: 12.5px; color: var(--t-tertiary); display: inline-flex; align-items: center; gap: 6px; }
+.hero-marquee i { color: var(--brand-purple); }
+
+/* ===== Toc ===== */
+.toc {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(11,11,20,0.85);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 32px;
+    display: flex; gap: 6px; overflow-x: auto;
+    flex-wrap: nowrap;
+}
+.toc::-webkit-scrollbar { display: none; }
+.toc .t-link { white-space: nowrap; padding: 8px 14px; font-size: 12.5px; font-weight: 600; color: var(--t-secondary); border-radius: 8px; cursor: pointer; transition: 0.15s; }
+.toc .t-link:hover { background: var(--bg-input); color: #fff; }
+.toc .t-link i { font-size: 11px; margin-right: 6px; color: var(--brand-purple); }
+
+/* ===== Section ===== */
+.section { padding: 60px 32px 30px; max-width: 1600px; margin: 0 auto; }
+.section-head { margin-bottom: 26px; }
+.section-head .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 11px; color: var(--brand-purple); font-weight: 600;
+    margin-bottom: 12px;
+}
+.section-head h2 { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; }
+.section-head p { font-size: 14px; color: var(--t-secondary); max-width: 720px; line-height: 1.6; }
+
+/* ===== Frame Grid ===== */
+.frame-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+    gap: 22px;
+}
+
+.frame-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    transition: 0.2s;
+}
+.frame-card:hover { border-color: var(--border-strong); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+
+.frame-head {
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-elevated);
+}
+.frame-head .traffic { display: flex; gap: 5px; }
+.frame-head .traffic span { width: 11px; height: 11px; border-radius: 50%; }
+.frame-head .traffic .red { background: #FF5F56; }
+.frame-head .traffic .yellow { background: #FFBD2E; }
+.frame-head .traffic .green { background: #27C93F; }
+.frame-head .url {
+    flex: 1; height: 26px;
+    background: var(--bg-input);
+    border-radius: 6px;
+    padding: 0 10px;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11.5px; color: var(--t-tertiary);
+    font-family: ui-monospace, monospace;
+}
+.frame-head .url i { font-size: 9px; color: var(--success); }
+.frame-head .open {
+    background: var(--bg-input); border: 1px solid var(--border);
+    color: var(--t-secondary);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px; font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 4px;
+}
+.frame-head .open:hover { background: var(--brand-grad); color: #fff; border-color: transparent; }
+
+.frame-body {
+    height: 720px;
+    background: var(--bg-app);
+    position: relative;
+}
+.frame-body iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    transform: scale(0.75);
+    transform-origin: 0 0;
+    width: 133.33%;
+    height: 133.33%;
+    pointer-events: auto;
+}
+.frame-body.modal-frame iframe { transform: scale(0.8); width: 125%; height: 125%; }
+
+.frame-foot {
+    padding: 14px 18px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-elevated);
+}
+.frame-foot .ti { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.frame-foot .desc { font-size: 12px; color: var(--t-tertiary); line-height: 1.5; }
+.frame-foot .meta { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.frame-foot .meta span {
+    font-size: 10.5px; padding: 3px 8px;
+    background: var(--bg-input);
+    color: var(--t-secondary);
+    border-radius: 5px;
+    font-weight: 600;
+}
+.frame-foot .meta .auth { background: rgba(168,85,247,0.18); color: #C084FC; }
+.frame-foot .meta .app { background: rgba(16,185,129,0.18); color: var(--success-light); }
+.frame-foot .meta .modal { background: rgba(245,158,11,0.18); color: var(--warning-light); }
+
+/* ===== Footer ===== */
+footer.site {
+    margin-top: 60px;
+    padding: 40px 32px;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--t-tertiary);
+    font-size: 12px;
+}
+footer.site .lo { font-size: 22px; font-weight: 800; background: var(--brand-grad); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 8px; }
+footer.site .links { display: flex; justify-content: center; gap: 22px; margin: 14px 0; }
+footer.site .links a { color: var(--t-secondary); }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero-wrap">
+    <div class="hero-tag"><span class="dot"></span>Web 端高保真原型 · 共 56+ 个页面</div>
+    <h1>FansLoop · <span class="grad">Web 浏览器端原型</span></h1>
+    <p>这是 FansLoop（Web3 创作者经济平台）面向 <b style="color:#fff">桌面浏览器</b> 的完整高保真原型。所有页面采用「顶部导航栏 + 侧边栏 + 主内容区」的标准 Web 布局，可直接用于 React / Vue 等前端框架开发对接。</p>
+
+    <div class="hero-stats">
+        <div class="hero-stat"><div class="num">56+</div><div class="lb">独立页面</div></div>
+        <div class="hero-stat"><div class="num">11</div><div class="lb">登录注册流</div></div>
+        <div class="hero-stat"><div class="num">12</div><div class="lb">主场景与互动</div></div>
+        <div class="hero-stat"><div class="num">7</div><div class="lb">设置中心</div></div>
+        <div class="hero-stat"><div class="num">14</div><div class="lb">充提现流</div></div>
+        <div class="hero-stat"><div class="num">9</div><div class="lb">收入与账变</div></div>
+    </div>
+
+    <div class="hero-actions">
+        <button class="btn btn-primary btn-lg" onclick="location.href='pages-web/yanshi-web.html'"><i class="fa-solid fa-play"></i>启动交互演示</button>
+        <button class="btn btn-secondary btn-lg" onclick="location.href='index.html'"><i class="fa-solid fa-mobile-screen"></i>查看 APP 端原型</button>
+    </div>
+
+    <div class="hero-marquee">
+        <span><i class="fa-brands fa-html5"></i> HTML5 + CSS3</span>
+        <span><i class="fa-brands fa-css3-alt"></i> CSS Grid + Flex</span>
+        <span><i class="fa-brands fa-font-awesome"></i> FontAwesome 6.5</span>
+        <span><i class="fa-solid fa-image"></i> Unsplash / Pexels</span>
+        <span><i class="fa-brands fa-ethereum"></i> Web3 + WalletConnect v2</span>
+        <span><i class="fa-solid fa-palette"></i> Dark Theme · Glassmorphism</span>
+    </div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+    <a class="t-link" href="#sec-auth"><i class="fa-solid fa-right-to-bracket"></i>钱包登录注册</a>
+    <a class="t-link" href="#sec-app"><i class="fa-solid fa-house"></i>主场景</a>
+    <a class="t-link" href="#sec-content"><i class="fa-solid fa-pen-to-square"></i>内容互动</a>
+    <a class="t-link" href="#sec-topics"><i class="fa-solid fa-fire"></i>话题与直播</a>
+    <a class="t-link" href="#sec-modals"><i class="fa-solid fa-comment-dots"></i>交互弹窗</a>
+    <a class="t-link" href="#sec-settings"><i class="fa-solid fa-gear"></i>设置中心</a>
+    <a class="t-link" href="#sec-recharge"><i class="fa-solid fa-arrow-down"></i>充值流程</a>
+    <a class="t-link" href="#sec-withdraw"><i class="fa-solid fa-arrow-up"></i>提现流程</a>
+    <a class="t-link" href="#sec-income"><i class="fa-solid fa-coins"></i>创作者收入</a>
+    <a class="t-link" href="#sec-tx"><i class="fa-solid fa-list-ul"></i>账变记录</a>
+</div>
+
+<!-- ===== 钱包登录 / 注册 ===== -->
+<section class="section" id="sec-auth">
+    <div class="section-head">
+        <div class="tag"><i class="fa-solid fa-shield-halved"></i> Auth Shell · 11 页面</div>
+        <h2>钱包登录 / 注册</h2>
+        <p>采用「左叙事 + 右表单」的双栏布局，符合 Web3 应用主流登录页规范。覆盖 MetaMask / WalletConnect 全流程、SIWE 签名、新用户身份选择 / 资料完善 / 兴趣推荐及 8 类错误状态。</p>
+    </div>
+
+    <div class="frame-grid">
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/login-entry.html</div><a class="open" href="pages-web/login-entry.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/login-entry.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">登录入口</div><div class="desc">三种钱包接入 · 邮箱兜底 · 法律协议</div><div class="meta"><span class="auth">Auth-Shell</span><span>L01</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/login-select-method.html</div><a class="open" href="pages-web/login-select-method.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/login-select-method.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">选择钱包</div><div class="desc">350+ 钱包检索 · 分类筛选 · 浏览器自动检测</div><div class="meta"><span class="auth">Auth-Shell</span><span>L02</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/login-walletconnect-qr.html</div><a class="open" href="pages-web/login-walletconnect-qr.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/login-walletconnect-qr.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">WalletConnect 扫码</div><div class="desc">动态二维码 · 扫描动效 · 兼容 350+ 移动钱包</div><div class="meta"><span class="auth">Auth-Shell</span><span>L03</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/login-metamask.html</div><a class="open" href="pages-web/login-metamask.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/login-metamask.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">MetaMask 唤起</div><div class="desc">多重旋转环动画 · 4 步进度条</div><div class="meta"><span class="auth">Auth-Shell</span><span>L04</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/login-sign-request.html</div><a class="open" href="pages-web/login-sign-request.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/login-sign-request.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">SIWE 签名请求</div><div class="desc">EIP-4361 · 账户卡 · 权限对比</div><div class="meta"><span class="auth">Auth-Shell</span><span>L05</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/login-signing.html</div><a class="open" href="pages-web/login-signing.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/login-signing.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">签名进行中</div><div class="desc">动效 + 时间线进度 · 5 步追踪</div><div class="meta"><span class="auth">Auth-Shell</span><span>L06</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/login-success.html</div><a class="open" href="pages-web/login-success.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/login-success.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">登录成功</div><div class="desc">彩带动画 · 会话信息 · 4 个快速入口</div><div class="meta"><span class="auth">Auth-Shell</span><span>L07</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/register-role.html</div><a class="open" href="pages-web/register-role.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/register-role.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">选择身份（注册 1/3）</div><div class="desc">Creator / Fan / Both · 进度条</div><div class="meta"><span class="auth">Auth-Shell</span><span>L08</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/register-profile.html</div><a class="open" href="pages-web/register-profile.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/register-profile.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">完善资料（注册 2/3）</div><div class="desc">头像上传 · Handle 实时校验 · 多字段</div><div class="meta"><span class="auth">Auth-Shell</span><span>L09</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/register-interests.html</div><a class="open" href="pages-web/register-interests.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/register-interests.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">选择兴趣（注册 3/3）</div><div class="desc">多选兴趣 · 推荐创作者</div><div class="meta"><span class="auth">Auth-Shell</span><span>L10</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/login-errors.html</div><a class="open" href="pages-web/login-errors.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/login-errors.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">错误状态合集</div><div class="desc">8 种错误场景：未安装 / 拒绝 / 网络 / 超时 / 失败 / 封号 / 拥堵 / 失效</div><div class="meta"><span class="auth">Auth-Shell</span><span>L11</span></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== 主场景 ===== -->
+<section class="section" id="sec-app">
+    <div class="section-head">
+        <div class="tag"><i class="fa-solid fa-house"></i> App Shell · 5 页面</div>
+        <h2>主场景</h2>
+        <p>主应用采用「顶部 Header + 左侧 Sidebar + 主内容区」三段式布局，符合现代 SaaS 与社交平台的桌面端通用规范。</p>
+    </div>
+
+    <div class="frame-grid">
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/home.html</div><a class="open" href="pages-web/home.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/home.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">首页 Feed</div><div class="desc">三栏布局：导航 / 主信息流 / 热门 + 直播 + 推荐</div><div class="meta"><span class="app">App-Shell</span><span>A01</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/discover.html</div><a class="open" href="pages-web/discover.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/discover.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">发现</div><div class="desc">大搜索 Hero · 分类筛选 · 创作者卡片 · 内容瀑布流</div><div class="meta"><span class="app">App-Shell</span><span>A02</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/messages.html</div><a class="open" href="pages-web/messages.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/messages.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">私信 IM</div><div class="desc">三栏 IM：会话列表 / 对话窗口 / 用户信息</div><div class="meta"><span class="app">App-Shell</span><span>A03</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/profile.html</div><a class="open" href="pages-web/profile.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/profile.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">个人主页</div><div class="desc">封面图 + Profile Head + Tabs + 内容网格</div><div class="meta"><span class="app">App-Shell</span><span>A04</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/wallet.html</div><a class="open" href="pages-web/wallet.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/wallet.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">我的钱包</div><div class="desc">总余额 · 链上钱包 · 资产 · 最近交易</div><div class="meta"><span class="app">App-Shell</span><span>A05</span></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== 内容互动（订阅 / 创建 / 通知 / 收藏 / 评论 / 分享 / 送礼） ===== -->
+<section class="section" id="sec-content">
+    <div class="section-head">
+        <div class="tag"><i class="fa-solid fa-pen-to-square"></i> Content & Interaction · 5 页面</div>
+        <h2>内容互动</h2>
+        <p>覆盖创作者订阅、内容创建、消息通知、收藏管理等高频内容互动场景。所有页面统一使用新的四组侧边栏（主导航 / 互动 / 资产 / 个人）。</p>
+    </div>
+
+    <div class="frame-grid">
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/subscriptions.html</div><a class="open" href="pages-web/subscriptions.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/subscriptions.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">订阅中心</div><div class="desc">已订阅创作者 · 订阅卡片 · 续费 / 升级 / 取消管理</div><div class="meta"><span class="app">App-Shell</span><span>C01</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/create.html</div><a class="open" href="pages-web/create.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/create.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">创建内容</div><div class="desc">图文 / 视频 / 直播 / 投票 · 富文本 · 定价（免费 / 订阅 / 付费）</div><div class="meta"><span class="app">App-Shell</span><span>C02</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/notifications.html</div><a class="open" href="pages-web/notifications.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/notifications.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">通知中心</div><div class="desc">类型筛选 · 按日分组 · 批量已读 · 通知设置</div><div class="meta"><span class="app">App-Shell</span><span>C03</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/bookmarks.html</div><a class="open" href="pages-web/bookmarks.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/bookmarks.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">我的收藏</div><div class="desc">收藏夹分类 · 视图切换 · 类型筛选</div><div class="meta"><span class="app">App-Shell</span><span>C04</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/settings.html</div><a class="open" href="pages-web/settings.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/settings.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">设置中心</div><div class="desc">账号 · 安全 · 钱包 · 通知 · 隐私 · 外观 · 创作者 · 危险区</div><div class="meta"><span class="app">App-Shell</span><span>C05</span></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== 话题 / 直播 / 创作者 ===== -->
+<section class="section" id="sec-topics">
+    <div class="section-head">
+        <div class="tag"><i class="fa-solid fa-fire"></i> Topics · Live · Creator · 4 页面</div>
+        <h2>话题、直播与创作者</h2>
+        <p>从首页的入口点击进入：热门话题广场、单个话题聚合页、直播详情（含直播间）、创作者主页（含订阅档位 / 作品集）。</p>
+    </div>
+
+    <div class="frame-grid">
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/topics.html</div><a class="open" href="pages-web/topics.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/topics.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">热门话题广场</div><div class="desc">Hero · TOP3 榜单 · 标签分类 · 话题瀑布卡片</div><div class="meta"><span class="app">App-Shell</span><span>S01</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/topic-detail.html</div><a class="open" href="pages-web/topic-detail.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/topic-detail.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">话题详情</div><div class="desc">话题 Hero · 排序 Tabs · 帖子流 · TOP 创作者 · 趋势图</div><div class="meta"><span class="app">App-Shell</span><span>S02</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/live-detail.html</div><a class="open" href="pages-web/live-detail.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/live-detail.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">直播详情</div><div class="desc">大播放器 · 礼物特效 · 创作者条 · 实时聊天室</div><div class="meta"><span class="app">App-Shell</span><span>S03</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/creator-profile.html</div><a class="open" href="pages-web/creator-profile.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/creator-profile.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">创作者详情</div><div class="desc">封面 · Profile · 订阅档位 · 作品集 · TOP 打赏榜</div><div class="meta"><span class="app">App-Shell</span><span>S04</span></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== 交互弹窗 ===== -->
+<section class="section" id="sec-modals">
+    <div class="section-head">
+        <div class="tag"><i class="fa-solid fa-comment-dots"></i> Interaction Modals · 3 页面</div>
+        <h2>交互弹窗</h2>
+        <p>用户在内容卡片上的核心二级交互：评论 / 分享 / 送礼，均以独立 Modal 页面方式呈现，便于在多个入口复用。</p>
+    </div>
+
+    <div class="frame-grid">
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/comment-modal.html</div><a class="open" href="pages-web/comment-modal.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body modal-frame"><iframe src="pages-web/comment-modal.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">评论 Modal</div><div class="desc">原帖预览 · 创作者置顶 · 多级回复 · 富输入框</div><div class="meta"><span class="modal">Modal</span><span>M01</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/share-modal.html</div><a class="open" href="pages-web/share-modal.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body modal-frame"><iframe src="pages-web/share-modal.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">分享 Modal</div><div class="desc">10+ 第三方平台 · 邀请链接 · 二维码 / 海报 · 分享奖励</div><div class="meta"><span class="modal">Modal</span><span>M02</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/gift-modal.html</div><a class="open" href="pages-web/gift-modal.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body modal-frame"><iframe src="pages-web/gift-modal.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">送礼 Modal</div><div class="desc">礼物分类 · 实时预览 · 数量与留言 · 余额 / 充值</div><div class="meta"><span class="modal">Modal</span><span>M03</span></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== 设置中心 ===== -->
+<section class="section" id="sec-settings">
+    <div class="section-head">
+        <div class="tag"><i class="fa-solid fa-gear"></i> Settings Center · 6 子页面</div>
+        <h2>设置中心子页面</h2>
+        <p>从设置总览页 (settings.html) 进入的 6 个详细子页：账户资料、账户安全、钱包与支付、通知偏好、隐私设置、外观与语言。每个子页都拥有完整的左侧导航与面包屑，可直接在子页之间切换。</p>
+    </div>
+
+    <div class="frame-grid">
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/settings-account.html</div><a class="open" href="pages-web/settings-account.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/settings-account.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">账户资料</div><div class="desc">头像上传 · 昵称/简介/地区 · 兴趣标签 · 外链账号 · 个性域名（含 ENS 绑定）</div><div class="meta"><span class="app">App-Shell</span><span>SS01</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/settings-security.html</div><a class="open" href="pages-web/settings-security.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/settings-security.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">账户安全</div><div class="desc">安全评分 · 邮箱/手机验证 · 密码修改 · 5 种 2FA 方式 · 提现安全 · 设备管理 · 安全日志</div><div class="meta"><span class="app">App-Shell</span><span>SS02</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/settings-wallet.html</div><a class="open" href="pages-web/settings-wallet.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/settings-wallet.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">钱包与支付</div><div class="desc">链上钱包卡片 · 银行卡管理 · Apple/Google/支付宝/微信 · 订阅自动续费 · 默认充提偏好</div><div class="meta"><span class="app">App-Shell</span><span>SS03</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/settings-notification.html</div><a class="open" href="pages-web/settings-notification.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/settings-notification.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">通知偏好</div><div class="desc">4 渠道总开关 · 互动 / 收益 / 内容 / 系统 4 大矩阵 · 免打扰时段</div><div class="meta"><span class="app">App-Shell</span><span>SS04</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/settings-privacy.html</div><a class="open" href="pages-web/settings-privacy.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/settings-privacy.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">隐私设置</div><div class="desc">主页可见性 · 互动权限 · 屏蔽列表 / 关键词 · 内容偏好 · 数据导出与删除</div><div class="meta"><span class="app">App-Shell</span><span>SS05</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/settings-display.html</div><a class="open" href="pages-web/settings-display.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/settings-display.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">外观与语言</div><div class="desc">三主题预览 · 8 强调色 · 字体大小 / 密度 · 18 种语言 · 货币 / 时区 / 日期格式</div><div class="meta"><span class="app">App-Shell</span><span>SS06</span></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== 充值流程 ===== -->
+<section class="section" id="sec-recharge">
+    <div class="section-head">
+        <div class="tag"><i class="fa-solid fa-arrow-down"></i> Recharge Flow · 7 页面</div>
+        <h2>充值流程</h2>
+        <p>覆盖 USDT 链上充值与法币（人民币）银行卡充值两大支付通道，包含订单创建、二维码弹窗、订单超时、银行卡绑定、支付验证等完整子流程。</p>
+    </div>
+
+    <div class="frame-grid">
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/recharge.html</div><a class="open" href="pages-web/recharge.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/recharge.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">USDT 充值</div><div class="desc">金额输入 · 链网络选择 · 摘要 + 提示</div><div class="meta"><span class="app">App-Shell</span><span>R01</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/recharge-qr-modal.html</div><a class="open" href="pages-web/recharge-qr-modal.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body modal-frame"><iframe src="pages-web/recharge-qr-modal.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">充值二维码弹窗</div><div class="desc">动态 QR · 倒计时 · 复制地址</div><div class="meta"><span class="modal">Modal</span><span>R02</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/recharge-timeout.html</div><a class="open" href="pages-web/recharge-timeout.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body modal-frame"><iframe src="pages-web/recharge-timeout.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">订单已超时</div><div class="desc">订单取消提示 · 退款说明</div><div class="meta"><span class="modal">Modal</span><span>R03</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/recharge-fiat.html</div><a class="open" href="pages-web/recharge-fiat.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/recharge-fiat.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">法币充值</div><div class="desc">CNY/USD 切换 · 银行卡选择 · 摘要</div><div class="meta"><span class="app">App-Shell</span><span>R04</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/recharge-fiat-bind.html</div><a class="open" href="pages-web/recharge-fiat-bind.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body modal-frame"><iframe src="pages-web/recharge-fiat-bind.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">绑定银行卡</div><div class="desc">动态卡片预览 · 自动识别银行</div><div class="meta"><span class="modal">Modal</span><span>R05</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/recharge-fiat-verify.html</div><a class="open" href="pages-web/recharge-fiat-verify.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/recharge-fiat-verify.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">三方支付验证</div><div class="desc">SMS 验证码 · 倒计时 · 安全提示</div><div class="meta"><span class="app">App-Shell</span><span>R06</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/recharge-fiat-switch-card.html</div><a class="open" href="pages-web/recharge-fiat-switch-card.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body modal-frame"><iframe src="pages-web/recharge-fiat-switch-card.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">切换银行卡</div><div class="desc">已绑卡列表 · 添加新卡</div><div class="meta"><span class="modal">Modal</span><span>R07</span></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== 提现流程 ===== -->
+<section class="section" id="sec-withdraw">
+    <div class="section-head">
+        <div class="tag"><i class="fa-solid fa-arrow-up"></i> Withdraw Flow · 7 页面</div>
+        <h2>提现流程</h2>
+        <p>支持法币（CNY/USD）和 USDT 两种提现路径。法币提现包含双重安全验证（短信验证码 + 资金密码）。</p>
+    </div>
+
+    <div class="frame-grid">
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/creator-withdraw.html</div><a class="open" href="pages-web/creator-withdraw.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/creator-withdraw.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">选择提现方式</div><div class="desc">银行卡 · 链上 · 兑换 · 礼品卡</div><div class="meta"><span class="app">App-Shell</span><span>W01</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/withdraw-fiat.html</div><a class="open" href="pages-web/withdraw-fiat.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/withdraw-fiat.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">法币提现</div><div class="desc">USDT → CNY · 实时汇率锁定 · 摘要</div><div class="meta"><span class="app">App-Shell</span><span>W02</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/withdraw-fiat-verify.html</div><a class="open" href="pages-web/withdraw-fiat-verify.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body modal-frame"><iframe src="pages-web/withdraw-fiat-verify.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">短信验证 · 1/2</div><div class="desc">SMS / 生物识别二选一</div><div class="meta"><span class="modal">Modal</span><span>W03</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/withdraw-fiat-verify-pwd.html</div><a class="open" href="pages-web/withdraw-fiat-verify-pwd.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body modal-frame"><iframe src="pages-web/withdraw-fiat-verify-pwd.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">资金密码 · 2/2</div><div class="desc">6 位密码 · 防错锁定提示</div><div class="meta"><span class="modal">Modal</span><span>W04</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/withdraw-fiat-edit.html</div><a class="open" href="pages-web/withdraw-fiat-edit.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body modal-frame"><iframe src="pages-web/withdraw-fiat-edit.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">修改收款卡</div><div class="desc">改卡冻结 24 小时合规说明</div><div class="meta"><span class="modal">Modal</span><span>W05</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/withdraw-fiat-success.html</div><a class="open" href="pages-web/withdraw-fiat-success.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/withdraw-fiat-success.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">提现申请已提交</div><div class="desc">扩散动画 · 4 步处理时间线</div><div class="meta"><span class="app">App-Shell</span><span>W06</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/withdraw-usdt.html</div><a class="open" href="pages-web/withdraw-usdt.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/withdraw-usdt.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">USDT 链上提现</div><div class="desc">4 网络选择 · 地址校验 · 通讯录</div><div class="meta"><span class="app">App-Shell</span><span>W07</span></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== 创作者收入 ===== -->
+<section class="section" id="sec-income">
+    <div class="section-head">
+        <div class="tag"><i class="fa-solid fa-coins"></i> Creator Income · 1 页面</div>
+        <h2>创作者收入</h2>
+        <p>收益总览仪表盘 · 来源分布 · 趋势图 · 收入明细 · 结算说明，强化创作者「赚钱感知」。</p>
+    </div>
+
+    <div class="frame-grid">
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/creator-income.html</div><a class="open" href="pages-web/creator-income.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/creator-income.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">创作者收入仪表盘</div><div class="desc">总收入卡 · 可提现 · 来源分布 · SVG 趋势图 · 明细</div><div class="meta"><span class="app">App-Shell</span><span>I01</span></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== 账变记录 ===== -->
+<section class="section" id="sec-tx">
+    <div class="section-head">
+        <div class="tag"><i class="fa-solid fa-list-ul"></i> Transaction · 8 页面</div>
+        <h2>账变记录</h2>
+        <p>账变列表 · 高级搜索 · 报表导出 · 交易详情 · 分享海报 · 更多菜单 · 申诉 · 客服 IM 全套交易管理流。</p>
+    </div>
+
+    <div class="frame-grid">
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/transactions.html</div><a class="open" href="pages-web/transactions.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/transactions.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">账变记录</div><div class="desc">本月汇总 · 筛选 Chip · 分组列表 · 分页</div><div class="meta"><span class="app">App-Shell</span><span>T01</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/transactions-search.html</div><a class="open" href="pages-web/transactions-search.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/transactions-search.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">高级搜索</div><div class="desc">左侧多维筛选 · 关键词高亮 · 标签删除</div><div class="meta"><span class="app">App-Shell</span><span>T02</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/transactions-export.html</div><a class="open" href="pages-web/transactions-export.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body modal-frame"><iframe src="pages-web/transactions-export.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">导出报表</div><div class="desc">CSV/Excel/PDF · 字段勾选 · 摘要预览</div><div class="meta"><span class="modal">Modal</span><span>T03</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/transaction-detail.html</div><a class="open" href="pages-web/transaction-detail.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body"><iframe src="pages-web/transaction-detail.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">交易详情</div><div class="desc">交易 Hero · 流程时间线 · 链上信息 · 关联内容</div><div class="meta"><span class="app">App-Shell</span><span>T04</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/transaction-share-poster.html</div><a class="open" href="pages-web/transaction-share-poster.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body modal-frame"><iframe src="pages-web/transaction-share-poster.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">分享海报</div><div class="desc">9:16 海报 · 5 主题 · 8 分享渠道</div><div class="meta"><span class="modal">Modal</span><span>T05</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/transaction-more-menu.html</div><a class="open" href="pages-web/transaction-more-menu.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body modal-frame"><iframe src="pages-web/transaction-more-menu.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">更多菜单</div><div class="desc">8 项操作：复制 / 分享 / 收据 / 申诉 / 客服 …</div><div class="meta"><span class="modal">Modal</span><span>T06</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/transaction-appeal.html</div><a class="open" href="pages-web/transaction-appeal.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body modal-frame"><iframe src="pages-web/transaction-appeal.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">发起申诉</div><div class="desc">申诉类型 · 详细描述 · 证据上传</div><div class="meta"><span class="modal">Modal</span><span>T07</span></div></div>
+        </div>
+
+        <div class="frame-card">
+            <div class="frame-head"><div class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></div><div class="url"><i class="fa-solid fa-lock"></i>fansloop.io/transaction-contact.html</div><a class="open" href="pages-web/transaction-contact.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></div>
+            <div class="frame-body modal-frame"><iframe src="pages-web/transaction-contact.html" loading="lazy"></iframe></div>
+            <div class="frame-foot"><div class="ti">联系客服</div><div class="desc">智能客服 IM · 上下文卡片 · 快捷问题</div><div class="meta"><span class="modal">Modal</span><span>T08</span></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="site">
+    <div class="lo">FansLoop</div>
+    <div>Web3 创作者经济平台 · Web 端高保真原型 · 共 <b style="color:#fff">56+</b> 个独立 HTML 页面</div>
+    <div class="links">
+        <a href="pages-web/yanshi-web.html">交互演示</a>
+        <a href="index.html">APP 端原型</a>
+        <a href="#sec-auth">登录注册</a>
+        <a href="#sec-app">主场景</a>
+        <a href="#sec-content">内容互动</a>
+        <a href="#sec-topics">话题与直播</a>
+        <a href="#sec-modals">交互弹窗</a>
+        <a href="#sec-settings">设置中心</a>
+        <a href="#sec-recharge">充值</a>
+        <a href="#sec-withdraw">提现</a>
+    </div>
+    <div style="margin-top: 14px">© 2026 FansLoop · Built with HTML / CSS / FontAwesome / Real Images from Unsplash &amp; Pexels &amp; Pixabay</div>
+</footer>
+
+<script>
+document.querySelectorAll('.toc .t-link').forEach(a => {
+    a.addEventListener('click', e => {
+        e.preventDefault();
+        const t = document.querySelector(a.getAttribute('href'));
+        if (t) window.scrollTo({ top: t.offsetTop - 60, behavior: 'smooth' });
+    });
+});
+</script>
+</body>
+</html>

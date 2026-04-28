@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>分享海报</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+body { background: var(--bg-app); }
+.modal-mask { background: rgba(0,0,0,0.78); }
+.modal { max-width: 720px; }
+
+.share-grid { display: grid; grid-template-columns: 320px 1fr; gap: 22px; }
+
+.poster {
+    aspect-ratio: 9/16;
+    border-radius: var(--r-lg);
+    background: linear-gradient(160deg, #6D28D9 0%, #BE185D 50%, #F59E0B 100%);
+    position: relative; overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    color: #fff;
+    padding: 24px 22px;
+    display: flex; flex-direction: column; justify-content: space-between;
+}
+.poster::before {
+    content: ''; position: absolute; right: -50px; top: -50px;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(255,255,255,0.2), transparent 70%);
+    border-radius: 50%;
+}
+.poster .head { display: flex; align-items: center; gap: 8px; position: relative; z-index: 2; }
+.poster .head .lo { width: 32px; height: 32px; background: rgba(255,255,255,0.18); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.poster .head .nm { font-size: 14px; font-weight: 700; letter-spacing: 0.4px; }
+
+.poster .center { text-align: center; position: relative; z-index: 2; }
+.poster .center .lb { font-size: 13px; opacity: 0.85; margin-bottom: 8px; font-weight: 600; }
+.poster .center .am { font-size: 56px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 4px; }
+.poster .center .am sup { font-size: 24px; opacity: 0.85; }
+.poster .center .from { font-size: 12px; opacity: 0.85; margin-top: 6px; }
+
+.poster .bot { position: relative; z-index: 2; display: flex; align-items: center; gap: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.2); }
+.poster .bot .qr { width: 70px; height: 70px; background: #fff; padding: 6px; border-radius: 8px; }
+.poster .bot .qr img { width: 100%; height: 100%; }
+.poster .bot .meta { font-size: 11px; opacity: 0.85; }
+.poster .bot .meta .t { font-size: 13px; font-weight: 700; opacity: 1; margin-bottom: 3px; }
+
+.share-side .head { font-size: 12px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 12px; font-weight: 600; }
+.share-channels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 22px; }
+.share-channels .ch {
+    text-align: center; padding: 14px 6px;
+    background: var(--bg-input); border: 1px solid var(--border);
+    border-radius: 10px; cursor: pointer;
+    transition: 0.15s;
+}
+.share-channels .ch:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+.share-channels .ch .ic-c { width: 38px; height: 38px; border-radius: 50%; margin: 0 auto 6px; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+.share-channels .ch.wechat .ic-c { background: #07C160; }
+.share-channels .ch.x .ic-c { background: #000; border: 1px solid #444; }
+.share-channels .ch.tg .ic-c { background: #229ED9; }
+.share-channels .ch.discord .ic-c { background: #5865F2; }
+.share-channels .ch.fb .ic-c { background: #1877F2; }
+.share-channels .ch.dl .ic-c { background: linear-gradient(135deg, #A855F7, #EC4899); }
+.share-channels .ch.copy .ic-c { background: linear-gradient(135deg, #6B7280, #4B5563); }
+.share-channels .ch.poster .ic-c { background: linear-gradient(135deg, #F59E0B, #D97706); }
+.share-channels .ch .nm { font-size: 11.5px; }
+
+.theme-row { display: flex; gap: 8px; margin-bottom: 18px; }
+.theme-row .th { width: 32px; height: 32px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; }
+.theme-row .th.active { border-color: #fff; box-shadow: 0 0 0 2px rgba(168,85,247,0.5); }
+.theme-row .th.t1 { background: linear-gradient(135deg, #6D28D9, #BE185D, #F59E0B); }
+.theme-row .th.t2 { background: linear-gradient(135deg, #1E40AF, #06B6D4); }
+.theme-row .th.t3 { background: linear-gradient(135deg, #10B981, #6EE7B7); }
+.theme-row .th.t4 { background: linear-gradient(135deg, #18181B, #3F3F46); }
+.theme-row .th.t5 { background: linear-gradient(135deg, #F472B6, #FCD34D); }
+</style>
+</head>
+<body>
+
+<div class="modal-mask">
+    <div class="modal">
+        <div class="modal-head">
+            <h2 style="font-size: 16px"><span class="ic"><i class="fa-solid fa-share-nodes"></i></span>分享收益海报
+                <span class="sub">炫耀你的成就，激励更多创作者加入</span>
+            </h2>
+            <button class="close" onclick="location.href='transaction-detail.html'"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="modal-body">
+            <div class="share-grid">
+                <!-- 海报预览 -->
+                <div class="poster">
+                    <div class="head">
+                        <div class="lo"><i class="fa-solid fa-infinity"></i></div>
+                        <div class="nm">FansLoop</div>
+                    </div>
+                    <div class="center">
+                        <div class="lb">💰 我的最新收入</div>
+                        <div class="am"><sup>$</sup>10.<span style="font-size: 32px">00</span></div>
+                        <div class="from">来自 Alex Chen 的订阅 · 今天 19:08</div>
+                    </div>
+                    <div class="bot">
+                        <div class="qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://fansloop.io/luna_creator&color=000000&bgcolor=ffffff" alt="QR"></div>
+                        <div class="meta">
+                            <div class="t">Luna 🌙</div>
+                            <div>@luna_creator</div>
+                            <div style="margin-top: 4px">扫码关注，开启创作之路</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧操作 -->
+                <div class="share-side">
+
+                    <div class="head">海报样式</div>
+                    <div class="theme-row">
+                        <div class="th t1 active"></div>
+                        <div class="th t2"></div>
+                        <div class="th t3"></div>
+                        <div class="th t4"></div>
+                        <div class="th t5"></div>
+                    </div>
+
+                    <div class="head">显示选项</div>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px">
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; cursor: pointer">
+                            <span class="switch"><span class="dot" style="left: 18px"></span></span>显示金额
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; cursor: pointer">
+                            <span class="switch"><span class="dot" style="left: 18px"></span></span>显示来源（粉丝昵称）
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; cursor: pointer">
+                            <span class="switch"><span class="dot" style="left: 18px"></span></span>显示二维码
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; cursor: pointer">
+                            <span class="switch"><span class="dot"></span></span>显示交易哈希
+                        </label>
+                    </div>
+
+                    <div class="head">分享到</div>
+                    <div class="share-channels">
+                        <div class="ch wechat"><div class="ic-c"><i class="fa-brands fa-weixin"></i></div><div class="nm">微信</div></div>
+                        <div class="ch x"><div class="ic-c"><i class="fa-brands fa-x-twitter"></i></div><div class="nm">X</div></div>
+                        <div class="ch tg"><div class="ic-c"><i class="fa-brands fa-telegram"></i></div><div class="nm">Telegram</div></div>
+                        <div class="ch discord"><div class="ic-c"><i class="fa-brands fa-discord"></i></div><div class="nm">Discord</div></div>
+                        <div class="ch fb"><div class="ic-c"><i class="fa-brands fa-facebook-f"></i></div><div class="nm">Facebook</div></div>
+                        <div class="ch dl"><div class="ic-c"><i class="fa-solid fa-download"></i></div><div class="nm">下载</div></div>
+                        <div class="ch copy"><div class="ic-c"><i class="fa-solid fa-link"></i></div><div class="nm">复制链接</div></div>
+                        <div class="ch poster"><div class="ic-c"><i class="fa-solid fa-image"></i></div><div class="nm">长图</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-foot">
+            <button class="btn" onclick="location.href='transaction-detail.html'">取消</button>
+            <button class="btn btn-primary"><i class="fa-solid fa-image"></i>下载海报 (1080×1920)</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

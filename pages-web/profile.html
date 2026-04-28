@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>个人主页 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.app-main { padding: 0 0 60px; }
+
+.cover {
+    height: 280px;
+    background: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=1800&q=80') center/cover;
+    position: relative;
+}
+.cover::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 30%, rgba(7,7,13,0.85) 100%);
+}
+.cover .edit-cov {
+    position: absolute;
+    top: 18px; right: 24px;
+    padding: 8px 14px;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(12px);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 12px; font-weight: 600;
+    display: flex; align-items: center; gap: 6px;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.profile-head {
+    padding: 0 32px;
+    margin-top: -88px;
+    position: relative;
+    z-index: 2;
+}
+.ph-row {
+    display: flex; align-items: flex-end; gap: 22px;
+    margin-bottom: 18px;
+}
+.ph-row .av-xl {
+    width: 144px; height: 144px;
+    border-radius: 50%;
+    background: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80') center/cover;
+    border: 5px solid var(--bg-canvas);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    flex-shrink: 0;
+    position: relative;
+}
+.ph-row .av-xl .role-badge {
+    position: absolute;
+    bottom: 4px; right: 4px;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    border: 4px solid var(--bg-canvas);
+    box-shadow: 0 4px 12px rgba(245,158,11,0.4);
+}
+.ph-row .info { flex: 1; padding-bottom: 14px; }
+.ph-row .info .name-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.ph-row .info h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
+.ph-row .info h1 .vfy { color: #3B82F6; font-size: 18px; }
+.ph-row .info .tags-row { display: flex; gap: 6px; align-items: center; }
+.ph-row .info .h { font-size: 13.5px; color: var(--t-secondary); font-family: ui-monospace, monospace; }
+.ph-row .info .bio { font-size: 13px; color: var(--t-secondary); line-height: 1.5; max-width: 580px; margin-top: 8px; }
+.ph-row .acts { padding-bottom: 14px; display: flex; gap: 8px; }
+
+.ph-meta {
+    display: flex; gap: 20px;
+    flex-wrap: wrap;
+    padding: 14px 0 18px;
+    color: var(--t-tertiary);
+    font-size: 12.5px;
+    border-bottom: 1px solid var(--border);
+}
+.ph-meta span { display: flex; align-items: center; gap: 5px; }
+.ph-meta span i { color: var(--t-quaternary); }
+
+.profile-stats {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    margin: 18px 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+}
+.profile-stats .pst {
+    padding: 18px;
+    text-align: center;
+    border-right: 1px solid var(--border);
+    cursor: pointer;
+    transition: 0.15s;
+}
+.profile-stats .pst:hover { background: var(--bg-hover); }
+.profile-stats .pst:last-child { border-right: none; }
+.profile-stats .pst .v { font-size: 22px; font-weight: 800; letter-spacing: -0.4px; }
+.profile-stats .pst .k { font-size: 11px; color: var(--t-tertiary); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }
+.profile-stats .pst .delta { font-size: 10px; margin-top: 2px; color: var(--success-light); }
+
+.profile-tabs {
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 0;
+    margin: 18px 0 0;
+}
+.profile-tabs .tb {
+    padding: 13px 18px;
+    color: var(--t-tertiary);
+    font-size: 13.5px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 7px;
+}
+.profile-tabs .tb.active { color: #fff; border-bottom-color: var(--brand-purple); font-weight: 600; }
+.profile-tabs .tb .cnt { font-size: 10px; padding: 1px 6px; background: rgba(255,255,255,0.06); border-radius: 999px; }
+
+.content-section {
+    padding: 24px 32px;
+}
+
+.posts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+.post-tile {
+    aspect-ratio: 1;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.post-tile:hover { transform: translateY(-2px); }
+.post-tile::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.7));
+    opacity: 0; transition: 0.2s;
+}
+.post-tile:hover::after { opacity: 1; }
+.post-tile .meta {
+    position: absolute; bottom: 10px; left: 12px; right: 12px;
+    color: #fff;
+    z-index: 2;
+    display: flex; gap: 14px;
+    font-size: 12px;
+    opacity: 0; transition: 0.2s;
+}
+.post-tile:hover .meta { opacity: 1; }
+.post-tile .premium {
+    position: absolute; top: 8px; right: 8px;
+    padding: 3px 7px;
+    background: linear-gradient(135deg, #F59E0B, #EC4899);
+    color: #fff;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 700;
+    z-index: 2;
+}
+
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span><span class="chip">+$28</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item active" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+        <div class="s-bottom">
+            <div class="s-user">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索…</span><span class="kbd">⌘ K</span></div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i><span class="dot"></span></button>
+            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="cover">
+            <button class="edit-cov"><i class="fa-solid fa-camera"></i> 更换封面</button>
+        </div>
+
+        <div class="profile-head">
+            <div class="ph-row">
+                <div class="av-xl">
+                    <div class="role-badge"><i class="fa-solid fa-crown"></i></div>
+                </div>
+                <div class="info">
+                    <div class="name-row">
+                        <h1>Luna 🌙 <i class="fa-solid fa-circle-check vfy"></i></h1>
+                    </div>
+                    <div class="tags-row">
+                        <span class="tag tag-purple"><i class="fa-solid fa-palette"></i>认证创作者</span>
+                        <span class="tag tag-warning"><i class="fa-solid fa-crown"></i>Creator Pro</span>
+                        <span class="tag tag-info"><i class="fa-solid fa-shield-halved"></i>SIWE 已验证</span>
+                    </div>
+                    <div class="h" style="margin-top:6px">Creator · 0x7A3F...3F2C</div>
+                    <div class="bio">📷 旅行 / 美食 / 慢生活 摄影师｜📍现居东京｜35mm 定焦执着患者｜合作请私信</div>
+                </div>
+                <div class="acts">
+                    <button class="btn"><i class="fa-solid fa-share-nodes"></i>分享主页</button>
+                    <button class="btn btn-secondary"><i class="fa-solid fa-pen"></i>编辑资料</button>
+                    <button class="btn btn-primary"><i class="fa-solid fa-bolt"></i>升级 Pro</button>
+                </div>
+            </div>
+
+            <div class="ph-meta">
+                <span><i class="fa-solid fa-location-dot"></i> 日本 · 东京</span>
+                <span><i class="fa-solid fa-link"></i> <a href="#" style="color:var(--brand-purple)">luna.studio</a></span>
+                <span><i class="fa-regular fa-calendar"></i> 加入于 2024 年 3 月</span>
+                <span><i class="fa-solid fa-globe"></i> 中文 / English / 日本語</span>
+                <span style="margin-left: auto"><i class="fa-solid fa-circle" style="color:var(--success);font-size:8px"></i> 当前在线</span>
+            </div>
+
+            <div class="profile-stats">
+                <div class="pst"><div class="v">142</div><div class="k">作品</div></div>
+                <div class="pst"><div class="v">28.4k</div><div class="k">粉丝</div><div class="delta">+248 本周</div></div>
+                <div class="pst"><div class="v">368</div><div class="k">关注</div></div>
+                <div class="pst"><div class="v">1,284</div><div class="k">订阅者</div><div class="delta">+18 本月</div></div>
+                <div class="pst"><div class="v t-grad">$18,420</div><div class="k">累计收入</div></div>
+            </div>
+
+            <div class="profile-tabs">
+                <div class="tb active"><i class="fa-solid fa-th"></i>作品 <span class="cnt">142</span></div>
+                <div class="tb"><i class="fa-solid fa-crown"></i>付费内容 <span class="cnt">26</span></div>
+                <div class="tb"><i class="fa-solid fa-tower-broadcast"></i>直播 <span class="cnt">12</span></div>
+                <div class="tb"><i class="fa-regular fa-heart"></i>喜欢</div>
+                <div class="tb"><i class="fa-solid fa-bookmark"></i>收藏</div>
+                <div class="tb"><i class="fa-solid fa-info-circle"></i>关于</div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="posts-grid">
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=600')">
+                    <div class="meta"><span><i class="fa-solid fa-heart"></i> 2.4k</span><span><i class="fa-regular fa-comment"></i> 312</span></div>
+                </div>
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=600')">
+                    <div class="meta"><span><i class="fa-solid fa-heart"></i> 1.8k</span><span><i class="fa-regular fa-comment"></i> 240</span></div>
+                </div>
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600')">
+                    <span class="premium"><i class="fa-solid fa-crown"></i> $5</span>
+                    <div class="meta"><span><i class="fa-solid fa-heart"></i> 986</span><span><i class="fa-regular fa-comment"></i> 148</span></div>
+                </div>
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600')">
+                    <div class="meta"><span><i class="fa-solid fa-heart"></i> 2.1k</span><span><i class="fa-regular fa-comment"></i> 342</span></div>
+                </div>
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=600')">
+                    <div class="meta"><span><i class="fa-solid fa-heart"></i> 1.2k</span><span><i class="fa-regular fa-comment"></i> 89</span></div>
+                </div>
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1542435503-956c469947f6?w=600')">
+                    <span class="premium"><i class="fa-solid fa-crown"></i> $9</span>
+                    <div class="meta"><span><i class="fa-solid fa-heart"></i> 968</span><span><i class="fa-regular fa-comment"></i> 124</span></div>
+                </div>
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1493612276216-ee3925520721?w=600')">
+                    <div class="meta"><span><i class="fa-solid fa-heart"></i> 1.5k</span><span><i class="fa-regular fa-comment"></i> 198</span></div>
+                </div>
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600')">
+                    <div class="meta"><span><i class="fa-solid fa-heart"></i> 768</span><span><i class="fa-regular fa-comment"></i> 92</span></div>
+                </div>
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=600')">
+                    <span class="premium"><i class="fa-solid fa-crown"></i> $3</span>
+                    <div class="meta"><span><i class="fa-solid fa-heart"></i> 1.1k</span><span><i class="fa-regular fa-comment"></i> 86</span></div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

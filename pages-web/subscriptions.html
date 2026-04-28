@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>我的订阅 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.sub-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
+@media (max-width: 1280px) { .sub-grid { grid-template-columns: 1fr; } .sub-aside { display: none; } }
+
+/* 顶部统计 */
+.sub-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 22px;
+}
+.ss-card {
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    position: relative;
+    overflow: hidden;
+}
+.ss-card .ic {
+    position: absolute; top: 14px; right: 14px;
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 13px;
+}
+.ss-card.c1 .ic { background: linear-gradient(135deg, #A855F7, #EC4899); }
+.ss-card.c2 .ic { background: linear-gradient(135deg, #F59E0B, #EF4444); }
+.ss-card.c3 .ic { background: linear-gradient(135deg, #10B981, #06B6D4); }
+.ss-card.c4 .ic { background: linear-gradient(135deg, #3B82F6, #A855F7); }
+.ss-card .lb { font-size: 11px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.ss-card .vl { font-size: 24px; font-weight: 800; margin-top: 6px; letter-spacing: -0.5px; }
+.ss-card .vl .u { font-size: 12px; color: var(--t-tertiary); margin-left: 4px; font-weight: 500; }
+.ss-card .delta { font-size: 11px; color: var(--success-light); margin-top: 4px; }
+
+/* 创作者横滑栏 */
+.creator-rail {
+    display: flex; gap: 12px;
+    overflow-x: auto;
+    padding: 4px 2px 14px;
+    margin-bottom: 6px;
+}
+.creator-rail::-webkit-scrollbar { display: none; }
+.cr-card {
+    flex: 0 0 100px;
+    text-align: center;
+    cursor: pointer;
+}
+.cr-card .av-wrap {
+    width: 72px; height: 72px;
+    margin: 0 auto 8px;
+    border-radius: 50%;
+    padding: 2.5px;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    position: relative;
+}
+.cr-card .av-wrap.viewed { background: rgba(255,255,255,0.1); }
+.cr-card .av-wrap > .img {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    background-size: cover; background-position: center;
+    border: 2.5px solid var(--bg-app);
+}
+.cr-card .av-wrap .badge-live {
+    position: absolute;
+    bottom: -3px; left: 50%;
+    transform: translateX(-50%);
+    background: #EF4444;
+    color: #fff;
+    font-size: 9px;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    border: 1.5px solid var(--bg-app);
+}
+.cr-card .nm {
+    font-size: 12px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cr-card .meta {
+    font-size: 10px; color: var(--t-tertiary);
+    margin-top: 2px;
+}
+
+/* Tabs */
+.sub-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+    align-items: center;
+    gap: 4px;
+}
+.sub-tabs .tab {
+    padding: 13px 18px;
+    color: var(--t-tertiary);
+    font-size: 14px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 7px;
+}
+.sub-tabs .tab.active { color: #fff; border-bottom-color: var(--brand-purple); font-weight: 600; }
+.sub-tabs .tab .num {
+    background: rgba(255,255,255,0.06);
+    padding: 1px 7px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--t-tertiary);
+}
+.sub-tabs .tab.active .num { background: rgba(168,85,247,0.18); color: #C084FC; }
+.sub-tabs .grow { flex: 1; }
+
+/* Post Card */
+.post-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+.post-card:hover { border-color: var(--border-strong); }
+.post-head { display: flex; align-items: center; gap: 12px; padding: 14px 18px 12px; }
+.post-head .pi-info { flex: 1; }
+.post-head .pi-info .name { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.post-head .pi-info .name .verified { color: #3B82F6; font-size: 12px; }
+.post-head .pi-info .meta { font-size: 11px; color: var(--t-tertiary); }
+.post-head .pi-actions { display: flex; gap: 6px; }
+.post-head .pi-actions .ic-btn { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--t-tertiary); cursor: pointer; }
+.post-head .pi-actions .ic-btn:hover { background: var(--bg-input); color: var(--t-primary); }
+.post-head .pi-actions .sub-tag {
+    height: 28px; padding: 0 12px;
+    background: linear-gradient(135deg, rgba(251,191,36,0.18), rgba(245,158,11,0.1));
+    border: 1px solid rgba(251,191,36,0.3);
+    color: var(--warning-light);
+    border-radius: 999px;
+    font-size: 11px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 5px;
+}
+
+.post-text { padding: 0 18px 12px; font-size: 14px; line-height: 1.55; }
+.post-text .hashtag { color: var(--brand-purple); cursor: pointer; }
+
+.post-media img { width: 100%; display: block; }
+.post-media.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.post-media.grid-2 img { height: 240px; object-fit: cover; }
+
+.post-actions {
+    padding: 12px 18px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 4px;
+}
+.post-actions .a-btn {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--t-secondary);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    cursor: pointer;
+}
+.post-actions .a-btn:hover { background: var(--bg-input); color: var(--t-primary); }
+.post-actions .a-btn.liked { color: #F472B6; }
+.post-actions .a-btn.tip {
+    background: linear-gradient(135deg, rgba(245,158,11,0.18), rgba(239,68,68,0.1));
+    border: 1px solid rgba(245,158,11,0.35);
+    color: #FBBF24;
+    font-weight: 700;
+}
+
+/* 视频卡片（直播 + VOD） */
+.video-card {
+    position: relative;
+    border-radius: var(--r-lg);
+    overflow: hidden;
+}
+.video-card .cover {
+    width: 100%; height: 360px;
+    background-size: cover; background-position: center;
+}
+.video-card .overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.7));
+}
+.video-card .badge-live {
+    position: absolute; top: 14px; left: 14px;
+    background: #EF4444;
+    color: #fff;
+    font-size: 11px;
+    padding: 4px 9px;
+    border-radius: 5px;
+    font-weight: 700;
+    display: flex; align-items: center; gap: 5px;
+}
+.video-card .badge-live::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    animation: pulse-live 1.2s ease-in-out infinite;
+}
+.video-card .views {
+    position: absolute; top: 14px; right: 14px;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    font-size: 11px;
+    padding: 4px 9px;
+    border-radius: 5px;
+}
+.video-card .info {
+    position: absolute;
+    bottom: 14px; left: 14px; right: 14px;
+}
+.video-card .info .ti { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 5px; }
+.video-card .info .meta { font-size: 12px; color: rgba(255,255,255,0.75); display: flex; gap: 12px; }
+
+/* Aside */
+.aside-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    margin-bottom: 14px;
+    overflow: hidden;
+}
+.aside-card .ah {
+    padding: 14px 16px 8px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.aside-card .ah h4 { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.aside-card .ab { padding: 6px 14px 14px; }
+
+.expire-row { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.expire-row:last-child { border-bottom: none; }
+.expire-row .av-sm { width: 36px; height: 36px; }
+.expire-row .info { flex: 1; min-width: 0; }
+.expire-row .info .n { font-size: 12.5px; font-weight: 600; }
+.expire-row .info .h { font-size: 10.5px; color: var(--t-tertiary); margin-top: 2px; }
+.expire-row .info .h.warn { color: var(--warning-light); }
+.expire-row button {
+    padding: 5px 11px;
+    background: var(--brand-grad);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 11px; font-weight: 700;
+    align-self: center;
+}
+
+@keyframes pulse-live {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- Sidebar -->
+    <aside class="app-sidebar">
+        <div class="s-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator</span></div>
+        </div>
+
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item active" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span><span class="chip">+$28</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+
+        <div class="s-bottom">
+            <div class="s-pro-card">
+                <div class="crown"><i class="fa-solid fa-crown"></i></div>
+                <h4>升级 Creator Pro</h4>
+                <p>解锁高级数据 / 优先推流</p>
+                <button>立即升级</button>
+            </div>
+            <div class="s-user">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info">
+                    <div class="n">Luna 🌙</div>
+                    <div class="e">Creator</div>
+                </div>
+                <i class="fa-solid fa-ellipsis-vertical more"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Header -->
+    <header class="app-header">
+        <div class="h-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span>搜索创作者、内容或话题…</span>
+            <span class="kbd">⌘ K</span>
+        </div>
+        <div class="h-actions">
+            <button class="h-icon" title="发布"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="h-icon" title="通知"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" title="消息" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i><span class="dot"></span></button>
+            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <h1>我的订阅 <span class="chip-pro" style="background: linear-gradient(135deg, rgba(168,85,247,0.18), rgba(236,72,153,0.1)); border-color: rgba(168,85,247,0.3); color: #C084FC">12 位创作者</span></h1>
+                <p>聚合你订阅的创作者最新内容、直播预告与专属付费帖。</p>
+            </div>
+            <div class="ph-r">
+                <button class="btn"><i class="fa-solid fa-arrows-rotate"></i> 刷新</button>
+                <button class="btn"><i class="fa-solid fa-sliders"></i> 管理订阅</button>
+            </div>
+        </div>
+
+        <!-- 数据卡 -->
+        <div class="sub-stats">
+            <div class="ss-card c1">
+                <div class="ic"><i class="fa-solid fa-crown"></i></div>
+                <div class="lb">已订阅创作者</div>
+                <div class="vl">12 <span class="u">位</span></div>
+                <div class="delta">+2 本月</div>
+            </div>
+            <div class="ss-card c2">
+                <div class="ic"><i class="fa-solid fa-fire"></i></div>
+                <div class="lb">正在直播</div>
+                <div class="vl">3 <span class="u">场</span></div>
+                <div class="delta">2 场你感兴趣</div>
+            </div>
+            <div class="ss-card c3">
+                <div class="ic"><i class="fa-solid fa-circle-dot"></i></div>
+                <div class="lb">未读动态</div>
+                <div class="vl">28 <span class="u">条</span></div>
+                <div class="delta">12 条付费帖</div>
+            </div>
+            <div class="ss-card c4">
+                <div class="ic"><i class="fa-solid fa-coins"></i></div>
+                <div class="lb">本月已付</div>
+                <div class="vl">68 <span class="u">USDT</span></div>
+                <div class="delta">≈ ¥495</div>
+            </div>
+        </div>
+
+        <div class="sub-grid">
+            <div>
+                <!-- 创作者横滑（带直播标） -->
+                <div style="font-size: 13px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px">
+                    <i class="fa-solid fa-user-group" style="color: #C084FC"></i> 我订阅的创作者
+                    <span style="font-size: 11px; color: var(--t-tertiary); font-weight: 400">点击头像查看主页</span>
+                </div>
+
+                <div class="creator-rail">
+                    <div class="cr-card">
+                        <div class="av-wrap">
+                            <div class="img" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200')"></div>
+                            <span class="badge-live">LIVE</span>
+                        </div>
+                        <div class="nm">夜雨听弦</div>
+                        <div class="meta">直播中</div>
+                    </div>
+                    <div class="cr-card">
+                        <div class="av-wrap">
+                            <div class="img" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200')"></div>
+                        </div>
+                        <div class="nm">Lens 旅记</div>
+                        <div class="meta">5 条新</div>
+                    </div>
+                    <div class="cr-card">
+                        <div class="av-wrap">
+                            <div class="img" style="background-image: url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=200')"></div>
+                        </div>
+                        <div class="nm">山野食光</div>
+                        <div class="meta">2 条新</div>
+                    </div>
+                    <div class="cr-card">
+                        <div class="av-wrap">
+                            <div class="img" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=200')"></div>
+                        </div>
+                        <div class="nm">代码诗人</div>
+                        <div class="meta">3 天前</div>
+                    </div>
+                    <div class="cr-card">
+                        <div class="av-wrap viewed">
+                            <div class="img" style="background-image: url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200')"></div>
+                        </div>
+                        <div class="nm">银盐时代</div>
+                        <div class="meta">7 天前</div>
+                    </div>
+                    <div class="cr-card">
+                        <div class="av-wrap">
+                            <div class="img" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200')"></div>
+                            <span class="badge-live">LIVE</span>
+                        </div>
+                        <div class="nm">夜间速写</div>
+                        <div class="meta">直播中</div>
+                    </div>
+                    <div class="cr-card">
+                        <div class="av-wrap">
+                            <div class="img" style="background-image: url('https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=200')"></div>
+                        </div>
+                        <div class="nm">极简料理</div>
+                        <div class="meta">1 条新</div>
+                    </div>
+                    <div class="cr-card">
+                        <div class="av-wrap viewed">
+                            <div class="img" style="background-image: url('https://images.unsplash.com/photo-1502767089025-6572583495b9?w=200')"></div>
+                        </div>
+                        <div class="nm">声音之外</div>
+                        <div class="meta">12 天前</div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="sub-tabs">
+                    <div class="tab active"><i class="fa-solid fa-stream"></i>动态<span class="num">28</span></div>
+                    <div class="tab"><i class="fa-solid fa-tower-broadcast"></i>直播<span class="num">3</span></div>
+                    <div class="tab"><i class="fa-solid fa-crown"></i>付费独享<span class="num">12</span></div>
+                    <div class="tab"><i class="fa-solid fa-circle-play"></i>视频<span class="num">15</span></div>
+                    <div class="grow"></div>
+                    <div class="tab"><i class="fa-solid fa-sort"></i>最新</div>
+                </div>
+
+                <!-- 直播卡 -->
+                <article class="post-card">
+                    <div class="post-head">
+                        <div class="av av-md" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100')"></div>
+                        <div class="pi-info">
+                            <div class="name">夜雨听弦 <i class="fa-solid fa-circle-check verified"></i> <span class="tag tag-danger">直播中</span></div>
+                            <div class="meta">正在直播 · 1,284 人观看</div>
+                        </div>
+                        <div class="pi-actions">
+                            <span class="sub-tag"><i class="fa-solid fa-crown"></i>已订阅</span>
+                        </div>
+                    </div>
+                    <div class="video-card" onclick="location.href='live-detail.html'" style="cursor:pointer; margin: 0 0 0 0; border-radius: 0">
+                        <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=1200&q=80'); height: 320px"></div>
+                        <div class="overlay"></div>
+                        <div class="badge-live">LIVE</div>
+                        <div class="views"><i class="fa-solid fa-eye"></i> 1,284</div>
+                        <div class="info">
+                            <div class="ti">🎻 雨夜小提琴现场演奏</div>
+                            <div class="meta">
+                                <span><i class="fa-solid fa-clock"></i> 已开播 1 小时 25 分</span>
+                                <span><i class="fa-solid fa-heart"></i> 4.8k</span>
+                                <span><i class="fa-solid fa-gift" style="color: #FBBF24"></i> 收到 22 份礼物</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-actions">
+                        <span class="a-btn"><i class="fa-regular fa-heart"></i>2,389</span>
+                        <span class="a-btn"><i class="fa-regular fa-comment"></i>实时弹幕</span>
+                        <span class="a-btn tip"><i class="fa-solid fa-gift"></i>送礼</span>
+                        <span class="a-btn"><i class="fa-solid fa-share-nodes"></i>分享</span>
+                        <button class="btn btn-primary btn-sm" onclick="location.href='live-detail.html'"><i class="fa-solid fa-play"></i> 进入直播间</button>
+                    </div>
+                </article>
+
+                <!-- 付费帖 -->
+                <article class="post-card">
+                    <div class="post-head">
+                        <div class="av av-md" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100')"></div>
+                        <div class="pi-info">
+                            <div class="name">Lens 旅记 <i class="fa-solid fa-circle-check verified"></i> <span class="tag tag-warning">优质</span></div>
+                            <div class="meta">5 小时前 · 已发布到 1.2k 订阅者</div>
+                        </div>
+                        <div class="pi-actions">
+                            <span class="sub-tag"><i class="fa-solid fa-crown"></i>已订阅 ✓</span>
+                            <button class="ic-btn"><i class="fa-solid fa-ellipsis"></i></button>
+                        </div>
+                    </div>
+                    <div class="post-text">
+                        【会员专享】京都 4 月樱花季隐秘机位整理 · 含 GPS 坐标 + 拍摄建议 + 18 张原图
+                        <br/><span class="hashtag">#京都樱花</span> <span class="hashtag">#摄影机位</span>
+                    </div>
+                    <div class="post-media grid-2">
+                        <img src="https://images.unsplash.com/photo-1522383225653-ed111181a951?w=900&q=80" alt="">
+                        <img src="https://images.unsplash.com/photo-1545569310-c073cda35cf6?w=900&q=80" alt="">
+                    </div>
+                    <div class="post-actions">
+                        <span class="a-btn liked"><i class="fa-solid fa-heart"></i>986</span>
+                        <span class="a-btn"><i class="fa-regular fa-comment"></i>148</span>
+                        <span class="a-btn"><i class="fa-solid fa-arrow-up-right-from-square"></i>分享</span>
+                        <span class="a-btn tip"><i class="fa-solid fa-gift"></i>打赏</span>
+                        <span class="a-btn"><i class="fa-regular fa-bookmark"></i>收藏</span>
+                    </div>
+                </article>
+
+                <!-- 普通图文 -->
+                <article class="post-card">
+                    <div class="post-head">
+                        <div class="av av-md" style="background-image: url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100')"></div>
+                        <div class="pi-info">
+                            <div class="name">山野食光 <i class="fa-solid fa-circle-check verified"></i></div>
+                            <div class="meta">2 小时前 · 摄影 · 旅行</div>
+                        </div>
+                        <div class="pi-actions">
+                            <span class="sub-tag"><i class="fa-solid fa-crown"></i>已订阅 ✓</span>
+                            <button class="ic-btn"><i class="fa-solid fa-ellipsis"></i></button>
+                        </div>
+                    </div>
+                    <div class="post-text">
+                        清晨 5:40 的富士山五合目，云海像被风轻轻吹散的奶油 ☁️ 这次用 35mm 定焦在零下 4℃ 拍了三个小时，每一张都是冻出来的浪漫
+                        <br/><span class="hashtag">#富士山</span> <span class="hashtag">#旅行摄影</span>
+                    </div>
+                    <div class="post-media grid-2">
+                        <img src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=900&q=80" alt="">
+                        <img src="https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=900&q=80" alt="">
+                    </div>
+                    <div class="post-actions">
+                        <span class="a-btn liked"><i class="fa-solid fa-heart"></i>2,148</span>
+                        <span class="a-btn"><i class="fa-regular fa-comment"></i>342</span>
+                        <span class="a-btn"><i class="fa-solid fa-arrow-up-right-from-square"></i>分享</span>
+                        <span class="a-btn tip"><i class="fa-solid fa-gift"></i>打赏</span>
+                        <span class="a-btn"><i class="fa-regular fa-bookmark"></i>收藏</span>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Aside -->
+            <aside class="sub-aside">
+                <div class="aside-card">
+                    <div class="ah"><h4><i class="fa-solid fa-clock-rotate-left" style="color: #F472B6"></i>即将到期</h4><a style="font-size: 11px; color: var(--brand-purple)" href="#">全部</a></div>
+                    <div class="ab" style="padding-top: 0">
+                        <div class="expire-row">
+                            <div class="av av-sm" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
+                            <div class="info">
+                                <div class="n">夜雨听弦</div>
+                                <div class="h warn"><i class="fa-solid fa-triangle-exclamation"></i> 3 天后到期 · 28 USDT/月</div>
+                            </div>
+                            <button>续费</button>
+                        </div>
+                        <div class="expire-row">
+                            <div class="av av-sm" style="background-image: url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=80')"></div>
+                            <div class="info">
+                                <div class="n">山野食光</div>
+                                <div class="h">12 天后到期 · 18 USDT/月</div>
+                            </div>
+                            <button>续费</button>
+                        </div>
+                        <div class="expire-row">
+                            <div class="av av-sm" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80')"></div>
+                            <div class="info">
+                                <div class="n">代码诗人</div>
+                                <div class="h">22 天后到期 · 38 USDT/月</div>
+                            </div>
+                            <button>续费</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="aside-card">
+                    <div class="ah"><h4><i class="fa-solid fa-sparkles" style="color: #C084FC"></i>你可能喜欢</h4><a style="font-size: 11px; color: var(--brand-purple)" href="discover.html">发现</a></div>
+                    <div class="ab" style="padding-top: 0">
+                        <div class="expire-row">
+                            <div class="av av-sm" style="background-image: url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80')"></div>
+                            <div class="info">
+                                <div class="n">银盐时代</div>
+                                <div class="h">摄影 · 64k 粉丝</div>
+                            </div>
+                            <button onclick="location.href='creator-profile.html'">查看</button>
+                        </div>
+                        <div class="expire-row">
+                            <div class="av av-sm" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></div>
+                            <div class="info">
+                                <div class="n">夜间速写</div>
+                                <div class="h">绘画 · 18k 粉丝</div>
+                            </div>
+                            <button onclick="location.href='creator-profile.html'">查看</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="aside-card">
+                    <div class="ah"><h4><i class="fa-solid fa-coins" style="color: #FBBF24"></i>订阅支出</h4></div>
+                    <div class="ab" style="padding-top: 0">
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border)">
+                            <span style="color: var(--t-tertiary); font-size: 12px">本月支出</span>
+                            <span style="font-weight: 700">68.00 USDT</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border)">
+                            <span style="color: var(--t-tertiary); font-size: 12px">本月新订阅</span>
+                            <span style="color: var(--success-light); font-weight: 700">+ 2 位</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0">
+                            <span style="color: var(--t-tertiary); font-size: 12px">累计已支持</span>
+                            <span style="font-weight: 700">428 USDT</span>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" style="width: 100%; margin-top: 10px" onclick="location.href='transactions.html'">查看账变明细</button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+</div>
+
+</body>
+</html>

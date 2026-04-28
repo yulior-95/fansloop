@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>正在直播 · NovaPlay</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.live-grid { display: grid; grid-template-columns: 1fr 360px; gap: 18px; }
+@media (max-width: 1280px) { .live-grid { grid-template-columns: 1fr; } }
+
+/* 视频播放器 */
+.live-player {
+    background: #000;
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    position: relative;
+    aspect-ratio: 16/9;
+    background: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1600') center/cover;
+}
+.live-player::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 35%, transparent 65%, rgba(0,0,0,0.6));
+}
+.live-player .top-overlay {
+    position: absolute;
+    top: 18px; left: 18px; right: 18px;
+    display: flex; align-items: center; gap: 10px;
+    z-index: 3;
+}
+.live-player .live-pill {
+    padding: 6px 14px;
+    background: linear-gradient(135deg, #DC2626, #EF4444);
+    border-radius: 999px;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    display: inline-flex; align-items: center; gap: 6px;
+    box-shadow: 0 6px 16px rgba(220,38,38,0.45);
+    animation: pulse-live 2s infinite;
+}
+@keyframes pulse-live {
+    0%,100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.5); }
+    50% { box-shadow: 0 0 0 10px rgba(220,38,38,0); }
+}
+.live-player .live-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+.live-player .viewers {
+    padding: 6px 12px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    border-radius: 999px;
+    color: #fff;
+    font-size: 11.5px;
+    font-weight: 600;
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.live-player .top-actions { margin-left: auto; display: flex; gap: 6px; }
+.live-player .top-actions button {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    font-size: 12px;
+}
+
+/* 飘屏礼物 */
+.float-gifts {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    overflow: hidden;
+}
+.float-gifts .fg {
+    position: absolute;
+    padding: 8px 14px 8px 8px;
+    background: linear-gradient(135deg, rgba(251,191,36,0.95), rgba(245,158,11,0.95));
+    border-radius: 999px;
+    color: #1a1a2e;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex; align-items: center; gap: 8px;
+    box-shadow: 0 12px 30px rgba(245,158,11,0.4);
+}
+.float-gifts .fg .av { width: 24px; height: 24px; border-radius: 50%; background-size: cover; }
+.float-gifts .fg.pink { background: linear-gradient(135deg, rgba(236,72,153,0.95), rgba(168,85,247,0.95)); color: #fff; }
+.float-gifts .fg.blue { background: linear-gradient(135deg, rgba(59,130,246,0.95), rgba(6,182,212,0.95)); color: #fff; }
+
+/* 底部信息 */
+.live-player .bottom-overlay {
+    position: absolute;
+    bottom: 14px; left: 18px; right: 18px;
+    z-index: 3;
+    color: #fff;
+}
+.live-player .bottom-overlay h2 {
+    font-size: 22px;
+    font-weight: 800;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    line-height: 1.3;
+    margin-bottom: 6px;
+}
+.live-player .bottom-overlay .sub {
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.85);
+    display: flex; gap: 14px; align-items: center;
+}
+
+/* 控制条 */
+.player-ctrl {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    z-index: 4;
+    padding: 50px 18px 16px;
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,0.65));
+    display: none;
+}
+
+/* 创作者信息卡 */
+.creator-strip {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 16px 18px;
+    margin-top: 14px;
+    display: flex; align-items: center; gap: 14px;
+}
+.creator-strip .av-ring {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    padding: 2px;
+    background: var(--brand-grad);
+    flex-shrink: 0;
+    position: relative;
+}
+.creator-strip .av-ring .av-img {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    background-size: cover; background-position: center;
+    border: 2px solid var(--bg-card);
+}
+.creator-strip .av-ring .live-tag {
+    position: absolute;
+    bottom: -3px; left: 50%; transform: translateX(-50%);
+    background: var(--danger);
+    color: #fff;
+    font-size: 8px;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    border: 2px solid var(--bg-card);
+}
+.creator-strip .info { flex: 1; min-width: 0; }
+.creator-strip .info .nm { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+.creator-strip .info .nm .vfd { color: #06B6D4; font-size: 14px; }
+.creator-strip .info .meta { font-size: 12px; color: var(--t-tertiary); margin-top: 4px; display: flex; gap: 14px; align-items: center; }
+.creator-strip .info .meta .badge-mini {
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(168,85,247,0.18);
+    color: #C084FC;
+    font-size: 10px;
+    font-weight: 700;
+}
+.creator-strip .actions { display: flex; gap: 8px; }
+
+/* tabs */
+.live-tabs {
+    display: flex; gap: 4px;
+    border-bottom: 1px solid var(--border);
+    margin: 18px 0 14px;
+}
+.live-tabs .tt {
+    padding: 11px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--t-tertiary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+.live-tabs .tt.active { color: #fff; border-bottom-color: var(--brand-purple); }
+
+/* 介绍卡 */
+.intro-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 18px 20px;
+}
+.intro-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.intro-card p { font-size: 13px; color: var(--t-secondary); line-height: 1.65; margin-bottom: 12px; }
+.intro-card .tag-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* ====== 右侧聊天 ====== */
+.chat-shell {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    height: calc(100vh - 110px);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    position: sticky; top: 80px;
+}
+.chat-head {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+}
+.chat-head h4 { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.chat-head .live-cnt {
+    padding: 3px 9px;
+    background: rgba(220,38,38,0.18);
+    border: 1px solid rgba(220,38,38,0.3);
+    color: #FCA5A5;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+.chat-tabs {
+    display: flex; gap: 3px;
+    padding: 8px;
+    border-bottom: 1px solid var(--border);
+}
+.chat-tabs .ct {
+    flex: 1;
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 11.5px;
+    color: var(--t-tertiary);
+    text-align: center;
+    cursor: pointer;
+}
+.chat-tabs .ct.active { background: var(--brand-grad); color: #fff; font-weight: 600; }
+
+.chat-body { flex: 1; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+
+.chat-msg { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; line-height: 1.5; }
+.chat-msg .av { width: 26px; height: 26px; border-radius: 50%; background-size: cover; flex-shrink: 0; margin-top: 1px; }
+.chat-msg .body { flex: 1; min-width: 0; }
+.chat-msg .nm {
+    font-weight: 700;
+    margin-right: 5px;
+    display: inline-flex; align-items: center; gap: 4px;
+}
+.chat-msg .nm.creator { color: #C084FC; }
+.chat-msg .nm.mod { color: #6EE7B7; }
+.chat-msg .nm.vip { color: #FBBF24; }
+.chat-msg .badge {
+    font-size: 9px; padding: 1px 5px;
+    border-radius: 3px;
+    margin-right: 4px;
+    font-weight: 800; letter-spacing: 0.3px;
+}
+.chat-msg .badge.creator { background: linear-gradient(135deg,#A855F7,#EC4899); color: #fff; }
+.chat-msg .badge.mod { background: rgba(16,185,129,0.2); color: #6EE7B7; }
+.chat-msg .badge.lv { background: rgba(251,191,36,0.18); color: #FBBF24; }
+.chat-msg .text { color: var(--t-secondary); word-break: break-word; }
+
+/* 礼物消息特别样式 */
+.chat-msg.gift-msg .body {
+    background: linear-gradient(90deg, rgba(251,191,36,0.18), rgba(245,158,11,0.06));
+    border: 1px solid rgba(251,191,36,0.25);
+    border-radius: 10px;
+    padding: 8px 11px;
+}
+.chat-msg.gift-msg .text { color: var(--t-primary); font-weight: 600; }
+.chat-msg.gift-msg .gift-amt { color: #FBBF24; font-weight: 800; }
+.chat-msg.sub-msg .body {
+    background: linear-gradient(90deg, rgba(168,85,247,0.18), rgba(236,72,153,0.06));
+    border: 1px solid rgba(168,85,247,0.25);
+    border-radius: 10px;
+    padding: 8px 11px;
+}
+
+/* 系统消息 */
+.chat-sys {
+    text-align: center;
+    font-size: 10.5px;
+    color: var(--t-tertiary);
+    padding: 4px 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 999px;
+    width: fit-content;
+    margin: 4px auto;
+}
+
+.chat-input {
+    border-top: 1px solid var(--border);
+    padding: 10px;
+    display: flex; gap: 6px; align-items: center;
+}
+.chat-input input {
+    flex: 1; height: 36px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0 14px;
+    color: #fff;
+    font-size: 12.5px;
+    outline: none;
+}
+.chat-input input::placeholder { color: var(--t-quaternary); }
+.chat-input button {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    color: var(--t-secondary);
+    background: var(--bg-input);
+    font-size: 12px;
+}
+.chat-input .gift-btn {
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    color: #1a1a2e;
+}
+
+/* 底部互动栏 */
+.action-strip {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 12px 14px;
+    margin-top: 12px;
+    display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap;
+}
+.action-strip .ac {
+    height: 36px; padding: 0 14px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    color: var(--t-secondary);
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex; align-items: center; gap: 7px;
+    cursor: pointer;
+    transition: 0.15s;
+}
+.action-strip .ac:hover { background: var(--bg-hover); color: #fff; }
+.action-strip .ac.tip {
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    color: #1a1a2e;
+    border: none;
+    box-shadow: 0 6px 16px rgba(251,191,36,0.35);
+    font-weight: 800;
+    height: 38px;
+    padding: 0 18px;
+}
+.action-strip .ac.sub {
+    background: var(--brand-grad);
+    color: #fff;
+    border: none;
+    box-shadow: 0 6px 16px rgba(168,85,247,0.35);
+    font-weight: 700;
+    height: 38px;
+    padding: 0 18px;
+}
+.action-strip .stat-mini { display: flex; gap: 14px; margin-left: auto; font-size: 11.5px; color: var(--t-tertiary); align-items: center; }
+.action-strip .stat-mini b { color: #fff; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+    <aside class="app-sidebar">
+        <div class="s-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator</span></div>
+        </div>
+        <div class="s-section">主导航</div>
+        <div class="s-item active" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+
+        <div class="s-bottom">
+            <div class="s-pro-card">
+                <div class="crown"><i class="fa-solid fa-crown"></i></div>
+                <h4>升级 Creator Pro</h4>
+                <p>解锁高级数据 / 优先推流</p>
+                <button>立即升级</button>
+            </div>
+            <div class="s-user">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div>
+                <i class="fa-solid fa-ellipsis-vertical more"></i>
+            </div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索创作者、内容或话题…</span><span class="kbd">⌘ K</span></div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i><span class="dot"></span></button>
+            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
+        </div>
+    </header>
+
+    <main class="app-main" style="padding-top: 18px">
+
+        <div class="crumb">
+            <a onclick="location.href='home.html'" style="cursor:pointer"><i class="fa-solid fa-house"></i></a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <a>正在直播</a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span class="curr">NovaPlay · Apex 大师之路</span>
+        </div>
+
+        <div class="live-grid">
+            <!-- 主内容 -->
+            <div>
+                <div class="live-player">
+                    <div class="top-overlay">
+                        <span class="live-pill"><span class="dot"></span> LIVE</span>
+                        <span class="viewers"><i class="fa-regular fa-eye"></i> 2,486 在线</span>
+                        <span class="viewers"><i class="fa-regular fa-clock"></i> 2:14:36</span>
+                        <div class="top-actions">
+                            <button><i class="fa-solid fa-volume-high"></i></button>
+                            <button><i class="fa-solid fa-gear"></i></button>
+                            <button><i class="fa-solid fa-expand"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- 飘屏礼物 -->
+                    <div class="float-gifts">
+                        <div class="fg" style="top: 110px; left: 30px">
+                            <span class="av" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></span>
+                            <span>WhaleX 送出 🎁 钻石礼物</span>
+                        </div>
+                        <div class="fg pink" style="top: 170px; left: 24%">
+                            <span class="av" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></span>
+                            <span>BlockTrader 打赏 50 USDT</span>
+                        </div>
+                        <div class="fg blue" style="top: 220px; left: 12%">
+                            <span class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></span>
+                            <span>Aria 加入了直播</span>
+                        </div>
+                    </div>
+
+                    <div class="bottom-overlay">
+                        <h2>Apex 大师之路 · 周五开黑准点上分</h2>
+                        <div class="sub">
+                            <span><i class="fa-solid fa-tag"></i> # Apex 大师之路</span>
+                            <span><i class="fa-solid fa-gamepad"></i> 游戏直播</span>
+                            <span><i class="fa-solid fa-fire"></i> 4.6K 喝彩</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 创作者条 -->
+                <div class="creator-strip">
+                    <div class="av-ring">
+                        <div class="av-img" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200')"></div>
+                        <span class="live-tag">LIVE</span>
+                    </div>
+                    <div class="info">
+                        <div class="nm">NovaPlay <span class="vfd"><i class="fa-solid fa-circle-check"></i></span></div>
+                        <div class="meta">
+                            <span><span class="badge-mini">优质</span> 游戏主播 · LV 9</span>
+                            <span><i class="fa-solid fa-user-group"></i> 86.4K 粉丝</span>
+                            <span><i class="fa-solid fa-tower-broadcast"></i> 累计直播 412 场</span>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn"><i class="fa-regular fa-bell"></i> 关注</button>
+                        <button class="btn btn-primary" onclick="location.href='creator-profile.html'"><i class="fa-solid fa-crown"></i> 订阅 28 USDT/月</button>
+                    </div>
+                </div>
+
+                <!-- 互动操作栏 -->
+                <div class="action-strip">
+                    <div class="ac"><i class="fa-regular fa-thumbs-up"></i> 喝彩 4.6K</div>
+                    <div class="ac"><i class="fa-regular fa-bookmark"></i> 收藏</div>
+                    <div class="ac"><i class="fa-solid fa-arrow-up-right-from-square"></i> 分享</div>
+                    <div class="ac"><i class="fa-solid fa-flag"></i> 举报</div>
+                    <div class="ac sub"><i class="fa-solid fa-crown"></i> 订阅</div>
+                    <div class="ac tip"><i class="fa-solid fa-gift"></i> 打赏 / 送礼</div>
+                    <div class="stat-mini">
+                        <span><i class="fa-solid fa-fire"></i> 总打赏 <b>1,820 USDT</b></span>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="live-tabs">
+                    <div class="tt active">介绍</div>
+                    <div class="tt">榜单</div>
+                    <div class="tt">回放</div>
+                    <div class="tt">同主题</div>
+                </div>
+
+                <div class="intro-card">
+                    <h3><i class="fa-solid fa-circle-info" style="color: #C084FC"></i> 直播介绍</h3>
+                    <p>赛季末冲分高峰夜，今晚目标：从大师 II 冲到大师 I！预计直播 4 小时，欢迎弹幕互动。<br/><br/>礼物排行：<br/>🥇 WhaleX · 1,200 USDT<br/>🥈 BlockTrader · 412 USDT<br/>🥉 Aria · 188 USDT</p>
+                    <div class="tag-row">
+                        <span class="chip"># Apex</span>
+                        <span class="chip"># 游戏直播</span>
+                        <span class="chip"># 大师之路</span>
+                        <span class="chip"># 周五开黑</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧聊天 -->
+            <aside>
+                <div class="chat-shell">
+                    <div class="chat-head">
+                        <h4><i class="fa-regular fa-comments"></i> 直播聊天室</h4>
+                        <span class="live-cnt"><i class="fa-solid fa-circle" style="font-size: 6px"></i> 2,486 在线</span>
+                    </div>
+                    <div class="chat-tabs">
+                        <div class="ct active">全部</div>
+                        <div class="ct">房主</div>
+                        <div class="ct">礼物</div>
+                        <div class="ct">订阅</div>
+                    </div>
+
+                    <div class="chat-body">
+                        <div class="chat-sys"><i class="fa-solid fa-shield-halved" style="margin-right: 4px"></i> 文明用语 · 禁止刷屏 · 任何辱骂将被静音</div>
+
+                        <div class="chat-msg sub-msg">
+                            <div class="av" style="background-image: url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=80')"></div>
+                            <div class="body">
+                                <span class="nm vip"><span class="badge lv">LV6</span>NeoMaster</span>
+                                <span class="text">刚刚 <span style="color: #C084FC; font-weight: 700">订阅了房主</span> 月费 28 USDT 🎉</span>
+                            </div>
+                        </div>
+
+                        <div class="chat-msg">
+                            <div class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></div>
+                            <div class="body">
+                                <span class="nm">Aria</span>
+                                <span class="text">这把太稳了，三连胜！</span>
+                            </div>
+                        </div>
+
+                        <div class="chat-msg gift-msg">
+                            <div class="av" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
+                            <div class="body">
+                                <span class="nm vip"><span class="badge lv">LV9</span>WhaleX</span>
+                                <span class="text">送出 <span class="gift-amt">💎 钻石礼物 × 1</span> 价值 <span class="gift-amt">200 USDT</span></span>
+                            </div>
+                        </div>
+
+                        <div class="chat-msg">
+                            <div class="av" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80')"></div>
+                            <div class="body">
+                                <span class="nm">Maya</span>
+                                <span class="text">主播大佬走 A，这个角度可以打到他！</span>
+                            </div>
+                        </div>
+
+                        <div class="chat-msg">
+                            <div class="av" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80')"></div>
+                            <div class="body">
+                                <span class="nm">Echo</span>
+                                <span class="text">声音感觉有点小，可以调一下吗？</span>
+                            </div>
+                        </div>
+
+                        <div class="chat-msg">
+                            <div class="av" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></div>
+                            <div class="body">
+                                <span class="nm creator"><span class="badge creator">主播</span>NovaPlay</span>
+                                <span class="text">收到，刚刚调高了一点，现在能听清吗？</span>
+                            </div>
+                        </div>
+
+                        <div class="chat-msg">
+                            <div class="av" style="background-image: url('https://images.unsplash.com/photo-1463453091185-61582044d556?w=80')"></div>
+                            <div class="body">
+                                <span class="nm mod"><span class="badge mod">管理</span>Mason</span>
+                                <span class="text">现在大小正合适 👍</span>
+                            </div>
+                        </div>
+
+                        <div class="chat-msg gift-msg">
+                            <div class="av" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></div>
+                            <div class="body">
+                                <span class="nm vip"><span class="badge lv">LV7</span>BlockTrader</span>
+                                <span class="text">送出 <span class="gift-amt">🚀 火箭 × 1</span> 价值 <span class="gift-amt">50 USDT</span> · 加油冲！</span>
+                            </div>
+                        </div>
+
+                        <div class="chat-msg">
+                            <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                            <div class="body">
+                                <span class="nm">Luna 🌙</span>
+                                <span class="text">这场配合太丝滑了 ✨</span>
+                            </div>
+                        </div>
+
+                        <div class="chat-msg">
+                            <div class="av" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80')"></div>
+                            <div class="body">
+                                <span class="nm">Echo</span>
+                                <span class="text">大师 I 还差几分？</span>
+                            </div>
+                        </div>
+
+                        <div class="chat-msg">
+                            <div class="av" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></div>
+                            <div class="body">
+                                <span class="nm creator"><span class="badge creator">主播</span>NovaPlay</span>
+                                <span class="text">还差 240 分，今晚必上！</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input">
+                        <button><i class="fa-regular fa-face-smile"></i></button>
+                        <input placeholder="说点什么…" />
+                        <button class="gift-btn"><i class="fa-solid fa-gift"></i></button>
+                        <button style="background: var(--brand-grad); color: #fff"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+</div>
+
+</body>
+</html>
