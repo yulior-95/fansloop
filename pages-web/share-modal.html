@@ -190,7 +190,7 @@ body { background: linear-gradient(135deg, #1B0B3A, #2D1B69 50%, #4A1063); min-h
 /* QR + 海报 */
 .share-extra {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 10px;
     margin: 0 24px 18px;
 }
@@ -238,6 +238,52 @@ body { background: linear-gradient(135deg, #1B0B3A, #2D1B69 50%, #4A1063); min-h
     display: flex; gap: 8px;
 }
 .share-foot .btn { flex: 1; }
+
+.poster-inline-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.poster-inline-overlay.show { display: flex; }
+.poster-inline-panel {
+    width: 100%;
+    max-width: 360px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+    padding: 20px;
+}
+.poster-inline-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+.poster-inline-head h3 { font-size: 16px; font-weight: 800; }
+.poster-inline-head button {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--t-secondary);
+    cursor: pointer;
+}
+.poster-phone-preview {
+    width: 100%;
+    aspect-ratio: 9/16;
+    max-height: 360px;
+    border-radius: 16px;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid var(--border);
+}
 </style>
 </head>
 <body>
@@ -299,16 +345,9 @@ body { background: linear-gradient(135deg, #1B0B3A, #2D1B69 50%, #4A1063); min-h
         </div>
     </div>
 
-    <!-- 二维码 / 海报 -->
+    <!-- 海报 -->
     <div class="share-extra">
-        <div class="extra-card qr">
-            <div class="ic-tile"><i class="fa-solid fa-qrcode"></i></div>
-            <div class="info">
-                <div class="ti">生成二维码</div>
-                <div class="sub">可打印 / 截屏分享</div>
-            </div>
-        </div>
-        <div class="extra-card poster">
+        <div class="extra-card poster" id="btnPosterInline" style="cursor:pointer">
             <div class="ic-tile"><i class="fa-solid fa-image"></i></div>
             <div class="info">
                 <div class="ti">生成精美海报</div>
@@ -332,5 +371,20 @@ body { background: linear-gradient(135deg, #1B0B3A, #2D1B69 50%, #4A1063); min-h
 
 </div>
 
+<div class="poster-inline-overlay" id="posterInlineOvl">
+    <div class="poster-inline-panel">
+        <div class="poster-inline-head">
+            <h3>海报预览</h3>
+            <button type="button" id="closePosterInline"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="poster-phone-preview" style="background-image:url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=800&q=80')"></div>
+        <button type="button" class="btn btn-primary btn-block" style="margin-top:14px"><i class="fa-solid fa-download"></i> 下载 PNG</button>
+    </div>
+</div>
+<script>
+document.getElementById('btnPosterInline').addEventListener('click', () => document.getElementById('posterInlineOvl').classList.add('show'));
+document.getElementById('closePosterInline').addEventListener('click', () => document.getElementById('posterInlineOvl').classList.remove('show'));
+document.getElementById('posterInlineOvl').addEventListener('click', e => { if (e.target.id === 'posterInlineOvl') document.getElementById('posterInlineOvl').classList.remove('show'); });
+</script>
 </body>
 </html>

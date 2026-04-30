@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
 <style>
-.wallet-options { display: flex; flex-direction: column; gap: 10px; margin: 24px 0 20px; }
+.wallet-options { display: flex; flex-direction: column; gap: 10px; margin: 18px 0 16px; }
 .wallet-card {
     display: flex; align-items: center; gap: 14px;
     padding: 16px 18px;
@@ -69,13 +69,127 @@
 }
 .legal-row a { color: var(--brand-purple); }
 
+.search-entry-wrap { position: relative; margin: 16px 0 10px; }
+.search-entry-wrap label { font-size: 11px; color: var(--t-tertiary); display: block; margin-bottom: 6px; }
+.search-entry-wrap .wrap-in { position: relative; }
+.search-entry-wrap input {
+    width: 100%; height: 42px;
+    padding: 0 14px 0 40px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    color: var(--t-primary);
+    font-size: 13px;
+    outline: none;
+}
+.search-entry-wrap input:focus { border-color: var(--border-focus); }
+.search-entry-wrap .wrap-in > i {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--t-tertiary); font-size: 13px;
+}
+.search-suggest {
+    display: none;
+    position: absolute; left: 0; right: 0; top: calc(100% + 6px);
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-md);
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 40;
+    box-shadow: var(--shadow-lg);
+}
+.search-suggest.show { display: block; }
+.search-suggest button {
+    width: 100%; text-align: left;
+    padding: 11px 14px;
+    font-size: 13px;
+    color: var(--t-secondary);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+}
+.search-suggest button:last-child { border-bottom: none; }
+.search-suggest button:hover { background: var(--bg-input); color: #fff; }
+.search-suggest button i { color: var(--brand-purple); width: 18px; }
+
+.lang-row {
+    display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+.lang-row select {
+    flex: 1;
+    min-width: 160px;
+    height: 34px;
+    padding: 0 10px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--t-primary);
+    font-size: 12px;
+    cursor: pointer;
+}
+.link-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: var(--brand-purple);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.link-btn:hover { text-decoration: underline; }
+.inline-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(8px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.inline-overlay.show { display: flex; }
+.inline-overlay .iol-panel {
+    width: 100%;
+    max-width: 540px;
+    max-height: 88vh;
+    overflow-y: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-lg);
+}
+.inline-overlay .iol-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.inline-overlay .iol-head h3 { font-size: 17px; font-weight: 800; }
+.inline-overlay .iol-body { padding: 18px 22px 22px; font-size: 13px; color: var(--t-secondary); line-height: 1.55; }
+.inline-overlay .iol-close {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--r-md);
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--t-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.inline-overlay .iol-close:hover { color: #fff; }
 </style>
 </head>
 <body>
 
 <div class="auth-shell">
 
-    <!-- 左 · 叙事 -->
     <div class="auth-stage">
         <div class="as-brand">
             <div class="logo"><i class="fa-solid fa-infinity"></i></div>
@@ -83,24 +197,24 @@
         </div>
 
         <div class="as-mid">
-            <h1>用钱包登录<br><span class="grad">即拥有数字身份</span></h1>
-            <p>FansLoop 不收集你的密码、邮箱与手机号。<br>你的钱包就是你的账号 · 你的内容就是你的资产 · 你的粉丝就是你的同行者。</p>
+            <h1 data-i18n="heroTitle">用钱包登录<br><span class="grad">即拥有数字身份</span></h1>
+            <p data-i18n="heroSub">FansLoop 不收集你的密码、邮箱与手机号。<br>你的钱包就是你的账号 · 你的内容就是你的资产 · 你的粉丝就是你的同行者。</p>
 
             <div class="as-feat">
                 <div class="feat-card">
                     <div class="ic"><i class="fa-solid fa-shield-halved"></i></div>
-                    <h4>无密码登录</h4>
-                    <p>EIP-4361 SIWE 标准签名</p>
+                    <h4 data-i18n="feat1t">无密码登录</h4>
+                    <p data-i18n="feat1d">EIP-4361 SIWE 标准签名</p>
                 </div>
                 <div class="feat-card">
                     <div class="ic"><i class="fa-solid fa-bolt"></i></div>
-                    <h4>USDT 即时结算</h4>
-                    <p>打赏 / 订阅 / 直播一键到账</p>
+                    <h4 data-i18n="feat2t">USDT 即时结算</h4>
+                    <p data-i18n="feat2d">打赏 / 订阅 / 直播一键到账</p>
                 </div>
                 <div class="feat-card">
                     <div class="ic"><i class="fa-solid fa-users"></i></div>
-                    <h4>2.4M+ 创作者</h4>
-                    <p>已累计支付 $185M 创作收入</p>
+                    <h4 data-i18n="feat3t">2.4M+ 创作者</h4>
+                    <p data-i18n="feat3d">已累计支付 $185M 创作收入</p>
                 </div>
             </div>
         </div>
@@ -109,31 +223,39 @@
             <div class="stats">
                 <div class="stat">
                     <div class="v">2.4M</div>
-                    <div class="k">活跃创作者</div>
+                    <div class="k" data-i18n="stat1">活跃创作者</div>
                 </div>
                 <div class="stat">
                     <div class="v">$185M+</div>
-                    <div class="k">已发放收益</div>
+                    <div class="k" data-i18n="stat2">已发放收益</div>
                 </div>
                 <div class="stat">
                     <div class="v">28K</div>
-                    <div class="k">日活粉丝</div>
+                    <div class="k" data-i18n="stat3">日活粉丝</div>
                 </div>
             </div>
             <div>v 2.0 · 2026.04 © FansLoop</div>
         </div>
     </div>
 
-    <!-- 右 · 表单 -->
     <div class="auth-form">
         <div class="af-top">
-            <span>还没有钱包？</span>
-            <a href="#"><i class="fa-solid fa-circle-question"></i> 查看创建教程</a>
+            <span data-i18n="noWallet">还没有钱包？</span>
+            <button type="button" class="link-btn" id="btnOpenTutorial"><i class="fa-solid fa-circle-question"></i> <span data-i18n="tutorial">查看创建教程</span></button>
         </div>
 
         <div class="af-mid">
-            <h2>欢迎回来 👋</h2>
-            <p>选择你的 Web3 钱包，即可一键登录或注册</p>
+            <h2 data-i18n="welcome">欢迎回来</h2>
+            <p data-i18n="welcomeSub">选择你的 Web3 钱包，即可一键登录或注册</p>
+
+            <div class="search-entry-wrap">
+                <label data-i18n="searchLb">快速查找钱包（演示）</label>
+                <div class="wrap-in">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="search" id="walletQuick" autocomplete="off" placeholder="输入 MetaMask、OKX、Trust…" />
+                    <div class="search-suggest" id="suggestBox"></div>
+                </div>
+            </div>
 
             <div class="wallet-options">
                 <div class="wallet-card primary" onclick="location.href='login-metamask.html'">
@@ -164,25 +286,277 @@
                 </div>
             </div>
 
-            <div class="divider">或</div>
+            <div class="divider" data-i18n="or">或</div>
 
-            <button class="btn btn-secondary btn-block btn-lg">
+            <button type="button" class="btn btn-secondary btn-block btn-lg" onclick="location.href='login-email.html'">
                 <i class="fa-regular fa-envelope"></i>
-                继续使用邮箱（创建钱包账户）
+                <span data-i18n="emailBtn">邮箱</span>
             </button>
 
             <div class="legal-row">
                 <div class="chk-mini"><i class="fa-solid fa-check"></i></div>
-                <span>登录即表示我已阅读并同意 <a href="#">服务协议</a> 与 <a href="#">隐私政策</a>，并理解 Web3 钱包的私钥由我自行保管</span>
+                <span data-i18n="legal">登录即表示我已阅读并同意 <a href="#">服务协议</a> 与 <a href="#">隐私政策</a>，并理解 Web3 钱包的私钥由我自行保管</span>
+            </div>
+
+            <div class="lang-row">
+                <i class="fa-solid fa-globe" style="color:var(--t-tertiary);font-size:13px"></i>
+                <select id="langSel" title="Language"></select>
             </div>
         </div>
 
         <div class="af-foot">
-            遇到问题？<a href="#">联系客服</a> · <a href="#">查看教程</a> · <a href="#">English</a>
+            <span data-i18n="problem">遇到问题？</span><a href="#">联系客服</a> · <button type="button" class="link-btn" id="btnOpenHelp" data-i18n="helpLink">查看登录帮助</button>
         </div>
     </div>
 
 </div>
 
+<div class="inline-overlay" id="ovlTutorial" role="dialog" aria-modal="true">
+    <div class="iol-panel">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-wallet" style="color:#F6851B"></i> 创建钱包 · 图文教程</h3>
+            <button type="button" class="iol-close" data-close-overlay="ovlTutorial" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="iol-body">
+            <div style="border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);margin-bottom:16px">
+                <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=900&q=80" alt="" style="width:100%;height:140px;object-fit:cover;display:block">
+            </div>
+            <p><b>①</b> 从官网安装 MetaMask 等浏览器钱包并固定到工具栏。<br><b>②</b> 妥善备份助记词，切勿泄露。<br><b>③</b> 返回本站连接钱包即可完成登录。</p>
+        </div>
+    </div>
+</div>
+<div class="inline-overlay" id="ovlHelp" role="dialog" aria-modal="true">
+    <div class="iol-panel">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-circle-question" style="color:var(--brand-purple)"></i> 登录帮助</h3>
+            <button type="button" class="iol-close" data-close-overlay="ovlHelp" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="iol-body">
+            <p style="margin-bottom:12px">1. 安装并启用钱包扩展，刷新页面后重试连接。<br>2. 在钱包弹窗中授权读取账户地址。<br>3. 按提示完成签名以建立会话。<br>4. 移动端可使用 WalletConnect 扫码。</p>
+            <p style="font-size:12px;color:var(--t-tertiary)">仍无法登录请联系客服。</p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('btnOpenTutorial').addEventListener('click', () => document.getElementById('ovlTutorial').classList.add('show'));
+document.getElementById('btnOpenHelp').addEventListener('click', () => document.getElementById('ovlHelp').classList.add('show'));
+document.querySelectorAll('[data-close-overlay]').forEach(btn => {
+    btn.addEventListener('click', () => document.getElementById(btn.dataset.closeOverlay).classList.remove('show'));
+});
+document.querySelectorAll('.inline-overlay').forEach(ovl => {
+    ovl.addEventListener('click', e => { if (e.target === ovl) ovl.classList.remove('show'); });
+});
+
+const WALLETS = [
+    { name: 'MetaMask', href: 'login-metamask.html' },
+    { name: 'WalletConnect', href: 'login-walletconnect-qr.html' },
+    { name: 'Trust Wallet', href: 'login-select-method.html' },
+    { name: 'Coinbase Wallet', href: 'login-select-method.html' },
+    { name: 'OKX Wallet', href: 'login-select-method.html' },
+    { name: 'imToken', href: 'login-select-method.html' },
+    { name: 'Rainbow', href: 'login-select-method.html' },
+    { name: 'Phantom', href: 'login-select-method.html' }
+];
+const inp = document.getElementById('walletQuick');
+const box = document.getElementById('suggestBox');
+
+function renderSuggest(q) {
+    q = (q || '').trim().toLowerCase();
+    const list = !q ? WALLETS : WALLETS.filter(w => w.name.toLowerCase().includes(q));
+    box.innerHTML = '';
+    if (!list.length) {
+        box.innerHTML = '<div style="padding:14px;font-size:12px;color:var(--t-tertiary)">无匹配钱包</div>';
+        box.classList.add('show');
+        return;
+    }
+    list.slice(0, 8).forEach(w => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.innerHTML = '<i class="fa-solid fa-wallet"></i> ' + w.name;
+        b.onclick = () => { window.location.href = w.href; };
+        box.appendChild(b);
+    });
+    box.classList.add('show');
+}
+inp.addEventListener('focus', () => renderSuggest(inp.value));
+inp.addEventListener('input', () => renderSuggest(inp.value));
+document.addEventListener('click', e => {
+    if (!e.target.closest('.search-entry-wrap')) box.classList.remove('show');
+});
+
+const I18N = {
+    'zh-CN': {
+        heroTitle: '用钱包登录<br><span class="grad">即拥有数字身份</span>',
+        heroSub: 'FansLoop 不收集你的密码、邮箱与手机号。<br>你的钱包就是你的账号 · 你的内容就是你的资产 · 你的粉丝就是你的同行者。',
+        feat1t: '无密码登录', feat1d: 'EIP-4361 SIWE 标准签名',
+        feat2t: 'USDT 即时结算', feat2d: '打赏 / 订阅 / 直播一键到账',
+        feat3t: '2.4M+ 创作者', feat3d: '已累计支付 $185M 创作收入',
+        stat1: '活跃创作者', stat2: '已发放收益', stat3: '日活粉丝',
+        noWallet: '还没有钱包？', tutorial: '查看创建教程',
+        welcome: '欢迎回来', welcomeSub: '选择你的 Web3 钱包，即可一键登录或注册',
+        searchLb: '快速查找钱包（演示）',
+        or: '或', emailBtn: '邮箱',
+        legal: '登录即表示我已阅读并同意 <a href="#">服务协议</a> 与 <a href="#">隐私政策</a>，并理解 Web3 钱包的私钥由我自行保管',
+        problem: '遇到问题？', helpLink: '查看登录帮助'
+    },
+    'en': {
+        heroTitle: 'Sign in with wallet<br><span class="grad">Own your digital identity</span>',
+        heroSub: 'FansLoop never stores your password or phone.<br>Your wallet is your account.',
+        feat1t: 'Passwordless', feat1d: 'EIP-4361 SIWE signature',
+        feat2t: 'USDT settlement', feat2d: 'Tips / subs / live payouts',
+        feat3t: '2.4M+ creators', feat3d: '$185M+ paid to creators',
+        stat1: 'Creators', stat2: 'Paid out', stat3: 'DAU fans',
+        noWallet: 'No wallet yet?', tutorial: 'Setup guide',
+        welcome: 'Welcome back', welcomeSub: 'Pick a wallet to continue',
+        searchLb: 'Search wallets (demo)',
+        or: 'OR', emailBtn: 'Email',
+        legal: 'By continuing you agree to our <a href="#">Terms</a> and <a href="#">Privacy</a>.',
+        problem: 'Need help?', helpLink: 'Login help'
+    },
+    'ja': {
+        heroTitle: 'ウォレットでログイン<br><span class="grad">デジタルIDを持つ</span>',
+        heroSub: 'FansLoop はパスワードを保存しません。',
+        feat1t: 'パスワードレス', feat1d: 'EIP-4361 SIWE',
+        feat2t: 'USDT決済', feat2d: '投げ銭・サブスク',
+        feat3t: '240万+ クリエイター', feat3d: '$185M+ 分配',
+        stat1: 'クリエイター', stat2: '分配累計', stat3: 'DAU',
+        noWallet: 'ウォレットなし？', tutorial: '作成ガイド',
+        welcome: 'おかえりなさい', welcomeSub: 'ウォレットを選択',
+        searchLb: 'ウォレット検索（デモ）',
+        or: 'または', emailBtn: 'メール',
+        legal: '<a href="#">利用規約</a> と <a href="#">プライバシー</a> に同意します。',
+        problem: 'お困りですか？', helpLink: 'ログインヘルプ'
+    },
+    'es': {
+        heroTitle: 'Entra con wallet<br><span class="grad">Tu identidad digital</span>',
+        heroSub: 'FansLoop no guarda tu contraseña.',
+        feat1t: 'Sin contraseña', feat1d: 'Firma SIWE EIP-4361',
+        feat2t: 'Liquidación USDT', feat2d: 'Propinas / subs / live',
+        feat3t: '2.4M+ creadores', feat3d: '$185M+ pagados',
+        stat1: 'Creadores', stat2: 'Pagado', stat3: 'Fans DAU',
+        noWallet: '¿Sin wallet?', tutorial: 'Guía de creación',
+        welcome: 'Bienvenido', welcomeSub: 'Elige tu wallet Web3',
+        searchLb: 'Buscar wallets (demo)',
+        or: 'O', emailBtn: 'Correo',
+        legal: 'Acepto los <a href="#">Términos</a> y la <a href="#">Privacidad</a>.',
+        problem: '¿Ayuda?', helpLink: 'Ayuda login'
+    },
+    'ar': {
+        heroTitle: 'سجّل بالمحفظة<br><span class="grad">هويتك الرقمية</span>',
+        heroSub: 'FansLoop لا يخزن كلمات المرور.',
+        feat1t: 'بدون كلمة مرور', feat1d: 'توقيع SIWE',
+        feat2t: 'تسوية USDT', feat2d: 'بث مباشر واشتراكات',
+        feat3t: '+2.4M مبدعين', feat3d: '+185M دولار',
+        stat1: 'مبدعون', stat2: 'مدفوع', stat3: 'متابعون',
+        noWallet: 'لا محفظة؟', tutorial: 'دليل الإنشاء',
+        welcome: 'مرحباً', welcomeSub: 'اختر المحفظة',
+        searchLb: 'بحث المحافظ',
+        or: 'أو', emailBtn: 'البريد',
+        legal: 'أوافق على <a href="#">الشروط</a> و <a href="#">الخصوصية</a>.',
+        problem: 'مساعدة؟', helpLink: 'مساعدة الدخول'
+    },
+    'fr': {
+        heroTitle: 'Connexion wallet<br><span class="grad">Votre identité</span>',
+        heroSub: 'FansLoop ne stocke pas votre mot de passe.',
+        feat1t: 'Sans mot de passe', feat1d: 'Signature SIWE',
+        feat2t: 'Règlement USDT', feat2d: 'Pourboires / abos',
+        feat3t: '2,4M+ créateurs', feat3d: '185M$+ versés',
+        stat1: 'Créateurs', stat2: 'Versé', stat3: 'Fans/j',
+        noWallet: 'Pas de wallet ?', tutorial: 'Guide création',
+        welcome: 'Bon retour', welcomeSub: 'Choisissez un wallet',
+        searchLb: 'Rechercher wallets',
+        or: 'OU', emailBtn: 'E-mail',
+        legal: 'J’accepte les <a href="#">CGU</a> et la <a href="#">confidentialité</a>.',
+        problem: 'Aide ?', helpLink: 'Aide connexion'
+    },
+    'de': {
+        heroTitle: 'Mit Wallet anmelden<br><span class="grad">Deine digitale ID</span>',
+        heroSub: 'FansLoop speichert kein Passwort.',
+        feat1t: 'Ohne Passwort', feat1d: 'SIWE-Signatur',
+        feat2t: 'USDT-Auszahlung', feat2d: 'Tips / Abos / Live',
+        feat3t: '2,4M+ Creator', feat3d: '185M$+ ausgezahlt',
+        stat1: 'Creator', stat2: 'Ausgezahlt', stat3: 'DAU Fans',
+        noWallet: 'Kein Wallet?', tutorial: 'Einrichtung',
+        welcome: 'Willkommen', welcomeSub: 'Wallet wählen',
+        searchLb: 'Wallets suchen',
+        or: 'ODER', emailBtn: 'E-Mail',
+        legal: 'Ich akzeptiere die <a href="#">AGB</a> und <a href="#">Datenschutz</a>.',
+        problem: 'Hilfe?', helpLink: 'Login-Hilfe'
+    },
+    'ko': {
+        heroTitle: '지갑으로 로그인<br><span class="grad">디지털 정체성</span>',
+        heroSub: 'FansLoop는 비밀번호를 저장하지 않습니다.',
+        feat1t: '비밀번호 없음', feat1d: 'SIWE 서명',
+        feat2t: 'USDT 정산', feat2d: '후원 · 구독 · 라이브',
+        feat3t: '240만+ 크리에이터', feat3d: '$185M+ 지급',
+        stat1: '크리에이터', stat2: '지급액', stat3: '일간 팬',
+        noWallet: '지갑이 없나요?', tutorial: '만들기 가이드',
+        welcome: '환영합니다', welcomeSub: '지갑을 선택하세요',
+        searchLb: '지갑 검색',
+        or: '또는', emailBtn: '이메일',
+        legal: '<a href="#">이용약관</a> 및 <a href="#">개인정보</a>에 동의합니다.',
+        problem: '도움이 필요?', helpLink: '로그인 도움말'
+    },
+    'pt-BR': {
+        heroTitle: 'Entre com a carteira<br><span class="grad">Sua identidade</span>',
+        heroSub: 'FansLoop não armazena sua senha.',
+        feat1t: 'Sem senha', feat1d: 'Assinatura SIWE',
+        feat2t: 'Liquidação USDT', feat2d: 'Gorjetas / subs',
+        feat3t: '2,4M+ criadores', feat3d: 'US$ 185M+ pagos',
+        stat1: 'Criadores', stat2: 'Pago', stat3: 'Fãs/dia',
+        noWallet: 'Sem carteira?', tutorial: 'Guia de criação',
+        welcome: 'Bem-vindo', welcomeSub: 'Escolha sua carteira',
+        searchLb: 'Buscar carteiras',
+        or: 'OU', emailBtn: 'E-mail',
+        legal: 'Aceito os <a href="#">Termos</a> e a <a href="#">Privacidade</a>.',
+        problem: 'Ajuda?', helpLink: 'Ajuda login'
+    },
+    'ru': {
+        heroTitle: 'Вход через кошелёк<br><span class="grad">Ваша личность</span>',
+        heroSub: 'FansLoop не хранит пароли.',
+        feat1t: 'Без пароля', feat1d: 'Подпись SIWE',
+        feat2t: 'USDT выплаты', feat2d: 'Чаевые / подписки',
+        feat3t: '2,4M+ авторов', feat3d: '$185M+ выплачено',
+        stat1: 'Авторы', stat2: 'Выплачено', stat3: 'Фаны/день',
+        noWallet: 'Нет кошелька?', tutorial: 'Как создать',
+        welcome: 'С возвращением', welcomeSub: 'Выберите кошелёк',
+        searchLb: 'Поиск кошельков',
+        or: 'ИЛИ', emailBtn: 'Почта',
+        legal: 'Соглашаюсь с <a href="#">условиями</a> и <a href="#">политикой</a>.',
+        problem: 'Помощь?', helpLink: 'Помощь входа'
+    }
+};
+const LANG_LIST = [
+    ['zh-CN','简体中文'],
+    ['en','English'],
+    ['ja','日本語'],
+    ['ko','한국어'],
+    ['es','Español'],
+    ['fr','Français'],
+    ['de','Deutsch'],
+    ['pt-BR','Português (BR)'],
+    ['ru','Русский'],
+    ['ar','العربية']
+];
+const sel = document.getElementById('langSel');
+LANG_LIST.forEach(([code, label]) => {
+    const o = document.createElement('option');
+    o.value = code;
+    o.textContent = label;
+    sel.appendChild(o);
+});
+sel.value = 'zh-CN';
+
+function applyLang(code) {
+    const pack = I18N[code] || I18N['zh-CN'];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const k = el.getAttribute('data-i18n');
+        if (pack[k]) el.innerHTML = pack[k];
+    });
+    inp.placeholder = code === 'zh-CN' ? '输入 MetaMask、OKX、Trust…' : 'Search MetaMask, OKX…';
+}
+sel.addEventListener('change', () => applyLang(sel.value));
+</script>
 </body>
 </html>

@@ -31,16 +31,84 @@ body { display: grid; grid-template-rows: auto 1fr; }
 }
 .nav-btns button:hover { background: var(--bg-card-2); color: #fff; }
 
-.url-bar {
+.demo-search-wrap {
     flex: 1;
-    display: flex; align-items: center; gap: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    position: relative;
+}
+.demo-search-wrap .in-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     background: var(--bg-input);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 7px 14px;
+    padding: 0 12px 0 14px;
+    height: 36px;
+    min-width: 0;
+}
+.demo-search-wrap .in-wrap i { color: var(--t-tertiary); font-size: 13px; flex-shrink: 0; }
+.demo-search-wrap .in-wrap input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    color: var(--t-primary);
+    font-size: 13px;
+    outline: none;
+}
+.demo-search-wrap .in-wrap input::placeholder { color: var(--t-tertiary); }
+.demo-suggest {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 88px;
+    top: calc(100% + 6px);
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: var(--shadow-lg);
+}
+.demo-suggest.show { display: block; }
+.demo-suggest button {
+    width: 100%;
+    text-align: left;
+    padding: 10px 14px;
     font-size: 12.5px;
     color: var(--t-secondary);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.demo-suggest button:last-child { border-bottom: none; }
+.demo-suggest button:hover { background: var(--bg-input); color: #fff; }
+.demo-search-wrap .btn-search-go {
     height: 36px;
+    padding: 0 18px;
+    background: var(--brand-grad);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.demo-search-wrap .btn-search-go:hover { filter: brightness(1.08); }
+.url-bar {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
 }
 .url-bar i.lock { color: var(--success); font-size: 11px; }
 .url-bar .path { color: var(--t-tertiary); }
@@ -124,7 +192,15 @@ body { display: grid; grid-template-rows: auto 1fr; }
         <button id="btn-home" title="首页"><i class="fa-solid fa-house"></i></button>
     </div>
 
-    <div class="url-bar">
+    <div class="demo-search-wrap">
+        <div class="in-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" id="demoSearchInp" placeholder="搜索页面、创作者或话题…" autocomplete="off" />
+        </div>
+        <button type="button" class="btn-search-go" id="demoSearchBtn">搜索</button>
+        <div class="demo-suggest" id="demoSuggest"></div>
+    </div>
+    <div class="url-bar" aria-hidden="true">
         <i class="fa-solid fa-lock lock"></i>
         <span><span class="path">https://fansloop.io/</span><span class="page" id="urlPage">login-entry.html</span></span>
     </div>
@@ -151,7 +227,7 @@ body { display: grid; grid-template-rows: auto 1fr; }
                 <div class="pg-item" data-page="login-sign-request.html"><i class="fa-solid fa-signature"></i>签名请求</div>
                 <div class="pg-item" data-page="login-signing.html"><i class="fa-solid fa-spinner"></i>签名中</div>
                 <div class="pg-item" data-page="login-success.html"><i class="fa-solid fa-circle-check"></i>登录成功</div>
-                <div class="pg-item" data-page="register-role.html"><i class="fa-solid fa-user-plus"></i>选择身份</div>
+                <div class="pg-item" data-page="login-email.html"><i class="fa-regular fa-envelope"></i>邮箱登录</div>
                 <div class="pg-item" data-page="register-profile.html"><i class="fa-solid fa-id-card"></i>完善资料</div>
                 <div class="pg-item" data-page="register-interests.html"><i class="fa-solid fa-heart"></i>选择兴趣</div>
                 <div class="pg-item" data-page="login-errors.html"><i class="fa-solid fa-circle-exclamation"></i>错误状态</div>
@@ -287,6 +363,44 @@ document.querySelectorAll('.viewport-toggle button').forEach(b => {
         b.classList.add('active');
         stage.className = 'stage ' + (b.dataset.vp === 'desktop' ? '' : b.dataset.vp);
     });
+});
+
+const DEMO_ROUTES = [
+    { q: ['首页','home','feed'], page: 'home.html', name: '首页' },
+    { q: ['登录','login'], page: 'login-entry.html', name: '登录入口' },
+    { q: ['发现','discover'], page: 'discover.html', name: '发现' },
+    { q: ['创建','创作','create'], page: 'create.html', name: '创建内容' },
+    { q: ['消息','私信'], page: 'messages.html', name: '消息' },
+    { q: ['钱包'], page: 'wallet.html', name: '我的钱包' },
+    { q: ['话题','topics'], page: 'topics.html', name: '热门话题' },
+    { q: ['直播','live'], page: 'live-detail.html', name: '直播详情' },
+    { q: ['设置'], page: 'settings.html', name: '设置' }
+];
+const dsInp = document.getElementById('demoSearchInp');
+const dsBox = document.getElementById('demoSuggest');
+function demoSuggestRender() {
+    const v = (dsInp.value || '').trim().toLowerCase();
+    dsBox.innerHTML = '';
+    const hits = !v ? DEMO_ROUTES : DEMO_ROUTES.filter(r => r.q.some(k => k.includes(v)) || r.name.includes(v));
+    (hits.length ? hits : DEMO_ROUTES).slice(0, 8).forEach(r => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.innerHTML = '<i class="fa-solid fa-file-lines" style="color:var(--brand-purple);width:14px"></i> ' + r.name + ' <span style="opacity:.5;font-size:11px;margin-left:auto">' + r.page + '</span>';
+        b.onclick = () => { navigate(r.page, r.name); dsBox.classList.remove('show'); dsInp.value = ''; };
+        dsBox.appendChild(b);
+    });
+    dsBox.classList.add('show');
+}
+dsInp.addEventListener('focus', demoSuggestRender);
+dsInp.addEventListener('input', demoSuggestRender);
+document.getElementById('demoSearchBtn').addEventListener('click', () => {
+    const v = (dsInp.value || '').trim().toLowerCase();
+    const hit = DEMO_ROUTES.find(r => r.q.some(k => k.includes(v)) || r.name.includes(v));
+    navigate(hit ? hit.page : 'home.html', hit ? hit.name : '首页');
+    dsBox.classList.remove('show');
+});
+document.addEventListener('click', e => {
+    if (!e.target.closest('.demo-search-wrap')) dsBox.classList.remove('show');
 });
 </script>
 </body>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>全部钱包 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.search-bar-wrap { margin-bottom: 18px; position: relative; }
+.search-bar-wrap input {
+    width: 100%; height: 44px;
+    padding: 0 14px 0 42px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    color: var(--t-primary);
+    font-size: 13px;
+    outline: none;
+}
+.search-bar-wrap i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--t-tertiary); }
+.count-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: rgba(168,85,247,0.12);
+    border: 1px solid rgba(168,85,247,0.35);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #C084FC;
+    margin-bottom: 16px;
+}
+.wallet-grid-full {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    max-height: min(420px, 55vh);
+    overflow-y: auto;
+    padding-right: 4px;
+}
+.w-cell {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: 0.15s;
+}
+.w-cell:hover { border-color: var(--border-strong); background: var(--bg-input-focus); }
+.w-cell .wic {
+    width: 34px; height: 34px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 14px;
+}
+.w-cell .info .n { font-size: 12.5px; font-weight: 700; }
+.w-cell .info .d { font-size: 10px; color: var(--t-tertiary); }
+</style>
+</head>
+<body>
+<div class="auth-shell">
+    <div class="auth-stage">
+        <div class="as-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator Economy</span></div>
+        </div>
+        <div class="as-mid">
+            <h1>兼容<br><span class="grad">WalletConnect v2</span></h1>
+            <p>下列钱包均已通过兼容性测试，可按名称搜索快速定位。</p>
+        </div>
+        <div class="as-foot"><div>目录每周同步官方 SDK</div></div>
+    </div>
+    <div class="auth-form">
+        <div class="af-top">
+            <a href="login-select-method.html"><i class="fa-solid fa-arrow-left"></i> 返回</a>
+            <span style="font-size:12px;color:var(--t-tertiary)">WalletConnect Registry</span>
+        </div>
+        <div class="af-mid">
+            <h2>全部钱包</h2>
+            <p>共收录 <b style="color:#C084FC">346</b> 个 · 支持检索</p>
+            <div class="search-bar-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" id="walletSearch" placeholder="搜索钱包名称…" autocomplete="off" />
+            </div>
+            <div class="count-pill"><i class="fa-solid fa-layer-group"></i> 当前列表 · <span id="visibleCount">24</span> / 346</div>
+            <div class="wallet-grid-full" id="walletGrid"></div>
+            <p class="fs-11 t-ter mt-16">更多钱包正在加载… 实际产品中可通过分页或虚拟滚动加载完整 346 条数据。</p>
+        </div>
+        <div class="af-foot"><a href="login-walletconnect-qr.html">使用 WalletConnect 扫码连接任意兼容钱包</a></div>
+    </div>
+</div>
+<script>
+const NAMES = [
+    ['MetaMask','浏览器扩展','metamask','#F6851B'],
+    ['Trust Wallet','移动 App','trust','#3375BB'],
+    ['Coinbase Wallet','扩展 / App','coinbase','#1652F0'],
+    ['OKX Wallet','多链','okx','#1F1F1F'],
+    ['imToken','移动','imtoken','#11C4D1'],
+    ['Rainbow','移动','rainbow','#FF6B6B'],
+    ['Phantom','Solana / ETH','phantom','#AB9FF2'],
+    ['Argent','智能合约钱包','argent','#FF875B'],
+    ['Safe','多签','safe','#12FF80'],
+    ['Ledger Live','硬件','ledger','#000'],
+    ['Trezor Suite','硬件','trezor','#00854D'],
+    ['Keplr','Cosmos','keplr','#5E12FF'],
+    ['Leap Wallet','Cosmos','leap','#E4FF1A'],
+    ['xPortal','MultiversX','xportal','#23F7DD'],
+    ['Petra','Aptos','petra','#FF4747'],
+    ['Martian','Aptos','martian','#032541'],
+    ['Flint','Cardano','flint','#3468D9'],
+    ['Yoroi','Cardano','yoroi','#3468D9'],
+    ['Bitget Wallet','多链','bitget','#00F0FF'],
+    ['TokenPocket','多链','tp','#2980FE'],
+    ['MathWallet','多链','math','#FFFFFF'],
+    ['BitKeep','多链','bitkeep','#00F0FF'],
+    ['OpenBlock','智能合约','openblock','#6366F1'],
+    ['Ctrl Wallet','多链','ctrl','#9945FF']
+];
+function iconLetter(name) {
+    const map = { MetaMask:'fa-ethereum', 'WalletConnect':'fa-qrcode' };
+    if (name.includes('Ledger') || name.includes('Trezor')) return 'fa-usb';
+    return 'fa-wallet';
+}
+const grid = document.getElementById('walletGrid');
+NAMES.forEach(([n,d,c,col]) => {
+    const el = document.createElement('div');
+    el.className = 'w-cell';
+    el.dataset.name = n.toLowerCase();
+    el.innerHTML = `
+        <div class="wic" style="background:linear-gradient(135deg,${col},#333)"><i class="fa-solid ${iconLetter(n)}"></i></div>
+        <div class="info"><div class="n">${n}</div><div class="d">${d}</div></div>`;
+    el.onclick = () => { window.location.href = 'login-walletconnect-qr.html'; };
+    grid.appendChild(el);
+});
+document.getElementById('walletSearch').addEventListener('input', function() {
+    const q = this.value.trim().toLowerCase();
+    let vis = 0;
+    grid.querySelectorAll('.w-cell').forEach(cell => {
+        const ok = !q || cell.dataset.name.includes(q);
+        cell.style.display = ok ? 'flex' : 'none';
+        if (ok) vis++;
+    });
+    document.getElementById('visibleCount').textContent = vis;
+});
+</script>
+</body>
+</html>

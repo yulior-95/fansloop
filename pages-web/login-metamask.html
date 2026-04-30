@@ -84,6 +84,55 @@
 .sm-row .stat-ic { color: var(--t-tertiary); font-size: 12px; }
 .sm-row.done .stat-ic { color: var(--success-light); }
 .sm-row.active .stat-ic { color: #C084FC; animation: spin 1s linear infinite; }
+
+.inline-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(8px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.inline-overlay.show { display: flex; }
+.inline-overlay .iol-panel {
+    width: 100%;
+    max-width: 520px;
+    max-height: 88vh;
+    overflow-y: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+}
+.inline-overlay .iol-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.inline-overlay .iol-head h3 { font-size: 17px; font-weight: 800; }
+.inline-overlay .iol-body { padding: 16px 20px 20px; font-size: 12.5px; color: var(--t-secondary); line-height: 1.55; }
+.inline-overlay .iol-close {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--r-md);
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--t-secondary);
+    cursor: pointer;
+}
+.mm-help-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--brand-purple);
+    cursor: pointer;
+    font: inherit;
+}
+.mm-help-btn:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -162,11 +211,33 @@
             <div class="text-c mt-16 fs-11 t-ter">
                 未弹出 MetaMask？请检查扩展是否被禁用，或<a href="login-walletconnect-qr.html" style="color:var(--brand-purple)">改用扫码登录</a>
             </div>
+
+            <div class="text-c mt-12 fs-11" style="text-align:center">
+                <a href="wallet-list-full.html" style="color:var(--brand-purple);font-weight:700"><i class="fa-solid fa-wallet"></i> +346 个钱包 →</a>
+            </div>
         </div>
 
-        <div class="af-foot">遇到问题？<a href="#">查看 MetaMask 排错指南</a></div>
+        <div class="af-foot">遇到问题？<button type="button" class="mm-help-btn" id="btnMmHelp">查看 MetaMask 排错指南</button></div>
     </div>
 </div>
 
+<div class="inline-overlay" id="ovlMmHelp">
+    <div class="iol-panel">
+        <div class="iol-head">
+            <h3><i class="fa-brands fa-ethereum" style="color:#F6851B"></i> MetaMask 排错指南</h3>
+            <button type="button" class="iol-close" id="closeMmHelp"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="iol-body">
+            <p style="margin-bottom:10px"><b>未弹出窗口：</b>检查弹窗拦截并确认扩展已启用。</p>
+            <p style="margin-bottom:10px"><b>网络错误：</b>在 MetaMask 中切换到 Ethereum 主网或按站点提示切换。</p>
+            <p><b>仍失败：</b>可尝试<a href="login-walletconnect-qr.html" style="color:var(--brand-purple)">WalletConnect 扫码</a>。</p>
+        </div>
+    </div>
+</div>
+<script>
+document.getElementById('btnMmHelp').addEventListener('click', () => document.getElementById('ovlMmHelp').classList.add('show'));
+document.getElementById('closeMmHelp').addEventListener('click', () => document.getElementById('ovlMmHelp').classList.remove('show'));
+document.getElementById('ovlMmHelp').addEventListener('click', e => { if (e.target.id === 'ovlMmHelp') document.getElementById('ovlMmHelp').classList.remove('show'); });
+</script>
 </body>
 </html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>邮箱登录 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 12px; font-weight: 600; color: var(--t-secondary); margin-bottom: 6px; }
+.field input {
+    width: 100%; height: 44px;
+    padding: 0 14px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    color: var(--t-primary);
+    font-size: 14px;
+    outline: none;
+}
+.field input:focus { border-color: var(--border-focus); }
+.field .err {
+    font-size: 11.5px;
+    color: var(--danger);
+    margin-top: 6px;
+    display: none;
+}
+.field.invalid input { border-color: rgba(239,68,68,0.6); }
+.field.invalid .err { display: block; }
+.code-row { display: flex; gap: 10px; }
+.code-row input { flex: 1; }
+.code-row .btn { flex-shrink: 0; white-space: nowrap; min-width: 112px; }
+.confirm-mask {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(6px);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.confirm-mask.show { display: flex; }
+.confirm-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+    padding: 24px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+}
+.confirm-box h3 { font-size: 17px; font-weight: 800; margin-bottom: 10px; }
+.confirm-box p { font-size: 13px; color: var(--t-secondary); margin-bottom: 20px; line-height: 1.5; }
+.confirm-actions { display: flex; gap: 10px; }
+.confirm-actions .btn { flex: 1; }
+.toast-host {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+.toast {
+    padding: 12px 20px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-md);
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: var(--shadow-lg);
+    animation: toastIn 0.25s ease;
+}
+.toast.ok { border-color: rgba(16,185,129,0.5); color: var(--success-light); }
+.toast.err { border-color: rgba(239,68,68,0.5); color: var(--danger-light); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="auth-shell">
+    <div class="auth-stage">
+        <div class="as-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator Economy</span></div>
+        </div>
+        <div class="as-mid">
+            <h1>邮箱登录<br><span class="grad">绑定 Web3 身份</span></h1>
+            <p>邮箱可与托管钱包或社交恢复方案绑定，验证码将发送至您的收件箱。</p>
+        </div>
+        <div class="as-foot"><div><i class="fa-solid fa-lock"></i> 传输全程 TLS 加密</div></div>
+    </div>
+    <div class="auth-form">
+        <div class="af-top">
+            <a href="login-entry.html"><i class="fa-solid fa-arrow-left"></i> 返回</a>
+        </div>
+        <div class="af-mid">
+            <h2>邮箱登录</h2>
+            <p>已注册用户将校验密码与验证码；新用户验证码校验通过后可一键注册。</p>
+
+            <form id="emailForm" onsubmit="return false;">
+                <div class="field" id="f-email">
+                    <label>邮箱</label>
+                    <input type="email" id="inpEmail" placeholder="name@example.com" autocomplete="email" />
+                    <div class="err" id="errEmail">请输入有效邮箱地址</div>
+                </div>
+                <div class="field" id="f-pwd">
+                    <label>登录密码</label>
+                    <input type="password" id="inpPwd" placeholder="至少 8 位字母与数字组合" autocomplete="current-password" />
+                    <div class="err" id="errPwd">密码需至少 8 位且包含字母与数字</div>
+                </div>
+                <div class="field" id="f-code">
+                    <label>验证码</label>
+                    <div class="code-row">
+                        <input type="text" id="inpCode" placeholder="6 位数字" maxlength="6" autocomplete="one-time-code" />
+                        <button type="button" class="btn btn-secondary" id="btnCode">获取验证码</button>
+                    </div>
+                    <div class="err" id="errCode">验证码错误或已过期</div>
+                </div>
+                <button type="button" class="btn btn-primary btn-block btn-lg" id="btnLogin">
+                    <i class="fa-solid fa-right-to-bracket"></i> 登录
+                </button>
+            </form>
+
+        </div>
+        <div class="af-foot"></div>
+    </div>
+</div>
+
+<div class="confirm-mask" id="confirmMask">
+    <div class="confirm-box">
+        <h3><i class="fa-solid fa-user-plus" style="color:var(--brand-purple)"></i> 检测到该邮箱未注册</h3>
+        <p>是否注册 FansLoop 账户并自动登录？注册后将进入资料完善流程。</p>
+        <div class="confirm-actions">
+            <button type="button" class="btn btn-secondary" id="btnCancelReg">取消</button>
+            <button type="button" class="btn btn-primary" id="btnConfirmReg">注册并登录</button>
+        </div>
+    </div>
+</div>
+<div class="toast-host" id="toastHost"></div>
+
+<script>
+const REGISTERED_EMAIL = 'registered@test.com';
+const VALID_PWD = 'Demo12345';
+const VALID_CODE = '123456';
+
+function pwdOk(p) {
+    return p.length >= 8 && /[A-Za-z]/.test(p) && /\d/.test(p);
+}
+
+function toast(msg, ok = true) {
+    const t = document.createElement('div');
+    t.className = 'toast ' + (ok ? 'ok' : 'err');
+    t.textContent = msg;
+    document.getElementById('toastHost').appendChild(t);
+    setTimeout(() => { t.remove(); }, 2600);
+}
+
+document.getElementById('btnCode').addEventListener('click', function() {
+    const em = document.getElementById('inpEmail').value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
+        document.getElementById('f-email').classList.add('invalid');
+        return;
+    }
+    document.getElementById('f-email').classList.remove('invalid');
+    let sec = 60;
+    this.disabled = true;
+    const btn = this;
+    const tick = () => {
+        btn.textContent = sec + 's 后可重发';
+        if (sec <= 0) {
+            btn.disabled = false;
+            btn.textContent = '获取验证码';
+            return;
+        }
+        sec--;
+        setTimeout(tick, 1000);
+    };
+    tick();
+    toast('验证码已发送', true);
+});
+
+document.getElementById('btnLogin').addEventListener('click', function() {
+    ['f-email','f-pwd','f-code'].forEach(id => document.getElementById(id).classList.remove('invalid'));
+
+    const email = document.getElementById('inpEmail').value.trim().toLowerCase();
+    const pwd = document.getElementById('inpPwd').value;
+    const code = document.getElementById('inpCode').value.trim();
+
+    let bad = false;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        document.getElementById('f-email').classList.add('invalid');
+        bad = true;
+    }
+
+    const isRegistered = email === REGISTERED_EMAIL;
+
+    if (isRegistered) {
+        if (!pwdOk(pwd) || pwd !== VALID_PWD) {
+            document.getElementById('f-pwd').classList.add('invalid');
+            document.getElementById('errPwd').textContent = '密码错误或不满足格式要求';
+            bad = true;
+        }
+        if (code !== VALID_CODE) {
+            document.getElementById('f-code').classList.add('invalid');
+            bad = true;
+        }
+        if (bad) return;
+        toast('登录成功', true);
+        setTimeout(() => { window.location.href = 'login-success.html'; }, 600);
+        return;
+    }
+
+    if (code !== VALID_CODE) {
+        document.getElementById('f-code').classList.add('invalid');
+        bad = true;
+    }
+    if (!pwdOk(pwd)) {
+        document.getElementById('f-pwd').classList.add('invalid');
+        document.getElementById('errPwd').textContent = '密码需至少 8 位且包含字母与数字';
+        bad = true;
+    }
+    if (bad) return;
+
+    document.getElementById('confirmMask').classList.add('show');
+});
+
+document.getElementById('btnCancelReg').addEventListener('click', () => {
+    document.getElementById('confirmMask').classList.remove('show');
+});
+
+document.getElementById('btnConfirmReg').addEventListener('click', () => {
+    document.getElementById('confirmMask').classList.remove('show');
+    toast('注册成功', true);
+    setTimeout(() => { window.location.href = 'register-profile.html'; }, 650);
+});
+</script>
+</body>
+</html>

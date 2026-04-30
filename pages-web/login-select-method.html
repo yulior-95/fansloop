@@ -25,7 +25,28 @@
     color: var(--t-tertiary); font-size: 13px;
 }
 
-.cat-strip { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.search-box .suggest-list {
+    display: none;
+    position: absolute; left: 0; right: 0; top: calc(100% + 6px);
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-md);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 50;
+    box-shadow: var(--shadow-lg);
+}
+.search-box .suggest-list.show { display: block; }
+.search-box .suggest-list button {
+    width: 100%; text-align: left;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--t-secondary);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+}
+.search-box .suggest-list button:hover { background: var(--bg-input); color: #fff; }
+.search-box { position: relative; }
 
 .wallet-grid {
     display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
@@ -84,6 +105,54 @@
     letter-spacing: 0.5px;
     display: flex; align-items: center; gap: 5px;
 }
+.inline-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(8px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.inline-overlay.show { display: flex; }
+.inline-overlay .iol-panel {
+    width: 100%;
+    max-width: 520px;
+    max-height: 88vh;
+    overflow-y: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+}
+.inline-overlay .iol-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.inline-overlay .iol-head h3 { font-size: 17px; font-weight: 800; }
+.inline-overlay .iol-body { padding: 18px 22px; font-size: 13px; color: var(--t-secondary); line-height: 1.55; }
+.inline-overlay .iol-close {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--r-md);
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--t-secondary);
+    cursor: pointer;
+}
+.help-foot-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--brand-purple);
+    cursor: pointer;
+    font: inherit;
+}
+.help-foot-btn:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -122,7 +191,7 @@
     <div class="auth-form">
         <div class="af-top">
             <a href="login-entry.html"><i class="fa-solid fa-arrow-left"></i> 返回</a>
-            <a href="#">查看完整列表 →</a>
+            <a href="wallet-list-full.html">查看完整列表 →</a>
         </div>
         <div class="af-mid">
             <h2>选择钱包</h2>
@@ -130,15 +199,8 @@
 
             <div class="search-box">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="搜索钱包名称（如 MetaMask、OKX…）" />
-            </div>
-
-            <div class="cat-strip">
-                <span class="chip active">全部</span>
-                <span class="chip">浏览器扩展</span>
-                <span class="chip">移动 App</span>
-                <span class="chip">硬件钱包</span>
-                <span class="chip">智能合约钱包</span>
+                <input type="search" id="walletFilter" autocomplete="off" placeholder="搜索钱包名称（如 MetaMask、OKX…）" />
+                <div class="suggest-list" id="suggestList"></div>
             </div>
 
             <div class="recommend">
@@ -213,9 +275,59 @@
                 <span>没找到你的钱包？所有支持 <b>WalletConnect v2</b> 的钱包都可以通过扫码登录。</span>
             </div>
         </div>
-        <div class="af-foot">遇到问题？<a href="#">查看登录帮助</a></div>
+        <div class="af-foot">遇到问题？<button type="button" class="help-foot-btn" id="btnHelpLm">查看登录帮助</button></div>
     </div>
 </div>
 
+<div class="inline-overlay" id="ovlHelpLm">
+    <div class="iol-panel">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-circle-question" style="color:var(--brand-purple)"></i> 登录帮助</h3>
+            <button type="button" class="iol-close" id="closeHelpLm"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="iol-body">
+            <p>请确认已安装钱包扩展；搜索列表可直接点击跳转。仍无法连接请尝试 WalletConnect 扫码或更换浏览器。</p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('btnHelpLm').addEventListener('click', () => document.getElementById('ovlHelpLm').classList.add('show'));
+document.getElementById('closeHelpLm').addEventListener('click', () => document.getElementById('ovlHelpLm').classList.remove('show'));
+document.getElementById('ovlHelpLm').addEventListener('click', e => { if (e.target.id === 'ovlHelpLm') document.getElementById('ovlHelpLm').classList.remove('show'); });
+
+const ALL_W = [
+    { n: 'MetaMask', href: 'login-metamask.html' },
+    { n: 'Phantom', href: 'login-metamask.html' },
+    { n: 'WalletConnect', href: 'login-walletconnect-qr.html' },
+    { n: 'Coinbase Wallet', href: 'wallet-list-full.html' },
+    { n: 'Trust Wallet', href: 'wallet-list-full.html' },
+    { n: 'OKX Wallet', href: 'wallet-list-full.html' },
+    { n: 'imToken', href: 'wallet-list-full.html' },
+    { n: 'Rainbow', href: 'wallet-list-full.html' },
+    { n: 'Ledger Live', href: 'wallet-list-full.html' },
+    { n: 'Safe', href: 'wallet-list-full.html' }
+];
+const sf = document.getElementById('walletFilter');
+const sl = document.getElementById('suggestList');
+function showSuggest() {
+    const q = (sf.value || '').trim().toLowerCase();
+    const list = !q ? ALL_W : ALL_W.filter(x => x.n.toLowerCase().includes(q));
+    sl.innerHTML = '';
+    list.slice(0, 10).forEach(x => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.innerHTML = '<i class="fa-solid fa-wallet" style="color:var(--brand-purple)"></i> ' + x.n;
+        b.onclick = () => { window.location.href = x.href; };
+        sl.appendChild(b);
+    });
+    sl.classList.add('show');
+}
+sf.addEventListener('focus', showSuggest);
+sf.addEventListener('input', showSuggest);
+document.addEventListener('click', e => {
+    if (!e.target.closest('.search-box')) sl.classList.remove('show');
+});
+</script>
 </body>
 </html>
