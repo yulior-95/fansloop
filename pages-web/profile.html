@@ -169,6 +169,114 @@
     z-index: 2;
 }
 
+.profile-pane { display: none; padding: 24px 32px; animation: pfFade 0.25s ease; }
+.profile-pane.active { display: block; }
+@keyframes pfFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.profile-sheet {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: rgba(0,0,0,0.58);
+    backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+.profile-sheet.show { display: flex; }
+.profile-sheet .sh-panel {
+    width: 100%;
+    max-width: 460px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    max-height: 88vh;
+    overflow-y: auto;
+}
+.profile-sheet .sh-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 800;
+    font-size: 15px;
+}
+.profile-sheet .sh-head button {
+    background: transparent;
+    border: none;
+    color: var(--t-tertiary);
+    font-size: 18px;
+    cursor: pointer;
+}
+.profile-sheet .sh-body { padding: 20px; font-size: 13px; color: var(--t-secondary); line-height: 1.55; }
+.profile-sheet .sh-body .field {
+    margin-bottom: 14px;
+}
+.profile-sheet .sh-body label { display: block; font-size: 11px; color: var(--t-tertiary); margin-bottom: 6px; }
+.profile-sheet .sh-body input, .profile-sheet .sh-body textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: var(--r-md);
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: #fff;
+    font-size: 13px;
+}
+.profile-sheet .sh-body textarea { min-height: 88px; resize: vertical; }
+.profile-sheet .sh-actions { padding: 14px 20px 20px; display: flex; gap: 10px; }
+.profile-sheet .sh-actions button {
+    flex: 1;
+    height: 42px;
+    border-radius: var(--r-md);
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+}
+.profile-sheet .sh-actions .ghost {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--t-secondary);
+}
+.profile-sheet .sh-actions .primary { background: var(--brand-grad); color: #fff; }
+
+.pf-toast {
+    position: fixed;
+    bottom: 26px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    z-index: 9500;
+    padding: 11px 20px;
+    background: rgba(17,17,28,0.96);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-pill);
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    transition: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+.pf-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.grid-paid, .grid-live, .grid-likes, .grid-bookmarks {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+.about-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 22px;
+    max-width: 720px;
+}
+.about-card h3 { font-size: 16px; font-weight: 800; margin-bottom: 12px; }
+.about-card p { font-size: 13px; color: var(--t-secondary); line-height: 1.6; margin-bottom: 10px; }
+
 </style>
 </head>
 <body>
@@ -187,10 +295,10 @@
         <div class="s-section">资产</div>
         <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
         <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span><span class="chip">+$28</span></div>
+        <div class="s-item" onclick="location.href='points-mall.html'"><span class="ic"><i class="fa-solid fa-store"></i></span><span class="lb">积分商城</span></div>
         <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
         <div class="s-section">个人</div>
         <div class="s-item active" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
-        <div class="s-item" onclick="location.href='bookmarks.html'"><span class="ic"><i class="fa-regular fa-bookmark"></i></span><span class="lb">收藏</span></div>
         <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
         <div class="s-bottom">
             <div class="s-user">
@@ -227,16 +335,15 @@
                     </div>
                     <div class="tags-row">
                         <span class="tag tag-purple"><i class="fa-solid fa-palette"></i>认证创作者</span>
-                        <span class="tag tag-warning"><i class="fa-solid fa-crown"></i>Creator Pro</span>
-                        <span class="tag tag-info"><i class="fa-solid fa-shield-halved"></i>SIWE 已验证</span>
+                        <span class="tag tag-info"><i class="fa-solid fa-shield-halved"></i>身份认证</span>
                     </div>
                     <div class="h" style="margin-top:6px">Creator · 0x7A3F...3F2C</div>
                     <div class="bio">📷 旅行 / 美食 / 慢生活 摄影师｜📍现居东京｜35mm 定焦执着患者｜合作请私信</div>
                 </div>
                 <div class="acts">
-                    <button class="btn"><i class="fa-solid fa-share-nodes"></i>分享主页</button>
-                    <button class="btn btn-secondary"><i class="fa-solid fa-pen"></i>编辑资料</button>
-                    <button class="btn btn-primary"><i class="fa-solid fa-bolt"></i>升级 Pro</button>
+                    <button type="button" class="btn" id="btnShareProfile"><i class="fa-solid fa-share-nodes"></i>分享主页</button>
+                    <button type="button" class="btn btn-secondary" id="btnEditProfile"><i class="fa-solid fa-pen"></i>编辑资料</button>
+                    <button type="button" class="btn btn-primary" id="btnUpgradePro"><i class="fa-solid fa-bolt"></i>升级 Pro</button>
                 </div>
             </div>
 
@@ -256,17 +363,17 @@
                 <div class="pst"><div class="v t-grad">$18,420</div><div class="k">累计收入</div></div>
             </div>
 
-            <div class="profile-tabs">
-                <div class="tb active"><i class="fa-solid fa-th"></i>作品 <span class="cnt">142</span></div>
-                <div class="tb"><i class="fa-solid fa-crown"></i>付费内容 <span class="cnt">26</span></div>
-                <div class="tb"><i class="fa-solid fa-tower-broadcast"></i>直播 <span class="cnt">12</span></div>
-                <div class="tb"><i class="fa-regular fa-heart"></i>喜欢</div>
-                <div class="tb"><i class="fa-solid fa-bookmark"></i>收藏</div>
-                <div class="tb"><i class="fa-solid fa-info-circle"></i>关于</div>
+            <div class="profile-tabs" id="profileTabs" role="tablist">
+                <div class="tb active" role="tab" data-pane="works" tabindex="0"><i class="fa-solid fa-th"></i>作品 <span class="cnt">142</span></div>
+                <div class="tb" role="tab" data-pane="paid" tabindex="0"><i class="fa-solid fa-crown"></i>付费内容 <span class="cnt">26</span></div>
+                <div class="tb" role="tab" data-pane="live" tabindex="0"><i class="fa-solid fa-tower-broadcast"></i>直播 <span class="cnt">12</span></div>
+                <div class="tb" role="tab" data-pane="likes" tabindex="0"><i class="fa-regular fa-heart"></i>喜欢</div>
+                <div class="tb" role="tab" data-pane="bookmarks" tabindex="0"><i class="fa-solid fa-bookmark"></i>收藏</div>
+                <div class="tb" role="tab" data-pane="about" tabindex="0"><i class="fa-solid fa-info-circle"></i>关于</div>
             </div>
         </div>
 
-        <div class="content-section">
+        <div class="profile-pane active" id="pane-works" role="tabpanel">
             <div class="posts-grid">
                 <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=600')">
                     <div class="meta"><span><i class="fa-solid fa-heart"></i> 2.4k</span><span><i class="fa-regular fa-comment"></i> 312</span></div>
@@ -300,8 +407,175 @@
                 </div>
             </div>
         </div>
+
+        <div class="profile-pane" id="pane-paid" role="tabpanel">
+            <div class="grid-paid">
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600')"><span class="premium"><i class="fa-solid fa-crown"></i> $5</span></div>
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1542435503-956c469947f6?w=600')"><span class="premium"><i class="fa-solid fa-crown"></i> $9</span></div>
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=600')"><span class="premium"><i class="fa-solid fa-crown"></i> $3</span></div>
+            </div>
+            <p style="font-size:12px;color:var(--t-tertiary);margin-top:16px">付费专栏与单篇解锁作品；结算与退款规则见创作者协议。</p>
+        </div>
+
+        <div class="profile-pane" id="pane-live" role="tabpanel">
+            <div class="grid-live">
+                <div class="post-tile" style="background-image: url('https://images.pexels.com/photos/3945683/pexels-photo-3945683.jpeg?auto=compress&cs=tinysrgb&w=600')">
+                    <div class="meta" style="opacity:1"><span><i class="fa-solid fa-eye"></i> 12.4k</span><span><i class="fa-solid fa-gift"></i> 820</span></div>
+                </div>
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=600')"></div>
+                <div class="post-tile" style="background-image: url('https://images.pexels.com/photos/3379949/pexels-photo-3379949.jpeg?auto=compress&cs=tinysrgb&w=600')"></div>
+            </div>
+            <p style="font-size:12px;color:var(--t-tertiary);margin-top:16px">回放保留 30 天；打赏与礼物明细在创作者收入中查看。</p>
+        </div>
+
+        <div class="profile-pane" id="pane-likes" role="tabpanel">
+            <div class="grid-likes">
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600')"></div>
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600')"></div>
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=600')"></div>
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=600')"></div>
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1418065469457-577268464de0?w=600')"></div>
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=600')"></div>
+            </div>
+        </div>
+
+        <div class="profile-pane" id="pane-bookmarks" role="tabpanel">
+            <div class="grid-bookmarks">
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600')"></div>
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=600')"></div>
+                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600')"></div>
+            </div>
+            <p style="font-size:12px;color:var(--t-tertiary);margin-top:16px">收藏夹仅自己可见；可在设置中关闭「展示收藏统计」。</p>
+        </div>
+
+        <div class="profile-pane" id="pane-about" role="tabpanel">
+            <div class="about-card">
+                <h3>关于 Luna 🌙</h3>
+                <p>全职旅行与美食摄影师，作品见于多家生活方式媒体。擅长自然光与人文纪实，亦承接品牌共创与线下工作坊。</p>
+                <p><strong style="color:var(--t-secondary)">合作邮箱</strong>：hello@luna.studio（原型演示）</p>
+                <p><strong style="color:var(--t-secondary)">设备</strong>：Leica Q3 · DJI Pocket 3 · 自备灯光组</p>
+            </div>
+        </div>
     </main>
 </div>
 
+<div class="pf-toast" id="pfToast"></div>
+
+<div class="profile-sheet" id="sheetShare" aria-hidden="true">
+    <div class="sh-panel">
+        <div class="sh-head">分享主页 <button type="button" class="sh-close" data-close="sheetShare"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="sh-body">
+            <p>通过链接或海报邀请他人访问你的 FansLoop 主页。</p>
+            <div class="field"><label>主页链接</label><input type="text" readonly value="https://fansloop.io/@luna" /></div>
+            <p style="font-size:11px;color:var(--t-tertiary)">缩短链接与二维码在正式环境中生成；此处为高保真占位。</p>
+        </div>
+        <div class="sh-actions">
+            <button type="button" class="ghost sh-close" data-close="sheetShare">关闭</button>
+            <button type="button" class="primary" id="btnCopyLink"><i class="fa-regular fa-copy"></i> 复制链接</button>
+        </div>
+    </div>
+</div>
+
+<div class="profile-sheet" id="sheetEdit" aria-hidden="true">
+    <div class="sh-panel">
+        <div class="sh-head">编辑资料 <button type="button" class="sh-close" data-close="sheetEdit"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="sh-body">
+            <div class="field"><label>昵称</label><input type="text" value="Luna 🌙" /></div>
+            <div class="field"><label>简介</label><textarea>📷 旅行 / 美食 / 慢生活 摄影师｜📍现居东京</textarea></div>
+            <div class="field"><label>个人站点</label><input type="text" value="https://luna.studio" /></div>
+        </div>
+        <div class="sh-actions">
+            <button type="button" class="ghost sh-close" data-close="sheetEdit">取消</button>
+            <button type="button" class="primary" id="btnSaveProfile">保存更改</button>
+        </div>
+    </div>
+</div>
+
+<div class="profile-sheet" id="sheetPro" aria-hidden="true">
+    <div class="sh-panel">
+        <div class="sh-head">升级 Pro <button type="button" class="sh-close" data-close="sheetPro"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="sh-body">
+            <p><strong style="color:#fff">Creator Pro</strong> 包含：高级数据分析、定时发布队列、直播蓝光推流优先级、优先客服响应。</p>
+            <ul style="margin:12px 0 0 18px;font-size:12px;color:var(--t-tertiary)">
+                <li>月付 $19 · 年付 $190（省 2 个月）</li>
+                <li>支持与积分商城「会员体验券」叠加（按规则折算）</li>
+            </ul>
+        </div>
+        <div class="sh-actions">
+            <button type="button" class="ghost sh-close" data-close="sheetPro">稍后再说</button>
+            <button type="button" class="primary" id="btnCheckoutPro">前往结算（原型）</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const tabs = document.querySelectorAll('#profileTabs .tb');
+    const panes = {
+        works: document.getElementById('pane-works'),
+        paid: document.getElementById('pane-paid'),
+        live: document.getElementById('pane-live'),
+        likes: document.getElementById('pane-likes'),
+        bookmarks: document.getElementById('pane-bookmarks'),
+        about: document.getElementById('pane-about')
+    };
+    const toast = document.getElementById('pfToast');
+
+    function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+
+    function openSheet(id) {
+        const s = document.getElementById(id);
+        if (s) { s.classList.add('show'); s.setAttribute('aria-hidden', 'false'); }
+    }
+    function closeSheet(id) {
+        const s = document.getElementById(id);
+        if (s) { s.classList.remove('show'); s.setAttribute('aria-hidden', 'true'); }
+    }
+
+    tabs.forEach(tb => {
+        tb.addEventListener('click', () => {
+            const key = tb.dataset.pane;
+            tabs.forEach(t => t.classList.remove('active'));
+            tb.classList.add('active');
+            Object.keys(panes).forEach(k => {
+                if (panes[k]) panes[k].classList.toggle('active', k === key);
+            });
+        });
+        tb.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tb.click(); }
+        });
+    });
+
+    document.getElementById('btnShareProfile').addEventListener('click', () => openSheet('sheetShare'));
+    document.getElementById('btnEditProfile').addEventListener('click', () => openSheet('sheetEdit'));
+    document.getElementById('btnUpgradePro').addEventListener('click', () => openSheet('sheetPro'));
+
+    document.querySelectorAll('.sh-close').forEach(btn => {
+        btn.addEventListener('click', () => closeSheet(btn.getAttribute('data-close')));
+    });
+    ['sheetShare', 'sheetEdit', 'sheetPro'].forEach(id => {
+        document.getElementById(id).addEventListener('click', e => {
+            if (e.target.id === id) closeSheet(id);
+        });
+    });
+
+    document.getElementById('btnCopyLink').addEventListener('click', () => {
+        showToast('链接已复制到剪贴板（原型演示）');
+        closeSheet('sheetShare');
+    });
+    document.getElementById('btnSaveProfile').addEventListener('click', () => {
+        showToast('资料已更新（原型）');
+        closeSheet('sheetEdit');
+    });
+    document.getElementById('btnCheckoutPro').addEventListener('click', () => {
+        showToast('跳转订阅结算页（原型）');
+        closeSheet('sheetPro');
+    });
+})();
+</script>
 </body>
 </html>

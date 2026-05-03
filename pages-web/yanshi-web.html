@@ -175,6 +175,160 @@ body { display: grid; grid-template-rows: auto 1fr; }
 
 .stage.tablet { max-width: 1024px; }
 .stage.mobile { max-width: 480px; }
+
+/* ===== 全局悬浮 · 积分奖励倒计时（覆盖演示框架，始终可见） ===== */
+.reward-dock {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 10050;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px 10px 12px;
+    background: rgba(17,17,28,0.92);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(251,191,36,0.35);
+    border-radius: var(--r-pill);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.45), 0 0 28px rgba(245,158,11,0.18);
+    cursor: pointer;
+    text-align: left;
+    color: #fff;
+    max-width: calc(100vw - 40px);
+    transition: transform 0.15s, border-color 0.15s;
+    animation: dockIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes dockIn {
+    from { transform: translateY(16px) scale(0.92); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.reward-dock:hover {
+    border-color: rgba(251,191,36,0.55);
+    transform: translateY(-2px);
+}
+.reward-dock:active { transform: scale(0.98); }
+.reward-dock .rd-ring {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    --rd-progress: 100;
+    background: conic-gradient(from -90deg,
+        #FBBF24 0%,
+        #F59E0B calc(var(--rd-progress) * 1%),
+        rgba(255,255,255,0.12) calc(var(--rd-progress) * 1%));
+    padding: 3px;
+    position: relative;
+}
+.reward-dock .rd-ring::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #FEF3C7, #F59E0B 50%, #B45309);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+}
+.reward-dock .rd-ring i {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    font-size: 15px;
+    color: #78350F;
+}
+.reward-dock .rd-txt .lb { font-size: 10px; font-weight: 700; color: #FDE68A; letter-spacing: 0.3px; text-transform: uppercase; }
+.reward-dock .rd-txt .tm { font-size: 17px; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; margin-top: 2px; }
+.reward-dock .rd-hint { font-size: 10px; color: var(--t-tertiary); margin-top: 2px; }
+
+.reward-dock.wait-payout .rd-ring {
+    animation: ringPulse 1.2s ease-in-out infinite;
+}
+@keyframes ringPulse {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.15); }
+}
+
+#rewardModalRoot {
+    position: fixed;
+    inset: 0;
+    z-index: 10100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(10px);
+}
+#rewardModalRoot.show { display: flex; }
+
+.reward-modal-panel {
+    width: 100%;
+    max-width: 420px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    animation: modalUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes modalUp {
+    from { transform: translateY(16px) scale(0.96); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.reward-modal-panel .rm-hero {
+    padding: 22px;
+    text-align: center;
+    background:
+        radial-gradient(circle at 50% 0%, rgba(251,191,36,0.25), transparent 55%),
+        linear-gradient(135deg, rgba(168,85,247,0.15), rgba(236,72,153,0.08));
+    border-bottom: 1px solid var(--border);
+}
+.reward-modal-panel .rm-hero .ic {
+    width: 64px; height: 64px; margin: 0 auto 12px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #FEF3C7, #F59E0B);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; color: #78350F;
+    box-shadow: 0 10px 24px rgba(245,158,11,0.4);
+}
+.reward-modal-panel .rm-hero h2 { font-size: 18px; font-weight: 900; }
+.reward-modal-panel .rm-hero p { font-size: 12px; color: var(--t-tertiary); margin-top: 6px; line-height: 1.5; }
+.reward-modal-panel .rm-body { padding: 20px 22px 22px; }
+.reward-modal-panel .rm-amt {
+    text-align: center;
+    padding: 16px;
+    border-radius: var(--r-lg);
+    border: 1px dashed rgba(251,191,36,0.4);
+    background: rgba(168,85,247,0.08);
+    margin-bottom: 16px;
+}
+.reward-modal-panel .rm-amt .big {
+    font-size: 38px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    background: var(--brand-grad-strong);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.reward-modal-panel .rm-amt .sub { font-size: 12px; color: var(--t-secondary); margin-top: 4px; }
+.reward-modal-panel .rm-btns { display: flex; flex-direction: column; gap: 10px; }
+.reward-modal-panel .rm-btns .b1 {
+    height: 44px;
+    border-radius: var(--r-md);
+    background: var(--brand-grad);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+}
+.reward-modal-panel .rm-btns .b2 {
+    height: 40px;
+    border-radius: var(--r-md);
+    border: 1px solid var(--border);
+    color: var(--t-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    background: transparent;
+}
 </style>
 </head>
 <body>
@@ -231,6 +385,12 @@ body { display: grid; grid-template-rows: auto 1fr; }
                 <div class="pg-item" data-page="register-profile.html"><i class="fa-solid fa-id-card"></i>完善资料</div>
                 <div class="pg-item" data-page="register-interests.html"><i class="fa-solid fa-heart"></i>选择兴趣</div>
                 <div class="pg-item" data-page="login-errors.html"><i class="fa-solid fa-circle-exclamation"></i>错误状态</div>
+            </div>
+
+            <div class="group-title">积分中心</div>
+            <div class="grid">
+                <div class="pg-item" data-page="points-mall.html"><i class="fa-solid fa-store"></i>积分兑换商城</div>
+                <div class="pg-item" data-page="modal-points-reward.html"><i class="fa-solid fa-coins"></i>奖励弹窗（静态）</div>
             </div>
 
             <div class="group-title">主场景</div>
@@ -313,6 +473,37 @@ body { display: grid; grid-template-rows: auto 1fr; }
     </div>
 </div>
 
+<button type="button" class="reward-dock" id="rewardDock" title="点击进入积分商城；倒计时结束自动发放奖励">
+    <div class="rd-ring" id="rewardRing" style="--rd-progress:100">
+        <i class="fa-solid fa-coins"></i>
+    </div>
+    <div class="rd-txt">
+        <div class="lb"><i class="fa-solid fa-gift" style="margin-right:4px;color:#FBBF24"></i>积分奖励</div>
+        <div class="tm" id="rewardTime">00:45</div>
+        <div class="rd-hint">点击进商城 · 结束弹出奖励</div>
+    </div>
+</button>
+
+<div id="rewardModalRoot" aria-hidden="true">
+    <div class="reward-modal-panel" role="dialog" aria-modal="true" aria-labelledby="rmTitle">
+        <div class="rm-hero">
+            <div class="ic"><i class="fa-solid fa-sparkles"></i></div>
+            <h2 id="rmTitle">恭喜获得积分奖励</h2>
+            <p>奖励已发放至你的平台账户（与 App 端「赚积分」入口一致），可用于订阅抵扣、解锁付费内容、直播礼物补贴等。</p>
+        </div>
+        <div class="rm-body">
+            <div class="rm-amt">
+                <div class="big" id="rmPoints">+128</div>
+                <div class="sub" id="rmDetail">含连续活跃加成 · 详见账变记录</div>
+            </div>
+            <div class="rm-btns">
+                <button type="button" class="b1" id="rmGoMall"><i class="fa-solid fa-store"></i> 前往积分商城</button>
+                <button type="button" class="b2" id="rmDismiss">开心收下</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 const frame = document.getElementById('frame');
 const urlPage = document.getElementById('urlPage');
@@ -333,6 +524,21 @@ function navigate(page, name, push=true) {
         cursor = history.length-1;
     }
     document.querySelectorAll('.pg-item').forEach(it => it.classList.toggle('active', it.dataset.page === page));
+    syncRewardDockForPage(page);
+}
+
+/** 登录 / 注册相关页面不展示悬浮积分倒计时入口 */
+const AUTH_IFRAME_PAGES = [
+    'login-entry.html', 'login-select-method.html', 'login-walletconnect-qr.html', 'login-metamask.html',
+    'login-sign-request.html', 'login-signing.html', 'login-success.html', 'login-email.html',
+    'register-profile.html', 'register-interests.html', 'login-errors.html'
+];
+function syncRewardDockForPage(page) {
+    const dock = document.getElementById('rewardDock');
+    if (!dock) return;
+    const p = (page || '').toLowerCase();
+    const hide = AUTH_IFRAME_PAGES.some(f => p.includes(f.toLowerCase()));
+    dock.style.display = hide ? 'none' : '';
 }
 
 document.querySelectorAll('.pg-item').forEach(it => {
@@ -354,7 +560,20 @@ document.getElementById('btn-back').addEventListener('click', () => {
 document.getElementById('btn-forward').addEventListener('click', () => {
     if (cursor < history.length-1) { cursor++; navigate(history[cursor], null, false); }
 });
-document.getElementById('btn-reload').addEventListener('click', () => frame.src = frame.src);
+document.getElementById('btn-reload').addEventListener('click', () => {
+    const cur = frame.src.split('/').pop() || history[cursor];
+    frame.src = frame.src;
+    syncRewardDockForPage(cur);
+});
+frame.addEventListener('load', () => {
+    try {
+        const path = frame.contentWindow.location.pathname || '';
+        const file = path.split('/').pop() || '';
+        if (file) syncRewardDockForPage(file);
+    } catch (e) {
+        syncRewardDockForPage(history[cursor] || '');
+    }
+});
 document.getElementById('btn-home').addEventListener('click', () => navigate('login-entry.html', '登录入口'));
 
 document.querySelectorAll('.viewport-toggle button').forEach(b => {
@@ -366,6 +585,7 @@ document.querySelectorAll('.viewport-toggle button').forEach(b => {
 });
 
 const DEMO_ROUTES = [
+    { q: ['积分','商城','points'], page: 'points-mall.html', name: '积分兑换商城' },
     { q: ['首页','home','feed'], page: 'home.html', name: '首页' },
     { q: ['登录','login'], page: 'login-entry.html', name: '登录入口' },
     { q: ['发现','discover'], page: 'discover.html', name: '发现' },
@@ -402,6 +622,99 @@ document.getElementById('demoSearchBtn').addEventListener('click', () => {
 document.addEventListener('click', e => {
     if (!e.target.closest('.demo-search-wrap')) dsBox.classList.remove('show');
 });
+
+/* ========== 积分倒计时 · 顶层弹窗（不写入 iframe 内） ========== */
+const REWARD_TOTAL = 45;
+let rewardLeft = REWARD_TOTAL;
+let rewardTimer = null;
+
+const rewardDock = document.getElementById('rewardDock');
+const rewardTime = document.getElementById('rewardTime');
+const rewardRing = document.getElementById('rewardRing');
+const rewardModalRoot = document.getElementById('rewardModalRoot');
+const rmPoints = document.getElementById('rmPoints');
+const rmDetail = document.getElementById('rmDetail');
+const rmGoMall = document.getElementById('rmGoMall');
+const rmDismiss = document.getElementById('rmDismiss');
+
+function formatTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
+
+function syncRewardRing() {
+    const p = Math.max(0, Math.min(100, (rewardLeft / REWARD_TOTAL) * 100));
+    rewardRing.style.setProperty('--rd-progress', String(Math.round(p)));
+}
+
+function pickReward() {
+    const base = 80 + Math.floor(Math.random() * 40);
+    const bonus = Math.floor(Math.random() * 35);
+    return { total: base + bonus, base, bonus };
+}
+
+function showRewardModal() {
+    const r = pickReward();
+    rmPoints.textContent = '+' + r.total;
+    rmDetail.textContent = r.bonus > 0
+        ? '基础 ' + r.base + ' · 连续活跃加成 +' + r.bonus
+        : '基础奖励 ' + r.base + ' 积分';
+    rewardModalRoot.classList.add('show');
+    rewardModalRoot.setAttribute('aria-hidden', 'false');
+    rewardDock.classList.add('wait-payout');
+}
+
+function hideRewardModal() {
+    rewardModalRoot.classList.remove('show');
+    rewardModalRoot.setAttribute('aria-hidden', 'true');
+    rewardDock.classList.remove('wait-payout');
+}
+
+function startRewardCountdown() {
+    if (rewardTimer) clearInterval(rewardTimer);
+    rewardLeft = REWARD_TOTAL;
+    syncRewardRing();
+    rewardTime.textContent = formatTime(rewardLeft);
+    rewardTimer = setInterval(() => {
+        rewardLeft--;
+        if (rewardLeft <= 0) {
+            clearInterval(rewardTimer);
+            rewardTimer = null;
+            rewardLeft = 0;
+            rewardTime.textContent = '00:00';
+            syncRewardRing();
+            showRewardModal();
+            return;
+        }
+        rewardTime.textContent = formatTime(rewardLeft);
+        syncRewardRing();
+    }, 1000);
+}
+
+rewardDock.addEventListener('click', () => {
+    navigate('points-mall.html', '积分兑换商城');
+});
+
+rmGoMall.addEventListener('click', () => {
+    hideRewardModal();
+    navigate('points-mall.html', '积分兑换商城');
+});
+
+rmDismiss.addEventListener('click', () => {
+    hideRewardModal();
+    startRewardCountdown();
+});
+
+rewardModalRoot.addEventListener('click', e => {
+    if (e.target === rewardModalRoot) {
+        hideRewardModal();
+        startRewardCountdown();
+    }
+});
+
+startRewardCountdown();
+syncRewardDockForPage('login-entry.html');
 </script>
 </body>
 </html>

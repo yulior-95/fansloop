@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>积分商城 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.pm-hero {
+    position: relative;
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    min-height: 200px;
+    margin-bottom: 22px;
+    background: url('https://images.unsplash.com/photo-1557683316-973673baf926?w=1600&q=85') center/cover;
+}
+.pm-hero::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(120deg, rgba(11,11,20,0.92) 0%, rgba(88,28,135,0.55) 45%, rgba(236,72,153,0.35) 100%);
+}
+.pm-hero-in {
+    position: relative; z-index: 2;
+    padding: 28px 26px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+.pm-hero h1 { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 6px; }
+.pm-hero p { font-size: 13px; color: rgba(255,255,255,0.75); max-width: 520px; line-height: 1.55; }
+
+.pm-balance {
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: var(--r-lg);
+    padding: 16px 22px;
+    min-width: 220px;
+}
+.pm-balance .lb { font-size: 11px; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.pm-balance .val { font-size: 32px; font-weight: 900; letter-spacing: -1px; margin-top: 4px; display: flex; align-items: baseline; gap: 8px; }
+.pm-balance .val i { color: #FBBF24; font-size: 28px; }
+.pm-balance .sub { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 8px; }
+
+.usage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+}
+.usage-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 14px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    transition: 0.18s;
+}
+.usage-card:hover { border-color: var(--border-strong); background: var(--bg-card-2); }
+.usage-card .ic {
+    width: 40px; height: 40px; border-radius: var(--r-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+}
+.usage-card .ic.p1 { background: rgba(168,85,247,0.2); color: #C084FC; }
+.usage-card .ic.p2 { background: rgba(245,158,11,0.18); color: #FBBF24; }
+.usage-card .ic.p3 { background: rgba(236,72,153,0.18); color: #F9A8D4; }
+.usage-card .ic.p4 { background: rgba(16,185,129,0.18); color: var(--success-light); }
+.usage-card .ic.p5 { background: rgba(59,130,246,0.18); color: #93C5FD; }
+.usage-card h3 { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.usage-card p { font-size: 11.5px; color: var(--t-tertiary); line-height: 1.45; }
+
+.pm-tabs {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+}
+.pm-tabs button {
+    padding: 8px 14px;
+    border-radius: var(--r-pill);
+    font-size: 12.5px;
+    font-weight: 600;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--t-secondary);
+    cursor: pointer;
+}
+.pm-tabs button.active {
+    background: var(--brand-grad);
+    border-color: transparent;
+    color: #fff;
+}
+
+.wheel-banner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 18px;
+    align-items: center;
+    padding: 18px 22px;
+    margin-bottom: 22px;
+    border-radius: var(--r-lg);
+    border: 1px solid rgba(251,191,36,0.35);
+    background:
+        url('https://images.pexels.com/photos/957312/clear-glass-sphere-on-black-background-957312.jpeg?auto=compress&cs=tinysrgb&w=600') right center/cover,
+        linear-gradient(135deg, rgba(120,53,15,0.45), rgba(88,28,135,0.5));
+    background-blend-mode: overlay, normal;
+    position: relative;
+    overflow: hidden;
+}
+.wheel-banner::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, rgba(11,11,20,0.92) 40%, rgba(11,11,20,0.55) 100%);
+}
+.wheel-banner > * { position: relative; z-index: 2; }
+.wheel-banner h3 { font-size: 16px; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+.wheel-banner p { font-size: 12px; color: var(--t-secondary); max-width: 520px; line-height: 1.5; }
+.wheel-banner .wb-go {
+    padding: 12px 22px;
+    border-radius: var(--r-md);
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    color: #1a1003;
+    font-size: 13px;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(245,158,11,0.35);
+}
+.wheel-banner .wb-go:hover { filter: brightness(1.06); }
+
+.goods-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
+    gap: 16px;
+}
+.goods-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    transition: 0.2s;
+}
+.goods-card.hidden { display: none; }
+.goods-card:hover {
+    border-color: rgba(168,85,247,0.35);
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-2px);
+}
+.goods-card .thumb {
+    height: 132px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+.goods-card .thumb .tag {
+    position: absolute;
+    top: 10px; left: 10px;
+    padding: 4px 10px;
+    border-radius: var(--r-pill);
+    font-size: 10px;
+    font-weight: 700;
+    background: rgba(0,0,0,0.65);
+    color: #FDE68A;
+    backdrop-filter: blur(6px);
+}
+.goods-card .bd { padding: 14px 16px 16px; }
+.goods-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; line-height: 1.35; }
+.goods-card .desc { font-size: 11.5px; color: var(--t-tertiary); line-height: 1.45; margin-bottom: 10px; min-height: 34px; }
+.goods-card .meta-row {
+    font-size: 11px;
+    color: var(--t-tertiary);
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+.goods-card .meta-row span { display: inline-flex; align-items: center; gap: 5px; }
+.goods-card .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.goods-card .price { font-size: 18px; font-weight: 800; color: #FBBF24; display: flex; align-items: center; gap: 4px; }
+.goods-card .price small { font-size: 11px; font-weight: 600; color: var(--t-tertiary); }
+.goods-card .btn-redeem {
+    padding: 8px 14px;
+    border-radius: var(--r-md);
+    background: var(--brand-grad);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+}
+.goods-card .btn-redeem:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    filter: grayscale(0.3);
+}
+
+.benefit-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin: 28px 0 22px;
+}
+@media (max-width: 960px) { .benefit-panel { grid-template-columns: 1fr; } }
+
+.bp-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+}
+.bp-card .bh {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-elevated);
+}
+.bp-card .bb { padding: 14px 16px; font-size: 12.5px; }
+.bp-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+}
+.bp-row:last-child { border-bottom: none; padding-bottom: 0; }
+.bp-row:first-child { padding-top: 0; }
+.bp-row .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--success);
+    margin-top: 5px;
+    flex-shrink: 0;
+}
+.bp-row .ti { font-weight: 600; color: var(--t-secondary); }
+.bp-row .exp { font-size: 11px; color: var(--t-tertiary); margin-top: 2px; }
+
+.history-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.history-table th {
+    text-align: left;
+    color: var(--t-tertiary);
+    font-size: 11px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+}
+.history-table td { padding: 10px 0; border-bottom: 1px solid var(--border); color: var(--t-secondary); }
+.history-table tr:last-child td { border-bottom: none; }
+
+.breadcrumb-row {
+    font-size: 12px;
+    color: var(--t-tertiary);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.breadcrumb-row a { color: var(--brand-purple); }
+.breadcrumb-row i { font-size: 10px; opacity: 0.5; }
+
+/* Modal */
+.pm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 12000;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.pm-overlay.show { display: flex; }
+.pm-modal {
+    width: 100%;
+    max-width: 440px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    animation: pmUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes pmUp {
+    from { transform: translateY(14px) scale(0.96); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.pm-modal .mh {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.pm-modal .mh h3 { font-size: 16px; font-weight: 800; }
+.pm-modal .mh button {
+    background: transparent;
+    border: none;
+    color: var(--t-tertiary);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px;
+}
+.pm-modal .mb { padding: 20px; }
+.pm-modal .preview {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+.pm-modal .preview .img {
+    width: 72px; height: 72px;
+    border-radius: var(--r-md);
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+}
+.pm-modal .preview .txt h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.pm-modal .preview .txt p { font-size: 12px; color: var(--t-tertiary); line-height: 1.45; }
+.pm-modal .cost {
+    padding: 14px;
+    border-radius: var(--r-md);
+    border: 1px dashed rgba(251,191,36,0.35);
+    background: rgba(168,85,247,0.06);
+    text-align: center;
+    margin-bottom: 16px;
+}
+.pm-modal .cost .big { font-size: 28px; font-weight: 900; color: #FBBF24; }
+.pm-modal .cost .sub { font-size: 12px; color: var(--t-secondary); margin-top: 4px; }
+.pm-modal .mf-btns { display: flex; gap: 10px; }
+.pm-modal .mf-btns button {
+    flex: 1;
+    height: 44px;
+    border-radius: var(--r-md);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.pm-modal .mf-btns .cancel {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--t-secondary);
+}
+.pm-modal .mf-btns .ok {
+    border: none;
+    background: var(--brand-grad);
+    color: #fff;
+}
+
+.toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    z-index: 13000;
+    padding: 12px 20px;
+    background: rgba(17,17,28,0.95);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-pill);
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    transition: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+    <aside class="app-sidebar">
+        <div class="s-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator</span></div>
+        </div>
+
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span></div>
+        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span></div>
+
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span></div>
+        <div class="s-item active"><span class="ic"><i class="fa-solid fa-store"></i></span><span class="lb">积分商城</span><span class="chip" style="background:rgba(251,191,36,0.2);color:#FBBF24">Hot</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+
+        <div class="s-bottom">
+            <div class="s-pro-card">
+                <div class="crown"><i class="fa-solid fa-crown"></i></div>
+                <h4>升级 Creator Pro</h4>
+                <p>解锁高级数据 / 优先推流</p>
+                <button type="button">立即升级</button>
+            </div>
+            <div class="s-user">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info">
+                    <div class="n">Luna 🌙</div>
+                    <div class="e">Creator</div>
+                </div>
+                <i class="fa-solid fa-ellipsis-vertical more"></i>
+            </div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search h-search-live">
+            <div class="hs-inner">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" placeholder="搜索权益、券码、装扮…" />
+            </div>
+            <button type="button" class="btn btn-primary btn-sm"><i class="fa-solid fa-magnifying-glass"></i> 搜索</button>
+        </div>
+        <div class="h-actions">
+            <button class="h-icon" title="通知"><i class="fa-regular fa-bell"></i></button>
+            <button class="h-icon" title="消息" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i></button>
+            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="breadcrumb-row">
+            <a href="home.html">首页</a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <a href="wallet.html">资产</a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span style="color:var(--t-secondary)">积分商城</span>
+        </div>
+
+        <div class="pm-hero">
+            <div class="pm-hero-in">
+                <div>
+                    <h1><i class="fa-solid fa-coins" style="color:#FBBF24;margin-right:10px"></i>积分兑换商城</h1>
+                    <p>积分用于站内消费转化、成长加速、会员装扮与 SFL / NFT 资产引导。兑换后权益下发至账户，部分券需在结算页手动选用；限量资格类商品遵循公示库存。</p>
+                </div>
+                <div class="pm-balance">
+                    <div class="lb">当前可用积分</div>
+                    <div class="val"><i class="fa-solid fa-bolt"></i>12,580</div>
+                    <div class="sub"><i class="fa-solid fa-arrow-trend-up" style="color:var(--success)"></i> 今日已通过计时奖励 +128 · 积分加速卡生效中（剩余 18h）</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 style="font-size:15px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--brand-purple)"></i> 积分用处说明
+        </h2>
+        <p style="font-size:12.5px;color:var(--t-tertiary);margin-bottom:14px;max-width:920px;line-height:1.55">
+            <strong style="color:var(--t-secondary)">消费转化</strong>：试看券、订阅折扣、打赏加成；<strong style="color:var(--t-secondary)">权益提升</strong>：积分加速、日上限、签到翻倍、邀请加成；
+            <strong style="color:var(--t-secondary)">社区身份</strong>：短期会员、徽章、评论高亮、头像框；<strong style="color:var(--t-secondary)">资产引导</strong>：SFL 兑换资格、空投抽奖、NFT 折扣、质押加成；另有 <strong style="color:var(--t-secondary)">幸运转盘</strong> 消耗积分抽取 USDT / 会员 / NFT 等奖品。
+        </p>
+
+        <div class="usage-grid">
+            <div class="usage-card"><div class="ic p1"><i class="fa-solid fa-lock-open"></i></div><div><h3>付费内容试看券</h3><p>1 次解锁 · 24 小时内观看整篇付费内容。</p></div></div>
+            <div class="usage-card"><div class="ic p2"><i class="fa-solid fa-percent"></i></div><div><h3>订阅折扣券</h3><p>9 折 / 8 折 · 限时使用，结账自动抵扣。</p></div></div>
+            <div class="usage-card"><div class="ic p3"><i class="fa-solid fa-gift"></i></div><div><h3>打赏加成卡</h3><p>打赏 100 → 创作者实收 110（平台补贴）。</p></div></div>
+            <div class="usage-card"><div class="ic p4"><i class="fa-solid fa-chart-line"></i></div><div><h3>积分加速卡</h3><p>积分获取收益 +20% · 持续 24 小时。</p></div></div>
+            <div class="usage-card"><div class="ic p5"><i class="fa-solid fa-coins"></i></div><div><h3>SFL / NFT 牵引</h3><p>限量兑换资格、空投抽奖券、NFT 折扣与质押加成。</p></div></div>
+        </div>
+
+        <div class="wheel-banner">
+            <div>
+                <h3><i class="fa-solid fa-dharmachakra" style="color:#FBBF24"></i>幸运转盘</h3>
+                <p>每次消耗 <b style="color:#FBBF24">500</b> 积分参与抽奖，有机会获得少量 USDT、会员天数、NFT 碎片或「谢谢参与」。奖品池与概率见规则页。</p>
+            </div>
+            <button type="button" class="wb-go" id="btnWheel"><i class="fa-solid fa-rotate"></i> 去转盘</button>
+        </div>
+
+        <div class="benefit-panel">
+            <div class="bp-card">
+                <div class="bh"><i class="fa-solid fa-ticket" style="color:#C084FC"></i>当前兑换权益</div>
+                <div class="bb">
+                    <div class="bp-row">
+                        <span class="dot"></span>
+                        <div>
+                            <div class="ti">积分加速卡 · +20% 收益</div>
+                            <div class="exp">生效至 2026-05-04 14:32 · 可与每日上限提升叠加（受封顶规则约束）</div>
+                        </div>
+                    </div>
+                    <div class="bp-row">
+                        <span class="dot"></span>
+                        <div>
+                            <div class="ti">订阅 9 折券 ×1</div>
+                            <div class="exp">需在 2026-05-10 前使用 · 单笔订单限 1 张</div>
+                        </div>
+                    </div>
+                    <div class="bp-row">
+                        <span class="dot" style="background:var(--brand-purple)"></span>
+                        <div>
+                            <div class="ti">付费内容试看券 · 剩余 1 次</div>
+                            <div class="exp">解锁后 24h 内有效 · 适用于标注「支持试看券」的创作者</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bp-card">
+                <div class="bh"><i class="fa-solid fa-clock-rotate-left" style="color:var(--success-light)"></i>历史兑换记录</div>
+                <div class="bb" style="padding-top:8px">
+                    <table class="history-table">
+                        <thead>
+                            <tr><th>时间</th><th>商品</th><th>积分</th><th>状态</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>05-02 19:40</td><td>每日上限提升卡（50→100）</td><td style="color:#FBBF24">−2,800</td><td><span class="tag tag-success" style="font-size:10px">已使用</span></td></tr>
+                            <tr><td>05-01 11:06</td><td>积分加速卡 24h</td><td style="color:#FBBF24">−1,200</td><td><span class="tag tag-purple" style="font-size:10px">使用中</span></td></tr>
+                            <tr><td>04-28 09:12</td><td>空投抽奖券 ×1</td><td style="color:#FBBF24">−800</td><td><span class="tag tag-info" style="font-size:10px">已开奖</span></td></tr>
+                            <tr><td>04-25 22:01</td><td>幸运转盘</td><td style="color:#FBBF24">−500</td><td><span style="color:var(--t-tertiary)">谢谢参与</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="pm-tabs" role="tablist" id="mallTabs">
+            <button type="button" class="active" data-tab="hot">热门推荐</button>
+            <button type="button" data-tab="pay">付费权益</button>
+            <button type="button" data-tab="grow">加速成长</button>
+            <button type="button" data-tab="vip">会员&amp;装扮</button>
+            <button type="button" data-tab="asset">资产专区</button>
+        </div>
+
+        <div class="goods-grid" id="goodsGrid">
+
+            <article class="goods-card" data-cats="hot,pay">
+                <div class="thumb" style="background-image:url('https://images.pexels.com/photos/7688336/pexels-photo-7688336.jpeg?auto=compress&cs=tinysrgb&w=800')">
+                    <span class="tag"><i class="fa-solid fa-fire-flame-curved"></i> 核心</span>
+                </div>
+                <div class="bd">
+                    <h4>付费内容试看券</h4>
+                    <p class="desc">单次解锁任意一篇付费帖 / 图集，解锁后 24 小时内可反复观看。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 3 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 1,240</span></div>
+                    <div class="row">
+                        <div class="price">1,600 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="付费内容试看券" data-points="1600" data-img="https://images.pexels.com/photos/7688336/pexels-photo-7688336.jpeg?auto=compress&cs=tinysrgb&w=400">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="hot,pay">
+                <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80')">
+                    <span class="tag">9 折</span>
+                </div>
+                <div class="bd">
+                    <h4>订阅 9 折券</h4>
+                    <p class="desc">任意创作者月度 / 季度档位可用，限时 7 天，单笔限用 1 张。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 5 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 620</span></div>
+                    <div class="row">
+                        <div class="price">2,200 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="订阅 9 折券" data-points="2200" data-img="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="pay">
+                <div class="thumb" style="background-image:url('https://images.pexels.com/photos/4386321/pexels-photo-4386321.jpeg?auto=compress&cs=tinysrgb&w=800')">
+                    <span class="tag">8 折</span>
+                </div>
+                <div class="bd">
+                    <h4>订阅 8 折券</h4>
+                    <p class="desc">高阶折扣，限时 48 小时使用；不可与其它满减叠加。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 1 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 88</span></div>
+                    <div class="row">
+                        <div class="price">6,800 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="订阅 8 折券" data-points="6800" data-img="https://images.pexels.com/photos/4386321/pexels-photo-4386321.jpeg?auto=compress&cs=tinysrgb&w=400">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="hot,pay">
+                <div class="thumb" style="background-image:url('https://images.pexels.com/photos/3945683/pexels-photo-3945683.jpeg?auto=compress&cs=tinysrgb&w=800')">
+                    <span class="tag"><i class="fa-solid fa-heart"></i> 打赏</span>
+                </div>
+                <div class="bd">
+                    <h4>打赏加成卡 · 24h</h4>
+                    <p class="desc">打赏 100 USDT → 创作者到账 110（平台补贴 10）。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 2 / 周</span><span><i class="fa-solid fa-box-open"></i>剩余 410</span></div>
+                    <div class="row">
+                        <div class="price">3,500 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="打赏加成卡 · 24h" data-points="3500" data-img="https://images.pexels.com/photos/3945683/pexels-photo-3945683.jpeg?auto=compress&cs=tinysrgb&w=400">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="hot,grow">
+                <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80')">
+                    <span class="tag"><i class="fa-solid fa-bolt"></i> 核心</span>
+                </div>
+                <div class="bd">
+                    <h4>积分加速卡 · 24h</h4>
+                    <p class="desc">积分获取收益 +20%，持续 24 小时（任务 / 计时奖励均生效）。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 3 / 周</span><span><i class="fa-solid fa-box-open"></i>剩余 2,050</span></div>
+                    <div class="row">
+                        <div class="price">1,200 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="积分加速卡 · 24h" data-points="1200" data-img="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&q=80">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="grow">
+                <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80')">
+                    <span class="tag">上限</span>
+                </div>
+                <div class="bd">
+                    <h4>每日上限提升卡</h4>
+                    <p class="desc">当日积分获取上限由 50 → 100，次日 0 点恢复规则。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 1 / 日</span><span><i class="fa-solid fa-box-open"></i>剩余 999+</span></div>
+                    <div class="row">
+                        <div class="price">2,800 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="每日上限提升卡" data-points="2800" data-img="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&q=80">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="grow">
+                <div class="thumb" style="background-image:url('https://cdn.pixabay.com/photo/2016/11/29/09/16/architecture-1868667_1280.jpg')">
+                    <span class="tag">签到</span>
+                </div>
+                <div class="bd">
+                    <h4>连续签到翻倍卡</h4>
+                    <p class="desc">下一次签到奖励 ×2（含连续天数加成基准）。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 7 / 周</span><span><i class="fa-solid fa-box-open"></i>剩余 720</span></div>
+                    <div class="row">
+                        <div class="price">450 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="连续签到翻倍卡" data-points="450" data-img="https://cdn.pixabay.com/photo/2016/11/29/09/16/architecture-1868667_640.jpg">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="grow">
+                <div class="thumb" style="background-image:url('https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=800')">
+                    <span class="tag">邀请</span>
+                </div>
+                <div class="bd">
+                    <h4>邀请加成卡 · 7 日</h4>
+                    <p class="desc">邀请好友完成的积分 / 现金返利 +10%。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 1 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 156</span></div>
+                    <div class="row">
+                        <div class="price">4,200 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="邀请加成卡 · 7 日" data-points="4200" data-img="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=400">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="hot,vip">
+                <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=800&q=80')">
+                    <span class="tag">会员</span>
+                </div>
+                <div class="bd">
+                    <h4>会员身份 · 7 天</h4>
+                    <p class="desc">体验会员权益：高清画质、专属客服入口、评论置顶优先。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 1 / 季</span><span><i class="fa-solid fa-box-open"></i>剩余 320</span></div>
+                    <div class="row">
+                        <div class="price">5,500 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="会员身份 · 7 天" data-points="5500" data-img="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=400&q=80">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="vip">
+                <div class="thumb" style="background-image:url('https://images.pexels.com/photos/3785079/pexels-photo-3785079.jpeg?auto=compress&cs=tinysrgb&w=800')">
+                    <span class="tag">30 天</span>
+                </div>
+                <div class="bd">
+                    <h4>会员身份 · 30 天</h4>
+                    <p class="desc">完整月度会员权益包，续费可叠加时长。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 2 / 年</span><span><i class="fa-solid fa-box-open"></i>剩余 96</span></div>
+                    <div class="row">
+                        <div class="price">18,000 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="会员身份 · 30 天" data-points="18000" data-img="https://images.pexels.com/photos/3785079/pexels-photo-3785079.jpeg?auto=compress&cs=tinysrgb&w=400">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="vip">
+                <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1567446535009-f035fce46156?w=800&q=80')">
+                    <span class="tag">VIP</span>
+                </div>
+                <div class="bd">
+                    <h4>昵称徽章 · VIP / OG</h4>
+                    <p class="desc">在个人主页与评论区展示限定徽章（二选一，30 天）。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 1 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 540</span></div>
+                    <div class="row">
+                        <div class="price">2,400 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="昵称徽章 · VIP / OG" data-points="2400" data-img="https://images.unsplash.com/photo-1567446535009-f035fce46156?w=400&q=80">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="vip">
+                <div class="thumb" style="background-image:url('https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=800')">
+                    <span class="tag">评论</span>
+                </div>
+                <div class="bd">
+                    <h4>评论高亮 · 7 日</h4>
+                    <p class="desc">你的评论在创作者帖子下高亮展示（样式 A）。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 4 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 288</span></div>
+                    <div class="row">
+                        <div class="price">900 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="评论高亮 · 7 日" data-points="900" data-img="https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=400">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="vip">
+                <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=800&q=80')">
+                    <span class="tag">装扮</span>
+                </div>
+                <div class="bd">
+                    <h4>专属头像框 · 霓虹</h4>
+                    <p class="desc">动态霓虹边框，适用于头像与直播封面角标。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 2 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 0</span></div>
+                    <div class="row">
+                        <div class="price">3,100 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" disabled>已兑完</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="hot,asset">
+                <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&q=80')">
+                    <span class="tag">限量资格</span>
+                </div>
+                <div class="bd">
+                    <h4>SFL 兑换资格（非 Token）</h4>
+                    <p class="desc">获得下一阶段 SFL 公募 / 兑换窗口的抽签资格，非直接到账代币。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 1 / 人</span><span><i class="fa-solid fa-box-open"></i>剩余 42</span></div>
+                    <div class="row">
+                        <div class="price">9,900 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="SFL 兑换资格" data-points="9900" data-img="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="asset">
+                <div class="thumb" style="background-image:url('https://images.pexels.com/photos/8370752/pexels-photo-8370752.jpeg?auto=compress&cs=tinysrgb&w=800')">
+                    <span class="tag">空投</span>
+                </div>
+                <div class="bd">
+                    <h4>空投抽奖券 ×1</h4>
+                    <p class="desc">参与当期 SFL / 纪念 NFT 空投抽奖（规则详见活动页）。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 10 / 期</span><span><i class="fa-solid fa-box-open"></i>剩余 1,800</span></div>
+                    <div class="row">
+                        <div class="price">800 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="空投抽奖券 ×1" data-points="800" data-img="https://images.pexels.com/photos/8370752/pexels-photo-8370752.jpeg?auto=compress&cs=tinysrgb&w=400">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="asset">
+                <div class="thumb" style="background-image:url('https://cdn.pixabay.com/photo/2021/12/06/04/33/nft-6848611_1280.jpg')">
+                    <span class="tag">NFT</span>
+                </div>
+                <div class="bd">
+                    <h4>NFT 铸造 / 交易手续费折扣券</h4>
+                    <p class="desc">指定合集 Mint 或二级市场手续费 85 折，单笔封顶见券说明。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 3 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 210</span></div>
+                    <div class="row">
+                        <div class="price">4,400 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="NFT 手续费折扣券" data-points="4400" data-img="https://cdn.pixabay.com/photo/2021/12/06/04/33/nft-6848611_640.jpg">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="asset">
+                <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1640340434855-6084b1db14fb?w=800&q=80')">
+                    <span class="tag">质押</span>
+                </div>
+                <div class="bd">
+                    <h4>质押加成券 · 30 日</h4>
+                    <p class="desc">FansLoop 质押池收益加成 +5%（链上活动期可用）。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 1 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 75</span></div>
+                    <div class="row">
+                        <div class="price">12,000 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="质押加成券 · 30 日" data-points="12000" data-img="https://images.unsplash.com/photo-1640340434855-6084b1db14fb?w=400&q=80">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+        </div>
+
+        <footer style="margin-top:40px;padding-top:22px;border-top:1px solid var(--border);font-size:12px;color:var(--t-tertiary);text-align:center">
+            FansLoop · 积分规则以站内公告为准 · 兑换完成将写入账变（积分）· 客服与申诉入口见设置中心
+        </footer>
+    </main>
+</div>
+
+<div class="pm-overlay" id="redeemOverlay" aria-hidden="true">
+    <div class="pm-modal" role="dialog" aria-modal="true" aria-labelledby="redeemTitle">
+        <div class="mh">
+            <h3 id="redeemTitle">确认兑换</h3>
+            <button type="button" id="redeemClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="mb">
+            <div class="preview">
+                <div class="img" id="redeemImg"></div>
+                <div class="txt">
+                    <h4 id="redeemName">—</h4>
+                    <p id="redeemDesc">兑换成功后权益立即下发至「当前兑换权益」，请在有效期内使用。</p>
+                </div>
+            </div>
+            <div class="cost">
+                <div class="big" id="redeemCost">—</div>
+                <div class="sub">将从可用积分中扣除 · 扣除后余额 <span id="redeemAfter">—</span></div>
+            </div>
+            <div class="mf-btns">
+                <button type="button" class="cancel" id="redeemCancel">取消</button>
+                <button type="button" class="ok" id="redeemOk"><i class="fa-solid fa-check"></i> 确认兑换</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="globalToast"><i class="fa-solid fa-circle-check" style="color:var(--success);margin-right:8px"></i><span id="toastMsg">已保存</span></div>
+
+<script>
+(function () {
+    const tabs = document.querySelectorAll('#mallTabs button');
+    const cards = document.querySelectorAll('#goodsGrid .goods-card');
+    const overlay = document.getElementById('redeemOverlay');
+    const redeemClose = document.getElementById('redeemClose');
+    const redeemCancel = document.getElementById('redeemCancel');
+    const redeemOk = document.getElementById('redeemOk');
+    const redeemName = document.getElementById('redeemName');
+    const redeemImg = document.getElementById('redeemImg');
+    const redeemCost = document.getElementById('redeemCost');
+    const redeemAfter = document.getElementById('redeemAfter');
+    const toast = document.getElementById('globalToast');
+    const toastMsg = document.getElementById('toastMsg');
+    let balance = 12580;
+    let pendingPoints = 0;
+
+    function filterTab(key) {
+        cards.forEach(card => {
+            const cats = (card.dataset.cats || '').split(',');
+            card.classList.toggle('hidden', key !== 'hot' && !cats.includes(key));
+        });
+    }
+
+    tabs.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabs.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterTab(btn.dataset.tab);
+        });
+    });
+
+    function showToast(msg) {
+        toastMsg.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    function openRedeem(title, points, imgUrl) {
+        pendingPoints = points;
+        redeemName.textContent = title;
+        redeemImg.style.backgroundImage = 'url(\'' + imgUrl + '\')';
+        redeemCost.textContent = points.toLocaleString() + ' 积分';
+        redeemAfter.textContent = (balance - points).toLocaleString();
+        overlay.classList.add('show');
+        overlay.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeRedeem() {
+        overlay.classList.remove('show');
+        overlay.setAttribute('aria-hidden', 'true');
+    }
+
+    document.querySelectorAll('.btn-redeem:not(:disabled)').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const title = btn.dataset.title;
+            const points = parseInt(btn.dataset.points, 10);
+            const img = btn.dataset.img || '';
+            if (!title || !points) return;
+            if (balance < points) {
+                showToast('积分不足，去完成活跃任务或等待计时奖励吧');
+                return;
+            }
+            openRedeem(title, points, img);
+        });
+    });
+
+    redeemClose.addEventListener('click', closeRedeem);
+    redeemCancel.addEventListener('click', closeRedeem);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeRedeem(); });
+
+    redeemOk.addEventListener('click', () => {
+        balance -= pendingPoints;
+        document.querySelector('.pm-balance .val').innerHTML = '<i class="fa-solid fa-bolt"></i>' + balance.toLocaleString();
+        closeRedeem();
+        showToast('兑换成功 · 权益已下发（原型演示）');
+    });
+
+    document.getElementById('btnWheel').addEventListener('click', () => {
+        showToast('打开幸运转盘（原型）：每次 −500 积分，奖品池含 USDT / 会员 / NFT');
+    });
+})();
+</script>
+</body>
+</html>
