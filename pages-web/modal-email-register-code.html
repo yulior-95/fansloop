@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>注册并登录 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/prototype-guest-first.css">
+<link rel="stylesheet" href="../css-web/auth-wizard-modal.css">
+<link rel="stylesheet" href="../css-web/global-lang-switch.css">
+<script src="../js-web/global-lang-switch.js" defer></script>
+</head>
+<body>
+<div class="gf-modal-root">
+    <div class="gf-modal">
+        <div class="gf-modal-head">
+            <div class="aw-brand">
+                <div class="aw-logo"><i class="fa-solid fa-infinity"></i></div>
+                <div><div class="aw-title">注册并登录</div><p style="font-size:11px;color:var(--t-tertiary);margin-top:2px;">钱包注册/登录一体 · 邮箱验证码注册</p></div>
+            </div>
+            <a href="guest-home.html" class="close-x"><i class="fa-solid fa-xmark"></i></a>
+        </div>
+
+        <nav class="gf-tabs-fixed">
+            <a class="tab" href="modal-login-main.html">钱包登录 / 注册</a>
+            <span class="tab active">邮箱注册</span>
+        </nav>
+
+        <div class="gf-modal-body">
+            <div class="gf-field">
+                <label>邮箱</label>
+                <input type="email" id="regEmail" value="new-user@example.com" readonly />
+                <div class="hint">来自上一步输入（原型只读示意）。</div>
+            </div>
+            <div class="gf-field">
+                <label>验证码 <span style="color:var(--danger-light);">*</span></label>
+                <div class="gf-row2">
+                    <input type="text" id="regOtp" placeholder="请输入 6 位验证码" maxlength="6" autocomplete="one-time-code" />
+                    <button type="button" class="btn-gf-ghost" style="white-space:nowrap;">重新发送</button>
+                </div>
+            </div>
+            <div class="gf-field">
+                <label>登录密码（选填）</label>
+                <input type="password" id="regPwd" placeholder="不设密码则后续仅用验证码登录" />
+            </div>
+            <div id="regErr" class="alert-gf danger" style="display:none;margin-bottom:12px;"></div>
+            <button type="button" class="btn-gf-primary" id="btnRegDone"><i class="fa-solid fa-check"></i> 验证并完成注册</button>
+            <p style="margin-top:12px;font-size:11px;color:var(--t-quaternary);text-align:center;line-height:1.45;">
+                原型：<strong style="color:#FBBF24;">输入 123456</strong> 视为验证码正确并进入完善资料；否则提示「请输入正确的验证码」。
+            </p>
+            <div style="margin-top:14px;text-align:center;font-size:12px;color:var(--t-tertiary);">
+                已有账号？<a href="modal-email-login.html" style="color:var(--brand-purple);font-weight:700;">去登录</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('btnRegDone').addEventListener('click', function () {
+    var otp = (document.getElementById('regOtp').value || '').trim();
+    var err = document.getElementById('regErr');
+    if (!otp || otp !== '123456') {
+        err.style.display = 'flex';
+        err.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i><div>请输入正确的验证码</div>';
+        return;
+    }
+    err.style.display = 'none';
+    window.location.href = 'onboarding-profile-complete.html?source=email';
+});
+</script>
+</body>
+</html>

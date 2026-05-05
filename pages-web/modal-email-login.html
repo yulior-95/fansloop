@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>邮箱登录 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/prototype-guest-first.css">
+<link rel="stylesheet" href="../css-web/auth-wizard-modal.css">
+<link rel="stylesheet" href="../css-web/global-lang-switch.css">
+<script src="../js-web/global-lang-switch.js" defer></script>
+</head>
+<body>
+<div class="gf-modal-root">
+    <div class="gf-modal">
+        <div class="gf-modal-head" style="padding-bottom:10px;">
+            <div class="aw-brand">
+                <div class="aw-logo"><i class="fa-solid fa-infinity"></i></div>
+                <div><div class="aw-title">FansLoop</div><p style="font-size:11px;color:var(--t-tertiary);margin-top:2px;">邮箱登录</p></div>
+            </div>
+            <a href="guest-home.html" class="close-x" title="关闭"><i class="fa-solid fa-xmark"></i></a>
+        </div>
+
+        <nav class="gf-tabs-fixed" aria-label="登录方式">
+            <a class="tab" href="modal-login-main.html">钱包登录</a>
+            <span class="tab active">邮箱登录</span>
+        </nav>
+
+        <div class="gf-modal-body" style="padding-bottom:0;">
+            <div class="toggle-sub" style="margin-bottom:14px;">
+                <button type="button" class="on" id="btnModeCode">验证码登录</button>
+                <button type="button" id="btnModePwd">密码登录</button>
+            </div>
+
+            <div id="panelCode">
+                <div class="gf-field">
+                    <label>邮箱</label>
+                    <input type="email" id="emailCode" placeholder="name@company.com" value="creator@example.com" />
+                </div>
+                <div class="gf-field">
+                    <label>验证码</label>
+                    <div class="gf-row2">
+                        <input type="text" id="otpCode" placeholder="6 位验证码" maxlength="6" />
+                        <button type="button" class="btn-gf-ghost" style="white-space:nowrap;" onclick="location.href='modal-email-unregistered-prompt.html'">获取验证码</button>
+                    </div>
+                </div>
+                <button type="button" class="btn-gf-primary" onclick="location.href='modal-email-unregistered-prompt.html'"><i class="fa-solid fa-right-to-bracket"></i> 登录</button>
+            </div>
+
+            <div id="panelPwd" style="display:none;">
+                <div class="gf-field">
+                    <label>邮箱</label>
+                    <input type="email" id="emailPwd" placeholder="name@company.com" />
+                </div>
+                <div class="gf-field">
+                    <label>登录密码</label>
+                    <input type="password" id="pwdMain" placeholder="输入登录密码" />
+                </div>
+                <button type="button" class="btn-gf-primary" onclick="location.href='modal-email-unregistered-prompt.html'"><i class="fa-solid fa-right-to-bracket"></i> 登录</button>
+                <div style="text-align:right;margin-top:10px;">
+                    <a href="modal-email-forgot-password.html" style="font-size:12px;color:var(--brand-purple);font-weight:700;">忘记密码</a>
+                </div>
+            </div>
+
+            <div class="modal-email-footer">
+                <span>没有账号？<a href="modal-email-register-code.html">去注册</a></span>
+                <span style="flex:1"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var btnCode = document.getElementById('btnModeCode');
+    var btnPwd = document.getElementById('btnModePwd');
+    var panelCode = document.getElementById('panelCode');
+    var panelPwd = document.getElementById('panelPwd');
+    function modeCode() {
+        btnCode.classList.add('on');
+        btnPwd.classList.remove('on');
+        panelCode.style.display = '';
+        panelPwd.style.display = 'none';
+    }
+    function modePwd() {
+        btnPwd.classList.add('on');
+        btnCode.classList.remove('on');
+        panelCode.style.display = 'none';
+        panelPwd.style.display = '';
+    }
+    btnCode.addEventListener('click', modeCode);
+    btnPwd.addEventListener('click', modePwd);
+    if (location.hash === '#pwd') modePwd();
+})();
+</script>
+</body>
+</html>

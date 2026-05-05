@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设置 · 安全绑定（邮箱 / 钱包）</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/prototype-guest-first.css">
+<style>
+.bind-layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+@media (max-width: 960px) { .bind-layout { grid-template-columns: 1fr; } .bind-side { display: none; } }
+.bind-side {
+    border-right: 1px solid var(--border);
+    padding: 22px 18px;
+    background: var(--bg-app);
+}
+.bind-side h3 { font-size: 13px; font-weight: 800; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+.bind-side .nav-btn {
+    width: 100%;
+    text-align: left;
+    padding: 11px 12px;
+    border-radius: var(--r-md);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--t-secondary);
+    margin-bottom: 6px;
+    border: 1px solid transparent;
+}
+.bind-side .nav-btn.active {
+    background: rgba(168,85,247,0.12);
+    border-color: rgba(168,85,247,0.35);
+    color: #fff;
+}
+.bind-main { padding: 28px 32px 60px; max-width: 720px; }
+.bind-main h1 { font-size: 22px; font-weight: 900; margin-bottom: 8px; }
+.bind-main .lead { font-size: 13px; color: var(--t-secondary); margin-bottom: 22px; line-height: 1.55; }
+.panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 18px 18px 16px;
+    margin-bottom: 16px;
+}
+.panel h2 { font-size: 15px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.status-pill {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: var(--r-pill);
+    background: rgba(148,163,184,0.15);
+    border: 1px solid rgba(148,163,184,0.35);
+    color: var(--t-secondary);
+}
+.status-pill.ok {
+    background: rgba(16,185,129,0.12);
+    border-color: rgba(16,185,129,0.35);
+    color: var(--success-light);
+}
+.mini-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+</style>
+
+<link rel="stylesheet" href="../css-web/global-lang-switch.css">
+<script src="../js-web/global-lang-switch.js" defer></script>
+</head>
+<body>
+
+<div class="bind-layout">
+    <aside class="bind-side">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px;font-weight:900;">
+            <div style="width:34px;height:34px;border-radius:10px;background:var(--brand-grad);display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-gear"></i></div>
+            FansLoop
+        </div>
+        <h3>设置</h3>
+        <button type="button" class="nav-btn">账号资料</button>
+        <button type="button" class="nav-btn active"><i class="fa-solid fa-shield-halved"></i> 安全绑定</button>
+        <button type="button" class="nav-btn">通知</button>
+        <button type="button" class="nav-btn">隐私</button>
+        <p style="margin-top:22px;font-size:11px;color:var(--t-quaternary);line-height:1.5;">
+            登录注册阶段未完成的邮箱 / 钱包绑定，可在此补齐并进行冲突校验。
+        </p>
+    </aside>
+
+    <div class="bind-main">
+        <header style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:10px;">
+            <div>
+                <h1>安全绑定</h1>
+                <p class="lead">登录注册时不强制完成全部绑定；为保障资产与账号找回，建议在设置中尽快补齐。</p>
+            </div>
+            <div class="lang-switch"><i class="fa-solid fa-language"></i> 中文 / EN</div>
+        </header>
+
+        <div class="panel">
+            <h2><i class="fa-regular fa-envelope" style="color:#93C5FD;"></i> 邮箱绑定 <span class="status-pill">未绑定</span></h2>
+            <div class="gf-field" style="margin-bottom:0;">
+                <label>邮箱</label>
+                <input type="email" placeholder="输入要绑定的邮箱" />
+            </div>
+            <div class="gf-row2" style="margin-top:12px;">
+                <div class="gf-field" style="margin-bottom:0;">
+                    <label>验证码</label>
+                    <input type="text" placeholder="6 位验证码" maxlength="6" />
+                </div>
+                <button type="button" class="btn-gf-ghost" style="height:42px;" onclick="location.href='modal-bind-email-conflict.html'">获取验证码</button>
+            </div>
+            <div class="mini-actions">
+                <button type="button" class="btn btn-primary" style="padding:9px 16px;border-radius:var(--r-md);font-weight:800;">完成绑定</button>
+                <button type="button" class="btn btn-secondary" style="padding:9px 16px;border-radius:var(--r-md);font-weight:700;" onclick="location.href='modal-bind-email-conflict.html'">预览 · 邮箱已被占用</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2><i class="fa-brands fa-ethereum" style="color:#C084FC;"></i> 钱包绑定 <span class="status-pill ok">已绑定 1</span></h2>
+            <p style="font-size:12px;color:var(--t-secondary);line-height:1.55;margin-bottom:10px;">
+                选择插件或 WalletConnect 获取地址 → 后端判断是否与其他账号冲突。
+            </p>
+            <div class="wallet-grid">
+                <div class="wallet-card"><i class="fa-brands fa-ethereum"></i><div class="t">插件钱包</div><div class="s">唤起签名</div></div>
+                <div class="wallet-card"><i class="fa-solid fa-qrcode"></i><div class="t">WalletConnect</div><div class="s">扫码授权</div></div>
+            </div>
+            <div class="mini-actions">
+                <button type="button" class="btn btn-secondary" style="padding:9px 16px;border-radius:var(--r-md);font-weight:700;" onclick="location.href='modal-bind-wallet-conflict.html'">预览 · 钱包冲突提示</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

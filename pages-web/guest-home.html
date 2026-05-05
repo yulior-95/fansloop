@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>首页（游客）· FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/home-feed.css">
+<link rel="stylesheet" href="../css-web/prototype-guest-first.css">
+<link rel="stylesheet" href="../css-web/global-lang-switch.css">
+<script src="../js-web/global-lang-switch.js" defer></script>
+<script src="../js-web/guest-home-i18n.js" defer></script>
+<style>
+@keyframes pulse-live { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.5;transform:scale(.85);} }
+.composer.guest-composer-wrap{position:relative;overflow:hidden;}
+.guest-veil{position:absolute;inset:0;background:rgba(7,7,13,.72);backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:5;cursor:pointer;text-align:center;padding:16px;}
+.guest-veil i{font-size:22px;color:var(--brand-purple);}
+.guest-veil span{font-size:13px;font-weight:700;color:var(--t-secondary);}
+.s-item.is-guest-lock{opacity:.58;}
+.feed-panel-follow{display:none!important;}
+.feed-panel-guest-follow{display:none;}
+.feed-panel-guest-follow.active{display:block;}
+.guest-aside-lock .guest-lock-body{position:relative;min-height:120px;}
+.guest-aside-veil{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(7,7,13,.7);backdrop-filter:blur(6px);border-radius:var(--r-md);text-align:center;padding:14px;font-size:12px;color:var(--t-secondary);}
+.guest-aside-veil strong{color:#fff;font-size:13px;}
+</style></head>
+<body>
+
+<div class="app-shell">
+
+    <!-- Sidebar · 与 home.html 信息架构一致；敏感入口登录门禁 -->
+    <aside class="app-sidebar">
+        <div class="s-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator</span></div>
+        </div>
+
+        <div class="s-section">主导航</div>
+        <div class="s-item active" onclick="location.href='guest-home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item is-guest-lock" onclick="location.href='modal-login-main.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item is-guest-lock" onclick="location.href='modal-login-main.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+
+        <div class="s-section">互动</div>
+        <div class="s-item is-guest-lock" onclick="location.href='modal-login-main.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span></div>
+        <div class="s-item is-guest-lock" onclick="location.href='modal-login-main.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span></div>
+
+        <div class="s-section">资产</div>
+        <div class="s-item is-guest-lock" onclick="location.href='modal-login-main.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item is-guest-lock" onclick="location.href='modal-login-main.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span></div>
+        <div class="s-item is-guest-lock" onclick="location.href='modal-login-main.html'"><span class="ic"><i class="fa-solid fa-store"></i></span><span class="lb">积分商城</span></div>
+        <div class="s-item is-guest-lock" onclick="location.href='modal-login-main.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+
+        <div class="s-section">个人</div>
+        <div class="s-item is-guest-lock" onclick="location.href='modal-login-main.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item is-guest-lock" onclick="location.href='modal-login-main.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+
+        <div class="s-bottom">
+            <div class="s-pro-card">
+                <div class="crown"><i class="fa-solid fa-user-lock"></i></div>
+                <h4>游客模式</h4>
+                <p>可免费浏览公开内容 · 互动与资产功能请登录</p>
+                <button type="button" onclick="location.href='modal-login-main.html'">登录 / 注册</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Header -->
+    <header class="app-header">
+        <div class="h-search h-search-live">
+            <div class="hs-inner">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" id="globalSearchInp" placeholder="搜索创作者、内容或话题…" autocomplete="off" />
+                <div class="gs-drop" id="globalSearchDrop"></div>
+            </div>
+            <button type="button" id="btnGlobalSearch">搜索</button>
+        </div>
+        <div class="h-actions">
+            <span class="guest-badge"><i class="fa-solid fa-eye"></i> <span data-i18n="guest_lb">游客</span></span>
+            <button type="button" class="btn btn-primary" style="height:38px;padding:0 18px;border-radius:var(--r-md);font-weight:800;" onclick="location.href='modal-login-main.html'" data-i18n="login_cta">登录 / 注册</button>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="app-main">
+        <div class="feed-grid">
+
+            <!-- 主 Feed -->
+            <div>
+                <!-- Composer · 与 home 布局一致，游客遮罩 -->
+                <div class="composer guest-composer-wrap">
+                    <div class="av av-md" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80');opacity:0.45;"></div>
+                    <div class="body">
+                        <input type="text" readonly placeholder="登录后可发布动态…" data-i18n-ph />
+                        <div class="actions">
+                            <span class="act-btn image"><i class="fa-regular fa-image"></i><span data-i18n="lbl_img">图片</span></span>
+                            <span class="act-btn video"><i class="fa-solid fa-video"></i><span data-i18n="lbl_vid">视频</span></span>
+                            <span class="act-btn live"><i class="fa-solid fa-tower-broadcast"></i><span data-i18n="lbl_live">开直播</span></span>
+                            <span style="flex:1"></span>
+                            <button type="button" class="btn btn-primary btn-sm" id="btnComposerPublish" onclick="location.href='modal-login-main.html';event.preventDefault();"><span data-i18n="publish">发布</span></button>
+                        </div>
+                    </div>
+                    <div class="guest-veil" onclick="location.href='login-modal-home-overlay.html'" role="button" tabindex="0">
+                        <i class="fa-solid fa-lock"></i>
+                        <span data-i18n="veil_txt">登录后可发布图文 / 视频 / 开播</span>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation();location.href='modal-login-main.html'"><span data-i18n="go_login">去登录</span></button>
+                    </div>
+                </div>
+
+                <div class="guest-quota-row" style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:14px;">
+                    <div class="quota-pill"><i class="fa-solid fa-gift"></i> <span data-i18n="quota">今日免费观看直播剩余 2 / 5 次</span></div>
+                </div>
+
+                <!-- Feed Tabs · 推荐 / 关注 -->
+                <div class="feed-tabs" id="feedTabs">
+                    <div class="tab active" data-feed="rec" role="button" tabindex="0"><i class="fa-solid fa-compass"></i>推荐</div>
+                    <div class="tab" data-feed="follow" role="button" tabindex="0"><i class="fa-solid fa-fire"></i>关注</div>
+                    <div class="grow"></div>
+                    <button type="button" class="more" id="btnFeedFilter"><i class="fa-solid fa-sliders"></i> 筛选</button>
+                </div>
+
+                <div class="feed-panel-rec active" id="feedRec">
+                <!-- Post 1 · 普通图文 -->
+                <article class="post-card">
+                    <div class="post-head">
+                        <div class="av av-md" style="background-image: url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100')"></div>
+                        <div class="pi-info">
+                            <div class="name">山野食光 <i class="fa-solid fa-circle-check verified" title="认证创作者"></i></div>
+                            <div class="meta">摄影师 · 创作者 LV 6 · 2 小时前 · 摄影 · 旅行</div>
+                        </div>
+                        <div class="pi-actions">
+                            <button type="button" class="follow-btn" onclick="location.href='modal-login-main.html'">+ <span data-i18n="follow">关注</span></button>
+                            <button class="ic-btn" onclick="location.href='modal-login-main.html'"><i class="fa-solid fa-ellipsis"></i></button>
+                        </div>
+                    </div>
+                    <div class="post-text">
+                        清晨 5:40 的富士山五合目，云海像被风轻轻吹散的奶油 ☁️
+                        <br>这次用 35mm 定焦在零下 4℃ 拍了三个小时，每一张都是冻出来的浪漫
+                        <br><span class="hashtag">#富士山</span> <span class="hashtag">#旅行摄影</span> <span class="hashtag">#日出</span>
+                    </div>
+                    <div class="post-media grid-2">
+                        <img src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=900&q=80" alt="">
+                        <img src="https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=900&q=80" alt="">
+                    </div>
+                    <div class="post-actions">
+                        <span class="a-btn liked like-act guest-act" role="button"><i class="fa-solid fa-heart"></i><span class="lc">2,148</span></span>
+                        <span class="a-btn guest-act" role="button"><i class="fa-regular fa-comment"></i>342</span>
+                        <span class="a-btn guest-act" role="button"><i class="fa-solid fa-arrow-up-right-from-square"></i><span data-i18n="share">分享</span></span>
+                        <span class="a-btn tip-cta guest-act" role="button"><i class="fa-solid fa-gift"></i><span data-i18n="tip">打赏</span></span>
+                        <span class="a-btn bookmark-act guest-act" role="button"><i class="fa-regular fa-bookmark"></i><span data-i18n="save">收藏</span></span>
+                    </div>
+                </article>
+
+                <!-- Post 2 · 付费内容（带封面） -->
+                <article class="post-card">
+                    <div class="post-head">
+                        <div class="av av-md" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100')"></div>
+                        <div class="pi-info">
+                            <div class="name">Lens 旅记 <i class="fa-solid fa-circle-check verified"></i> <span class="tag tag-warning">优质</span></div>
+                            <div class="meta">认证创作者 · 5 小时前 · 已发布到 1.2k 订阅者</div>
+                        </div>
+                        <div class="pi-actions">
+                            <button type="button" class="follow-btn" onclick="location.href='modal-login-main.html'"><span data-i18n="subscribed_demo">订阅预览</span></button>
+                            <button class="ic-btn" onclick="location.href='modal-login-main.html'"><i class="fa-solid fa-ellipsis"></i></button>
+                        </div>
+                    </div>
+                    <div class="post-text">
+                        【会员专享】京都 4 月樱花季隐秘机位整理 · 含 GPS 坐标 + 拍摄建议 + 18 张原图…
+                    </div>
+                    <div class="paid-cover" style="background-image: url('https://images.unsplash.com/photo-1522383225653-ed111181a951?w=1200&q=80')">
+                        <span class="pc-tag"><i class="fa-solid fa-crown"></i> 优质付费</span>
+                        <div class="pc-blur-mask"></div>
+                        <div class="pc-content">
+                            <div class="pc-lock"><i class="fa-solid fa-lock"></i></div>
+                            <h4>京都 4 月樱花季 · 18 张原图与拍摄机位</h4>
+                            <p>包含 GPS 坐标、最佳光线时段与构图建议 · 5 USDT 单帖解锁，或订阅创作者解锁所有专享内容</p>
+                            <div class="pc-ctas">
+                                <button type="button" class="pc-buy" onclick="event.stopPropagation(); location.href='modal-login-main.html'"><i class="fa-solid fa-bolt"></i> <span data-i18n="unlock">立即解锁 · $5.00</span></button>
+                                <button type="button" class="pc-sub" onclick="event.stopPropagation(); location.href='modal-login-main.html'"><i class="fa-solid fa-crown"></i> <span data-i18n="sub_month">订阅 28 USDT/月</span></button>
+                            </div>
+                        </div>
+                        <div class="pc-blurred-thumbs">
+                            <div class="ti" style="background-image:url('https://images.unsplash.com/photo-1522383225653-ed111181a951?w=200&q=60')"></div>
+                            <div class="ti" style="background-image:url('https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=200&q=60')"></div>
+                            <div class="ti" style="background-image:url('https://images.unsplash.com/photo-1545569310-a85ba70d54e3?w=200&q=60')"></div>
+                            <div class="more-cnt">+15</div>
+                        </div>
+                    </div>
+                    <div class="post-actions">
+                        <span class="a-btn like-act guest-act" role="button"><i class="fa-regular fa-heart"></i><span class="lc">986</span></span>
+                        <span class="a-btn guest-act" role="button"><i class="fa-regular fa-comment"></i>148</span>
+                        <span class="a-btn guest-act" role="button"><i class="fa-solid fa-arrow-up-right-from-square"></i><span data-i18n="share">分享</span></span>
+                        <span class="a-btn tip-cta guest-act" role="button"><i class="fa-solid fa-gift"></i><span data-i18n="tip">打赏</span></span>
+                        <span class="a-btn bookmark-act guest-act" role="button"><i class="fa-regular fa-bookmark"></i><span data-i18n="save">收藏</span></span>
+                    </div>
+                </article>
+
+                <!-- Post 3 · 直播 -->
+                <article class="post-card">
+                    <div class="post-head">
+                        <div class="av av-md" onclick="location.href='creator-profile.html'" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100'); cursor: pointer"></div>
+                        <div class="pi-info">
+                            <div class="name" onclick="location.href='creator-profile.html'" style="cursor: pointer">夜雨听弦 <i class="fa-solid fa-circle-check verified"></i> <span class="tag tag-danger">直播中</span></div>
+                            <div class="meta">音乐人 · 正在直播 · 1,284 人观看</div>
+                        </div>
+                        <div class="pi-actions">
+                            <button type="button" class="follow-btn" onclick="location.href='modal-login-main.html'">+ <span data-i18n="follow">关注</span></button>
+                        </div>
+                    </div>
+                    <div class="post-text">🎻 <span data-i18n="live_desc">雨夜小提琴现场 · 公开免费直播（配额内可观看）</span></div>
+                    <div class="post-media" style="position: relative; cursor: pointer" onclick="location.href='live-detail.html'">
+                        <img src="https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=1200&q=80" style="height:300px; object-fit:cover">
+                        <div style="position:absolute; inset:0; background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.7))"></div>
+                        <div style="position:absolute; bottom:14px; left:14px; right:14px; display:flex; justify-content:space-between; align-items:flex-end">
+                            <div style="display:flex; gap:8px; align-items:center">
+                                <span class="tag tag-danger" style="font-size:11px; padding: 4px 9px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#fff;margin-right:4px;animation:pulse-live 1.2s ease-in-out infinite"></span>LIVE</span>
+                                <span style="color:#fff; font-size:12px"><i class="fa-solid fa-eye"></i> 1,284</span>
+                            </div>
+                            <button class="btn btn-primary btn-sm"><i class="fa-solid fa-play"></i>进入直播间</button>
+                        </div>
+                    </div>
+                    <div class="post-actions">
+                        <span class="a-btn like-act guest-act" role="button"><i class="fa-regular fa-heart"></i><span class="lc">2,389</span></span>
+                        <span class="a-btn guest-act" role="button"><i class="fa-regular fa-comment"></i><span data-i18n="danmu">实时弹幕</span></span>
+                        <span class="a-btn tip-cta guest-act" role="button"><i class="fa-solid fa-gift"></i><span data-i18n="gift">送礼</span></span>
+                        <span class="a-btn guest-act" role="button"><i class="fa-solid fa-arrow-up-right-from-square"></i><span data-i18n="share">分享</span></span>
+                    </div>
+                </article>
+                </div>
+
+                <div class="feed-panel-guest-follow" id="feedGuestFollow">
+                    <div style="padding:44px 24px;text-align:center;background:var(--bg-card);border:1px dashed rgba(168,85,247,0.35);border-radius:var(--r-lg);">
+                        <div style="width:56px;height:56px;margin:0 auto 14px;border-radius:50%;background:rgba(168,85,247,0.15);display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-user-lock" style="font-size:22px;color:var(--brand-purple);"></i></div>
+                        <div style="font-size:15px;font-weight:800;margin-bottom:8px;" data-i18n="follow_wall_title">关注动态仅对登录用户开放</div>
+                        <p style="font-size:12px;color:var(--t-tertiary);line-height:1.55;margin-bottom:16px;max-width:360px;margin-left:auto;margin-right:auto;" data-i18n="follow_wall_body">登录后可同步「推荐 / 关注」双列 Feed，与 home.html 行为一致。</p>
+                        <button type="button" class="btn btn-primary" style="padding:10px 22px;border-radius:var(--r-md);font-weight:800;" onclick="location.href='modal-login-main.html'" data-i18n="go_login">登录 / 注册</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧 -->
+            <aside class="feed-aside">
+
+                <div class="aside-card guest-aside-lock">
+                    <div class="ah"><h4><i class="fa-solid fa-clock-rotate-left" style="color:#F59E0B"></i><span data-i18n="pending_title">待审核内容</span></h4><span style="font-size:11px;color:var(--t-quaternary);">—</span></div>
+                    <div class="ab guest-lock-body">
+                        <div style="filter:blur(7px);opacity:.35;pointer-events:none;">
+                            <p style="font-size:12px;color:var(--t-secondary);line-height:1.5;margin-bottom:12px">当前有 <b style="color:#fff">2</b> 条投稿正在审核…</p>
+                            <button type="button" class="btn btn-secondary btn-block btn-sm"><i class="fa-solid fa-pen-to-square"></i> 创作后台</button>
+                        </div>
+                        <div class="guest-aside-veil">
+                            <strong data-i18n="pending_veil_title">创作者后台入口</strong>
+                            <span data-i18n="pending_veil_body">登录后可查看投稿审核 / 数据面板</span>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="location.href='modal-login-main.html'" data-i18n="go_login">登录 / 注册</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="aside-card">
+                    <div class="ah"><h4><i class="fa-solid fa-fire" style="color:#F472B6"></i>热门话题</h4><a href="javascript:void(0)" onclick="location.href='modal-login-main.html';return false;">更多</a></div>
+                    <div class="ab">
+                        <div class="trend-row" onclick="location.href='modal-login-main.html'" style="cursor:pointer">
+                            <span class="rank top1">1</span>
+                            <div class="info">
+                                <div class="t"># 富士山日出</div>
+                                <div class="s"><span class="fire">🔥 28k</span> · 2.1k 帖子 · 趋势 +18%</div>
+                            </div>
+                        </div>
+                        <div class="trend-row" onclick="location.href='modal-login-main.html'" style="cursor:pointer">
+                            <span class="rank top2">2</span>
+                            <div class="info">
+                                <div class="t"># Web3 创作者经济</div>
+                                <div class="s"><span class="fire">🔥 22k</span> · 8.4k 帖子</div>
+                            </div>
+                        </div>
+                        <div class="trend-row" onclick="location.href='modal-login-main.html'" style="cursor:pointer">
+                            <span class="rank top3">3</span>
+                            <div class="info">
+                                <div class="t"># 春日 Vlog</div>
+                                <div class="s"><span class="fire">🔥 18k</span> · 1.2k 帖子</div>
+                            </div>
+                        </div>
+                        <div class="trend-row" onclick="location.href='modal-login-main.html'" style="cursor:pointer">
+                            <span class="rank">4</span>
+                            <div class="info">
+                                <div class="t"># 一首歌的故事</div>
+                                <div class="s"><span class="fire">🔥 12k</span> · 920 帖子</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="aside-card">
+                    <div class="ah"><h4><i class="fa-solid fa-tower-broadcast" style="color:#EF4444"></i>正在直播</h4><a href="javascript:void(0)" onclick="location.href='modal-login-main.html';return false;">全部</a></div>
+                    <div class="ab">
+                        <div class="live-row" onclick="location.href='modal-login-main.html'" style="cursor:pointer">
+                            <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=200')">
+                                <div class="live-dot">LIVE</div>
+                            </div>
+                            <div class="info">
+                                <div class="t">雨夜小提琴现场</div>
+                                <div class="s">夜雨听弦 · 1,284 观看</div>
+                            </div>
+                        </div>
+                        <div class="live-row" onclick="location.href='modal-login-main.html'" style="cursor:pointer">
+                            <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1493612276216-ee3925520721?w=200')">
+                                <div class="live-dot">LIVE</div>
+                            </div>
+                            <div class="info">
+                                <div class="t">深夜咖啡馆问答</div>
+                                <div class="s">咖啡店主 · 642 观看</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="aside-card">
+                    <div class="ah"><h4><i class="fa-solid fa-user-plus" style="color:#A855F7"></i>推荐关注</h4><a href="javascript:void(0)" onclick="location.href='modal-login-main.html';return false;">换一批</a></div>
+                    <div class="ab">
+                        <div class="who-row" onclick="location.href='modal-login-main.html'" style="cursor:pointer">
+                            <div class="av av-sm" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></div>
+                            <div class="info">
+                                <div class="n">银盐时代</div>
+                                <div class="h">摄影 · 1.2k 粉丝</div>
+                            </div>
+                            <button type="button" class="follow-sidebar" onclick="event.stopPropagation();location.href='modal-login-main.html'">+ <span data-i18n="follow">关注</span></button>
+                        </div>
+                        <div class="who-row" onclick="location.href='modal-login-main.html'" style="cursor:pointer">
+                            <div class="av av-sm" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
+                            <div class="info">
+                                <div class="n">夜间速写</div>
+                                <div class="h">绘画 · 856 粉丝</div>
+                            </div>
+                            <button type="button" class="follow-sidebar" onclick="event.stopPropagation();location.href='modal-login-main.html'">+ <span data-i18n="follow">关注</span></button>
+                        </div>
+                        <div class="who-row" onclick="location.href='modal-login-main.html'" style="cursor:pointer">
+                            <div class="av av-sm" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80')"></div>
+                            <div class="info">
+                                <div class="n">代码诗人</div>
+                                <div class="h">科技 · 2.4k 粉丝</div>
+                            </div>
+                            <button type="button" class="follow-sidebar" onclick="event.stopPropagation();location.href='modal-login-main.html'">+ <span data-i18n="follow">关注</span></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="font-size: 11px; color: var(--t-tertiary); padding: 8px 14px; line-height: 1.6">
+                    <a href="#">关于</a> · <a href="#">服务</a> · <a href="#">隐私</a> · <button type="button" class="trouble-link" id="btnTroubleFoot">查看排错指南</button><br>
+                    © FansLoop 2026 · v 2.0
+                </div>
+            </aside>
+
+        </div>
+    </main>
+
+</div>
+
+<div class="filter-drawer-mask" id="filterMask"></div>
+<aside class="filter-drawer" id="filterDrawer">
+    <h3>筛选动态 <button type="button" class="btn btn-secondary btn-sm" id="filterClose"><i class="fa-solid fa-xmark"></i></button></h3>
+    <p style="font-size:12px;color:var(--t-tertiary);margin-bottom:14px">设置后将应用于当前 Feed（原型演示）。</p>
+    <div class="field"><label class="field-label">内容类型</label>
+        <label style="display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px"><input type="checkbox" checked /> 图文</label>
+        <label style="display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px"><input type="checkbox" checked /> 视频</label>
+        <label style="display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px"><input type="checkbox" checked /> 直播回放</label>
+    </div>
+    <div class="field mt-16"><label class="field-label">语言</label>
+        <select class="select"><option>全部</option><option>中文优先</option><option>English</option></select>
+    </div>
+    <button type="button" class="btn btn-primary btn-block mt-16" id="filterApply">应用筛选</button>
+</aside>
+<div class="toast-host-f" id="toastHostF"></div>
+
+<div class="inline-overlay" id="ovlTroubleHome">
+    <div class="iol-panel">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-life-ring" style="color:var(--brand-purple)"></i> 常见问题排错</h3>
+            <button type="button" class="iol-close" id="closeTroubleHome"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <p style="font-size:13px;color:var(--t-secondary);line-height:1.55;margin-bottom:10px">若 Feed 加载异常，请尝试清除缓存或关闭广告拦截；充值未到账请保留 TxHash 联系客服。</p>
+        <p style="font-size:12px;color:var(--t-tertiary)">直播无法播放时请允许浏览器自动播放媒体。</p>
+    </div>
+</div>
+
+<script>
+(function(){
+function toast(msg) {
+    const t = document.createElement('div');
+    t.className = 'toast-f';
+    t.textContent = msg;
+    document.getElementById('toastHostF').appendChild(t);
+    setTimeout(() => t.remove(), 2400);
+}
+
+document.getElementById('btnComposerPublish').addEventListener('click', function(e) {
+    e.preventDefault();
+    window.location.href = 'modal-login-main.html';
+});
+
+const fd = document.getElementById('filterDrawer');
+const fm = document.getElementById('filterMask');
+function openFilter() { fd.classList.add('show'); fm.classList.add('show'); }
+function closeFilter() { fd.classList.remove('show'); fm.classList.remove('show'); }
+document.getElementById('btnFeedFilter').addEventListener('click', openFilter);
+document.getElementById('filterClose').addEventListener('click', closeFilter);
+fm.addEventListener('click', closeFilter);
+document.getElementById('filterApply').addEventListener('click', function() {
+    toast('筛选条件已应用');
+    closeFilter();
+});
+
+document.querySelectorAll('.guest-act').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.location.href = 'modal-login-main.html';
+    });
+});
+
+document.querySelectorAll('#feedTabs .tab[data-feed]').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('#feedTabs .tab[data-feed]').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const mode = tab.dataset.feed;
+        document.getElementById('feedRec').classList.toggle('active', mode === 'rec');
+        const gf = document.getElementById('feedGuestFollow');
+        if (gf) gf.classList.toggle('active', mode === 'follow');
+    });
+});
+
+const GS_ITEMS = [
+    { t: '创作者 Luna', sub: '@luna · 认证创作者', href: 'profile.html' },
+    { t: '# 富士山日出', sub: '话题 · 2.1k 帖子', href: 'topic-detail.html' },
+    { t: '京都樱花摄影教程', sub: '内容 · Lens 旅记', href: 'discover.html' },
+    { t: 'Web3 创作者经济', sub: '话题', href: 'topics.html' }
+];
+const gInp = document.getElementById('globalSearchInp');
+const gDrop = document.getElementById('globalSearchDrop');
+function renderGs() {
+    const q = (gInp.value || '').trim().toLowerCase();
+    const list = !q ? GS_ITEMS : GS_ITEMS.filter(x => x.t.toLowerCase().includes(q) || x.sub.toLowerCase().includes(q));
+    gDrop.innerHTML = '';
+    list.forEach(x => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.innerHTML = '<span>' + x.t + '</span><span style="display:block;font-size:11px;color:var(--t-tertiary)">' + x.sub + '</span>';
+        b.onclick = () => { window.location.href = x.href; };
+        gDrop.appendChild(b);
+    });
+    gDrop.classList.add('show');
+}
+gInp.addEventListener('focus', renderGs);
+gInp.addEventListener('input', renderGs);
+document.getElementById('btnGlobalSearch').addEventListener('click', () => {
+    toast('已搜索：' + (gInp.value || '热门推荐'));
+    gDrop.classList.remove('show');
+});
+document.addEventListener('click', e => {
+    if (!e.target.closest('.h-search-live')) gDrop.classList.remove('show');
+});
+
+document.getElementById('btnTroubleFoot').addEventListener('click', () => document.getElementById('ovlTroubleHome').classList.add('show'));
+document.getElementById('closeTroubleHome').addEventListener('click', () => document.getElementById('ovlTroubleHome').classList.remove('show'));
+document.getElementById('ovlTroubleHome').addEventListener('click', e => { if (e.target.id === 'ovlTroubleHome') document.getElementById('ovlTroubleHome').classList.remove('show'); });
+})();
+</script>
+</body>
+</html>

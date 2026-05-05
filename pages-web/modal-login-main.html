@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/prototype-guest-first.css">
+<link rel="stylesheet" href="../css-web/auth-wizard-modal.css">
+<link rel="stylesheet" href="../css-web/global-lang-switch.css">
+<script src="../js-web/global-lang-switch.js" defer></script>
+</head>
+<body>
+<div class="gf-modal-root">
+    <div class="gf-modal auth-wizard-modal">
+        <div class="gf-modal-head" style="padding-bottom: 10px;">
+            <div class="aw-brand">
+                <div class="aw-logo"><i class="fa-solid fa-infinity"></i></div>
+                <div>
+                    <div class="aw-title">FansLoop</div>
+                    <p style="font-size:11px;color:var(--t-tertiary);margin-top:2px;">Web3 创作者平台 · 钱包登录/注册一体化</p>
+                </div>
+            </div>
+            <a href="guest-home.html" class="close-x" title="关闭"><i class="fa-solid fa-xmark"></i></a>
+        </div>
+
+        <nav class="gf-tabs-fixed" aria-label="登录方式">
+            <button type="button" class="tab active" id="tabStayWallet">钱包登录 / 注册</button>
+            <a class="tab" href="modal-email-login.html">邮箱登录</a>
+        </nav>
+
+        <div id="walletWizard">
+            <section class="wiz-step active" data-step="0">
+                <p style="font-size:12px;color:var(--t-secondary);margin-bottom:12px;line-height:1.45;">选择连接方式（示意对齐 login-entry → login-success 全流程，无插画）。</p>
+                <button type="button" class="aw-wallet-card" data-go="1">
+                    <span class="ic mm"><i class="fa-brands fa-ethereum"></i></span>
+                    <span class="grow"><span>MetaMask</span><span class="sub d-block">浏览器插件签名</span></span>
+                    <i class="fa-solid fa-chevron-right" style="opacity:.4;"></i>
+                </button>
+                <button type="button" class="aw-wallet-card" data-go="2">
+                    <span class="ic wc"><i class="fa-solid fa-qrcode"></i></span>
+                    <span class="grow"><span>WalletConnect</span><span class="sub d-block">移动端扫码</span></span>
+                    <i class="fa-solid fa-chevron-right" style="opacity:.4;"></i>
+                </button>
+                <button type="button" class="aw-wallet-card" data-go="1">
+                    <span class="ic more"><i class="fa-solid fa-wallet"></i></span>
+                    <span class="grow"><span>更多钱包</span><span class="sub d-block">同 login-select-method</span></span>
+                    <i class="fa-solid fa-chevron-right" style="opacity:.4;"></i>
+                </button>
+                <div class="aw-foot-note">继续即表示同意服务条款与隐私政策</div>
+            </section>
+
+            <section class="wiz-step" data-step="1">
+                <p style="font-size:12px;color:var(--t-secondary);margin-bottom:10px;">选择钱包（精简版 · login-select-method）</p>
+                <button type="button" class="aw-wallet-card" data-go="3"><span class="ic mm"><i class="fa-brands fa-ethereum"></i></span><span class="grow"><span>MetaMask</span></span><i class="fa-solid fa-chevron-right" style="opacity:.4;"></i></button>
+                <button type="button" class="aw-wallet-card" data-go="2"><span class="ic wc"><i class="fa-solid fa-mobile-screen"></i></span><span class="grow"><span>WalletConnect</span></span><i class="fa-solid fa-chevron-right" style="opacity:.4;"></i></button>
+                <button type="button" class="aw-wallet-card" data-go="3"><span class="ic more"><i class="fa-solid fa-bolt"></i></span><span class="grow"><span>OKX Wallet</span></span><i class="fa-solid fa-chevron-right" style="opacity:.4;"></i></button>
+                <div class="aw-btn-row">
+                    <button type="button" class="aw-btn-ghost" data-back="0">返回</button>
+                </div>
+            </section>
+
+            <section class="wiz-step" data-step="2">
+                <p style="font-size:13px;font-weight:700;margin-bottom:8px;text-align:center;">WalletConnect</p>
+                <p style="font-size:11px;color:var(--t-tertiary);text-align:center;line-height:1.45;">对齐 login-walletconnect-qr · 使用手机钱包扫码</p>
+                <div class="aw-qr-box"><i class="fa-solid fa-qrcode"></i><span>二维码区域</span></div>
+                <button type="button" class="btn-gf-primary" style="width:100%;" data-go="4">已扫码 · 继续</button>
+                <div class="aw-btn-row">
+                    <button type="button" class="aw-btn-ghost" data-back="1">返回</button>
+                </div>
+            </section>
+
+            <section class="wiz-step" data-step="3">
+                <p style="font-size:13px;font-weight:700;text-align:center;margin-bottom:8px;">唤起 MetaMask</p>
+                <p style="font-size:12px;color:var(--t-secondary);text-align:center;line-height:1.5;">对齐 login-metamask · 请在浏览器插件中确认连接。</p>
+                <div class="aw-spinner"></div>
+                <button type="button" class="btn-gf-primary" style="width:100%;margin-top:8px;" data-go="4">模拟 · 已连接</button>
+                <div class="aw-btn-row">
+                    <button type="button" class="aw-btn-ghost" data-back="1">返回</button>
+                </div>
+            </section>
+
+            <section class="wiz-step" data-step="4">
+                <p style="font-size:12px;font-weight:700;margin-bottom:8px;">签名请求（login-sign-request）</p>
+                <div class="aw-mono">fansloop.io wants you to sign in with your Ethereum account…<br/>URI: https://fansloop.io<br/>Version: 1<br/>Chain ID: 1<br/>Nonce: 8f7e2a…</div>
+                <button type="button" class="btn-gf-primary" style="width:100%;margin-top:12px;" data-go="5">签名</button>
+                <div class="aw-btn-row">
+                    <button type="button" class="aw-btn-ghost" data-back="3">返回</button>
+                </div>
+            </section>
+
+            <section class="wiz-step" data-step="5">
+                <p style="font-size:13px;font-weight:700;text-align:center;">等待签名（login-signing）</p>
+                <div class="aw-spinner"></div>
+                <p style="font-size:11px;color:var(--t-tertiary);text-align:center;">链上确认中…</p>
+                <button type="button" class="btn-gf-primary" style="width:100%;margin-top:14px;" data-go="6">模拟 · 签名完成</button>
+            </section>
+
+            <section class="wiz-step" data-step="6">
+                <div style="text-align:center;padding:8px 0 4px;">
+                    <div style="width:52px;height:52px;margin:0 auto 12px;border-radius:50%;background:rgba(16,185,129,0.15);display:flex;align-items:center;justify-content:center;">
+                        <i class="fa-solid fa-circle-check" style="font-size:26px;color:var(--success-light);"></i>
+                    </div>
+                    <p style="font-size:15px;font-weight:800;">登录成功</p>
+                    <p style="font-size:11px;color:var(--t-tertiary);margin-top:6px;line-height:1.45;">对齐 login-success · 新用户可继续 onboarding</p>
+                </div>
+                <a href="home.html" class="btn-gf-primary" style="width:100%;text-decoration:none;margin-top:12px;">进入首页 home.html</a>
+                <a href="onboarding-profile-complete.html?source=wallet" class="aw-btn-ghost" style="display:block;text-align:center;text-decoration:none;margin-top:8px;">完善资料（可选）</a>
+            </section>
+        </div>
+    </div>
+</div>
+
+<style>.d-block{display:block;}</style>
+<script>
+(function () {
+    var steps = document.querySelectorAll('.wiz-step');
+    function show(n) {
+        steps.forEach(function (s) {
+            s.classList.toggle('active', parseInt(s.getAttribute('data-step'), 10) === n);
+        });
+    }
+    document.getElementById('walletWizard').addEventListener('click', function (e) {
+        var t = e.target.closest('[data-go]');
+        if (t) {
+            show(parseInt(t.getAttribute('data-go'), 10));
+            return;
+        }
+        var b = e.target.closest('[data-back]');
+        if (b) show(parseInt(b.getAttribute('data-back'), 10));
+    });
+
+    var hash = (location.hash || '').replace('#', '');
+    if (hash === 'wc') show(2);
+    if (hash === 'mm') show(3);
+})();
+</script>
+</body>
+</html>
