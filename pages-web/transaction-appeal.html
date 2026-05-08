@@ -80,27 +80,32 @@ body { background: var(--bg-app); }
 <div class="modal-mask">
     <div class="modal">
         <div class="modal-head">
-            <h2 style="font-size: 16px"><span class="ic"><i class="fa-solid fa-gavel"></i></span>发起交易申诉
-                <span class="sub">订单 TXN20260425190832 · 我们将在 24 小时内回复</span>
+            <h2 style="font-size: 16px"><span class="ic"><i class="fa-solid fa-gavel"></i></span>充提订单申诉
+                <span class="sub">到账金额不符、支付参考号不匹配、超时未入账等 · 48h 内响应（示意）</span>
             </h2>
             <button class="close" onclick="location.href='transaction-detail.html'"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <div class="modal-body">
             <div class="appeal-hero">
-                <div class="ic-h"><i class="fa-solid fa-circle-info"></i></div>
+                <div class="ic-h"><i class="fa-solid fa-receipt"></i></div>
                 <div class="info">
-                    <div class="ti">在申诉前请先尝试沟通</div>
-                    <div class="desc">大部分交易问题可以通过私信对方快速解决。申诉一旦提交将由风控团队介入，期间相关资金将临时冻结。</div>
+                    <div class="ti">适用于充值 / 提现全链路订单</div>
+                    <div class="desc">请从对应账单的「交易详情」进入本表单；请附上 <b>支付成功邮件或短信回执、链上 tx hash（如有）</b>、FansLoop 订单号与期望到账差额。</div>
                 </div>
+            </div>
+
+            <div class="field">
+                <label class="field-label">关联订单号 <span class="req">*</span></label>
+                <input class="input" id="orderRef" type="text" placeholder="从订单详情带入，例如 TXN20260425190832" readonly style="background:var(--bg-input);color:var(--t-secondary)">
             </div>
 
             <div class="field">
                 <label class="field-label">申诉类型 <span class="req">*</span></label>
                 <div class="reason-grid">
-                    <div class="r-card active"><div class="ic-r"><i class="fa-solid fa-money-bill-wave"></i></div><div class="nm">未收到款项</div></div>
-                    <div class="r-card"><div class="ic-r"><i class="fa-solid fa-rotate-left"></i></div><div class="nm">订单异常 / 重复</div></div>
-                    <div class="r-card"><div class="ic-r"><i class="fa-solid fa-coins"></i></div><div class="nm">金额错误</div></div>
+                    <div class="r-card active"><div class="ic-r"><i class="fa-solid fa-money-bill-wave"></i></div><div class="nm">支付成功但未入账</div></div>
+                    <div class="r-card"><div class="ic-r"><i class="fa-solid fa-rotate-left"></i></div><div class="nm">到账延迟 / 状态卡住</div></div>
+                    <div class="r-card"><div class="ic-r"><i class="fa-solid fa-coins"></i></div><div class="nm">入账 USDT 与回执不符</div></div>
                     <div class="r-card"><div class="ic-r"><i class="fa-solid fa-user-secret"></i></div><div class="nm">疑似欺诈</div></div>
                     <div class="r-card"><div class="ic-r"><i class="fa-solid fa-image"></i></div><div class="nm">内容侵权</div></div>
                     <div class="r-card"><div class="ic-r"><i class="fa-solid fa-comment"></i></div><div class="nm">其他原因</div></div>
@@ -109,7 +114,7 @@ body { background: var(--bg-app); }
 
             <div class="field">
                 <label class="field-label">详细描述 <span class="req">*</span> <span style="font-size: 11px; color: var(--t-tertiary); font-weight: 400">请尽可能详细描述问题</span></label>
-                <textarea class="input" rows="4" placeholder="请描述具体问题，例如：&#10;1. 该订单显示已支付，但我未在钱包余额中看到对应入账&#10;2. 已确认链上交易状态为成功&#10;3. 截图见附件…">该订单链上显示已确认 28/12，但平台未给我入账，希望平台核查并尽快补入账。</textarea>
+                <textarea class="input" rows="4" placeholder="例：支付参考号 xxx 显示扣款 €180，但 FansLoop 入账 USDT 与预期不符…">支付参考号 PAY-73f-z9 显示已成功扣款 €180，FansLoop 订单 FL-260508-1022 入账少 12.40 USDT，请核对回调与链上哈希。</textarea>
                 <div class="field-help" style="margin-top: 6px; display: flex; justify-content: space-between"><span>0 / 500</span><span style="color: var(--t-tertiary)">支持 Markdown 格式</span></div>
             </div>
 
@@ -143,12 +148,31 @@ body { background: var(--bg-app); }
 
         <div class="modal-foot">
             <button class="btn" onclick="location.href='transaction-detail.html'">取消</button>
-            <button class="btn btn-primary" onclick="location.href='transaction-detail.html'">
+            <button type="button" class="btn btn-primary" id="btnAppealSubmit">
                 <i class="fa-solid fa-paper-plane"></i>提交申诉
             </button>
         </div>
     </div>
 </div>
 
+<script>
+(function () {
+    var q = new URLSearchParams(location.search).get('order');
+    var el = document.getElementById('orderRef');
+    if (el && q) {
+        el.value = q;
+        el.style.color = '#fff';
+        el.style.fontWeight = '700';
+    }
+    var btn = document.getElementById('btnAppealSubmit');
+    if (btn) {
+        btn.addEventListener('click', function () {
+            var ref = document.getElementById('orderRef');
+            var ord = ref && ref.value ? ref.value : 'TXN20260425190832';
+            location.href = 'transaction-appeal-detail.html?appeal=AP20260508120001&order=' + encodeURIComponent(ord);
+        });
+    }
+})();
+</script>
 </body>
 </html>

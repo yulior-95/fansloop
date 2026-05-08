@@ -2,19 +2,47 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>USDT 链上提现 · FansLoop</title>
+<title>钱包提现 · FansLoop</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/funds-moonpay.css">
+<link rel="stylesheet" href="../css-web/funds-flow.css">
 <style>
 .wd-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; max-width: 1280px; }
 @media (max-width: 1100px) { .wd-grid { grid-template-columns: 1fr; } }
+
+.method-tabs { display: flex; gap: 10px; margin-bottom: 22px; }
+.mt-card {
+    flex: 1; padding: 18px 20px;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    display: flex; align-items: center; gap: 14px;
+    transition: 0.15s;
+}
+.mt-card:hover { border-color: var(--border-strong); }
+.mt-card.active {
+    background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(236,72,153,0.05));
+    border-color: var(--brand-purple);
+    box-shadow: 0 6px 16px rgba(168,85,247,0.18);
+}
+.mt-card .ic-big {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; color: #fff; flex-shrink: 0;
+}
+.mt-card.bank .ic-big { background: linear-gradient(135deg, #EC4899, #BE185D); }
+.mt-card.chain .ic-big { background: linear-gradient(135deg, #10B981, #059669); }
+.mt-card .info .t { font-size: 14px; font-weight: 700; }
+.mt-card .info .s { font-size: 11.5px; color: var(--t-tertiary); margin-top: 2px; }
 
 .amt-input {
     background: var(--bg-card); border: 1px solid var(--border);
     border-radius: var(--r-lg); padding: 26px; margin-bottom: 18px;
 }
-.amt-input .lbl { font-size: 12px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; font-weight: 600; display: flex; justify-content: space-between; }
-.amt-input .lbl a { color: var(--brand-purple); font-size: 11px; text-transform: none; }
+.amt-input .lbl { font-size: 12px; color: var(--t-tertiary); letter-spacing: 0.5px; margin-bottom: 14px; font-weight: 600; display: flex; justify-content: space-between; }
+.amt-input .lbl a { color: var(--brand-purple); font-size: 11px; }
 .amt-input .input-row { display: flex; align-items: baseline; gap: 8px; }
 .amt-input .input-row input {
     flex: 1; background: transparent; border: none;
@@ -22,7 +50,7 @@
     letter-spacing: -1px; outline: none; min-width: 0;
 }
 .amt-input .input-row .unit { font-size: 18px; color: var(--t-tertiary); font-weight: 600; }
-.amt-input .equiv { font-size: 13px; color: var(--t-tertiary); margin-top: 6px; }
+.amt-input .equiv { font-size: 13px; color: var(--t-tertiary); margin-top: 8px; line-height: 1.55; }
 
 .network-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px; }
 .net-card {
@@ -37,23 +65,17 @@
 }
 .net-card .nm { font-size: 12.5px; font-weight: 700; }
 .net-card .fee { font-size: 10.5px; color: var(--t-tertiary); margin-top: 2px; }
-.net-card .speed { font-size: 9px; padding: 2px 6px; background: rgba(16,185,129,0.15); color: var(--success-light); border-radius: 4px; display: inline-block; margin-top: 4px; font-weight: 600; }
 
 .addr-input {
     background: var(--bg-input); border: 1.5px solid var(--border);
     border-radius: var(--r-md); padding: 14px;
     font-family: ui-monospace, monospace; font-size: 12.5px;
     color: #fff; word-break: break-all;
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex; align-items: center; justify-content: flex-end;
     gap: 10px;
 }
 .addr-input.valid { border-color: var(--success); background: rgba(16,185,129,0.04); }
-.addr-input .opers { display: flex; gap: 6px; flex-shrink: 0; }
-.addr-input .opers button {
-    background: var(--bg-elevated); border: 1px solid var(--border);
-    color: var(--t-secondary); border-radius: 6px;
-    padding: 6px 10px; font-size: 11px; cursor: pointer;
-}
+.addr-input .addr-txt { flex: 1; text-align: left; }
 
 .recent-row {
     display: flex; align-items: center; gap: 12px;
@@ -62,14 +84,21 @@
     border-radius: 8px;
     margin-bottom: 6px;
     cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: 0.15s;
 }
 .recent-row:hover { background: var(--bg-card-2); }
+.recent-row.selected {
+    border-color: var(--brand-purple);
+    background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.04));
+}
 .recent-row .av-icon { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, #A855F7, #EC4899); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; }
 .recent-row .info { flex: 1; min-width: 0; }
 .recent-row .info .nm { font-size: 12px; font-weight: 600; }
 .recent-row .info .ad { font-size: 10.5px; color: var(--t-tertiary); font-family: ui-monospace, monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.withdraw-page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.withdraw-page-head .ph-r { display: flex; gap: 10px; flex-wrap: wrap; }
 </style>
-
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
 </head>
@@ -105,63 +134,86 @@
     </header>
 
     <main class="app-main">
-        <div class="page-head">
+        <div class="page-head withdraw-page-head">
             <div class="ph-l">
-                <div class="crumb"><a href="wallet.html">我的钱包</a><i class="fa-solid fa-chevron-right"></i><a href="creator-withdraw.html">提现</a><i class="fa-solid fa-chevron-right"></i><span class="curr">USDT 链上提现</span></div>
-                <h1>USDT 链上提现</h1>
-                <p>转账到任意 Web3 钱包地址 · 支持 ERC20 / TRC20 / BEP20 / Polygon</p>
+                <div class="crumb"><a href="wallet.html">我的钱包</a><i class="fa-solid fa-chevron-right"></i><a href="creator-withdraw.html">提现</a><i class="fa-solid fa-chevron-right"></i><span class="curr">钱包提现</span></div>
+                <h1>钱包提现</h1>
+                <p>仅支持 <b style="color:#fff">USDT</b> 提现至链上地址。<b style="color:#fff">参考实时汇率</b>展示法币估值；最终以提现成功时的实时汇率为准。</p>
+            </div>
+            <div class="ph-r">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="location.href='funds-history.html'"><i class="fa-solid fa-clock-rotate-left"></i> 充提记录</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="location.href='withdraw-help-modal.html'"><i class="fa-solid fa-circle-question"></i> 提现帮助</button>
+            </div>
+        </div>
+
+        <div class="bal-hero-card">
+            <div class="bal-main">
+                <div class="lb">可提现余额</div>
+                <div class="val">5,820.40<span class="u">USDT</span></div>
+            </div>
+            <div class="bal-sub">
+                <div>≈ <span class="cny">¥41,324.84</span></div>
+                <div style="font-size:11px;color:var(--t-tertiary);margin-top:4px">参考实时汇率</div>
+            </div>
+        </div>
+
+        <div class="method-tabs">
+            <div class="mt-card bank" onclick="location.href='withdraw-fiat.html'">
+                <div class="ic-big"><i class="fa-solid fa-building-columns"></i></div>
+                <div class="info"><div class="t">提现到银行卡</div><div class="s">法币入账借记卡</div></div>
+            </div>
+            <div class="mt-card chain active">
+                <div class="ic-big">₮</div>
+                <div class="info"><div class="t">钱包提现</div><div class="s">USDT 转至链上地址</div></div>
             </div>
         </div>
 
         <div class="wd-grid">
             <div>
                 <div class="amt-input">
-                    <div class="lbl"><span>提现金额</span><a href="#">全部 5,820.40 USDT</a></div>
+                    <div class="lbl"><span>提现金额</span><a href="javascript:void(0)">全部 5,820.40 USDT</a></div>
                     <div class="input-row">
                         <input type="text" value="200.00" />
                         <span class="unit">USDT</span>
                     </div>
-                    <div class="equiv">≈ ¥1,420.00 · 网络费 ~1 USDT (TRC20) · 实际到账 199.00 USDT</div>
+                    <div class="equiv">≈ ¥1,419.82 · 参考实时汇率，<b style="color:var(--t-secondary)">最终以提现成功时的实时汇率为准</b></div>
                 </div>
 
                 <div class="card" style="padding: 22px 24px; margin-bottom: 18px">
                     <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 14px"><i class="fa-solid fa-network-wired"></i> 选择网络</h4>
                     <div class="network-grid">
-                        <div class="net-card"><div class="nm">ERC20</div><div class="fee">$8 网络费</div><div class="speed">~3min</div></div>
-                        <div class="net-card active"><div class="nm">TRC20</div><div class="fee">$1 网络费</div><div class="speed">~1min</div></div>
-                        <div class="net-card"><div class="nm">BEP20</div><div class="fee">$0.3</div><div class="speed">~1min</div></div>
-                        <div class="net-card"><div class="nm">Polygon</div><div class="fee">$0.05</div><div class="speed">~1min</div></div>
+                        <div class="net-card"><div class="nm">ERC20</div><div class="fee">较高 Gas</div></div>
+                        <div class="net-card active"><div class="nm">TRC20</div><div class="fee">推荐</div></div>
+                        <div class="net-card"><div class="nm">BEP20</div><div class="fee">较快</div></div>
+                        <div class="net-card"><div class="nm">Polygon</div><div class="fee">低费</div></div>
                     </div>
                     <div class="notice notice-warning" style="margin-top: 14px">
                         <i class="fa-solid fa-triangle-exclamation ni"></i>
-                        <span>请确保接收钱包支持 <b>TRC20 (Tron)</b> 网络。地址错误或网络不匹配将导致资产永久丢失。</span>
+                        <span>请确认接收地址与网络一致，错误将导致资产不可找回。</span>
                     </div>
                 </div>
 
                 <div class="card" style="padding: 22px 24px; margin-bottom: 18px">
-                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 14px; display: flex; justify-content: space-between">
+                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center">
                         <span><i class="fa-solid fa-location-dot"></i> 接收地址</span>
-                        <a href="#" style="font-size: 11px; color: var(--brand-purple); font-weight: 500"><i class="fa-solid fa-address-book"></i> 通讯录</a>
+                        <a href="wallet-address-book.html" style="font-size: 11px; color: var(--brand-purple); font-weight: 600"><i class="fa-solid fa-address-book"></i> 通讯录</a>
                     </h4>
-                    <div class="addr-input valid">
-                        <span>TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs</span>
-                        <div class="opers">
-                            <button><i class="fa-solid fa-paste"></i></button>
-                            <button><i class="fa-solid fa-qrcode"></i></button>
-                        </div>
+                    <div class="addr-input valid" id="addrBox">
+                        <span class="addr-txt" id="wdAddrField">TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs</span>
+                        <button type="button" class="btn btn-sm" style="padding:6px 10px;font-size:11px"><i class="fa-solid fa-paste"></i> 粘贴</button>
                     </div>
                     <div class="field-help t-success" style="margin-top: 8px"><i class="fa-solid fa-circle-check"></i> 地址格式有效 (TRC20)</div>
 
                     <h5 style="font-size: 11px; color: var(--t-tertiary); margin: 16px 0 8px; text-transform: uppercase; letter-spacing: 0.4px">常用地址</h5>
-                    <div class="recent-row">
+                    <div class="recent-row selected" data-addr="TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs">
                         <div class="av-icon">M</div>
                         <div class="info"><div class="nm">My MetaMask</div><div class="ad">TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs</div></div>
-                        <i class="fa-solid fa-chevron-right" style="color: var(--t-tertiary); font-size: 11px"></i>
+                        <span class="row-ind"><i class="fa-solid fa-check" style="color:var(--brand-purple);font-size:12px"></i></span>
                     </div>
-                    <div class="recent-row">
+                    <div class="recent-row" data-addr="TQ4q9xgsQyKkCepXyGMDazh2UcqA6XrXVT">
                         <div class="av-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706)">T</div>
                         <div class="info"><div class="nm">Trust Wallet</div><div class="ad">TQ4q9xgsQyKkCepXyGMDazh2UcqA6XrXVT</div></div>
-                        <i class="fa-solid fa-chevron-right" style="color: var(--t-tertiary); font-size: 11px"></i>
+                        <span class="row-ind"><i class="fa-solid fa-chevron-right" style="color: var(--t-tertiary); font-size: 11px"></i></span>
                     </div>
                 </div>
 
@@ -170,12 +222,12 @@
                     <div class="kv-list">
                         <div class="kv-row"><span class="k">提现金额</span><span class="v num">200.00 USDT</span></div>
                         <div class="kv-row"><span class="k">网络</span><span class="v">TRC20 (Tron)</span></div>
-                        <div class="kv-row"><span class="k">网络费</span><span class="v num">- 1.00 USDT</span></div>
-                        <div class="kv-row"><span class="k">接收地址</span><span class="v num" style="font-size: 11px">TG3X…aSJozs</span></div>
-                        <div class="kv-row" style="border-bottom: none"><span class="k" style="color:#fff;font-weight:600">实际到账</span><span class="v num t-grad" style="font-size: 18px; font-weight: 800">199.00 USDT</span></div>
+                        <div class="kv-row"><span class="k">网络费用</span><span class="v num">− 1.40 USDT</span></div>
+                        <div class="kv-row"><span class="k">接收地址</span><span class="v num" style="font-size:11px">TG3X…aSJozs</span></div>
+                        <div class="kv-row" style="border-bottom: none"><span class="k" style="color:#fff;font-weight:600">参考净到账</span><span class="v num t-grad" style="font-size: 18px; font-weight: 800">198.60 USDT</span></div>
                     </div>
-                    <button class="btn btn-primary btn-block btn-lg" style="margin-top: 18px" onclick="location.href='withdraw-fiat-verify.html'">
-                        <i class="fa-solid fa-shield-halved"></i>下一步：安全验证
+                    <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top: 18px" onclick="location.href='modal-withdraw-chain-moonpay.html'">
+                        <i class="fa-solid fa-paper-plane"></i> 提交提现订单
                     </button>
                 </div>
             </div>
@@ -184,25 +236,47 @@
                 <div class="card" style="padding: 22px 24px; margin-bottom: 14px">
                     <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 12px"><i class="fa-solid fa-circle-info" style="color:#3B82F6"></i> 网络说明</h4>
                     <div style="font-size: 12.5px; line-height: 1.8; color: var(--t-secondary)">
-                        • <b style="color:#fff">ERC20</b> 以太坊主网，安全性最高<br>
-                        • <b style="color:#fff">TRC20</b> 波场网络，费用最低<br>
-                        • <b style="color:#fff">BEP20</b> 币安智能链，速度快<br>
-                        • <b style="color:#fff">Polygon</b> 二层网络，几乎免费
+                        • ERC20、TRC20、BEP20、Polygon 费率不同<br>
+                        • 到账时间受链上拥堵影响
                     </div>
                 </div>
-
                 <div class="card" style="padding: 22px 24px">
                     <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 12px"><i class="fa-solid fa-triangle-exclamation" style="color:var(--warning)"></i> 安全提示</h4>
                     <div style="font-size: 12.5px; line-height: 1.8; color: var(--t-secondary)">
-                        ⚠ 链上转账不可撤销，请仔细核对地址<br>
-                        ⚠ 网络不匹配会导致资产丢失<br>
-                        ⚠ 警惕钓鱼地址替换<br>
-                        ✓ 大额建议先小额试转
+                        链上转账不可撤销；建议先小额试转。
                     </div>
                 </div>
             </div>
         </div>
     </main>
 </div>
+
+<script>
+(function () {
+    var field = document.getElementById('wdAddrField');
+    document.querySelectorAll('.recent-row').forEach(function (row) {
+        row.addEventListener('click', function () {
+            document.querySelectorAll('.recent-row').forEach(function (r) {
+                r.classList.remove('selected');
+                var ind = r.querySelector('.row-ind i');
+                if (ind) {
+                    ind.className = 'fa-solid fa-chevron-right';
+                    ind.style.color = 'var(--t-tertiary)';
+                    ind.style.fontSize = '11px';
+                }
+            });
+            row.classList.add('selected');
+            var ind = row.querySelector('.row-ind i');
+            if (ind) {
+                ind.className = 'fa-solid fa-check';
+                ind.style.color = 'var(--brand-purple)';
+                ind.style.fontSize = '12px';
+            }
+            var addr = row.getAttribute('data-addr');
+            if (field && addr) field.textContent = addr;
+        });
+    });
+})();
+</script>
 </body>
 </html>

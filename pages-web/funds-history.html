@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>充提记录 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.page-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; }
+.filter-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.filter-pills button {
+    padding: 7px 14px; border-radius: 999px; border: 1px solid var(--border);
+    background: var(--bg-input); color: var(--t-secondary); font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.filter-pills button.active { border-color: var(--brand-purple); color: #fff; background: rgba(168,85,247,0.15); }
+
+.history-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+}
+.history-table th, .history-table td {
+    padding: 14px 18px;
+    text-align: left;
+    font-size: 12.5px;
+    border-bottom: 1px solid var(--border);
+}
+.history-table th {
+    background: var(--bg-elevated);
+    color: var(--t-tertiary);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-size: 10.5px;
+}
+.history-table tr:last-child td { border-bottom: none; }
+.history-table tr:hover td { background: var(--bg-hover); }
+.history-table .mono { font-family: ui-monospace, monospace; font-size: 11.5px; }
+.history-table .amt-pos { color: var(--success-light); font-weight: 700; }
+.history-table .amt-neg { color: var(--danger-light); font-weight: 700; }
+.tag-sm { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+.tag-sm.rc { background: rgba(16,185,129,0.15); color: var(--success-light); }
+.tag-sm.wd { background: rgba(236,72,153,0.15); color: #F472B6; }
+.tag-sm.done { background: rgba(59,130,246,0.12); color: #93C5FD; }
+.tag-sm.proc { background: rgba(245,158,11,0.15); color: var(--warning-light); }
+</style>
+<link rel="stylesheet" href="../css-web/global-lang-switch.css">
+<script src="../js-web/global-lang-switch.js" defer></script>
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item active" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-bottom"><div class="s-user"><div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div><div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div></div></div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索…</span></div>
+        <div class="h-actions"><div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div></div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <div class="crumb"><a href="wallet.html">我的钱包</a><i class="fa-solid fa-chevron-right"></i><span class="curr">充提记录</span></div>
+                <h1>充提记录</h1>
+                <p>汇总充值与提现订单；点击订单号可查看详情，争议请在<strong>订单详情页</strong>发起申诉。</p>
+            </div>
+            <div class="ph-r">
+                <button type="button" class="btn btn-secondary" onclick="location.href='recharge.html'"><i class="fa-solid fa-arrow-down"></i> 去充值</button>
+                <button type="button" class="btn" onclick="location.href='creator-withdraw.html'"><i class="fa-solid fa-arrow-up"></i> 去提现</button>
+            </div>
+        </div>
+
+        <div class="page-toolbar">
+            <div class="filter-pills">
+                <button type="button" class="active">全部</button>
+                <button type="button">充值</button>
+                <button type="button">提现</button>
+                <button type="button">处理中</button>
+                <button type="button">已完成</button>
+            </div>
+            <div style="flex:1"></div>
+            <div class="h-search" style="max-width:280px;margin:0;padding:8px 12px;font-size:12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-input)">
+                <i class="fa-solid fa-magnifying-glass"></i><span style="color:var(--t-tertiary)">搜索订单号 / 金额</span>
+            </div>
+        </div>
+
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>类型</th>
+                    <th>订单号</th>
+                    <th>时间</th>
+                    <th>渠道</th>
+                    <th>金额</th>
+                    <th>状态</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr onclick="location.href='transaction-detail.html'">
+                    <td><span class="tag-sm wd">提现</span></td>
+                    <td class="mono">WD20260508141209</td>
+                    <td>2026-05-08 14:12</td>
+                    <td>钱包 · TRC20</td>
+                    <td class="amt-neg">−200.00 USDT</td>
+                    <td><span class="tag-sm proc">清算中</span></td>
+                    <td><i class="fa-solid fa-chevron-right" style="color:var(--t-tertiary)"></i></td>
+                </tr>
+                <tr onclick="location.href='transaction-detail.html'">
+                    <td><span class="tag-sm rc">充值</span></td>
+                    <td class="mono">RC20260507190844</td>
+                    <td>2026-05-07 19:08</td>
+                    <td>法币 · 银联借记卡</td>
+                    <td class="amt-pos">+500.00 USDT</td>
+                    <td><span class="tag-sm done">已完成</span></td>
+                    <td><i class="fa-solid fa-chevron-right" style="color:var(--t-tertiary)"></i></td>
+                </tr>
+                <tr onclick="location.href='transaction-detail.html'">
+                    <td><span class="tag-sm wd">提现</span></td>
+                    <td class="mono">WD20260506103321</td>
+                    <td>2026-05-06 10:33</td>
+                    <td>银行卡 · CNY</td>
+                    <td class="amt-neg">−1,000.00 USDT</td>
+                    <td><span class="tag-sm done">已完成</span></td>
+                    <td><i class="fa-solid fa-chevron-right" style="color:var(--t-tertiary)"></i></td>
+                </tr>
+                <tr onclick="location.href='transaction-appeal-detail.html'">
+                    <td><span class="tag-sm wd">申诉</span></td>
+                    <td class="mono">AP20260505110002</td>
+                    <td>2026-05-05 11:00</td>
+                    <td>关联 WD20260504195518</td>
+                    <td style="color:var(--t-secondary)">处理中</td>
+                    <td><span class="tag-sm proc">客服处理</span></td>
+                    <td><i class="fa-solid fa-chevron-right" style="color:var(--t-tertiary)"></i></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="margin-top:18px;font-size:12px;color:var(--t-tertiary);line-height:1.6">
+            <i class="fa-solid fa-circle-info" style="color:var(--brand-purple)"></i>
+            申诉工单详情见 <a href="transaction-appeal-detail.html" style="color:var(--brand-purple)">申诉详情</a>；订单维度申诉请从对应账单详情进入。
+        </div>
+    </main>
+</div>
+</body>
+</html>

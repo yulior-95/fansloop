@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>法币充值 · 确认</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/funds-moonpay.css">
+<style>
+body { background: var(--bg-app); }
+.modal-mask { background: rgba(0,0,0,0.78); align-items: center; justify-content: center; }
+.modal { max-width: 480px; width: 100%; margin: 20px; }
+.pwd-input { display: flex; gap: 8px; justify-content: center; margin: 18px 0; }
+.pwd-input .dot {
+    width: 42px; height: 48px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--bg-input);
+}
+.pwd-input .dot.filled { border-color: var(--brand-purple); }
+.ck-banner {
+    padding: 12px 14px;
+    border-radius: var(--r-md);
+    background: rgba(59,130,246,0.08);
+    border: 1px solid rgba(59,130,246,0.22);
+    font-size: 12px;
+    color: var(--t-secondary);
+    line-height: 1.55;
+    margin-bottom: 14px;
+}
+.ck-banner strong { color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="modal-mask" style="display:flex">
+    <div class="modal">
+        <div class="modal-head">
+            <h2 style="font-size:15px"><span class="ic"><i class="fa-solid fa-building-columns"></i></span>法币充值
+                <span class="sub" id="substep">收银台预览 → 二次密码</span>
+            </h2>
+            <button class="close" onclick="location.href='recharge-fiat.html'"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div id="step-mp">
+                <div class="moonpay-mock-shot" style="background-image:url('https://images.unsplash.com/photo-1563986768494-4dee2763ff63?w=640&q=80'); min-height:220px;">
+                    <div class="overlay">
+                        <div class="capt"><i class="fa-solid fa-credit-card"></i> 银行卡支付 · 购入 USDT</div>
+                        <div class="amt">支付 €180.00 · 预计到账 ≈212.40 USDT</div>
+                    </div>
+                </div>
+
+                <div class="ck-banner">
+                    <strong>汇率与手续费</strong>以收银台实时展示为准；平台侧记录订单号与成交价用于账变，若与预估不一致以<strong>成交结果</strong>为准。
+                </div>
+
+                <button type="button" class="btn btn-primary btn-block btn-lg" onclick="document.getElementById('step-mp').style.display='none';document.getElementById('step-pwd').style.display='block';document.getElementById('substep').textContent='二次密码 · 创建订单';">
+                    <i class="fa-solid fa-lock-open"></i> 我已在收银台确认支付
+                </button>
+            </div>
+
+            <div id="step-pwd" style="display:none">
+                <p style="text-align:center;font-size:13px;color:var(--t-secondary);margin-bottom:12px">请输入 <b style="color:#fff">6 位二次密码</b> 提交充值订单</p>
+                <div class="pwd-input">
+                    <div class="dot filled"></div>
+                    <div class="dot filled"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <div class="notice notice-warning">
+                    <i class="fa-solid fa-triangle-exclamation ni"></i>
+                    <span>连续失败将锁定校验。支付成功后到账并可在账变明细中查看。</span>
+                </div>
+                <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top:16px" onclick="location.href='wallet.html'">
+                    <i class="fa-solid fa-check-double"></i> 校验并完成订单
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

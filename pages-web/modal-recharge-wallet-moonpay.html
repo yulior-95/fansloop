@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>钱包充值 · 确认</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/funds-moonpay.css">
+<style>
+body { background: var(--bg-app); }
+.modal-mask { background: rgba(0,0,0,0.78); align-items: center; justify-content: center; }
+.modal { max-width: 480px; width: 100%; margin: 20px; }
+.pwd-input { display: flex; gap: 8px; justify-content: center; margin: 20px 0; }
+.pwd-input .dot {
+    width: 44px; height: 50px;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 20px;
+}
+.pwd-input .dot.filled { border-color: var(--brand-purple); background: var(--bg-input-focus); }
+.checkout-banner {
+    padding: 12px 14px;
+    border-radius: var(--r-md);
+    background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(168,85,247,0.08));
+    border: 1px solid rgba(59,130,246,0.25);
+    margin-bottom: 14px;
+    font-size: 12px;
+    color: var(--t-secondary);
+    line-height: 1.5;
+}
+.checkout-banner strong { color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="modal-mask" style="display:flex">
+    <div class="modal">
+        <div class="modal-head">
+            <h2 style="font-size:15px"><span class="ic"><i class="fa-solid fa-link"></i></span>钱包充值
+                <span class="sub" id="substep">第 1/2 步 · 确认支付</span>
+            </h2>
+            <button class="close" onclick="location.href='recharge.html'"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="step-dots"><span class="d on" id="dot1"></span><span class="d" id="dot2"></span></div>
+
+            <div id="step-mp">
+                <div class="checkout-banner">
+                    <strong><i class="fa-solid fa-shield-halved" style="color:#60A5FA"></i> 安全收银台</strong><br>
+                    卡号等敏感信息仅在加密收银台内处理；FansLoop 不代为存储完整卡信息。入账金额以成交回执为准。
+                </div>
+
+                <div class="moonpay-mock-shot" style="background-image:url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=640&q=80')">
+                    <div class="overlay">
+                        <div class="capt"><i class="fa-brands fa-bitcoin"></i> 购入 USDT（TRC20）· 询价有效至 09:52</div>
+                        <div class="amt">200.00 USDT · Gas 与通道费以收银台展示为准</div>
+                    </div>
+                </div>
+
+                <div class="notice notice-info" style="margin-top:14px">
+                    <i class="fa-solid fa-circle-info ni"></i>
+                    <span>在收银台点击<strong>确认支付</strong>后返回此处，系统将弹出<strong>二次密码</strong>以创建平台订单。</span>
+                </div>
+
+                <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top:16px" onclick="goPwd()">
+                    <i class="fa-solid fa-check"></i> 我已在收银台确认支付
+                </button>
+            </div>
+
+            <div id="step-pwd" style="display:none">
+                <div style="text-align:center;padding:10px 0 4px">
+                    <div style="width:62px;height:62px;margin:0 auto 12px;border-radius:50%;background:linear-gradient(135deg,rgba(168,85,247,0.18),rgba(236,72,153,0.08));border:1px solid rgba(168,85,247,0.35);display:flex;align-items:center;justify-content:center;color:#C084FC;font-size:26px"><i class="fa-solid fa-key"></i></div>
+                    <h3 style="font-size:16px;margin-bottom:4px">平台二次密码</h3>
+                    <p style="font-size:12px;color:var(--t-tertiary)">与登录密码不同 · 通过后提交钱包充值订单成功</p>
+                </div>
+                <div class="pwd-input">
+                    <span class="dot filled">●</span>
+                    <span class="dot filled">●</span>
+                    <span class="dot filled">●</span>
+                    <span class="dot filled">●</span>
+                    <span class="dot" style="border-color:var(--brand-purple)"></span>
+                    <span class="dot"></span>
+                </div>
+                <div class="card" style="padding:14px">
+                    <div class="kv-list">
+                        <div class="kv-row" style="padding:6px 0"><span class="k">入账资产</span><span class="v num">+200.00 USDT</span></div>
+                        <div class="kv-row" style="padding:6px 0;border-bottom:none"><span class="k">平台手续费</span><span class="v num">−0.35 USDT</span></div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top:14px" onclick="location.href='wallet.html'">
+                    <i class="fa-solid fa-paper-plane"></i> 验证并提交订单
+                </button>
+                <button type="button" class="btn btn-block" style="margin-top:8px" onclick="goMp()">返回收银台</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function goPwd() {
+    document.getElementById('step-mp').style.display = 'none';
+    document.getElementById('step-pwd').style.display = 'block';
+    document.getElementById('substep').textContent = '第 2/2 步 · 二次密码';
+    document.getElementById('dot1').classList.add('on');
+    document.getElementById('dot2').classList.add('on');
+}
+function goMp() {
+    document.getElementById('step-mp').style.display = 'block';
+    document.getElementById('step-pwd').style.display = 'none';
+    document.getElementById('substep').textContent = '第 1/2 步 · 确认支付';
+    document.getElementById('dot2').classList.remove('on');
+}
+</script>
+</body>
+</html>

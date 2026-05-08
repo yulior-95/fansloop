@@ -5,6 +5,8 @@
 <title>USDT 充值 · FansLoop</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/funds-moonpay.css">
+<link rel="stylesheet" href="../css-web/funds-flow.css">
 <style>
 .recharge-grid {
     display: grid; grid-template-columns: 2fr 1fr; gap: 22px;
@@ -71,7 +73,7 @@
 
 .preset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 18px; }
 .preset-grid .pst {
-    padding: 12px 0;
+    padding: 12px 8px;
     background: var(--bg-input);
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -87,9 +89,9 @@
     color: #fff;
     border-color: transparent;
 }
-.preset-grid .pst .equiv { font-size: 10px; opacity: 0.7; margin-top: 2px; font-weight: 400; }
+.preset-grid .pst .usdt-top { font-size: 14px; font-weight: 800; letter-spacing: -0.3px; }
+.preset-grid .pst .fiat-sub { font-size: 11px; opacity: 0.85; margin-top: 6px; font-weight: 600; }
 
-/* Network selector */
 .network-section {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -137,7 +139,6 @@
     border-radius: 4px;
 }
 
-/* Side panel */
 .side-info {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -171,6 +172,97 @@
 .tip-list .tp.warn .ic { background: rgba(245,158,11,0.18); color: var(--warning-light); }
 .tip-list .tp.danger .ic { background: rgba(239,68,68,0.18); color: var(--danger-light); }
 
+/* 钱包下拉 */
+.wallet-dd-wrap { position: relative; }
+.wallet-dd-trigger {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: 0.15s;
+}
+.wallet-dd-wrap.open .wallet-dd-trigger { border-color: var(--brand-purple); }
+.wallet-dd-trigger .w-av {
+    width: 44px; height: 44px; border-radius: 12px;
+    background-size: cover; background-position: center;
+    border: 1px solid var(--border); flex-shrink: 0;
+}
+.wallet-dd-trigger .w-info { flex: 1; min-width: 0; }
+.wallet-dd-trigger .w-info .n { font-size: 13.5px; font-weight: 700; }
+.wallet-dd-trigger .w-info .s { font-size: 11.5px; color: var(--t-tertiary); margin-top: 2px; }
+.wallet-dd-panel {
+    display: none;
+    position: absolute; left: 0; right: 0; top: calc(100% + 6px);
+    z-index: 50;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-lg);
+    max-height: 280px;
+    overflow-y: auto;
+}
+.wallet-dd-wrap.open .wallet-dd-panel { display: block; }
+.wallet-dd-item {
+    width: 100%;
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    border: none;
+    background: transparent;
+    color: var(--t-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+.wallet-dd-item:last-child { border-bottom: none; }
+.wallet-dd-item:hover { background: var(--bg-input); color: #fff; }
+.wallet-dd-item .mini-av {
+    width: 36px; height: 36px; border-radius: 10px;
+    background-size: cover; flex-shrink: 0;
+}
+.wallet-dd-item.add {
+    color: #C084FC;
+    justify-content: center;
+    gap: 8px;
+}
+.wallet-dd-item.add:hover { background: rgba(168,85,247,0.08); }
+
+/* 添加钱包向导（本页内嵌） */
+#walletAddWizardMask {
+    display: none;
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(6px);
+    align-items: center; justify-content: center;
+    padding: 24px;
+}
+#walletAddWizardMask.show { display: flex; }
+.wizard-box {
+    width: 100%; max-width: 480px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+}
+.wizard-box .wh {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+}
+.wizard-box .wh h3 { font-size: 16px; font-weight: 700; margin: 0; }
+.wizard-box .wb { padding: 22px; }
+.wizard-steps { font-size: 11px; color: var(--t-tertiary); margin-bottom: 14px; }
+.wizard-shot {
+    height: 140px;
+    border-radius: var(--r-md);
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+}
 </style>
 
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
@@ -218,113 +310,141 @@
         <div class="page-head">
             <div class="ph-l">
                 <div class="crumb"><a href="home.html">首页</a><i class="fa-solid fa-chevron-right"></i><a href="wallet.html">我的钱包</a><i class="fa-solid fa-chevron-right"></i><span class="curr">充值</span></div>
-                <h1>充值钱包</h1>
-                <p>选择充值方式，FansLoop 支持 USDT 链上充值与法币（人民币 / 美元）银行卡充值，最快 30 秒到账</p>
+                <h1>充值 USDT 账户</h1>
+                <p>充值到账均为 USDT；页面展示仅供参考，<b style="color:#fff">以成交时的实际汇率为准</b>。请核对收款地址与网络后再发起支付。</p>
             </div>
         </div>
 
-        <div class="recharge-grid">
+        <div class="recharge-grid flow-recharge-grid">
 
             <div>
-                <!-- 方式切换 -->
                 <div class="method-tabs">
                     <div class="mt-card usdt active">
                         <div class="ic-big">₮</div>
                         <div class="info">
-                            <div class="t">USDT 链上充值 <span class="tag tag-success">推荐</span></div>
-                            <div class="s">即时到账 · 链上手续费由你支付</div>
+                            <div class="t">钱包充值</div>
+                            <div class="s">使用已连接钱包支付</div>
                         </div>
                     </div>
                     <div class="mt-card fiat" onclick="location.href='recharge-fiat.html'">
                         <div class="ic-big"><i class="fa-solid fa-credit-card"></i></div>
                         <div class="info">
-                            <div class="t">法币 / 银行卡</div>
-                            <div class="s">CNY / USD · 0.5% 通道费</div>
+                            <div class="t">法币充值</div>
+                            <div class="s">银行卡等方式购入 USDT</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 金额输入 -->
                 <div class="amt-input">
                     <div class="lbl">充值金额</div>
                     <div class="input-row">
-                        <span class="currency">$</span>
+                        <span class="currency">₮</span>
                         <input type="text" value="200.00" />
-                        <span class="unit">USD</span>
+                        <span class="unit">USDT</span>
                     </div>
-                    <div class="equiv">≈ 200 USDT · 当前汇率 1 USDT = $1.00</div>
+                    <div class="equiv">≈ <b>$200.12 USD</b> · 参考实时汇率 · <b style="color:var(--t-secondary)">以成交时的实际汇率为准</b></div>
                     <div class="preset-grid">
-                        <div class="pst"><div>$50</div><div class="equiv">50 USDT</div></div>
-                        <div class="pst"><div>$100</div><div class="equiv">100 USDT</div></div>
-                        <div class="pst active"><div>$200</div><div class="equiv">200 USDT</div></div>
-                        <div class="pst"><div>$500</div><div class="equiv">500 USDT</div></div>
+                        <div class="pst"><div class="usdt-top">50 USDT</div><div class="fiat-sub">$50</div></div>
+                        <div class="pst"><div class="usdt-top">100 USDT</div><div class="fiat-sub">$100</div></div>
+                        <div class="pst active"><div class="usdt-top">200 USDT</div><div class="fiat-sub">$200</div></div>
+                        <div class="pst"><div class="usdt-top">500 USDT</div><div class="fiat-sub">$500</div></div>
                     </div>
                 </div>
 
-                <!-- 网络选择 -->
+                <div class="card wallet-dd-card" style="padding: 22px 24px; margin-bottom: 18px">
+                    <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 12px"><i class="fa-solid fa-wallet" style="color:#C084FC"></i> 选择支付钱包</h4>
+                    <div class="wallet-dd-wrap" id="walletDd">
+                        <div class="wallet-dd-trigger" id="walletDdTrigger" role="button" tabindex="0">
+                            <div class="w-av" id="walletDdAv" style="background-image:url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=120&q=80')"></div>
+                            <div class="w-info">
+                                <div class="n" id="walletDdTitle">MetaMask · Ethereum / Tron</div>
+                                <div class="s" id="walletDdSub">已连接 0x71C…9A3e</div>
+                            </div>
+                            <i class="fa-solid fa-chevron-down" style="color:var(--t-tertiary)"></i>
+                        </div>
+                        <div class="wallet-dd-panel" id="walletDdPanel" role="listbox">
+                            <button type="button" class="wallet-dd-item" data-name="MetaMask · Ethereum / Tron" data-sub="已连接 0x71C…9A3e" data-av="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=120&q=80">
+                                <span class="mini-av" style="background-image:url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=120&q=80')"></span>
+                                MetaMask · 0x71C…9A3e
+                            </button>
+                            <button type="button" class="wallet-dd-item" data-name="Trust Wallet" data-sub="已连接 TQ4q…XrXVT" data-av="https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=120&q=80">
+                                <span class="mini-av" style="background-image:url('https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=120&q=80')"></span>
+                                Trust Wallet
+                            </button>
+                            <button type="button" class="wallet-dd-item add" id="walletAddNewBtn">
+                                <i class="fa-solid fa-plus-circle"></i> 添加新的钱包
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 22px 24px; margin-bottom: 18px">
+                    <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 12px"><i class="fa-solid fa-lock" style="color:var(--warning-light)"></i> 平台收款地址（不可修改）</h4>
+                    <div class="addr-lock-card">
+                        <div class="row-top">
+                            <span class="lb"><i class="fa-solid fa-link"></i> USDT · TRC20</span>
+                            <span class="tag tag-warning" style="font-size:10px">只读</span>
+                        </div>
+                        <div class="addr">TLa2f6WVqHrKZ5X6c9Y8a8X7a7X6a5X4a3X2</div>
+                    </div>
+                    <div class="field-help" style="margin-top:10px;font-size:11px;color:var(--t-tertiary)">若地址与订单不一致请勿付款；请在对应 <a href="transaction-detail.html" style="color:var(--brand-purple)">订单详情</a> 发起申诉。</div>
+                </div>
+
                 <div class="network-section">
-                    <h4><i class="fa-solid fa-network-wired" style="color:#C084FC"></i>选择充值网络</h4>
+                    <h4><i class="fa-solid fa-network-wired" style="color:#C084FC"></i>选择网络</h4>
                     <div class="network-grid">
-                        <div class="net-card eth active">
+                        <div class="net-card eth">
                             <div class="ic"><i class="fa-brands fa-ethereum"></i></div>
                             <div class="n">ERC20</div>
-                            <div class="fee">手续费 ≈ $5</div>
+                            <div class="fee">Gas 视网络而定</div>
                         </div>
-                        <div class="net-card tron">
-                            <span class="recommend">省手续费</span>
+                        <div class="net-card tron active">
+                            <span class="recommend">当前</span>
                             <div class="ic">T</div>
                             <div class="n">TRC20</div>
-                            <div class="fee">手续费 ≈ $1</div>
+                            <div class="fee">低手续费</div>
                         </div>
                         <div class="net-card bsc">
                             <div class="ic">B</div>
                             <div class="n">BEP20</div>
-                            <div class="fee">手续费 ≈ $0.3</div>
+                            <div class="fee">可选</div>
                         </div>
                         <div class="net-card poly">
                             <div class="ic"><i class="fa-solid fa-cube"></i></div>
                             <div class="n">Polygon</div>
-                            <div class="fee">手续费 ≈ $0.01</div>
+                            <div class="fee">可选</div>
                         </div>
-                    </div>
-                    <div class="notice notice-warning" style="margin-top: 14px">
-                        <i class="fa-solid fa-triangle-exclamation ni"></i>
-                        <span><b>请确保充值的代币与网络一致</b><br>错选网络将导致资产丢失，FansLoop 无法找回。建议小额测试后再充值大额。</span>
                     </div>
                 </div>
 
-                <!-- 摘要 + 确认 -->
                 <div class="card" style="padding: 22px 24px">
                     <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 14px"><i class="fa-solid fa-receipt"></i> 充值摘要</h4>
                     <div class="kv-list">
-                        <div class="kv-row"><span class="k">充值金额</span><span class="v num">200.00 USDT</span></div>
-                        <div class="kv-row"><span class="k">充值网络</span><span class="v">Ethereum (ERC20)</span></div>
-                        <div class="kv-row"><span class="k">网络手续费</span><span class="v num">≈ $5.00（由你的钱包支付）</span></div>
-                        <div class="kv-row"><span class="k">FansLoop 通道费</span><span class="v success">免费</span></div>
-                        <div class="kv-row"><span class="k">预计到账时间</span><span class="v">12 个区块确认 · ≈ 3 分钟</span></div>
+                        <div class="kv-row"><span class="k">支付金额</span><span class="v num">200.00 USDT</span></div>
+                        <div class="kv-row"><span class="k">平台手续费</span><span class="v num">0.35 USDT</span></div>
                         <div class="kv-row" style="border-bottom:none; padding-top: 12px">
-                            <span class="k" style="color:#fff;font-weight:600">实际到账</span>
-                            <span class="v num t-grad" style="font-size: 18px; font-weight: 800">≈ 200.00 USDT</span>
+                            <span class="k" style="color:#fff;font-weight:600">估算净入账</span>
+                            <span class="v num t-grad" style="font-size: 18px; font-weight: 800">≈ 199.65 USDT</span>
                         </div>
                     </div>
-                    <button class="btn btn-primary btn-block btn-lg" style="margin-top: 18px" onclick="location.href='recharge-qr-modal.html'">
-                        <i class="fa-solid fa-bolt"></i>确认充值，生成收款二维码
+                    <button class="btn btn-primary btn-block btn-lg" style="margin-top: 18px" onclick="location.href='modal-recharge-wallet-moonpay.html'">
+                        <i class="fa-solid fa-paper-plane"></i>提交购买订单
                     </button>
+                    <p style="font-size:11px;color:var(--t-tertiary);margin-top:10px;text-align:center">在安全收银台完成确认后，将校验平台二次密码并创建订单。</p>
                 </div>
             </div>
 
-            <!-- 侧边 · 提示 -->
             <div>
                 <div class="side-info">
                     <h4><i class="fa-solid fa-circle-info" style="color:#3B82F6"></i>充值须知</h4>
                     <div class="tip-list">
                         <div class="tp">
                             <div class="ic"><i class="fa-solid fa-bolt"></i></div>
-                            <div><b>即时到账</b><br>通常 3-5 分钟，依网络拥堵程度</div>
+                            <div><b>到账时间</b><br>依网络拥堵情况，一般在数分钟内完成</div>
                         </div>
                         <div class="tp">
                             <div class="ic"><i class="fa-solid fa-shield-halved"></i></div>
-                            <div><b>资产安全</b><br>FansLoop 采用多签冷钱包托管</div>
+                            <div><b>资产安全</b><br>FansLoop 采用托管与风控策略保障资金安全</div>
                         </div>
                         <div class="tp warn">
                             <div class="ic"><i class="fa-solid fa-triangle-exclamation"></i></div>
@@ -338,11 +458,11 @@
                 </div>
 
                 <div class="side-info" style="margin-top: 16px">
-                    <h4><i class="fa-solid fa-headset" style="color:#10B981"></i>需要帮助？</h4>
+                    <h4><i class="fa-solid fa-gavel" style="color:#10B981"></i>到账异常？</h4>
                     <p style="font-size: 12.5px; color: var(--t-tertiary); line-height: 1.5; margin-bottom: 12px">
-                        充值未到账？联系客服，可凭哈希加急处理。
+                        请在对应 <b style="color:#fff">订单详情</b> 内发起申诉，并附上支付回执与链上哈希（如有）。
                     </p>
-                    <button class="btn btn-secondary btn-block"><i class="fa-regular fa-comments"></i>联系客服</button>
+                    <button class="btn btn-secondary btn-block" onclick="location.href='transaction-detail.html'"><i class="fa-solid fa-file-invoice"></i>前往订单详情</button>
                     <button class="btn btn-block" style="margin-top: 8px"><i class="fa-solid fa-book"></i>查看充值教程</button>
                 </div>
             </div>
@@ -350,5 +470,84 @@
         </div>
     </main>
 </div>
+
+<!-- 添加钱包流程（本页内嵌，供原型演示） -->
+<div id="walletAddWizardMask">
+    <div class="wizard-box">
+        <div class="wh">
+            <h3><i class="fa-solid fa-wallet" style="color:#C084FC"></i> 添加新的钱包</h3>
+            <button type="button" class="btn btn-sm" onclick="closeWalletWizard()" style="padding:6px 10px"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="wb">
+            <div class="wizard-steps" id="wizStepLabel">步骤 1 / 3 · 选择连接方式</div>
+            <div id="wiz1">
+                <div class="wizard-shot" style="background-image:url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&q=80')"></div>
+                <p style="font-size:13px;color:var(--t-secondary);line-height:1.6;margin-bottom:14px">请选择常用的浏览器钱包或扫码连接移动端钱包扩展。</p>
+                <button type="button" class="btn btn-primary btn-block" onclick="goWiz(2)"><i class="fa-brands fa-ethereum"></i> 浏览器扩展钱包</button>
+                <button type="button" class="btn btn-block" style="margin-top:8px" onclick="goWiz(2)"><i class="fa-solid fa-qrcode"></i> WalletConnect 扫码</button>
+            </div>
+            <div id="wiz2" style="display:none">
+                <div class="wizard-shot" style="background-image:url('https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=800&q=80')"></div>
+                <p style="font-size:13px;color:var(--t-secondary);line-height:1.6;margin-bottom:14px">请在钱包弹窗中授权连接 FansLoop；连接成功后返回此页。</p>
+                <div class="notice notice-info"><i class="fa-solid fa-circle-info ni"></i><span>不会在未经确认的情况下发起转账。</span></div>
+                <button type="button" class="btn btn-primary btn-block" style="margin-top:14px" onclick="goWiz(3)">模拟：已完成授权</button>
+                <button type="button" class="btn btn-block" style="margin-top:8px" onclick="goWiz(1)">上一步</button>
+            </div>
+            <div id="wiz3" style="display:none">
+                <div class="notice notice-success" style="margin-bottom:14px"><i class="fa-solid fa-circle-check ni"></i><span>钱包已保存至「我的支付方式」，可在充值页下拉中切换。</span></div>
+                <button type="button" class="btn btn-primary btn-block" onclick="closeWalletWizard()">完成</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var dd = document.getElementById('walletDd');
+    var trig = document.getElementById('walletDdTrigger');
+    if (!dd || !trig) return;
+    trig.addEventListener('click', function (e) {
+        e.stopPropagation();
+        dd.classList.toggle('open');
+    });
+    document.addEventListener('click', function () { dd.classList.remove('open'); });
+    dd.addEventListener('click', function (e) { e.stopPropagation(); });
+
+    dd.querySelectorAll('.wallet-dd-item:not(.add)').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.getElementById('walletDdTitle').textContent = btn.getAttribute('data-name');
+            document.getElementById('walletDdSub').textContent = btn.getAttribute('data-sub');
+            var av = btn.getAttribute('data-av');
+            if (av) {
+                document.getElementById('walletDdAv').style.backgroundImage = 'url(\'' + av + '\')';
+            }
+            dd.classList.remove('open');
+        });
+    });
+
+    var addBtn = document.getElementById('walletAddNewBtn');
+    if (addBtn) {
+        addBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            dd.classList.remove('open');
+            document.getElementById('walletAddWizardMask').classList.add('show');
+            goWiz(1);
+        });
+    }
+})();
+
+function goWiz(n) {
+    for (var i = 1; i <= 3; i++) {
+        var el = document.getElementById('wiz' + i);
+        if (el) el.style.display = i === n ? 'block' : 'none';
+    }
+    var lbl = document.getElementById('wizStepLabel');
+    if (lbl) lbl.textContent = '步骤 ' + n + ' / 3 · ' + ['选择连接方式', '钱包授权', '完成绑定'][n - 1];
+}
+
+function closeWalletWizard() {
+    document.getElementById('walletAddWizardMask').classList.remove('show');
+}
+</script>
 </body>
 </html>

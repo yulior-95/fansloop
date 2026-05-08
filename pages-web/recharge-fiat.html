@@ -5,6 +5,8 @@
 <title>法币充值 · FansLoop</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/funds-moonpay.css">
+<link rel="stylesheet" href="../css-web/funds-flow.css">
 <style>
 .fiat-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; max-width: 1280px; }
 @media (max-width: 1100px) { .fiat-grid { grid-template-columns: 1fr; } }
@@ -33,22 +35,52 @@
 .mt-card .info .t { font-size: 14px; font-weight: 700; }
 .mt-card .info .s { font-size: 11.5px; color: var(--t-tertiary); margin-top: 2px; }
 
+.currency-combo-wrap { position: relative; }
+.currency-combo-input {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    color: #fff;
+    font-size: 13px;
+    outline: none;
+}
+.currency-combo-input:focus { border-color: var(--brand-purple); }
+.currency-combo-list {
+    display: none;
+    position: absolute; left: 0; right: 0; top: calc(100% + 6px);
+    z-index: 60;
+    max-height: 240px;
+    overflow-y: auto;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-lg);
+}
+.currency-combo-list.open { display: block; }
+.currency-combo-item {
+    width: 100%;
+    display: flex; gap: 10px; align-items: baseline;
+    padding: 10px 12px;
+    border: none; border-bottom: 1px solid var(--border);
+    background: transparent;
+    color: var(--t-secondary);
+    font-size: 12.5px;
+    cursor: pointer;
+    text-align: left;
+}
+.currency-combo-item:last-child { border-bottom: none; }
+.currency-combo-item:hover { background: var(--bg-input); color: #fff; }
+.currency-combo-item .cc-code { font-weight: 800; color: #C084FC; min-width: 36px; }
+.currency-combo-item .cc-name { flex: 1; opacity: 0.95; }
+.currency-combo-empty { padding: 14px; font-size: 12px; color: var(--t-tertiary); text-align: center; }
+
 .amt-input {
     background: var(--bg-card); border: 1px solid var(--border);
     border-radius: var(--r-lg); padding: 28px; margin-bottom: 18px;
 }
-.amt-input .lbl { font-size: 12px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-.amt-input .currency-switch {
-    display: inline-flex; gap: 0;
-    background: var(--bg-input); border-radius: 8px; padding: 3px;
-}
-.amt-input .currency-switch span {
-    padding: 5px 12px; font-size: 11px; color: var(--t-tertiary); cursor: pointer; border-radius: 5px; font-weight: 600;
-}
-.amt-input .currency-switch span.on {
-    background: var(--brand-grad); color: #fff;
-}
-
+.amt-input .lbl { font-size: 12px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; font-weight: 600; }
 .amt-input .input-row { display: flex; align-items: baseline; gap: 8px; }
 .amt-input .input-row .currency { font-size: 32px; color: var(--t-secondary); font-weight: 700; }
 .amt-input .input-row input {
@@ -70,51 +102,11 @@
 }
 .preset-grid .pst.active { background: var(--brand-grad); color: #fff; border-color: transparent; }
 
-.bank-card-card {
-    background: var(--bg-card); border: 1px solid var(--border);
-    border-radius: var(--r-lg); padding: 22px 24px; margin-bottom: 18px;
-}
-.bank-card-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 14px; display: flex; justify-content: space-between; }
-.bank-card-card h4 a { font-size: 11px; color: var(--brand-purple); font-weight: 500; }
-
-.card-pick {
-    display: flex; align-items: center; gap: 14px;
-    padding: 16px 18px;
-    background: var(--bg-input); border: 1.5px solid var(--border);
-    border-radius: var(--r-md);
-    cursor: pointer; transition: 0.15s;
-}
-.card-pick:hover { border-color: var(--border-strong); }
-.card-pick .bank-logo {
-    width: 44px; height: 44px;
-    background: linear-gradient(135deg, #C8102E, #8B0000);
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 14px; font-weight: 800;
-    flex-shrink: 0;
-}
-.card-pick .info { flex: 1; }
-.card-pick .info .n { font-size: 13.5px; font-weight: 700; }
-.card-pick .info .a { font-size: 11.5px; color: var(--t-tertiary); margin-top: 2px; font-family: ui-monospace, monospace; }
-.card-pick .arr { color: var(--t-tertiary); }
-
-.add-card-btn {
-    width: 100%;
-    padding: 14px;
-    background: rgba(168,85,247,0.06);
-    border: 1.5px dashed rgba(168,85,247,0.3);
-    border-radius: var(--r-md);
-    color: #C084FC;
-    font-size: 13px; font-weight: 600;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 7px;
-    transition: 0.15s;
-}
-.add-card-btn:hover { background: rgba(168,85,247,0.1); }
 </style>
 
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
+<script src="../js-web/recharge-fiat-currency.js" defer></script>
 </head>
 <body>
 
@@ -153,9 +145,9 @@
     <main class="app-main">
         <div class="page-head">
             <div class="ph-l">
-                <div class="crumb"><a href="wallet.html">我的钱包</a><i class="fa-solid fa-chevron-right"></i><span class="curr">法币充值</span></div>
-                <h1>法币充值（银行卡）</h1>
-                <p>使用人民币 / 美元，通过 PaySecure 银通国际通道完成快捷充值</p>
+                <div class="crumb"><a href="wallet.html">我的钱包</a><i class="fa-solid fa-chevron-right"></i><a href="recharge.html">充值</a><i class="fa-solid fa-chevron-right"></i><span class="curr">法币充值</span></div>
+                <h1>法币充值</h1>
+                <p>入账资产为 <b style="color:#fff">USDT</b>；页面展示仅供参考，<b style="color:#fff">以成交时的实际汇率为准</b>。</p>
             </div>
         </div>
 
@@ -165,97 +157,109 @@
                     <div class="mt-card usdt" onclick="location.href='recharge.html'">
                         <div class="ic-big">₮</div>
                         <div class="info">
-                            <div class="t">USDT 链上充值</div>
-                            <div class="s">即时到账 · 链上手续费</div>
+                            <div class="t">钱包充值</div>
+                            <div class="s">使用已连接钱包支付</div>
                         </div>
                     </div>
                     <div class="mt-card fiat active">
                         <div class="ic-big"><i class="fa-solid fa-credit-card"></i></div>
                         <div class="info">
-                            <div class="t">法币 / 银行卡 <span class="tag tag-warning">合规通道</span></div>
-                            <div class="s">CNY / USD · 0.5% 通道费</div>
+                            <div class="t">法币充值</div>
+                            <div class="s">银行卡等方式购入 USDT</div>
                         </div>
                     </div>
+                </div>
+
+                <div class="card" style="padding: 22px 24px; margin-bottom: 18px">
+                    <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 10px">支付货币</h4>
+                    <div id="fiatCurrencyCombo">
+                        <input type="hidden" name="fiat_currency" value="EUR" />
+                        <div class="currency-combo-wrap">
+                            <input type="text" class="currency-combo-input" placeholder="输入代码或名称搜索，如 EUR、美元…" autocomplete="off" />
+                            <div class="currency-combo-list"></div>
+                        </div>
+                    </div>
+                    <p class="field-help" style="margin-top:10px;font-size:11px;color:var(--t-tertiary)">支持全球主流法币；下拉项可键盘筛选。</p>
+                </div>
+
+                <div class="card" style="padding: 22px 24px; margin-bottom: 18px">
+                    <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 12px">支付方式</h4>
+                    <div class="combo-shell">
+                        <select class="native-select" id="payMethodSelect">
+                            <option value="debit">借记卡（Visa · ****8821）</option>
+                            <option value="credit">信用卡（Mastercard · ****4420）</option>
+                            <option value="__add">＋ 添加新支付方式</option>
+                        </select>
+                    </div>
+                    <p class="field-help" style="margin-top:10px;font-size:11px;color:var(--t-tertiary)">选择「添加新支付方式」将前往绑定银行卡并完成实名核验。</p>
                 </div>
 
                 <div class="amt-input">
-                    <div class="lbl">
-                        <span>充值金额</span>
-                        <div class="currency-switch">
-                            <span>USD</span>
-                            <span class="on">CNY</span>
-                        </div>
-                    </div>
+                    <div class="lbl"><span>支付金额（法币）</span></div>
                     <div class="input-row">
-                        <span class="currency">¥</span>
-                        <input type="text" value="1,500.00" />
-                        <span class="unit">CNY</span>
+                        <span class="currency" id="fiatCurrencySymbol">€</span>
+                        <input type="text" value="180.00" />
+                        <span class="unit" id="fiatUnitLabel">EUR</span>
                     </div>
-                    <div class="equiv">≈ $211.27 ≈ <b>211.27 USDT</b> · 当前汇率 1 USD = ¥7.1 (PaySecure 实时)</div>
+                    <div class="equiv">≈ <b>212.40 USDT</b> · 参考实时汇率 1 EUR ≈ 1.18 USDT，<b style="color:var(--t-secondary)">以成交时的实际汇率为准</b></div>
                     <div class="preset-grid">
-                        <div class="pst"><div>¥500</div><div style="font-size:10px;opacity:0.7">≈ $70</div></div>
-                        <div class="pst"><div>¥1,000</div><div style="font-size:10px;opacity:0.7">≈ $141</div></div>
-                        <div class="pst active"><div>¥1,500</div><div style="font-size:10px;opacity:0.7">≈ $211</div></div>
-                        <div class="pst"><div>¥3,000</div><div style="font-size:10px;opacity:0.7">≈ $422</div></div>
+                        <div class="pst"><div>€50</div><div style="font-size:10px;opacity:0.7">≈58U</div></div>
+                        <div class="pst"><div>€100</div><div style="font-size:10px;opacity:0.7">≈118U</div></div>
+                        <div class="pst active"><div>€180</div><div style="font-size:10px;opacity:0.7">≈212U</div></div>
+                        <div class="pst"><div>€500</div><div style="font-size:10px;opacity:0.7">≈590U</div></div>
                     </div>
                 </div>
 
-                <!-- 银行卡 -->
-                <div class="bank-card-card">
-                    <h4>选择支付银行卡<a href="recharge-fiat-switch-card.html">管理银行卡 →</a></h4>
-                    <div class="card-pick" onclick="location.href='recharge-fiat-switch-card.html'">
-                        <div class="bank-logo">招</div>
-                        <div class="info">
-                            <div class="n">招商银行 · 储蓄卡</div>
-                            <div class="a">**** **** **** 6618</div>
+                <div class="card" style="padding: 22px 24px; margin-bottom: 18px; overflow:hidden">
+                    <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 12px"><i class="fa-solid fa-building-columns" style="color:var(--warning-light)"></i> 平台收款账户（不可修改）</h4>
+                    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:stretch">
+                        <div style="width:120px;height:88px;border-radius:var(--r-md);background:url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&q=80') center/cover;border:1px solid var(--border);flex-shrink:0"></div>
+                        <div style="flex:1;min-width:200px">
+                            <div style="font-size:13px;font-weight:700;margin-bottom:6px">FansLoop 托管清算账户 · EUR</div>
+                            <div style="font-size:12px;color:var(--t-secondary);line-height:1.55;font-family:ui-monospace,monospace">
+                                IBAN：DE89 3704 0044 0532 0130 00<br>
+                                BIC：COBADEFFXXX · Commerzbank AG<br>
+                                附言请填写订单号（下单后展示）
+                            </div>
+                            <span class="tag tag-warning" style="font-size:10px;margin-top:8px;display:inline-block">仅用于本次法币充值入账</span>
                         </div>
-                        <i class="fa-solid fa-chevron-right arr"></i>
                     </div>
-                    <button class="add-card-btn" style="margin-top: 10px" onclick="location.href='recharge-fiat-bind.html'">
-                        <i class="fa-solid fa-plus"></i>添加新银行卡
-                    </button>
                 </div>
 
-                <!-- 摘要 -->
                 <div class="card" style="padding: 22px 24px">
                     <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 14px"><i class="fa-solid fa-receipt"></i> 充值摘要</h4>
                     <div class="kv-list">
-                        <div class="kv-row"><span class="k">充值金额</span><span class="v num">¥1,500.00 ≈ $211.27</span></div>
-                        <div class="kv-row"><span class="k">支付方式</span><span class="v">招商银行 · ****6618</span></div>
-                        <div class="kv-row"><span class="k">通道费 (0.5%)</span><span class="v num">¥7.50</span></div>
-                        <div class="kv-row"><span class="k">汇率锁定时长</span><span class="v">15 分钟</span></div>
-                        <div class="kv-row"><span class="k">预计到账</span><span class="v">1-3 分钟（实时通道）</span></div>
+                        <div class="kv-row"><span class="k">扣款</span><span class="v num">€180.00</span></div>
+                        <div class="kv-row"><span class="k">估算 USDT</span><span class="v num">≈ 212.40 USDT</span></div>
+                        <div class="kv-row"><span class="k">手续费</span><span class="v num">2.35 USDT</span></div>
                         <div class="kv-row" style="border-bottom: none; padding-top: 12px">
-                            <span class="k" style="color:#fff;font-weight:600">实际到账</span>
-                            <span class="v num t-grad" style="font-size: 18px; font-weight: 800">≈ 210.21 USDT</span>
+                            <span class="k" style="color:#fff;font-weight:600">参考净入账</span>
+                            <span class="v num t-grad" style="font-size: 18px; font-weight: 800">≈ 210.05 USDT</span>
                         </div>
                     </div>
-                    <button class="btn btn-primary btn-block btn-lg" style="margin-top: 18px" onclick="location.href='recharge-fiat-verify.html'">
-                        <i class="fa-solid fa-bolt"></i>下一步：身份认证 + 支付
+                    <button class="btn btn-primary btn-block btn-lg" style="margin-top: 18px" onclick="location.href='modal-recharge-fiat-moonpay.html'">
+                        <i class="fa-solid fa-paper-plane"></i>提交购买订单
                     </button>
+                    <p style="font-size:11px;color:var(--t-tertiary);margin-top:10px;text-align:center">在安全收银台完成确认后，将校验平台二次密码并创建订单。</p>
                 </div>
             </div>
 
             <div>
                 <div class="card" style="padding: 22px 24px">
-                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 14px"><i class="fa-solid fa-shield-halved" style="color:#3B82F6"></i> 合规与安全</h4>
+                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 14px"><i class="fa-solid fa-shield-halved" style="color:#3B82F6"></i> 合规说明</h4>
                     <div class="tip-list" style="display:flex; flex-direction:column; gap:10px">
-                        <div style="font-size: 12px; line-height: 1.6">
-                            <div style="display:flex; align-items: flex-start; gap: 8px; padding: 8px 0">
+                        <div style="font-size: 12px; line-height: 1.65">
+                            <div style="display:flex; align-items: flex-start; gap: 8px; padding: 6px 0">
                                 <i class="fa-solid fa-circle-check" style="color: var(--success-light); margin-top: 3px"></i>
-                                <span><b>PaySecure 银通国际</b> · 持牌支付服务商</span>
+                                <span>法币与数字资产兑换由<strong>持牌合作支付机构</strong>完成，FansLoop 提供订单与余额展示</span>
                             </div>
-                            <div style="display:flex; align-items: flex-start; gap: 8px; padding: 8px 0">
+                            <div style="display:flex; align-items: flex-start; gap: 8px; padding: 6px 0">
                                 <i class="fa-solid fa-circle-check" style="color: var(--success-light); margin-top: 3px"></i>
-                                <span>每笔限额 ¥50,000 · 单日累计 ¥200,000</span>
+                                <span>平台不存储完整银行卡号，敏感信息在加密收银台内处理</span>
                             </div>
-                            <div style="display:flex; align-items: flex-start; gap: 8px; padding: 8px 0">
+                            <div style="display:flex; align-items: flex-start; gap: 8px; padding: 6px 0">
                                 <i class="fa-solid fa-circle-check" style="color: var(--success-light); margin-top: 3px"></i>
-                                <span>支持中国内地 28 家主流银行</span>
-                            </div>
-                            <div style="display:flex; align-items: flex-start; gap: 8px; padding: 8px 0">
-                                <i class="fa-solid fa-circle-check" style="color: var(--success-light); margin-top: 3px"></i>
-                                <span>需通过姓名 + 身份证 + 手机号实名认证</span>
+                                <span>异常请在 <a href="transaction-detail.html" style="color:var(--brand-purple)">订单详情</a> 发起申诉并上传回执</span>
                             </div>
                         </div>
                     </div>
@@ -264,5 +268,13 @@
         </div>
     </main>
 </div>
+
+<script>
+document.getElementById('payMethodSelect').addEventListener('change', function () {
+    if (this.value === '__add') {
+        location.href = 'recharge-fiat-bind.html';
+    }
+});
+</script>
 </body>
 </html>
