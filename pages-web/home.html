@@ -24,17 +24,44 @@
 }
 .composer .av { flex-shrink: 0; }
 .composer .body { flex: 1; }
-.composer .body input {
-    width: 100%; height: 42px;
+.composer .body textarea {
+    width: 100%;
+    min-height: 92px;
+    resize: vertical;
     background: var(--bg-input);
     border: 1px solid var(--border);
     border-radius: var(--r-md);
-    padding: 0 14px;
+    padding: 10px 14px;
     color: var(--t-primary); font-size: 14px;
+    line-height: 1.5;
     outline: none;
 }
-.composer .body input:focus { border-color: var(--border-focus); }
+.composer .body textarea:focus { border-color: var(--border-focus); }
 .composer .actions { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+.composer .emoji-wrap { position: relative; }
+.composer .emoji-panel {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: calc(100% + 8px);
+    width: 310px;
+    padding: 10px;
+    border-radius: 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    box-shadow: var(--shadow-lg);
+    z-index: 30;
+}
+.composer .emoji-panel.show { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+.composer .emoji-panel button {
+    padding: 6px 0;
+    border-radius: 8px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    font-size: 16px;
+    cursor: pointer;
+}
+.composer .emoji-panel button:hover { background: var(--bg-input-focus); }
 .composer .act-btn {
     padding: 6px 10px;
     background: var(--bg-input);
@@ -107,6 +134,17 @@
     color: #fff;
     font-size: 11px; font-weight: 600;
 }
+.post-head .pi-actions .sub-btn {
+    height: 28px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: rgba(168,85,247,0.12);
+    border: 1px solid rgba(168,85,247,0.4);
+    color: #C084FC;
+    font-size: 11px;
+    font-weight: 700;
+}
+.post-head .pi-actions .sub-btn:hover { background: rgba(168,85,247,0.2); }
 
 .post-text { padding: 0 18px 12px; font-size: 14px; line-height: 1.55; color: var(--t-primary); }
 .post-text .hashtag { color: var(--brand-purple); cursor: pointer; }
@@ -366,7 +404,7 @@
 
 .toast-host-f {
     position: fixed;
-    bottom: 28px;
+    top: 18px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 500;
@@ -383,16 +421,16 @@
     font-size: 13px;
     font-weight: 600;
     box-shadow: var(--shadow-lg);
-    animation: toastIn 0.22s ease;
+    animation: toastInTop 0.22s ease;
 }
-@keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes toastInTop { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 
 .app-header .h-search-live {
     flex: 1;
-    max-width: 520px;
+    max-width: 560px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     position: relative;
 }
 .app-header .h-search-live .hs-inner {
@@ -445,7 +483,7 @@
 .app-header .h-search-live .gs-drop button:hover { background: var(--bg-input); color: #fff; }
 .app-header .h-search-live #btnGlobalSearch {
     height: 38px;
-    padding: 0 16px;
+    padding: 0 14px;
     background: var(--brand-grad);
     border: none;
     border-radius: var(--r-md);
@@ -506,6 +544,19 @@
     color: var(--brand-purple);
 }
 .trouble-link:hover { text-decoration: underline; }
+.sub-modal-step { display: none; }
+.sub-modal-step.active { display: block; }
+.sub-creator { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-input); margin-bottom: 12px; }
+.sub-plan-list { display: grid; gap: 8px; margin: 12px 0 14px; }
+.sub-plan { border: 1px solid var(--border); background: var(--bg-input); border-radius: 10px; padding: 10px 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.sub-plan.active { border-color: rgba(168,85,247,0.7); box-shadow: 0 0 0 1px rgba(168,85,247,0.25) inset; }
+.sub-plan .p1 { font-size: 12.5px; font-weight: 700; }
+.sub-plan .p2 { font-size: 11px; color: var(--t-tertiary); margin-top: 2px; }
+.sub-plan .price { font-size: 13px; font-weight: 800; color: #fff; }
+.sub-result { padding: 14px; border-radius: 12px; border: 1px solid rgba(16,185,129,0.4); background: rgba(16,185,129,0.12); text-align: center; }
+.sub-result i { color: #10B981; font-size: 24px; margin-bottom: 8px; }
+.sub-result h4 { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+.sub-result p { font-size: 12px; color: var(--t-secondary); }
 
 </style>
 
@@ -589,10 +640,19 @@
                 <div class="composer">
                     <div class="av av-md" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
                     <div class="body">
-                        <input type="text" placeholder="Luna，今天想分享点什么？" />
+                        <textarea id="composerInput" placeholder="Luna，今天想分享点什么？&#10;支持多行输入与 Emoji 😊"></textarea>
                         <div class="actions">
-                            <span class="act-btn image" onclick="location.href='create-publish-image.html'"><i class="fa-regular fa-image"></i>图片</span>
-                            <span class="act-btn video" onclick="location.href='create-publish-video.html'"><i class="fa-solid fa-video"></i>视频</span>
+                            <div class="emoji-wrap">
+                                <button type="button" class="act-btn" id="btnComposerEmoji"><i class="fa-regular fa-face-smile"></i>Emoji</button>
+                                <div class="emoji-panel" id="composerEmojiPanel">
+                                    <button type="button">😀</button><button type="button">🥳</button><button type="button">🔥</button><button type="button">❤️</button>
+                                    <button type="button">👏</button><button type="button">🎉</button><button type="button">🚀</button><button type="button">✨</button>
+                                    <button type="button">📸</button><button type="button">🎧</button><button type="button">🌸</button><button type="button">🌅</button>
+                                    <button type="button">💎</button><button type="button">💜</button><button type="button">🎁</button><button type="button">☕</button>
+                                </div>
+                            </div>
+                            <span class="act-btn image" onclick="FL_openInteractionModal('create-publish-image.html')"><i class="fa-regular fa-image"></i>图片</span>
+                            <span class="act-btn video" onclick="FL_openInteractionModal('create-publish-video.html')"><i class="fa-solid fa-video"></i>视频</span>
                             <span class="act-btn live" onclick="location.href='create-publish-live.html'"><i class="fa-solid fa-tower-broadcast"></i>开直播</span>
                             <span style="flex:1"></span>
                             <button type="button" class="btn btn-primary btn-sm" id="btnComposerPublish">发布</button>
@@ -619,7 +679,7 @@
                         </div>
                         <div class="pi-actions">
                             <button type="button" class="follow-btn follow-dynamic" data-following="false">+ 关注</button>
-                            <button class="ic-btn"><i class="fa-solid fa-ellipsis"></i></button>
+                            <button type="button" class="sub-btn btn-open-subscribe" data-creator="山野食光" data-plan="16">订阅</button>
                         </div>
                     </div>
                     <div class="post-text">
@@ -650,7 +710,7 @@
                         </div>
                         <div class="pi-actions">
                             <button class="follow-btn">已订阅 ✓</button>
-                            <button class="ic-btn"><i class="fa-solid fa-ellipsis"></i></button>
+                            <button type="button" class="sub-btn btn-open-subscribe" data-creator="Lens 旅记" data-plan="28">管理订阅</button>
                         </div>
                     </div>
                     <div class="post-text">
@@ -718,9 +778,6 @@
                 </div>
 
                 <div class="feed-panel-follow" id="feedFollow">
-                    <div style="padding:12px 14px;margin-bottom:14px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r-md);font-size:13px;color:var(--t-secondary)">
-                        <i class="fa-solid fa-user-check" style="color:var(--brand-purple)"></i> 以下为<strong style="color:#fff">你已关注</strong>的创作者动态（原型演示）。
-                    </div>
                     <article class="post-card">
                         <div class="post-head">
                             <div class="av av-md" onclick="location.href='creator-profile.html'" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100'); cursor: pointer"></div>
@@ -859,14 +916,10 @@
 <div class="filter-drawer-mask" id="filterMask"></div>
 <aside class="filter-drawer" id="filterDrawer">
     <h3>筛选动态 <button type="button" class="btn btn-secondary btn-sm" id="filterClose"><i class="fa-solid fa-xmark"></i></button></h3>
-    <p style="font-size:12px;color:var(--t-tertiary);margin-bottom:14px">设置后将应用于当前 Feed（原型演示）。</p>
     <div class="field"><label class="field-label">内容类型</label>
         <label style="display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px"><input type="checkbox" checked /> 图文</label>
         <label style="display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px"><input type="checkbox" checked /> 视频</label>
         <label style="display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px"><input type="checkbox" checked /> 直播回放</label>
-    </div>
-    <div class="field mt-16"><label class="field-label">语言</label>
-        <select class="select"><option>全部</option><option>中文优先</option><option>English</option></select>
     </div>
     <button type="button" class="btn btn-primary btn-block mt-16" id="filterApply">应用筛选</button>
 </aside>
@@ -885,6 +938,37 @@
 
 <div id="flStandaloneModalRoot" aria-hidden="true" style="display:none;position:fixed;inset:0;z-index:99999;align-items:center;justify-content:center;padding:clamp(12px,3vw,24px);background:rgba(0,0,0,0.58);backdrop-filter:blur(10px);">
     <iframe title="FansLoop 弹窗" style="width:min(940px,calc(100vw - 32px));height:min(920px,calc(100vh - 32px));border:none;border-radius:var(--r-xl);background:transparent;box-shadow:0 28px 70px rgba(0,0,0,0.5);"></iframe>
+</div>
+<div class="inline-overlay" id="ovlSubscribe">
+    <div class="iol-panel">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-crown" style="color:var(--brand-purple)"></i> 订阅创作者</h3>
+            <button type="button" class="iol-close" id="closeSubscribe"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="sub-modal-step active" id="subStep1">
+            <div class="sub-creator">
+                <div class="av av-sm" style="background-image:url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100')"></div>
+                <div>
+                    <div style="font-size:13px;font-weight:700" id="subCreatorName">山野食光</div>
+                    <div style="font-size:11px;color:var(--t-tertiary)">订阅后可解锁专属内容与直播回放</div>
+                </div>
+            </div>
+            <div class="sub-plan-list">
+                <button type="button" class="sub-plan active" data-price="16"><span><div class="p1">月度计划</div><div class="p2">可随时取消</div></span><span class="price">16 USDT</span></button>
+                <button type="button" class="sub-plan" data-price="42"><span><div class="p1">季度计划</div><div class="p2">节省 12%</div></span><span class="price">42 USDT</span></button>
+                <button type="button" class="sub-plan" data-price="150"><span><div class="p1">年度计划</div><div class="p2">含专属徽章</div></span><span class="price">150 USDT</span></button>
+            </div>
+            <button type="button" class="btn btn-primary btn-block" id="btnConfirmSubscribe"><i class="fa-solid fa-bolt"></i> 确认订阅并支付</button>
+        </div>
+        <div class="sub-modal-step" id="subStep2">
+            <div class="sub-result">
+                <i class="fa-solid fa-circle-check"></i>
+                <h4>订阅成功</h4>
+                <p id="subResultText">你已成功订阅该创作者，专属内容已解锁。</p>
+            </div>
+            <button type="button" class="btn btn-primary btn-block mt-16" id="btnDoneSubscribe">完成</button>
+        </div>
+    </div>
 </div>
 <script src="../js-web/fl-interaction-modal.js"></script>
 
@@ -907,6 +991,22 @@ function toast(msg) {
 
 document.getElementById('btnComposerPublish').addEventListener('click', function() {
     toast('发布成功 · 内容已进入审核队列');
+});
+const composerInput = document.getElementById('composerInput');
+const btnComposerEmoji = document.getElementById('btnComposerEmoji');
+const composerEmojiPanel = document.getElementById('composerEmojiPanel');
+btnComposerEmoji.addEventListener('click', function(e) {
+    e.stopPropagation();
+    composerEmojiPanel.classList.toggle('show');
+});
+composerEmojiPanel.querySelectorAll('button').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        composerInput.value += btn.textContent;
+        composerInput.focus();
+    });
+});
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.emoji-wrap')) composerEmojiPanel.classList.remove('show');
 });
 
 const fd = document.getElementById('filterDrawer');
@@ -958,6 +1058,46 @@ document.querySelectorAll('.follow-dynamic').forEach(btn => {
         }
     });
 });
+const ovlSubscribe = document.getElementById('ovlSubscribe');
+const subStep1 = document.getElementById('subStep1');
+const subStep2 = document.getElementById('subStep2');
+const subCreatorName = document.getElementById('subCreatorName');
+const subResultText = document.getElementById('subResultText');
+let selectedSubPrice = '16';
+document.querySelectorAll('.btn-open-subscribe').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        subCreatorName.textContent = this.dataset.creator || '创作者';
+        selectedSubPrice = this.dataset.plan || '16';
+        document.querySelectorAll('.sub-plan').forEach(p => p.classList.remove('active'));
+        const match = document.querySelector('.sub-plan[data-price="' + selectedSubPrice + '"]');
+        if (match) match.classList.add('active');
+        subStep1.classList.add('active');
+        subStep2.classList.remove('active');
+        ovlSubscribe.classList.add('show');
+    });
+});
+document.querySelectorAll('.sub-plan').forEach(plan => {
+    plan.addEventListener('click', function() {
+        document.querySelectorAll('.sub-plan').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        selectedSubPrice = this.dataset.price;
+    });
+});
+document.getElementById('btnConfirmSubscribe').addEventListener('click', function() {
+    subResultText.textContent = '你已成功订阅「' + subCreatorName.textContent + '」，扣款 ' + selectedSubPrice + ' USDT。';
+    subStep1.classList.remove('active');
+    subStep2.classList.add('active');
+});
+function closeSubscribeModal() { ovlSubscribe.classList.remove('show'); }
+document.getElementById('closeSubscribe').addEventListener('click', closeSubscribeModal);
+document.getElementById('btnDoneSubscribe').addEventListener('click', function() {
+    closeSubscribeModal();
+    toast('订阅已生效');
+});
+ovlSubscribe.addEventListener('click', function(e) {
+    if (e.target === ovlSubscribe) closeSubscribeModal();
+});
 
 document.querySelectorAll('.follow-sidebar').forEach(btn => {
     btn.addEventListener('click', function(e) {
@@ -979,6 +1119,12 @@ document.querySelectorAll('#feedTabs .tab[data-feed]').forEach(tab => {
         const mode = tab.dataset.feed;
         document.getElementById('feedRec').classList.toggle('active', mode === 'rec');
         document.getElementById('feedFollow').classList.toggle('active', mode === 'follow');
+    });
+});
+document.querySelectorAll('.post-text .hashtag').forEach(tag => {
+    tag.addEventListener('click', function() {
+        const topic = (this.textContent || '').replace('#', '').trim();
+        window.location.href = 'topic-detail.html?tag=' + encodeURIComponent(topic);
     });
 });
 

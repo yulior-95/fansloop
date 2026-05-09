@@ -6,46 +6,478 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
 <style>
-.pub-shell { max-width: 720px; margin: 32px auto; padding: 0 20px; }
-.pub-hero {
-    height: 200px;
+body {
+    background: linear-gradient(135deg, #1B0B3A, #2D1B69 50%, #4A1063);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 22px;
+}
+.pub-modal {
+    width: min(940px, 100%);
+    max-height: 92vh;
+    overflow: auto;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
     border-radius: var(--r-xl);
-    background: url('https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg?auto=compress&cs=tinysrgb&w=1200') center/cover;
-    border: 1px solid var(--border);
-    margin-bottom: 20px;
-    display: flex; align-items: flex-end; padding: 16px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.55);
 }
-.pub-hero span { background: rgba(0,0,0,0.55); padding: 8px 12px; border-radius: 8px; font-size: 12px; }
-.price-opt {
-    margin: 18px 0;
-    padding: 14px;
+.pub-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(21,18,36,0.94);
+    backdrop-filter: blur(10px);
+}
+.pub-head h1 { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+.pub-close {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
     background: var(--bg-input);
-    border: 1px dashed var(--border-strong);
-    border-radius: var(--r-md);
+    border: 1px solid var(--border);
+    color: var(--t-secondary);
+    cursor: pointer;
 }
-.price-opt label { font-size: 12px; color: var(--t-secondary); display: block; margin-bottom: 8px; }
+.pub-body {
+    padding: 18px 20px 22px;
+    display: grid;
+    grid-template-columns: 1.15fr .85fr;
+    gap: 18px;
+}
+@media (max-width: 980px) {
+    .pub-body { grid-template-columns: 1fr; }
+}
+.upload-row {
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--r-lg);
+    background: var(--bg-input);
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+    transition: .18s;
+}
+.upload-row.dragover {
+    border-color: #A855F7;
+    box-shadow: 0 0 0 1px rgba(168,85,247,.3) inset;
+    background: rgba(168,85,247,.07);
+}
+.upload-row .left { display: flex; align-items: center; gap: 10px; }
+.upload-row .left i { font-size: 20px; color: #C084FC; }
+.upload-row .left .t1 { font-size: 13px; font-weight: 700; }
+.upload-row .left .t2 { font-size: 11px; color: var(--t-secondary); margin-top: 2px; }
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+}
+@media (max-width: 760px) {
+    .preview-grid { grid-template-columns: repeat(3, 1fr); }
+}
+.pv-item {
+    position: relative;
+    aspect-ratio: 1/1;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+}
+.pv-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pv-item .rm {
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(0,0,0,.66);
+    color: #fff;
+    font-size: 10px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+}
+.pv-item.add-more {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; color: #C084FC; cursor: pointer;
+    border-style: dashed;
+}
+.meta-row {
+    margin-top: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--t-secondary);
+}
+.field {
+    margin-bottom: 12px;
+}
+.field .lb {
+    font-size: 12px;
+    color: var(--t-secondary);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+}
+.field input,
+.field textarea,
+.field select {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--t-primary);
+    font-size: 13px;
+    padding: 10px 12px;
+    outline: none;
+}
+.field textarea { min-height: 140px; resize: vertical; line-height: 1.5; }
+.field input:focus,
+.field textarea:focus,
+.field select:focus { border-color: var(--border-focus); }
+.field select {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #A78BFA 50%), linear-gradient(135deg, #A78BFA 50%, transparent 50%);
+    background-position: calc(100% - 18px) calc(1em + 2px), calc(100% - 13px) calc(1em + 2px);
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    padding-right: 34px;
+}
+.price-opt {
+    margin-top: 6px;
+    padding: 12px;
+    border: 1px dashed var(--border-strong);
+    background: var(--bg-input);
+    border-radius: 10px;
+}
 .price-opt .hint { font-size: 11px; color: var(--t-tertiary); margin-top: 8px; }
+.price-line {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.price-line input {
+    border: none;
+    border-right: 1px solid var(--border);
+    border-radius: 0;
+    max-width: 180px;
+    background: transparent;
+}
+.price-line .unit {
+    min-width: 58px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--t-secondary);
+}
+.pub-foot {
+    padding: 14px 20px 18px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+.small-tip { font-size: 11px; color: var(--t-tertiary); margin-top: 6px; }
+.friend-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.68);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    padding: 18px;
+}
+.friend-overlay.show { display: flex; }
+.friend-panel {
+    width: min(520px, 100%);
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+}
+.friend-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+}
+.friend-list { padding: 12px 14px; max-height: 380px; overflow: auto; }
+.friend-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px;
+    border-radius: 10px;
+}
+.friend-row:hover { background: var(--bg-input); }
+.friend-row .av { width: 34px; height: 34px; border-radius: 50%; background-size: cover; background-position: center; }
+.friend-row .name { font-size: 13px; font-weight: 600; }
+.friend-row .meta { font-size: 11px; color: var(--t-tertiary); }
 </style>
-
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
 </head>
-<body style="background:var(--bg-canvas)">
-<div class="pub-shell">
-    <a href="home.html" style="font-size:13px;color:var(--brand-purple);margin-bottom:16px;display:inline-flex;align-items:center;gap:6px"><i class="fa-solid fa-arrow-left"></i> 返回首页</a>
-    <h1 style="font-size:22px;font-weight:800;margin-bottom:8px">发布图文</h1>
-    <p style="color:var(--t-secondary);font-size:13px;margin-bottom:20px">拖拽上传或多选图片，支持 JPG / PNG / WebP，单张最大 20MB。</p>
-    <div class="pub-hero"><span><i class="fa-regular fa-image"></i> 预览区域 · 示例图来自 Pexels</span></div>
-    <textarea class="textarea" style="min-height:120px;margin-bottom:14px" placeholder="添加标题或正文…"></textarea>
-    <div class="price-opt">
-        <label><i class="fa-solid fa-tag" style="color:#F59E0B"></i> 单篇定价（可选）</label>
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-            <input type="number" class="input" id="priceImg" placeholder="留空表示免费" min="0" step="0.01" style="max-width:200px" />
-            <span style="font-size:12px;color:var(--t-tertiary)">USDT · 留空则发布后对所有用户免费浏览</span>
-        </div>
-        <p class="hint">提交后将进入审核队列，定价可在审核通过前于「创作内容」中修改。</p>
+<body>
+<input type="file" id="fileInput" accept="image/*" multiple hidden>
+<div class="pub-modal">
+    <div class="pub-head">
+        <h1><i class="fa-regular fa-image" style="color:#C084FC"></i> 发布图文</h1>
+        <button type="button" class="pub-close close"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <button type="button" class="btn btn-primary btn-lg btn-block" onclick="location.href='home.html'"><i class="fa-solid fa-paper-plane"></i> 提交审核并发布</button>
+    <div class="pub-body">
+        <section>
+            <div class="upload-row" id="uploadRow">
+                <div class="left">
+                    <i class="fa-regular fa-images"></i>
+                    <div>
+                        <div class="t1">添加图片</div>
+                        <div class="t2">拖拽或点击上传，最多10张</div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm">选择图片</button>
+            </div>
+            <div class="preview-grid" id="previewGrid"></div>
+            <div class="meta-row">
+                <span id="imgCountText">已上传 0 / 10</span>
+                <span id="imgTips">当前为未上传状态</span>
+            </div>
+        </section>
+        <section>
+            <div class="field">
+                <div class="lb"><span>标题</span><span id="titleCount">0 / 20</span></div>
+                <input id="titleInput" maxlength="20" placeholder="请输入作品标题（最多20字）">
+            </div>
+            <div class="field">
+                <div class="lb"><span>作品描述</span><span id="descCount">0 / 3000</span></div>
+                <textarea id="descInput" maxlength="3000" placeholder="请描述作品亮点、拍摄背景、创作灵感等（最多3000字）"></textarea>
+            </div>
+            <div class="field">
+                <div class="lb"><span>可查看权限</span><span id="permHint">公开·所有人可见</span></div>
+                <select id="permSelect">
+                    <option value="public" selected>公开·所有人可见</option>
+                    <option value="mutual">互相关注的人可见</option>
+                    <option value="partial">部分可见</option>
+                    <option value="subscriber">订阅的人可见</option>
+                </select>
+                <div class="small-tip">选择「部分可见」后可在当前页面勾选好友。</div>
+            </div>
+            <div class="price-opt">
+                <label style="font-size:12px;color:var(--t-secondary);display:block;margin-bottom:8px;"><i class="fa-solid fa-tag" style="color:#F59E0B"></i> 单篇定价（可选）</label>
+                <div class="price-line">
+                    <input type="number" class="input" id="priceImg" placeholder="留空表示免费" min="0" step="0.01">
+                    <span class="unit">USDT</span>
+                </div>
+                <p class="hint">留空则发布后免费开放浏览</p>
+            </div>
+        </section>
+    </div>
+    <div class="pub-foot">
+        <button type="button" class="btn btn-secondary" data-fl-modal-dismiss><i class="fa-solid fa-xmark"></i> 取消</button>
+        <button type="button" class="btn btn-primary" id="btnPublish"><i class="fa-solid fa-paper-plane"></i> 提交审核并发布</button>
+    </div>
 </div>
+
+<div class="friend-overlay" id="friendOverlay">
+    <div class="friend-panel">
+        <div class="friend-head">
+            <h3 style="font-size:16px;font-weight:800">部分可见 · 选择好友</h3>
+            <button type="button" class="pub-close" id="closeFriend"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="friend-list" id="friendList"></div>
+        <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px">
+            <button type="button" class="btn btn-secondary" id="cancelFriend">取消</button>
+            <button type="button" class="btn btn-primary" id="confirmFriend">确认选择</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const MAX_FILES = 10;
+    const defaultImages = [
+        'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=800&q=80',
+        'https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=800&q=80',
+        'https://images.unsplash.com/photo-1522383225653-ed111181a951?w=800&q=80',
+        'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&q=80',
+        'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
+        'https://images.unsplash.com/photo-1470770903676-69b98201ea1c?w=800&q=80',
+        'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80',
+        'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80',
+        'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=800&q=80',
+        'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=800&q=80'
+    ];
+    const friendSeed = [
+        ['NovaPlay', '3年好友 · 游戏', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80'],
+        ['Luna', '互关创作者', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80'],
+        ['夜间速写', '绘画圈', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80'],
+        ['银盐时代', '摄影圈', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80'],
+        ['Marcus', '直播达人', 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80'],
+        ['CoffeeTalk', '播客', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80']
+    ];
+
+    const fileInput = document.getElementById('fileInput');
+    const uploadRow = document.getElementById('uploadRow');
+    const previewGrid = document.getElementById('previewGrid');
+    const imgCountText = document.getElementById('imgCountText');
+    const imgTips = document.getElementById('imgTips');
+    const titleInput = document.getElementById('titleInput');
+    const descInput = document.getElementById('descInput');
+    const titleCount = document.getElementById('titleCount');
+    const descCount = document.getElementById('descCount');
+    const permSelect = document.getElementById('permSelect');
+    const permHint = document.getElementById('permHint');
+    const friendOverlay = document.getElementById('friendOverlay');
+    const friendList = document.getElementById('friendList');
+
+    let images = [];
+    let selectedFriends = [];
+
+    function updateCounters() {
+        titleCount.textContent = titleInput.value.length + ' / 20';
+        descCount.textContent = descInput.value.length + ' / 3000';
+    }
+    titleInput.addEventListener('input', updateCounters);
+    descInput.addEventListener('input', updateCounters);
+    updateCounters();
+
+    function pushImage(src) {
+        if (images.length >= MAX_FILES) return;
+        images.push(src);
+    }
+
+    function addFiles(files) {
+        if (!files || !files.length) return;
+        const remain = MAX_FILES - images.length;
+        Array.from(files).slice(0, remain).forEach((file, idx) => {
+            if (file.type && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    pushImage(e.target.result);
+                    renderPreview();
+                };
+                reader.readAsDataURL(file);
+            } else if (idx === 0) {
+                imgTips.textContent = '仅支持图片文件';
+            }
+        });
+    }
+
+    function renderPreview() {
+        previewGrid.innerHTML = '';
+        imgCountText.textContent = '已上传 ' + images.length + ' / 10';
+        imgTips.textContent = images.length >= 10 ? '已达到最多 10 张' : (images.length ? '可继续上传 ' + (10 - images.length) + ' 张' : '当前为未上传状态');
+
+        images.forEach((src, i) => {
+            const item = document.createElement('div');
+            item.className = 'pv-item';
+            item.innerHTML = '<img src="' + src + '" alt="preview"><button type="button" class="rm"><i class="fa-solid fa-xmark"></i></button>';
+            item.querySelector('.rm').addEventListener('click', function (e) {
+                e.stopPropagation();
+                images.splice(i, 1);
+                renderPreview();
+            });
+            previewGrid.appendChild(item);
+        });
+
+        if (images.length < MAX_FILES) {
+            const add = document.createElement('div');
+            add.className = 'pv-item add-more';
+            add.innerHTML = '<i class="fa-solid fa-plus"></i>';
+            add.addEventListener('click', function () { fileInput.click(); });
+            previewGrid.appendChild(add);
+        }
+    }
+    renderPreview();
+
+    uploadRow.addEventListener('click', function () { fileInput.click(); });
+    fileInput.addEventListener('change', function () { addFiles(fileInput.files); fileInput.value = ''; });
+    ['dragenter', 'dragover'].forEach(evt => {
+        uploadRow.addEventListener(evt, function (e) {
+            e.preventDefault();
+            uploadRow.classList.add('dragover');
+        });
+    });
+    ['dragleave', 'drop'].forEach(evt => {
+        uploadRow.addEventListener(evt, function (e) {
+            e.preventDefault();
+            uploadRow.classList.remove('dragover');
+        });
+    });
+    uploadRow.addEventListener('drop', function (e) { addFiles(e.dataTransfer.files); });
+
+    function openFriendOverlay() { friendOverlay.classList.add('show'); }
+    function closeFriendOverlay() { friendOverlay.classList.remove('show'); }
+
+    function renderFriends() {
+        friendList.innerHTML = '';
+        friendSeed.forEach((item, idx) => {
+            const row = document.createElement('label');
+            row.className = 'friend-row';
+            row.innerHTML =
+                '<input type="checkbox" data-fid="' + idx + '"' + (selectedFriends.includes(String(idx)) ? ' checked' : '') + '>' +
+                '<div class="av" style="background-image:url(\'' + item[2] + '\')"></div>' +
+                '<div style="flex:1"><div class="name">' + item[0] + '</div><div class="meta">' + item[1] + '</div></div>';
+            friendList.appendChild(row);
+        });
+    }
+    renderFriends();
+
+    permSelect.addEventListener('change', function () {
+        const v = permSelect.value;
+        if (v === 'public') permHint.textContent = '公开·所有人可见';
+        if (v === 'mutual') permHint.textContent = '互相关注的人可见';
+        if (v === 'subscriber') permHint.textContent = '订阅的人可见';
+        if (v === 'partial') {
+            renderFriends();
+            openFriendOverlay();
+        }
+    });
+
+    document.getElementById('closeFriend').addEventListener('click', function () {
+        if (!selectedFriends.length) permSelect.value = 'public';
+        closeFriendOverlay();
+    });
+    document.getElementById('cancelFriend').addEventListener('click', function () {
+        if (!selectedFriends.length) permSelect.value = 'public';
+        closeFriendOverlay();
+    });
+    document.getElementById('confirmFriend').addEventListener('click', function () {
+        selectedFriends = Array.from(friendList.querySelectorAll('input:checked')).map(el => el.getAttribute('data-fid'));
+        if (!selectedFriends.length) {
+            permSelect.value = 'public';
+            permHint.textContent = '公开·所有人可见';
+        } else {
+            permHint.textContent = '部分可见·' + selectedFriends.length + '人';
+        }
+        closeFriendOverlay();
+    });
+    friendOverlay.addEventListener('click', function (e) {
+        if (e.target === friendOverlay) closeFriendOverlay();
+    });
+
+    document.getElementById('btnPublish').addEventListener('click', function () {
+        if (!images.length) {
+            imgTips.textContent = '请先上传至少 1 张图片后再发布';
+            return;
+        }
+        alert('图文内容已提交审核，发布成功后将在首页展示。');
+    });
+
+    window.debugFillTenImages = function () {
+        images = [];
+        defaultImages.forEach(pushImage);
+        renderPreview();
+    };
+})();
+</script>
+<script src="../js-web/fl-embed-modal-dismiss.js"></script>
 </body>
 </html>
