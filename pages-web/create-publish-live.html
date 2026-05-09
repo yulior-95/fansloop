@@ -6,42 +6,809 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
 <style>
-.pub-shell { max-width: 720px; margin: 32px auto; padding: 0 20px; }
-.cover-pick {
-    height: 180px;
-    border-radius: var(--r-lg);
-    background: url('https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=1200&q=80') center/cover;
-    border: 1px solid var(--border);
-    margin-bottom: 16px;
+body {
+    background: linear-gradient(135deg, #1B0B3A, #2D1B69 50%, #4A1063);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 22px;
 }
-.price-opt {
-    margin: 16px 0;
-    padding: 14px;
+.pub-modal {
+    width: min(960px, 100%);
+    max-height: 92vh;
+    overflow: auto;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+}
+.pub-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(21,18,36,0.94);
+    backdrop-filter: blur(10px);
+}
+.pub-head h1 { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+.pub-close {
+    width: 34px; height: 34px;
+    border-radius: 10px;
     background: var(--bg-input);
-    border: 1px dashed var(--border-strong);
-    border-radius: var(--r-md);
+    border: 1px solid var(--border);
+    color: var(--t-secondary);
+    cursor: pointer;
 }
-.price-opt label { font-size: 12px; color: var(--t-secondary); display: block; margin-bottom: 8px; }
-.price-opt .hint { font-size: 11px; color: var(--t-tertiary); margin-top: 8px; }
-</style>
+.pub-body {
+    padding: 18px 20px 22px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+@media (max-width: 920px) { .pub-body { grid-template-columns: 1fr; } }
 
+.live-cover-wrap { position: relative; }
+.live-cover {
+    aspect-ratio: 16/9;
+    border-radius: var(--r-lg);
+    background-size: cover;
+    background-position: center;
+    border: 1.5px dashed var(--border-strong);
+    cursor: pointer;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: 10px;
+    transition: .18s;
+}
+.live-cover:hover { border-color: rgba(168,85,247,0.5); }
+.live-cover .chg {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.cover-hint {
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--t-tertiary);
+}
+
+.play-seg {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+}
+.play-seg label {
+    flex: 1;
+    cursor: pointer;
+}
+.play-seg input { position: absolute; opacity: 0; pointer-events: none; }
+.play-seg .pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--t-secondary);
+    transition: .15s;
+}
+.play-seg input:checked + .pill {
+    border-color: rgba(239,68,68,0.55);
+    background: rgba(239,68,68,0.12);
+    color: #fff;
+}
+
+.mode-panel {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: var(--r-md);
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    display: none;
+}
+.mode-panel.show { display: block; }
+
+.cam-preview-wrap {
+    position: relative;
+    aspect-ratio: 16/9;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #0a0712;
+    border: 1px solid var(--border);
+}
+.cam-preview-wrap video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.cam-preview-wrap .cam-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--t-tertiary);
+    font-size: 12px;
+}
+.cam-actions { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+.stream-rows { display: flex; flex-direction: column; gap: 10px; }
+.stream-row {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    font-size: 12px;
+}
+.stream-row code {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 11px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.35);
+    border: 1px solid var(--border);
+    color: #E9D5FF;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 11px;
+    word-break: break-all;
+}
+.stream-row .btn-copy {
+    flex-shrink: 0;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--t-primary);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.stream-row .btn-copy:hover { border-color: var(--border-focus); }
+.obs-links {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+.obs-wait {
+    margin-top: 10px;
+    font-size: 11.5px;
+    color: var(--t-secondary);
+    line-height: 1.5;
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(168,85,247,0.08);
+    border: 1px dashed rgba(168,85,247,0.35);
+}
+
+.field { margin-bottom: 12px; }
+.field .lb {
+    font-size: 12px; color: var(--t-secondary);
+    margin-bottom: 8px;
+    display: flex; justify-content: space-between;
+}
+.field input, .field textarea, .field select {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--t-primary);
+    font-size: 13px;
+    padding: 10px 12px;
+    outline: none;
+    box-sizing: border-box;
+}
+.field textarea { min-height: 68px; resize: vertical; }
+.field select {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #A78BFA 50%), linear-gradient(135deg, #A78BFA 50%, transparent 50%);
+    background-position: calc(100% - 18px) calc(1em + 2px), calc(100% - 13px) calc(1em + 2px);
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    padding-right: 34px;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--border-focus); }
+
+.custom-time-wrap {
+    display: none;
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+}
+.custom-time-wrap.show { display: block; }
+.custom-time-wrap .lb2 {
+    font-size: 11px;
+    color: var(--t-tertiary);
+    margin-bottom: 8px;
+}
+.custom-time-wrap input[type="datetime-local"] {
+    width: 100%;
+    font-family: ui-monospace, monospace;
+    box-sizing: border-box;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--t-primary);
+    font-size: 13px;
+    padding: 10px 12px;
+    outline: none;
+    color-scheme: dark;
+}
+.custom-time-wrap input[type="datetime-local"]:focus {
+    border-color: var(--border-focus);
+}
+
+.price-opt {
+    margin-top: 4px;
+    padding: 12px;
+    border: 1px dashed var(--border-strong);
+    background: var(--bg-input);
+    border-radius: 10px;
+}
+.price-opt .row2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+@media (max-width: 560px) { .price-opt .row2 { grid-template-columns: 1fr; } }
+.price-opt label { font-size: 12px; color: var(--t-secondary); display: block; margin-bottom: 8px; }
+.price-opt .hint { font-size: 11px; color: var(--t-tertiary); margin-top: 10px; }
+.price-line {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.price-line input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    border-right: 1px solid var(--border);
+    border-radius: 0;
+    background: transparent;
+}
+.price-line .unit {
+    min-width: 52px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--t-secondary);
+}
+
+.small-tip { font-size: 11px; color: var(--t-tertiary); margin-top: 6px; }
+
+.pub-foot {
+    padding: 14px 20px 18px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.friend-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.68);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 26;
+    padding: 18px;
+}
+.friend-overlay.show { display: flex; }
+.friend-panel {
+    width: min(520px, 100%);
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+}
+.friend-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.friend-list { padding: 12px 14px; max-height: 380px; overflow: auto; }
+.friend-row { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 10px; }
+.friend-row:hover { background: var(--bg-input); }
+.friend-row .av { width: 34px; height: 34px; border-radius: 50%; background-size: cover; background-position: center; }
+.friend-row .name { font-size: 13px; font-weight: 600; }
+.friend-row .meta { font-size: 11px; color: var(--t-tertiary); }
+
+.obs-guide-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.72);
+    backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+    padding: 16px;
+}
+.obs-guide-overlay.show { display: flex; }
+.obs-guide-overlay iframe {
+    width: min(680px, 100%);
+    height: min(560px, 90vh);
+    border: none;
+    border-radius: var(--r-xl);
+    box-shadow: 0 24px 70px rgba(0,0,0,0.55);
+}
+</style>
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
 </head>
-<body style="background:var(--bg-canvas)">
-<div class="pub-shell">
-    <a href="home.html" style="font-size:13px;color:var(--brand-purple);margin-bottom:16px;display:inline-flex;align-items:center;gap:6px"><i class="fa-solid fa-arrow-left"></i> 返回首页</a>
-    <h1 style="font-size:22px;font-weight:800;margin-bottom:8px">创建直播</h1>
-    <p style="color:var(--t-secondary);font-size:13px;margin-bottom:20px">设置封面与标题， viewers 将通过 Feed 与推送收到开播提醒。</p>
-    <div class="cover-pick"></div>
-    <div class="field"><label class="field-label">直播标题</label><input class="input" placeholder="例如：雨夜小提琴即兴" /></div>
-    <div class="field mt-16"><label class="field-label">开播时间</label><select class="select"><option>立即开播</option><option>预约 30 分钟后</option><option>自定义…</option></select></div>
-    <div class="price-opt">
-        <label><i class="fa-solid fa-ticket" style="color:#F59E0B"></i> 直播间门票 / 最低打赏（可选）</label>
-        <input type="number" class="input" placeholder="留空表示仅常规打赏，不设门槛" min="0" step="0.01" style="max-width:260px" />
-        <p class="hint">USDT · 可用于付费入场或设定礼物门槛，不影响审核流程。</p>
+<body>
+<input type="file" id="coverInput" accept="image/*" hidden>
+
+<div class="pub-modal">
+    <div class="pub-head">
+        <h1><i class="fa-solid fa-tower-broadcast" style="color:#EF4444"></i> 创建直播</h1>
+        <button type="button" class="pub-close close"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <button class="btn btn-primary btn-lg btn-block mt-16" onclick="location.href='live-detail.html'"><i class="fa-solid fa-tower-broadcast"></i> 提交审核并进入开播流程</button>
+    <div id="existingLiveHint" style="display:none;margin:0;border-bottom:1px solid var(--border);padding:10px 20px;font-size:12px;background:rgba(251,191,36,0.08);color:var(--t-secondary);line-height:1.5">
+        <i class="fa-solid fa-triangle-exclamation" style="color:#FBBF24"></i>
+        每位创作者仅支持 <b style="color:#FDE68A">1 场</b> 预约直播。你已有预约时无法重复创建，请先至首页或创作中心关闭既有预约。
+    </div>
+    <div class="pub-body">
+        <section class="live-cover-wrap">
+            <div class="live-cover" id="liveCover" title="点击更换封面">
+                <span class="chg"><i class="fa-regular fa-image"></i> 更换封面</span>
+            </div>
+            <p class="cover-hint">默认使用账号头像作为直播封面；视频直播将尝试调用本机摄像头预览。</p>
+
+            <div class="lb" style="font-size:12px;color:var(--t-secondary);margin-top:14px;margin-bottom:8px">播放形式</div>
+            <div class="play-seg">
+                <label>
+                    <input type="radio" name="playMode" value="video" checked>
+                    <span class="pill"><i class="fa-solid fa-video" style="color:#60A5FA"></i> 视频直播</span>
+                </label>
+                <label>
+                    <input type="radio" name="playMode" value="obs">
+                    <span class="pill"><i class="fa-solid fa-display" style="color:#A855F7"></i> 电脑直播</span>
+                </label>
+            </div>
+
+            <div id="panelVideo" class="mode-panel show">
+                <div class="cam-preview-wrap">
+                    <video id="camPreview" playsinline muted autoplay></video>
+                    <div class="cam-placeholder" id="camPlaceholder">
+                        <i class="fa-solid fa-camera" style="font-size:28px;opacity:.5"></i>
+                        <span>预览未开启</span>
+                    </div>
+                </div>
+                <div class="cam-actions">
+                    <button type="button" class="btn btn-primary btn-sm" id="btnStartCam"><i class="fa-solid fa-video"></i> 开启摄像头预览</button>
+                    <button type="button" class="btn btn-secondary btn-sm" id="btnStopCam"><i class="fa-solid fa-stop"></i> 停止预览</button>
+                </div>
+                <p class="small-tip">正式开播后使用当前摄像头画面；若浏览器拦截权限，请在地址栏允许摄像头。</p>
+            </div>
+
+            <div id="panelObs" class="mode-panel">
+                <div class="stream-rows">
+                    <div>
+                        <div style="font-size:11px;color:var(--t-tertiary);margin-bottom:6px">推流地址（服务器）</div>
+                        <div class="stream-row">
+                            <code id="rtmpUrl">rtmps://push.fansloop.io/live</code>
+                            <button type="button" class="btn-copy" data-copy="rtmpUrl"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size:11px;color:var(--t-tertiary);margin-bottom:6px">推流码（串流密钥）</div>
+                        <div class="stream-row">
+                            <code id="streamKey">sk_live_FLP_7k2mN9pQx4vR8wY1zA3bC6dE0fG5hJ</code>
+                            <button type="button" class="btn-copy" data-copy="streamKey"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="obs-links">
+                    <button type="button" class="btn btn-secondary btn-sm" id="btnObsGuide"><i class="fa-regular fa-circle-question"></i> 配置说明</button>
+                    <span style="font-size:11px;color:var(--t-tertiary)">复制以上内容到 OBS 即可</span>
+                </div>
+                <div class="obs-wait">
+                    <i class="fa-solid fa-signal" style="color:#34D399"></i>
+                    <strong>配置成功后</strong>，请在 OBS 点击「开始推流」。FansLoop 接收到信号后将<strong>自动开播</strong>，无需在本页重复操作。
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="field">
+                <div class="lb"><span>直播标题</span><span id="titleCount">0 / 20</span></div>
+                <input id="titleInput" maxlength="20" placeholder="给你的直播间起个标题（最多20字）">
+            </div>
+            <div class="field">
+                <div class="lb"><span>直播描述</span><span id="descCount">0 / 30</span></div>
+                <textarea id="descInput" maxlength="30" placeholder="一句话介绍本场直播（最多30字）"></textarea>
+            </div>
+            <div class="field">
+                <div class="lb"><span>开播时间</span></div>
+                <select id="scheduleSelect">
+                    <option value="now">立即开播</option>
+                    <option value="in30">预约 30 分钟后</option>
+                    <option value="custom">自定义</option>
+                </select>
+                <div class="custom-time-wrap" id="customTimeWrap">
+                    <div class="lb2">请选择当前时间至少 30 分钟之后的日期与时间（精确到分钟）</div>
+                    <input type="datetime-local" id="customDateTime" step="60">
+                </div>
+            </div>
+            <div class="field">
+                <div class="lb"><span>可查看权限</span><span id="permHint">公开·所有人可见</span></div>
+                <select id="permSelect">
+                    <option value="public" selected>公开·所有人可见</option>
+                    <option value="mutual">互相关注的人可见</option>
+                    <option value="partial">部分可见</option>
+                    <option value="subscriber">订阅的人可见</option>
+                </select>
+                <div class="small-tip">选择「部分可见」后可在当前页面勾选好友。</div>
+            </div>
+            <div class="price-opt">
+                <label><i class="fa-solid fa-ticket" style="color:#F59E0B"></i> 直播间门票 / 最低打赏（可选）</label>
+                <div class="row2">
+                    <div>
+                        <div style="font-size:11px;color:var(--t-tertiary);margin-bottom:6px">直播间门票</div>
+                        <div class="price-line">
+                            <input type="number" id="ticketPrice" placeholder="留空免费入场" min="0" step="0.01">
+                            <span class="unit">USDT</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size:11px;color:var(--t-tertiary);margin-bottom:6px">最低打赏</div>
+                        <div class="price-line">
+                            <input type="number" id="minTip" placeholder="不设门槛" min="0" step="0.01">
+                            <span class="unit">USDT</span>
+                        </div>
+                    </div>
+                </div>
+                <p class="hint">留空表示不设门票与礼物门槛，不影响审核流程。</p>
+            </div>
+        </section>
+    </div>
+    <div class="pub-foot">
+        <button type="button" class="btn btn-secondary" data-fl-modal-dismiss><i class="fa-solid fa-xmark"></i> 取消</button>
+        <button type="button" class="btn btn-primary" id="btnSubmitLive"><i class="fa-solid fa-tower-broadcast"></i> 创建直播</button>
+    </div>
 </div>
+
+<div class="friend-overlay" id="friendOverlay">
+    <div class="friend-panel">
+        <div class="friend-head">
+            <h3 style="font-size:16px;font-weight:800">部分可见 · 选择好友</h3>
+            <button type="button" class="pub-close" id="closeFriend"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="friend-list" id="friendList"></div>
+        <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px">
+            <button type="button" class="btn btn-secondary" id="cancelFriend">取消</button>
+            <button type="button" class="btn btn-primary" id="confirmFriend">确认选择</button>
+        </div>
+    </div>
+</div>
+
+<div class="obs-guide-overlay" id="obsGuideOverlay">
+    <iframe src="modal-live-obs-guide.html" title="OBS 配置说明"></iframe>
+</div>
+
+<script src="../js-web/fl-live-reservation.js"></script>
+<script>
+(function () {
+    const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&q=80';
+    const friendSeed = [
+        ['NovaPlay', '3年好友 · 游戏', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80'],
+        ['Luna', '互关创作者', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80'],
+        ['夜间速写', '绘画圈', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80'],
+        ['银盐时代', '摄影圈', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80'],
+        ['Marcus', '直播达人', 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80'],
+        ['CoffeeTalk', '播客', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80']
+    ];
+
+    const liveCover = document.getElementById('liveCover');
+    const coverInput = document.getElementById('coverInput');
+    const titleInput = document.getElementById('titleInput');
+    const titleCount = document.getElementById('titleCount');
+    const descInput = document.getElementById('descInput');
+    const descCount = document.getElementById('descCount');
+    const scheduleSelect = document.getElementById('scheduleSelect');
+    const customTimeWrap = document.getElementById('customTimeWrap');
+    const customDateTime = document.getElementById('customDateTime');
+    const permSelect = document.getElementById('permSelect');
+    const permHint = document.getElementById('permHint');
+    const friendOverlay = document.getElementById('friendOverlay');
+    const friendList = document.getElementById('friendList');
+    const panelVideo = document.getElementById('panelVideo');
+    const panelObs = document.getElementById('panelObs');
+    const camPreview = document.getElementById('camPreview');
+    const camPlaceholder = document.getElementById('camPlaceholder');
+    const obsGuideOverlay = document.getElementById('obsGuideOverlay');
+
+    let coverUrl = DEFAULT_AVATAR;
+    let selectedFriends = [];
+    let camStream = null;
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function minCustomISOString() {
+        var d = new Date(Date.now() + 30 * 60 * 1000);
+        d.setSeconds(0, 0);
+        return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+
+    function refreshCustomMin() {
+        var minVal = minCustomISOString();
+        customDateTime.min = minVal;
+        if (!customDateTime.value || customDateTime.value < minVal) {
+            customDateTime.value = minVal;
+        }
+    }
+
+    function getPlayMode() {
+        var r = document.querySelector('input[name="playMode"]:checked');
+        return r ? r.value : 'video';
+    }
+
+    function updatePlayPanels() {
+        var m = getPlayMode();
+        panelVideo.classList.toggle('show', m === 'video');
+        panelObs.classList.toggle('show', m === 'obs');
+    }
+
+    function getScheduleLabel() {
+        var s = scheduleSelect.value;
+        if (s === 'now') return '立即开播';
+        if (s === 'in30') return '约 30 分钟后';
+        if (s === 'custom') return (customDateTime.value || '').replace('T', ' ');
+        return '';
+    }
+
+    function computeScheduledAtMs() {
+        var s = scheduleSelect.value;
+        if (s === 'in30') return Date.now() + 30 * 60 * 1000;
+        if (s === 'custom') {
+            var v = customDateTime.value;
+            if (!v) return null;
+            var d = new Date(v);
+            if (isNaN(d.getTime())) return null;
+            return d.getTime();
+        }
+        return null;
+    }
+
+    function syncExistingHint() {
+        var el = document.getElementById('existingLiveHint');
+        if (!el || typeof flLiveReservationHasActive !== 'function') return;
+        el.style.display = flLiveReservationHasActive() ? 'block' : 'none';
+    }
+    syncExistingHint();
+
+    function copyEl(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var t = el.textContent;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(t).then(function () {
+                alert('已复制到剪贴板');
+            }).catch(function () { fallbackCopy(t); });
+        } else fallbackCopy(t);
+    }
+    function fallbackCopy(text) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); alert('已复制到剪贴板'); } catch (e) { alert(text); }
+        document.body.removeChild(ta);
+    }
+
+    liveCover.style.backgroundImage = 'url("' + coverUrl + '")';
+    titleInput.addEventListener('input', function () {
+        titleCount.textContent = titleInput.value.length + ' / 20';
+    });
+    titleCount.textContent = titleInput.value.length + ' / 20';
+    descInput.addEventListener('input', function () {
+        descCount.textContent = descInput.value.length + ' / 30';
+    });
+    descCount.textContent = descInput.value.length + ' / 30';
+
+    document.querySelectorAll('input[name="playMode"]').forEach(function (r) {
+        r.addEventListener('change', updatePlayPanels);
+    });
+
+    liveCover.addEventListener('click', function () { coverInput.click(); });
+    coverInput.addEventListener('change', function () {
+        var f = coverInput.files && coverInput.files[0];
+        if (!f || !(f.type || '').startsWith('image/')) return;
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            coverUrl = e.target.result;
+            liveCover.style.backgroundImage = 'url("' + coverUrl + '")';
+        };
+        reader.readAsDataURL(f);
+        coverInput.value = '';
+    });
+
+    document.querySelectorAll('.btn-copy').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            copyEl(btn.getAttribute('data-copy'));
+        });
+    });
+
+    document.getElementById('btnObsGuide').addEventListener('click', function () {
+        obsGuideOverlay.classList.add('show');
+    });
+    obsGuideOverlay.addEventListener('click', function (e) {
+        if (e.target === obsGuideOverlay) obsGuideOverlay.classList.remove('show');
+    });
+    window.addEventListener('message', function (e) {
+        if (e.data && e.data.type === 'fansloop-close-obs-guide') {
+            obsGuideOverlay.classList.remove('show');
+        }
+    });
+
+    document.getElementById('btnStartCam').addEventListener('click', function () {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert('当前环境不支持摄像头预览（请使用 HTTPS 或 localhost）。');
+            return;
+        }
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(function (stream) {
+            camStream = stream;
+            camPreview.srcObject = stream;
+            camPlaceholder.style.display = 'none';
+        }).catch(function () {
+            alert('无法访问摄像头，请检查权限或设备。');
+        });
+    });
+    document.getElementById('btnStopCam').addEventListener('click', function () {
+        if (camStream) {
+            camStream.getTracks().forEach(function (t) { t.stop(); });
+            camStream = null;
+        }
+        camPreview.srcObject = null;
+        camPlaceholder.style.display = '';
+    });
+
+    scheduleSelect.addEventListener('change', function () {
+        if (scheduleSelect.value === 'custom') {
+            customTimeWrap.classList.add('show');
+            refreshCustomMin();
+        } else {
+            customTimeWrap.classList.remove('show');
+        }
+    });
+
+    function openFriendOverlay() { friendOverlay.classList.add('show'); }
+    function closeFriendOverlay() { friendOverlay.classList.remove('show'); }
+
+    function renderFriends() {
+        friendList.innerHTML = '';
+        friendSeed.forEach(function (item, idx) {
+            var row = document.createElement('label');
+            row.className = 'friend-row';
+            row.innerHTML =
+                '<input type="checkbox" data-fid="' + idx + '"' + (selectedFriends.indexOf(String(idx)) >= 0 ? ' checked' : '') + '>' +
+                '<div class="av" style="background-image:url(\'' + item[2] + '\')"></div>' +
+                '<div style="flex:1"><div class="name">' + item[0] + '</div><div class="meta">' + item[1] + '</div></div>';
+            friendList.appendChild(row);
+        });
+    }
+    renderFriends();
+
+    permSelect.addEventListener('change', function () {
+        var v = permSelect.value;
+        if (v !== 'partial') closeFriendOverlay();
+        if (v === 'public') permHint.textContent = '公开·所有人可见';
+        else if (v === 'mutual') permHint.textContent = '互相关注的人可见';
+        else if (v === 'subscriber') permHint.textContent = '订阅的人可见';
+        else if (v === 'partial') {
+            permHint.textContent = '部分可见 · 请选择好友';
+            renderFriends();
+            openFriendOverlay();
+        }
+    });
+
+    document.getElementById('closeFriend').addEventListener('click', function () {
+        if (!selectedFriends.length) permSelect.value = 'public';
+        closeFriendOverlay();
+    });
+    document.getElementById('cancelFriend').addEventListener('click', function () {
+        if (!selectedFriends.length) permSelect.value = 'public';
+        closeFriendOverlay();
+    });
+    document.getElementById('confirmFriend').addEventListener('click', function () {
+        selectedFriends = Array.from(friendList.querySelectorAll('input:checked')).map(function (el) { return el.getAttribute('data-fid'); });
+        if (!selectedFriends.length) {
+            permSelect.value = 'public';
+            permHint.textContent = '公开·所有人可见';
+        } else {
+            permHint.textContent = '部分可见·' + selectedFriends.length + '人';
+        }
+        closeFriendOverlay();
+    });
+    friendOverlay.addEventListener('click', function (e) {
+        if (e.target === friendOverlay) closeFriendOverlay();
+    });
+
+    document.getElementById('btnSubmitLive').addEventListener('click', function () {
+        if (scheduleSelect.value === 'custom') {
+            refreshCustomMin();
+            var v = customDateTime.value;
+            if (!v || v < customDateTime.min) {
+                alert('请选择当前时间至少 30 分钟之后的开播时间。');
+                return;
+            }
+        }
+
+        var mode = getPlayMode();
+        var scheduled = scheduleSelect.value !== 'now';
+
+        var payload = {
+            id: String(Date.now()),
+            title: (titleInput.value || '').trim() || '未命名直播',
+            desc: (descInput.value || '').trim(),
+            scheduleLabel: getScheduleLabel(),
+            playMode: mode,
+            playModeLabel: mode === 'obs' ? '电脑直播 · OBS' : '视频直播 · 摄像头',
+            createdAt: Date.now()
+        };
+
+        function closeParentModal() {
+            try {
+                window.parent.postMessage({ type: 'fansloop-close-modal' }, '*');
+            } catch (e) {}
+        }
+
+        if (scheduled) {
+            if (typeof flLiveReservationHasActive === 'function' && flLiveReservationHasActive()) {
+                alert('已存在预约直播');
+                return;
+            }
+            var sat = computeScheduledAtMs();
+            if (sat == null) {
+                alert('无法解析预约开播时间，请检查自定义时间。');
+                return;
+            }
+            payload.scheduledAt = sat;
+            if (typeof flLiveReservationSet === 'function') {
+                flLiveReservationSet(payload);
+            }
+            try {
+                window.parent.postMessage({ type: 'fansloop-live-scheduled', payload: payload }, '*');
+                closeParentModal();
+            } catch (e) {
+                localStorage.setItem('fl_home_toast', '直播预约成功');
+                window.location.href = 'home.html';
+            }
+            return;
+        }
+
+        try {
+            window.parent.postMessage({ type: 'fansloop-live-now', mode: mode }, '*');
+            closeParentModal();
+        } catch (e) {
+            window.location.href = 'live-detail.html?source=' + (mode === 'obs' ? 'obs&wait=1' : 'cam');
+        }
+    });
+
+    setInterval(refreshCustomMin, 60000);
+})();
+</script>
+<script src="../js-web/fl-embed-modal-dismiss.js"></script>
 </body>
 </html>

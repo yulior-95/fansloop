@@ -439,6 +439,35 @@
     border-color: rgba(239,68,68,0.45);
     color: #F87171;
 }
+
+/* 预约直播（与首页同源数据） */
+#create-live-res-wrap {
+    margin-bottom: 22px;
+    display: none;
+}
+#create-live-res-wrap.show { display: block; }
+.cr-live-urgent {
+    display: none;
+    margin-bottom: 12px;
+    padding: 14px 16px;
+    border-radius: var(--r-lg);
+    align-items: flex-start;
+    gap: 12px;
+    background: linear-gradient(135deg, rgba(220,38,38,0.18), rgba(251,191,36,0.08));
+    border: 1px solid rgba(248,113,113,0.45);
+}
+.cr-live-urgent.show { display: flex; }
+.cr-live-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+.cr-live-card .meta { flex: 1; min-width: 200px; }
+.cr-live-card .ti { font-size: 15px; font-weight: 800; color: var(--t-primary); }
+.cr-live-card .sub { font-size: 12px; color: var(--t-secondary); margin-top: 6px; line-height: 1.45; }
+
 </style>
 
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
@@ -505,6 +534,25 @@
             <div class="ph-r">
                 <button type="button" class="btn" id="btnDraftTop"><i class="fa-regular fa-floppy-disk"></i> 保存草稿</button>
                 <button type="button" class="btn" id="btnPreviewTop"><i class="fa-solid fa-eye"></i> 预览</button>
+            </div>
+        </div>
+
+        <!-- 预约直播（localStorage 同步） -->
+        <div id="create-live-res-wrap">
+            <div id="crLiveUrgent" class="cr-live-urgent">
+                <div style="width:36px;height:36px;border-radius:10px;background:rgba(239,68,68,0.22);color:#FCA5A5;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fa-solid fa-bell"></i></div>
+                <div style="flex:1;font-size:12px;line-height:1.55;color:var(--t-secondary)"><strong style="display:block;color:#fff;font-size:14px;margin-bottom:4px">开播强提醒 · 距预约不足 20 分钟</strong><span id="crLiveUrgentTxt">请尽快进入直播间完成开播准备。</span></div>
+                <button type="button" class="btn btn-primary btn-sm" onclick="location.href='live-detail.html'">去开播</button>
+            </div>
+            <div class="editor-card" id="live-res" style="scroll-margin-top:96px">
+                <div class="editor-head">
+                    <h3><i class="fa-regular fa-calendar-days" style="color:#F87171"></i> 我的预约直播</h3>
+                    <span class="tag tag-danger" style="display:none" id="crLiveTagSoon"><i class="fa-solid fa-clock"></i> 即将开播</span>
+                </div>
+                <div class="editor-body">
+                    <div id="crLiveCardMount" class="cr-live-card"></div>
+                    <p style="font-size:11px;color:var(--t-tertiary);margin-top:12px">每位创作者仅保留 1 场预约；超过预约时间 30 分钟未开播将由平台自动关闭（原型为本地模拟）。</p>
+                </div>
             </div>
         </div>
 
@@ -773,6 +821,7 @@
     </div>
 </div>
 
+<script src="../js-web/fl-live-reservation.js"></script>
 <script>
 if (window.location.hash === '#pending') {
     const el = document.getElementById('pending');
@@ -832,6 +881,75 @@ if (window.location.hash === '#pending') {
             document.querySelector('.title-input')?.focus();
         });
     });
+
+    function escapeHtmlCr(s) {
+        const d = document.createElement('div');
+        d.textContent = s == null ? '' : String(s);
+        return d.innerHTML;
+    }
+
+    function renderCreateLiveReservation() {
+        const wrap = document.getElementById('create-live-res-wrap');
+        const mount = document.getElementById('crLiveCardMount');
+        const urgent = document.getElementById('crLiveUrgent');
+        const urgentTxt = document.getElementById('crLiveUrgentTxt');
+        const tagSoon = document.getElementById('crLiveTagSoon');
+        if (!wrap || !mount || typeof flLiveReservationGet !== 'function') return;
+        const item = flLiveReservationGet();
+        if (!item) {
+            wrap.classList.remove('show');
+            if (urgent) urgent.classList.remove('show');
+            if (tagSoon) tagSoon.style.display = 'none';
+            mount.innerHTML = '';
+            return;
+        }
+        wrap.classList.add('show');
+        const tlabel = (typeof flLiveReservationFormatTime === 'function' && item.scheduledAt)
+            ? flLiveReservationFormatTime(item.scheduledAt)
+            : (item.scheduleLabel || '');
+        const urgentOn = typeof flLiveReservationIsUrgentBeforeStart === 'function' && flLiveReservationIsUrgentBeforeStart(item);
+        if (urgent) {
+            urgent.classList.toggle('show', urgentOn);
+            if (urgentTxt && urgentOn) urgentTxt.textContent = '预约时间 ' + tlabel + '，请尽快完成设备检查并进入直播间。';
+        }
+        if (tagSoon) tagSoon.style.display = urgentOn ? 'inline-flex' : 'none';
+        mount.innerHTML =
+            '<div class="meta">' +
+                '<div class="ti">' + escapeHtmlCr(item.title) + '</div>' +
+                '<div class="sub">' + escapeHtmlCr(tlabel) + ' · ' + escapeHtmlCr(item.playModeLabel || '') + '</div>' +
+                (item.desc ? '<div class="sub" style="margin-top:8px">' + escapeHtmlCr(item.desc) + '</div>' : '') +
+            '</div>' +
+            '<div style="display:flex;gap:8px;flex-shrink:0">' +
+                '<button type="button" class="btn btn-secondary btn-sm" onclick="location.href=\'live-detail.html\'"><i class="fa-solid fa-play"></i> 开播页</button>' +
+                '<button type="button" class="btn btn-secondary btn-sm" id="btnCloseCrLive" style="border-color:rgba(239,68,68,0.35);color:#F87171"><i class="fa-solid fa-xmark"></i> 关闭预约</button>' +
+            '</div>';
+        const cls = document.getElementById('btnCloseCrLive');
+        if (cls && !cls.dataset.bound) {
+            cls.dataset.bound = '1';
+            cls.addEventListener('click', () => {
+                if (!confirm('确定关闭本场预约直播？')) return;
+                if (typeof flLiveReservationClear === 'function') flLiveReservationClear();
+                showToast('已关闭预约直播');
+                renderCreateLiveReservation();
+            });
+        }
+    }
+
+    renderCreateLiveReservation();
+    setInterval(renderCreateLiveReservation, 30000);
+    try {
+        if (typeof flLiveReservationConsumeAutoClosedNotice === 'function' && flLiveReservationConsumeAutoClosedNotice()) {
+            showToast('预约直播已超时，平台已自动关闭');
+            renderCreateLiveReservation();
+        }
+    } catch (e) {}
+
+    if (window.location.hash === '#live-res') {
+        setTimeout(() => {
+            const el = document.getElementById('live-res');
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 120);
+    }
 })();
 </script>
 </body>

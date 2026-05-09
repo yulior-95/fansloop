@@ -65,6 +65,42 @@
     color: #fff;
     font-size: 12px;
 }
+.live-player .wait-stream-strip {
+    position: absolute;
+    bottom: 96px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    padding: 12px 18px;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.82);
+    border: 1px solid rgba(52, 211, 153, 0.35);
+    color: #ECFDF5;
+    font-size: 12.5px;
+    font-weight: 600;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    max-width: 92%;
+    text-align: center;
+    line-height: 1.45;
+}
+.live-player .wait-stream-strip.show { display: inline-flex; }
+.live-player .cam-hint-strip {
+    position: absolute;
+    bottom: 96px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    padding: 10px 16px;
+    border-radius: 12px;
+    background: rgba(30, 27, 75, 0.85);
+    border: 1px solid rgba(96, 165, 250, 0.35);
+    color: #DBEAFE;
+    font-size: 12px;
+    display: none;
+}
+.live-player .cam-hint-strip.show { display: block; }
 
 /* 飘屏礼物 */
 .float-gifts {
@@ -431,6 +467,8 @@
             <!-- 主内容 -->
             <div>
                 <div class="live-player">
+                    <div class="wait-stream-strip" id="waitStreamStrip"><i class="fa-solid fa-circle-notch fa-spin"></i> 等待 OBS 推流信号… 连接成功后画面将自动播放</div>
+                    <div class="cam-hint-strip" id="camHintStrip">摄像头链路已就绪（原型）：采集画面将送入直播间。</div>
                     <div class="top-overlay">
                         <span class="live-pill"><span class="dot"></span> LIVE</span>
                         <span class="viewers"><i class="fa-regular fa-eye"></i> 2,486 在线</span>
@@ -639,6 +677,24 @@
     </main>
 
 </div>
+
+<script>
+(function () {
+    try {
+        var p = new URLSearchParams(location.search);
+        var src = p.get('source');
+        var wait = p.get('wait');
+        if (src === 'obs' && wait === '1') {
+            var w = document.getElementById('waitStreamStrip');
+            if (w) w.classList.add('show');
+        }
+        if (src === 'cam') {
+            var c = document.getElementById('camHintStrip');
+            if (c) c.classList.add('show');
+        }
+    } catch (e) {}
+})();
+</script>
 
 </body>
 </html>

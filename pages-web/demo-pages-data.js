@@ -50,7 +50,8 @@ window.DEMO_PAGE_GROUPS = [
     ["创作发布 / 付费解锁", [
         ["create-publish-image.html", "发布 · 图文"],
         ["create-publish-video.html", "发布 · 视频"],
-        ["create-publish-live.html", "发布 · 直播"],
+        ["create-publish-live.html", "创建直播 · 封面权限与时间"],
+        ["modal-live-obs-guide.html", "OBS 推流配置说明"],
         ["create-publish-paid.html", "发布 · 付费"],
         ["flow-unlock-paid.html", "付费解锁流程"],
         ["flow-subscribe-creator.html", "订阅创作者流程"]

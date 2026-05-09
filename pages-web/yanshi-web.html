@@ -717,6 +717,23 @@ window.addEventListener('message', (ev) => {
     if (d.type === 'fansloop-close-modal') {
         closeEmbedModal();
     }
+    if (d.type === 'fansloop-live-scheduled') {
+        closeEmbedModal();
+        const frame = document.getElementById('frame');
+        if (frame && frame.contentWindow) {
+            frame.contentWindow.postMessage({ type: 'fansloop-live-scheduled', payload: d.payload }, '*');
+        }
+        return;
+    }
+    if (d.type === 'fansloop-live-now') {
+        closeEmbedModal();
+        const frame = document.getElementById('frame');
+        if (frame) {
+            const q = d.mode === 'obs' ? 'obs&wait=1' : 'cam';
+            frame.src = 'live-detail.html?source=' + q;
+        }
+        return;
+    }
 });
 
 if (embedModalRoot) {
