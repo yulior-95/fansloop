@@ -21,17 +21,7 @@ window.DEMO_PAGE_GROUPS = [
         ["modal-bind-wallet-conflict.html", "异常 · 钱包已占用"]
     ]],
     ["钱包登录 / 注册", [
-        ["login-entry.html", "登录入口"],
-        ["login-select-method.html", "选择钱包"],
-        ["login-walletconnect-qr.html", "WalletConnect"],
-        ["login-metamask.html", "MetaMask"],
-        ["login-sign-request.html", "签名请求"],
-        ["login-signing.html", "签名中"],
-        ["login-success.html", "登录成功"],
-        ["login-email.html", "邮箱登录（旧版壳）"],
-        ["register-profile.html", "完善资料"],
-        ["register-interests.html", "选择兴趣"],
-        ["login-errors.html", "错误状态"]
+        ["login-errors.html", "登录错误状态合集"]
     ]],
     ["积分中心", [
         ["points-mall.html", "积分兑换商城"],
@@ -85,7 +75,6 @@ window.DEMO_PAGE_GROUPS = [
     ]],
     ["充值 / 提现", [
         ["recharge.html", "USDT 充值"],
-        ["recharge-qr-modal.html", "充值二维码"],
         ["recharge-timeout.html", "订单超时"],
         ["recharge-fiat.html", "法币充值"],
         ["recharge-fiat-bind.html", "绑定银行卡"],

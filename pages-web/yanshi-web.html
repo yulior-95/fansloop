@@ -260,6 +260,28 @@ body { display: grid; grid-template-rows: auto 1fr; }
 }
 #rewardModalRoot.show { display: flex; }
 
+/* 顶层承载：评论 / 分享 / 送礼 iframe（由子页 postMessage 唤起） */
+#embedModalRoot {
+    position: fixed;
+    inset: 0;
+    z-index: 10200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(12px, 2.5vw, 28px);
+    background: rgba(0,0,0,0.62);
+    backdrop-filter: blur(10px);
+}
+#embedModalRoot.show { display: flex; }
+.embed-modal-frame {
+    width: min(960px, calc(100vw - 32px));
+    height: min(920px, calc(100vh - 32px));
+    border: none;
+    border-radius: var(--r-xl);
+    background: transparent;
+    box-shadow: 0 28px 70px rgba(0,0,0,0.55);
+}
+
 .reward-modal-panel {
     width: 100%;
     max-width: 420px;
@@ -391,6 +413,10 @@ body { display: grid; grid-template-rows: auto 1fr; }
         <div class="rd-hint">点击进商城 · 结束弹出奖励</div>
     </div>
 </button>
+
+<div id="embedModalRoot" aria-hidden="true">
+    <iframe class="embed-modal-frame" id="embedModalFrame" title="FansLoop 交互弹窗"></iframe>
+</div>
 
 <div id="rewardModalRoot" aria-hidden="true">
     <div class="reward-modal-panel" role="dialog" aria-modal="true" aria-labelledby="rmTitle">
@@ -663,6 +689,47 @@ rewardModalRoot.addEventListener('click', e => {
 
 startRewardCountdown();
 syncRewardDockForPage('guest-home.html');
+
+/* ========== 评论 / 分享 / 送礼 · 顶层 iframe 弹窗 ========== */
+const embedModalRoot = document.getElementById('embedModalRoot');
+const embedModalFrame = document.getElementById('embedModalFrame');
+
+function openEmbedModal(page) {
+    if (!embedModalRoot || !embedModalFrame || !page) return;
+    embedModalFrame.src = page;
+    embedModalRoot.classList.add('show');
+    embedModalRoot.setAttribute('aria-hidden', 'false');
+}
+
+function closeEmbedModal() {
+    if (!embedModalRoot || !embedModalFrame) return;
+    embedModalRoot.classList.remove('show');
+    embedModalRoot.setAttribute('aria-hidden', 'true');
+    embedModalFrame.src = 'about:blank';
+}
+
+window.addEventListener('message', (ev) => {
+    const d = ev.data;
+    if (!d || typeof d !== 'object') return;
+    if (d.type === 'fansloop-open-modal' && typeof d.page === 'string') {
+        openEmbedModal(d.page);
+    }
+    if (d.type === 'fansloop-close-modal') {
+        closeEmbedModal();
+    }
+});
+
+if (embedModalRoot) {
+    embedModalRoot.addEventListener('click', (e) => {
+        if (e.target === embedModalRoot) closeEmbedModal();
+    });
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && embedModalRoot && embedModalRoot.classList.contains('show')) {
+        closeEmbedModal();
+    }
+});
 </script>
 </body>
 </html>
