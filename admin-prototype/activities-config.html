@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>活动配置 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="activities-config">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 活动管理 / 积分活动配置</span></div>
+      <div class="admin-header-right">
+        <button type="button" class="ant-btn ant-btn-primary ant-btn-sm" id="btnExportActCfg"><i class="fa-solid fa-file-export"></i> 导出配置</button>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>活动运营</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">积分活动配置</h1>
+      <p class="admin-page-desc">列表与规则编辑分离：<strong>新建 / 编辑 / 停用</strong>均在弹窗内完成。</p>
+      <div class="admin-toolbar">
+        <button type="button" class="ant-btn ant-btn-primary" id="btnNewActivity"><i class="fa-solid fa-plus"></i> 新建活动</button>
+        <div class="admin-toolbar-spacer"></div>
+        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=200&fit=crop" alt="" style="height:40px;border-radius:6px;object-fit:cover;opacity:.9">
+      </div>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body">
+          <div class="ant-table ant-table-bordered ant-table-middle">
+            <table style="width:100%">
+              <thead class="ant-table-thead">
+                <tr><th>活动名称</th><th>类型</th><th>奖励</th><th>频控</th><th>状态</th><th>操作</th></tr>
+              </thead>
+              <tbody class="ant-table-tbody">
+                <tr data-name="观看直播满 30 分钟">
+                  <td>观看直播满 30 分钟</td><td>计时任务</td><td>+50 积分 / 次</td><td>每日 3 次</td><td><span class="ant-tag ant-tag-green">启用</span></td>
+                  <td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-act-edit">编辑</button><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-act-stop">停用</button></td>
+                </tr>
+                <tr data-name="首次订阅任意创作者">
+                  <td>首次订阅任意创作者</td><td>一次性</td><td>+200 积分</td><td>终身 1 次</td><td><span class="ant-tag ant-tag-green">启用</span></td>
+                  <td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-act-edit">编辑</button></td>
+                </tr>
+                <tr data-name="连续签到 7 天">
+                  <td>连续签到 7 天</td><td>签到链</td><td>阶梯 10→…→100</td><td>自然周重置</td><td><span class="ant-tag">草稿</span></td>
+                  <td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-act-edit">编辑</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script>
+(function () {
+  var M = window.AdminModal;
+  function editorBody(name) {
+    return (
+      "<p style='margin:0 0 12px'>活动：<strong>" +
+      M.esc(name || "新活动") +
+      "</strong></p>" +
+      "<div class='ant-row' style='max-width:720px;margin:-8px'>" +
+      "<div class='ant-col ant-col-12' style='padding:8px'>" +
+      "<label style='display:block;margin-bottom:6px;font-size:13px'>触发条件</label><select class='ant-input' style='width:100%'><option>观看时长 ≥</option><option>首次行为</option></select>" +
+      "<label style='display:block;margin:12px 0 6px;font-size:13px'>阈值（分钟）</label><input class='ant-input' type='number' value='30' style='width:100%'>" +
+      "</div>" +
+      "<div class='ant-col ant-col-12' style='padding:8px'>" +
+      "<label style='display:block;margin-bottom:6px;font-size:13px'>奖励积分</label><input class='ant-input' type='number' value='50' style='width:100%'>" +
+      "<label style='display:block;margin-top:12px;font-size:13px;font-weight:400'><input type='checkbox' checked> 占用「单日可获得积分额度」</label>" +
+      "</div></div>"
+    );
+  }
+  document.getElementById("btnExportActCfg").addEventListener("click", function () {
+    M.open({
+      title: "导出活动配置",
+      body: "<p style='margin:0'>将导出 JSON + CSV 双格式，便于版本对比与回滚。</p>",
+      footer: [
+        { text: "取消", onClick: M.close },
+        {
+          text: "开始导出",
+          primary: true,
+          onClick: function () {
+            M.close();
+            M.toast("导出任务已创建（原型）");
+          }
+        }
+      ]
+    });
+  });
+  document.getElementById("btnNewActivity").addEventListener("click", function () {
+    M.open({
+      title: "新建积分活动",
+      wide: true,
+      body: editorBody(""),
+      footer: [
+        { text: "取消", onClick: M.close },
+        {
+          text: "保存",
+          primary: true,
+          onClick: function () {
+            M.close();
+            M.toast("活动已保存（原型）");
+          }
+        }
+      ]
+    });
+  });
+  document.querySelector("main.admin-content").addEventListener("click", function (e) {
+    var t = e.target;
+    var tr = t.closest("tr");
+    if (t.classList.contains("js-act-edit") && tr) {
+      M.open({
+        title: "编辑活动",
+        wide: true,
+        body: editorBody(tr.getAttribute("data-name")),
+        footer: [
+          { text: "取消", onClick: M.close },
+          {
+            text: "保存",
+            primary: true,
+            onClick: function () {
+              M.close();
+              M.toast("配置已更新（原型）");
+            }
+          }
+        ]
+      });
+    }
+    if (t.classList.contains("js-act-stop")) {
+      M.open({
+        title: "停用活动",
+        body: "<p style='margin:0'>停用后用户端将不再展示该任务，进行中的进度将按策略结算或作废（由后端定义）。</p>",
+        footer: [
+          { text: "取消", onClick: M.close },
+          {
+            text: "确认停用",
+            danger: true,
+            onClick: function () {
+              M.close();
+              M.toast("活动已停用（原型）");
+            }
+          }
+        ]
+      });
+    }
+  });
+})();
+</script>
+</body>
+</html>

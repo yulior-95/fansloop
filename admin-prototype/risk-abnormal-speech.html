@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>异常发言管理 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="risk-abnormal-speech">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 风控管理 / 异常发言</span></div>
+      <div class="admin-header-right"><div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>风控审核</span></div></div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">异常发言与风控处置</h1>
+      <p class="admin-page-desc">禁言、忽略、保存风控参数均在<strong>当前页弹窗</strong>确认。</p>
+      <div class="admin-tabs-bar" id="riskTabs">
+        <button type="button" class="active" data-tab="p1">异常发言管理</button>
+        <button type="button" data-tab="p2">操作日志</button>
+        <button type="button" data-tab="p3">风控参数管理</button>
+      </div>
+      <div id="p1" class="admin-tab-panel active">
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-bordered ant-table-middle">
+            <table style="width:100%">
+              <thead class="ant-table-thead"><tr><th>时间</th><th>UID</th><th>房间/会话</th><th>命中词</th><th>原文摘要</th><th>状态</th><th>操作</th></tr></thead>
+              <tbody class="ant-table-tbody">
+                <tr data-as="AS_00921" data-uid="102938"><td>10:21</td><td>102938</td><td>live_882</td><td>辱骂词表 A</td><td>你这***…</td><td><span class="ant-tag ant-tag-orange">风控中</span></td><td><button type="button" class="ant-btn ant-btn-sm ant-btn-danger js-mute">禁言</button> <button type="button" class="ant-btn ant-btn-sm js-ignore">忽略</button></td></tr>
+                <tr data-as="AS_00922" data-uid="771201"><td>09:58</td><td>771201</td><td>IM_creator</td><td>涉诈</td><td>加微信 ***…</td><td><span class="ant-tag ant-tag-red">待处理</span></td><td><button type="button" class="ant-btn ant-btn-sm ant-btn-danger js-mute">禁言</button> <button type="button" class="ant-btn ant-btn-sm js-ignore">忽略</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div></div>
+      </div>
+      <div id="p2" class="admin-tab-panel">
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-small ant-table-bordered">
+            <table style="width:100%">
+              <thead class="ant-table-thead"><tr><th>时间</th><th>审核员</th><th>动作</th><th>关联记录</th><th>备注</th><th>操作</th></tr></thead>
+              <tbody class="ant-table-tbody">
+                <tr><td>10:22:05</td><td>limin</td><td>禁言 24h</td><td>AS_00921</td><td>重复命中辱骂词</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-log-detail">详情</button></td></tr>
+                <tr><td>10:05:11</td><td>limin</td><td>忽略</td><td>AS_00918</td><td>误判</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-log-detail">详情</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div></div>
+      </div>
+      <div id="p3" class="admin-tab-panel">
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body">
+          <p style="margin-top:0;color:rgba(0,0,0,.45)">阶梯式策略：在 <strong>X</strong> 分钟窗口内触发敏感词 <strong>Y</strong> 次 → 自动禁言 <strong>Z</strong> 分钟/小时；到期自动解禁。</p>
+          <div class="ant-table ant-table-bordered ant-table-small">
+            <table style="width:100%;max-width:720px">
+              <thead class="ant-table-thead"><tr><th>窗口(分钟)</th><th>触发次数</th><th>禁言时长</th><th>启用</th></tr></thead>
+              <tbody class="ant-table-tbody">
+                <tr><td>60</td><td>3</td><td>60 分钟</td><td><input type="checkbox" checked></td></tr>
+                <tr><td>1440</td><td>8</td><td>24 小时</td><td><input type="checkbox" checked></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <button type="button" class="ant-btn ant-btn-primary" style="margin-top:12px" id="btnRiskSaveParams">保存参数</button>
+        </div></div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script>
+(function () {
+  var M = window.AdminModal;
+  var bar = document.getElementById("riskTabs");
+  if (bar) {
+    bar.addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-tab]");
+      if (!b) return;
+      var id = b.getAttribute("data-tab");
+      bar.querySelectorAll("button").forEach(function (x) {
+        x.classList.toggle("active", x === b);
+      });
+      document.querySelectorAll("#p1,#p2,#p3").forEach(function (p) {
+        p.classList.toggle("active", p.id === id);
+      });
+    });
+  }
+  document.getElementById("btnRiskSaveParams").addEventListener("click", function () {
+    M.open({
+      title: "保存风控参数",
+      body: "<p style='margin:0'>将更新阶梯禁言规则并同步至实时风控引擎，是否继续？</p>",
+      footer: [
+        { text: "取消", onClick: M.close },
+        {
+          text: "确认保存",
+          primary: true,
+          onClick: function () {
+            M.close();
+            M.toast("风控参数已保存（原型）");
+          }
+        }
+      ]
+    });
+  });
+  document.querySelector("main.admin-content").addEventListener("click", function (e) {
+    var t = e.target;
+    var tr = t.closest("tr");
+    if (t.classList.contains("js-mute") && tr) {
+      M.open({
+        title: "禁言用户 · " + tr.getAttribute("data-as"),
+        body:
+          "<p>UID <strong>" +
+          M.esc(tr.cells[1].textContent) +
+          "</strong></p><label style='display:block;margin:12px 0 6px'>禁言时长</label><select class='ant-input' style='width:100%;max-width:280px'><option>10 分钟</option><option>1 小时</option><option selected>24 小时</option><option>7 天</option></select><label style='display:block;margin-top:12px;font-size:13px'><input type='checkbox'> 同步封禁直播间发言</label>",
+        footer: [
+          { text: "取消", onClick: M.close },
+          {
+            text: "确认禁言",
+            danger: true,
+            onClick: function () {
+              M.close();
+              M.toast("禁言已生效（原型）");
+            }
+          }
+        ]
+      });
+    }
+    if (t.classList.contains("js-ignore") && tr) {
+      M.open({
+        title: "忽略异常记录",
+        body: "<p style='margin:0'>记录 <code>" + M.esc(tr.getAttribute("data-as")) + "</code> 将移出待处理队列，不再触发自动处置。</p>",
+        footer: [
+          { text: "取消", onClick: M.close },
+          {
+            text: "确认忽略",
+            primary: true,
+            onClick: function () {
+              M.close();
+              M.toast("已忽略（原型）");
+            }
+          }
+        ]
+      });
+    }
+    if (t.classList.contains("js-log-detail")) {
+      M.open({
+        title: "处置日志详情",
+        body: "<pre style='margin:0;font-size:12px;background:#fafafa;padding:12px;border-radius:6px;overflow:auto'>request_id: req_8821\noperator: limin@fansloop.io\npayload: { action: MUTE, duration_min: 1440 }</pre>",
+        footer: [{ text: "关闭", primary: true, onClick: M.close }]
+      });
+    }
+  });
+})();
+</script>
+</body>
+</html>

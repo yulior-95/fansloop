@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>验证码记录 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="risk-captcha-records">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 风控管理 / 验证码记录</span></div>
+      <div class="admin-header-right"><div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>安全</span></div></div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">验证码记录</h1>
+      <p class="admin-page-desc">行级详情在<strong>弹窗</strong>（含投递状态、设备指纹摘要等原型字段）。</p>
+      <div class="admin-toolbar">
+        <select class="ant-input" style="width:160px"><option>全部场景</option><option>注册</option><option>登录</option><option>安全验证</option></select>
+        <span class="ant-input-affix-wrapper" style="width:220px"><input class="ant-input" placeholder="邮箱前缀"></span>
+        <button type="button" class="ant-btn ant-btn-primary" id="capQ">查询</button>
+      </div>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-small ant-table-bordered">
+            <table style="width:100%">
+              <thead class="ant-table-thead"><tr><th>时间</th><th>场景</th><th>邮箱</th><th>脱敏验证码</th><th>结果</th><th>IP</th><th>操作</th></tr></thead>
+              <tbody class="ant-table-tbody">
+                <tr><td>2026-05-11 09:40</td><td>登录</td><td>u***@domain.com</td><td>82****</td><td><span class="ant-tag ant-tag-green">已消费</span></td><td>203.0.113.2</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-cap">详情</button></td></tr>
+                <tr><td>2026-05-11 09:38</td><td>安全验证</td><td>u***@domain.com</td><td>61****</td><td><span class="ant-tag ant-tag-red">失败 3 次</span></td><td>198.51.100.9</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-cap">详情</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script>
+(function () {
+  var M = window.AdminModal;
+  document.getElementById("capQ").addEventListener("click", function () {
+    M.toast("已查询（原型）");
+  });
+  document.querySelector("main.admin-content").addEventListener("click", function (e) {
+    if (!e.target.classList.contains("js-cap")) return;
+    M.open({
+      title: "验证码投递详情",
+      wide: true,
+      body: "<ul style='margin:0;padding-left:18px;line-height:1.8'><li>provider_message_id: sg_00921</li><li>latency_ms: 420</li><li>template: login_otp_v2</li></ul>",
+      footer: [{ text: "关闭", primary: true, onClick: M.close }]
+    });
+  });
+})();
+</script>
+</body>
+</html>

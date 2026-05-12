@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>积分兑换 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="activities-redeem">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 活动管理 / 积分兑换</span></div>
+      <div class="admin-header-right">
+        <button type="button" class="ant-btn ant-btn-primary ant-btn-sm" id="expRed"><i class="fa-solid fa-file-export"></i> 导出</button>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>商城运营</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">积分兑换订单</h1>
+      <p class="admin-page-desc">导出、订单详情为<strong>弹窗</strong>。</p>
+      <div class="admin-toolbar">
+        <select class="ant-input" style="width:140px"><option>全部状态</option><option>待发货</option><option>已完成</option><option>已关闭</option></select>
+        <button type="button" class="ant-btn ant-btn-primary" id="qRed">查询</button>
+      </div>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-bordered ant-table-middle">
+            <table style="width:100%">
+              <thead class="ant-table-thead"><tr><th>兑换单号</th><th>UID</th><th>商品</th><th>消耗积分</th><th>状态</th><th>时间</th><th>操作</th></tr></thead>
+              <tbody class="ant-table-tbody">
+                <tr><td><code>RD88211</code></td><td>882910</td><td>平台周边 T 恤</td><td>500</td><td><span class="ant-tag ant-tag-blue">待发货</span></td><td>2026-05-10</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-row">详情</button></td></tr>
+                <tr><td><code>RD88102</code></td><td>445201</td><td>7 日会员体验券</td><td>800</td><td><span class="ant-tag ant-tag-green">已完成</span></td><td>2026-05-08</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-row">详情</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script>
+(function () {
+  var M = window.AdminModal;
+  document.getElementById("expRed").addEventListener("click", function () {
+    M.open({
+      title: "导出兑换订单",
+      body: "<p style='margin:0'>含物流单号、发券状态等字段。</p>",
+      footer: [
+        { text: "取消", onClick: M.close },
+        {
+          text: "创建任务",
+          primary: true,
+          onClick: function () {
+            M.close();
+            M.toast("导出任务已创建（原型）");
+          }
+        }
+      ]
+    });
+  });
+  document.getElementById("qRed").addEventListener("click", function () {
+    M.toast("已查询（原型）");
+  });
+  document.querySelector("main.admin-content").addEventListener("click", function (e) {
+    if (!e.target.classList.contains("js-row")) return;
+    M.open({
+      title: "兑换订单详情",
+      wide: true,
+      body: "<table style='width:100%;font-size:13px;border-collapse:collapse;border:1px solid #f0f0f0'><tr><th style='padding:8px;background:#fafafa'>收货信息</th><td style='padding:8px'>脱敏展示</td></tr><tr><th style='padding:8px;background:#fafafa'>物流</th><td style='padding:8px'>待录入</td></tr></table>",
+      footer: [{ text: "关闭", primary: true, onClick: M.close }]
+    });
+  });
+})();
+</script>
+</body>
+</html>

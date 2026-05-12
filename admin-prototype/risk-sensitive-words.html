@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>敏感词管理 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="risk-sensitive-words">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 风控管理 / 敏感词</span></div>
+      <div class="admin-header-right">
+        <button type="button" class="ant-btn ant-btn-sm ant-btn-primary" id="btnSensImport"><i class="fa-solid fa-upload"></i> 批量导入</button>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>风控</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">敏感词管理</h1>
+      <p class="admin-page-desc">导入、新增、编辑、删除均为<strong>弹窗</strong>操作。</p>
+      <div class="admin-toolbar">
+        <button type="button" class="ant-btn ant-btn-primary" id="btnSensNew"><i class="fa-solid fa-plus"></i> 新增敏感词</button>
+        <span class="ant-input-affix-wrapper" style="width:240px"><input class="ant-input" placeholder="搜索词 / 分组"></span>
+      </div>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-bordered ant-table-small">
+            <table style="width:100%">
+              <thead class="ant-table-thead"><tr><th>词</th><th>分组</th><th>动作</th><th>更新</th><th>操作</th></tr></thead>
+              <tbody class="ant-table-tbody">
+                <tr data-id="1"><td>***</td><td>涉诈</td><td><span class="ant-tag ant-tag-red">拦截</span></td><td>2026-05-09</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-sens-edit">编辑</button><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-sens-del" style="color:#ff4d4f">删除</button></td></tr>
+                <tr data-id="2"><td>***</td><td>辱骂</td><td><span class="ant-tag ant-tag-orange">拦截</span></td><td>2026-05-08</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-sens-edit">编辑</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script>
+(function () {
+  var M = window.AdminModal;
+  document.getElementById("btnSensImport").addEventListener("click", function () {
+    M.open({
+      title: "批量导入敏感词",
+      body: "<p style='margin:0 0 8px'>上传 UTF-8 CSV，列：<code>word,group,action</code></p><input type='file' class='ant-input' style='padding:4px'>",
+      footer: [
+        { text: "取消", onClick: M.close },
+        {
+          text: "开始导入",
+          primary: true,
+          onClick: function () {
+            M.close();
+            M.toast("导入任务已创建（原型）");
+          }
+        }
+      ]
+    });
+  });
+  document.getElementById("btnSensNew").addEventListener("click", function () {
+    M.open({
+      title: "新增敏感词",
+      body:
+        "<label style='display:block;margin-bottom:6px'>词条</label><input class='ant-input' style='width:100%;max-width:360px;margin-bottom:12px'>" +
+        "<label style='display:block;margin-bottom:6px'>分组</label><select class='ant-input' style='width:100%;max-width:360px'><option>涉诈</option><option>辱骂</option><option>广告</option></select>" +
+        "<label style='display:block;margin:12px 0 6px'>动作</label><select class='ant-input' style='width:100%;max-width:360px'><option>拦截</option><option>仅告警</option></select>",
+      footer: [
+        { text: "取消", onClick: M.close },
+        {
+          text: "保存",
+          primary: true,
+          onClick: function () {
+            M.close();
+            M.toast("敏感词已添加（原型）");
+          }
+        }
+      ]
+    });
+  });
+  document.querySelector("main.admin-content").addEventListener("click", function (e) {
+    var t = e.target;
+    if (t.classList.contains("js-sens-edit")) {
+      M.open({
+        title: "编辑敏感词",
+        body:
+          "<label style='display:block;margin-bottom:6px'>词条</label><input class='ant-input' style='width:100%;max-width:360px;margin-bottom:12px' value='***'>" +
+          "<label style='display:block;margin-bottom:6px'>动作</label><select class='ant-input' style='width:100%;max-width:360px'><option selected>拦截</option><option>仅告警</option></select>",
+        footer: [
+          { text: "取消", onClick: M.close },
+          {
+            text: "保存",
+            primary: true,
+            onClick: function () {
+              M.close();
+              M.toast("已保存（原型）");
+            }
+          }
+        ]
+      });
+    }
+    if (t.classList.contains("js-sens-del")) {
+      M.open({
+        title: "删除敏感词",
+        body: "<p style='margin:0'>删除后即时生效，是否继续？</p>",
+        footer: [
+          { text: "取消", onClick: M.close },
+          {
+            text: "删除",
+            danger: true,
+            onClick: function () {
+              M.close();
+              M.toast("已删除（原型）");
+            }
+          }
+        ]
+      });
+    }
+  });
+})();
+</script>
+</body>
+</html>

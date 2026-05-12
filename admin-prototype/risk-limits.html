@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>限额风控 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="risk-limits">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 风控管理 / 限额风控</span></div>
+      <div class="admin-header-right"><div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>风控</span></div></div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">限额风控</h1>
+      <p class="admin-page-desc">点击<strong>保存</strong>将弹出确认框，避免误触。</p>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-head"><div class="ant-card-head-title">充值 / 提现</div></div>
+        <div class="ant-card-body">
+          <div class="ant-row" style="max-width:900px">
+            <div class="ant-col ant-col-12" style="padding:8px">
+              <div class="ant-form-item"><label>单日单笔最高充值（法币 CNY）</label><input class="ant-input" type="number" value="50000" style="width:100%;margin-top:6px"></div>
+              <div class="ant-form-item"><label>单日累计最高充值（法币 CNY）</label><input class="ant-input" type="number" value="200000" style="width:100%;margin-top:6px"></div>
+            </div>
+            <div class="ant-col ant-col-12" style="padding:8px">
+              <div class="ant-form-item"><label>单日单笔最高提现（法币 CNY）</label><input class="ant-input" type="number" value="50000" style="width:100%;margin-top:6px"></div>
+              <div class="ant-form-item"><label>单日累计最高提现（法币 CNY）</label><input class="ant-input" type="number" value="100000" style="width:100%;margin-top:6px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ant-card ant-card-bordered" style="margin-top:16px">
+        <div class="ant-card-head"><div class="ant-card-head-title">积分</div></div>
+        <div class="ant-card-body">
+          <div class="ant-form-item" style="max-width:440px"><label>单日单用户最高可获得积分</label><input class="ant-input" type="number" value="5000" style="width:100%;margin-top:6px"></div>
+          <button type="button" class="ant-btn ant-btn-primary" id="btnLimSave">保存</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script>
+(function () {
+  var M = window.AdminModal;
+  document.getElementById("btnLimSave").addEventListener("click", function () {
+    M.open({
+      title: "保存限额配置",
+      body: "<p style='margin:0'>将影响全站实时风控判定，是否继续？</p>",
+      footer: [
+        { text: "取消", onClick: M.close },
+        {
+          text: "确认保存",
+          primary: true,
+          onClick: function () {
+            M.close();
+            M.toast("限额配置已保存（原型）");
+          }
+        }
+      ]
+    });
+  });
+})();
+</script>
+</body>
+</html>

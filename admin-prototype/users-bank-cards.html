@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>银行卡管理 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="users-bank-cards">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 用户管理 / 银行卡</span></div>
+      <div class="admin-header-right"><div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>支付运营</span></div></div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">银行卡管理</h1>
+      <p class="admin-page-desc">三方同步字段在<strong>详情弹窗</strong>查看。</p>
+      <div class="admin-toolbar">
+        <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" placeholder="UID"></span>
+        <button type="button" class="ant-btn ant-btn-primary" id="bkQ">查询</button>
+      </div>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-bordered ant-table-middle">
+            <table style="width:100%">
+              <thead class="ant-table-thead">
+                <tr><th>UID</th><th>持卡人</th><th>银行</th><th>卡号</th><th>三方绑定 ID</th><th>同步状态</th><th>更新时间</th><th>操作</th></tr>
+              </thead>
+              <tbody class="ant-table-tbody">
+                <tr><td>445201</td><td>张*</td><td>招商银行</td><td>6225 **** **** 3312</td><td><code>pm_bind_8821aa</code></td><td><span class="ant-tag ant-tag-green">已同步</span></td><td>2026-05-09</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-d">详情</button></td></tr>
+                <tr><td>882910</td><td>李*</td><td>工商银行</td><td>6212 **** **** 9081</td><td><code>pm_bind_0099ff</code></td><td><span class="ant-tag ant-tag-orange">待核验</span></td><td>2026-05-10</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-d">详情</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script>
+(function () {
+  var M = window.AdminModal;
+  document.getElementById("bkQ").addEventListener("click", function () {
+    M.toast("已查询（原型）");
+  });
+  document.querySelector("main.admin-content").addEventListener("click", function (e) {
+    if (!e.target.classList.contains("js-d")) return;
+    M.open({
+      title: "银行卡详情",
+      wide: true,
+      body: "<p>三方返回字段、核验流水、失败原因（原型占位）。</p><pre style='font-size:12px;background:#fafafa;padding:12px;border-radius:6px'>provider_payload: { ... }</pre>",
+      footer: [{ text: "关闭", primary: true, onClick: M.close }]
+    });
+  });
+})();
+</script>
+</body>
+</html>

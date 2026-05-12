@@ -7,15 +7,22 @@
 <link rel="stylesheet" href="../css-web/common-web.css">
 <link rel="stylesheet" href="../css-web/funds-moonpay.css">
 <link rel="stylesheet" href="../css-web/funds-flow.css">
+<link rel="stylesheet" href="../css-web/recharge-flow.css">
 <style>
 .recharge-grid {
-    display: grid; grid-template-columns: 2fr 1fr; gap: 22px;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 22px;
+    align-items: start;
     max-width: 1280px;
 }
-@media (max-width: 1100px) { .recharge-grid { grid-template-columns: 1fr; } }
+@media (max-width: 1100px) {
+    .recharge-grid { grid-template-columns: 1fr; }
+}
 
 .method-tabs {
-    display: flex; gap: 10px;
+    display: flex;
+    gap: 10px;
     margin-bottom: 22px;
 }
 .mt-card {
@@ -26,7 +33,9 @@
     border-radius: var(--r-md);
     cursor: pointer;
     transition: 0.15s;
-    display: flex; align-items: center; gap: 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
 }
 .mt-card:hover { border-color: var(--border-strong); }
 .mt-card.active {
@@ -35,10 +44,14 @@
     box-shadow: 0 6px 16px rgba(168,85,247,0.18);
 }
 .mt-card .ic-big {
-    width: 48px; height: 48px;
+    width: 48px;
+    height: 48px;
     border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px; color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #fff;
     flex-shrink: 0;
 }
 .mt-card.usdt .ic-big { background: linear-gradient(135deg, #26A17B, #1A7A5C); }
@@ -46,229 +59,57 @@
 .mt-card .info .t { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
 .mt-card .info .s { font-size: 11.5px; color: var(--t-tertiary); margin-top: 2px; }
 
-.amt-input {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 28px;
-    margin-bottom: 18px;
-}
-.amt-input .lbl { font-size: 12px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; font-weight: 600; }
-.amt-input .input-row { display: flex; align-items: baseline; gap: 8px; }
-.amt-input .input-row .currency { font-size: 32px; color: var(--t-secondary); font-weight: 700; }
-.amt-input .input-row input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    font-size: 56px;
-    font-weight: 900;
-    color: #fff;
-    letter-spacing: -1.5px;
-    outline: none;
-    font-variant-numeric: tabular-nums;
-    min-width: 0;
-}
-.amt-input .input-row .unit { font-size: 18px; color: var(--t-tertiary); font-weight: 600; }
-.amt-input .equiv { font-size: 13px; color: var(--t-tertiary); margin-top: 6px; }
-
-.preset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 18px; }
-.preset-grid .pst {
-    padding: 12px 8px;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    text-align: center;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    transition: 0.15s;
-}
-.preset-grid .pst:hover { border-color: var(--brand-purple); color: #C084FC; }
-.preset-grid .pst.active {
-    background: var(--brand-grad);
-    color: #fff;
-    border-color: transparent;
-}
-.preset-grid .pst .usdt-top { font-size: 14px; font-weight: 800; letter-spacing: -0.3px; }
-.preset-grid .pst .fiat-sub { font-size: 11px; opacity: 0.85; margin-top: 6px; font-weight: 600; }
-
-.network-section {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 22px 24px;
-    margin-bottom: 18px;
-}
-.network-section h4 {
-    font-size: 13px; font-weight: 700; margin-bottom: 14px;
-    display: flex; align-items: center; gap: 7px;
-}
-.network-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-.net-card {
-    padding: 14px 10px;
-    background: var(--bg-input);
-    border: 1.5px solid var(--border);
-    border-radius: var(--r-md);
-    text-align: center;
-    cursor: pointer;
-    transition: 0.15s;
-    position: relative;
-}
-.net-card:hover { border-color: var(--border-strong); }
-.net-card.active { border-color: var(--brand-purple); background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(236,72,153,0.04)); }
-.net-card .ic {
-    width: 32px; height: 32px;
-    margin: 0 auto 6px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; color: #fff;
-    font-weight: 700;
-}
-.net-card.eth .ic { background: linear-gradient(135deg, #627EEA, #3C5BC9); }
-.net-card.tron .ic { background: linear-gradient(135deg, #FF060A, #C20507); }
-.net-card.bsc .ic { background: linear-gradient(135deg, #F0B90B, #C49906); }
-.net-card.poly .ic { background: linear-gradient(135deg, #8247E5, #5F2DAC); }
-.net-card .n { font-size: 12px; font-weight: 700; }
-.net-card .fee { font-size: 10px; color: var(--t-tertiary); margin-top: 2px; }
-.net-card .recommend {
-    position: absolute; top: -7px; right: -7px;
-    padding: 1px 6px;
-    background: linear-gradient(135deg, #FBBF24, #EC4899);
-    color: #fff;
-    font-size: 9px; font-weight: 700;
-    border-radius: 4px;
-}
-
 .side-info {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--r-lg);
-    padding: 22px 24px;
+    padding: 20px 22px;
 }
 .side-info h4 {
-    font-size: 14px; font-weight: 700;
-    margin-bottom: 14px;
-    display: flex; align-items: center; gap: 7px;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
 }
-
-.tip-list { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.tip-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
 .tip-list .tp {
-    display: flex; gap: 10px;
-    padding: 11px 12px;
+    display: flex;
+    gap: 10px;
+    padding: 10px 12px;
     background: var(--bg-input);
     border-radius: 8px;
     font-size: 12px;
-    line-height: 1.5;
+    line-height: 1.45;
 }
 .tip-list .tp .ic {
-    width: 22px; height: 22px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     background: rgba(168,85,247,0.18);
     color: #C084FC;
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 10px;
     flex-shrink: 0;
 }
 .tip-list .tp.warn .ic { background: rgba(245,158,11,0.18); color: var(--warning-light); }
 .tip-list .tp.danger .ic { background: rgba(239,68,68,0.18); color: var(--danger-light); }
 
-/* 钱包下拉 */
-.wallet-dd-wrap { position: relative; }
-.wallet-dd-trigger {
-    display: flex; align-items: center; gap: 14px;
-    padding: 14px 16px;
-    background: var(--bg-input);
-    border: 1.5px solid var(--border);
-    border-radius: var(--r-md);
-    cursor: pointer;
-    transition: 0.15s;
-}
-.wallet-dd-wrap.open .wallet-dd-trigger { border-color: var(--brand-purple); }
-.wallet-dd-trigger .w-av {
-    width: 44px; height: 44px; border-radius: 12px;
-    background-size: cover; background-position: center;
-    border: 1px solid var(--border); flex-shrink: 0;
-}
-.wallet-dd-trigger .w-info { flex: 1; min-width: 0; }
-.wallet-dd-trigger .w-info .n { font-size: 13.5px; font-weight: 700; }
-.wallet-dd-trigger .w-info .s { font-size: 11.5px; color: var(--t-tertiary); margin-top: 2px; }
-.wallet-dd-panel {
-    display: none;
-    position: absolute; left: 0; right: 0; top: calc(100% + 6px);
-    z-index: 50;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--r-md);
-    box-shadow: var(--shadow-lg);
-    max-height: 280px;
-    overflow-y: auto;
-}
-.wallet-dd-wrap.open .wallet-dd-panel { display: block; }
-.wallet-dd-item {
-    width: 100%;
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 14px;
-    border: none;
-    background: transparent;
-    color: var(--t-secondary);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-}
-.wallet-dd-item:last-child { border-bottom: none; }
-.wallet-dd-item:hover { background: var(--bg-input); color: #fff; }
-.wallet-dd-item .mini-av {
-    width: 36px; height: 36px; border-radius: 10px;
-    background-size: cover; flex-shrink: 0;
-}
-.wallet-dd-item.add {
-    color: #C084FC;
-    justify-content: center;
-    gap: 8px;
-}
-.wallet-dd-item.add:hover { background: rgba(168,85,247,0.08); }
+.recharge-main-col { min-width: 0; }
 
-/* 添加钱包向导（本页内嵌） */
-#walletAddWizardMask {
-    display: none;
-    position: fixed; inset: 0; z-index: 300;
-    background: rgba(0,0,0,0.75);
-    backdrop-filter: blur(6px);
-    align-items: center; justify-content: center;
-    padding: 24px;
-}
-#walletAddWizardMask.show { display: flex; }
-.wizard-box {
-    width: 100%; max-width: 480px;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--r-xl);
-    overflow: hidden;
-}
-.wizard-box .wh {
-    padding: 18px 22px;
-    border-bottom: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: center;
-}
-.wizard-box .wh h3 { font-size: 16px; font-weight: 700; margin: 0; }
-.wizard-box .wb { padding: 22px; }
-.wizard-steps { font-size: 11px; color: var(--t-tertiary); margin-bottom: 14px; }
-.wizard-shot {
-    height: 140px;
-    border-radius: var(--r-md);
-    background-size: cover;
-    background-position: center;
-    margin-bottom: 16px;
-    border: 1px solid var(--border);
+/* 仅此页：避免 common-web .app-main 的 overflow 裁切绝对定位的下拉层 */
+body.page-recharge-web .app-main {
+    overflow: visible;
 }
 </style>
 
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
 </head>
-<body>
+<body class="page-recharge-web">
 
 <div class="app-shell">
     <aside class="app-sidebar">
@@ -317,7 +158,7 @@
 
         <div class="recharge-grid flow-recharge-grid">
 
-            <div>
+            <div class="recharge-main-col">
                 <div class="method-tabs">
                     <div class="mt-card usdt active">
                         <div class="ic-big">₮</div>
@@ -335,102 +176,115 @@
                     </div>
                 </div>
 
-                <div class="amt-input">
-                    <div class="lbl">充值金额</div>
-                    <div class="input-row">
-                        <span class="currency">₮</span>
-                        <input type="text" value="200.00" />
-                        <span class="unit">USDT</span>
-                    </div>
-                    <div class="equiv">≈ <b>$200.12 USD</b> · 参考实时汇率 · <b style="color:var(--t-secondary)">以成交时的实际汇率为准</b></div>
-                    <div class="preset-grid">
-                        <div class="pst"><div class="usdt-top">50 USDT</div><div class="fiat-sub">$50</div></div>
-                        <div class="pst"><div class="usdt-top">100 USDT</div><div class="fiat-sub">$100</div></div>
-                        <div class="pst active"><div class="usdt-top">200 USDT</div><div class="fiat-sub">$200</div></div>
-                        <div class="pst"><div class="usdt-top">500 USDT</div><div class="fiat-sub">$500</div></div>
-                    </div>
-                </div>
-
-                <div class="card wallet-dd-card" style="padding: 22px 24px; margin-bottom: 18px">
-                    <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 12px"><i class="fa-solid fa-wallet" style="color:#C084FC"></i> 选择支付钱包</h4>
-                    <div class="wallet-dd-wrap" id="walletDd">
-                        <div class="wallet-dd-trigger" id="walletDdTrigger" role="button" tabindex="0">
-                            <div class="w-av" id="walletDdAv" style="background-image:url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=120&q=80')"></div>
-                            <div class="w-info">
-                                <div class="n" id="walletDdTitle">MetaMask · Ethereum / Tron</div>
-                                <div class="s" id="walletDdSub">已连接 0x71C…9A3e</div>
+                <div class="recharge-flow-merged">
+                    <div class="recharge-flow-inner">
+                        <div class="flow-step-rail" id="rechargeRail" aria-hidden="true">
+                            <span class="rail-num" data-i="1">1</span>
+                            <span class="rail-line"></span>
+                            <span class="rail-num" data-i="2">2</span>
+                            <span class="rail-line"></span>
+                            <span class="rail-num" data-i="3">3</span>
+                        </div>
+                        <div class="flow-step-body">
+                            <div class="flow-block">
+                                <div class="flow-block-hd">
+                                    <span class="t">选择币种</span>
+                                </div>
+                                <div class="fl-dd" id="ddCoin">
+                                    <button type="button" class="fl-dd-trigger is-empty" id="coinDdTrigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="coinDdPanel">
+                                        <span class="coin-ic usdt" style="display:none" aria-hidden="true">U</span>
+                                        <span class="ph">请选择币种</span>
+                                        <span class="mid" style="display:none">
+                                            <span class="n"></span>
+                                            <span class="d"></span>
+                                        </span>
+                                        <i class="fa-solid fa-chevron-down chev"></i>
+                                    </button>
+                                    <div class="fl-dd-panel" id="coinDdPanel" role="listbox" aria-label="币种列表">
+                                        <div class="fl-search-wrap">
+                                            <div class="fl-search-row">
+                                                <i class="fa-solid fa-magnifying-glass"></i>
+                                                <input type="search" id="coinSearchInput" placeholder="模糊搜索币种" autocomplete="off" spellcheck="false" />
+                                                <button type="button" class="fl-search-clear" id="coinSearchClear" title="清空"><i class="fa-solid fa-circle-xmark"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="fl-dd-list" id="coinDdList"></div>
+                                    </div>
+                                </div>
                             </div>
-                            <i class="fa-solid fa-chevron-down" style="color:var(--t-tertiary)"></i>
-                        </div>
-                        <div class="wallet-dd-panel" id="walletDdPanel" role="listbox">
-                            <button type="button" class="wallet-dd-item" data-name="MetaMask · Ethereum / Tron" data-sub="已连接 0x71C…9A3e" data-av="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=120&q=80">
-                                <span class="mini-av" style="background-image:url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=120&q=80')"></span>
-                                MetaMask · 0x71C…9A3e
-                            </button>
-                            <button type="button" class="wallet-dd-item" data-name="Trust Wallet" data-sub="已连接 TQ4q…XrXVT" data-av="https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=120&q=80">
-                                <span class="mini-av" style="background-image:url('https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=120&q=80')"></span>
-                                Trust Wallet
-                            </button>
-                            <button type="button" class="wallet-dd-item add" id="walletAddNewBtn">
-                                <i class="fa-solid fa-plus-circle"></i> 添加新的钱包
-                            </button>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="card" style="padding: 22px 24px; margin-bottom: 18px">
-                    <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 12px"><i class="fa-solid fa-lock" style="color:var(--warning-light)"></i> 平台收款地址（不可修改）</h4>
-                    <div class="addr-lock-card">
-                        <div class="row-top">
-                            <span class="lb"><i class="fa-solid fa-link"></i> USDT · TRC20</span>
-                            <span class="tag tag-warning" style="font-size:10px">只读</span>
-                        </div>
-                        <div class="addr">TLa2f6WVqHrKZ5X6c9Y8a8X7a7X6a5X4a3X2</div>
-                    </div>
-                    <div class="field-help" style="margin-top:10px;font-size:11px;color:var(--t-tertiary)">若地址与订单不一致请勿付款；请在对应 <a href="transaction-detail.html" style="color:var(--brand-purple)">订单详情</a> 发起申诉。</div>
-                </div>
+                            <div class="flow-block">
+                                <div class="flow-block-hd">
+                                    <span class="t">选择网络</span>
+                                </div>
+                                <div class="fl-dd disabled" id="ddNet">
+                                    <button type="button" class="fl-dd-trigger is-empty" id="netDdTrigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="netDdPanel" aria-disabled="true">
+                                        <span class="net-dot" aria-hidden="true"></span>
+                                        <span class="ph">请选择网络</span>
+                                        <span class="mid" style="display:none">
+                                            <span class="n"></span>
+                                            <span class="d"></span>
+                                        </span>
+                                        <i class="fa-solid fa-chevron-down chev"></i>
+                                    </button>
+                                    <div class="fl-dd-panel" id="netDdPanel" role="listbox" aria-label="网络列表">
+                                        <div class="fl-search-wrap">
+                                            <div class="fl-search-row">
+                                                <i class="fa-solid fa-magnifying-glass"></i>
+                                                <input type="search" id="netSearchInput" placeholder="模糊搜索网络" autocomplete="off" spellcheck="false" />
+                                                <button type="button" class="fl-search-clear" id="netSearchClear" title="清空"><i class="fa-solid fa-circle-xmark"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="fl-dd-hint">
+                                            请注意，这里仅展示了平台所支持的充币网络，如果您使用平台不支持的网络充币，将可能导致资产损失。
+                                        </div>
+                                        <div class="fl-dd-list" id="netDdList"></div>
+                                    </div>
+                                </div>
+                                <div class="fl-net-foot" id="netContractFoot">
+                                    合约地址结尾为 <span class="contract-end">—</span>
+                                </div>
+                            </div>
 
-                <div class="network-section">
-                    <h4><i class="fa-solid fa-network-wired" style="color:#C084FC"></i>选择网络</h4>
-                    <div class="network-grid">
-                        <div class="net-card eth">
-                            <div class="ic"><i class="fa-brands fa-ethereum"></i></div>
-                            <div class="n">ERC20</div>
-                            <div class="fee">Gas 视网络而定</div>
-                        </div>
-                        <div class="net-card tron active">
-                            <span class="recommend">当前</span>
-                            <div class="ic">T</div>
-                            <div class="n">TRC20</div>
-                            <div class="fee">低手续费</div>
-                        </div>
-                        <div class="net-card bsc">
-                            <div class="ic">B</div>
-                            <div class="n">BEP20</div>
-                            <div class="fee">可选</div>
-                        </div>
-                        <div class="net-card poly">
-                            <div class="ic"><i class="fa-solid fa-cube"></i></div>
-                            <div class="n">Polygon</div>
-                            <div class="fee">可选</div>
-                        </div>
-                    </div>
-                </div>
+                            <div class="flow-block" style="border-top: none; margin-top: 0; padding-top: 0">
+                                <div class="flow-block-hd">
+                                    <span class="t">充值地址</span>
+                                </div>
+                                <div class="deposit-addr-card" id="depositAddrCard">
+                                    <div class="qr">
+                                        <img id="depositQrImg" src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=200&q=80" alt="" width="148" height="148" />
+                                    </div>
+                                    <div class="addr-side">
+                                        <div class="addr-lb">地址</div>
+                                        <div class="addr-row2">
+                                            <div class="addr-txt" id="depositAddrText">—</div>
+                                            <button type="button" class="copy-ic" id="btnCopyAddr" title="复制地址"><i class="fa-regular fa-copy"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                <div class="card" style="padding: 22px 24px">
-                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 14px"><i class="fa-solid fa-receipt"></i> 充值摘要</h4>
-                    <div class="kv-list">
-                        <div class="kv-row"><span class="k">支付金额</span><span class="v num">200.00 USDT</span></div>
-                        <div class="kv-row"><span class="k">平台手续费</span><span class="v num">0.35 USDT</span></div>
-                        <div class="kv-row" style="border-bottom:none; padding-top: 12px">
-                            <span class="k" style="color:#fff;font-weight:600">估算净入账</span>
-                            <span class="v num t-grad" style="font-size: 18px; font-weight: 800">≈ 199.65 USDT</span>
+                            <div class="flow-summary-blk">
+                                <div class="sum-h"><i class="fa-solid fa-receipt"></i> 充值摘要</div>
+                                <div class="kv-list">
+                                    <div class="kv-row kv-row-netfee" style="border-bottom:none">
+                                        <span class="k">网络费用</span>
+                                        <span class="v num kv-netfee-cell">
+                                            <span id="kvNetworkFee">0.35 USDT</span>
+                                            <span class="dev-glass-wrap">
+                                                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devNetFeeTip">
+                                                    <span class="dev-glass-sphere-shine"></span>
+                                                    <span class="dev-glass-sphere-txt">To 开发</span>
+                                                </span>
+                                                <span class="dev-glass-pop" id="devNetFeeTip" role="tooltip">后台可以配置网络费用，支持比例设置，支持固定网络费用设置</span>
+                                            </span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <p style="font-size:11px;color:var(--t-tertiary);margin-top:12px;line-height:1.5">完成链上转账后，可在订单详情核对哈希与到账进度。</p>
+                            </div>
                         </div>
                     </div>
-                    <button class="btn btn-primary btn-block btn-lg" style="margin-top: 18px" onclick="location.href='modal-recharge-wallet-moonpay.html'">
-                        <i class="fa-solid fa-paper-plane"></i>提交购买订单
-                    </button>
-                    <p style="font-size:11px;color:var(--t-tertiary);margin-top:10px;text-align:center">在安全收银台完成确认后，将校验平台二次密码并创建订单。</p>
                 </div>
             </div>
 
@@ -471,83 +325,8 @@
     </main>
 </div>
 
-<!-- 添加钱包流程（本页内嵌，供原型演示） -->
-<div id="walletAddWizardMask">
-    <div class="wizard-box">
-        <div class="wh">
-            <h3><i class="fa-solid fa-wallet" style="color:#C084FC"></i> 添加新的钱包</h3>
-            <button type="button" class="btn btn-sm" onclick="closeWalletWizard()" style="padding:6px 10px"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="wb">
-            <div class="wizard-steps" id="wizStepLabel">步骤 1 / 3 · 选择连接方式</div>
-            <div id="wiz1">
-                <div class="wizard-shot" style="background-image:url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&q=80')"></div>
-                <p style="font-size:13px;color:var(--t-secondary);line-height:1.6;margin-bottom:14px">请选择常用的浏览器钱包或扫码连接移动端钱包扩展。</p>
-                <button type="button" class="btn btn-primary btn-block" onclick="goWiz(2)"><i class="fa-brands fa-ethereum"></i> 浏览器扩展钱包</button>
-                <button type="button" class="btn btn-block" style="margin-top:8px" onclick="goWiz(2)"><i class="fa-solid fa-qrcode"></i> WalletConnect 扫码</button>
-            </div>
-            <div id="wiz2" style="display:none">
-                <div class="wizard-shot" style="background-image:url('https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=800&q=80')"></div>
-                <p style="font-size:13px;color:var(--t-secondary);line-height:1.6;margin-bottom:14px">请在钱包弹窗中授权连接 FansLoop；连接成功后返回此页。</p>
-                <div class="notice notice-info"><i class="fa-solid fa-circle-info ni"></i><span>不会在未经确认的情况下发起转账。</span></div>
-                <button type="button" class="btn btn-primary btn-block" style="margin-top:14px" onclick="goWiz(3)">模拟：已完成授权</button>
-                <button type="button" class="btn btn-block" style="margin-top:8px" onclick="goWiz(1)">上一步</button>
-            </div>
-            <div id="wiz3" style="display:none">
-                <div class="notice notice-success" style="margin-bottom:14px"><i class="fa-solid fa-circle-check ni"></i><span>钱包已保存至「我的支付方式」，可在充值页下拉中切换。</span></div>
-                <button type="button" class="btn btn-primary btn-block" onclick="closeWalletWizard()">完成</button>
-            </div>
-        </div>
-    </div>
-</div>
+<div id="rechargeToast" class="toast-mini" role="status"></div>
 
-<script>
-(function () {
-    var dd = document.getElementById('walletDd');
-    var trig = document.getElementById('walletDdTrigger');
-    if (!dd || !trig) return;
-    trig.addEventListener('click', function (e) {
-        e.stopPropagation();
-        dd.classList.toggle('open');
-    });
-    document.addEventListener('click', function () { dd.classList.remove('open'); });
-    dd.addEventListener('click', function (e) { e.stopPropagation(); });
-
-    dd.querySelectorAll('.wallet-dd-item:not(.add)').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            document.getElementById('walletDdTitle').textContent = btn.getAttribute('data-name');
-            document.getElementById('walletDdSub').textContent = btn.getAttribute('data-sub');
-            var av = btn.getAttribute('data-av');
-            if (av) {
-                document.getElementById('walletDdAv').style.backgroundImage = 'url(\'' + av + '\')';
-            }
-            dd.classList.remove('open');
-        });
-    });
-
-    var addBtn = document.getElementById('walletAddNewBtn');
-    if (addBtn) {
-        addBtn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            dd.classList.remove('open');
-            document.getElementById('walletAddWizardMask').classList.add('show');
-            goWiz(1);
-        });
-    }
-})();
-
-function goWiz(n) {
-    for (var i = 1; i <= 3; i++) {
-        var el = document.getElementById('wiz' + i);
-        if (el) el.style.display = i === n ? 'block' : 'none';
-    }
-    var lbl = document.getElementById('wizStepLabel');
-    if (lbl) lbl.textContent = '步骤 ' + n + ' / 3 · ' + ['选择连接方式', '钱包授权', '完成绑定'][n - 1];
-}
-
-function closeWalletWizard() {
-    document.getElementById('walletAddWizardMask').classList.remove('show');
-}
-</script>
+<script src="../js-web/recharge-flow.js" defer></script>
 </body>
 </html>

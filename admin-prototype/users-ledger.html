@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>账变记录 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="users-ledger">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 用户管理 / 账变记录</span></div>
+      <div class="admin-header-right">
+        <button type="button" class="ant-btn ant-btn-primary ant-btn-sm" id="ledExp"><i class="fa-solid fa-file-export"></i> 导出</button>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>财务对账</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">账变记录</h1>
+      <p class="admin-page-desc">导出、行详情为<strong>弹窗</strong>。</p>
+      <div class="admin-toolbar">
+        <select class="ant-input" style="width:180px"><option>全部类型</option><option>法币充值</option><option>链上充值</option><option>法币提现</option><option>链上提现</option><option>积分消耗</option><option>积分奖励</option></select>
+        <span class="ant-input-affix-wrapper" style="width:160px"><input class="ant-input" placeholder="UID"></span>
+        <input type="date" class="ant-input" style="width:160px">
+        <button type="button" class="ant-btn ant-btn-primary" id="ledQ">查询</button>
+      </div>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-bordered ant-table-small">
+            <table style="width:100%">
+              <thead class="ant-table-thead">
+                <tr><th>时间</th><th>UID</th><th>类型</th><th>币种</th><th>变动</th><th>余额快照</th><th>关联单号</th><th>操作</th></tr>
+              </thead>
+              <tbody class="ant-table-tbody">
+                <tr><td>2026-05-11 08:01:22</td><td>882910</td><td><span class="ant-tag ant-tag-green">链上充值</span></td><td>USDT</td><td style="color:#52c41a">+200.00</td><td>1,420.00</td><td><code>CH772910</code></td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-d">详情</button></td></tr>
+                <tr><td>2026-05-10 22:15:01</td><td>882910</td><td><span class="ant-tag ant-tag-orange">积分消耗</span></td><td>POINT</td><td style="color:#ff4d4f">-500</td><td>12,800</td><td><code>RD88211</code></td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-d">详情</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script>
+(function () {
+  var M = window.AdminModal;
+  document.getElementById("ledExp").addEventListener("click", function () {
+    M.open({
+      title: "导出账变记录",
+      body: "<p style='margin:0'>支持异步大文件导出。</p>",
+      footer: [
+        { text: "取消", onClick: M.close },
+        {
+          text: "创建任务",
+          primary: true,
+          onClick: function () {
+            M.close();
+            M.toast("导出任务已创建（原型）");
+          }
+        }
+      ]
+    });
+  });
+  document.getElementById("ledQ").addEventListener("click", function () {
+    M.toast("已查询（原型）");
+  });
+  document.querySelector("main.admin-content").addEventListener("click", function (e) {
+    if (!e.target.classList.contains("js-d")) return;
+    M.open({
+      title: "账变详情",
+      wide: true,
+      body: "<p>原始请求、手续费拆分、对账状态（原型占位）。</p>",
+      footer: [{ text: "关闭", primary: true, onClick: M.close }]
+    });
+  });
+})();
+</script>
+</body>
+</html>

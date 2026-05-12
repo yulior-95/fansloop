@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>报表统计 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="reports">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 报表统计</span></div>
+      <div class="admin-header-right">
+        <button type="button" class="ant-btn ant-btn-sm" id="repCsv"><i class="fa-solid fa-file-csv"></i> 导出 CSV</button>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>数据分析师</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">报表统计（MVP）</h1>
+      <p class="admin-page-desc">对齐 MVP 与现有 C 端页面能力：注册量、日活、充值/提现、积分、订阅、内容审核漏斗等。可按日期维度聚合。</p>
+      <div class="admin-toolbar">
+        <input type="date" class="ant-input" style="width:160px">
+        <span style="opacity:.5">—</span>
+        <input type="date" class="ant-input" style="width:160px">
+        <button type="button" class="ant-btn ant-btn-primary" id="repApply">应用</button>
+      </div>
+      <div class="admin-chart-row">
+        <div class="ant-card ant-card-bordered" style="margin:0">
+          <div class="ant-card-head"><div class="ant-card-head-title">注册量 &amp; DAU</div></div>
+          <div class="ant-card-body"><div class="admin-chart-box tall"><canvas id="rep1"></canvas></div></div>
+        </div>
+        <div class="ant-card ant-card-bordered" style="margin:0">
+          <div class="ant-card-head"><div class="ant-card-head-title">GMV 结构（示例）</div></div>
+          <div class="ant-card-body"><div class="admin-chart-box tall"><canvas id="rep2"></canvas></div></div>
+        </div>
+      </div>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-head"><div class="ant-card-head-title">核心指标表</div></div>
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-bordered ant-table-small">
+            <table style="width:100%">
+              <thead class="ant-table-thead"><tr><th>日期</th><th>注册</th><th>DAU</th><th>充值金额</th><th>提现金额</th><th>新增订阅</th><th>机审通过率</th><th>操作</th></tr></thead>
+              <tbody class="ant-table-tbody">
+                <tr><td>2026-05-11</td><td>1,284</td><td>48,200</td><td>¥ 620k</td><td>¥ 210k</td><td>312</td><td>92.4%</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-rep-row">详情</button></td></tr>
+                <tr><td>2026-05-10</td><td>1,142</td><td>46,700</td><td>¥ 580k</td><td>¥ 198k</td><td>288</td><td>91.1%</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-rep-row">详情</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+  var days = ['5/5','5/6','5/7','5/8','5/9','5/10','5/11'];
+  new Chart(document.getElementById('rep1'), { type: 'bar', data: { labels: days, datasets: [
+    { label: '注册', data: [900,920,880,950,1000,1100,1284], backgroundColor: 'rgba(22,119,255,.65)' },
+    { label: 'DAU/1000', data: [42,43,44,44.5,45,46.2,48.2], backgroundColor: 'rgba(82,196,26,.55)' }
+  ]}, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
+  new Chart(document.getElementById('rep2'), { type: 'line', data: { labels: days, datasets: [
+    { label: '充值(万)', data: [52,54,50,57,58,58,62], borderColor: '#1677ff', tension: 0.3 },
+    { label: '订阅收入(万)', data: [18,19,19.5,20,21,21.5,23], borderColor: '#722ed1', tension: 0.3 }
+  ]}, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
+})();
+</script>
+<script>
+(function () {
+  var M = window.AdminModal;
+  document.getElementById("repCsv").addEventListener("click", function () {
+    M.open({
+      title: "导出报表 CSV",
+      body: "<p style='margin:0'>按当前时间范围导出聚合指标表。</p>",
+      footer: [
+        { text: "取消", onClick: M.close },
+        {
+          text: "创建任务",
+          primary: true,
+          onClick: function () {
+            M.close();
+            M.toast("导出任务已创建（原型）");
+          }
+        }
+      ]
+    });
+  });
+  document.getElementById("repApply").addEventListener("click", function () {
+    M.toast("时间范围已应用，图表将刷新（原型）");
+  });
+  document.querySelector("main.admin-content").addEventListener("click", function (e) {
+    if (!e.target.classList.contains("js-rep-row")) return;
+    var date = e.target.closest("tr").cells[0].textContent;
+    M.open({
+      title: "日报详情 · " + date,
+      wide: true,
+      body: "<p>漏斗、渠道拆分、留存等下钻指标（原型占位）。</p>",
+      footer: [{ text: "关闭", primary: true, onClick: M.close }]
+    });
+  });
+})();
+</script>
+</body>
+</html>

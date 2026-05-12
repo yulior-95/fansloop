@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>内容审核 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="content-review">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 内容管理 / 内容审核</span></div>
+      <div class="admin-header-right"><div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>审核员</span></div></div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">内容审核</h1>
+      <p class="admin-page-desc">列表仅展示人工队列；点击<strong>审核</strong>在当前页弹窗内完成预览与通过/拒绝，不再与侧栏同屏混排。</p>
+      <div class="admin-toolbar">
+        <select class="ant-input" style="width:120px"><option>全部</option><option>机审中</option><option>人审待办</option><option>已通过</option><option>已拒绝</option></select>
+        <select class="ant-input" style="width:120px"><option>全部类型</option><option>图文</option><option>视频</option><option>纯文字</option></select>
+        <button type="button" class="ant-btn ant-btn-primary" id="btnFilterReview">筛选</button>
+      </div>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-head"><div class="ant-card-head-title">人工队列</div><div class="ant-card-extra"><span class="ant-tag ant-tag-red">待办 37</span></div></div>
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-bordered ant-table-small">
+            <table style="width:100%">
+              <thead class="ant-table-thead"><tr><th>内容</th><th>类型</th><th>机审</th><th>提交</th><th>操作</th></tr></thead>
+              <tbody class="ant-table-tbody">
+                <tr data-id="CR-8821" data-title="城市夜景组图 #night" data-type="图文" data-uid="882910">
+                  <td><div style="display:flex;gap:10px;align-items:center"><img src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=120&h=120&fit=crop" width="56" height="56" style="border-radius:6px;object-fit:cover"><div>城市夜景组图 #night<br><span style="font-size:12px;color:rgba(0,0,0,.45)">UID 882910</span></div></div></td>
+                  <td>图文</td><td><span class="ant-tag ant-tag-orange">低置信 0.42</span></td><td>10:02</td>
+                  <td><button type="button" class="ant-btn ant-btn-primary ant-btn-sm js-review-open">审核</button></td>
+                </tr>
+                <tr data-id="CR-1029" data-title="旅行 Vlog 粗剪" data-type="视频" data-uid="102938">
+                  <td><div style="display:flex;gap:10px;align-items:center"><img src="https://images.unsplash.com/photo-1536240478700-b869070f9279?w=120&h=120&fit=crop" width="56" height="56" style="border-radius:6px;object-fit:cover"><div>旅行 Vlog 粗剪<br><span style="font-size:12px;color:rgba(0,0,0,.45)">UID 102938</span></div></div></td>
+                  <td>视频</td><td><span class="ant-tag ant-tag-orange">需人工</span></td><td>昨天</td>
+                  <td><button type="button" class="ant-btn ant-btn-primary ant-btn-sm js-review-open">审核</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script>
+(function () {
+  var M = window.AdminModal;
+  document.getElementById("btnFilterReview").addEventListener("click", function () {
+    M.toast("筛选条件已应用（原型）");
+  });
+  document.querySelector("main.admin-content").addEventListener("click", function (e) {
+    if (!e.target.classList.contains("js-review-open")) return;
+    var tr = e.target.closest("tr");
+    var id = tr.getAttribute("data-id");
+    var title = tr.getAttribute("data-title");
+    var typ = tr.getAttribute("data-type");
+    var uid = tr.getAttribute("data-uid");
+    M.open({
+      title: "内容审核 · " + id,
+      wide: true,
+      body:
+        "<div class='ant-row' style='margin:-8px'>" +
+        "<div class='ant-col ant-col-14' style='padding:8px'>" +
+        "<p style='margin:0 0 8px'><strong>" +
+        M.esc(title) +
+        "</strong> · " +
+        M.esc(typ) +
+        " · UID " +
+        M.esc(uid) +
+        "</p>" +
+        "<img src='https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=900&h=600&fit=crop' alt='' style='width:100%;max-height:280px;object-fit:cover;border-radius:8px;border:1px solid #f0f0f0'>" +
+        "</div>" +
+        "<div class='ant-col ant-col-10' style='padding:8px'>" +
+        "<p><strong>机器标签</strong>：疑似软广；画面含二维码。</p>" +
+        "<p><strong>文案摘要</strong>：「私信我领取福利…」</p>" +
+        "<label style='display:block;margin-top:12px;font-size:13px'>审核备注</label>" +
+        "<textarea class='ant-input' rows='4' style='width:100%;resize:vertical' placeholder='选填，将写入审核日志'></textarea>" +
+        "</div></div>",
+      footer: [
+        { text: "打回修改", onClick: function () { M.close(); M.toast("已打回创作者（原型）"); } },
+        { text: "拒绝", danger: true, onClick: function () { M.close(); M.toast("已拒绝（原型）"); } },
+        { text: "通过", primary: true, onClick: function () { M.close(); M.toast("已通过并上架（原型）"); } }
+      ]
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>仪表盘 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="dashboard">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left">
+        <i class="fa-solid fa-bars" style="opacity:.45"></i>
+        <span>/ 首页仪表盘</span>
+      </div>
+      <div class="admin-header-right">
+        <button type="button" class="ant-btn ant-btn-text ant-btn-sm" id="dashBell" title="通知"><i class="fa-regular fa-bell"></i></button>
+        <button type="button" class="ant-btn ant-btn-primary ant-btn-sm" id="dashExport"><i class="fa-solid fa-download"></i> 导出今日概览</button>
+        <div class="admin-header-user">
+          <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt="">
+          <span>运营主管 · Alex</span>
+        </div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">首页仪表盘</h1>
+      <p class="admin-page-desc">关键业务指标、注册与日活趋势、订单与积分概况。数据区支持后续对接真实 API 与权限脱敏。</p>
+
+      <div class="admin-stat-row">
+        <div class="ant-card ant-card-bordered" style="margin:0">
+          <div class="ant-card-body">
+            <div class="ant-statistic">
+              <div class="ant-statistic-title">今日注册</div>
+              <div class="ant-statistic-content"><span class="ant-statistic-content-value">1,284</span></div>
+              <div style="margin-top:8px;font-size:12px;color:rgba(0,0,0,.45)"><span class="ant-tag ant-tag-green">+12.4%</span> 较昨日</div>
+            </div>
+          </div>
+        </div>
+        <div class="ant-card ant-card-bordered" style="margin:0">
+          <div class="ant-card-body">
+            <div class="ant-statistic">
+              <div class="ant-statistic-title">今日日活 DAU</div>
+              <div class="ant-statistic-content"><span class="ant-statistic-content-value">48.2k</span></div>
+              <div style="margin-top:8px;font-size:12px;color:rgba(0,0,0,.45)"><span class="ant-tag ant-tag-blue">+3.1%</span> 较昨日</div>
+            </div>
+          </div>
+        </div>
+        <div class="ant-card ant-card-bordered" style="margin:0">
+          <div class="ant-card-body">
+            <div class="ant-statistic">
+              <div class="ant-statistic-title">今日充值（法币+链上）</div>
+              <div class="ant-statistic-content"><span class="ant-statistic-content-value">¥ 620k</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="ant-card ant-card-bordered" style="margin:0">
+          <div class="ant-card-body">
+            <div class="ant-statistic">
+              <div class="ant-statistic-title">待人工审核内容</div>
+              <div class="ant-statistic-content"><span class="ant-statistic-content-value" style="color:#fa8c16">37</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-chart-row">
+        <div class="ant-card ant-card-bordered" style="margin:0">
+          <div class="ant-card-head"><div class="ant-card-head-title">注册量 &amp; 日活（近 14 日）</div></div>
+          <div class="ant-card-body">
+            <div class="admin-chart-box"><canvas id="chartTrend"></canvas></div>
+          </div>
+        </div>
+        <div class="ant-card ant-card-bordered" style="margin:0">
+          <div class="ant-card-head"><div class="ant-card-head-title">收入结构（示例）</div></div>
+          <div class="ant-card-body">
+            <div class="admin-chart-box"><canvas id="chartPie"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-head">
+          <div class="ant-card-head-title">实时告警 / 待办</div>
+          <div class="ant-card-extra"><button type="button" class="ant-btn ant-btn-link ant-btn-sm" id="dashRiskLink">查看风控中心</button></div>
+        </div>
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-small ant-table-bordered">
+            <table style="width:100%">
+              <thead class="ant-table-thead">
+                <tr><th>级别</th><th>类型</th><th>摘要</th><th>时间</th><th>操作</th></tr>
+              </thead>
+              <tbody class="ant-table-tbody">
+                <tr><td><span class="ant-tag ant-tag-red">高</span></td><td>限额风控</td><td>用户 U8821 单日链上提现接近阈值</td><td>10:22</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-dash-handle">处理</button></td></tr>
+                <tr><td><span class="ant-tag ant-tag-orange">中</span></td><td>内容审核</td><td>机器置信度不足，已入人工队列 12 条</td><td>09:58</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-dash-review">去审核</button></td></tr>
+                <tr><td><span class="ant-tag ant-tag-blue">低</span></td><td>活动</td><td>「观看满 30 分钟积分」活动参与率异常偏低</td><td>昨天</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-dash-detail">详情</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  var labels = ['4/28','4/29','4/30','5/1','5/2','5/3','5/4','5/5','5/6','5/7','5/8','5/9','5/10','5/11'];
+  new Chart(document.getElementById('chartTrend'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: '注册量', data: [820,932,901,934,1290,1330,1320,1450,1502,1620,1701,1820,1902,1984], borderColor: '#1677ff', backgroundColor: 'rgba(22,119,255,.12)', tension: 0.35, fill: true },
+        { label: 'DAU', data: [12000,13200,12800,14000,15100,16000,15800,17200,18100,19000,20500,21200,22800,24100], borderColor: '#52c41a', tension: 0.35, fill: false }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+  new Chart(document.getElementById('chartPie'), {
+    type: 'doughnut',
+    data: {
+      labels: ['订阅', '付费直播', '充值手续费', '其他'],
+      datasets: [{ data: [38, 22, 28, 12], backgroundColor: ['#1677ff','#722ed1','#fa8c16','#13c2c2'] }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+})();
+</script>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script>
+(function () {
+  var M = window.AdminModal;
+  document.getElementById("dashBell").addEventListener("click", function () {
+    M.open({
+      title: "通知中心",
+      body: "<p style='margin:0'>当前无未读系统通知（原型）。</p>",
+      footer: [{ text: "关闭", primary: true, onClick: M.close }]
+    });
+  });
+  document.getElementById("dashExport").addEventListener("click", function () {
+    M.open({
+      title: "导出今日概览",
+      body: "<p style='margin:0 0 8px'>将生成包含注册、DAU、订单、积分等指标的 PDF + CSV 压缩包。</p><label><input type='checkbox' checked> 含同比环比</label>",
+      footer: [
+        { text: "取消", onClick: M.close },
+        {
+          text: "开始导出",
+          primary: true,
+          onClick: function () {
+            M.close();
+            M.toast("导出任务已创建（原型）");
+          }
+        }
+      ]
+    });
+  });
+  document.getElementById("dashRiskLink").addEventListener("click", function () {
+    M.open({
+      title: "快捷入口 · 风控",
+      body: "<p style='margin:0 0 12px'>以下为常用风控页面，点击名称可在新标签打开对应原型页（演示）。</p><ul style='margin:0;padding-left:18px;line-height:2'><li><a href='risk-limits.html' target='_blank' rel='noopener'>限额风控</a></li><li><a href='risk-whitelist.html' target='_blank' rel='noopener'>会员白名单</a></li><li><a href='risk-abnormal-speech.html' target='_blank' rel='noopener'>异常发言</a></li></ul>",
+      footer: [{ text: "关闭", primary: true, onClick: M.close }]
+    });
+  });
+  document.querySelector("main.admin-content").addEventListener("click", function (e) {
+    var t = e.target;
+    if (t.classList.contains("js-dash-handle")) {
+      M.open({
+        title: "处理告警 · 限额风控",
+        body: "<p><strong>用户</strong> U8821 · 单日链上提现累计 <code>9,800 USDT</code>，阈值 <code>10,000 USDT</code></p><label style='display:block;margin-top:12px'><input type='radio' name='h1' checked> 标记已跟进</label><label style='display:block;margin-top:8px'><input type='radio' name='h1'> 加入重点观察名单</label>",
+        footer: [
+          { text: "取消", onClick: M.close },
+          {
+            text: "提交处置",
+            primary: true,
+            onClick: function () {
+              M.close();
+              M.toast("处置已记录（原型）");
+            }
+          }
+        ]
+      });
+    } else if (t.classList.contains("js-dash-review")) {
+      M.open({
+        title: "跳转内容审核",
+        body: "<p style='margin:0'>人工队列当前 <strong>37</strong> 条待办。可在新标签打开内容审核页。</p><p style='margin:12px 0 0'><a class='ant-btn ant-btn-primary' href='content-review.html' target='_blank' rel='noopener'>打开 content-review.html</a></p>",
+        footer: [{ text: "关闭", primary: true, onClick: M.close }]
+      });
+    } else if (t.classList.contains("js-dash-detail")) {
+      M.open({
+        title: "活动告警详情",
+        body: "<p style='margin:0'>活动 ID：<code>ACT_WATCH_30</code></p><p>近 7 日参与率较基准低 <strong>18%</strong>，建议检查入口曝光与奖励感知。</p>",
+        footer: [{ text: "关闭", primary: true, onClick: M.close }]
+      });
+    }
+  });
+})();
+</script>
+</body>
+</html>

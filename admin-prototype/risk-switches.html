@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>全局系统开关 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="risk-switches">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 风控管理 / 全局开关</span></div>
+      <div class="admin-header-right"><div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>系统管理员</span></div></div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">全局系统开关</h1>
+      <p class="admin-page-desc"><strong>保存变更</strong>使用弹窗二次确认。</p>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body">
+          <div class="ant-table ant-table-bordered ant-table-middle">
+            <table style="width:100%">
+              <thead class="ant-table-thead"><tr><th>开关键</th><th>说明</th><th>状态</th><th>最后修改</th></tr></thead>
+              <tbody class="ant-table-tbody">
+                <tr><td><code>feature.live.paid</code></td><td>付费直播总开关</td><td><label><input type="checkbox" checked> 开启</label></td><td>2026-05-01 运营主管</td></tr>
+                <tr><td><code>feature.points.mall</code></td><td>积分商城</td><td><label><input type="checkbox" checked> 开启</label></td><td>2026-04-20 系统</td></tr>
+                <tr><td><code>maintain.readonly</code></td><td>只读维护模式</td><td><label><input type="checkbox"> 关闭</label></td><td>—</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top:16px"><button type="button" class="ant-btn ant-btn-primary" id="btnSwSave">保存变更</button></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script>
+(function () {
+  var M = window.AdminModal;
+  document.getElementById("btnSwSave").addEventListener("click", function () {
+    M.confirmGoogle({
+      title: "保存全局开关",
+      message: "变更将即时影响线上能力，需谷歌验证。",
+      onVerified: function () {
+        M.toast("开关已保存（原型）");
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

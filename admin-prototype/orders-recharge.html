@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>充值订单 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="orders-recharge">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 订单管理 / 充值订单</span></div>
+      <div class="admin-header-right">
+        <button type="button" class="ant-btn ant-btn-primary ant-btn-sm" id="ordRchExport"><i class="fa-solid fa-file-export"></i> 导出</button>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>财务</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">充值订单</h1>
+      <p class="admin-page-desc">操作均在<strong>当前页弹窗</strong>完成。</p>
+      <div class="admin-toolbar">
+        <select class="ant-input" style="width:140px"><option>全部渠道</option><option>法币</option><option>链上</option></select>
+        <select class="ant-input" style="width:120px"><option>全部状态</option><option>成功</option><option>处理中</option><option>失败</option></select>
+        <span class="ant-input-affix-wrapper" style="width:180px"><input class="ant-input" placeholder="订单号 / UID"></span>
+        <button type="button" class="ant-btn ant-btn-primary" id="ordRchQuery">查询</button>
+      </div>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-bordered ant-table-middle">
+            <table style="width:100%">
+              <thead class="ant-table-thead">
+                <tr><th>订单号</th><th>UID</th><th>渠道</th><th>金额</th><th>实付/到账</th><th>状态</th><th>创建时间</th><th>操作</th></tr>
+              </thead>
+              <tbody class="ant-table-tbody">
+                <tr data-no="RCH20260511001" data-uid="882910"><td><code>RCH20260511001</code></td><td>882910</td><td>链上 · USDT</td><td>200 USDT</td><td>199.4 USDT</td><td><span class="ant-tag ant-tag-green">成功</span></td><td>2026-05-11 08:00</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button></td></tr>
+                <tr data-no="RCH20260510221" data-uid="445201"><td><code>RCH20260510221</code></td><td>445201</td><td>法币 · 银联</td><td>¥ 500</td><td>¥ 500</td><td><span class="ant-tag ant-tag-blue">处理中</span></td><td>2026-05-10 21:12</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script>
+(function () {
+  var M = window.AdminModal;
+  function openDetail(no, uid) {
+    M.open({
+      title: "充值订单详情 · " + no,
+      wide: true,
+      body:
+        "<table style='width:100%;border-collapse:collapse;font-size:13px;border:1px solid #f0f0f0'>" +
+        "<tr><th style='padding:8px;background:#fafafa;width:28%'>订单号</th><td style='padding:8px'><code>" +
+        M.esc(no) +
+        "</code></td></tr>" +
+        "<tr><th style='padding:8px;background:#fafafa'>UID</th><td style='padding:8px'>" +
+        M.esc(uid) +
+        "</td></tr>" +
+        "<tr><th style='padding:8px;background:#fafafa'>支付流水</th><td style='padding:8px'><code>pay_7721aa</code></td></tr>" +
+        "<tr><th style='padding:8px;background:#fafafa'>链上 Tx</th><td style='padding:8px'><code>0xabc…def</code> <span class='ant-tag ant-tag-green'>已确认 32 块</span></td></tr>" +
+        "<tr><th style='padding:8px;background:#fafafa'>回调日志</th><td style='padding:8px'>SUCCESS 2026-05-11 08:00:02</td></tr></table>",
+      footer: [{ text: "关闭", primary: true, onClick: M.close }]
+    });
+  }
+  document.getElementById("ordRchExport").addEventListener("click", function () {
+    M.open({
+      title: "导出充值订单",
+      body: "<p style='margin:0'>按当前筛选条件导出 CSV，字段与财务模板对齐。</p>",
+      footer: [
+        { text: "取消", onClick: M.close },
+        {
+          text: "创建任务",
+          primary: true,
+          onClick: function () {
+            M.close();
+            M.toast("导出任务已创建（原型）");
+          }
+        }
+      ]
+    });
+  });
+  document.getElementById("ordRchQuery").addEventListener("click", function () {
+    M.toast("已查询（原型）");
+  });
+  document.querySelector("main.admin-content").addEventListener("click", function (e) {
+    if (!e.target.classList.contains("js-ord-dtl")) return;
+    var tr = e.target.closest("tr");
+    openDetail(tr.getAttribute("data-no"), tr.getAttribute("data-uid"));
+  });
+})();
+</script>
+</body>
+</html>

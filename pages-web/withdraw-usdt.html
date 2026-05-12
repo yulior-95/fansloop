@@ -7,8 +7,12 @@
 <link rel="stylesheet" href="../css-web/common-web.css">
 <link rel="stylesheet" href="../css-web/funds-moonpay.css">
 <link rel="stylesheet" href="../css-web/funds-flow.css">
+<link rel="stylesheet" href="../css-web/recharge-flow.css">
 <style>
+body.page-withdraw-web .app-main { overflow: visible; }
 .wd-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; max-width: 1280px; }
+.wd-grid > div:first-child { min-width: 0; }
+.wd-dd-card { overflow: visible !important; position: relative; z-index: 1; }
 @media (max-width: 1100px) { .wd-grid { grid-template-columns: 1fr; } }
 
 .method-tabs { display: flex; gap: 10px; margin-bottom: 22px; }
@@ -52,20 +56,6 @@
 .amt-input .input-row .unit { font-size: 18px; color: var(--t-tertiary); font-weight: 600; }
 .amt-input .equiv { font-size: 13px; color: var(--t-tertiary); margin-top: 8px; line-height: 1.55; }
 
-.network-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px; }
-.net-card {
-    border: 1.5px solid var(--border); background: var(--bg-input);
-    border-radius: 10px; padding: 12px; cursor: pointer;
-    transition: 0.15s; text-align: center;
-}
-.net-card:hover { border-color: var(--border-strong); }
-.net-card.active {
-    border-color: var(--brand-purple);
-    background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.04));
-}
-.net-card .nm { font-size: 12.5px; font-weight: 700; }
-.net-card .fee { font-size: 10.5px; color: var(--t-tertiary); margin-top: 2px; }
-
 .addr-input {
     background: var(--bg-input); border: 1.5px solid var(--border);
     border-radius: var(--r-md); padding: 14px;
@@ -101,8 +91,9 @@
 </style>
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
+<script src="../js-web/withdraw-usdt-flow.js" defer></script>
 </head>
-<body>
+<body class="page-withdraw-web">
 
 <div class="app-shell">
     <aside class="app-sidebar">
@@ -146,7 +137,7 @@
             </div>
         </div>
 
-        <div class="bal-hero-card">
+        <div class="bal-hero-card" id="balWithdrawHero" data-max-usdt="5820.40" data-cny-rate="7.0991">
             <div class="bal-main">
                 <div class="lb">可提现余额</div>
                 <div class="val">5,820.40<span class="u">USDT</span></div>
@@ -171,21 +162,41 @@
         <div class="wd-grid">
             <div>
                 <div class="amt-input">
-                    <div class="lbl"><span>提现金额</span><a href="javascript:void(0)">全部 5,820.40 USDT</a></div>
+                    <div class="lbl"><span>提现金额</span><a href="#" id="wdFillMax">全部 5,820.40 USDT</a></div>
                     <div class="input-row">
-                        <input type="text" value="200.00" />
+                        <input type="text" id="wdAmtInput" value="200.00" inputmode="decimal" autocomplete="off" />
                         <span class="unit">USDT</span>
                     </div>
-                    <div class="equiv">≈ ¥1,419.82 · 参考实时汇率，<b style="color:var(--t-secondary)">最终以提现成功时的实时汇率为准</b></div>
+                    <div class="equiv" id="wdEquivLine">≈ ¥1,419.82 · 参考实时汇率，<b style="color:var(--t-secondary)">最终以提现成功时的实时汇率为准</b></div>
                 </div>
 
-                <div class="card" style="padding: 22px 24px; margin-bottom: 18px">
+                <div class="card wd-dd-card" style="padding: 22px 24px; margin-bottom: 18px">
                     <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 14px"><i class="fa-solid fa-network-wired"></i> 选择网络</h4>
-                    <div class="network-grid">
-                        <div class="net-card"><div class="nm">ERC20</div><div class="fee">较高 Gas</div></div>
-                        <div class="net-card active"><div class="nm">TRC20</div><div class="fee">推荐</div></div>
-                        <div class="net-card"><div class="nm">BEP20</div><div class="fee">较快</div></div>
-                        <div class="net-card"><div class="nm">Polygon</div><div class="fee">低费</div></div>
+                    <div class="flow-block" style="margin: 0; padding: 0; border: none">
+                        <div class="fl-dd" id="wdDdNet">
+                            <button type="button" class="fl-dd-trigger" id="wdNetTrigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="wdNetPanel">
+                                <span class="net-dot" aria-hidden="true"></span>
+                                <span class="ph">请选择网络</span>
+                                <span class="mid">
+                                    <span class="n"></span>
+                                    <span class="d"></span>
+                                </span>
+                                <i class="fa-solid fa-chevron-down chev"></i>
+                            </button>
+                            <div class="fl-dd-panel" id="wdNetPanel" role="listbox" aria-label="提现网络列表">
+                                <div class="fl-search-wrap">
+                                    <div class="fl-search-row">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                        <input type="search" id="wdNetSearchInput" placeholder="模糊搜索网络" autocomplete="off" spellcheck="false" />
+                                        <button type="button" class="fl-search-clear" id="wdNetSearchClear" title="清空"><i class="fa-solid fa-circle-xmark"></i></button>
+                                    </div>
+                                </div>
+                                <div class="fl-dd-hint">
+                                    请注意，这里仅展示了平台所支持的提现网络；请确保接收地址与所选网络一致，否则可能导致资产损失。
+                                </div>
+                                <div class="fl-dd-list" id="wdNetDdList"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="notice notice-warning" style="margin-top: 14px">
                         <i class="fa-solid fa-triangle-exclamation ni"></i>
@@ -202,7 +213,7 @@
                         <span class="addr-txt" id="wdAddrField">TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs</span>
                         <button type="button" class="btn btn-sm" style="padding:6px 10px;font-size:11px"><i class="fa-solid fa-paste"></i> 粘贴</button>
                     </div>
-                    <div class="field-help t-success" style="margin-top: 8px"><i class="fa-solid fa-circle-check"></i> 地址格式有效 (TRC20)</div>
+                    <div class="field-help t-success" style="margin-top: 8px"><i class="fa-solid fa-circle-check"></i> 地址格式有效 (<span id="wdAddrNetShort">TRC20</span>)</div>
 
                     <h5 style="font-size: 11px; color: var(--t-tertiary); margin: 16px 0 8px; text-transform: uppercase; letter-spacing: 0.4px">常用地址</h5>
                     <div class="recent-row selected" data-addr="TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs">
@@ -220,11 +231,11 @@
                 <div class="card" style="padding: 22px 24px">
                     <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 14px"><i class="fa-solid fa-receipt"></i> 提现摘要</h4>
                     <div class="kv-list">
-                        <div class="kv-row"><span class="k">提现金额</span><span class="v num">200.00 USDT</span></div>
-                        <div class="kv-row"><span class="k">网络</span><span class="v">TRC20 (Tron)</span></div>
-                        <div class="kv-row"><span class="k">网络费用</span><span class="v num">− 1.40 USDT</span></div>
-                        <div class="kv-row"><span class="k">接收地址</span><span class="v num" style="font-size:11px">TG3X…aSJozs</span></div>
-                        <div class="kv-row" style="border-bottom: none"><span class="k" style="color:#fff;font-weight:600">参考净到账</span><span class="v num t-grad" style="font-size: 18px; font-weight: 800">198.60 USDT</span></div>
+                        <div class="kv-row"><span class="k">提现金额</span><span class="v num" id="kvWdAmt">200.00 USDT</span></div>
+                        <div class="kv-row"><span class="k">网络</span><span class="v" id="kvWdNet">TRC20 (Tron)</span></div>
+                        <div class="kv-row"><span class="k">网络费用</span><span class="v num" id="kvWdFee">− 1.40 USDT</span></div>
+                        <div class="kv-row"><span class="k">接收地址</span><span class="v num" id="kvWdAddr" style="font-size:11px">TG3X…aSJozs</span></div>
+                        <div class="kv-row" style="border-bottom: none"><span class="k" style="color:#fff;font-weight:600">参考净到账</span><span class="v num t-grad" id="kvWdRecv" style="font-size: 18px; font-weight: 800">198.60 USDT</span></div>
                     </div>
                     <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top: 18px" onclick="location.href='modal-withdraw-chain-moonpay.html'">
                         <i class="fa-solid fa-paper-plane"></i> 提交提现订单
@@ -250,33 +261,5 @@
         </div>
     </main>
 </div>
-
-<script>
-(function () {
-    var field = document.getElementById('wdAddrField');
-    document.querySelectorAll('.recent-row').forEach(function (row) {
-        row.addEventListener('click', function () {
-            document.querySelectorAll('.recent-row').forEach(function (r) {
-                r.classList.remove('selected');
-                var ind = r.querySelector('.row-ind i');
-                if (ind) {
-                    ind.className = 'fa-solid fa-chevron-right';
-                    ind.style.color = 'var(--t-tertiary)';
-                    ind.style.fontSize = '11px';
-                }
-            });
-            row.classList.add('selected');
-            var ind = row.querySelector('.row-ind i');
-            if (ind) {
-                ind.className = 'fa-solid fa-check';
-                ind.style.color = 'var(--brand-purple)';
-                ind.style.fontSize = '12px';
-            }
-            var addr = row.getAttribute('data-addr');
-            if (field && addr) field.textContent = addr;
-        });
-    });
-})();
-</script>
 </body>
 </html>

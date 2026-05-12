@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>操作日志 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="settings-operation-logs">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 系统设置 / 操作日志</span></div>
+      <div class="admin-header-right">
+        <button type="button" class="ant-btn ant-btn-sm" id="btnLogExport"><i class="fa-solid fa-file-export"></i> 导出</button>
+        <div class="admin-header-user">
+          <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt="">
+          <span>超级管理员</span>
+        </div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">操作日志</h1>
+      <p class="admin-page-desc">导出与行级详情为<strong>弹窗</strong>。</p>
+      <div class="admin-toolbar">
+        <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" type="text" placeholder="操作人"></span>
+        <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" type="text" placeholder="模块 / 资源"></span>
+        <input type="datetime-local" class="ant-input" style="width:200px">
+        <span style="opacity:.5">—</span>
+        <input type="datetime-local" class="ant-input" style="width:200px">
+        <button type="button" class="ant-btn ant-btn-primary" id="btnLogQuery">查询</button>
+      </div>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-small ant-table-bordered">
+            <table style="width:100%">
+              <thead class="ant-table-thead">
+                <tr><th>时间</th><th>操作人</th><th>模块</th><th>动作</th><th>对象</th><th>IP</th><th>结果</th><th>操作</th></tr>
+              </thead>
+              <tbody class="ant-table-tbody">
+                <tr><td>2026-05-11 10:22:01</td><td>wangyi@fansloop.io</td><td>用户管理</td><td>重置登录密码</td><td>UID 882910</td><td>203.0.113.8</td><td><span class="ant-tag ant-tag-green">成功</span></td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-log">详情</button></td></tr>
+                <tr><td>2026-05-11 10:18:44</td><td>limin@fansloop.io</td><td>风控 · 异常发言</td><td>禁言 24h</td><td>UID 102938</td><td>198.51.100.2</td><td><span class="ant-tag ant-tag-green">成功</span></td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-log">详情</button></td></tr>
+                <tr><td>2026-05-11 09:55:12</td><td>admin@fansloop.io</td><td>角色管理</td><td>更新权限</td><td>ROLE_OPS</td><td>192.0.2.10</td><td><span class="ant-tag ant-tag-green">成功</span></td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-log">详情</button></td></tr>
+                <tr><td>2026-05-11 09:12:00</td><td>chenchen@fansloop.io</td><td>登录</td><td>后台登录</td><td>—</td><td>192.0.2.88</td><td><span class="ant-tag ant-tag-red">失败</span></td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-log">详情</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script>
+(function () {
+  var M = window.AdminModal;
+  document.getElementById("btnLogExport").addEventListener("click", function () {
+    M.open({
+      title: "导出操作日志",
+      body: "<p style='margin:0'>按筛选时间导出审计 CSV（含 request_id）。</p>",
+      footer: [
+        { text: "取消", onClick: M.close },
+        {
+          text: "创建任务",
+          primary: true,
+          onClick: function () {
+            M.close();
+            M.toast("导出任务已创建（原型）");
+          }
+        }
+      ]
+    });
+  });
+  document.getElementById("btnLogQuery").addEventListener("click", function () {
+    M.toast("已查询（原型）");
+  });
+  document.querySelector("main.admin-content").addEventListener("click", function (e) {
+    if (!e.target.classList.contains("js-log")) return;
+    M.open({
+      title: "操作日志详情",
+      wide: true,
+      body: "<pre style='margin:0;font-size:12px;background:#fafafa;padding:12px;border-radius:6px;max-height:360px;overflow:auto'>diff: { \"email\": \"***\" }\nuser_agent: Mozilla/5.0 …</pre>",
+      footer: [{ text: "关闭", primary: true, onClick: M.close }]
+    });
+  });
+})();
+</script>
+</body>
+</html>

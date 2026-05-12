@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>提现订单 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="orders-withdraw">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 订单管理 / 提现订单</span></div>
+      <div class="admin-header-right">
+        <button type="button" class="ant-btn ant-btn-primary ant-btn-sm" id="ordWdrExport"><i class="fa-solid fa-file-export"></i> 导出</button>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>财务</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">提现订单</h1>
+      <p class="admin-page-desc">详情、导出均在<strong>当前页弹窗</strong>。</p>
+      <div class="admin-toolbar">
+        <select class="ant-input" style="width:140px"><option>全部渠道</option><option>法币</option><option>链上</option></select>
+        <select class="ant-input" style="width:120px"><option>全部状态</option><option>审核中</option><option>打款中</option><option>成功</option><option>失败</option></select>
+        <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" placeholder="订单号 / UID"></span>
+        <button type="button" class="ant-btn ant-btn-primary" id="ordWdrQuery">查询</button>
+      </div>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-bordered ant-table-middle">
+            <table style="width:100%">
+              <thead class="ant-table-thead">
+                <tr><th>订单号</th><th>UID</th><th>类型</th><th>申请金额</th><th>手续费</th><th>风控</th><th>状态</th><th>操作</th></tr>
+              </thead>
+              <tbody class="ant-table-tbody">
+                <tr data-no="FW20260511003"><td><code>FW20260511003</code></td><td>102938</td><td>链上 USDT</td><td>300</td><td>1.5</td><td><span class="ant-tag ant-tag-green">通过</span></td><td><span class="ant-tag ant-tag-blue">打款中</span></td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button></td></tr>
+                <tr data-no="FW20260509201"><td><code>FW20260509201</code></td><td>445201</td><td>法币银行卡</td><td>¥ 1,000</td><td>¥ 2</td><td><span class="ant-tag ant-tag-orange">限额提示</span></td><td><span class="ant-tag ant-tag-red">失败</span></td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script>
+(function () {
+  var M = window.AdminModal;
+  document.getElementById("ordWdrExport").addEventListener("click", function () {
+    M.open({
+      title: "导出提现订单",
+      body: "<p style='margin:0'>导出字段含风控命中、打款回执 ID（如有）。</p>",
+      footer: [
+        { text: "取消", onClick: M.close },
+        {
+          text: "创建任务",
+          primary: true,
+          onClick: function () {
+            M.close();
+            M.toast("导出任务已创建（原型）");
+          }
+        }
+      ]
+    });
+  });
+  document.getElementById("ordWdrQuery").addEventListener("click", function () {
+    M.toast("已查询（原型）");
+  });
+  document.querySelector("main.admin-content").addEventListener("click", function (e) {
+    if (!e.target.classList.contains("js-ord-dtl")) return;
+    var no = e.target.closest("tr").getAttribute("data-no");
+    M.open({
+      title: "提现订单详情 · " + no,
+      wide: true,
+      body:
+        "<table style='width:100%;border-collapse:collapse;font-size:13px;border:1px solid #f0f0f0'>" +
+        "<tr><th style='padding:8px;background:#fafafa;width:28%'>订单号</th><td style='padding:8px'><code>" +
+        M.esc(no) +
+        "</code></td></tr>" +
+        "<tr><th style='padding:8px;background:#fafafa'>收款信息</th><td style='padding:8px'>脱敏展示 · 与三方同步状态</td></tr>" +
+        "<tr><th style='padding:8px;background:#fafafa'>审核记录</th><td style='padding:8px'>系统自动风控通过 → 财务打款中</td></tr></table>",
+      footer: [{ text: "关闭", primary: true, onClick: M.close }]
+    });
+  });
+})();
+</script>
+</body>
+</html>

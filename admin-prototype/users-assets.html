@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>用户资产 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="users-assets">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 用户管理 / 用户资产</span></div>
+      <div class="admin-header-right"><div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>运营 · 王一</span></div></div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">用户资产</h1>
+      <p class="admin-page-desc">账变、关联订单在<strong>弹窗</strong>中查看。</p>
+      <div class="admin-toolbar">
+        <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" placeholder="UID"></span>
+        <button type="button" class="ant-btn ant-btn-primary" id="btnAstQuery">查询</button>
+      </div>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-bordered ant-table-middle">
+            <table style="width:100%">
+              <thead class="ant-table-thead">
+                <tr><th>用户</th><th>UID</th><th>积分余额</th><th>冻结积分</th><th>主钱包</th><th>标签</th><th>操作</th></tr>
+              </thead>
+              <tbody class="ant-table-tbody">
+                <tr data-uid="882910">
+                  <td><img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=48&h=48&fit=crop&crop=face" width="32" height="32" style="border-radius:50%;vertical-align:middle;margin-right:8px">小岛日和</td>
+                  <td>882910</td><td>12,800</td><td>200</td><td><code>0x71C…9A2f</code></td><td><span class="ant-tag">TRON · USDT</span></td>
+                  <td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ast-ledger">账变</button><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ast-orders">订单</button></td>
+                </tr>
+                <tr data-uid="102938">
+                  <td><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=48&h=48&fit=crop&crop=face" width="32" height="32" style="border-radius:50%;vertical-align:middle;margin-right:8px">Alex Chen</td>
+                  <td>102938</td><td>402</td><td>0</td><td><code>0xB1d…04ee</code></td><td><span class="ant-tag ant-tag-blue">ETH</span></td>
+                  <td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ast-ledger">账变</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script>
+(function () {
+  var M = window.AdminModal;
+  document.getElementById("btnAstQuery").addEventListener("click", function () {
+    M.toast("已查询（原型）");
+  });
+  document.querySelector("main.admin-content").addEventListener("click", function (e) {
+    var t = e.target;
+    var uid = t.closest("tr").getAttribute("data-uid");
+    if (t.classList.contains("js-ast-ledger")) {
+      M.open({
+        title: "账变摘要 · UID " + uid,
+        wide: true,
+        body:
+          "<div class='ant-table ant-table-small ant-table-bordered'><table style='width:100%'><thead><tr><th>时间</th><th>类型</th><th>变动</th></tr></thead><tbody>" +
+          "<tr><td>05-11</td><td>链上充值</td><td style='color:#52c41a'>+200</td></tr>" +
+          "<tr><td>05-10</td><td>积分消耗</td><td style='color:#ff4d4f'>-500</td></tr></tbody></table></div>",
+        footer: [{ text: "关闭", primary: true, onClick: M.close }]
+      });
+    }
+    if (t.classList.contains("js-ast-orders")) {
+      M.open({
+        title: "关联订单 · UID " + uid,
+        body:
+          "<div class='ant-table ant-table-small ant-table-bordered'><table style='width:100%'><thead><tr><th>单号</th><th>类型</th><th>状态</th></tr></thead><tbody>" +
+          "<tr><td><code>RCH…001</code></td><td>充值</td><td>成功</td></tr>" +
+          "<tr><td><code>FW…003</code></td><td>提现</td><td>打款中</td></tr></tbody></table></div>",
+        footer: [{ text: "关闭", primary: true, onClick: M.close }]
+      });
+    }
+  });
+})();
+</script>
+</body>
+</html>
