@@ -8,6 +8,14 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin-shell.css">
   <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/admin-pagination.css">
+  <style>
+    .ord-rch-scroll { overflow-x: auto; margin: 0 -12px; padding: 0 12px 4px; -webkit-overflow-scrolling: touch; }
+    .ord-rch-scroll table { min-width: 2180px; }
+    .ord-rch-scroll th, .ord-rch-scroll td { font-size: 12px; white-space: nowrap; }
+    .ord-rch-scroll .cell-wrap { white-space: normal; max-width: 200px; line-height: 1.45; }
+    .ord-rch-scroll code { font-size: 11px; }
+  </style>
 </head>
 <body data-admin-page="orders-recharge">
 <div class="admin-app">
@@ -22,25 +30,283 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">充值订单</h1>
-      <p class="admin-page-desc">操作均在<strong>当前页弹窗</strong>完成。</p>
       <div class="admin-toolbar">
-        <select class="ant-input" style="width:140px"><option>全部渠道</option><option>法币</option><option>链上</option></select>
+        <select class="ant-input" style="width:140px"><option>全部渠道</option><option>法币 · 银联</option><option>链上 · USDT</option></select>
         <select class="ant-input" style="width:120px"><option>全部状态</option><option>成功</option><option>处理中</option><option>失败</option></select>
-        <span class="ant-input-affix-wrapper" style="width:180px"><input class="ant-input" placeholder="订单号 / UID"></span>
+        <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" placeholder="订单号 / UID"></span>
         <button type="button" class="ant-btn ant-btn-primary" id="ordRchQuery">查询</button>
       </div>
       <div class="ant-card ant-card-bordered">
         <div class="ant-card-body" style="padding-top:0">
-          <div class="ant-table ant-table-bordered ant-table-middle">
+          <div class="ant-table ant-table-bordered ant-table-middle ord-rch-scroll">
             <table style="width:100%">
               <thead class="ant-table-thead">
-                <tr><th>订单号</th><th>UID</th><th>渠道</th><th>金额</th><th>实付/到账</th><th>状态</th><th>创建时间</th><th>操作</th></tr>
+                <tr>
+                  <th>订单号</th>
+                  <th>UID</th>
+                  <th>渠道</th>
+                  <th>银行卡号</th>
+                  <th>银行名称</th>
+                  <th>支付货币</th>
+                  <th>下单金额</th>
+                  <th>汇率</th>
+                  <th>下单数量</th>
+                  <th>手续费</th>
+                  <th>实付/到账</th>
+                  <th>实际成交数量（USDT）</th>
+                  <th>下单时间</th>
+                  <th>匹配时间</th>
+                  <th>订单状态</th>
+                  <th>备注</th>
+                  <th>结束时间</th>
+                  <th>操作</th>
+                </tr>
               </thead>
               <tbody class="ant-table-tbody">
-                <tr data-no="RCH20260511001" data-uid="882910"><td><code>RCH20260511001</code></td><td>882910</td><td>链上 · USDT</td><td>200 USDT</td><td>199.4 USDT</td><td><span class="ant-tag ant-tag-green">成功</span></td><td>2026-05-11 08:00</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button></td></tr>
-                <tr data-no="RCH20260510221" data-uid="445201"><td><code>RCH20260510221</code></td><td>445201</td><td>法币 · 银联</td><td>¥ 500</td><td>¥ 500</td><td><span class="ant-tag ant-tag-blue">处理中</span></td><td>2026-05-10 21:12</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button></td></tr>
+                <tr
+                  data-no="RCH20260511001"
+                  data-uid="882910"
+                  data-channel="chain"
+                  data-pay-sn="pay_7721aa"
+                  data-order-amt="200.00 USDT"
+                  data-arrival="199.40 USDT"
+                  data-fee="0.60 USDT"
+                  data-filled="199.40 USDT"
+                  data-order-time="2026-05-11 08:00:00"
+                  data-match-time="2026-05-11 08:00:18"
+                  data-end-time="2026-05-11 08:00:22"
+                  data-status-label="成功"
+                  data-remark="—"
+                  data-fx-rate="1 USDT = 1 USDT"
+                  data-order-qty-usdt="200.00 USDT"
+                  data-payer-name="Luna Chen"
+                  data-payer-uid="882910"
+                  data-payer-card=""
+                  data-payer-chain="0x8a1f…c4e902"
+                  data-chain-addr="0xb2132bae7ddd15459dcfaebbef5266d51eaeb74a"
+                  data-callback="SUCCESS 2026-05-11 08:00:22"
+                >
+                  <td><code>RCH20260511001</code></td>
+                  <td>882910</td>
+                  <td>链上 · USDT</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>200.00 USDT</td>
+                  <td>1 USDT = 1 USDT</td>
+                  <td>200.00 USDT</td>
+                  <td>0.60 USDT</td>
+                  <td>199.40 USDT</td>
+                  <td>199.40 USDT</td>
+                  <td>2026-05-11 08:00</td>
+                  <td>2026-05-11 08:00</td>
+                  <td><span class="ant-tag ant-tag-green">成功</span></td>
+                  <td class="cell-wrap">—</td>
+                  <td>2026-05-11 08:00</td>
+                  <td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button></td>
+                </tr>
+                <tr
+                  data-no="RCH20260512080"
+                  data-uid="661204"
+                  data-channel="fiat_union"
+                  data-pay-sn="pay_union_ok_88"
+                  data-order-amt="€ 100.00"
+                  data-arrival="€ 100.00"
+                  data-fee="€ 0.35"
+                  data-filled="108.42 USDT"
+                  data-order-time="2026-05-12 10:05:00"
+                  data-match-time="2026-05-12 10:05:42"
+                  data-end-time="2026-05-12 10:05:45"
+                  data-status-label="成功"
+                  data-remark="—"
+                  data-fx-rate="1 EUR ≈ 1.0842 USDT（成交时）"
+                  data-order-qty-usdt="108.42 USDT"
+                  data-payer-name="陈静"
+                  data-payer-uid="661204"
+                  data-payer-card="6214 **** **** 2208"
+                  data-payer-chain=""
+                  data-chain-addr=""
+                  data-bank-card="6214 **** **** 2208"
+                  data-bank-name="招商银行"
+                  data-pay-ccy="EUR · 欧元"
+                  data-callback="SUCCESS 2026-05-12 10:05:45"
+                >
+                  <td><code>RCH20260512080</code></td>
+                  <td>661204</td>
+                  <td>法币 · 银联</td>
+                  <td>6214 **** **** 2208</td>
+                  <td>招商银行</td>
+                  <td>EUR · 欧元</td>
+                  <td>€ 100.00</td>
+                  <td>1 EUR ≈ 1.0842 USDT（成交时）</td>
+                  <td>108.42 USDT</td>
+                  <td>€ 0.35</td>
+                  <td>€ 100.00</td>
+                  <td>108.42 USDT</td>
+                  <td>2026-05-12 10:05</td>
+                  <td>2026-05-12 10:05</td>
+                  <td><span class="ant-tag ant-tag-green">成功</span></td>
+                  <td class="cell-wrap">—</td>
+                  <td>2026-05-12 10:05</td>
+                  <td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button></td>
+                </tr>
+                <tr
+                  data-no="RCH20260510221"
+                  data-uid="445201"
+                  data-channel="fiat_union"
+                  data-pay-sn="pay_union_9f02"
+                  data-order-amt="¥ 500.00"
+                  data-arrival="¥ 500.00"
+                  data-fee="¥ 3.00"
+                  data-filled=""
+                  data-order-time="2026-05-10 21:12:08"
+                  data-match-time="—"
+                  data-end-time="—"
+                  data-status-label="处理中"
+                  data-remark="—"
+                  data-fx-rate=""
+                  data-order-qty-usdt=""
+                  data-payer-name="王磊"
+                  data-payer-uid="445201"
+                  data-payer-card="6222 **** **** 8812"
+                  data-payer-chain=""
+                  data-chain-addr=""
+                  data-bank-card="6222 **** **** 8812"
+                  data-bank-name="中国银行"
+                  data-pay-ccy="EUR · 欧元"
+                  data-callback="PENDING"
+                >
+                  <td><code>RCH20260510221</code></td>
+                  <td>445201</td>
+                  <td>法币 · 银联</td>
+                  <td>6222 **** **** 8812</td>
+                  <td>中国银行</td>
+                  <td>EUR · 欧元</td>
+                  <td>¥ 500.00</td>
+                  <td></td>
+                  <td></td>
+                  <td>¥ 3.00</td>
+                  <td>¥ 500.00</td>
+                  <td>—</td>
+                  <td>2026-05-10 21:12</td>
+                  <td>—</td>
+                  <td><span class="ant-tag ant-tag-blue">处理中</span></td>
+                  <td class="cell-wrap">—</td>
+                  <td>—</td>
+                  <td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button></td>
+                </tr>
+                <tr
+                  data-no="RCH20260509188"
+                  data-uid="771002"
+                  data-channel="fiat_union"
+                  data-pay-sn="pay_union_fail_01"
+                  data-order-amt="¥ 1,000.00"
+                  data-arrival="¥ 0.00"
+                  data-fee="0"
+                  data-filled="0.00 USDT"
+                  data-order-time="2026-05-09 14:20:00"
+                  data-match-time="2026-05-09 14:21:05"
+                  data-end-time="2026-05-09 14:21:06"
+                  data-status-label="失败"
+                  data-remark="发卡行拒绝交易（INSUFFICIENT_FUNDS）"
+                  data-fx-rate=""
+                  data-order-qty-usdt=""
+                  data-payer-name="匿名用户"
+                  data-payer-uid="771002"
+                  data-payer-card="6217 **** **** 3391"
+                  data-payer-chain=""
+                  data-chain-addr=""
+                  data-bank-card="6217 **** **** 3391"
+                  data-bank-name="浦发银行"
+                  data-pay-ccy="CNY · 人民币"
+                  data-callback="FAIL 2026-05-09 14:21:06"
+                >
+                  <td><code>RCH20260509188</code></td>
+                  <td>771002</td>
+                  <td>法币 · 银联</td>
+                  <td>6217 **** **** 3391</td>
+                  <td>浦发银行</td>
+                  <td>CNY · 人民币</td>
+                  <td>¥ 1,000.00</td>
+                  <td></td>
+                  <td></td>
+                  <td>0</td>
+                  <td>¥ 0.00</td>
+                  <td>0.00 USDT</td>
+                  <td>2026-05-09 14:20</td>
+                  <td>2026-05-09 14:21</td>
+                  <td><span class="ant-tag ant-tag-red">失败</span></td>
+                  <td class="cell-wrap">发卡行拒绝交易（INSUFFICIENT_FUNDS）</td>
+                  <td>2026-05-09 14:21</td>
+                  <td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button></td>
+                </tr>
+                <tr
+                  data-no="RCH20260508055"
+                  data-uid="339011"
+                  data-channel="chain"
+                  data-pay-sn="pay_onchain_bb09"
+                  data-order-amt="50.00 USDT"
+                  data-arrival="49.85 USDT"
+                  data-fee="0.15 USDT"
+                  data-filled="49.85 USDT"
+                  data-order-time="2026-05-08 19:02:11"
+                  data-match-time="2026-05-08 19:04:40"
+                  data-end-time="2026-05-08 19:04:42"
+                  data-status-label="成功"
+                  data-remark="—"
+                  data-fx-rate="1 USDT = 1 USDT"
+                  data-order-qty-usdt="50.00 USDT"
+                  data-payer-name="Alex M."
+                  data-payer-uid="339011"
+                  data-payer-card=""
+                  data-payer-chain="TLa2f6WVqHrKZ5X6c9Y8a8X7a7X6a5X4a3X2"
+                  data-chain-addr="TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs"
+                  data-callback="SUCCESS 2026-05-08 19:04:42"
+                >
+                  <td><code>RCH20260508055</code></td>
+                  <td>339011</td>
+                  <td>链上 · USDT</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>50.00 USDT</td>
+                  <td>1 USDT = 1 USDT</td>
+                  <td>50.00 USDT</td>
+                  <td>0.15 USDT</td>
+                  <td>49.85 USDT</td>
+                  <td>49.85 USDT</td>
+                  <td>2026-05-08 19:02</td>
+                  <td>2026-05-08 19:04</td>
+                  <td><span class="ant-tag ant-tag-green">成功</span></td>
+                  <td class="cell-wrap">—</td>
+                  <td>2026-05-08 19:04</td>
+                  <td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button></td>
+                </tr>
               </tbody>
             </table>
+          </div>
+
+          <div class="admin-pager-bar" id="ordRchPager" aria-label="分页">
+            <span class="admin-pager-total">共 <b>128</b> 条</span>
+            <div class="admin-pager-pages">
+              <button type="button" class="ant-btn ant-btn-sm" disabled title="上一页" aria-label="上一页"><i class="fa-solid fa-chevron-left"></i></button>
+              <button type="button" class="ant-btn ant-btn-sm ant-btn-primary js-pager-go" data-page="1">1</button>
+              <button type="button" class="ant-btn ant-btn-sm js-pager-go" data-page="2">2</button>
+              <button type="button" class="ant-btn ant-btn-sm js-pager-go" data-page="3">3</button>
+              <span style="color:rgba(0,0,0,.25);padding:0 4px">…</span>
+              <button type="button" class="ant-btn ant-btn-sm js-pager-go" data-page="13">13</button>
+              <button type="button" class="ant-btn ant-btn-sm js-pager-go" title="下一页" aria-label="下一页" data-page="2"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <label class="admin-pager-size">
+              每页
+              <select class="ant-input" id="ordRchPageSize" aria-label="每页条数">
+                <option>10</option>
+                <option selected>20</option>
+                <option>50</option>
+                <option>100</option>
+              </select>
+              条
+            </label>
           </div>
         </div>
       </div>
@@ -52,28 +318,83 @@
 <script>
 (function () {
   var M = window.AdminModal;
-  function openDetail(no, uid) {
+  function da(tr, key) {
+    return tr.getAttribute("data-" + key) || "";
+  }
+  function push(rows, th, tdHtml) {
+    rows.push(
+      "<tr><th style='padding:8px 10px;background:#fafafa;width:30%;vertical-align:top'>" +
+        M.esc(th) +
+        "</th><td style='padding:8px 10px;vertical-align:top'>" +
+        tdHtml +
+        "</td></tr>"
+    );
+  }
+  function openDetail(tr) {
+    var ch = da(tr, "channel");
+    var isChain = ch === "chain";
+    var isFiat = ch === "fiat_union";
+    var rows = [];
+    push(rows, "订单号", "<code>" + M.esc(da(tr, "no")) + "</code>");
+    push(rows, "UID", M.esc(da(tr, "uid")));
+    push(rows, "支付流水", "<code>" + M.esc(da(tr, "pay-sn")) + "</code>");
+    push(rows, "渠道", isChain ? "链上 · USDT" : isFiat ? "法币 · 银联" : M.esc(ch));
+    push(rows, "下单金额", M.esc(da(tr, "order-amt")));
+    var ok = da(tr, "status-label") === "成功";
+    if (ok && da(tr, "fx-rate")) {
+      push(rows, "汇率", M.esc(da(tr, "fx-rate")));
+    }
+    if (ok && da(tr, "order-qty-usdt")) {
+      push(rows, "下单数量", M.esc(da(tr, "order-qty-usdt")));
+    }
+    push(rows, "手续费", M.esc(da(tr, "fee") || "0"));
+    push(rows, "实付/到账", M.esc(da(tr, "arrival")));
+    push(
+      rows,
+      "实际成交数量（USDT）",
+      da(tr, "filled") ? M.esc(da(tr, "filled")) : "—"
+    );
+    push(rows, "下单时间", M.esc(da(tr, "order-time")));
+    push(rows, "匹配时间", M.esc(da(tr, "match-time")));
+    push(rows, "订单状态", M.esc(da(tr, "status-label")));
+    push(rows, "结束时间", M.esc(da(tr, "end-time")));
+    push(rows, "付款人名称", M.esc(da(tr, "payer-name")));
+    push(rows, "付款人UID", M.esc(da(tr, "payer-uid")));
+    if (isFiat && da(tr, "payer-card")) {
+      push(rows, "付款银行卡号", "<code>" + M.esc(da(tr, "payer-card")) + "</code>");
+    }
+    if (isChain && da(tr, "payer-chain")) {
+      push(
+        rows,
+        "付款人链上地址",
+        "<code style='word-break:break-all;font-size:12px'>" + M.esc(da(tr, "payer-chain")) + "</code>"
+      );
+    }
+    if (isChain && da(tr, "chain-addr")) {
+      push(
+        rows,
+        "链上地址",
+        "<code style='word-break:break-all;font-size:12px'>" + M.esc(da(tr, "chain-addr")) + "</code>"
+      );
+    }
+    push(rows, "备注", da(tr, "remark") === "—" ? "—" : M.esc(da(tr, "remark")));
+    push(rows, "回调日志", M.esc(da(tr, "callback")));
+
     M.open({
-      title: "充值订单详情 · " + no,
+      title: "充值订单详情 · " + da(tr, "no"),
       wide: true,
       body:
         "<table style='width:100%;border-collapse:collapse;font-size:13px;border:1px solid #f0f0f0'>" +
-        "<tr><th style='padding:8px;background:#fafafa;width:28%'>订单号</th><td style='padding:8px'><code>" +
-        M.esc(no) +
-        "</code></td></tr>" +
-        "<tr><th style='padding:8px;background:#fafafa'>UID</th><td style='padding:8px'>" +
-        M.esc(uid) +
-        "</td></tr>" +
-        "<tr><th style='padding:8px;background:#fafafa'>支付流水</th><td style='padding:8px'><code>pay_7721aa</code></td></tr>" +
-        "<tr><th style='padding:8px;background:#fafafa'>链上 Tx</th><td style='padding:8px'><code>0xabc…def</code> <span class='ant-tag ant-tag-green'>已确认 32 块</span></td></tr>" +
-        "<tr><th style='padding:8px;background:#fafafa'>回调日志</th><td style='padding:8px'>SUCCESS 2026-05-11 08:00:02</td></tr></table>",
+        rows.join("") +
+        "</table>",
       footer: [{ text: "关闭", primary: true, onClick: M.close }]
     });
   }
   document.getElementById("ordRchExport").addEventListener("click", function () {
     M.open({
       title: "导出充值订单",
-      body: "<p style='margin:0'>按当前筛选条件导出 CSV，字段与财务模板对齐。</p>",
+      body:
+        "<p style='margin:0'>按当前筛选条件导出 CSV，字段含银行卡号、银行名称、支付货币、下单金额、汇率（兑 USDT）、下单数量（USDT）、<strong>手续费</strong>、<strong>实付/到账</strong>、<strong>实际成交数量（USDT，法币按汇率×实付折算）</strong>、备注、结束时间等。</p>",
       footer: [
         { text: "取消", onClick: M.close },
         {
@@ -91,10 +412,23 @@
     M.toast("已查询（原型）");
   });
   document.querySelector("main.admin-content").addEventListener("click", function (e) {
-    if (!e.target.classList.contains("js-ord-dtl")) return;
-    var tr = e.target.closest("tr");
-    openDetail(tr.getAttribute("data-no"), tr.getAttribute("data-uid"));
+    if (e.target.classList.contains("js-ord-dtl")) {
+      var tr = e.target.closest("tr");
+      if (tr) openDetail(tr);
+      return;
+    }
+    if (e.target.closest && e.target.closest(".js-pager-go")) {
+      var btn = e.target.closest(".js-pager-go");
+      var p = btn.getAttribute("data-page");
+      M.toast("切换至第 " + p + " 页（原型）");
+    }
   });
+  var sizeSel = document.getElementById("ordRchPageSize");
+  if (sizeSel) {
+    sizeSel.addEventListener("change", function () {
+      M.toast("每页 " + sizeSel.value + " 条（原型）");
+    });
+  }
 })();
 </script>
 </body>

@@ -3,8 +3,9 @@
 **文档版本**：2026-05-11  
 **原型目录**：`web3-app-prototype/admin-prototype/`  
 **主入口（平铺 iframe）**：`admin-prototype/index-HT.html`  
-**串联导航（单 iframe + 侧栏列表 / 上一下一）**：`admin-prototype/admin-hub.html`  
+**串联导航（单 iframe + 侧栏列表 / 上一下一）**：`admin-hub.html`（项目根目录；iframe 加载 `admin-prototype/*.html`）。旧路径 `admin-prototype/admin-hub.html` 已重定向。  
 **壳层样式**：`admin-prototype/css/admin-shell.css`  
+**列表分页条（全站列表默认可复用）**：`admin-prototype/css/admin-pagination.css`  
 **全局弹窗（静态原型）**：`admin-prototype/css/admin-modals.css` + `admin-prototype/js/admin-modal.js`  
   - `AdminModal.open({ title, body, wide?, width?, footer: [{ text, primary?, danger?, onClick }], onMount })`  
   - `AdminModal.confirmGoogle({ title, message, onVerified })`：敏感操作二次验证示意  
