@@ -8,6 +8,15 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin-shell.css">
   <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/admin-pagination.css">
+  <style>
+    .ord-wd-scroll { overflow-x: auto; margin: 0 -12px; padding: 0 12px 4px; -webkit-overflow-scrolling: touch; }
+    .ord-wd-scroll table { min-width: 2480px; }
+    .ord-wd-scroll th, .ord-wd-scroll td { font-size: 12px; white-space: nowrap; }
+    .ord-wd-scroll .cell-wrap { white-space: normal; max-width: 220px; line-height: 1.45; }
+    .ord-wd-scroll code { font-size: 11px; }
+    .ord-wd-ops { display: inline-flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  </style>
 </head>
 <body data-admin-page="orders-withdraw">
 <div class="admin-app">
@@ -22,25 +31,270 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">提现订单</h1>
-      <p class="admin-page-desc">详情、导出均在<strong>当前页弹窗</strong>。</p>
       <div class="admin-toolbar">
-        <select class="ant-input" style="width:140px"><option>全部渠道</option><option>法币</option><option>链上</option></select>
+        <select class="ant-input" style="width:150px"><option>全部渠道</option><option>法币 · 银联</option><option>链上 · USDT</option></select>
         <select class="ant-input" style="width:120px"><option>全部状态</option><option>审核中</option><option>打款中</option><option>成功</option><option>失败</option></select>
         <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" placeholder="订单号 / UID"></span>
         <button type="button" class="ant-btn ant-btn-primary" id="ordWdrQuery">查询</button>
       </div>
       <div class="ant-card ant-card-bordered">
         <div class="ant-card-body" style="padding-top:0">
-          <div class="ant-table ant-table-bordered ant-table-middle">
+          <div class="ant-table ant-table-bordered ant-table-middle ord-wd-scroll">
             <table style="width:100%">
               <thead class="ant-table-thead">
-                <tr><th>订单号</th><th>UID</th><th>类型</th><th>申请金额</th><th>手续费</th><th>风控</th><th>状态</th><th>操作</th></tr>
+                <tr>
+                  <th>订单号</th>
+                  <th>UID</th>
+                  <th>渠道</th>
+                  <th>申请金额</th>
+                  <th>手续费</th>
+                  <th>收款银行卡号</th>
+                  <th>收款银行名称</th>
+                  <th>收款货币</th>
+                  <th>收款地址</th>
+                  <th>收款网络</th>
+                  <th>实际到账金额</th>
+                  <th>风控</th>
+                  <th>状态</th>
+                  <th>三方到账回传</th>
+                  <th>备注</th>
+                  <th>结束时间</th>
+                  <th>操作</th>
+                </tr>
               </thead>
-              <tbody class="ant-table-tbody">
-                <tr data-no="FW20260511003"><td><code>FW20260511003</code></td><td>102938</td><td>链上 USDT</td><td>300</td><td>1.5</td><td><span class="ant-tag ant-tag-green">通过</span></td><td><span class="ant-tag ant-tag-blue">打款中</span></td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button></td></tr>
-                <tr data-no="FW20260509201"><td><code>FW20260509201</code></td><td>445201</td><td>法币银行卡</td><td>¥ 1,000</td><td>¥ 2</td><td><span class="ant-tag ant-tag-orange">限额提示</span></td><td><span class="ant-tag ant-tag-red">失败</span></td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button></td></tr>
+              <tbody class="ant-table-tbody" id="ordWdrTbody">
+                <tr
+                  id="wdrRowAudit"
+                  data-no="FW20260513001"
+                  data-uid="882910"
+                  data-channel="chain"
+                  data-apply-amt="300.00 USDT"
+                  data-fee="1.50 USDT"
+                  data-bank-card=""
+                  data-bank-name=""
+                  data-recv-ccy="USDT"
+                  data-recv-addr="TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs"
+                  data-recv-net="TRC20 (Tron)"
+                  data-act-arrival="298.50 USDT"
+                  data-third-status="待回传"
+                  data-remark="—"
+                  data-end-time="—"
+                  data-risk="通过"
+                  data-status-label="审核中"
+                  data-needs-audit="1"
+                  data-payer-name="Luna Chen"
+                  data-payer-uid="882910"
+                  data-auditor="—"
+                  data-audit-time="—"
+                  data-audit-remark="—"
+                  data-audit-result="待审核"
+                >
+                  <td><code>FW20260513001</code></td>
+                  <td>882910</td>
+                  <td>链上 · USDT</td>
+                  <td>300.00 USDT</td>
+                  <td>1.50 USDT</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>USDT</td>
+                  <td><code>TG3XX…SJozs</code></td>
+                  <td>TRC20</td>
+                  <td>298.50 USDT</td>
+                  <td><span class="ant-tag ant-tag-green">通过</span></td>
+                  <td class="js-wd-status-cell"><span class="ant-tag ant-tag-orange">审核中</span></td>
+                  <td>待回传</td>
+                  <td class="cell-wrap">—</td>
+                  <td>—</td>
+                  <td class="ord-wd-ops">
+                    <button type="button" class="ant-btn ant-btn-primary ant-btn-sm js-wdr-audit">审核</button>
+                    <button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button>
+                  </td>
+                </tr>
+                <tr
+                  data-no="FW20260511003"
+                  data-uid="102938"
+                  data-channel="chain"
+                  data-apply-amt="300.00 USDT"
+                  data-fee="1.50 USDT"
+                  data-bank-card=""
+                  data-bank-name=""
+                  data-recv-ccy="USDT"
+                  data-recv-addr="TQ4q9xgsQyKkCepXyGMDazh2UcqA6XrXVT"
+                  data-recv-net="TRC20 (Tron)"
+                  data-act-arrival="298.50 USDT"
+                  data-third-status="处理中（链上确认 12/19）"
+                  data-remark="—"
+                  data-end-time="—"
+                  data-risk="通过"
+                  data-status-label="打款中"
+                  data-needs-audit="0"
+                  data-payer-name="River K."
+                  data-payer-uid="102938"
+                  data-auditor="张伟（财务）"
+                  data-audit-time="2026-05-11 09:02:18"
+                  data-audit-remark="大额二次核对无误"
+                  data-audit-result="通过"
+                >
+                  <td><code>FW20260511003</code></td>
+                  <td>102938</td>
+                  <td>链上 · USDT</td>
+                  <td>300.00 USDT</td>
+                  <td>1.50 USDT</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>USDT</td>
+                  <td><code>TQ4q9…XrXVT</code></td>
+                  <td>TRC20</td>
+                  <td>298.50 USDT</td>
+                  <td><span class="ant-tag ant-tag-green">通过</span></td>
+                  <td><span class="ant-tag ant-tag-blue">打款中</span></td>
+                  <td>处理中（链上确认 12/19）</td>
+                  <td class="cell-wrap">—</td>
+                  <td>—</td>
+                  <td class="ord-wd-ops"><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button></td>
+                </tr>
+                <tr
+                  data-no="FW20260510055"
+                  data-uid="661204"
+                  data-channel="fiat_union"
+                  data-apply-amt="€ 800.00"
+                  data-fee="€ 2.00"
+                  data-bank-card="6214 **** **** 2208"
+                  data-bank-name="招商银行"
+                  data-recv-ccy="EUR · 欧元"
+                  data-recv-addr="—"
+                  data-recv-net="—"
+                  data-act-arrival="€ 798.00"
+                  data-third-status="SUCCESS（银联入账）"
+                  data-remark="—"
+                  data-end-time="2026-05-10 16:40:02"
+                  data-risk="通过"
+                  data-status-label="成功"
+                  data-needs-audit="0"
+                  data-payer-name="陈静"
+                  data-payer-uid="661204"
+                  data-auditor="李娜（财务）"
+                  data-audit-time="2026-05-10 16:35:00"
+                  data-audit-remark="—"
+                  data-audit-result="通过"
+                >
+                  <td><code>FW20260510055</code></td>
+                  <td>661204</td>
+                  <td>法币 · 银联</td>
+                  <td>€ 800.00</td>
+                  <td>€ 2.00</td>
+                  <td>6214 **** **** 2208</td>
+                  <td>招商银行</td>
+                  <td>EUR · 欧元</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>€ 798.00</td>
+                  <td><span class="ant-tag ant-tag-green">通过</span></td>
+                  <td><span class="ant-tag ant-tag-green">成功</span></td>
+                  <td>SUCCESS（银联入账）</td>
+                  <td class="cell-wrap">—</td>
+                  <td>2026-05-10 16:40</td>
+                  <td class="ord-wd-ops"><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button></td>
+                </tr>
+                <tr
+                  data-no="FW20260509202"
+                  data-uid="339011"
+                  data-channel="chain"
+                  data-apply-amt="120.00 USDT"
+                  data-fee="1.40 USDT"
+                  data-bank-card=""
+                  data-bank-name=""
+                  data-recv-ccy="USDT"
+                  data-recv-addr="0xb2132bae7ddd15459dcfaebbef5266d51eaeb74a"
+                  data-recv-net="ERC20"
+                  data-act-arrival="0 USDT"
+                  data-third-status="FAILED（链上回滚）"
+                  data-remark="Gas 不足导致合约执行失败"
+                  data-end-time="2026-05-09 21:18:44"
+                  data-risk="通过"
+                  data-status-label="失败"
+                  data-needs-audit="0"
+                  data-payer-name="Alex M."
+                  data-payer-uid="339011"
+                  data-auditor="系统自动"
+                  data-audit-time="2026-05-09 21:15:02"
+                  data-audit-remark="—"
+                  data-audit-result="打款失败"
+                >
+                  <td><code>FW20260509202</code></td>
+                  <td>339011</td>
+                  <td>链上 · USDT</td>
+                  <td>120.00 USDT</td>
+                  <td>1.40 USDT</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>USDT</td>
+                  <td><code>0xb213…b74a</code></td>
+                  <td>ERC20</td>
+                  <td>0 USDT</td>
+                  <td><span class="ant-tag ant-tag-green">通过</span></td>
+                  <td><span class="ant-tag ant-tag-red">失败</span></td>
+                  <td>FAILED（链上回滚）</td>
+                  <td class="cell-wrap">Gas 不足导致合约执行失败</td>
+                  <td>2026-05-09 21:18</td>
+                  <td class="ord-wd-ops"><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button></td>
+                </tr>
+                <tr
+                  data-no="FW20260509188"
+                  data-uid="771002"
+                  data-channel="fiat_union"
+                  data-apply-amt="¥ 2,000.00"
+                  data-fee="¥ 0.00"
+                  data-bank-card="6217 **** **** 3391"
+                  data-bank-name="浦发银行"
+                  data-recv-ccy="CNY · 人民币"
+                  data-recv-addr="—"
+                  data-recv-net="—"
+                  data-act-arrival="¥ 0.00"
+                  data-third-status="REJECTED（发卡行）"
+                  data-remark="发卡行拒绝入账（AML 命中）"
+                  data-end-time="2026-05-09 14:21:06"
+                  data-risk="通过"
+                  data-status-label="失败"
+                  data-needs-audit="0"
+                  data-payer-name="匿名用户"
+                  data-payer-uid="771002"
+                  data-auditor="王磊（财务）"
+                  data-audit-time="2026-05-09 14:18:30"
+                  data-audit-remark="—"
+                  data-audit-result="通过"
+                >
+                  <td><code>FW20260509188</code></td>
+                  <td>771002</td>
+                  <td>法币 · 银联</td>
+                  <td>¥ 2,000.00</td>
+                  <td>¥ 0.00</td>
+                  <td>6217 **** **** 3391</td>
+                  <td>浦发银行</td>
+                  <td>CNY · 人民币</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>¥ 0.00</td>
+                  <td><span class="ant-tag ant-tag-green">通过</span></td>
+                  <td><span class="ant-tag ant-tag-red">失败</span></td>
+                  <td>REJECTED（发卡行）</td>
+                  <td class="cell-wrap">发卡行拒绝入账（AML 命中）</td>
+                  <td>2026-05-09 14:21</td>
+                  <td class="ord-wd-ops"><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button></td>
+                </tr>
               </tbody>
             </table>
+          </div>
+
+          <div class="admin-pager-bar" id="ordWdrPager" aria-label="分页">
+            <span class="admin-pager-total">共 <b>86</b> 条</span>
+            <div class="admin-pager-pages">
+              <button type="button" class="ant-btn ant-btn-sm" disabled title="上一页"><i class="fa-solid fa-chevron-left"></i></button>
+              <button type="button" class="ant-btn ant-btn-sm ant-btn-primary js-pager-go" data-page="1">1</button>
+              <button type="button" class="ant-btn ant-btn-sm js-pager-go" data-page="2">2</button>
+              <button type="button" class="ant-btn ant-btn-sm js-pager-go" title="下一页" data-page="2"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <label class="admin-pager-size">每页 <select class="ant-input" id="ordWdrPageSize"><option>10</option><option selected>20</option><option>50</option></select> 条</label>
           </div>
         </div>
       </div>
@@ -52,10 +306,191 @@
 <script>
 (function () {
   var M = window.AdminModal;
+  var auditTargetTr = null;
+
+  function da(tr, key) {
+    return tr.getAttribute("data-" + key) || "";
+  }
+  function push(rows, th, tdHtml) {
+    rows.push(
+      "<tr><th style='padding:8px 10px;background:#fafafa;width:28%;vertical-align:top'>" +
+        M.esc(th) +
+        "</th><td style='padding:8px 10px;vertical-align:top'>" +
+        tdHtml +
+        "</td></tr>"
+    );
+  }
+  function chLabel(tr) {
+    var ch = da(tr, "channel");
+    if (ch === "chain") return "链上 · USDT";
+    if (ch === "fiat_union") return "法币 · 银联";
+    return M.esc(ch);
+  }
+  function openDetail(tr) {
+    var rows = [];
+    push(rows, "订单号", "<code>" + M.esc(da(tr, "no")) + "</code>");
+    push(rows, "UID", M.esc(da(tr, "uid")));
+    push(rows, "渠道", chLabel(tr));
+    push(rows, "申请金额", M.esc(da(tr, "apply-amt")));
+    push(rows, "手续费", M.esc(da(tr, "fee")));
+    push(rows, "收款银行卡号", da(tr, "bank-card") ? "<code>" + M.esc(da(tr, "bank-card")) + "</code>" : "—");
+    push(rows, "收款银行名称", da(tr, "bank-name") ? M.esc(da(tr, "bank-name")) : "—");
+    push(rows, "收款货币", M.esc(da(tr, "recv-ccy")));
+    push(
+      rows,
+      "收款地址",
+      da(tr, "recv-addr") && da(tr, "recv-addr") !== "—"
+        ? "<code style='word-break:break-all;font-size:12px'>" + M.esc(da(tr, "recv-addr")) + "</code>"
+        : "—"
+    );
+    push(rows, "收款网络", da(tr, "recv-net") && da(tr, "recv-net") !== "—" ? M.esc(da(tr, "recv-net")) : "—");
+    push(rows, "实际到账金额", M.esc(da(tr, "act-arrival")));
+    push(rows, "风控", M.esc(da(tr, "risk")));
+    push(rows, "状态", M.esc(da(tr, "status-label")));
+    push(rows, "三方到账回传", M.esc(da(tr, "third-status")));
+    push(rows, "备注", da(tr, "remark") === "—" ? "—" : M.esc(da(tr, "remark")));
+    push(rows, "结束时间", da(tr, "end-time") === "—" ? "—" : M.esc(da(tr, "end-time")));
+    push(rows, "提现人", M.esc(da(tr, "payer-name")) + "（UID " + M.esc(da(tr, "payer-uid")) + "）");
+    push(rows, "审核人", M.esc(da(tr, "auditor")));
+    push(rows, "审核时间", M.esc(da(tr, "audit-time")));
+    push(rows, "审核备注", da(tr, "audit-remark") === "—" ? "—" : M.esc(da(tr, "audit-remark")));
+    push(rows, "审核结果", M.esc(da(tr, "audit-result")));
+
+    M.open({
+      title: "提现订单详情 · " + da(tr, "no"),
+      wide: true,
+      body:
+        "<table style='width:100%;border-collapse:collapse;font-size:13px;border:1px solid #f0f0f0'>" +
+        rows.join("") +
+        "</table>",
+      footer: [{ text: "关闭", primary: true, onClick: M.close }]
+    });
+  }
+
+  function auditDestHtml(tr) {
+    if (da(tr, "channel") === "chain") {
+      return (
+        "<strong>收款网络</strong> " +
+        M.esc(da(tr, "recv-net")) +
+        "<br><strong>收款地址</strong><br><code style='word-break:break-all;font-size:12px'>" +
+        M.esc(da(tr, "recv-addr")) +
+        "</code>"
+      );
+    }
+    return (
+      "<strong>收款银行</strong> " +
+      M.esc(da(tr, "bank-name")) +
+      "<br><strong>收款卡号</strong> <code>" +
+      M.esc(da(tr, "bank-card")) +
+      "</code><br><strong>收款货币</strong> " +
+      M.esc(da(tr, "recv-ccy"))
+    );
+  }
+
+  function openAuditModal(tr) {
+    auditTargetTr = tr;
+    var no = da(tr, "no");
+    var body =
+      "<div style='font-size:13px;line-height:1.65;color:rgba(0,0,0,.85)'>" +
+      "<p style='margin:0 0 12px'><strong>提现人</strong> " +
+      M.esc(da(tr, "payer-name")) +
+      " · UID <code>" +
+      M.esc(da(tr, "payer-uid")) +
+      "</code></p>" +
+      "<p style='margin:0 0 12px'><strong>申请金额</strong> " +
+      M.esc(da(tr, "apply-amt")) +
+      " · <strong>手续费</strong> " +
+      M.esc(da(tr, "fee")) +
+      " · <strong>实际到账金额</strong> " +
+      M.esc(da(tr, "act-arrival")) +
+      "</p>" +
+      "<div style='margin:0 0 14px;padding:10px 12px;background:#fafafa;border:1px solid #f0f0f0;border-radius:6px'>" +
+      auditDestHtml(tr) +
+      "</div>" +
+      "<label style='display:block;font-size:12px;color:rgba(0,0,0,.55);margin-bottom:6px'>审核备注（选填）</label>" +
+      "<textarea id='wdrAuditRemark' class='ant-input' rows='3' style='width:100%;resize:vertical' placeholder='可填写风控补充说明、与客户沟通记录等'></textarea>" +
+      "</div>";
+
+    M.open({
+      title: "提现审核 · " + no,
+      wide: true,
+      body: body,
+      footer: [
+        {
+          text: "拒绝",
+          danger: true,
+          onClick: function () {
+            var rm = document.getElementById("wdrAuditRemark");
+            var t = rm ? String(rm.value).trim() : "";
+            M.close();
+            M.toast("已拒绝该提现" + (t ? "（备注已记录）" : "") + "（原型）");
+            if (auditTargetTr) {
+              auditTargetTr.setAttribute("data-needs-audit", "0");
+              auditTargetTr.setAttribute("data-status-label", "失败");
+              auditTargetTr.setAttribute("data-audit-result", "拒绝");
+              auditTargetTr.setAttribute("data-auditor", "当前操作员（原型）");
+              auditTargetTr.setAttribute("data-audit-time", new Date().toISOString().slice(0, 19).replace("T", " "));
+              auditTargetTr.setAttribute("data-audit-remark", t || "—");
+              auditTargetTr.setAttribute("data-third-status", "—");
+              var sc = auditTargetTr.querySelector(".js-wd-status-cell");
+              if (sc) sc.innerHTML = '<span class="ant-tag ant-tag-red">失败</span>';
+              var thirdTd = auditTargetTr.cells[13];
+              if (thirdTd) thirdTd.textContent = "—";
+              var ops = auditTargetTr.querySelector(".ord-wd-ops");
+              if (ops) {
+                ops.innerHTML =
+                  '<button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button>';
+              }
+            }
+            auditTargetTr = null;
+          }
+        },
+        { text: "关闭", onClick: M.close },
+        {
+          text: "通过",
+          primary: true,
+          onClick: function () {
+            var rm = document.getElementById("wdrAuditRemark");
+            var t = rm ? String(rm.value).trim() : "";
+            M.close();
+            M.toast(
+              "审核已通过；已提交链上/法币打款（原型）。三方到账回传：处理中" +
+                (t ? "；备注已写入" : "")
+            );
+            if (auditTargetTr) {
+              auditTargetTr.setAttribute("data-needs-audit", "0");
+              auditTargetTr.setAttribute("data-status-label", "打款中");
+              auditTargetTr.setAttribute("data-audit-result", "通过");
+              auditTargetTr.setAttribute("data-auditor", "当前操作员（原型）");
+              auditTargetTr.setAttribute("data-audit-time", new Date().toISOString().slice(0, 19).replace("T", " "));
+              auditTargetTr.setAttribute("data-audit-remark", t || "—");
+              auditTargetTr.setAttribute("data-third-status", "处理中（已提交打款）");
+              var sc = auditTargetTr.querySelector(".js-wd-status-cell");
+              if (sc) sc.innerHTML = '<span class="ant-tag ant-tag-blue">打款中</span>';
+              var thirdTd = auditTargetTr.cells[13];
+              if (thirdTd) thirdTd.textContent = "处理中（已提交打款）";
+              var ops = auditTargetTr.querySelector(".ord-wd-ops");
+              if (ops) {
+                ops.innerHTML =
+                  '<button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ord-dtl">详情</button>';
+              }
+            }
+            auditTargetTr = null;
+          }
+        }
+      ],
+      onMount: function () {
+        var el = document.getElementById("wdrAuditRemark");
+        if (el) el.focus();
+      }
+    });
+  }
+
   document.getElementById("ordWdrExport").addEventListener("click", function () {
     M.open({
       title: "导出提现订单",
-      body: "<p style='margin:0'>导出字段含风控命中、打款回执 ID（如有）。</p>",
+      body:
+        "<p style='margin:0'>导出字段含收款银行卡号/银行/货币、链上地址与网络、实际到账金额、三方到账回传、审核人/时间/备注/结果及失败原因等。</p>",
       footer: [
         { text: "取消", onClick: M.close },
         {
@@ -73,21 +508,28 @@
     M.toast("已查询（原型）");
   });
   document.querySelector("main.admin-content").addEventListener("click", function (e) {
-    if (!e.target.classList.contains("js-ord-dtl")) return;
-    var no = e.target.closest("tr").getAttribute("data-no");
-    M.open({
-      title: "提现订单详情 · " + no,
-      wide: true,
-      body:
-        "<table style='width:100%;border-collapse:collapse;font-size:13px;border:1px solid #f0f0f0'>" +
-        "<tr><th style='padding:8px;background:#fafafa;width:28%'>订单号</th><td style='padding:8px'><code>" +
-        M.esc(no) +
-        "</code></td></tr>" +
-        "<tr><th style='padding:8px;background:#fafafa'>收款信息</th><td style='padding:8px'>脱敏展示 · 与三方同步状态</td></tr>" +
-        "<tr><th style='padding:8px;background:#fafafa'>审核记录</th><td style='padding:8px'>系统自动风控通过 → 财务打款中</td></tr></table>",
-      footer: [{ text: "关闭", primary: true, onClick: M.close }]
-    });
+    if (e.target.classList.contains("js-ord-dtl")) {
+      var tr = e.target.closest("tr");
+      if (tr) openDetail(tr);
+      return;
+    }
+    if (e.target.classList.contains("js-wdr-audit")) {
+      var tr2 = e.target.closest("tr");
+      if (!tr2 || tr2.getAttribute("data-needs-audit") !== "1") return;
+      openAuditModal(tr2);
+      return;
+    }
+    if (e.target.closest && e.target.closest(".js-pager-go")) {
+      var p = e.target.closest(".js-pager-go").getAttribute("data-page");
+      M.toast("切换至第 " + p + " 页（原型）");
+    }
   });
+  var ps = document.getElementById("ordWdrPageSize");
+  if (ps) {
+    ps.addEventListener("change", function () {
+      M.toast("每页 " + ps.value + " 条（原型）");
+    });
+  }
 })();
 </script>
 </body>
