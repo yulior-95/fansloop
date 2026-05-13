@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>KYC 审核列表 · FansLoop 运营</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/funds-flow.css">
+<link rel="stylesheet" href="../css-web/recharge-flow.css">
+<style>
+.admin-wrap { max-width: 1200px; }
+.status-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700;
+}
+.status-pill.machine { background: rgba(59,130,246,0.2); color: #93C5FD; border: 1px solid rgba(59,130,246,0.35); }
+.status-pill.human { background: rgba(245,158,11,0.15); color: #FCD34D; border: 1px solid rgba(245,158,11,0.35); }
+.status-pill.ok { background: rgba(16,185,129,0.18); color: #6EE7B7; border: 1px solid rgba(16,185,129,0.35); }
+.status-pill.bad { background: rgba(239,68,68,0.15); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.35); }
+
+.audit-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.audit-table th, .audit-table td {
+    padding: 12px 10px; text-align: left; border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+.audit-table th { color: var(--t-tertiary); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; }
+.row-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.row-actions .btn { padding: 6px 10px; font-size: 11px; }
+.empty-audit {
+    padding: 40px 20px; text-align: center; color: var(--t-tertiary); font-size: 13px;
+    border: 1px dashed var(--border); border-radius: var(--r-md); margin-top: 12px;
+}
+</style>
+<link rel="stylesheet" href="../css-web/global-lang-switch.css">
+<script src="../js-web/global-lang-switch.js" defer></script>
+<script src="../js-web/kyc-store.js"></script>
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>运营后台</span></div></div>
+        <div class="s-section">合规</div>
+        <div class="s-item active"><span class="ic"><i class="fa-solid fa-user-shield"></i></span><span class="lb">KYC 审核</span></div>
+        <div class="s-item" onclick="location.href='withdraw-fiat.html'"><span class="ic"><i class="fa-solid fa-arrow-left"></i></span><span class="lb">返回用户提现</span></div>
+        <div class="s-bottom">
+            <div class="s-user"><div class="av" style="background-image: url('https://images.unsplash.com/photo-1560250097-0b93528c311a?w=80')"></div><div class="info"><div class="n">审核员</div><div class="e">Ops</div></div></div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索工单 / 用户 UID…</span></div>
+        <div class="h-actions">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> 刷新</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1560250097-0b93528c311a?w=80')"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <div class="crumb"><span class="curr">KYC 审核列表</span></div>
+                <h1>KYC 审核队列</h1>
+                <p>与「法币提现」页共用浏览器 <code style="font-size:11px">localStorage</code> 演示数据：用户提交后在此模拟<strong>机审</strong>与<strong>人工</strong>结论。</p>
+            </div>
+            <div class="ph-r">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="if(confirm('清空演示 KYC 与审核记录？')){localStorage.removeItem('fansloop_kyc');localStorage.removeItem('fansloop_kyc_audit_log');location.reload();}"><i class="fa-solid fa-trash-can"></i> 清空演示数据</button>
+            </div>
+        </div>
+
+        <div class="admin-wrap">
+            <div class="card" style="padding:20px 22px;margin-bottom:18px">
+                <h4 style="margin:0 0 12px;font-size:13px;font-weight:800"><i class="fa-solid fa-gauge-high" style="color:#C084FC"></i> 当前用户 KYC 状态（本机）</h4>
+                <div id="kycStateBanner" style="font-size:13px;color:var(--t-secondary);line-height:1.65"></div>
+            </div>
+
+            <div class="card" style="padding:0;overflow:hidden">
+                <div style="padding:16px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+                    <h4 style="margin:0;font-size:13px;font-weight:800"><i class="fa-solid fa-list-check"></i> 审核记录</h4>
+                    <span style="font-size:11px;color:var(--t-tertiary)">仅原型 · 无真实接口</span>
+                </div>
+                <div style="overflow-x:auto">
+                    <table class="audit-table" id="auditTable">
+                        <thead>
+                            <tr>
+                                <th>单号</th>
+                                <th>时间</th>
+                                <th>用户</th>
+                                <th>渠道</th>
+                                <th>阶段</th>
+                                <th>状态</th>
+                                <th style="min-width:200px">处置</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditTbody"></tbody>
+                    </table>
+                </div>
+                <div class="empty-audit" id="auditEmpty" style="display:none">暂无记录。请在「提现到银行卡」完成 KYC 提交流程后刷新本页。</div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="admToast" class="toast-mini" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+    var KS = window.FansloopKycStore;
+    if (!KS) return;
+
+    function readKyc() {
+        return KS.readKyc();
+    }
+    function writeKyc(partial) {
+        KS.writeKyc(partial);
+    }
+    function readLog() {
+        return KS.readAuditLog();
+    }
+    function writeLog(arr) {
+        KS.writeAuditLog(arr);
+    }
+    function pushLog(row) {
+        var a = readLog();
+        a.unshift(row);
+        writeLog(a.slice(0, 80));
+    }
+
+    function toast(msg) {
+        var t = document.getElementById('admToast');
+        if (!t) return;
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._h);
+        t._h = setTimeout(function () { t.classList.remove('show'); }, 2400);
+    }
+
+    function renderBanner() {
+        var k = readKyc();
+        var el = document.getElementById('kycStateBanner');
+        var status = k.status || 'none';
+        var stage = k.stage || '';
+        var map = {
+            none: '未发起 / 未通过认证',
+            submitted: stage === 'human' ? '机审未通过，已进入人工审核' : '已提交，机审处理中',
+            approved: '已通过 KYC，可进行法币提现',
+            rejected: '认证未通过：' + (k.rejectReason ? k.rejectReason + ' — ' : '') + '用户可重新发起'
+        };
+        el.innerHTML = '<div><strong style="color:#fff">status:</strong> ' + status + ' &nbsp;·&nbsp; <strong style="color:#fff">stage:</strong> ' + (stage || '—') + '</div><div style="margin-top:6px">' + (map[status] || map.none) + '</div>';
+    }
+
+    function pillFor(row) {
+        var st = row.status || '';
+        if (st === '机审通过' || st === '人工通过') return '<span class="status-pill ok"><i class="fa-solid fa-check"></i>' + st + '</span>';
+        if (st === '人工拒绝' || st === '已驳回') return '<span class="status-pill bad"><i class="fa-solid fa-xmark"></i>' + st + '</span>';
+        if (st === '转人工') return '<span class="status-pill human"><i class="fa-solid fa-user-headset"></i>转人工</span>';
+        if (st === '待处理') return '<span class="status-pill machine"><i class="fa-solid fa-robot"></i>待机审</span>';
+        return '<span style="color:var(--t-secondary)">' + (st || '—') + '</span>';
+    }
+
+    function actionsForRow(row, k) {
+        var isLatest = k.lastId && row.id === k.lastId;
+        if (!isLatest || k.status !== 'submitted') return '—';
+
+        if (k.stage === 'machine') {
+            return '<div class="row-actions">' +
+                '<button type="button" class="btn btn-primary btn-sm" data-act="machine_ok" data-id="' + row.id + '">机审通过</button>' +
+                '<button type="button" class="btn btn-secondary btn-sm" data-act="machine_fail" data-id="' + row.id + '">机审不通过 → 人工</button>' +
+                '</div>';
+        }
+        if (k.stage === 'human') {
+            return '<div class="row-actions">' +
+                '<button type="button" class="btn btn-primary btn-sm" data-act="human_ok" data-id="' + row.id + '">人工通过</button>' +
+                '<button type="button" class="btn btn-secondary btn-sm" data-act="human_reject" data-id="' + row.id + '">拒绝</button>' +
+                '</div>';
+        }
+        return '—';
+    }
+
+    function renderTable() {
+        var log = readLog();
+        var k = readKyc();
+        var tb = document.getElementById('auditTbody');
+        var empty = document.getElementById('auditEmpty');
+        tb.innerHTML = '';
+        if (!log.length) {
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+        log.forEach(function (row) {
+            var tr = document.createElement('tr');
+            tr.innerHTML =
+                '<td style="font-family:ui-monospace,monospace;font-size:11px">' + (row.id || '—') + '</td>' +
+                '<td>' + (row.time || '—') + '</td>' +
+                '<td>' + (row.user || '—') + '</td>' +
+                '<td>' + (row.channel || '—') + '</td>' +
+                '<td>' + (row.pipeline || '—') + '</td>' +
+                '<td>' + pillFor(row) + '</td>' +
+                '<td>' + actionsForRow(row, k) + '</td>';
+            tb.appendChild(tr);
+        });
+
+        tb.querySelectorAll('[data-act]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var act = btn.getAttribute('data-act');
+                var id = btn.getAttribute('data-id');
+                if (act === 'machine_ok') {
+                    writeKyc({ status: 'approved', stage: null, rejectReason: null });
+                    pushLog({ id: id + '-R', time: new Date().toLocaleString('zh-CN'), user: '系统', channel: 'KYC', pipeline: '机审', status: '机审通过', note: '规则引擎自动放行' });
+                    toast('机审通过，用户 KYC 已完成');
+                } else if (act === 'machine_fail') {
+                    writeKyc({ status: 'submitted', stage: 'human' });
+                    pushLog({ id: id + '-R', time: new Date().toLocaleString('zh-CN'), user: '系统', channel: 'KYC', pipeline: '机审', status: '转人工', note: '命中复核规则 / 黑名单抽检等（演示）' });
+                    toast('已转入人工审核队列');
+                } else if (act === 'human_ok') {
+                    writeKyc({ status: 'approved', stage: null, rejectReason: null });
+                    pushLog({ id: id + '-H', time: new Date().toLocaleString('zh-CN'), user: '审核员', channel: 'KYC', pipeline: '人工', status: '人工通过', note: '人工核验通过' });
+                    toast('人工已通过');
+                } else                 if (act === 'human_reject') {
+                    var reason = prompt('请输入审核不通过原因（将回传用户端展示）', '证件信息与人脸比对不一致，请重新拍摄清晰证件后提交。');
+                    if (reason === null) return;
+                    writeKyc({ status: 'rejected', stage: null, rejectReason: reason });
+                    pushLog({ id: id + '-H', time: new Date().toLocaleString('zh-CN'), user: '审核员', channel: 'KYC', pipeline: '人工', status: '人工拒绝', note: reason });
+                    toast('已拒绝该 KYC');
+                }
+                renderBanner();
+                renderTable();
+            });
+        });
+    }
+
+    renderBanner();
+    renderTable();
+})();
+</script>
+</body>
+</html>

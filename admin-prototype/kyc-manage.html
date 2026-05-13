@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KYC 管理 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="kyc-manage">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 用户管理 / KYC 管理</span></div>
+      <div class="admin-header-right"><div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>合规审核</span></div></div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">KYC 管理</h1>
+      <p class="admin-page-desc">用户在前台「设置 / 分步认证页 / 提现弹窗」提交的 KYC 申请在此汇总。机审规则：证件清晰度、真伪校验、人脸与证件一致性；<strong>机审无法判定则转人工</strong>，人工可备注并通过或拒绝（原因回传用户端）。</p>
+      <div class="admin-toolbar">
+        <span class="ant-input-affix-wrapper" style="width:220px"><input class="ant-input" id="kycQ" placeholder="UID / 单号 / 用户昵称"></span>
+        <button type="button" class="ant-btn ant-btn-primary" id="kycSearch">查询</button>
+        <button type="button" class="ant-btn" id="kycClearDemo">清空演示数据</button>
+      </div>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-bordered ant-table-middle">
+            <table style="width:100%">
+              <thead class="ant-table-thead">
+                <tr><th>单号</th><th>提交时间</th><th>用户</th><th>来源渠道</th><th>机审 / 人工</th><th>状态</th><th>操作</th></tr>
+              </thead>
+              <tbody class="ant-table-tbody" id="kycTbody"></tbody>
+            </table>
+          </div>
+          <div id="kycEmpty" style="display:none;padding:40px;text-align:center;color:#999">暂无 KYC 申请。可在用户站 <code>pages-web/kyc-submit-success.html</code> 或提现页完成一次提交后刷新。</div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="../js-web/kyc-store.js"></script>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script>
+(function () {
+  var KS = window.FansloopKycStore;
+  var M = window.AdminModal;
+  function pill(st) {
+    if (!st) return "—";
+    if (st.indexOf("通过") !== -1) return '<span class="ant-tag ant-tag-green">' + st + "</span>";
+    if (st.indexOf("拒绝") !== -1 || st.indexOf("驳回") !== -1) return '<span class="ant-tag ant-tag-red">' + st + "</span>";
+    if (st.indexOf("人工") !== -1 || st === "转人工") return '<span class="ant-tag ant-tag-orange">' + st + "</span>";
+    return '<span class="ant-tag">' + st + "</span>";
+  }
+  function render() {
+    var rows = KS.readAuditLog().filter(function (r) {
+      var ch = r.channel || "";
+      var pip = r.pipeline || "";
+      return ch.indexOf("KYC") !== -1 || ch.indexOf("提现") !== -1 || pip === "机审" || pip === "人工";
+    });
+    var tb = document.getElementById("kycTbody");
+    var empty = document.getElementById("kycEmpty");
+    tb.innerHTML = "";
+    if (!rows.length) {
+      empty.style.display = "block";
+      return;
+    }
+    empty.style.display = "none";
+    rows.forEach(function (r) {
+      var tr = document.createElement("tr");
+      var idEnc = encodeURIComponent(r.id || "");
+      tr.innerHTML =
+        "<td><code style='font-size:11px'>" + (r.id || "—") + "</code></td>" +
+        "<td>" + (r.time || "—") + "</td>" +
+        "<td>" + (r.user || "—") + "</td>" +
+        "<td>" + (r.channel || "—") + "</td>" +
+        "<td>" + (r.pipeline || "—") + "</td>" +
+        "<td>" + pill(r.status) + "</td>" +
+        "<td><a class='ant-btn ant-btn-link ant-btn-sm' href='kyc-detail.html?id=" + idEnc + "'>详情</a></td>";
+      tb.appendChild(tr);
+    });
+  }
+  document.getElementById("kycSearch").addEventListener("click", function () {
+    M.toast("已查询（原型）：列表来自本机 localStorage");
+  });
+  document.getElementById("kycClearDemo").addEventListener("click", function () {
+    if (!confirm("清空 fansloop_kyc 与审核流水？")) return;
+    localStorage.removeItem(KS.KYC_STORE);
+    localStorage.removeItem(KS.AUDIT_LOG);
+    M.toast("已清空");
+    render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>

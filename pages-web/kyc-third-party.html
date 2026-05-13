@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>三方联网核查 · KYC · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/kyc-subpages.css">
+</head>
+<body>
+<div class="kyc-lite-shell">
+    <header class="kyc-lite-top">
+        <div class="brand"><span class="lg"><i class="fa-solid fa-shield-halved"></i></span> 三方核查</div>
+        <a id="linkBack" href="#">上一步</a>
+    </header>
+    <main class="kyc-lite-main">
+        <div class="kyc-flow-max">
+            <div class="kyc-step-bar">
+                <div class="step done">1</div>
+                <div class="step done">2</div>
+                <div class="step on">3 联网核查</div>
+                <div class="step">4</div>
+                <div class="step">5</div>
+            </div>
+            <div class="card" style="padding:22px 24px;margin-bottom:18px">
+                <h2 style="margin:0 0 12px;font-size:17px;font-weight:800"><i class="fa-solid fa-building-shield" style="color:#38bdf8"></i> 身份证联网核查</h2>
+                <p style="margin:0;font-size:13px;color:var(--t-secondary);line-height:1.65">对接合规服务商进行 OCR、真伪与要素校验。原型中点击下方按钮模拟<strong>核查通过</strong>；真实环境将自动跳转下一步。</p>
+            </div>
+            <div class="card" style="padding:18px;background:var(--bg-input);margin-bottom:18px">
+                <div style="font-size:12px;color:var(--t-secondary);line-height:1.7">
+                    <i class="fa-solid fa-server" style="color:#C084FC"></i> VerifyID · Request ID <code style="font-size:11px">req_</code><span id="rid"></span><br>
+                    校验项：证件有效期、网纹、姓名与 FansLoop 账户实名一致性（示意）。
+                </div>
+            </div>
+            <button type="button" class="btn btn-secondary btn-block" id="btnSim" style="margin-bottom:12px"><i class="fa-solid fa-check-double"></i> 模拟三方核查通过</button>
+            <button type="button" class="btn btn-primary btn-block btn-lg" id="btnNext" disabled><i class="fa-solid fa-arrow-right"></i> 下一步：人脸识别</button>
+        </div>
+    </main>
+    <footer class="kyc-lite-foot">FansLoop 原型</footer>
+</div>
+<script src="../js-web/kyc-flow-nav.js"></script>
+<script>
+(function () {
+    document.getElementById("linkBack").href = window.KycFlowNav.hrefWithRet("kyc-upload-id.html");
+    document.getElementById("rid").textContent = Math.random().toString(36).slice(2, 14);
+    document.getElementById("btnSim").addEventListener("click", function () {
+        document.getElementById("btnNext").disabled = false;
+        this.innerHTML = '<i class="fa-solid fa-circle-check"></i> 已通过（模拟）';
+    });
+    document.getElementById("btnNext").addEventListener("click", function () {
+        location.href = window.KycFlowNav.hrefWithRet("kyc-face-verify.html");
+    });
+})();
+</script>
+</body>
+</html>

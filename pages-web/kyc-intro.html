@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>KYC 身份验证 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/kyc-subpages.css">
+</head>
+<body>
+<div class="kyc-lite-shell">
+    <header class="kyc-lite-top">
+        <div class="brand"><span class="lg"><i class="fa-solid fa-infinity"></i></span> FansLoop · KYC</div>
+        <a id="linkBack" href="settings.html"><i class="fa-solid fa-arrow-left"></i> 返回</a>
+    </header>
+    <main class="kyc-lite-main">
+        <div class="kyc-flow-max">
+            <div class="kyc-step-bar">
+                <div class="step on">1 说明</div>
+                <div class="step">2 证件</div>
+                <div class="step">3 联网核查</div>
+                <div class="step">4 人脸</div>
+                <div class="step">5 提交</div>
+            </div>
+            <div class="kyc-hero">
+                <div class="ic"><i class="fa-solid fa-id-card"></i></div>
+                <div>
+                    <h2>KYC 身份验证</h2>
+                    <p>用于满足合规要求，并在你进行<strong>法币提现</strong>与<strong>钱包链上提现</strong>前完成身份核验。流程包含：上传身份证正反面 → 三方联网核查 → 人脸识别（支持复制链接到手机浏览器）→ 提交后台机审 / 人工审核。</p>
+                </div>
+            </div>
+            <div class="card" style="padding:22px 24px;margin-bottom:18px">
+                <h4 style="margin:0 0 12px;font-size:14px;font-weight:800"><i class="fa-solid fa-list-check" style="color:#C084FC"></i> 开始前请准备</h4>
+                <ul style="margin:0;padding-left:18px;font-size:13px;color:var(--t-secondary);line-height:1.85">
+                    <li>有效期内的二代身份证</li>
+                    <li>光线充足、网络稳定的环境</li>
+                    <li>若电脑摄像头不可用，可在人脸识别步骤生成<strong>手机识别链接</strong></li>
+                </ul>
+            </div>
+            <div class="kyc-actions-row">
+                <a class="btn btn-primary" id="btnStart" href="#"><i class="fa-solid fa-arrow-right"></i> 开始认证</a>
+                <a class="btn btn-secondary" id="btnStatus" href="kyc-status.html"><i class="fa-solid fa-signal"></i> 查看当前状态</a>
+            </div>
+        </div>
+    </main>
+    <footer class="kyc-lite-foot">FansLoop 原型 · 数据仅存于本机浏览器 localStorage</footer>
+</div>
+<script src="../js-web/kyc-flow-nav.js"></script>
+<script>
+(function () {
+    var r = window.KycFlowNav.retParam();
+    document.getElementById("linkBack").href = r || "settings.html";
+    document.getElementById("btnStart").href = window.KycFlowNav.hrefWithRet("kyc-upload-id.html");
+    var rs = window.KycFlowNav.retParam();
+    document.getElementById("btnStatus").href = "kyc-status.html" + (rs ? "?return=" + encodeURIComponent(rs) : "");
+})();
+</script>
+</body>
+</html>

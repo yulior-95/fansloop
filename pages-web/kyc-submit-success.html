@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>已提交审核 · KYC · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/kyc-subpages.css">
+</head>
+<body>
+<div class="kyc-lite-shell">
+    <header class="kyc-lite-top">
+        <div class="brand"><span class="lg"><i class="fa-solid fa-paper-plane"></i></span> 提交成功</div>
+        <a id="linkBack" href="settings.html">关闭</a>
+    </header>
+    <main class="kyc-lite-main">
+        <div class="kyc-flow-max">
+            <div class="kyc-step-bar">
+                <div class="step done">1</div>
+                <div class="step done">2</div>
+                <div class="step done">3</div>
+                <div class="step done">4</div>
+                <div class="step on">5 审核中</div>
+            </div>
+            <div class="card" style="padding:26px 24px;text-align:center;border-color:rgba(245,158,11,0.35);background:rgba(245,158,11,0.06)">
+                <div style="font-size:42px;margin-bottom:10px;color:#FCD34D"><i class="fa-solid fa-hourglass-half"></i></div>
+                <h1 style="margin:0 0 10px;font-size:20px;font-weight:800">KYC 已提交，状态：审核中</h1>
+                <p style="margin:0;font-size:13px;color:var(--t-secondary);line-height:1.65">系统将进行<strong>机器审核</strong>（清晰度、真伪、人脸与证件一致性）；无法自动判定则转入<strong>人工审核</strong>。结果将同步至本页与「设置」中的 KYC 入口。</p>
+            </div>
+            <div class="card" style="padding:18px 20px;margin-top:18px;font-size:12px;color:var(--t-secondary);line-height:1.7">
+                <div><strong style="color:#fff">单号</strong> <span id="kid" style="font-family:ui-monospace,monospace"></span></div>
+                <div style="margin-top:6px"><strong style="color:#fff">时间</strong> <span id="kt"></span></div>
+            </div>
+            <div class="kyc-actions-row">
+                <a class="btn btn-primary" id="btnReturn" href="settings.html"><i class="fa-solid fa-wallet"></i> 返回来源页面</a>
+                <a class="btn btn-secondary" href="kyc-status.html"><i class="fa-solid fa-signal"></i> 查看认证状态</a>
+            </div>
+        </div>
+    </main>
+    <footer class="kyc-lite-foot">审核人可在运营后台「KYC 管理」处置本条申请</footer>
+</div>
+<script src="../js-web/kyc-store.js"></script>
+<script src="../js-web/kyc-flow-nav.js"></script>
+<script>
+(function () {
+    var KS = window.FansloopKycStore;
+    if (!KS) return;
+    var ret = window.KycFlowNav.retParam();
+    document.getElementById("linkBack").href = ret || "settings.html";
+    if (ret && ret !== "settings.html") document.getElementById("btnReturn").href = ret;
+
+    var confirm = new URLSearchParams(location.search).get("confirm") === "1";
+    var k = KS.readKyc();
+
+    function fill(id, t) {
+        document.getElementById("kid").textContent = id;
+        document.getElementById("kt").textContent = t;
+    }
+
+    if (!confirm) {
+        if (k.status === "submitted" && k.lastId) {
+            fill(k.lastId, "已提交（刷新本页不会重复创建）");
+        } else {
+            fill("—", "—");
+            document.querySelector("h1").textContent = "请按顺序完成认证";
+            document.querySelector(".card p").textContent = "请从「人脸识别」步骤完成后自动跳转至本页；若直接打开本链接，将不会重复提交。";
+        }
+        return;
+    }
+
+    var id = "KYC-" + Date.now();
+    KS.writeKyc({
+        status: "submitted",
+        stage: "machine",
+        lastId: id,
+        rejectReason: null,
+        idCardFront: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&q=80",
+        idCardBack: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80",
+        faceSnapshot: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face"
+    });
+    var t = new Date().toLocaleString("zh-CN");
+    KS.pushAudit({
+        id: id,
+        time: t,
+        user: "Luna 🌙",
+        channel: "KYC 分步页",
+        pipeline: "机审",
+        status: "待处理",
+        note: "证件 + 人脸已完成，待机审"
+    });
+    fill(id, t);
+    try {
+        var u = new URL(location.href);
+        u.searchParams.delete("confirm");
+        history.replaceState({}, "", u.pathname + u.search + u.hash);
+    } catch (e) {}
+})();
+</script>
+</body>
+</html>

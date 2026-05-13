@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="../css-web/common-web.css">
 <link rel="stylesheet" href="../css-web/funds-moonpay.css">
 <link rel="stylesheet" href="../css-web/funds-flow.css">
+<link rel="stylesheet" href="../css-web/recharge-flow.css">
 <style>
 .fiat-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; max-width: 1280px; }
 @media (max-width: 1100px) { .fiat-grid { grid-template-columns: 1fr; } }
@@ -81,15 +82,7 @@
     border-radius: var(--r-lg); padding: 28px; margin-bottom: 18px;
 }
 .amt-input .lbl { font-size: 12px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; font-weight: 600; }
-.amt-input .input-row { display: flex; align-items: baseline; gap: 8px; }
-.amt-input .input-row .currency { font-size: 32px; color: var(--t-secondary); font-weight: 700; }
-.amt-input .input-row input {
-    flex: 1; background: transparent; border: none;
-    font-size: 56px; font-weight: 900; color: #fff;
-    letter-spacing: -1.5px; outline: none;
-    font-variant-numeric: tabular-nums; min-width: 0;
-}
-.amt-input .input-row .unit { font-size: 18px; color: var(--t-tertiary); font-weight: 600; }
+.amt-input .input-row { display: flex; align-items: baseline; gap: 10px; }
 .amt-input .equiv { font-size: 13px; color: var(--t-tertiary); margin-top: 6px; }
 .amt-input .equiv b { color: var(--success-light); }
 
@@ -101,6 +94,87 @@
     font-size: 13px; font-weight: 600; transition: 0.15s;
 }
 .preset-grid .pst.active { background: var(--brand-grad); color: #fff; border-color: transparent; }
+
+#payMethodRoot { position: relative; z-index: 50; }
+#payMethodRoot .currency-combo-list { z-index: 80; }
+.pay-method-dd .pay-method-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+    box-sizing: border-box;
+}
+.pay-method-dd .pay-method-trigger .pm-label.is-ph { color: var(--t-tertiary); font-weight: 500; }
+
+#payMethodMissingModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2147483640;
+    isolation: isolate;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0,0,0,0.68);
+    backdrop-filter: blur(8px);
+}
+#payMethodMissingModal.open { display: flex; }
+.pay-miss-dialog {
+    width: 100%;
+    max-width: 400px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-lg);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.55);
+    padding: 22px 22px 18px;
+}
+.pay-miss-dialog h3 {
+    margin: 0 0 10px;
+    font-size: 17px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.pay-miss-dialog h3 i { color: #FBBF24; }
+.pay-miss-dialog p { margin: 0 0 16px; font-size: 13px; color: var(--t-secondary); line-height: 1.55; }
+.pay-miss-actions { display: flex; flex-direction: column; gap: 10px; }
+.pay-miss-actions .btn { width: 100%; justify-content: center; }
+
+.amt-input .input-row .fiat-amt-field {
+    flex: 1;
+    min-width: 0;
+    background: rgba(255,255,255,0.07);
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--r-md);
+    padding: 8px 12px;
+}
+.amt-input .input-row .fiat-amt-field input {
+    width: 100%;
+    box-sizing: border-box;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 42px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -1px;
+    font-variant-numeric: tabular-nums;
+    min-width: 0;
+}
+.amt-input .input-row .unit-trailing {
+    font-size: 18px;
+    color: var(--t-tertiary);
+    font-weight: 700;
+    flex-shrink: 0;
+    min-width: 40px;
+    text-align: right;
+}
+
+#fiatGlobalToast.toast-mini { z-index: 2147483646; }
 
 </style>
 
@@ -172,7 +246,7 @@
 
                 <div class="card" style="padding: 22px 24px; margin-bottom: 18px">
                     <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 10px">支付货币</h4>
-                    <div id="fiatCurrencyCombo">
+                    <div id="fiatCurrencyCombo" data-sym-id="fiatSymNoneX" data-unit-id="fiatAmtUnit">
                         <input type="hidden" name="fiat_currency" value="EUR" />
                         <div class="currency-combo-wrap">
                             <input type="text" class="currency-combo-input" placeholder="输入代码或名称搜索，如 EUR、美元…" autocomplete="off" />
@@ -184,12 +258,17 @@
 
                 <div class="card" style="padding: 22px 24px; margin-bottom: 18px">
                     <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 12px">支付方式</h4>
-                    <div class="combo-shell">
-                        <select class="native-select" id="payMethodSelect">
-                            <option value="debit">借记卡（Visa · ****8821）</option>
-                            <option value="credit">信用卡（Mastercard · ****4420）</option>
-                            <option value="__add">＋ 添加新支付方式</option>
-                        </select>
+                    <div id="payMethodRoot" class="currency-combo-wrap pay-method-dd">
+                        <input type="hidden" id="payMethodValue" name="pay_method" value="" />
+                        <button type="button" class="currency-combo-input pay-method-trigger" id="payMethodBtn" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="pm-label is-ph" id="payMethodLabel" style="flex:1;text-align:left;font-weight:600">请选择支付方式</span>
+                            <i class="fa-solid fa-chevron-down" style="opacity:0.55;font-size:11px;flex-shrink:0"></i>
+                        </button>
+                        <div class="currency-combo-list" id="payMethodDropdown" role="listbox">
+                            <button type="button" class="currency-combo-item" data-value="debit"><span class="cc-code"><i class="fa-brands fa-cc-visa"></i></span><span class="cc-name">借记卡（Visa · ****8821）</span></button>
+                            <button type="button" class="currency-combo-item" data-value="credit"><span class="cc-code"><i class="fa-brands fa-cc-mastercard"></i></span><span class="cc-name">信用卡（Mastercard · ****4420）</span></button>
+                            <button type="button" class="currency-combo-item" data-value="__add"><span class="cc-code" style="color:var(--success-light)">＋</span><span class="cc-name">添加新支付方式</span></button>
+                        </div>
                     </div>
                     <p class="field-help" style="margin-top:10px;font-size:11px;color:var(--t-tertiary)">选择「添加新支付方式」将前往绑定银行卡并完成实名核验。</p>
                 </div>
@@ -197,9 +276,10 @@
                 <div class="amt-input">
                     <div class="lbl"><span>支付金额（法币）</span></div>
                     <div class="input-row">
-                        <span class="currency" id="fiatCurrencySymbol">€</span>
-                        <input type="text" value="180.00" />
-                        <span class="unit" id="fiatUnitLabel">EUR</span>
+                        <div class="fiat-amt-field">
+                            <input type="text" id="fiatPayAmount" value="" placeholder="0.00" inputmode="decimal" autocomplete="off" />
+                        </div>
+                        <span class="unit-trailing" id="fiatAmtUnit">EUR</span>
                     </div>
                     <div class="equiv">≈ <b>212.40 USDT</b> · 参考实时汇率 1 EUR ≈ 1.18 USDT，<b style="color:var(--t-secondary)">以成交时的实际汇率为准</b></div>
                     <div class="preset-grid">
@@ -218,8 +298,7 @@
                             <div style="font-size:13px;font-weight:700;margin-bottom:6px">FansLoop 托管清算账户 · EUR</div>
                             <div style="font-size:12px;color:var(--t-secondary);line-height:1.55;font-family:ui-monospace,monospace">
                                 IBAN：DE89 3704 0044 0532 0130 00<br>
-                                BIC：COBADEFFXXX · Commerzbank AG<br>
-                                附言请填写订单号（下单后展示）
+                                BIC：COBADEFFXXX · Commerzbank AG
                             </div>
                             <span class="tag tag-warning" style="font-size:10px;margin-top:8px;display:inline-block">仅用于本次法币充值入账</span>
                         </div>
@@ -237,7 +316,7 @@
                             <span class="v num t-grad" style="font-size: 18px; font-weight: 800">≈ 210.05 USDT</span>
                         </div>
                     </div>
-                    <button class="btn btn-primary btn-block btn-lg" style="margin-top: 18px" onclick="location.href='modal-recharge-fiat-moonpay.html'">
+                    <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top: 18px" id="btnFiatSubmit">
                         <i class="fa-solid fa-paper-plane"></i>提交购买订单
                     </button>
                     <p style="font-size:11px;color:var(--t-tertiary);margin-top:10px;text-align:center">在安全收银台完成确认后，将校验平台二次密码并创建订单。</p>
@@ -259,7 +338,7 @@
                             </div>
                             <div style="display:flex; align-items: flex-start; gap: 8px; padding: 6px 0">
                                 <i class="fa-solid fa-circle-check" style="color: var(--success-light); margin-top: 3px"></i>
-                                <span>异常请在 <a href="transaction-detail.html" style="color:var(--brand-purple)">订单详情</a> 发起申诉并上传回执</span>
+                                <span>异常请在 <b style="color:#fff">订单详情</b> 发起申诉并上传回执（此处为说明文案，不可点击跳转）</span>
                             </div>
                         </div>
                     </div>
@@ -269,12 +348,98 @@
     </main>
 </div>
 
+<div id="payMethodMissingModal" role="dialog" aria-modal="true" aria-labelledby="payMissTitle">
+    <div class="pay-miss-dialog" onclick="event.stopPropagation()">
+        <h3 id="payMissTitle"><i class="fa-solid fa-triangle-exclamation"></i>请先选择支付方式</h3>
+        <p>提交订单前需要选择一张已绑定的银行卡或添加新的支付方式。</p>
+        <div class="pay-miss-actions">
+            <button type="button" class="btn btn-primary" id="btnAddPayFromModal"><i class="fa-solid fa-plus"></i>添加新的支付方式</button>
+            <button type="button" class="btn btn-secondary" id="payModalDismiss">我知道了</button>
+        </div>
+    </div>
+</div>
+<div id="fiatGlobalToast" class="toast-mini" role="status" aria-live="polite"></div>
+
 <script>
-document.getElementById('payMethodSelect').addEventListener('change', function () {
-    if (this.value === '__add') {
-        location.href = 'recharge-fiat-bind.html';
+(function () {
+    var root = document.getElementById('payMethodRoot');
+    var btn = document.getElementById('payMethodBtn');
+    var dropdown = document.getElementById('payMethodDropdown');
+    var hiddenPay = document.getElementById('payMethodValue');
+    var label = document.getElementById('payMethodLabel');
+    var modal = document.getElementById('payMethodMissingModal');
+
+    function showFiatToast(msg) {
+        var t = document.getElementById('fiatGlobalToast');
+        if (!t) return;
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._h);
+        t._h = setTimeout(function () { t.classList.remove('show'); }, 2600);
     }
-});
+    function openPayModal() { if (modal) modal.classList.add('open'); }
+    function closePayModal() { if (modal) modal.classList.remove('open'); }
+
+    if (btn && dropdown && root) {
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var open = dropdown.classList.toggle('open');
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        dropdown.querySelectorAll('[data-value]').forEach(function (el) {
+            el.addEventListener('click', function () {
+                var v = el.getAttribute('data-value');
+                if (v === '__add') {
+                    location.href = 'recharge-fiat-bind.html';
+                    return;
+                }
+                if (hiddenPay) hiddenPay.value = v;
+                var nameEl = el.querySelector('.cc-name');
+                if (label && nameEl) {
+                    label.textContent = nameEl.textContent;
+                    label.classList.remove('is-ph');
+                }
+                dropdown.classList.remove('open');
+                btn.setAttribute('aria-expanded', 'false');
+            });
+        });
+        document.addEventListener('click', function () {
+            dropdown.classList.remove('open');
+            if (btn) btn.setAttribute('aria-expanded', 'false');
+        });
+        root.addEventListener('click', function (e) { e.stopPropagation(); });
+    }
+
+    if (modal) {
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) closePayModal();
+        });
+    }
+    document.getElementById('payModalDismiss') && document.getElementById('payModalDismiss').addEventListener('click', closePayModal);
+    document.getElementById('btnAddPayFromModal') && document.getElementById('btnAddPayFromModal').addEventListener('click', function () {
+        location.href = 'recharge-fiat-bind.html';
+    });
+
+    document.getElementById('btnFiatSubmit') && document.getElementById('btnFiatSubmit').addEventListener('click', function () {
+        var pay = hiddenPay && hiddenPay.value;
+        if (!pay) {
+            openPayModal();
+            return;
+        }
+        var curHidden = document.querySelector('#fiatCurrencyCombo input[type="hidden"]');
+        if (!curHidden || !String(curHidden.value).trim()) {
+            showFiatToast('请先选择支付货币');
+            return;
+        }
+        var amtInp = document.getElementById('fiatPayAmount');
+        var raw = amtInp ? amtInp.value.replace(/,/g, '').trim() : '';
+        if (!raw || !/^[\d.]+$/.test(raw) || parseFloat(raw) <= 0) {
+            showFiatToast('请先输入支付金额');
+            return;
+        }
+        location.href = 'modal-recharge-fiat-moonpay.html';
+    });
+})();
 </script>
 </body>
 </html>

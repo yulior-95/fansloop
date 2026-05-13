@@ -1,0 +1,127 @@
+/**
+ * 研发批注 · 玻璃球 + 气泡（全站统一）
+ * — 视觉与交互对齐 pages-web/recharge.html 网络费用旁示例
+ * — 用法：外层 .dev-glass-wrap，球体 .dev-glass-sphere（tabindex="0" + aria-describedby），
+ *   高光 .dev-glass-sphere-shine，文案 .dev-glass-sphere-txt 固定「To 研发」，气泡 .dev-glass-pop（id 与 aria 配对）
+ * — 交互：悬停 .dev-glass-wrap 或球体获焦（focus-within）显示气泡；移出隐藏
+ */
+
+.dev-glass-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+
+.dev-glass-sphere {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.42) 0%,
+        rgba(255, 255, 255, 0.06) 38%,
+        rgba(168, 85, 247, 0.35) 72%,
+        rgba(236, 72, 153, 0.22) 100%
+    );
+    box-shadow:
+        0 4px 18px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.55),
+        inset 0 -2px 6px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    outline: none;
+}
+
+.dev-glass-sphere-shine {
+    position: absolute;
+    top: 6px;
+    left: 9px;
+    width: 14px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.75), transparent);
+    opacity: 0.65;
+    pointer-events: none;
+}
+
+.dev-glass-sphere-txt {
+    position: relative;
+    z-index: 1;
+    font-size: 8.5px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+    max-width: 34px;
+}
+
+.dev-glass-pop {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 10px);
+    transform: translateX(-50%) translateY(4px);
+    width: max-content;
+    max-width: min(260px, 70vw);
+    padding: 10px 12px;
+    background: rgba(22, 22, 34, 0.96);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--t-secondary);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+        opacity 0.18s ease,
+        visibility 0.18s ease,
+        transform 0.18s ease;
+    z-index: 400;
+}
+
+.dev-glass-pop::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -6px;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(22, 22, 34, 0.96);
+}
+
+.dev-glass-wrap:hover .dev-glass-pop,
+.dev-glass-wrap:focus-within .dev-glass-pop {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+}
+
+/* 贴右对齐时避免气泡贴边裁切：可在外层加 .dev-glass-wrap--align-end */
+.dev-glass-wrap--align-end .dev-glass-pop {
+    left: auto;
+    right: 0;
+    transform: translateX(0) translateY(4px);
+}
+.dev-glass-wrap--align-end:hover .dev-glass-pop,
+.dev-glass-wrap--align-end:focus-within .dev-glass-pop {
+    transform: translateX(0) translateY(0);
+}
+.dev-glass-wrap--align-end .dev-glass-pop::after {
+    left: auto;
+    right: 14px;
+    transform: none;
+}

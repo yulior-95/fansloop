@@ -152,7 +152,7 @@ main.content { padding: 28px 24px 48px; }
         <a href="#recharge"><i class="fa-solid fa-arrow-down"></i>充值</a>
         <a href="#withdraw"><i class="fa-solid fa-arrow-up"></i>提现</a>
         <a href="#appeal"><i class="fa-solid fa-gavel"></i>申诉</a>
-        <a href="#funds-extra"><i class="fa-solid fa-layer-group"></i>记录 / 工具页</a>
+        <a href="#kyc"><i class="fa-solid fa-id-card"></i>KYC / 提现门槛</a>
         <div class="sec">资产</div>
         <a href="pages-web/transactions.html" target="_blank"><i class="fa-solid fa-list-ul"></i>账变记录</a>
         <a href="pages-web/transaction-detail.html" target="_blank"><i class="fa-solid fa-file-invoice"></i>账单详情</a>
@@ -162,9 +162,86 @@ main.content { padding: 28px 24px 48px; }
         <section class="block" id="ux">
             <h2><i class="fa-solid fa-compass"></i>用户体验与信息架构（摘要）</h2>
             <p class="lead">
-                <strong>目标：</strong>用户在单一品牌内完成充值 / 提现；对外不暴露底层清算服务商，订单与余额均在 FansLoop 呈现。
-                <strong>链路：</strong>钱包 → 选型（钱包充值 / 法币充值）→ 安全收银台确认 → 平台二次校验 → 账变入账；异常走统一申诉工单。
+                <strong>用户侧：</strong>创作者订阅、内容发现、钱包与法币/链上充提、消息与通知、个人主页与设置（含兴趣标签与账户安全）。
+                <strong>合规 KYC：</strong>设置中在兴趣标签下提供「KYC 身份验证」入口；未完成或审核中则拦截法币提现与钱包链上提现，通过后资料区展示「身份验证通过」标签。
+                <strong>运营侧：</strong>后台「KYC 管理」承接机审与人工队列，详情页可查看证件与人脸快照、进度与备注。
             </p>
+        </section>
+
+        <section class="block" id="kyc">
+            <h2><i class="fa-solid fa-id-card"></i>KYC 身份验证与提现门槛</h2>
+            <p class="lead">
+                <strong>核心逻辑：</strong>默认未验证；用户上传身份证正反面 → 三方联网核查 → 人脸识别（可生成手机链接）→ 提交后状态为「审核中」；后台机审或人工回传通过/不通过，不通过时展示原因并允许重新发起；通过后个人资料展示实名标签。
+                <strong>提现：</strong><code>withdraw-fiat.html</code> 与 <code>withdraw-usdt.html</code> 提交前校验 KYC；未完成弹窗引导，审核中 Toast 拦截。
+                <strong>后台：</strong><code>admin-prototype/kyc-manage.html</code> 列表 + <code>kyc-detail.html</code> 材料与处置（与 <code>kyc-admin-list.html</code> 共用 localStorage）。
+            </p>
+            <div class="grid">
+                <div class="tile">
+                    <div class="th">settings.html（含 KYC 行） <a href="pages-web/settings.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:520px"><iframe src="pages-web/settings.html" title="设置" loading="lazy"></iframe></div>
+                    <div class="tf">兴趣标签下方 · KYC 入口 · 通过后头像区标签</div>
+                </div>
+                <div class="tile">
+                    <div class="th">kyc-intro.html <a href="pages-web/kyc-intro.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:440px"><iframe src="pages-web/kyc-intro.html" title="KYC 说明" loading="lazy"></iframe></div>
+                    <div class="tf">分步认证起点 · return 参数回跳</div>
+                </div>
+                <div class="tile">
+                    <div class="th">kyc-upload-id.html</div>
+                    <div class="tb" style="height:480px"><iframe src="pages-web/kyc-upload-id.html" title="证件上传" loading="lazy"></iframe></div>
+                    <div class="tf">身份证正反面 · Unsplash 真实图</div>
+                </div>
+                <div class="tile">
+                    <div class="th">kyc-third-party.html</div>
+                    <div class="tb" style="height:420px"><iframe src="pages-web/kyc-third-party.html" title="三方核查" loading="lazy"></iframe></div>
+                    <div class="tf">模拟 VerifyID 联网核查</div>
+                </div>
+                <div class="tile">
+                    <div class="th">kyc-face-verify.html</div>
+                    <div class="tb" style="height:520px"><iframe src="pages-web/kyc-face-verify.html" title="人脸识别" loading="lazy"></iframe></div>
+                    <div class="tf">手机链接 · 复制 · 完成确认</div>
+                </div>
+                <div class="tile">
+                    <div class="th">kyc-face-mobile.html</div>
+                    <div class="tb" style="height:480px"><iframe src="pages-web/kyc-face-mobile.html?token=demo" title="手机人脸页" loading="lazy"></iframe></div>
+                    <div class="tf">手机浏览器识别会话（示意）</div>
+                </div>
+                <div class="tile">
+                    <div class="th">kyc-submit-success.html（需 confirm=1 才写入，直接 iframe 为只读提示）</div>
+                    <div class="tb" style="height:380px"><iframe src="pages-web/kyc-submit-success.html" title="提交页" loading="lazy"></iframe></div>
+                    <div class="tf">从人脸页带 confirm=1 进入才落库</div>
+                </div>
+                <div class="tile">
+                    <div class="th">kyc-status.html</div>
+                    <div class="tb" style="height:360px"><iframe src="pages-web/kyc-status.html" title="状态" loading="lazy"></iframe></div>
+                    <div class="tf">审核中 / 拒绝原因 / 重新发起</div>
+                </div>
+                <div class="tile">
+                    <div class="th">withdraw-fiat.html（KYC 弹窗）</div>
+                    <div class="tb"><iframe src="pages-web/withdraw-fiat.html" title="法币提现" loading="lazy"></iframe></div>
+                    <div class="tf">请先完成 KYC · 快捷弹窗 / 分步页链接</div>
+                </div>
+                <div class="tile">
+                    <div class="th">withdraw-usdt.html（KYC 门槛）</div>
+                    <div class="tb"><iframe src="pages-web/withdraw-usdt.html" title="钱包提现" loading="lazy"></iframe></div>
+                    <div class="tf">链上提现同样要求 KYC</div>
+                </div>
+                <div class="tile">
+                    <div class="th">admin kyc-manage.html</div>
+                    <div class="tb" style="height:420px"><iframe src="admin-prototype/kyc-manage.html" title="KYC 后台列表" loading="lazy"></iframe></div>
+                    <div class="tf">银行卡同级菜单 · 列表 · 跳转详情</div>
+                </div>
+                <div class="tile">
+                    <div class="th">admin kyc-detail.html</div>
+                    <div class="tb" style="height:560px"><iframe src="admin-prototype/kyc-detail.html" title="KYC 详情" loading="lazy"></iframe></div>
+                    <div class="tf">证件/人脸图 · 流水 · 人工备注与通过/拒绝</div>
+                </div>
+                <div class="tile">
+                    <div class="th">kyc-admin-list.html（用户壳 · 机审按钮）</div>
+                    <div class="tb"><iframe src="pages-web/kyc-admin-list.html" title="KYC 审核" loading="lazy"></iframe></div>
+                    <div class="tf">与后台共用存储 · 机审通过/转人工/人工结论</div>
+                </div>
+            </div>
         </section>
 
         <section class="block" id="recharge">
@@ -206,12 +283,27 @@ main.content { padding: 28px 24px 48px; }
 
         <section class="block" id="withdraw">
             <h2><i class="fa-solid fa-building-columns"></i>提现（USDT → 银行卡 / 链上）</h2>
-            <p class="lead">银行卡与链上提现的原型切片：收银台确认、费率拆分示意、短信与资金密码步骤。</p>
+            <p class="lead">法币提现含到账货币必选、借记卡自定义下拉、KYC 校验与金额输入区强调样式；KYC 审核列表与提现页共用本机存储模拟机审与人工处置。</p>
             <div class="grid">
                 <div class="tile">
-                    <div class="th">withdraw-fiat.html</div>
+                    <div class="th">withdraw-fiat.html <a href="pages-web/withdraw-fiat.html" target="_blank">新窗口</a></div>
                     <div class="tb"><iframe src="pages-web/withdraw-fiat.html" title="法币提现" loading="lazy"></iframe></div>
-                    <div class="tf">多币种收款 · 借记卡 · 双段手续费</div>
+                    <div class="tf">提交校验 · 借记卡缺失弹窗 · 内嵌 recharge-fiat-bind 绑卡 iframe · 提交旁 To 研发批注</div>
+                </div>
+                <div class="tile">
+                    <div class="th">recharge-fiat-bind.html <a href="pages-web/recharge-fiat-bind.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:560px"><iframe src="pages-web/recharge-fiat-bind.html" title="法币绑卡" loading="lazy"></iframe></div>
+                    <div class="tf">提现页「添加收款方式」iframe 同源嵌入此页</div>
+                </div>
+                <div class="tile">
+                    <div class="th">kyc-admin-list.html <a href="pages-web/kyc-admin-list.html" target="_blank">新窗口</a></div>
+                    <div class="tb"><iframe src="pages-web/kyc-admin-list.html" title="KYC 审核列表" loading="lazy"></iframe></div>
+                    <div class="tf">机审通过 / 机审转人工 / 人工通过或拒绝</div>
+                </div>
+                <div class="tile">
+                    <div class="th">withdraw-recipient-add.html</div>
+                    <div class="tb" style="height:520px"><iframe src="pages-web/withdraw-recipient-add.html" title="添加收款方式" loading="lazy"></iframe></div>
+                    <div class="tf">绑卡向导 · 保存返回提现</div>
                 </div>
                 <div class="tile">
                     <div class="th">withdraw-usdt.html</div>

@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="../css-web/funds-moonpay.css">
 <link rel="stylesheet" href="../css-web/funds-flow.css">
 <link rel="stylesheet" href="../css-web/recharge-flow.css">
+<link rel="stylesheet" href="../css-web/kyc-modals.css">
 <style>
 body.page-withdraw-web .app-main { overflow: visible; }
 .wd-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; max-width: 1280px; }
@@ -237,7 +238,7 @@ body.page-withdraw-web .app-main { overflow: visible; }
                         <div class="kv-row"><span class="k">接收地址</span><span class="v num" id="kvWdAddr" style="font-size:11px">TG3X…aSJozs</span></div>
                         <div class="kv-row" style="border-bottom: none"><span class="k" style="color:#fff;font-weight:600">参考净到账</span><span class="v num t-grad" id="kvWdRecv" style="font-size: 18px; font-weight: 800">198.60 USDT</span></div>
                     </div>
-                    <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top: 18px" onclick="location.href='modal-withdraw-chain-moonpay.html'">
+                    <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top: 18px" id="btnWdSubmitUsdt">
                         <i class="fa-solid fa-paper-plane"></i> 提交提现订单
                     </button>
                 </div>
@@ -261,5 +262,95 @@ body.page-withdraw-web .app-main { overflow: visible; }
         </div>
     </main>
 </div>
+
+<div id="kycNeedModal" role="dialog" aria-modal="true" aria-labelledby="kycNeedTitle">
+    <div class="kyc-need-dialog" onclick="event.stopPropagation()">
+        <h3 id="kycNeedTitle"><i class="fa-solid fa-id-card-clip"></i>请先完成 KYC 认证</h3>
+        <p>根据合规要求，钱包链上提现前需完成身份证件核验与人脸识别。</p>
+        <div class="kyc-need-actions">
+            <button type="button" class="btn btn-primary" id="btnKycGoVerify"><i class="fa-solid fa-user-check"></i>去认证</button>
+            <button type="button" class="btn btn-secondary" id="kycNeedDismiss">取消</button>
+        </div>
+        <div class="kyc-need-extra">
+            <a href="kyc-intro.html?return=withdraw-usdt.html"><i class="fa-solid fa-window-restore"></i> 打开分步认证页面</a>
+        </div>
+    </div>
+</div>
+
+<div id="kycWizardModal" role="dialog" aria-modal="true" aria-labelledby="kycWizTitle">
+    <div class="kyc-wizard-shell" onclick="event.stopPropagation()">
+        <div class="kyc-wizard-head">
+            <h3 id="kycWizTitle"><i class="fa-solid fa-shield-heart" style="color:#C084FC"></i> KYC 认证</h3>
+            <button type="button" class="close-x" id="kycWizClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="kyc-wizard-body">
+            <div class="kyc-steps" id="kycStepRail">
+                <div class="ks active" data-i="1">证件</div>
+                <div class="ks" data-i="2">联网核查</div>
+                <div class="ks" data-i="3">人脸识别</div>
+                <div class="ks" data-i="4">提交审核</div>
+            </div>
+
+            <div class="kyc-panel active" data-step="1">
+                <p class="kyc-note">请上传身份证人像面与国徽面。以下为示意配图。</p>
+                <div class="kyc-upload-grid">
+                    <div class="kyc-upload-tile" id="kycUpFront">
+                        <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=80" alt="身份证人像面示意" />
+                        <div class="cap"><i class="fa-regular fa-image"></i> 人像面 · 点击模拟已选择</div>
+                    </div>
+                    <div class="kyc-upload-tile" id="kycUpBack">
+                        <img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=80" alt="身份证国徽面示意" />
+                        <div class="cap"><i class="fa-regular fa-image"></i> 国徽面 · 点击模拟已选择</div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary btn-block" id="kycStep1Next" disabled><i class="fa-solid fa-arrow-right"></i>下一步</button>
+            </div>
+
+            <div class="kyc-panel" data-step="2">
+                <p class="kyc-note">正在对接三方身份证联网核查（OCR + 要素校验）…</p>
+                <div class="card" style="padding:14px;margin-bottom:14px;background:var(--bg-input)">
+                    <div style="font-size:12px;color:var(--t-secondary);line-height:1.6">
+                        <i class="fa-solid fa-spinner fa-spin" style="color:#C084FC"></i> 模拟请求：<strong>VerifyID API</strong><br>
+                        核查项：证件真伪、有效期、姓名与 FansLoop 实名一致性。
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-block" id="kycSimIdOk" style="margin-bottom:10px"><i class="fa-solid fa-check-double"></i>模拟核查通过</button>
+                <button type="button" class="btn btn-primary btn-block" id="kycStep2Next" disabled><i class="fa-solid fa-arrow-right"></i>下一步</button>
+            </div>
+
+            <div class="kyc-panel" data-step="3">
+                <p class="kyc-note">请在光线充足环境下完成活体检测。若电脑摄像头不可用，可生成链接在手机浏览器完成。</p>
+                <button type="button" class="btn btn-secondary btn-block" id="kycGenFaceLink" style="margin-bottom:10px"><i class="fa-solid fa-link"></i>生成手机人脸识别链接</button>
+                <div class="kyc-link-box" id="kycFaceLinkBox" style="display:none"></div>
+                <p class="kyc-note" style="font-size:11px">链接由 FansLoop 安全域签发，一次性有效。</p>
+                <button type="button" class="btn btn-primary btn-block" id="kycFaceDone" disabled><i class="fa-solid fa-mobile-screen-button"></i>我已在手机 / 本机完成人脸识别</button>
+            </div>
+
+            <div class="kyc-panel" data-step="4">
+                <p class="kyc-note">材料已提交后台，系统将先进行<strong>机器自动审核</strong>；无法判定则转入<strong>人工审核</strong>。</p>
+                <div class="card" style="padding:16px;background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.35);margin-bottom:14px">
+                    <div style="font-size:13px;font-weight:700;color:#6EE7B7;margin-bottom:6px"><i class="fa-solid fa-circle-check"></i> 识别通过，待提交审核</div>
+                    <div style="font-size:12px;color:var(--t-secondary);line-height:1.55">当前状态：<span id="kycSubmitStatusLabel">待机审</span></div>
+                </div>
+                <button type="button" class="btn btn-primary btn-block" id="kycFinishSubmit"><i class="fa-solid fa-paper-plane"></i>提交审核</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="wdGlobalToastUsdt" class="toast-mini" role="status" aria-live="polite"></div>
+
+<script src="../js-web/kyc-store.js"></script>
+<script src="../js-web/kyc-withdraw-gate.js"></script>
+<script>
+(function () {
+    if (!window.FansloopKycWithdrawBootstrap || !window.FansloopKycWithdrawGate) return;
+    FansloopKycWithdrawBootstrap.wireKycWizard({ toastId: 'wdGlobalToastUsdt', channel: '钱包提现' });
+    document.getElementById('btnWdSubmitUsdt').addEventListener('click', function () {
+        if (!FansloopKycWithdrawGate.kycGate()) return;
+        location.href = 'modal-withdraw-chain-moonpay.html';
+    });
+})();
+</script>
 </body>
 </html>

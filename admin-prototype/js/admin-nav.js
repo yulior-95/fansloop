@@ -23,7 +23,8 @@
         { key: "users-assets", href: "users-assets.html", icon: "fa-coins", label: "用户资产" },
         { key: "users-ledger", href: "users-ledger.html", icon: "fa-receipt", label: "账变记录" },
         { key: "users-address-book", href: "users-address-book.html", icon: "fa-wallet", label: "地址簿" },
-        { key: "users-bank-cards", href: "users-bank-cards.html", icon: "fa-credit-card", label: "银行卡" }
+        { key: "users-bank-cards", href: "users-bank-cards.html", icon: "fa-credit-card", label: "银行卡" },
+        { key: "kyc-manage", href: "kyc-manage.html", icon: "fa-id-card", label: "KYC 管理" }
       ]
     },
     {

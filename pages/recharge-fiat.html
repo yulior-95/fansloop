@@ -280,20 +280,86 @@
     background: rgba(10,10,18,0.95);
     backdrop-filter: blur(20px);
     border-top: 0.5px solid var(--border-color);
-    z-index: 20;
+    z-index: 30;
 }
+
+.fiat-field {
+    margin: 0 16px 12px;
+}
+.fiat-field .lb {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+.fiat-field select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.pay-miss-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0,0,0,0.55);
+}
+.pay-miss-layer.open { display: flex; }
+.pay-miss-card {
+    width: 100%;
+    max-width: 320px;
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 18px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+}
+.pay-miss-card h3 { margin: 0 0 8px; font-size: 17px; font-weight: 700; }
+.pay-miss-card p { margin: 0 0 14px; font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+.mob-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 108px;
+    transform: translateX(-50%);
+    padding: 10px 16px;
+    background: rgba(0,0,0,0.9);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 2147483646;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    max-width: 92vw;
+    text-align: center;
+}
+.mob-toast.show { opacity: 1; }
 
 /* =========================================
    未绑卡 · 快捷弹窗 overlay
    ========================================= */
 .bind-overlay {
-    position: absolute;
+    position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.6);
-    z-index: 100;
-    display: flex;
+    z-index: 2147482000;
+    display: none;
     align-items: flex-end;
     animation: fadeIn 0.3s ease;
+}
+.bind-overlay.open {
+    display: flex;
 }
 @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
 
@@ -500,6 +566,22 @@
         <div class="s active"><i class="fa-solid fa-yen-sign"></i> 法币 (¥)</div>
     </div>
 
+    <div class="fiat-field">
+        <div class="lb">支付方式</div>
+        <select id="mobPayMethod">
+            <option value="">请选择支付方式</option>
+            <option value="cmb">招商银行 储蓄卡 ****2025</option>
+            <option value="__add">＋ 添加新的支付方式</option>
+        </select>
+    </div>
+    <div class="fiat-field">
+        <div class="lb">支付货币</div>
+        <select id="mobPayCurrency">
+            <option value="">请选择支付货币</option>
+            <option value="CNY">CNY 人民币</option>
+        </select>
+    </div>
+
     <!-- 金额 -->
     <div class="amount-card">
         <div class="label">充值金额</div>
@@ -527,7 +609,7 @@
     <!-- 银行卡 -->
     <div class="section-title">
         <span>付款方式</span>
-        <span class="more">管理银行卡 <i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
+        <span class="more" onclick="document.getElementById('bindOverlay').classList.add('open')">管理银行卡 <i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
     </div>
 
     <div class="bank-card">
@@ -597,14 +679,23 @@
 </div>
 
 <div class="submit-bar">
-    <button class="btn btn-primary btn-block">
+    <button type="button" class="btn btn-primary btn-block" id="mobFiatSubmit">
         <i class="fa-solid fa-lock"></i>
-        提交充值订单 · ¥500
+        提交购买订单
     </button>
 </div>
 
+<div id="payMissMob" class="pay-miss-layer" role="dialog" aria-modal="true">
+    <div class="pay-miss-card">
+        <h3>请先选择支付方式</h3>
+        <p>请选择已绑定的银行卡，或添加新的支付方式。</p>
+        <button type="button" class="btn btn-primary btn-block" id="mobBtnAddPay">添加新的支付方式</button>
+        <button type="button" class="btn btn-secondary btn-block" id="mobPayMissClose">取消</button>
+    </div>
+</div>
+
 <!-- ==================== 未绑卡提示弹窗 ==================== -->
-<div class="bind-overlay">
+<div id="bindOverlay" class="bind-overlay">
     <div class="bind-sheet">
         <div class="grab"></div>
 
@@ -653,8 +744,8 @@
 
         <!-- 按钮 -->
         <div class="bind-btn-row">
-            <button class="bind-btn secondary">暂不绑定</button>
-            <button class="bind-btn primary">
+            <button type="button" class="bind-btn secondary" id="bindDismiss">暂不绑定</button>
+            <button type="button" class="bind-btn primary" onclick="location.href='recharge-fiat-bind.html'">
                 <i class="fa-solid fa-paper-plane"></i>
                 获取验证码并绑定
             </button>
@@ -667,5 +758,58 @@
 </div>
 
 <div class="home-indicator"></div>
+<div id="mobToast" class="mob-toast" role="status" aria-live="polite"></div>
+<script>
+(function () {
+    function toast(msg) {
+        var t = document.getElementById('mobToast');
+        if (!t) return;
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._x);
+        t._x = setTimeout(function () { t.classList.remove('show'); }, 2400);
+    }
+    var paySel = document.getElementById('mobPayMethod');
+    if (paySel) {
+        paySel.addEventListener('change', function () {
+            if (this.value === '__add') location.href = 'recharge-fiat-bind.html';
+        });
+    }
+    var bind = document.getElementById('bindOverlay');
+    document.getElementById('bindDismiss') && document.getElementById('bindDismiss').addEventListener('click', function () {
+        if (bind) bind.classList.remove('open');
+    });
+    if (bind) {
+        bind.addEventListener('click', function (e) {
+            if (e.target === bind) bind.classList.remove('open');
+        });
+    }
+    var payMiss = document.getElementById('payMissMob');
+    function closePayMiss() { if (payMiss) payMiss.classList.remove('open'); }
+    document.getElementById('mobPayMissClose') && document.getElementById('mobPayMissClose').addEventListener('click', closePayMiss);
+    if (payMiss) payMiss.addEventListener('click', function (e) { if (e.target === payMiss) closePayMiss(); });
+    document.getElementById('mobBtnAddPay') && document.getElementById('mobBtnAddPay').addEventListener('click', function () {
+        location.href = 'recharge-fiat-bind.html';
+    });
+    document.getElementById('mobFiatSubmit') && document.getElementById('mobFiatSubmit').addEventListener('click', function () {
+        if (!paySel || !paySel.value) {
+            if (payMiss) payMiss.classList.add('open');
+            return;
+        }
+        var cur = document.getElementById('mobPayCurrency');
+        if (!cur || !cur.value) {
+            toast('请先选择支付货币');
+            return;
+        }
+        var inp = document.querySelector('.amount-card .input');
+        var raw = inp ? String(inp.value).replace(/,/g, '').trim() : '';
+        if (!raw || !/^[\d.]+$/.test(raw) || parseFloat(raw) <= 0) {
+            toast('请先输入支付金额');
+            return;
+        }
+        toast('校验通过（原型）');
+    });
+})();
+</script>
 </body>
 </html>

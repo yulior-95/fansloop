@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>人脸识别 · KYC · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/kyc-subpages.css">
+</head>
+<body>
+<div class="kyc-lite-shell">
+    <header class="kyc-lite-top">
+        <div class="brand"><span class="lg"><i class="fa-solid fa-face-smile"></i></span> 人脸识别</div>
+        <a id="linkBack" href="#">上一步</a>
+    </header>
+    <main class="kyc-lite-main">
+        <div class="kyc-flow-max">
+            <div class="kyc-step-bar">
+                <div class="step done">1</div>
+                <div class="step done">2</div>
+                <div class="step done">3</div>
+                <div class="step on">4 人脸</div>
+                <div class="step">5</div>
+            </div>
+            <h1 style="font-size:20px;font-weight:800;margin:0 0 8px">活体检测与人脸比对</h1>
+            <p style="font-size:13px;color:var(--t-secondary);margin:0 0 18px">请正对摄像头完成识别。若<strong>电脑摄像头不可用</strong>，可使用下方入口生成链接，在手机浏览器中完成。</p>
+            <div class="kyc-face-preview">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=480&fit=crop&crop=face" alt="人脸识别示意" />
+            </div>
+            <div class="card" style="padding:16px 18px;margin-bottom:14px">
+                <button type="button" class="btn btn-secondary btn-block" id="btnGen"><i class="fa-solid fa-link"></i> 生成手机人脸识别链接</button>
+                <div class="kyc-link-box" id="linkBox" style="display:none;margin-top:12px"></div>
+                <p style="font-size:11px;color:var(--t-tertiary);margin:10px 0 0;line-height:1.5">链接一次性有效。任意设备完成后，回到本页点击「已完成识别」。</p>
+            </div>
+            <div class="kyc-mobile-hint">
+                <strong>小入口</strong>：复制链接发送到手机微信 / 备忘录，在手机 Safari 或 Chrome 中打开即可完成识别（原型中打开独立页模拟）。
+            </div>
+            <div class="kyc-actions-row" style="margin-top:22px">
+                <button type="button" class="btn btn-secondary" id="btnCopy" disabled><i class="fa-regular fa-copy"></i> 复制链接</button>
+                <button type="button" class="btn btn-primary" id="btnDone" disabled><i class="fa-solid fa-check"></i> 我已完成人脸识别</button>
+            </div>
+            <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top:16px" id="btnNext" disabled><i class="fa-solid fa-arrow-right"></i> 下一步：提交审核</button>
+        </div>
+    </main>
+    <footer class="kyc-lite-foot">示意头像：Unsplash</footer>
+</div>
+<script src="../js-web/kyc-flow-nav.js"></script>
+<script>
+(function () {
+    document.getElementById("linkBack").href = window.KycFlowNav.hrefWithRet("kyc-third-party.html");
+    var url = "";
+    document.getElementById("btnGen").addEventListener("click", function () {
+        var token = "face_" + Math.random().toString(36).slice(2, 12);
+        url = new URL("kyc-face-mobile.html?token=" + encodeURIComponent(token), location.href).href;
+        var box = document.getElementById("linkBox");
+        box.style.display = "block";
+        box.textContent = url;
+        localStorage.setItem("fansloop_kyc_face_demo_url", url);
+        document.getElementById("btnCopy").disabled = false;
+        document.getElementById("btnDone").disabled = false;
+    });
+    document.getElementById("btnCopy").addEventListener("click", function () {
+        if (!url) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(function () {
+                alert("已复制到剪贴板");
+            });
+        } else {
+            prompt("复制以下链接", url);
+        }
+    });
+    document.getElementById("btnDone").addEventListener("click", function () {
+        document.getElementById("btnNext").disabled = false;
+    });
+    document.getElementById("btnNext").addEventListener("click", function () {
+        var base = window.KycFlowNav.hrefWithRet("kyc-submit-success.html");
+        var sep = base.indexOf("?") >= 0 ? "&" : "?";
+        location.href = base + sep + "confirm=1";
+    });
+})();
+</script>
+</body>
+</html>

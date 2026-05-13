@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>上传证件 · KYC · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/kyc-subpages.css">
+</head>
+<body>
+<div class="kyc-lite-shell">
+    <header class="kyc-lite-top">
+        <div class="brand"><span class="lg"><i class="fa-solid fa-infinity"></i></span> 上传身份证</div>
+        <a id="linkBack" href="kyc-intro.html">上一步</a>
+    </header>
+    <main class="kyc-lite-main">
+        <div class="kyc-flow-max">
+            <div class="kyc-step-bar">
+                <div class="step done">1</div>
+                <div class="step on">2 证件</div>
+                <div class="step">3</div>
+                <div class="step">4</div>
+                <div class="step">5</div>
+            </div>
+            <h1 style="font-size:20px;font-weight:800;margin:0 0 8px">上传身份证正反面</h1>
+            <p style="font-size:13px;color:var(--t-secondary);margin:0 0 20px;line-height:1.55">请确保证件边框完整、文字清晰。以下为高清示意图片，点击即模拟「已从本机选择」。</p>
+            <div class="kyc-upload-lg">
+                <div class="tile" id="tileFront" role="button" tabindex="0">
+                    <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=900&q=85" alt="身份证人像面" />
+                    <div class="lbl"><i class="fa-regular fa-id-card"></i> 人像面（正面）</div>
+                </div>
+                <div class="tile" id="tileBack" role="button" tabindex="0">
+                    <img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=900&q=85" alt="身份证国徽面" />
+                    <div class="lbl"><i class="fa-solid fa-landmark"></i> 国徽面（背面）</div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary btn-block btn-lg" id="btnNext" disabled><i class="fa-solid fa-arrow-right"></i> 下一步：三方联网核查</button>
+        </div>
+    </main>
+    <footer class="kyc-lite-foot">示意图源：Unsplash</footer>
+</div>
+<script src="../js-web/kyc-flow-nav.js"></script>
+<script>
+(function () {
+    document.getElementById("linkBack").href = window.KycFlowNav.hrefWithRet("kyc-intro.html");
+    var f = false,
+        b = false;
+    function sync() {
+        document.getElementById("btnNext").disabled = !(f && b);
+    }
+    document.getElementById("tileFront").addEventListener("click", function () {
+        f = true;
+        this.classList.add("ok");
+        sync();
+    });
+    document.getElementById("tileBack").addEventListener("click", function () {
+        b = true;
+        this.classList.add("ok");
+        sync();
+    });
+    document.getElementById("btnNext").addEventListener("click", function () {
+        location.href = window.KycFlowNav.hrefWithRet("kyc-third-party.html");
+    });
+})();
+</script>
+</body>
+</html>

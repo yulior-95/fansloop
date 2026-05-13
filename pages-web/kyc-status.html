@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>KYC 认证状态 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/kyc-subpages.css">
+</head>
+<body>
+<div class="kyc-lite-shell">
+    <header class="kyc-lite-top">
+        <div class="brand"><span class="lg"><i class="fa-solid fa-signal"></i></span> 认证状态</div>
+        <a id="linkBack" href="settings.html">返回</a>
+    </header>
+    <main class="kyc-lite-main">
+        <div class="kyc-flow-max">
+            <div id="blockNone" class="card" style="padding:22px;display:none">
+                <h2 style="margin:0 0 8px;font-size:17px">未发起认证</h2>
+                <p style="margin:0 0 16px;font-size:13px;color:var(--t-secondary)">你尚未提交 KYC 材料。</p>
+                <a class="btn btn-primary" href="kyc-intro.html">去认证</a>
+            </div>
+            <div id="blockSub" class="card" style="padding:22px;display:none;border-color:rgba(245,158,11,0.35)">
+                <h2 style="margin:0 0 8px;font-size:17px"><i class="fa-solid fa-hourglass-half" style="color:#FCD34D"></i> 审核中</h2>
+                <p style="margin:0 0 12px;font-size:13px;color:var(--t-secondary)">机审 / 人工审核进行中，请耐心等待。完成后将自动更新本页。</p>
+                <div style="font-size:12px;color:var(--t-tertiary)" id="subMeta"></div>
+            </div>
+            <div id="blockOk" class="card" style="padding:22px;display:none;border-color:rgba(16,185,129,0.4)">
+                <h2 style="margin:0 0 8px;font-size:17px;color:#6EE7B7"><i class="fa-solid fa-circle-check"></i> 已通过</h2>
+                <p style="margin:0;font-size:13px;color:var(--t-secondary)">身份验证已通过，可进行提现等受控操作。</p>
+            </div>
+            <div id="blockBad" class="card" style="padding:22px;display:none;border-color:rgba(239,68,68,0.4)">
+                <h2 style="margin:0 0 8px;font-size:17px;color:#FCA5A5"><i class="fa-solid fa-circle-xmark"></i> 审核未通过</h2>
+                <p style="margin:0 0 12px;font-size:13px;color:var(--t-secondary)">你可根据原因修正材料后重新发起认证。</p>
+                <div class="card" style="padding:14px;background:var(--bg-input);margin-bottom:14px;font-size:12.5px;line-height:1.65;color:var(--t-secondary)">
+                    <strong style="color:#fff">失败原因</strong><br /><span id="rejReason"></span>
+                </div>
+                <a class="btn btn-primary" href="kyc-intro.html">重新发起认证</a>
+            </div>
+        </div>
+    </main>
+    <footer class="kyc-lite-foot">与提现页、运营后台共用 localStorage 演示数据</footer>
+</div>
+<script src="../js-web/kyc-store.js"></script>
+<script src="../js-web/kyc-flow-nav.js"></script>
+<script>
+(function () {
+    var ret = window.KycFlowNav.retParam();
+    document.getElementById("linkBack").href = ret || "settings.html";
+    var k = window.FansloopKycStore.readKyc();
+    var st = k.status || "none";
+    function show(id) {
+        document.getElementById(id).style.display = "block";
+    }
+    if (st === "approved") show("blockOk");
+    else if (st === "rejected") {
+        show("blockBad");
+        document.getElementById("rejReason").textContent = k.rejectReason || "未填写具体原因";
+    } else if (st === "submitted") {
+        show("blockSub");
+        document.getElementById("subMeta").textContent = "最近单号：" + (k.lastId || "—") + " · 阶段：" + (k.stage === "human" ? "人工审核" : "机器审核");
+    } else show("blockNone");
+})();
+</script>
+</body>
+</html>

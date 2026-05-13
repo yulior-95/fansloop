@@ -7,6 +7,9 @@
 <link rel="stylesheet" href="../css-web/common-web.css">
 <link rel="stylesheet" href="../css-web/funds-moonpay.css">
 <link rel="stylesheet" href="../css-web/funds-flow.css">
+<link rel="stylesheet" href="../css-web/recharge-flow.css">
+<link rel="stylesheet" href="../css-web/kyc-modals.css">
+<link rel="stylesheet" href="../css-web/dev-glass-note.css">
 <style>
 .wd-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; max-width: 1280px; }
 @media (max-width: 1100px) { .wd-grid { grid-template-columns: 1fr; } }
@@ -48,6 +51,7 @@
     font-size: 13px;
     outline: none;
 }
+.currency-combo-input.is-placeholder { color: var(--t-tertiary); font-weight: 500; }
 .currency-combo-input:focus { border-color: var(--brand-purple); }
 .currency-combo-list {
     display: none;
@@ -77,21 +81,134 @@
 .currency-combo-item .cc-code { font-weight: 800; color: #C084FC; min-width: 36px; }
 .currency-combo-item .cc-name { flex: 1; }
 
+/* 左栏表单项下拉不被下方卡片遮挡 */
+.wd-grid > div:first-child > .card { overflow: visible; }
+.wd-grid > div:first-child > .card:has(.currency-combo-list.open),
+.wd-grid > div:first-child > .card:has(.wd-dd-root.dd-open) {
+    position: relative;
+    z-index: 160;
+}
+#withdrawCurrencyCombo { position: relative; z-index: 2; }
+#withdrawCurrencyCombo .currency-combo-list { z-index: 200; }
+
+/* 借记卡 · 与货币搜索框一致的自定义下拉 */
+.wd-dd-root { position: relative; z-index: 2; }
+.wd-dd-root.dd-open { z-index: 170; }
+.wd-dd-wrap { position: relative; }
+.wd-dd-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.wd-dd-trigger:hover { border-color: var(--border-strong); }
+.wd-dd-root.dd-open .wd-dd-trigger,
+.wd-dd-trigger:focus-visible {
+    border-color: var(--brand-purple);
+    box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.25);
+}
+.wd-dd-bank-ic {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.22), rgba(168, 85, 247, 0.18));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FBCFE8;
+    flex-shrink: 0;
+    font-size: 15px;
+}
+.wd-dd-label { flex: 1; min-width: 0; line-height: 1.35; }
+.wd-dd-chev {
+    color: var(--t-tertiary);
+    font-size: 11px;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+}
+.wd-dd-root.dd-open .wd-dd-chev { transform: rotate(180deg); }
+.wd-dd-list { z-index: 220; }
+.wd-dd-trigger.wd-dd-trigger-empty .wd-dd-label {
+    color: var(--t-tertiary);
+    font-weight: 500;
+}
+.wd-dd-trigger.wd-dd-trigger-empty {
+    border-style: dashed;
+    border-color: rgba(255, 255, 255, 0.14);
+}
+.wd-dd-item .cc-name {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    font-weight: 600;
+    color: #fff;
+}
+.wd-dd-item-meta { font-size: 11px; font-weight: 500; color: var(--t-tertiary); }
+.wd-dd-item { align-items: center; }
+
+/* 到账货币标题行 / 提现金额行布局；研发玻璃球样式见 ../css-web/dev-glass-note.css */
+.wd-field-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.wd-field-head h4 { margin: 0; font-size: 13px; font-weight: 700; }
+
+.amt-row-with-hint {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+}
+.amt-row-with-hint .wd-amt-core { flex: 1; min-width: 0; }
+.amt-hint-orb { align-self: center; padding-bottom: 2px; }
+.amt-hint-orb .dev-glass-wrap { vertical-align: middle; }
+
 .amt-input {
     background: var(--bg-card); border: 1px solid var(--border);
     border-radius: var(--r-lg); padding: 28px; margin-bottom: 18px;
 }
 .amt-input .lbl { font-size: 12px; color: var(--t-tertiary); letter-spacing: 0.5px; margin-bottom: 14px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-.amt-input .lbl a { color: var(--brand-purple); font-size: 11px; }
-.amt-input .input-row { display: flex; align-items: baseline; gap: 8px; }
-.amt-input .input-row .currency { font-size: 32px; color: var(--t-secondary); font-weight: 700; }
-.amt-input .input-row input {
+.amt-input .lbl a { color: var(--brand-purple); font-size: 11px; cursor: pointer; }
+.wd-amt-core {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 12px 16px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.25));
+    border: 1.5px solid var(--border-strong);
+    border-radius: 14px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.wd-amt-core:focus-within {
+    border-color: rgba(168, 85, 247, 0.65);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px rgba(168, 85, 247, 0.2);
+}
+.wd-amt-core .currency { font-size: 32px; color: var(--t-secondary); font-weight: 700; flex-shrink: 0; }
+.wd-amt-core input {
     flex: 1; background: transparent; border: none;
     font-size: 48px; font-weight: 900; color: #fff;
     letter-spacing: -1px; outline: none;
     font-variant-numeric: tabular-nums; min-width: 0;
 }
-.amt-input .input-row .unit { font-size: 18px; color: var(--t-tertiary); font-weight: 600; }
+.wd-amt-core .unit { font-size: 18px; color: var(--t-tertiary); font-weight: 600; flex-shrink: 0; }
 .amt-input .equiv { font-size: 13px; color: var(--t-tertiary); margin-top: 8px; line-height: 1.5; }
 
 .preset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 18px; }
@@ -102,6 +219,48 @@
     font-size: 12.5px; font-weight: 600; transition: 0.15s;
 }
 .preset-grid .pst.active { background: var(--brand-grad); color: #fff; border-color: transparent; }
+
+/* 提交区：主按钮 + 研发玻璃球 */
+.wd-submit-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 18px;
+}
+.wd-submit-row .btn { margin-top: 0; flex: 1; min-width: 0; }
+.wd-submit-row .dev-glass-wrap { flex-shrink: 0; }
+
+/* 绑卡：与 recharge-fiat-bind 同壳（common .modal），内嵌 ?embed=1 */
+#bindIframeModal.wd-bind-outer {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2147483642;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(6px);
+}
+#bindIframeModal.wd-bind-outer.open {
+    display: flex !important;
+}
+.wd-bind-modal-wrap.modal {
+    max-width: 560px;
+    width: 100%;
+    max-height: 90vh;
+    height: min(88vh, 720px);
+    padding: 0 !important;
+    overflow: hidden;
+}
+.wd-bind-iframe-el {
+    width: 100%;
+    height: 100%;
+    min-height: 480px;
+    border: none;
+    display: block;
+    background: var(--bg-elevated);
+}
 </style>
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
@@ -146,7 +305,7 @@
             <div class="ph-l">
                 <div class="crumb"><a href="wallet.html">我的钱包</a><i class="fa-solid fa-chevron-right"></i><span class="curr">提现到银行卡</span></div>
                 <h1>提现到银行卡</h1>
-                <p>账户余额以 <b style="color:#fff">USDT</b> 计价；提现到账为所选法币。展示汇率仅供参考，<b style="color:#fff">参考实时汇率</b>，最终以实际成交为准。</p>
+                <p>账户余额以 <b style="color:#fff">USDT</b> 计价；提现到账为所选法币。展示汇率仅供参考，<b style="color:#fff">参考实时汇率</b>，最终以实际成交为准。法币提现需完成 KYC。</p>
             </div>
             <div class="ph-r">
                 <button type="button" class="btn btn-secondary btn-sm" onclick="location.href='funds-history.html'"><i class="fa-solid fa-clock-rotate-left"></i> 充提记录</button>
@@ -178,42 +337,77 @@
 
         <div class="wd-grid">
             <div>
-                <div class="card" style="padding: 22px 24px; margin-bottom: 18px">
-                    <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 10px">到账货币</h4>
-                    <div id="withdrawCurrencyCombo" data-sym-id="withdrawCurrencySymbol" data-unit-id="withdrawUnitLabel">
-                        <input type="hidden" name="withdraw_currency" value="EUR" />
+                <div class="card wd-card-currency" style="padding: 22px 24px; margin-bottom: 18px">
+                    <div class="wd-field-head">
+                        <h4>到账货币</h4>
+                        <span class="dev-glass-wrap dev-glass-wrap--align-end">
+                            <span class="dev-glass-sphere" tabindex="0" aria-describedby="wdDevTipCurrency">
+                                <span class="dev-glass-sphere-shine"></span>
+                                <span class="dev-glass-sphere-txt">To 研发</span>
+                            </span>
+                            <span class="dev-glass-pop" id="wdDevTipCurrency" role="tooltip">默认按照用户添加的第一张银行卡币种选中币种，如果没有则默认用户当前登录IP国家币种</span>
+                        </span>
+                    </div>
+                    <div id="withdrawCurrencyCombo" data-start-empty="1" data-sym-id="withdrawCurrencySymbol" data-unit-id="withdrawAmtUnit">
+                        <input type="hidden" name="withdraw_currency" value="" />
                         <div class="currency-combo-wrap">
-                            <input type="text" class="currency-combo-input" placeholder="搜索货币代码或名称…" autocomplete="off" />
+                            <input type="text" class="currency-combo-input is-placeholder" placeholder="请选择到账货币，或输入代码搜索…" autocomplete="off" />
                             <div class="currency-combo-list"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="card" style="padding: 22px 24px; margin-bottom: 18px">
+                <div class="card wd-card-debit" style="padding: 22px 24px; margin-bottom: 18px">
                     <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 12px">借记卡卡号</h4>
-                    <div class="combo-shell">
-                        <select class="native-select" id="debitCardSelect">
-                            <option value="c1">招商银行 借记卡 · ****6618</option>
-                            <option value="c2">工商银行 借记卡 · ****4421</option>
-                            <option value="__add">＋ 添加新的收款方式</option>
-                        </select>
+                    <div id="debitCardRoot" class="wd-dd-root">
+                        <input type="hidden" id="debitCardValue" name="debit_card" value="" />
+                        <div class="wd-dd-wrap">
+                            <button type="button" class="wd-dd-trigger wd-dd-trigger-empty" id="debitCardBtn" aria-haspopup="listbox" aria-expanded="false">
+                                <span class="wd-dd-bank-ic" aria-hidden="true"><i class="fa-solid fa-building-columns"></i></span>
+                                <span class="wd-dd-label" id="debitCardLabel">请选择借记卡</span>
+                                <i class="fa-solid fa-chevron-down wd-dd-chev" aria-hidden="true"></i>
+                            </button>
+                            <div class="currency-combo-list wd-dd-list" id="debitCardDropdown" role="listbox">
+                                <button type="button" class="currency-combo-item wd-dd-item" data-value="c1" data-label="招商银行 借记卡 · ****6618" role="option">
+                                    <span class="cc-code" aria-hidden="true"><i class="fa-solid fa-building-columns" style="color:#F9A8D4"></i></span>
+                                    <span class="cc-name"><span>招商银行</span><span class="wd-dd-item-meta">借记卡 · ****6618</span></span>
+                                </button>
+                                <button type="button" class="currency-combo-item wd-dd-item" data-value="c2" data-label="工商银行 借记卡 · ****4421" role="option">
+                                    <span class="cc-code" aria-hidden="true"><i class="fa-solid fa-building-columns" style="color:#93C5FD"></i></span>
+                                    <span class="cc-name"><span>工商银行</span><span class="wd-dd-item-meta">借记卡 · ****4421</span></span>
+                                </button>
+                                <button type="button" class="currency-combo-item wd-dd-item wd-dd-item-add" data-value="__add" data-label="添加新的收款方式" role="option">
+                                    <span class="cc-code" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
+                                    <span class="cc-name">添加新的收款方式</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <p class="field-help" style="margin-top:10px;font-size:11px;color:var(--t-tertiary)">添加新卡需完成实名一致校验。</p>
                 </div>
 
                 <div class="amt-input">
-                    <div class="lbl"><span>提现金额</span><a href="javascript:void(0)">全部可提</a></div>
-                    <div class="input-row">
-                        <span class="currency" id="withdrawCurrencySymbol">€</span>
-                        <input type="text" value="451.20" />
-                        <span class="unit" id="withdrawUnitLabel">EUR</span>
+                    <div class="lbl"><span>提现金额</span><a role="button" tabindex="0" id="wdFillMax">全部可提</a></div>
+                    <div class="input-row amt-row-with-hint">
+                        <div class="wd-amt-core">
+                            <span class="currency" id="withdrawCurrencySymbol">—</span>
+                            <input type="text" id="wdFiatAmount" value="451.20" inputmode="decimal" autocomplete="off" />
+                            <span class="unit" id="withdrawAmtUnit">—</span>
+                        </div>
+                        <span class="dev-glass-wrap dev-glass-wrap--align-end amt-hint-orb">
+                            <span class="dev-glass-sphere" tabindex="0" aria-describedby="wdDevTipAmt">
+                                <span class="dev-glass-sphere-shine"></span>
+                                <span class="dev-glass-sphere-txt">To 研发</span>
+                            </span>
+                            <span class="dev-glass-pop" id="wdDevTipAmt" role="tooltip">默认按照用户添加的第一张银行卡币种展示币种信息，如果没有则默认用户当前登录IP国家币种</span>
+                        </span>
                     </div>
                     <div class="equiv">≈ <b>499.20 USDT</b> · 参考实时汇率，<b style="color:var(--t-secondary)">最终以实际交易产生的汇率为准</b></div>
-                    <div class="preset-grid">
-                        <div class="pst">€100</div>
-                        <div class="pst active">€451</div>
-                        <div class="pst">€1,000</div>
-                        <div class="pst">€2,000</div>
+                    <div class="preset-grid" id="wdPresetGrid">
+                        <div class="pst" data-amt="100">€100</div>
+                        <div class="pst active" data-amt="451.2">€451</div>
+                        <div class="pst" data-amt="1000">€1,000</div>
+                        <div class="pst" data-amt="2000">€2,000</div>
                     </div>
                 </div>
 
@@ -230,9 +424,18 @@
                             <span class="v num t-grad" style="font-size:18px;font-weight:800">≈ €442.72</span>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top:18px" onclick="location.href='modal-withdraw-bank-moonpay.html'">
-                        <i class="fa-solid fa-paper-plane"></i> 提交提现订单
-                    </button>
+                    <div class="wd-submit-row">
+                        <button type="button" class="btn btn-primary btn-block btn-lg" id="btnWdSubmit">
+                            <i class="fa-solid fa-paper-plane"></i> 提交提现订单
+                        </button>
+                        <span class="dev-glass-wrap dev-glass-wrap--align-end">
+                            <span class="dev-glass-sphere" tabindex="0" aria-describedby="wdDevTipSubmit">
+                                <span class="dev-glass-sphere-shine"></span>
+                                <span class="dev-glass-sphere-txt">To 研发</span>
+                            </span>
+                            <span class="dev-glass-pop" id="wdDevTipSubmit" role="tooltip">① 到账货币未选 → Toast「请先选择到账货币」。② 借记卡未选 → 与法币充值相同的提示弹窗；点「添加新的收款方式」打开与 recharge-fiat-bind 一致的绑定弹窗（?embed=1）；绑卡页内取消/关闭/提交并绑定通过 postMessage 回到本页，提交成功则自动选中示例卡并留在法币提现。</span>
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -242,14 +445,15 @@
                     <div style="font-size: 12.5px; line-height: 1.8; color: var(--t-secondary)">
                         • 到账时间与发卡行处理进度有关<br>
                         • 大额可能触发人工复核<br>
-                        • 异常请在订单详情发起申诉
+                        • 异常请在<strong style="color:var(--t-primary);font-weight:600">订单详情</strong>发起申诉（本页为说明文案，不可点击）
                     </div>
                 </div>
                 <div class="card" style="padding: 22px 24px">
                     <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 12px"><i class="fa-solid fa-shield-halved" style="color:#10B981"></i> 安全</h4>
                     <div style="font-size: 12.5px; line-height: 1.8; color: var(--t-secondary)">
                         ✓ 短信 / 生物识别 + 二次密码<br>
-                        ✓ 收款卡须与实名信息一致
+                        ✓ 收款卡须与实名信息一致<br>
+                        ✓ 法币提现须完成 KYC（含证件与人脸）
                     </div>
                 </div>
             </div>
@@ -257,10 +461,397 @@
     </main>
 </div>
 
+<div id="recipientMissModal" role="dialog" aria-modal="true" aria-labelledby="recMissTitle">
+    <div class="pay-miss-dialog" onclick="event.stopPropagation()">
+        <h3 id="recMissTitle"><i class="fa-solid fa-triangle-exclamation"></i>请选择收款方式</h3>
+        <p>提交订单前需要选择一张已绑定的银行卡或添加新的收款方式。</p>
+        <div class="pay-miss-actions">
+            <button type="button" class="btn btn-primary" id="btnAddRecipientFromModal"><i class="fa-solid fa-plus"></i>添加新的收款方式</button>
+            <button type="button" class="btn btn-secondary" id="recModalDismiss">我知道了</button>
+        </div>
+    </div>
+</div>
+
+<div id="bindIframeModal" class="wd-bind-outer" role="dialog" aria-modal="true" aria-label="绑定银行卡">
+    <div class="modal modal-lg wd-bind-modal-wrap" onclick="event.stopPropagation()">
+        <iframe id="wdBindIframe" class="wd-bind-iframe-el" title="绑定银行卡" src="about:blank"></iframe>
+    </div>
+</div>
+
+<div id="kycNeedModal" role="dialog" aria-modal="true" aria-labelledby="kycNeedTitle">
+    <div class="kyc-need-dialog" onclick="event.stopPropagation()">
+        <h3 id="kycNeedTitle"><i class="fa-solid fa-id-card-clip"></i>请先完成 KYC 认证</h3>
+        <p>根据合规要求，提现前需完成身份证件核验与人脸识别。你可在此<strong>快捷认证</strong>，或前往<strong>分步认证页</strong>（适合需要对照说明一步步操作）。</p>
+        <div class="kyc-need-actions">
+            <button type="button" class="btn btn-primary" id="btnKycGoVerify"><i class="fa-solid fa-user-check"></i>去认证（弹窗）</button>
+            <button type="button" class="btn btn-secondary" id="kycNeedDismiss">取消</button>
+        </div>
+        <div class="kyc-need-extra">
+            <a href="#" id="btnKycOpenPages"><i class="fa-solid fa-window-restore"></i> 打开分步认证页面</a>
+            · 审核进度可在「设置」或运营后台「KYC 管理」查看（原型）
+        </div>
+    </div>
+</div>
+
+<div id="kycWizardModal" role="dialog" aria-modal="true" aria-labelledby="kycWizTitle">
+    <div class="kyc-wizard-shell" onclick="event.stopPropagation()">
+        <div class="kyc-wizard-head">
+            <h3 id="kycWizTitle"><i class="fa-solid fa-shield-heart" style="color:#C084FC"></i> KYC 认证</h3>
+            <button type="button" class="close-x" id="kycWizClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="kyc-wizard-body">
+            <div class="kyc-steps" id="kycStepRail">
+                <div class="ks active" data-i="1">证件</div>
+                <div class="ks" data-i="2">联网核查</div>
+                <div class="ks" data-i="3">人脸识别</div>
+                <div class="ks" data-i="4">提交审核</div>
+            </div>
+
+            <div class="kyc-panel active" data-step="1">
+                <p class="kyc-note">请上传身份证人像面与国徽面。以下为示意配图，真实环境由用户本机相册或摄像头采集。</p>
+                <div class="kyc-upload-grid">
+                    <div class="kyc-upload-tile" id="kycUpFront">
+                        <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=80" alt="身份证人像面示意" />
+                        <div class="cap"><i class="fa-regular fa-image"></i> 人像面 · 点击模拟已选择</div>
+                    </div>
+                    <div class="kyc-upload-tile" id="kycUpBack">
+                        <img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=80" alt="身份证国徽面示意" />
+                        <div class="cap"><i class="fa-regular fa-image"></i> 国徽面 · 点击模拟已选择</div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary btn-block" id="kycStep1Next" disabled><i class="fa-solid fa-arrow-right"></i>下一步</button>
+            </div>
+
+            <div class="kyc-panel" data-step="2">
+                <p class="kyc-note">正在对接三方身份证联网核查（OCR + 要素校验）…</p>
+                <div class="card" style="padding:14px;margin-bottom:14px;background:var(--bg-input)">
+                    <div style="font-size:12px;color:var(--t-secondary);line-height:1.6">
+                        <i class="fa-solid fa-spinner fa-spin" style="color:#C084FC"></i> 模拟请求：<strong>VerifyID API</strong><br>
+                        核查项：证件真伪、有效期、姓名与 FansLoop 实名一致性。
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-block" id="kycSimIdOk" style="margin-bottom:10px"><i class="fa-solid fa-check-double"></i>模拟核查通过</button>
+                <button type="button" class="btn btn-primary btn-block" id="kycStep2Next" disabled><i class="fa-solid fa-arrow-right"></i>下一步</button>
+            </div>
+
+            <div class="kyc-panel" data-step="3">
+                <p class="kyc-note">请在光线充足环境下完成活体检测。若使用电脑浏览器，可通过手机扫码打开识别链接完成人脸核验。</p>
+                <button type="button" class="btn btn-secondary btn-block" id="kycGenFaceLink" style="margin-bottom:10px"><i class="fa-solid fa-link"></i>生成识别链接</button>
+                <div class="kyc-link-box" id="kycFaceLinkBox" style="display:none"></div>
+                <p class="kyc-note" style="font-size:11px">链接由 FansLoop 安全域签发，一次性有效；手机浏览器内完成识别后，本页将收到结果（原型中为手动确认）。</p>
+                <button type="button" class="btn btn-primary btn-block" id="kycFaceDone" disabled><i class="fa-solid fa-mobile-screen-button"></i>我已在手机完成人脸识别</button>
+            </div>
+
+            <div class="kyc-panel" data-step="4">
+                <p class="kyc-note">识别已通过，材料已提交后台。系统将先进行<strong>机器自动审核</strong>；若规则未通过，将转入<strong>人工审核</strong>队列。您可在「KYC 审核列表」中查看与模拟处置。</p>
+                <div class="card" style="padding:16px;background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.35);margin-bottom:14px">
+                    <div style="font-size:13px;font-weight:700;color:#6EE7B7;margin-bottom:6px"><i class="fa-solid fa-circle-check"></i> 识别通过，已提交审核</div>
+                    <div style="font-size:12px;color:var(--t-secondary);line-height:1.55">当前状态：<span id="kycSubmitStatusLabel">待机审</span></div>
+                </div>
+                <button type="button" class="btn btn-primary btn-block" id="kycFinishSubmit"><i class="fa-solid fa-paper-plane"></i>完成并关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="wdGlobalToast" class="toast-mini" role="status" aria-live="polite"></div>
+
+<script src="../js-web/kyc-store.js"></script>
 <script>
-document.getElementById('debitCardSelect').addEventListener('change', function () {
-    if (this.value === '__add') location.href = 'withdraw-recipient-add.html';
-});
+(function () {
+    var KS = window.FansloopKycStore;
+    if (!KS) return;
+
+    function readKyc() {
+        return KS.readKyc();
+    }
+    function writeKyc(partial) {
+        KS.writeKyc(partial);
+    }
+    function pushAudit(row) {
+        KS.pushAudit(row);
+    }
+
+    var params = new URLSearchParams(location.search);
+    if (params.get('resetKyc') === '1') {
+        localStorage.removeItem(KS.KYC_STORE);
+        localStorage.removeItem(KS.AUDIT_LOG);
+    }
+
+    function showToast(msg) {
+        var t = document.getElementById('wdGlobalToast');
+        if (!t) return;
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._h);
+        t._h = setTimeout(function () { t.classList.remove('show'); }, 2800);
+    }
+
+    function openModal(el) {
+        if (el) el.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeModal(el) {
+        if (!el) return;
+        el.classList.remove('open');
+        if (el.id === 'bindIframeModal') {
+            var frClear = document.getElementById('wdBindIframe');
+            if (frClear) frClear.src = 'about:blank';
+        }
+        var any = document.querySelector('#recipientMissModal.open, #bindIframeModal.open, #kycNeedModal.open, #kycWizardModal.open');
+        if (!any) document.body.style.overflow = '';
+    }
+
+    var recModal = document.getElementById('recipientMissModal');
+    var bindModal = document.getElementById('bindIframeModal');
+    var kycNeed = document.getElementById('kycNeedModal');
+    var kycWiz = document.getElementById('kycWizardModal');
+
+    function openBindIframe() {
+        closeModal(recModal);
+        var fr = document.getElementById('wdBindIframe');
+        if (fr) fr.src = 'recharge-fiat-bind.html?embed=1';
+        openModal(bindModal);
+    }
+
+    window.addEventListener('message', function (e) {
+        if (!e.data || e.data.type !== 'fansloop-fiat-bind') return;
+        closeModal(bindModal);
+        if (e.data.success) {
+            var hidden = document.getElementById('debitCardValue');
+            var label = document.getElementById('debitCardLabel');
+            var btn = document.getElementById('debitCardBtn');
+            if (hidden) hidden.value = 'c1';
+            if (label) label.textContent = '招商银行 借记卡 · ****6618';
+            if (btn) btn.classList.remove('wd-dd-trigger-empty');
+            showToast('已绑定银行卡，请继续完成提现');
+        }
+    });
+
+    if (recModal) recModal.addEventListener('click', function (e) { if (e.target === recModal) closeModal(recModal); });
+    if (bindModal) bindModal.addEventListener('click', function (e) { if (e.target === bindModal) closeModal(bindModal); });
+    if (kycNeed) kycNeed.addEventListener('click', function (e) { if (e.target === kycNeed) closeModal(kycNeed); });
+    if (kycWiz) kycWiz.addEventListener('click', function (e) { if (e.target === kycWiz) closeModal(kycWiz); });
+
+    document.getElementById('recModalDismiss') && document.getElementById('recModalDismiss').addEventListener('click', function () { closeModal(recModal); });
+    document.getElementById('btnAddRecipientFromModal') && document.getElementById('btnAddRecipientFromModal').addEventListener('click', function () {
+        openBindIframe();
+    });
+
+    document.getElementById('kycNeedDismiss') && document.getElementById('kycNeedDismiss').addEventListener('click', function () { closeModal(kycNeed); });
+    document.getElementById('btnKycGoVerify') && document.getElementById('btnKycGoVerify').addEventListener('click', function () {
+        closeModal(kycNeed);
+        openKycWizard(1);
+    });
+    document.getElementById('btnKycOpenPages') && document.getElementById('btnKycOpenPages').addEventListener('click', function (e) {
+        e.preventDefault();
+        location.href = 'kyc-intro.html?return=' + encodeURIComponent('withdraw-fiat.html');
+    });
+
+    function debitHasRealCard() {
+        var hid = document.getElementById('debitCardValue');
+        if (!hid) return false;
+        var v = hid.value;
+        return v && v !== '' && v !== '__add';
+    }
+
+    (function mountDebitCardDd() {
+        var root = document.getElementById('debitCardRoot');
+        var btn = document.getElementById('debitCardBtn');
+        var list = document.getElementById('debitCardDropdown');
+        var hidden = document.getElementById('debitCardValue');
+        var label = document.getElementById('debitCardLabel');
+        if (!root || !btn || !list) return;
+        function syncDebitTriggerEmpty() {
+            var v = hidden ? hidden.value : '';
+            var empty = !v || v === '';
+            btn.classList.toggle('wd-dd-trigger-empty', empty);
+            if (label && empty) label.textContent = '请选择借记卡';
+        }
+        function setOpen(open) {
+            list.classList.toggle('open', open);
+            root.classList.toggle('dd-open', open);
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            setOpen(!list.classList.contains('open'));
+        });
+        list.querySelectorAll('[data-value]').forEach(function (row) {
+            row.addEventListener('click', function () {
+                var v = row.getAttribute('data-value');
+                if (v === '__add') {
+                    setOpen(false);
+                    openBindIframe();
+                    return;
+                }
+                if (hidden) hidden.value = v;
+                var dl = row.getAttribute('data-label');
+                if (label && dl) label.textContent = dl;
+                syncDebitTriggerEmpty();
+                setOpen(false);
+            });
+        });
+        document.addEventListener('click', function () { setOpen(false); });
+        root.addEventListener('click', function (e) { e.stopPropagation(); });
+        syncDebitTriggerEmpty();
+    })();
+
+    document.getElementById('wdFillMax') && document.getElementById('wdFillMax').addEventListener('click', function () {
+        var inp = document.getElementById('wdFiatAmount');
+        if (inp) inp.value = '5820.40';
+        showToast('已填入演示最大值（原型）');
+    });
+
+    var presetGrid = document.getElementById('wdPresetGrid');
+    if (presetGrid) {
+        presetGrid.querySelectorAll('.pst').forEach(function (cell) {
+            cell.addEventListener('click', function () {
+                presetGrid.querySelectorAll('.pst').forEach(function (c) { c.classList.remove('active'); });
+                cell.classList.add('active');
+                var amt = cell.getAttribute('data-amt');
+                var inp = document.getElementById('wdFiatAmount');
+                if (!inp || !amt) return;
+                var n = parseFloat(amt, 10);
+                inp.value = isNaN(n) ? amt : n.toFixed(2);
+            });
+        });
+    }
+
+    function kycGate() {
+        var k = readKyc();
+        if (k.status === 'submitted') {
+            showToast('当前正在进行 KYC 审核，请耐心等待');
+            return false;
+        }
+        if (k.status !== 'approved') {
+            openModal(kycNeed);
+            return false;
+        }
+        return true;
+    }
+
+    document.getElementById('btnWdSubmit') && document.getElementById('btnWdSubmit').addEventListener('click', function () {
+        var curHidden = document.querySelector('#withdrawCurrencyCombo input[type="hidden"]');
+        if (!curHidden || !String(curHidden.value).trim()) {
+            showToast('请先选择到账货币');
+            return;
+        }
+        if (!debitHasRealCard()) {
+            openModal(recModal);
+            return;
+        }
+        if (!kycGate()) return;
+
+        var amtInp = document.getElementById('wdFiatAmount');
+        var raw = amtInp ? amtInp.value.replace(/,/g, '').trim() : '';
+        if (!raw || !/^[\d.]+$/.test(raw) || parseFloat(raw) <= 0) {
+            showToast('请输入有效的提现金额');
+            return;
+        }
+        location.href = 'modal-withdraw-bank-moonpay.html';
+    });
+
+    var kycStep = 1;
+    var kycFrontOk = false;
+    var kycBackOk = false;
+
+    function setKycRail(step) {
+        document.querySelectorAll('#kycStepRail .ks').forEach(function (el) {
+            var i = parseInt(el.getAttribute('data-i'), 10);
+            el.classList.toggle('active', i === step);
+            el.classList.toggle('done', i < step);
+        });
+        document.querySelectorAll('#kycWizardModal .kyc-panel').forEach(function (p) {
+            var s = parseInt(p.getAttribute('data-step'), 10);
+            p.classList.toggle('active', s === step);
+        });
+    }
+
+    function openKycWizard(fromStep) {
+        kycStep = fromStep || 1;
+        kycFrontOk = false;
+        kycBackOk = false;
+        var b1 = document.getElementById('kycStep1Next');
+        var b2n = document.getElementById('kycStep2Next');
+        var faceBox = document.getElementById('kycFaceLinkBox');
+        var faceDone = document.getElementById('kycFaceDone');
+        if (b1) b1.disabled = true;
+        if (b2n) b2n.disabled = true;
+        if (faceBox) { faceBox.style.display = 'none'; faceBox.textContent = ''; }
+        if (faceDone) faceDone.disabled = true;
+        setKycRail(kycStep);
+        openModal(kycWiz);
+    }
+
+    document.getElementById('kycWizClose') && document.getElementById('kycWizClose').addEventListener('click', function () { closeModal(kycWiz); });
+
+    function markUpload(which) {
+        if (which === 'front') kycFrontOk = true;
+        if (which === 'back') kycBackOk = true;
+        var b = document.getElementById('kycStep1Next');
+        if (b) b.disabled = !(kycFrontOk && kycBackOk);
+    }
+    document.getElementById('kycUpFront') && document.getElementById('kycUpFront').addEventListener('click', function () { markUpload('front'); this.style.outline = '2px solid #A855F7'; });
+    document.getElementById('kycUpBack') && document.getElementById('kycUpBack').addEventListener('click', function () { markUpload('back'); this.style.outline = '2px solid #A855F7'; });
+
+    document.getElementById('kycStep1Next') && document.getElementById('kycStep1Next').addEventListener('click', function () {
+        kycStep = 2;
+        setKycRail(kycStep);
+    });
+
+    document.getElementById('kycSimIdOk') && document.getElementById('kycSimIdOk').addEventListener('click', function () {
+        var b = document.getElementById('kycStep2Next');
+        if (b) b.disabled = false;
+        showToast('三方联网核查已通过（模拟）');
+    });
+    document.getElementById('kycStep2Next') && document.getElementById('kycStep2Next').addEventListener('click', function () {
+        kycStep = 3;
+        setKycRail(kycStep);
+    });
+
+    document.getElementById('kycGenFaceLink') && document.getElementById('kycGenFaceLink').addEventListener('click', function () {
+        var token = 'face_' + Math.random().toString(36).slice(2, 12);
+        var url = new URL('kyc-face-mobile.html?token=' + encodeURIComponent(token), location.href).href;
+        var box = document.getElementById('kycFaceLinkBox');
+        if (box) {
+            box.style.display = 'block';
+            box.textContent = url;
+        }
+        localStorage.setItem('fansloop_kyc_face_demo_url', url);
+        var fd = document.getElementById('kycFaceDone');
+        if (fd) fd.disabled = false;
+        showToast('已生成识别链接，可在手机浏览器打开');
+    });
+    document.getElementById('kycFaceDone') && document.getElementById('kycFaceDone').addEventListener('click', function () {
+        kycStep = 4;
+        setKycRail(kycStep);
+    });
+
+    document.getElementById('kycFinishSubmit') && document.getElementById('kycFinishSubmit').addEventListener('click', function () {
+        var id = 'KYC-' + Date.now();
+        writeKyc({
+            status: 'submitted',
+            stage: 'machine',
+            lastId: id,
+            rejectReason: null,
+            idCardFront: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&q=80',
+            idCardBack: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80',
+            faceSnapshot: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face'
+        });
+        pushAudit({
+            id: id,
+            time: new Date().toLocaleString('zh-CN'),
+            user: 'Luna 🌙',
+            channel: '法币提现',
+            pipeline: '机审',
+            status: '待处理',
+            note: '证件 + 人脸已完成，待机审'
+        });
+        closeModal(kycWiz);
+        showToast('已提交审核，请等待机审 / 人工处理');
+    });
+})();
 </script>
 </body>
 </html>

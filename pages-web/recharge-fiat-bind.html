@@ -6,9 +6,34 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
 <style>
-body { background: var(--bg-app); }
-.modal-mask { background: rgba(0,0,0,0.7); }
-.modal { max-width: 560px; }
+body { background: var(--bg-app); margin: 0; }
+body.fiat-bind-embed {
+    background: var(--bg-elevated);
+    min-height: 100%;
+}
+body.fiat-bind-embed .modal-mask {
+    position: static;
+    inset: auto;
+    background: transparent;
+    backdrop-filter: none;
+    display: block;
+    padding: 0;
+    z-index: auto;
+    min-height: 100%;
+    animation: none;
+}
+body.fiat-bind-embed .modal {
+    max-height: none;
+    min-height: 100%;
+    margin: 0;
+    border-radius: 0;
+    animation: none;
+    box-shadow: none;
+    border: none;
+    width: 100%;
+    max-width: none;
+}
+.modal-mask { min-height: 100vh; box-sizing: border-box; }
 
 .card-preview {
     background: linear-gradient(135deg, #C8102E, #8B0000);
@@ -51,7 +76,7 @@ body { background: var(--bg-app); }
             <h2><span class="ic"><i class="fa-solid fa-credit-card"></i></span>绑定银行卡
                 <span class="sub">实名信息须与身份证一致</span>
             </h2>
-            <button class="close" onclick="location.href='recharge-fiat.html'"><i class="fa-solid fa-xmark"></i></button>
+            <button type="button" class="close" id="btnBindCloseX" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <div class="modal-body">
@@ -103,13 +128,33 @@ body { background: var(--bg-app); }
         </div>
 
         <div class="modal-foot">
-            <button class="btn" onclick="location.href='recharge-fiat.html'">取消</button>
-            <button class="btn btn-primary" onclick="location.href='recharge-fiat.html'">
+            <button type="button" class="btn" id="btnBindCancel">取消</button>
+            <button type="button" class="btn btn-primary" id="btnBindSubmit">
                 <i class="fa-solid fa-shield-halved"></i>提交并绑定
             </button>
         </div>
     </div>
 </div>
 
+<script>
+(function () {
+    var q = new URLSearchParams(location.search);
+    var embed = q.get('embed') === '1';
+    var returnUrl = q.get('return') || 'recharge-fiat.html';
+    if (embed) document.body.classList.add('fiat-bind-embed');
+
+    function exitBind(success) {
+        if (embed && window.parent !== window) {
+            window.parent.postMessage({ type: 'fansloop-fiat-bind', success: !!success }, '*');
+            return;
+        }
+        location.href = returnUrl;
+    }
+
+    document.getElementById('btnBindCloseX').addEventListener('click', function () { exitBind(false); });
+    document.getElementById('btnBindCancel').addEventListener('click', function () { exitBind(false); });
+    document.getElementById('btnBindSubmit').addEventListener('click', function () { exitBind(true); });
+})();
+</script>
 </body>
 </html>

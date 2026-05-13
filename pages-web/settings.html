@@ -255,7 +255,7 @@
                             <span class="edit"><i class="fa-solid fa-camera"></i></span>
                         </div>
                         <div class="info">
-                            <h3>Luna 🌙 <span class="verified"><i class="fa-solid fa-circle-check"></i></span></h3>
+                            <h3>Luna 🌙 <span class="verified"><i class="fa-solid fa-circle-check"></i></span><span id="kycProfileBadge" style="display:none;margin-left:10px;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:800;letter-spacing:0.3px;background:rgba(16,185,129,0.18);color:#6EE7B7;border:1px solid rgba(16,185,129,0.45);vertical-align:middle">身份验证通过</span></h3>
                             <span class="role-pill"><i class="fa-solid fa-crown"></i> 认证创作者 · LV 7</span>
                             <div class="uid">UID: 0x7Bf...c3D9 · 加入于 2024 年 8 月</div>
                         </div>
@@ -291,6 +291,11 @@
                         <div class="row-ic"><i class="fa-solid fa-tag"></i></div>
                         <div class="row-info"><div class="ti">兴趣标签</div><div class="sub">最多 6 个，影响推荐与发现</div></div>
                         <div class="row-action">摄影 / 旅行 / 音乐 <i class="fa-solid fa-chevron-right arrow"></i></div>
+                    </div>
+                    <div class="st-row" id="kycSettingsRow" onclick="location.href='kyc-intro.html?return=settings.html'">
+                        <div class="row-ic"><i class="fa-solid fa-id-card-clip"></i></div>
+                        <div class="row-info"><div class="ti">KYC 身份验证</div><div class="sub" id="kycSettingsSub">用于提现与合规要求 · 默认未验证</div></div>
+                        <div class="row-action" id="kycSettingsAction">未验证 <i class="fa-solid fa-chevron-right arrow"></i></div>
                     </div>
                     <div class="st-row">
                         <div class="row-ic"><i class="fa-solid fa-link"></i></div>
@@ -483,6 +488,32 @@
     </main>
 
 </div>
+
+<script src="../js-web/kyc-store.js"></script>
+<script>
+(function () {
+    var KS = window.FansloopKycStore;
+    if (!KS) return;
+    var k = KS.readKyc();
+    var st = k.status || "none";
+    var sub = document.getElementById("kycSettingsSub");
+    var act = document.getElementById("kycSettingsAction");
+    var bd = document.getElementById("kycProfileBadge");
+    var mapSub = {
+        none: "用于提现与合规要求 · 尚未提交认证",
+        submitted: "已提交材料，机审 / 人工审核处理中",
+        approved: "已通过，可进行法币与钱包提现",
+        rejected: "上次审核未通过，可重新发起"
+    };
+    var mapAct = { none: "未验证", submitted: "审核中", approved: "已通过", rejected: "未通过" };
+    if (sub) {
+        sub.textContent = mapSub[st] || mapSub.none;
+        if (st === "rejected" && k.rejectReason) sub.textContent += " · 原因：" + k.rejectReason;
+    }
+    if (act) act.innerHTML = (mapAct[st] || mapAct.none) + ' <i class="fa-solid fa-chevron-right arrow"></i>';
+    if (bd && st === "approved") bd.style.display = "inline-block";
+})();
+</script>
 
 </body>
 </html>

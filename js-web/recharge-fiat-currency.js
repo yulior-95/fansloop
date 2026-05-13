@@ -59,7 +59,8 @@
         var hidden = root.querySelector('input[type="hidden"]');
         if (!inp || !list) return;
 
-        var selected = CURRENCIES.find(function (c) { return c.code === 'EUR'; }) || CURRENCIES[0];
+        var startEmpty = root.getAttribute('data-start-empty') === '1';
+        var selected = startEmpty ? null : (CURRENCIES.find(function (c) { return c.code === 'EUR'; }) || CURRENCIES[0]);
 
         function render(filter) {
             var f = norm(filter);
@@ -76,6 +77,7 @@
                         selected = c;
                         inp.value = c.code + ' · ' + c.name.split(' ')[0];
                         if (hidden) hidden.value = c.code;
+                        inp.classList.remove('is-placeholder');
                         list.classList.remove('open');
                         root.dispatchEvent(new CustomEvent('currencychange', { detail: c }));
                         var symId = root.getAttribute('data-sym-id') || 'fiatCurrencySymbol';
@@ -112,8 +114,21 @@
             if (!root.contains(e.target)) list.classList.remove('open');
         });
 
-        inp.value = selected.code + ' · ' + selected.name.split(' ')[0];
-        if (hidden) hidden.value = selected.code;
+        if (startEmpty && !selected) {
+            inp.value = '';
+            if (hidden) hidden.value = '';
+            inp.classList.add('is-placeholder');
+            inp.setAttribute('placeholder', inp.getAttribute('placeholder') || '请选择到账货币，或输入代码搜索…');
+            var symId0 = root.getAttribute('data-sym-id') || 'fiatCurrencySymbol';
+            var unitId0 = root.getAttribute('data-unit-id') || 'fiatUnitLabel';
+            var symEl0 = document.getElementById(symId0);
+            if (symEl0) symEl0.textContent = '—';
+            var unitEl0 = document.getElementById(unitId0);
+            if (unitEl0) unitEl0.textContent = '—';
+        } else if (selected) {
+            inp.value = selected.code + ' · ' + selected.name.split(' ')[0];
+            if (hidden) hidden.value = selected.code;
+        }
     }
 
     function boot() {
