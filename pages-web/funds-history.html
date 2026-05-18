@@ -5,6 +5,7 @@
 <title>充提记录 · FansLoop</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/dev-glass-note.css">
 <style>
 .page-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; }
 .filter-pills { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -24,7 +25,7 @@
     overflow: hidden;
 }
 .history-table th, .history-table td {
-    padding: 14px 18px;
+    padding: 14px 16px;
     text-align: left;
     font-size: 12.5px;
     border-bottom: 1px solid var(--border);
@@ -39,9 +40,11 @@
 }
 .history-table tr:last-child td { border-bottom: none; }
 .history-table tr:hover td { background: var(--bg-hover); }
+.history-table tr[hidden] { display: none !important; }
 .history-table .mono { font-family: ui-monospace, monospace; font-size: 11.5px; }
 .history-table .amt-pos { color: var(--success-light); font-weight: 700; }
 .history-table .amt-neg { color: var(--danger-light); font-weight: 700; }
+.history-table .fee-cell { font-family: ui-monospace, monospace; font-size: 11.5px; color: var(--t-secondary); }
 .tag-sm { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
 .tag-sm.rc { background: rgba(16,185,129,0.15); color: var(--success-light); }
 .tag-sm.wd { background: rgba(236,72,153,0.15); color: #F472B6; }
@@ -74,21 +77,34 @@
             <div class="ph-l">
                 <div class="crumb"><a href="wallet.html">我的钱包</a><i class="fa-solid fa-chevron-right"></i><span class="curr">充提记录</span></div>
                 <h1>充提记录</h1>
-                <p>汇总充值与提现订单；点击订单号可查看详情，争议请在<strong>订单详情页</strong>发起申诉。</p>
+                <p>汇总链上充值与钱包提现订单；点击订单号可查看详情，争议请在<strong>订单详情页</strong>发起申诉。</p>
             </div>
-            <div class="ph-r">
+            <div class="ph-r" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                <span class="dev-glass-wrap dev-glass-wrap--align-end">
+                    <span class="dev-glass-sphere" tabindex="0" aria-describedby="fhDevChainRcTip">
+                        <span class="dev-glass-sphere-shine"></span>
+                        <span class="dev-glass-sphere-txt">To 研发</span>
+                    </span>
+                    <span class="dev-glass-pop" id="fhDevChainRcTip" role="tooltip">
+                        <strong>链上充值</strong><br>
+                        1. 用户在钱包或其他交易所完成充值<br>
+                        2. 跟踪链上交易，未到账：<b>入账中</b><br>
+                        3. 跟踪链上交易，已入账：<b>已到账</b><br>
+                        <span style="opacity:0.85">列表状态仅使用「入账中 / 已到账」；处理中 / 已完成筛选项分别对应二者。</span>
+                    </span>
+                </span>
                 <button type="button" class="btn btn-secondary" onclick="location.href='recharge.html'"><i class="fa-solid fa-arrow-down"></i> 去充值</button>
                 <button type="button" class="btn" onclick="location.href='withdraw-fiat.html'"><i class="fa-solid fa-arrow-up"></i> 去提现</button>
             </div>
         </div>
 
         <div class="page-toolbar">
-            <div class="filter-pills">
-                <button type="button" class="active">全部</button>
-                <button type="button">充值</button>
-                <button type="button">提现</button>
-                <button type="button">处理中</button>
-                <button type="button">已完成</button>
+            <div class="filter-pills" id="fhFilters">
+                <button type="button" class="active" data-filter="all">全部</button>
+                <button type="button" data-filter="recharge">充值</button>
+                <button type="button" data-filter="withdraw">提现</button>
+                <button type="button" data-filter="processing">处理中</button>
+                <button type="button" data-filter="done">已完成</button>
             </div>
             <div style="flex:1"></div>
             <div class="h-search" style="max-width:280px;margin:0;padding:8px 12px;font-size:12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-input)">
@@ -104,45 +120,50 @@
                     <th>时间</th>
                     <th>渠道</th>
                     <th>金额</th>
+                    <th>网络费用</th>
                     <th>状态</th>
                     <th></th>
                 </tr>
             </thead>
-            <tbody>
-                <tr onclick="location.href='funds-flow-detail.html?type=withdraw&amp;order=WD20260508141209'">
+            <tbody id="fhTbody">
+                <tr data-type="withdraw" data-status="入账中" onclick="location.href='funds-flow-detail.html?type=withdraw&amp;order=WD20260508141209'">
                     <td><span class="tag-sm wd">提现</span></td>
                     <td class="mono">WD20260508141209</td>
                     <td>2026-05-08 14:12</td>
                     <td>钱包 · TRC20</td>
                     <td class="amt-neg">−200.00 USDT</td>
-                    <td><span class="tag-sm proc">清算中</span></td>
+                    <td class="fee-cell">1.40 USDT</td>
+                    <td><span class="tag-sm proc">入账中</span></td>
                     <td><i class="fa-solid fa-chevron-right" style="color:var(--t-tertiary)"></i></td>
                 </tr>
-                <tr onclick="location.href='funds-flow-detail.html?type=recharge&amp;order=RC20260507190844'">
+                <tr data-type="recharge" data-status="已到账" onclick="location.href='funds-flow-detail.html?type=recharge&amp;order=RC20260507190844'">
                     <td><span class="tag-sm rc">充值</span></td>
                     <td class="mono">RC20260507190844</td>
                     <td>2026-05-07 19:08</td>
-                    <td>法币 · 银联借记卡</td>
+                    <td>钱包 · ERC20</td>
                     <td class="amt-pos">+500.00 USDT</td>
-                    <td><span class="tag-sm done">已完成</span></td>
+                    <td class="fee-cell">0.00 USDT</td>
+                    <td><span class="tag-sm done">已到账</span></td>
                     <td><i class="fa-solid fa-chevron-right" style="color:var(--t-tertiary)"></i></td>
                 </tr>
-                <tr onclick="location.href='funds-flow-detail.html?type=withdraw&amp;order=WD20260506103321'">
+                <tr data-type="withdraw" data-status="已到账" onclick="location.href='funds-flow-detail.html?type=withdraw&amp;order=WD20260506103321'">
                     <td><span class="tag-sm wd">提现</span></td>
                     <td class="mono">WD20260506103321</td>
                     <td>2026-05-06 10:33</td>
-                    <td>银行卡 · CNY</td>
+                    <td>钱包 · TRC20</td>
                     <td class="amt-neg">−1,000.00 USDT</td>
-                    <td><span class="tag-sm done">已完成</span></td>
+                    <td class="fee-cell">1.40 USDT</td>
+                    <td><span class="tag-sm done">已到账</span></td>
                     <td><i class="fa-solid fa-chevron-right" style="color:var(--t-tertiary)"></i></td>
                 </tr>
-                <tr onclick="location.href='transaction-appeal-detail.html?appeal=AP20260505110002&amp;order=WD20260504195518'">
-                    <td><span class="tag-sm wd">申诉</span></td>
-                    <td class="mono">AP20260505110002</td>
-                    <td>2026-05-05 11:00</td>
-                    <td>关联 WD20260504195518</td>
-                    <td style="color:var(--t-secondary)">处理中</td>
-                    <td><span class="tag-sm proc">客服处理</span></td>
+                <tr data-type="recharge" data-status="入账中" onclick="location.href='funds-flow-detail.html?type=recharge&amp;order=RC20260505120001'">
+                    <td><span class="tag-sm rc">充值</span></td>
+                    <td class="mono">RC20260505120001</td>
+                    <td>2026-05-05 12:00</td>
+                    <td>钱包 · BEP20</td>
+                    <td class="amt-pos">+120.00 USDT</td>
+                    <td class="fee-cell">—</td>
+                    <td><span class="tag-sm proc">入账中</span></td>
                     <td><i class="fa-solid fa-chevron-right" style="color:var(--t-tertiary)"></i></td>
                 </tr>
             </tbody>
@@ -150,9 +171,55 @@
 
         <div style="margin-top:18px;font-size:12px;color:var(--t-tertiary);line-height:1.6">
             <i class="fa-solid fa-circle-info" style="color:var(--brand-purple)"></i>
-            申诉工单详情见 <a href="transaction-appeal-detail.html" style="color:var(--brand-purple)">申诉详情</a>；订单维度申诉请从对应账单详情进入。
+            订单维度申诉请从对应账单详情进入；渠道统一为「钱包 · 所选网络」。
         </div>
     </main>
 </div>
+<script>
+(function () {
+    var root = document.getElementById('fhFilters');
+    if (!root) return;
+    var rows = Array.prototype.slice.call(document.querySelectorAll('#fhTbody tr'));
+    var typeFilter = 'all';
+    var statusFilter = 'all';
+
+    function apply() {
+        rows.forEach(function (tr) {
+            var t = tr.getAttribute('data-type') || '';
+            var s = tr.getAttribute('data-status') || '';
+            var okType = typeFilter === 'all' || t === typeFilter;
+            var okStatus = true;
+            if (statusFilter === 'processing') okStatus = s === '入账中';
+            else if (statusFilter === 'done') okStatus = s === '已到账';
+            tr.hidden = !(okType && okStatus);
+        });
+    }
+
+    root.querySelectorAll('button[data-filter]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var f = btn.getAttribute('data-filter');
+            root.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            if (f === 'all') {
+                typeFilter = 'all';
+                statusFilter = 'all';
+            } else if (f === 'recharge' || f === 'withdraw') {
+                typeFilter = f;
+                statusFilter = 'all';
+            } else if (f === 'processing') {
+                typeFilter = 'all';
+                statusFilter = 'processing';
+            } else if (f === 'done') {
+                typeFilter = 'all';
+                statusFilter = 'done';
+            } else {
+                typeFilter = 'all';
+                statusFilter = 'all';
+            }
+            apply();
+        });
+    });
+})();
+</script>
 </body>
 </html>

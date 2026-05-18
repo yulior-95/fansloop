@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="../css-web/funds-moonpay.css">
 <link rel="stylesheet" href="../css-web/funds-flow.css">
 <link rel="stylesheet" href="../css-web/recharge-flow.css">
+<link rel="stylesheet" href="../css-web/moonpay-guide-modals.css">
 <link rel="stylesheet" href="../css-web/kyc-modals.css">
 <style>
 body.page-withdraw-web .app-main { overflow: visible; }
@@ -16,7 +17,7 @@ body.page-withdraw-web .app-main { overflow: visible; }
 .wd-dd-card { overflow: visible !important; position: relative; z-index: 1; }
 @media (max-width: 1100px) { .wd-grid { grid-template-columns: 1fr; } }
 
-.method-tabs { display: flex; gap: 10px; margin-bottom: 22px; }
+.method-tabs { display: none !important; margin-bottom: 0 !important; height: 0; overflow: hidden; padding: 0 !important; border: none !important; }
 .mt-card {
     flex: 1; padding: 18px 20px;
     background: var(--bg-card);
@@ -92,7 +93,6 @@ body.page-withdraw-web .app-main { overflow: visible; }
 </style>
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
-<script src="../js-web/withdraw-usdt-flow.js" defer></script>
 </head>
 <body class="page-withdraw-web">
 
@@ -134,7 +134,7 @@ body.page-withdraw-web .app-main { overflow: visible; }
             </div>
             <div class="ph-r">
                 <button type="button" class="btn btn-secondary btn-sm" onclick="location.href='funds-history.html'"><i class="fa-solid fa-clock-rotate-left"></i> 充提记录</button>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="location.href='withdraw-help-modal.html'"><i class="fa-solid fa-circle-question"></i> 提现帮助</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="MpGuideOpen('withdraw')"><i class="fa-solid fa-circle-question"></i> 提现帮助</button>
             </div>
         </div>
 
@@ -149,10 +149,10 @@ body.page-withdraw-web .app-main { overflow: visible; }
             </div>
         </div>
 
-        <div class="method-tabs">
+        <div class="method-tabs" style="display:none!important" aria-hidden="true">
             <div class="mt-card bank" onclick="location.href='withdraw-fiat.html'">
                 <div class="ic-big"><i class="fa-solid fa-building-columns"></i></div>
-                <div class="info"><div class="t">提现到银行卡</div><div class="s">法币入账借记卡</div></div>
+                <div class="info"><div class="t">提现到银行卡</div><div class="s">法币入账借记卡（已下线，原型保留）</div></div>
             </div>
             <div class="mt-card chain active">
                 <div class="ic-big">₮</div>
@@ -338,6 +338,39 @@ body.page-withdraw-web .app-main { overflow: visible; }
     </div>
 </div>
 
+<div id="mpGuideWithdraw" class="mp-guide-overlay" role="dialog" aria-modal="true" aria-labelledby="mpWdTitleUsdt">
+    <div class="mp-guide-dialog" onclick="event.stopPropagation()">
+        <div class="mp-guide-head">
+            <div>
+                <h2 id="mpWdTitleUsdt">MoonPay 提现与卖币（图文）</h2>
+                <p>将平台 USDT 转入 MoonPay 后卖出法币。以下为高保真原型步骤；配图来自 Unsplash 真实摄影，实际以 MoonPay 为准。</p>
+            </div>
+            <button type="button" class="mp-guide-close" data-mp-guide-close aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="mp-guide-body">
+            <p class="mp-guide-footnote">原型说明：用于对齐步骤与文案；每步配图均为可商用图库素材，非 MoonPay 官方截图。</p>
+            <div class="mp-step">
+                <div class="mp-step-num">1</div>
+                <h3>在 FansLoop 发起链上提现</h3>
+                <p>选择网络、填写 MoonPay 提供的 USDT 地址，确认手续费后提交。</p>
+                <figure><img src="https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=900&q=80" alt="" loading="lazy" /><figcaption>链上转账示意</figcaption></figure>
+            </div>
+            <div class="mp-step">
+                <div class="mp-step-num">2</div>
+                <h3>登录 MoonPay</h3>
+                <p>完成注册与验证后进入资产或 Sell 流程。</p>
+                <figure><img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=900&q=80" alt="" loading="lazy" /><figcaption>移动端登录示意</figcaption></figure>
+            </div>
+            <div class="mp-step">
+                <div class="mp-step-num">3</div>
+                <h3>链上确认与卖出</h3>
+                <p>待 USDT 入账 MoonPay 后，选择卖出并绑定银行卡。</p>
+                <figure><img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=900&q=80" alt="" loading="lazy" /><figcaption>卖币与支付示意</figcaption></figure>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="wdGlobalToastUsdt" class="toast-mini" role="status" aria-live="polite"></div>
 
 <script src="../js-web/kyc-store.js"></script>
@@ -352,5 +385,7 @@ body.page-withdraw-web .app-main { overflow: visible; }
     });
 })();
 </script>
+<script src="../js-web/withdraw-usdt-flow.js"></script>
+<script src="../js-web/moonpay-guide-modals.js"></script>
 </body>
 </html>

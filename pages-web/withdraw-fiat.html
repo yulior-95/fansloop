@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>提现到银行卡 · FansLoop</title>
+<title>钱包提现 · FansLoop</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
 <link rel="stylesheet" href="../css-web/funds-moonpay.css">
@@ -10,8 +10,57 @@
 <link rel="stylesheet" href="../css-web/recharge-flow.css">
 <link rel="stylesheet" href="../css-web/kyc-modals.css">
 <link rel="stylesheet" href="../css-web/dev-glass-note.css">
+<link rel="stylesheet" href="../css-web/moonpay-guide-modals.css">
 <style>
-.wd-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; max-width: 1280px; }
+body.page-withdraw-web .app-main { overflow: visible; }
+.proto-withdraw-chain-only .wd-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; max-width: 1280px; }
+.proto-withdraw-chain-only .wd-grid > div:first-child { min-width: 0; }
+.proto-withdraw-chain-only .wd-dd-card { overflow: visible !important; position: relative; z-index: 1; }
+.proto-withdraw-chain-only .amt-input {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 26px; margin-bottom: 18px;
+}
+.proto-withdraw-chain-only .amt-input .lbl { font-size: 12px; color: var(--t-tertiary); letter-spacing: 0.5px; margin-bottom: 14px; font-weight: 600; display: flex; justify-content: space-between; }
+.proto-withdraw-chain-only .amt-input .lbl a { color: var(--brand-purple); font-size: 11px; }
+.proto-withdraw-chain-only .amt-input .input-row { display: flex; align-items: baseline; gap: 8px; }
+.proto-withdraw-chain-only .amt-input .input-row input {
+    flex: 1; background: transparent; border: none;
+    font-size: 48px; font-weight: 900; color: #fff;
+    letter-spacing: -1px; outline: none; min-width: 0;
+}
+.proto-withdraw-chain-only .amt-input .input-row .unit { font-size: 18px; color: var(--t-tertiary); font-weight: 600; }
+.proto-withdraw-chain-only .amt-input .equiv { font-size: 13px; color: var(--t-tertiary); margin-top: 8px; line-height: 1.55; }
+.proto-withdraw-chain-only .addr-input {
+    background: var(--bg-input); border: 1.5px solid var(--border);
+    border-radius: var(--r-md); padding: 14px;
+    font-family: ui-monospace, monospace; font-size: 12.5px;
+    color: #fff; word-break: break-all;
+    display: flex; align-items: center; justify-content: flex-end;
+    gap: 10px;
+}
+.proto-withdraw-chain-only .addr-input.valid { border-color: var(--success); background: rgba(16,185,129,0.04); }
+.proto-withdraw-chain-only .addr-input .addr-txt { flex: 1; text-align: left; }
+.proto-withdraw-chain-only .recent-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    background: var(--bg-input);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: 0.15s;
+}
+.proto-withdraw-chain-only .recent-row:hover { background: var(--bg-card-2); }
+.proto-withdraw-chain-only .recent-row.selected {
+    border-color: var(--brand-purple);
+    background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.04));
+}
+.proto-withdraw-chain-only .recent-row .av-icon { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, #A855F7, #EC4899); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; }
+.proto-withdraw-chain-only .recent-row .info { flex: 1; min-width: 0; }
+.proto-withdraw-chain-only .recent-row .info .nm { font-size: 12px; font-weight: 600; }
+.proto-withdraw-chain-only .recent-row .info .ad { font-size: 10.5px; color: var(--t-tertiary); font-family: ui-monospace, monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.proto-withdraw-chain-only .withdraw-page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.proto-withdraw-chain-only .withdraw-page-head .ph-r { display: flex; gap: 10px; flex-wrap: wrap; }
 @media (max-width: 1100px) { .wd-grid { grid-template-columns: 1fr; } }
 
 .method-tabs { display: flex; gap: 10px; margin-bottom: 22px; }
@@ -266,7 +315,7 @@
 <script src="../js-web/global-lang-switch.js" defer></script>
 <script src="../js-web/recharge-fiat-currency.js" defer></script>
 </head>
-<body>
+<body class="page-withdraw-web">
 
 <div class="app-shell">
     <aside class="app-sidebar">
@@ -301,6 +350,7 @@
     </header>
 
     <main class="app-main">
+        <div id="protoFiatWithdrawLegacy" style="display:none!important" aria-hidden="true">
         <div class="page-head withdraw-page-head">
             <div class="ph-l">
                 <div class="crumb"><a href="wallet.html">我的钱包</a><i class="fa-solid fa-chevron-right"></i><span class="curr">提现到银行卡</span></div>
@@ -387,7 +437,7 @@
                 </div>
 
                 <div class="amt-input">
-                    <div class="lbl"><span>提现金额</span><a role="button" tabindex="0" id="wdFillMax">全部可提</a></div>
+                    <div class="lbl"><span>提现金额</span><a role="button" tabindex="0" id="wdFillMaxFiatLegacy">全部可提</a></div>
                     <div class="input-row amt-row-with-hint">
                         <div class="wd-amt-core">
                             <span class="currency" id="withdrawCurrencySymbol">—</span>
@@ -457,6 +507,133 @@
                     </div>
                 </div>
             </div>
+        </div>
+        </div>
+
+        <div class="proto-withdraw-chain-only">
+        <div class="page-head withdraw-page-head">
+            <div class="ph-l">
+                <div class="crumb"><a href="wallet.html">我的钱包</a><i class="fa-solid fa-chevron-right"></i><span class="curr">提现</span><i class="fa-solid fa-chevron-right"></i><span class="curr">钱包提现</span></div>
+                <h1>钱包提现</h1>
+                <p>仅支持 <b style="color:#fff">USDT</b> 提现至链上地址。<b style="color:#fff">参考实时汇率</b>展示法币估值；最终以提现成功时的实时汇率为准。</p>
+            </div>
+            <div class="ph-r">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="location.href='funds-history.html'"><i class="fa-solid fa-clock-rotate-left"></i> 充提记录</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="MpGuideOpen('withdraw')"><i class="fa-solid fa-circle-question"></i> 提现帮助</button>
+            </div>
+        </div>
+
+        <div class="bal-hero-card" id="balWithdrawHero" data-max-usdt="5820.40" data-cny-rate="7.0991">
+            <div class="bal-main">
+                <div class="lb">可提现余额</div>
+                <div class="val">5,820.40<span class="u">USDT</span></div>
+            </div>
+            <div class="bal-sub">
+                <div>≈ <span class="cny">¥41,324.84</span></div>
+                <div style="font-size:11px;color:var(--t-tertiary);margin-top:4px">参考实时汇率</div>
+            </div>
+        </div>
+
+        <div class="wd-grid">
+            <div>
+                <div class="amt-input">
+                    <div class="lbl"><span>提现金额</span><a href="#" id="wdFillMax">全部 5,820.40 USDT</a></div>
+                    <div class="input-row">
+                        <input type="text" id="wdAmtInput" value="200.00" inputmode="decimal" autocomplete="off" />
+                        <span class="unit">USDT</span>
+                    </div>
+                    <div class="equiv" id="wdEquivLine">≈ ¥1,419.82 · 参考实时汇率，<b style="color:var(--t-secondary)">最终以提现成功时的实时汇率为准</b></div>
+                </div>
+
+                <div class="card wd-dd-card" style="padding: 22px 24px; margin-bottom: 18px">
+                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 14px"><i class="fa-solid fa-network-wired"></i> 选择网络</h4>
+                    <div class="flow-block" style="margin: 0; padding: 0; border: none">
+                        <div class="fl-dd" id="wdDdNet">
+                            <button type="button" class="fl-dd-trigger" id="wdNetTrigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="wdNetPanel">
+                                <span class="net-dot" aria-hidden="true"></span>
+                                <span class="ph">请选择网络</span>
+                                <span class="mid">
+                                    <span class="n"></span>
+                                    <span class="d"></span>
+                                </span>
+                                <i class="fa-solid fa-chevron-down chev"></i>
+                            </button>
+                            <div class="fl-dd-panel" id="wdNetPanel" role="listbox" aria-label="提现网络列表">
+                                <div class="fl-search-wrap">
+                                    <div class="fl-search-row">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                        <input type="search" id="wdNetSearchInput" placeholder="模糊搜索网络" autocomplete="off" spellcheck="false" />
+                                        <button type="button" class="fl-search-clear" id="wdNetSearchClear" title="清空"><i class="fa-solid fa-circle-xmark"></i></button>
+                                    </div>
+                                </div>
+                                <div class="fl-dd-hint">
+                                    请注意，这里仅展示了平台所支持的提现网络；请确保接收地址与所选网络一致，否则可能导致资产损失。
+                                </div>
+                                <div class="fl-dd-list" id="wdNetDdList"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="notice notice-warning" style="margin-top: 14px">
+                        <i class="fa-solid fa-triangle-exclamation ni"></i>
+                        <span>请确认接收地址与网络一致，错误将导致资产不可找回。</span>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 22px 24px; margin-bottom: 18px">
+                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center">
+                        <span><i class="fa-solid fa-location-dot"></i> 接收地址</span>
+                        <a href="wallet-address-book.html" style="font-size: 11px; color: var(--brand-purple); font-weight: 600"><i class="fa-solid fa-address-book"></i> 通讯录</a>
+                    </h4>
+                    <div class="addr-input valid" id="addrBox">
+                        <span class="addr-txt" id="wdAddrField">TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs</span>
+                        <button type="button" class="btn btn-sm" style="padding:6px 10px;font-size:11px"><i class="fa-solid fa-paste"></i> 粘贴</button>
+                    </div>
+                    <div class="field-help t-success" style="margin-top: 8px"><i class="fa-solid fa-circle-check"></i> 地址格式有效 (<span id="wdAddrNetShort">TRC20</span>)</div>
+
+                    <h5 style="font-size: 11px; color: var(--t-tertiary); margin: 16px 0 8px; text-transform: uppercase; letter-spacing: 0.4px">常用地址</h5>
+                    <div class="recent-row selected" data-addr="TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs">
+                        <div class="av-icon">M</div>
+                        <div class="info"><div class="nm">My MetaMask</div><div class="ad">TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs</div></div>
+                        <span class="row-ind"><i class="fa-solid fa-check" style="color:var(--brand-purple);font-size:12px"></i></span>
+                    </div>
+                    <div class="recent-row" data-addr="TQ4q9xgsQyKkCepXyGMDazh2UcqA6XrXVT">
+                        <div class="av-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706)">T</div>
+                        <div class="info"><div class="nm">Trust Wallet</div><div class="ad">TQ4q9xgsQyKkCepXyGMDazh2UcqA6XrXVT</div></div>
+                        <span class="row-ind"><i class="fa-solid fa-chevron-right" style="color: var(--t-tertiary); font-size: 11px"></i></span>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 22px 24px">
+                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 14px"><i class="fa-solid fa-receipt"></i> 提现摘要</h4>
+                    <div class="kv-list">
+                        <div class="kv-row"><span class="k">提现金额</span><span class="v num" id="kvWdAmt">200.00 USDT</span></div>
+                        <div class="kv-row"><span class="k">网络</span><span class="v" id="kvWdNet">TRC20 (Tron)</span></div>
+                        <div class="kv-row"><span class="k">网络费用</span><span class="v num" id="kvWdFee">− 1.40 USDT</span></div>
+                        <div class="kv-row"><span class="k">接收地址</span><span class="v num" id="kvWdAddr" style="font-size:11px">TG3X…aSJozs</span></div>
+                        <div class="kv-row" style="border-bottom: none"><span class="k" style="color:#fff;font-weight:600">参考净到账</span><span class="v num t-grad" id="kvWdRecv" style="font-size: 18px; font-weight: 800">198.60 USDT</span></div>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top: 18px" id="btnWdSubmitUsdt">
+                        <i class="fa-solid fa-paper-plane"></i> 提交提现订单
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <div class="card" style="padding: 22px 24px; margin-bottom: 14px">
+                    <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 12px"><i class="fa-solid fa-circle-info" style="color:#3B82F6"></i> 网络说明</h4>
+                    <div style="font-size: 12.5px; line-height: 1.8; color: var(--t-secondary)">
+                        • ERC20、TRC20、BEP20、Polygon 费率不同<br>
+                        • 到账时间受链上拥堵影响
+                    </div>
+                </div>
+                <div class="card" style="padding: 22px 24px">
+                    <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 12px"><i class="fa-solid fa-triangle-exclamation" style="color:var(--warning)"></i> 安全提示</h4>
+                    <div style="font-size: 12.5px; line-height: 1.8; color: var(--t-secondary)">
+                        链上转账不可撤销；建议先小额试转。
+                    </div>
+                </div>
+            </div>
+        </div>
         </div>
     </main>
 </div>
@@ -555,6 +732,51 @@
 </div>
 
 <div id="wdGlobalToast" class="toast-mini" role="status" aria-live="polite"></div>
+
+<div id="mpGuideWithdraw" class="mp-guide-overlay" role="dialog" aria-modal="true" aria-labelledby="mpWdTitle">
+    <div class="mp-guide-dialog" onclick="event.stopPropagation()">
+        <div class="mp-guide-head">
+            <div>
+                <h2 id="mpWdTitle">MoonPay 提现与卖币（图文）</h2>
+                <p>将平台 USDT 转入 MoonPay 托管流程后，在 MoonPay 卖出为法币并入账银行卡。以下为高保真原型步骤，界面素材选自 Unsplash 真实摄影，实际以 MoonPay 官方页面为准。</p>
+            </div>
+            <button type="button" class="mp-guide-close" data-mp-guide-close aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="mp-guide-body">
+            <p class="mp-guide-footnote">说明：MoonPay 为第三方服务商；FansLoop 原型使用开源图库展示「手机端加密支付 / 银行应用」的真实视觉质感，便于研发对齐信息层级与文案位置。</p>
+            <div class="mp-step">
+                <div class="mp-step-num">1</div>
+                <h3>在 FansLoop 发起链上提现</h3>
+                <p>在本页选择网络、填写或粘贴接收地址（可为 MoonPay 提供的入金地址），确认网络费用后提交订单。</p>
+                <figure><img src="https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=900&q=80" alt="" width="900" height="600" loading="lazy" /><figcaption>链上转账示意：请在真实环境中核对地址与网络。</figcaption></figure>
+            </div>
+            <div class="mp-step">
+                <div class="mp-step-num">2</div>
+                <h3>打开 MoonPay 并登录</h3>
+                <p>使用浏览器或 App 登录 MoonPay；未完成注册则按指引创建账号并完成邮箱 / 手机验证。</p>
+                <figure><img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=900&q=80" alt="" width="900" height="600" loading="lazy" /><figcaption>移动端账户入口示意。</figcaption></figure>
+            </div>
+            <div class="mp-step">
+                <div class="mp-step-num">3</div>
+                <h3>将 USDT 发送至 MoonPay</h3>
+                <p>在 MoonPay 资产页获取 USDT 充值地址与网络；从 FansLoop 或自有钱包发起转账，等待链上确认。</p>
+                <figure><img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=900&q=80" alt="" width="900" height="600" loading="lazy" /><figcaption>加密资产界面氛围参考。</figcaption></figure>
+            </div>
+            <div class="mp-step">
+                <div class="mp-step-num">4</div>
+                <h3>在 MoonPay 发起 Sell（卖出）</h3>
+                <p>选择卖出 USDT，绑定收款银行卡或已有支付方式，确认汇率与手续费。</p>
+                <figure><img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=900&q=80" alt="" width="900" height="600" loading="lazy" /><figcaption>银行卡与支付流程视觉参考。</figcaption></figure>
+            </div>
+            <div class="mp-step">
+                <div class="mp-step-num">5</div>
+                <h3>完成卖出并查收法币</h3>
+                <p>确认交易后等待 MoonPay 与银行清算；到账时间因地区与银行而异。可在 FansLoop「充提记录」查看链上提现状态。</p>
+                <figure><img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=900&q=80" alt="" width="900" height="600" loading="lazy" /><figcaption>资金到账与对账示意。</figcaption></figure>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="../js-web/kyc-store.js"></script>
 <script>
@@ -697,7 +919,7 @@
         syncDebitTriggerEmpty();
     })();
 
-    document.getElementById('wdFillMax') && document.getElementById('wdFillMax').addEventListener('click', function () {
+    document.getElementById('wdFillMaxFiatLegacy') && document.getElementById('wdFillMaxFiatLegacy').addEventListener('click', function () {
         var inp = document.getElementById('wdFiatAmount');
         if (inp) inp.value = '5820.40';
         showToast('已填入演示最大值（原型）');
@@ -750,6 +972,11 @@
             return;
         }
         location.href = 'modal-withdraw-bank-moonpay.html';
+    });
+
+    document.getElementById('btnWdSubmitUsdt') && document.getElementById('btnWdSubmitUsdt').addEventListener('click', function () {
+        if (!kycGate()) return;
+        location.href = 'modal-withdraw-chain-moonpay.html';
     });
 
     var kycStep = 1;
@@ -853,5 +1080,7 @@
     });
 })();
 </script>
+<script src="../js-web/withdraw-usdt-flow.js"></script>
+<script src="../js-web/moonpay-guide-modals.js"></script>
 </body>
 </html>

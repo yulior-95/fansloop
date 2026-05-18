@@ -441,18 +441,6 @@ body {
                 <textarea id="descInput" maxlength="30" placeholder="一句话介绍本场直播（最多30字）"></textarea>
             </div>
             <div class="field">
-                <div class="lb"><span>开播时间</span></div>
-                <select id="scheduleSelect">
-                    <option value="now">立即开播</option>
-                    <option value="in30">预约 30 分钟后</option>
-                    <option value="custom">自定义</option>
-                </select>
-                <div class="custom-time-wrap" id="customTimeWrap">
-                    <div class="lb2">请选择当前时间至少 30 分钟之后的日期与时间（精确到分钟）</div>
-                    <input type="datetime-local" id="customDateTime" step="60">
-                </div>
-            </div>
-            <div class="field">
                 <div class="lb"><span>可查看权限</span><span id="permHint">公开·所有人可见</span></div>
                 <select id="permSelect">
                     <option value="public" selected>公开·所有人可见</option>
@@ -527,9 +515,6 @@ body {
     const titleCount = document.getElementById('titleCount');
     const descInput = document.getElementById('descInput');
     const descCount = document.getElementById('descCount');
-    const scheduleSelect = document.getElementById('scheduleSelect');
-    const customTimeWrap = document.getElementById('customTimeWrap');
-    const customDateTime = document.getElementById('customDateTime');
     const permSelect = document.getElementById('permSelect');
     const permHint = document.getElementById('permHint');
     const friendOverlay = document.getElementById('friendOverlay');
@@ -544,21 +529,6 @@ body {
     let selectedFriends = [];
     let camStream = null;
 
-    function pad(n) { return String(n).padStart(2, '0'); }
-    function minCustomISOString() {
-        var d = new Date(Date.now() + 30 * 60 * 1000);
-        d.setSeconds(0, 0);
-        return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
-    }
-
-    function refreshCustomMin() {
-        var minVal = minCustomISOString();
-        customDateTime.min = minVal;
-        if (!customDateTime.value || customDateTime.value < minVal) {
-            customDateTime.value = minVal;
-        }
-    }
-
     function getPlayMode() {
         var r = document.querySelector('input[name="playMode"]:checked');
         return r ? r.value : 'video';
@@ -568,27 +538,6 @@ body {
         var m = getPlayMode();
         panelVideo.classList.toggle('show', m === 'video');
         panelObs.classList.toggle('show', m === 'obs');
-    }
-
-    function getScheduleLabel() {
-        var s = scheduleSelect.value;
-        if (s === 'now') return '立即开播';
-        if (s === 'in30') return '约 30 分钟后';
-        if (s === 'custom') return (customDateTime.value || '').replace('T', ' ');
-        return '';
-    }
-
-    function computeScheduledAtMs() {
-        var s = scheduleSelect.value;
-        if (s === 'in30') return Date.now() + 30 * 60 * 1000;
-        if (s === 'custom') {
-            var v = customDateTime.value;
-            if (!v) return null;
-            var d = new Date(v);
-            if (isNaN(d.getTime())) return null;
-            return d.getTime();
-        }
-        return null;
     }
 
     function syncExistingHint() {
@@ -684,15 +633,6 @@ body {
         camPlaceholder.style.display = '';
     });
 
-    scheduleSelect.addEventListener('change', function () {
-        if (scheduleSelect.value === 'custom') {
-            customTimeWrap.classList.add('show');
-            refreshCustomMin();
-        } else {
-            customTimeWrap.classList.remove('show');
-        }
-    });
-
     function openFriendOverlay() { friendOverlay.classList.add('show'); }
     function closeFriendOverlay() { friendOverlay.classList.remove('show'); }
 
@@ -746,56 +686,12 @@ body {
     });
 
     document.getElementById('btnSubmitLive').addEventListener('click', function () {
-        if (scheduleSelect.value === 'custom') {
-            refreshCustomMin();
-            var v = customDateTime.value;
-            if (!v || v < customDateTime.min) {
-                alert('请选择当前时间至少 30 分钟之后的开播时间。');
-                return;
-            }
-        }
-
         var mode = getPlayMode();
-        var scheduled = scheduleSelect.value !== 'now';
-
-        var payload = {
-            id: String(Date.now()),
-            title: (titleInput.value || '').trim() || '未命名直播',
-            desc: (descInput.value || '').trim(),
-            scheduleLabel: getScheduleLabel(),
-            playMode: mode,
-            playModeLabel: mode === 'obs' ? '电脑直播 · OBS' : '视频直播 · 摄像头',
-            createdAt: Date.now()
-        };
 
         function closeParentModal() {
             try {
                 window.parent.postMessage({ type: 'fansloop-close-modal' }, '*');
             } catch (e) {}
-        }
-
-        if (scheduled) {
-            if (typeof flLiveReservationHasActive === 'function' && flLiveReservationHasActive()) {
-                alert('已存在预约直播');
-                return;
-            }
-            var sat = computeScheduledAtMs();
-            if (sat == null) {
-                alert('无法解析预约开播时间，请检查自定义时间。');
-                return;
-            }
-            payload.scheduledAt = sat;
-            if (typeof flLiveReservationSet === 'function') {
-                flLiveReservationSet(payload);
-            }
-            try {
-                window.parent.postMessage({ type: 'fansloop-live-scheduled', payload: payload }, '*');
-                closeParentModal();
-            } catch (e) {
-                localStorage.setItem('fl_home_toast', '直播预约成功');
-                window.location.href = 'home.html';
-            }
-            return;
         }
 
         try {
@@ -806,7 +702,6 @@ body {
         }
     });
 
-    setInterval(refreshCustomMin, 60000);
 })();
 </script>
 <script src="../js-web/fl-embed-modal-dismiss.js"></script>

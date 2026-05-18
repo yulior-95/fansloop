@@ -12,7 +12,7 @@
 /* 创建类型卡片 */
 .type-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 14px;
     margin-bottom: 24px;
 }
@@ -92,33 +92,111 @@
 
 .title-input {
     width: 100%;
-    height: 50px;
-    background: transparent;
-    border: none;
+    height: auto;
+    min-height: 50px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
     color: #fff;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 700;
     outline: none;
-    margin-bottom: 8px;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 12px;
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    box-sizing: border-box;
+    transition: border-color 0.15s, box-shadow 0.15s;
 }
-.title-input:focus { border-bottom-color: var(--brand-purple); }
+.title-input:focus {
+    border-color: var(--brand-purple);
+    box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.25);
+}
 .title-input::placeholder { color: var(--t-quaternary); }
 
 .editor-text {
     width: 100%;
     min-height: 200px;
-    background: transparent;
-    border: none;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
     color: #fff;
     font-size: 14px;
     line-height: 1.65;
     outline: none;
-    resize: none;
-    margin-top: 14px;
+    resize: vertical;
+    margin-top: 0;
+    padding: 12px 14px;
+    box-sizing: border-box;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.editor-text:focus {
+    border-color: var(--brand-purple);
+    box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.25);
 }
 .editor-text::placeholder { color: var(--t-quaternary); }
+
+.video-upload-zone {
+    margin-top: 14px;
+    aspect-ratio: 16/9;
+    border: 2px dashed rgba(59, 130, 246, 0.35);
+    border-radius: var(--r-md);
+    background: rgba(59, 130, 246, 0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: 0.18s;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+.video-upload-zone:hover { border-color: rgba(59, 130, 246, 0.55); background-color: rgba(59, 130, 246, 0.1); }
+.video-upload-zone.has-video { border-style: solid; color: #fff; }
+.video-upload-zone.has-video::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.65));
+    border-radius: inherit;
+}
+.video-upload-zone .vz-inner { position: relative; z-index: 1; text-align: center; }
+.video-upload-zone.has-video .vz-inner { align-self: flex-end; padding-bottom: 16px; }
+
+.pub-success-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 15000;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(8px);
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+.pub-success-overlay.show { display: flex; }
+.pub-success-card {
+    width: min(420px, 100%);
+    padding: 32px 28px;
+    text-align: center;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-lg);
+}
+.pub-success-card .ic {
+    width: 64px; height: 64px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(59,130,246,0.15));
+    color: #6EE7B7;
+    font-size: 28px;
+    display: flex; align-items: center; justify-content: center;
+}
+.pending-actions .btn-preview {
+    border-color: rgba(59, 130, 246, 0.35);
+    color: #93C5FD;
+}
 
 .upload-zone {
     margin-top: 14px;
@@ -239,11 +317,336 @@
 .price-cell .ti { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
 .price-cell .sub { font-size: 11px; color: var(--t-tertiary); }
 .price-cell.selected .sub { color: #C084FC; }
+.price-cell.checked {
+    background: linear-gradient(135deg, rgba(168,85,247,0.12), rgba(236,72,153,0.06));
+    border-color: var(--brand-purple);
+}
+.price-cell.checked .sub { color: #C084FC; }
+.price-cell.disabled {
+    opacity: 0.42;
+    pointer-events: none;
+    filter: grayscale(0.35);
+}
+.price-cell .price-check {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    border: 1.5px solid var(--border-strong);
+    background: var(--bg-input);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: transparent;
+}
+.price-cell { position: relative; }
+.price-cell.checked .price-check,
+.price-cell.selected .price-check {
+    background: var(--brand-purple);
+    border-color: var(--brand-purple);
+    color: #fff;
+}
 .price-cell .price-amt {
     margin-top: 6px;
     font-size: 16px; font-weight: 800;
 }
 .price-cell .price-amt .u { font-size: 11px; font-weight: 600; color: var(--t-tertiary); margin-left: 2px; }
+.setting-row.clickable { cursor: pointer; }
+.setting-row.clickable:hover { background: var(--bg-hover); }
+.setting-divider {
+    padding: 12px 18px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--t-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-top: 1px solid var(--border);
+}
+.live-config-block {
+    padding: 0 18px 16px;
+    border-top: 1px solid var(--border);
+    display: none;
+}
+.live-config-block.show { display: block; }
+.live-config-block .lc-head {
+    padding: 14px 0 10px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.live-config-block .lc-head i { color: #A855F7; }
+.live-config-block .lc-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(168,85,247,0.15);
+    color: #C084FC;
+    border: 1px solid rgba(168,85,247,0.35);
+}
+.stream-rows { display: flex; flex-direction: column; gap: 10px; }
+.stream-row {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    font-size: 12px;
+}
+.stream-row code {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 11px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.35);
+    border: 1px solid var(--border);
+    color: #E9D5FF;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 11px;
+    word-break: break-all;
+}
+.stream-row .btn-copy {
+    flex-shrink: 0;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--t-primary);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.stream-row .btn-copy:hover { border-color: var(--border-focus); }
+.obs-links {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+.obs-wait {
+    margin-top: 10px;
+    font-size: 11.5px;
+    color: var(--t-secondary);
+    line-height: 1.5;
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(168,85,247,0.08);
+    border: 1px solid rgba(168,85,247,0.2);
+}
+.obs-wait strong { color: #fff; }
+
+.schedule-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(8px);
+    z-index: 12000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.schedule-overlay.show { display: flex; }
+.schedule-panel {
+    width: min(440px, 100%);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    overflow: hidden;
+}
+.schedule-panel .sp-head {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.schedule-panel .sp-head h3 { font-size: 16px; font-weight: 800; }
+.schedule-panel .sp-body { padding: 14px 18px 18px; }
+.schedule-opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: var(--r-md);
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: .15s;
+}
+.schedule-opt:hover { border-color: var(--border-strong); }
+.schedule-opt.selected {
+    border-color: rgba(168,85,247,0.55);
+    background: rgba(168,85,247,0.1);
+}
+.schedule-opt input { accent-color: #A855F7; margin-top: 3px; flex-shrink: 0; }
+.schedule-opt > div:last-child { flex: 1; min-width: 0; }
+.schedule-opt .so-ti { font-size: 13px; font-weight: 700; }
+.schedule-opt .so-sub { font-size: 11px; color: var(--t-tertiary); margin-top: 2px; }
+.schedule-custom {
+    display: none;
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: var(--r-md);
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+}
+.schedule-custom.show { display: block; }
+.schedule-custom label { font-size: 11px; color: var(--t-tertiary); display: block; margin-bottom: 8px; line-height: 1.45; }
+.schedule-custom input[type="datetime-local"] {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-elevated);
+    color: #fff;
+    font-size: 13px;
+}
+.schedule-panel .sp-foot {
+    padding: 0 18px 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+.obs-guide-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.72);
+    backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 13000;
+    padding: 16px;
+}
+.obs-guide-overlay.show { display: flex; }
+.obs-guide-overlay iframe {
+    width: min(680px, 100%);
+    height: min(560px, 90vh);
+    border: none;
+    border-radius: var(--r-xl);
+    box-shadow: 0 24px 70px rgba(0,0,0,0.55);
+}
+.price-amount-rows { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+.price-amount-field {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+}
+.price-amount-field.show { display: flex; }
+.price-amount-field label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--t-secondary);
+    min-width: 108px;
+    flex-shrink: 0;
+}
+.price-amount-field input {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 12px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    outline: none;
+}
+.price-amount-field input:focus {
+    border-color: var(--brand-purple);
+    box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.25);
+}
+.price-amount-field .unit {
+    font-size: 12px;
+    color: var(--t-tertiary);
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.preview-mock .pm-video {
+    margin-top: 12px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    aspect-ratio: 16/9;
+    background: #000 center/cover no-repeat;
+    position: relative;
+    display: none;
+}
+.preview-mock .pm-video.show { display: block; }
+.preview-mock .pm-video .play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.25);
+}
+.preview-mock .pm-video .play span {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.92);
+    color: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    padding-left: 4px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+}
+
+.mp-cell .del:hover { background: rgba(239,68,68,0.85); }
+.mp-cell.add:hover { border-color: var(--brand-purple); color: #C084FC; background: rgba(168,85,247,0.08); }
+
+.live-mode-seg { display: flex; gap: 8px; margin-bottom: 16px; }
+.live-mode-seg button {
+    flex: 1; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--bg-input); color: var(--t-secondary); font-size: 12.5px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: .15s;
+}
+.live-mode-seg button.selected {
+    border-color: rgba(239,68,68,0.55); background: rgba(239,68,68,0.12); color: #fff;
+}
+.live-preview-hint {
+    margin-top: 12px; padding: 12px 14px; border-radius: var(--r-md);
+    background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.22);
+    font-size: 12px; color: var(--t-secondary); line-height: 1.55;
+}
+.live-preview-hint i { color: #60A5FA; margin-right: 6px; }
+.live-preview-cover {
+    aspect-ratio: 16/9; border-radius: var(--r-md); background-size: cover; background-position: center;
+    border: 1.5px dashed var(--border-strong); margin-top: 12px; position: relative; cursor: pointer; overflow: hidden;
+}
+.live-preview-cover .chg {
+    position: absolute; right: 10px; bottom: 10px; font-size: 11px; font-weight: 600;
+    padding: 6px 10px; border-radius: 8px; background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(255,255,255,0.15); color: #fff;
+}
+.live-preview-time { margin-top: 14px; }
+.live-preview-time label {
+    display: block; font-size: 12px; font-weight: 600; color: var(--t-secondary); margin-bottom: 8px;
+}
+.live-preview-time input {
+    width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-strong);
+    background: var(--bg-input); color: #fff; font-size: 13px;
+}
+.live-preview-badge {
+    display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
+    background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.35);
+    color: #FDE68A; font-size: 11px; font-weight: 700; margin-bottom: 10px;
+}
 
 /* 标签 */
 .tag-input {
@@ -533,7 +936,6 @@
             </div>
             <div class="ph-r">
                 <button type="button" class="btn" id="btnDraftTop"><i class="fa-regular fa-floppy-disk"></i> 保存草稿</button>
-                <button type="button" class="btn" id="btnPreviewTop"><i class="fa-solid fa-eye"></i> 预览</button>
             </div>
         </div>
 
@@ -580,6 +982,7 @@
                             <td style="padding:12px 0;border-bottom:1px solid var(--border);color:var(--t-tertiary)">今天 09:12</td>
                             <td style="padding:12px 0;border-bottom:1px solid var(--border)"><span style="color:#FBBF24">审核中</span></td>
                             <td style="padding:12px 0;border-bottom:1px solid var(--border);text-align:right" class="pending-actions">
+                                <button type="button" class="btn-preview btn-pending-preview" data-title="富士山日出 · 组图草稿" data-kind="image" data-desc="五合目日出组图草稿，待审核通过后对订阅者可见。" data-img1="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400" data-img2="https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=400" data-img3="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400"><i class="fa-solid fa-eye"></i> 预览</button>
                                 <button type="button" class="btn-edit" data-title="富士山日出 · 组图草稿"><i class="fa-solid fa-pen"></i> 编辑</button>
                                 <button type="button" class="btn-cancel" data-title="富士山日出 · 组图草稿"><i class="fa-solid fa-xmark"></i> 取消</button>
                             </td>
@@ -590,44 +993,39 @@
                             <td style="padding:12px 0;color:var(--t-tertiary)">昨天 21:40</td>
                             <td style="padding:12px 0"><span style="color:#FBBF24">审核中</span> <span style="color:var(--t-tertiary);font-size:10px">（机器初审）</span></td>
                             <td style="padding:12px 0;text-align:right" class="pending-actions">
+                                <button type="button" class="btn-preview btn-pending-preview" data-title="咖啡馆问答 Vol.4（粗剪）" data-kind="video" data-desc="本期聊聊创作者如何定价订阅内容，并回答粉丝关于订阅档位、单独付费与免费试看的提问。" data-video-poster="https://images.unsplash.com/photo-1493612276216-ee3925520721?w=900&q=80"><i class="fa-solid fa-eye"></i> 预览</button>
                                 <button type="button" class="btn-edit" data-title="咖啡馆问答 Vol.4（粗剪）"><i class="fa-solid fa-pen"></i> 编辑</button>
                                 <button type="button" class="btn-cancel" data-title="咖啡馆问答 Vol.4（粗剪）"><i class="fa-solid fa-xmark"></i> 取消</button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-                <p style="font-size:11px;color:var(--t-tertiary);margin-top:12px">审核通常在 24 小时内完成，结果将通过通知送达。</p>
             </div>
         </div>
 
         <!-- 类型选择 -->
         <div class="type-grid">
-            <div class="type-card t1 selected">
+            <div class="type-card t1 selected" data-type="image">
                 <div class="ic-circle"><i class="fa-regular fa-image"></i></div>
                 <h3>图文动态</h3>
                 <p>1-9 张图 + 文字 + 标签，最快的创作方式</p>
                 <span class="pop">最受欢迎</span>
             </div>
-            <div class="type-card t2">
+            <div class="type-card t2" data-type="video">
                 <div class="ic-circle"><i class="fa-solid fa-video"></i></div>
                 <h3>视频作品</h3>
                 <p>≤ 30 分钟 4K 视频，自动生成 HLS 流媒体</p>
             </div>
-            <div class="type-card t3">
+            <div class="type-card t3" data-type="live">
                 <div class="ic-circle"><i class="fa-solid fa-tower-broadcast"></i></div>
                 <h3>开始直播</h3>
                 <p>实时连接粉丝，支持打赏 / 礼物 / 弹幕</p>
-            </div>
-            <div class="type-card t4">
-                <div class="ic-circle"><i class="fa-solid fa-square-poll-vertical"></i></div>
-                <h3>投票 / 问答</h3>
-                <p>2-4 选项投票，激发粉丝互动</p>
             </div>
         </div>
 
         <div class="cr-grid">
             <div>
-                <!-- 编辑器 -->
+                <div id="panelImage">
                 <div class="editor-card">
                     <div class="editor-head">
                         <h3><span class="ic"><i class="fa-regular fa-image"></i></span> 图文动态编辑器</h3>
@@ -638,18 +1036,19 @@
                         <textarea class="editor-text" placeholder="写点什么吧…">清晨 5:40，云海被风轻轻吹散，每一帧都是冻出来的浪漫。35mm 定焦，三个小时，三张可用——分享给所有在等日出的你。</textarea>
 
                         <!-- 已上传媒体 -->
-                        <div class="media-preview">
-                            <div class="mp-cell cover-tag" style="background-image: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400&q=80')">
-                                <span class="del"><i class="fa-solid fa-xmark"></i></span>
+                        <div class="media-preview" id="mediaPreviewGrid">
+                            <div class="mp-cell cover-tag" data-src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400&q=80" style="background-image: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400&q=80')">
+                                <span class="del" role="button" tabindex="0" title="删除"><i class="fa-solid fa-xmark"></i></span>
                             </div>
-                            <div class="mp-cell" style="background-image: url('https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=400&q=80')">
-                                <span class="del"><i class="fa-solid fa-xmark"></i></span>
+                            <div class="mp-cell" data-src="https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=400&q=80" style="background-image: url('https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=400&q=80')">
+                                <span class="del" role="button" tabindex="0" title="删除"><i class="fa-solid fa-xmark"></i></span>
                             </div>
-                            <div class="mp-cell" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80')">
-                                <span class="del"><i class="fa-solid fa-xmark"></i></span>
+                            <div class="mp-cell" data-src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80')">
+                                <span class="del" role="button" tabindex="0" title="删除"><i class="fa-solid fa-xmark"></i></span>
                             </div>
-                            <div class="mp-cell add"><i class="fa-solid fa-plus"></i></div>
+                            <div class="mp-cell add" id="mediaAddBtn" role="button" tabindex="0" title="添加图片"><i class="fa-solid fa-plus"></i></div>
                         </div>
+                        <input type="file" id="mediaFileInput" accept="image/*" multiple hidden />
 
                         <!-- 标签 -->
                         <div style="margin-top: 18px">
@@ -663,6 +1062,63 @@
                         </div>
                     </div>
                 </div>
+                </div>
+
+                <div id="panelVideo" style="display:none">
+                <div class="editor-card">
+                    <div class="editor-head">
+                        <h3><span class="ic" style="background:linear-gradient(135deg,#3B82F6,#06B6D4)"><i class="fa-solid fa-video"></i></span> 视频作品编辑器</h3>
+                        <span class="tag tag-info"><i class="fa-solid fa-film"></i> HLS 转码</span>
+                    </div>
+                    <div class="editor-body">
+                        <input class="title-input" placeholder="视频标题" value="咖啡馆问答 Vol.4 · 完整版" />
+                        <textarea class="editor-text" placeholder="视频简介…">本期聊聊创作者如何定价订阅内容，并回答粉丝提问。</textarea>
+                        <input type="file" id="videoFileInput" accept="video/*" hidden />
+                        <div class="video-upload-zone" id="videoUploadZone">
+                            <div class="vz-inner">
+                                <i class="fa-solid fa-cloud-arrow-up" style="font-size:28px;color:#93C5FD"></i>
+                                <div style="font-weight:700">点击或拖拽上传视频</div>
+                                <div style="font-size:12px;color:var(--t-tertiary)">MP4 / MOV · 最长 30 分钟 · 最大 4GB</div>
+                            </div>
+                        </div>
+                        <p id="videoStatus" style="font-size:11px;color:var(--t-tertiary);margin-top:10px">尚未上传</p>
+                    </div>
+                </div>
+                </div>
+
+                <div id="panelLive" style="display:none">
+                <div class="editor-card">
+                    <div class="editor-head">
+                        <h3><span class="ic" style="background:linear-gradient(135deg,#EF4444,#F59E0B)"><i class="fa-solid fa-tower-broadcast"></i></span> 直播</h3>
+                        <span class="tag tag-danger" id="liveModeTag"><i class="fa-solid fa-circle"></i> 未开播</span>
+                    </div>
+                    <div class="editor-body">
+                        <div class="live-mode-seg" id="liveModeSeg">
+                            <button type="button" class="selected" data-live-mode="now"><i class="fa-solid fa-signal"></i> 立即开播</button>
+                            <button type="button" data-live-mode="preview"><i class="fa-regular fa-calendar-check"></i> 直播预告</button>
+                        </div>
+                        <div id="liveNowBlock">
+                            <input class="title-input" id="liveNowTitle" placeholder="直播标题" value="深夜爵士 · 即兴钢琴" />
+                            <textarea class="editor-text" id="liveNowDesc" placeholder="直播简介…">今晚即兴爵士，欢迎点歌；支持 USDT 打赏与礼物。</textarea>
+                            <p style="font-size:12px;color:var(--t-secondary);margin-top:12px;line-height:1.55"><i class="fa-solid fa-display" style="color:#A855F7"></i> 使用 <strong style="color:#fff">OBS 推流</strong> 开播，配置见下方「直播配置」。</p>
+                        </div>
+                        <div id="livePreviewBlock" style="display:none">
+                            <span class="live-preview-badge"><i class="fa-solid fa-bullhorn"></i> 图文预告 · 非直播间</span>
+                            <input class="title-input" id="livePreviewTitle" placeholder="预告标题" value="周末爵士夜 · 直播预告" />
+                            <textarea class="editor-text" id="livePreviewText" placeholder="写点什么告诉粉丝…">本周六 21:00 即兴爵士直播，欢迎提前预约提醒；本场为内容预告，点击不会进入直播间。</textarea>
+                            <div class="live-preview-cover" id="livePreviewCover" style="background-image:url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1200&q=80')" title="点击更换封面">
+                                <span class="chg"><i class="fa-regular fa-image"></i> 更换封面</span>
+                            </div>
+                            <input type="file" id="livePreviewCoverInput" accept="image/*" hidden />
+                            <div class="live-preview-time">
+                                <label for="livePreviewTime"><i class="fa-regular fa-clock"></i> 计划开播时间（仅展示在预告图文）</label>
+                                <input type="datetime-local" id="livePreviewTime" step="60" />
+                            </div>
+                            <p class="live-preview-hint"><i class="fa-solid fa-circle-info"></i> 直播预告将以<strong style="color:#fff">图文动态</strong>发布到 Feed，供粉丝浏览与互动；<strong style="color:#fff">不会</strong>创建直播间，也与实际开播流程无关。开播时请另选「立即开播」。</p>
+                        </div>
+                    </div>
+                </div>
+                </div>
 
                 <!-- 内容定价 -->
                 <div class="setting-card" style="margin-top: 16px">
@@ -670,21 +1126,36 @@
                         <h3><span class="ic" style="background: linear-gradient(135deg,#F59E0B,#EC4899)"><i class="fa-solid fa-tag"></i></span> 内容定价</h3>
                     </div>
                     <div class="editor-body">
-                        <div class="price-grid">
-                            <div class="price-cell">
+                        <div class="price-grid" id="priceGrid">
+                            <div class="price-cell" data-mode="free" role="button" tabindex="0">
+                                <span class="price-check"><i class="fa-solid fa-check"></i></span>
                                 <div class="ti">免费</div>
                                 <div class="sub">所有用户可见</div>
-                                <div class="price-amt">$0<span class="u">USDT</span></div>
+                                <div class="price-amt" id="priceAmtFree">$0<span class="u">USDT</span></div>
                             </div>
-                            <div class="price-cell selected">
+                            <div class="price-cell checked" data-mode="sub" role="button" tabindex="0">
+                                <span class="price-check"><i class="fa-solid fa-check"></i></span>
                                 <div class="ti">订阅可见</div>
                                 <div class="sub">仅订阅者可见</div>
-                                <div class="price-amt">订阅 28<span class="u">/月</span></div>
+                                <div class="price-amt" id="priceAmtSub">订阅 <span id="priceSubDisplay">28</span><span class="u">/月</span></div>
                             </div>
-                            <div class="price-cell">
+                            <div class="price-cell" data-mode="ppv" role="button" tabindex="0">
+                                <span class="price-check"><i class="fa-solid fa-check"></i></span>
                                 <div class="ti">单独付费</div>
                                 <div class="sub">付费解锁单条</div>
-                                <div class="price-amt">$5<span class="u">USDT</span></div>
+                                <div class="price-amt" id="priceAmtPpv">$<span id="pricePpvDisplay">5</span><span class="u">USDT</span></div>
+                            </div>
+                        </div>
+                        <div class="price-amount-rows">
+                            <div class="price-amount-field show" id="rowSubPrice">
+                                <label for="inputSubPrice">订阅月费</label>
+                                <input type="number" id="inputSubPrice" value="28" min="1" step="0.01" />
+                                <span class="unit">USDT / 月</span>
+                            </div>
+                            <div class="price-amount-field" id="rowPpvPrice">
+                                <label for="inputPpvPrice">单条解锁价</label>
+                                <input type="number" id="inputPpvPrice" value="5" min="0.1" step="0.01" />
+                                <span class="unit">USDT</span>
                             </div>
                         </div>
                     </div>
@@ -704,20 +1175,24 @@
                             <div class="info"><div class="ti">允许评论</div><div class="sub">关闭后用户无法在此动态下评论</div></div>
                             <div class="switch on"></div>
                         </div>
-                        <div class="setting-row">
+                        <div class="setting-row" data-live-only data-live-now-only style="display:none">
                             <div class="ic-cell"><i class="fa-solid fa-gift"></i></div>
-                            <div class="info"><div class="ti">允许打赏</div><div class="sub">读者可向你打赏 USDT</div></div>
-                            <div class="switch on"></div>
+                            <div class="info"><div class="ti">允许打赏</div><div class="sub">直播中观众可发送 USDT 打赏与礼物</div></div>
+                            <div class="switch on" id="switchAllowTip"></div>
                         </div>
                         <div class="setting-row">
                             <div class="ic-cell"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
                             <div class="info"><div class="ti">允许分享</div><div class="sub">关闭后无法被分享到其它平台</div></div>
-                            <div class="switch on"></div>
+                            <div class="switch on" id="switchAllowShare"></div>
                         </div>
-                        <div class="setting-row">
-                            <div class="ic-cell"><i class="fa-solid fa-clock"></i></div>
-                            <div class="info"><div class="ti">定时发布</div><div class="sub">设置自动发布时间</div></div>
-                            <span style="font-size: 12px; color: var(--t-tertiary)">立即发布 <i class="fa-solid fa-chevron-right" style="font-size: 10px; margin-left: 6px"></i></span>
+                        <div class="live-config-block" id="liveConfigSection" data-live-only data-live-now-only style="display:none">
+                            <div class="lc-head"><i class="fa-solid fa-display"></i> 直播配置 <span class="lc-badge">OBS 推流</span></div>
+                            <div class="stream-rows">
+                            <div><div style="font-size:11px;color:var(--t-tertiary);margin-bottom:6px">推流地址（服务器）</div><div class="stream-row"><code id="crRtmpUrl">rtmps://push.fansloop.io/live</code><button type="button" class="btn-copy" data-copy="crRtmpUrl"><i class="fa-regular fa-copy"></i></button></div></div>
+                            <div><div style="font-size:11px;color:var(--t-tertiary);margin-bottom:6px">推流码（串流密钥）</div><div class="stream-row"><code id="crStreamKey">sk_live_FLP_7k2mN9pQx4vR8wY1zA3bC6dE0fG5hJ</code><button type="button" class="btn-copy" data-copy="crStreamKey"><i class="fa-regular fa-copy"></i></button></div></div>
+                            </div>
+                            <div class="obs-links"><button type="button" class="btn btn-secondary btn-sm" id="btnCrObsGuide"><i class="fa-regular fa-circle-question"></i> 配置说明</button><span style="font-size:11px;color:var(--t-tertiary)">复制以上内容到 OBS 即可</span></div>
+                            <div class="obs-wait"><i class="fa-solid fa-signal" style="color:#34D399"></i> <strong>配置成功后</strong>，请在 OBS 点击「开始推流」。FansLoop 接收到信号后将<strong>自动开播</strong>，无需在本页重复操作。</div>
                         </div>
                     </div>
                 </div>
@@ -725,12 +1200,9 @@
                 <!-- 操作栏 -->
                 <div class="action-bar">
                     <div class="left-info">
-                        <div class="li-ti"><b style="color: #fff">3 张图片</b> · 字数 64 · 标签 3</div>
-                        <div class="li-sub">即将发布到 1.2k 订阅者</div>
+                        <div class="li-ti" id="actionBarInfo"><b style="color: #fff">3 张图片</b> · 字数 64 · 标签 3</div>
                     </div>
-                    <button type="button" class="btn btn-secondary" id="btnDraftBar"><i class="fa-regular fa-floppy-disk"></i> 存草稿</button>
-                    <button type="button" class="btn btn-secondary" id="btnPreviewBar"><i class="fa-solid fa-eye"></i> 预览</button>
-                    <button class="btn btn-primary btn-lg"><i class="fa-solid fa-paper-plane"></i> 立即发布</button>
+                    <button type="button" class="btn btn-primary btn-lg" id="btnPublishMain"><i class="fa-solid fa-paper-plane"></i> 立即发布</button>
                 </div>
             </div>
 
@@ -796,6 +1268,15 @@
 </div>
 
 <div class="cr-toast" id="crToast"></div>
+<div class="pub-success-overlay" id="pubSuccessOverlay">
+    <div class="pub-success-card" onclick="event.stopPropagation()">
+        <div class="ic"><i class="fa-solid fa-circle-check"></i></div>
+        <h3 style="font-size:18px;font-weight:800;margin-bottom:8px">发布成功</h3>
+        <p id="pubSuccessMsg" style="font-size:13px;color:var(--t-secondary);line-height:1.55;margin-bottom:18px">内容已提交。</p>
+        <button type="button" class="btn btn-primary btn-block" id="pubSuccessClose">完成</button>
+    </div>
+</div>
+
 
 <div class="preview-drawer" id="previewDrawer" aria-hidden="true">
     <div class="panel" role="dialog" aria-modal="true" aria-labelledby="pvTitle">
@@ -805,152 +1286,38 @@
         </div>
         <div class="pb">
             <div class="preview-mock">
-                <div class="pm-head"><i class="fa-solid fa-mobile-screen" style="color:var(--t-tertiary)"></i> Feed 卡片 · 订阅者视角</div>
+                <div class="pm-head"><i class="fa-solid fa-mobile-screen" style="color:var(--t-tertiary)"></i> <span id="pvHeadLabel">订阅者视角</span></div>
                 <div class="pm-body">
-                    <h2>富士山五合目 · 零下 4℃ 的清晨</h2>
-                    <p>清晨 5:40，云海被风轻轻吹散，每一帧都是冻出来的浪漫。35mm 定焦，三个小时，三张可用——分享给所有在等日出的你。</p>
-                    <div class="pm-imgs">
+                    <h2 id="pvBodyTitle">富士山五合目 · 零下 4℃ 的清晨</h2>
+                    <p id="pvBodyText">清晨 5:40，云海被风轻轻吹散，每一帧都是冻出来的浪漫。35mm 定焦，三个小时，三张可用——分享给所有在等日出的你。</p>
+                    <div class="pm-video" id="pvVideo" aria-hidden="true">
+                        <div class="play"><span><i class="fa-solid fa-play"></i></span></div>
+                    </div>
+                    <div class="pm-imgs" id="pvImgs">
                         <div style="background-image:url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400')"></div>
                         <div style="background-image:url('https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=400')"></div>
                         <div style="background-image:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400')"></div>
                     </div>
                 </div>
             </div>
-            <p style="font-size:11px;color:var(--t-tertiary);margin-top:12px;text-align:center">此为高保真原型演示：正式环境将按可见范围与定价实时渲染。</p>
+            
         </div>
     </div>
 </div>
 
+<div class="obs-guide-overlay" id="crObsGuideOverlay"><iframe src="modal-live-obs-guide.html" title="OBS 配置说明"></iframe></div>
+
 <script src="../js-web/fl-live-reservation.js"></script>
+<script src="../js-web/create-studio.js"></script>
+<script src="../js-web/create-studio-live.js"></script>
 <script>
 if (window.location.hash === '#pending') {
-    const el = document.getElementById('pending');
-    if (el) {
-        setTimeout(() => { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
-    }
+  const el = document.getElementById('pending');
+  if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
 }
-
-(function () {
-    const toast = document.getElementById('crToast');
-    const drawer = document.getElementById('previewDrawer');
-    const pvClose = document.getElementById('pvClose');
-
-    function showToast(msg) {
-        toast.textContent = msg;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 2400);
-    }
-
-    function openPreview() {
-        drawer.classList.add('show');
-        drawer.setAttribute('aria-hidden', 'false');
-    }
-
-    function closePreview() {
-        drawer.classList.remove('show');
-        drawer.setAttribute('aria-hidden', 'true');
-    }
-
-    ['btnDraftTop', 'btnDraftBar'].forEach(id => {
-        const b = document.getElementById(id);
-        if (b) b.addEventListener('click', () => showToast('草稿已保存到云端（原型）：可在草稿箱继续编辑'));
-    });
-    ['btnPreviewTop', 'btnPreviewBar'].forEach(id => {
-        const b = document.getElementById(id);
-        if (b) b.addEventListener('click', () => {
-            showToast('正在生成预览…');
-            setTimeout(openPreview, 280);
-        });
-    });
-    pvClose.addEventListener('click', closePreview);
-    drawer.addEventListener('click', e => { if (e.target === drawer) closePreview(); });
-
-    document.querySelectorAll('.pending-actions .btn-cancel').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const t = btn.getAttribute('data-title') || '';
-            if (confirm('确认撤回审核申请「' + t + '」？内容将退回草稿箱。')) {
-                showToast('已提交撤回（原型）：「' + t + '」');
-                btn.closest('tr').style.opacity = '0.35';
-            }
-        });
-    });
-    document.querySelectorAll('.pending-actions .btn-edit').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const t = btn.getAttribute('data-title') || '';
-            showToast('已从「' + t + '」载入编辑器字段（原型演示）');
-            document.querySelector('.title-input')?.focus();
-        });
-    });
-
-    function escapeHtmlCr(s) {
-        const d = document.createElement('div');
-        d.textContent = s == null ? '' : String(s);
-        return d.innerHTML;
-    }
-
-    function renderCreateLiveReservation() {
-        const wrap = document.getElementById('create-live-res-wrap');
-        const mount = document.getElementById('crLiveCardMount');
-        const urgent = document.getElementById('crLiveUrgent');
-        const urgentTxt = document.getElementById('crLiveUrgentTxt');
-        const tagSoon = document.getElementById('crLiveTagSoon');
-        if (!wrap || !mount || typeof flLiveReservationGet !== 'function') return;
-        const item = flLiveReservationGet();
-        if (!item) {
-            wrap.classList.remove('show');
-            if (urgent) urgent.classList.remove('show');
-            if (tagSoon) tagSoon.style.display = 'none';
-            mount.innerHTML = '';
-            return;
-        }
-        wrap.classList.add('show');
-        const tlabel = (typeof flLiveReservationFormatTime === 'function' && item.scheduledAt)
-            ? flLiveReservationFormatTime(item.scheduledAt)
-            : (item.scheduleLabel || '');
-        const urgentOn = typeof flLiveReservationIsUrgentBeforeStart === 'function' && flLiveReservationIsUrgentBeforeStart(item);
-        if (urgent) {
-            urgent.classList.toggle('show', urgentOn);
-            if (urgentTxt && urgentOn) urgentTxt.textContent = '预约时间 ' + tlabel + '，请尽快完成设备检查并进入直播间。';
-        }
-        if (tagSoon) tagSoon.style.display = urgentOn ? 'inline-flex' : 'none';
-        mount.innerHTML =
-            '<div class="meta">' +
-                '<div class="ti">' + escapeHtmlCr(item.title) + '</div>' +
-                '<div class="sub">' + escapeHtmlCr(tlabel) + ' · ' + escapeHtmlCr(item.playModeLabel || '') + '</div>' +
-                (item.desc ? '<div class="sub" style="margin-top:8px">' + escapeHtmlCr(item.desc) + '</div>' : '') +
-            '</div>' +
-            '<div style="display:flex;gap:8px;flex-shrink:0">' +
-                '<button type="button" class="btn btn-secondary btn-sm" onclick="location.href=\'live-detail.html\'"><i class="fa-solid fa-play"></i> 开播页</button>' +
-                '<button type="button" class="btn btn-secondary btn-sm" id="btnCloseCrLive" style="border-color:rgba(239,68,68,0.35);color:#F87171"><i class="fa-solid fa-xmark"></i> 关闭预约</button>' +
-            '</div>';
-        const cls = document.getElementById('btnCloseCrLive');
-        if (cls && !cls.dataset.bound) {
-            cls.dataset.bound = '1';
-            cls.addEventListener('click', () => {
-                if (!confirm('确定关闭本场预约直播？')) return;
-                if (typeof flLiveReservationClear === 'function') flLiveReservationClear();
-                showToast('已关闭预约直播');
-                renderCreateLiveReservation();
-            });
-        }
-    }
-
-    renderCreateLiveReservation();
-    setInterval(renderCreateLiveReservation, 30000);
-    try {
-        if (typeof flLiveReservationConsumeAutoClosedNotice === 'function' && flLiveReservationConsumeAutoClosedNotice()) {
-            showToast('预约直播已超时，平台已自动关闭');
-            renderCreateLiveReservation();
-        }
-    } catch (e) {}
-
-    if (window.location.hash === '#live-res') {
-        setTimeout(() => {
-            const el = document.getElementById('live-res');
-            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 120);
-    }
-})();
+if (window.location.hash === '#live-res') {
+  setTimeout(() => document.getElementById('live-res')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+}
 </script>
 </body>
 </html>

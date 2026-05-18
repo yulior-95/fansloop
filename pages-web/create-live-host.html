@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>主播直播中 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+body.page-live-host .app-main { padding-bottom: 0; }
+.live-host-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 18px;
+    min-height: calc(100vh - 140px);
+}
+@media (max-width: 1100px) { .live-host-grid { grid-template-columns: 1fr; } }
+
+.host-stage {
+    position: relative;
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: #000;
+    aspect-ratio: 16/9;
+    min-height: 420px;
+    background-image: url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1600&q=80');
+    background-size: cover;
+    background-position: center;
+}
+.host-stage::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.45) 0%, transparent 40%, transparent 55%, rgba(0,0,0,0.75) 100%);
+}
+.host-top {
+    position: absolute;
+    top: 16px; left: 16px; right: 16px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.host-live-pill {
+    padding: 6px 14px;
+    background: linear-gradient(135deg, #DC2626, #EF4444);
+    border-radius: 999px;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    animation: hostPulse 2s infinite;
+}
+@keyframes hostPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.5); }
+    50% { box-shadow: 0 0 0 10px rgba(220,38,38,0); }
+}
+.host-live-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+.host-meta-chip {
+    padding: 6px 12px;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(8px);
+    border-radius: 999px;
+    color: #fff;
+    font-size: 11.5px;
+    font-weight: 600;
+}
+.host-bottom {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    z-index: 3;
+    padding: 18px 20px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+.host-title { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.host-sub { font-size: 12px; color: rgba(255,255,255,0.75); }
+.host-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+.host-ctl {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: 0.15s;
+}
+.host-ctl:hover { background: rgba(168,85,247,0.35); border-color: rgba(168,85,247,0.5); }
+.host-ctl.danger:hover { background: rgba(220,38,38,0.45); border-color: rgba(248,113,113,0.6); }
+.host-ctl.active { background: rgba(168,85,247,0.5); border-color: #C084FC; }
+
+.host-side .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    margin-bottom: 14px;
+    overflow: hidden;
+}
+.host-side .card-hd {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.host-side .card-bd { padding: 12px 14px; max-height: 280px; overflow-y: auto; }
+.chat-line {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    line-height: 1.45;
+}
+.chat-line .u { color: #C084FC; font-weight: 700; flex-shrink: 0; }
+.chat-line .m { color: var(--t-secondary); }
+.gift-toast {
+    padding: 10px 12px;
+    background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(236,72,153,0.1));
+    border: 1px solid rgba(245,158,11,0.35);
+    border-radius: 10px;
+    font-size: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.gift-toast i { color: #FBBF24; }
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border);
+}
+.stat-row:last-child { border-bottom: none; }
+</style>
+<link rel="stylesheet" href="../css-web/global-lang-switch.css">
+<script src="../js-web/global-lang-switch.js" defer></script>
+</head>
+<body class="page-live-host">
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item active" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">直播</div>
+        <div class="s-item" onclick="location.href='live-detail.html'"><span class="ic"><i class="fa-solid fa-tower-broadcast"></i></span><span class="lb">观众直播间</span></div>
+        <div class="s-bottom">
+            <div class="s-user">
+                <div class="av" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info"><div class="n">Luna 🌙</div><div class="e">直播中</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>直播中…</span></div>
+        <div class="h-actions">
+            <button class="btn btn-secondary btn-sm" onclick="location.href='create.html'"><i class="fa-solid fa-arrow-left"></i> 返回工作室</button>
+            <div class="h-avatar" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <h1>主播直播控制台</h1>
+                <p>当前为<strong style="color:#fff">主播端画面</strong>原型：摄像头预览、弹幕与礼物、推流控制。</p>
+            </div>
+        </div>
+
+        <div class="live-host-grid">
+            <div>
+                <div class="host-stage">
+                    <div class="host-top">
+                        <span class="host-live-pill"><span class="dot"></span> LIVE</span>
+                        <span class="host-meta-chip"><i class="fa-solid fa-eye"></i> 1,284 观看</span>
+                        <span class="host-meta-chip"><i class="fa-regular fa-clock"></i> 00:42:18</span>
+                        <span class="host-meta-chip" style="margin-left:auto"><i class="fa-solid fa-signal"></i> 推流正常</span>
+                    </div>
+                    <div class="host-bottom">
+                        <div>
+                            <div class="host-title">深夜爵士 · 即兴钢琴</div>
+                            <div class="host-sub">TRC20 打赏已开启 · 弹幕 326 条/分钟</div>
+                        </div>
+                        <div class="host-controls">
+                            <button type="button" class="host-ctl active" title="麦克风"><i class="fa-solid fa-microphone"></i></button>
+                            <button type="button" class="host-ctl active" title="摄像头"><i class="fa-solid fa-video"></i></button>
+                            <button type="button" class="host-ctl" title="共享屏幕"><i class="fa-solid fa-display"></i></button>
+                            <button type="button" class="host-ctl" title="美颜"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+                            <button type="button" class="host-ctl danger" title="结束直播" onclick="if(confirm('确认结束本场直播？'))location.href='create.html'"><i class="fa-solid fa-power-off"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="host-side">
+                <div class="card">
+                    <div class="card-hd"><i class="fa-solid fa-chart-simple" style="color:#6EE7B7"></i> 实时数据</div>
+                    <div class="card-bd" style="max-height:none">
+                        <div class="stat-row"><span style="color:var(--t-tertiary)">峰值在线</span><b>1,420</b></div>
+                        <div class="stat-row"><span style="color:var(--t-tertiary)">礼物收益</span><b style="color:#FBBF24">86.4 USDT</b></div>
+                        <div class="stat-row"><span style="color:var(--t-tertiary)">新增关注</span><b style="color:var(--success-light)">+52</b></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-hd"><i class="fa-solid fa-gift" style="color:#FBBF24"></i> 礼物动态</div>
+                    <div class="card-bd">
+                        <div class="gift-toast"><i class="fa-solid fa-gift"></i> Alex 送出 <b>星光 ×5</b> · 12 USDT</div>
+                        <div class="gift-toast"><i class="fa-solid fa-gift"></i> Mika 送出 <b>火箭</b> · 28 USDT</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-hd"><i class="fa-regular fa-comments" style="color:#C084FC"></i> 弹幕</div>
+                    <div class="card-bd">
+                        <div class="chat-line"><span class="u">Nova</span><span class="m">今晚音色太绝了！</span></div>
+                        <div class="chat-line"><span class="u">Ken</span><span class="m">已订阅，求 Encore</span></div>
+                        <div class="chat-line"><span class="u">Yuki</span><span class="m">可以点《Autumn Leaves》吗</span></div>
+                        <div class="chat-line"><span class="u">系统</span><span class="m">欢迎新订阅者 @River</span></div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+</div>
+</body>
+</html>

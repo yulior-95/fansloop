@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="../css-web/funds-flow.css">
 <link rel="stylesheet" href="../css-web/recharge-flow.css">
 <link rel="stylesheet" href="../css-web/dev-glass-note.css">
+<link rel="stylesheet" href="../css-web/moonpay-guide-modals.css">
 <style>
 .recharge-grid {
     display: grid;
@@ -101,6 +102,21 @@
 
 .recharge-main-col { min-width: 0; }
 
+.recharge-faq-list { display: flex; flex-direction: column; gap: 16px; }
+.recharge-faq-item { padding: 12px 0; border-bottom: 1px solid var(--border); }
+.recharge-faq-item:last-child { border-bottom: none; padding-bottom: 0; }
+.recharge-faq-q { font-size: 13px; font-weight: 700; color: #fff; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
+.recharge-faq-q i { color: var(--brand-purple); font-size: 12px; }
+.recharge-faq-a { font-size: 12.5px; color: var(--t-secondary); line-height: 1.6; margin: 0; }
+.recharge-faq-a a { color: var(--brand-purple); font-weight: 600; text-decoration: none; }
+.recharge-faq-a a:hover { text-decoration: underline; }
+.recharge-faq-btn {
+    margin: 0; padding: 0; border: none; background: none; cursor: pointer;
+    font: inherit; font-weight: 600; color: var(--brand-purple); text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.recharge-faq-btn:hover { color: #C084FC; }
+
 /* 仅此页：避免 common-web .app-main 的 overflow 裁切绝对定位的下拉层 */
 body.page-recharge-web .app-main {
     overflow: visible;
@@ -110,7 +126,7 @@ body.page-recharge-web .app-main {
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
 </head>
-<body class="page-recharge-web">
+<body class="page-recharge-web proto-recharge-wallet-only">
 
 <div class="app-shell">
     <aside class="app-sidebar">
@@ -160,7 +176,7 @@ body.page-recharge-web .app-main {
         <div class="recharge-grid flow-recharge-grid">
 
             <div class="recharge-main-col">
-                <div class="method-tabs">
+                <div class="method-tabs" style="display:none!important" aria-hidden="true" id="protoRechargeMethodTabsArchive">
                     <div class="mt-card usdt active">
                         <div class="ic-big">₮</div>
                         <div class="info">
@@ -248,8 +264,18 @@ body.page-recharge-web .app-main {
                             </div>
 
                             <div class="flow-block" style="border-top: none; margin-top: 0; padding-top: 0">
-                                <div class="flow-block-hd">
+                                <div class="flow-block-hd" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
                                     <span class="t">充值地址</span>
+                                    <span class="dev-glass-wrap dev-glass-wrap--align-end">
+                                        <span class="dev-glass-sphere" tabindex="0" aria-describedby="devDepositAddrTip">
+                                            <span class="dev-glass-sphere-shine"></span>
+                                            <span class="dev-glass-sphere-txt">To 研发</span>
+                                        </span>
+                                        <span class="dev-glass-pop" id="devDepositAddrTip" role="tooltip">
+                                            1. 需要能够识别是给到<strong>当前用户</strong>充值的钱包地址<br>
+                                            2. 注意<strong>不同网络、不同币种</strong>的收款地址可能不同，切换后需重新拉取
+                                        </span>
+                                    </span>
                                 </div>
                                 <div class="deposit-addr-card" id="depositAddrCard">
                                     <div class="qr">
@@ -305,20 +331,21 @@ body.page-recharge-web .app-main {
                             <div class="ic"><i class="fa-solid fa-triangle-exclamation"></i></div>
                             <div><b>注意网络</b><br>切勿混淆 ERC20 与 TRC20</div>
                         </div>
-                        <div class="tp danger">
-                            <div class="ic"><i class="fa-solid fa-ban"></i></div>
-                            <div><b>禁止合约转账</b><br>仅支持普通钱包转账</div>
-                        </div>
                     </div>
                 </div>
 
                 <div class="side-info" style="margin-top: 16px">
-                    <h4><i class="fa-solid fa-gavel" style="color:#10B981"></i>到账异常？</h4>
-                    <p style="font-size: 12.5px; color: var(--t-tertiary); line-height: 1.5; margin-bottom: 12px">
-                        请在对应 <b style="color:#fff">订单详情</b> 内发起申诉，并附上支付回执与链上哈希（如有）。
-                    </p>
-                    <button class="btn btn-secondary btn-block" onclick="location.href='transaction-detail.html'"><i class="fa-solid fa-file-invoice"></i>前往订单详情</button>
-                    <button class="btn btn-block" style="margin-top: 8px"><i class="fa-solid fa-book"></i>查看充值教程</button>
+                    <h4><i class="fa-solid fa-circle-question" style="color:#A855F7"></i>常见问题</h4>
+                    <div class="recharge-faq-list">
+                        <div class="recharge-faq-item">
+                            <div class="recharge-faq-q"><i class="fa-solid fa-receipt"></i>到账异常？</div>
+                            <p class="recharge-faq-a">可到 <a href="transactions.html">账变记录</a> 找到对应订单，对仍有疑问的订单发起申诉。</p>
+                        </div>
+                        <div class="recharge-faq-item">
+                            <div class="recharge-faq-q"><i class="fa-solid fa-coins"></i>如何充值 U？</div>
+                            <p class="recharge-faq-a">查看获取 U 教程：点击 <button type="button" class="recharge-faq-btn" onclick="MpGuideOpen('recharge')">查看充值教程</button> 打开分步指引弹窗。</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -326,8 +353,58 @@ body.page-recharge-web .app-main {
     </main>
 </div>
 
+<div id="mpGuideRecharge" class="mp-guide-overlay" role="dialog" aria-modal="true" aria-labelledby="mpRcTitle">
+    <div class="mp-guide-dialog" onclick="event.stopPropagation()">
+        <div class="mp-guide-head">
+            <div>
+                <h2 id="mpRcTitle">MoonPay 法币购买 USDT</h2>
+            </div>
+            <button type="button" class="mp-guide-close" data-mp-guide-close aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="mp-guide-body">
+            <div class="mp-step">
+                <div class="mp-step-num">1</div>
+                <h3>打开 MoonPay 并注册</h3>
+                <p>在浏览器访问 MoonPay 官网或下载 App，使用邮箱创建账号，登录。</p>
+                <figure><img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=900&q=80" alt="" loading="lazy" /><figcaption>移动端注册与欢迎页氛围参考</figcaption></figure>
+            </div>
+            <div class="mp-step">
+                <div class="mp-step-num">2</div>
+                <h3>完成身份信息验证</h3>
+                <p>按 MoonPay 要求完成身份与合规校验，以解锁购买功能。</p>
+                <figure><img src="https://images.unsplash.com/photo-1557200134-90327ee9fafa?w=900&q=80" alt="" loading="lazy" /><figcaption>邮件 / 通知类界面示意</figcaption></figure>
+            </div>
+            <div class="mp-step">
+                <div class="mp-step-num">3</div>
+                <h3>选择购买 USDT</h3>
+                <p>在 Buy 流程中选择 USDT，输入需要购买的加密货币数量。</p>
+                <figure><img src="https://images.unsplash.com/photo-1642104704074-907c0698cbd9?w=900&q=80" alt="" loading="lazy" /><figcaption>行情与下单信息层级参考</figcaption></figure>
+            </div>
+            <div class="mp-step">
+                <div class="mp-step-num">4</div>
+                <h3>绑定支付方式</h3>
+                <p>添加银行卡、Apple Pay 等 MoonPay 支持的渠道，按提示完成 3DS / 银行验证。</p>
+                <figure><img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=900&q=80" alt="" loading="lazy" /><figcaption>银行卡与收银台视觉参考</figcaption></figure>
+            </div>
+            <div class="mp-step">
+                <div class="mp-step-num">5</div>
+                <h3>填写接收钱包地址</h3>
+                <p>选择 MoonPay 钱包作为收款地址，务必核对网络（如 TRC20 / ERC20）一致。</p>
+                <figure><img src="https://images.unsplash.com/photo-1621761191319-6eec761e06d5?w=900&q=80" alt="" loading="lazy" /><figcaption>加密钱包与地址管理示意</figcaption></figure>
+            </div>
+            <div class="mp-step">
+                <div class="mp-step-num">6</div>
+                <h3>确认支付并等待 USDT 到账</h3>
+                <p>核对汇率与手续费后确认；链上转账完成后，可到 MoonPay 账户查看 USDT 余额。</p>
+                <figure><img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=900&q=80" alt="" loading="lazy" /><figcaption>成功与资金到账示意</figcaption></figure>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="rechargeToast" class="toast-mini" role="status"></div>
 
 <script src="../js-web/recharge-flow.js" defer></script>
+<script src="../js-web/moonpay-guide-modals.js" defer></script>
 </body>
 </html>

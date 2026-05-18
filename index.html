@@ -162,9 +162,10 @@ main.content { padding: 28px 24px 48px; }
         <section class="block" id="ux">
             <h2><i class="fa-solid fa-compass"></i>用户体验与信息架构（摘要）</h2>
             <p class="lead">
-                <strong>用户侧：</strong>创作者订阅、内容发现、钱包与法币/链上充提、消息与通知、个人主页与设置（含兴趣标签与账户安全）。
-                <strong>合规 KYC：</strong>设置中在兴趣标签下提供「KYC 身份验证」入口；未完成或审核中则拦截法币提现与钱包链上提现，通过后资料区展示「身份验证通过」标签。
-                <strong>运营侧：</strong>后台「KYC 管理」承接机审与人工队列，详情页可查看证件与人脸快照、进度与备注。
+                <strong>1. 体验目标：</strong>创作者在 Web 端完成「资产查看 → 链上充值 / 钱包提现 → 充提记录核对 → 异常申诉」闭环；减少法币双通道带来的认知负担，当前原型收敛为<strong>钱包 · 所选网络</strong>单一主路径。
+                <strong>2. 核心交互：</strong>充值页隐藏 Tab 但保留法币节点；提现主入口 <code>withdraw-fiat.html</code> 默认展示链上提现（法币表单整段隐藏可恢复）；充提记录仅展示「入账中 / 已到账」与网络费用列，筛选「处理中 / 已完成」与之映射。
+                <strong>3. 合规 KYC：</strong>链上提现提交前仍走 KYC 弹窗与向导（与既有 localStorage 模拟一致）。
+                <strong>4. 帮助形态：</strong>MoonPay 买币 / 卖币教程以当前页全屏遮罩弹窗呈现，配图使用 Unsplash 可商用摄影，便于视觉与前端对齐布局。
             </p>
         </section>
 
@@ -172,7 +173,7 @@ main.content { padding: 28px 24px 48px; }
             <h2><i class="fa-solid fa-id-card"></i>KYC 身份验证与提现门槛</h2>
             <p class="lead">
                 <strong>核心逻辑：</strong>默认未验证；用户上传身份证正反面 → 三方联网核查 → 人脸识别（可生成手机链接）→ 提交后状态为「审核中」；后台机审或人工回传通过/不通过，不通过时展示原因并允许重新发起；通过后个人资料展示实名标签。
-                <strong>提现：</strong><code>withdraw-fiat.html</code> 与 <code>withdraw-usdt.html</code> 提交前校验 KYC；未完成弹窗引导，审核中 Toast 拦截。
+                <strong>提现：</strong>主路由 <code>withdraw-fiat.html</code> 现为「钱包提现」默认视图（法币 DOM 整段隐藏可恢复）；<code>withdraw-usdt.html</code> 双 Tab 隐藏。两页提交前均校验 KYC。
                 <strong>后台：</strong><code>admin-prototype/kyc-manage.html</code> 列表 + <code>kyc-detail.html</code> 材料与处置（与 <code>kyc-admin-list.html</code> 共用 localStorage）。
             </p>
             <div class="grid">
@@ -217,9 +218,9 @@ main.content { padding: 28px 24px 48px; }
                     <div class="tf">审核中 / 拒绝原因 / 重新发起</div>
                 </div>
                 <div class="tile">
-                    <div class="th">withdraw-fiat.html（KYC 弹窗）</div>
+                    <div class="th">withdraw-fiat.html（默认钱包提现 · 法币块已隐藏）</div>
                     <div class="tb"><iframe src="pages-web/withdraw-fiat.html" title="法币提现" loading="lazy"></iframe></div>
-                    <div class="tf">请先完成 KYC · 快捷弹窗 / 分步页链接</div>
+                    <div class="tf">KYC · 主内容区为链上提现；法币提现 HTML 保留在隐藏节点</div>
                 </div>
                 <div class="tile">
                     <div class="th">withdraw-usdt.html（KYC 门槛）</div>
@@ -245,13 +246,13 @@ main.content { padding: 28px 24px 48px; }
         </section>
 
         <section class="block" id="recharge">
-            <h2><i class="fa-solid fa-coins"></i>充值（钱包 / 法币 → USDT）</h2>
-            <p class="lead">钱包充值含下拉切换 / 添加钱包向导；法币充值含货币搜索、支付方式下拉（可跳转绑定卡）、摘要与收银台确认弹窗。</p>
+            <h2><i class="fa-solid fa-coins"></i>充值（钱包链上 → USDT）</h2>
+            <p class="lead">双 Tab 已隐藏，法币入口保留在源码归档节点；侧栏为<strong>常见问题</strong>（账变记录申诉、打开 MoonPay 买 U 教程弹窗）。</p>
             <div class="grid">
                 <div class="tile">
                     <div class="th">pages-web/recharge.html <a href="pages-web/recharge.html" target="_blank">新窗口</a></div>
                     <div class="tb"><iframe src="pages-web/recharge.html" title="钱包充值" loading="lazy"></iframe></div>
-                    <div class="tf">钱包充值 Tab · 下拉钱包 · 添加钱包向导 · 摘要</div>
+                    <div class="tf">侧栏 FAQ · MoonPay 弹窗（标题无「图文」脚注）· Tab 归档</div>
                 </div>
                 <div class="tile">
                     <div class="th">pages-web/recharge-fiat.html <a href="pages-web/recharge-fiat.html" target="_blank">新窗口</a></div>
@@ -282,13 +283,13 @@ main.content { padding: 28px 24px 48px; }
         </section>
 
         <section class="block" id="withdraw">
-            <h2><i class="fa-solid fa-building-columns"></i>提现（USDT → 银行卡 / 链上）</h2>
-            <p class="lead">法币提现含到账货币必选、借记卡自定义下拉、KYC 校验与金额输入区强调样式；KYC 审核列表与提现页共用本机存储模拟机审与人工处置。</p>
+            <h2><i class="fa-solid fa-building-columns"></i>提现（USDT → 链上）</h2>
+            <p class="lead"><code>withdraw-fiat.html</code> 与 <code>withdraw-usdt.html</code> 均默认仅展示钱包提现；法币 Tab 与银行卡表单以隐藏方式保留。提现帮助为页内 MoonPay 卖币图文弹窗。</p>
             <div class="grid">
                 <div class="tile">
                     <div class="th">withdraw-fiat.html <a href="pages-web/withdraw-fiat.html" target="_blank">新窗口</a></div>
-                    <div class="tb"><iframe src="pages-web/withdraw-fiat.html" title="法币提现" loading="lazy"></iframe></div>
-                    <div class="tf">提交校验 · 借记卡缺失弹窗 · 内嵌 recharge-fiat-bind 绑卡 iframe · 提交旁 To 研发批注</div>
+                    <div class="tb"><iframe src="pages-web/withdraw-fiat.html" title="钱包提现" loading="lazy"></iframe></div>
+                    <div class="tf">默认链上提现 · 法币 DOM 隐藏 · MoonPay 帮助弹窗</div>
                 </div>
                 <div class="tile">
                     <div class="th">recharge-fiat-bind.html <a href="pages-web/recharge-fiat-bind.html" target="_blank">新窗口</a></div>
@@ -308,7 +309,7 @@ main.content { padding: 28px 24px 48px; }
                 <div class="tile">
                     <div class="th">withdraw-usdt.html</div>
                     <div class="tb"><iframe src="pages-web/withdraw-usdt.html" title="链上提现" loading="lazy"></iframe></div>
-                    <div class="tf">USDT · 网络 · 手续费文案 · 申诉入口</div>
+                    <div class="tf">隐藏银行卡 Tab · 页内 MoonPay 提现帮助</div>
                 </div>
                 <div class="tile">
                     <div class="th">modal-withdraw-bank-moonpay.html</div>
@@ -362,7 +363,7 @@ main.content { padding: 28px 24px 48px; }
                 <div class="tile">
                     <div class="th">funds-history.html</div>
                     <div class="tb"><iframe src="pages-web/funds-history.html" title="充提记录" loading="lazy"></iframe></div>
-                    <div class="tf">充值 / 提现 / 申诉工单摘要列表</div>
+                    <div class="tf">入账中/已到账 · 网络费用(USDT) · To 研发玻璃球 · 筛选映射</div>
                 </div>
                 <div class="tile">
                     <div class="th">funds-flow-detail.html?type=withdraw</div>
