@@ -85,72 +85,76 @@ body {
     color: var(--t-tertiary);
 }
 
-.play-seg {
-    display: flex;
-    gap: 8px;
+.obs-stream-card {
     margin-top: 14px;
+    padding: 14px;
+    border-radius: var(--r-lg);
+    border: 1px solid rgba(168,85,247,0.35);
+    background: linear-gradient(160deg, rgba(168,85,247,0.12) 0%, rgba(21,18,36,0.92) 48%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
 }
-.play-seg label {
-    flex: 1;
-    cursor: pointer;
+.obs-stream-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
 }
-.play-seg input { position: absolute; opacity: 0; pointer-events: none; }
-.play-seg .pill {
+.obs-stream-head .obs-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--bg-input);
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--t-secondary);
-    transition: .15s;
+    font-size: 18px;
+    color: #E9D5FF;
+    background: linear-gradient(135deg, rgba(168,85,247,0.45), rgba(236,72,153,0.25));
+    border: 1px solid rgba(168,85,247,0.4);
 }
-.play-seg input:checked + .pill {
-    border-color: rgba(239,68,68,0.55);
-    background: rgba(239,68,68,0.12);
+.obs-stream-head .obs-titles { flex: 1; min-width: 0; }
+.obs-stream-head h3 {
+    font-size: 14px;
+    font-weight: 800;
     color: #fff;
-}
-
-.mode-panel {
-    margin-top: 12px;
-    padding: 12px;
-    border-radius: var(--r-md);
-    border: 1px solid var(--border);
-    background: var(--bg-input);
-    display: none;
-}
-.mode-panel.show { display: block; }
-
-.cam-preview-wrap {
-    position: relative;
-    aspect-ratio: 16/9;
-    border-radius: 10px;
-    overflow: hidden;
-    background: #0a0712;
-    border: 1px solid var(--border);
-}
-.cam-preview-wrap video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-.cam-preview-wrap .cam-placeholder {
-    position: absolute;
-    inset: 0;
+    margin: 0 0 4px;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
-    color: var(--t-tertiary);
-    font-size: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
 }
-.cam-actions { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+.obs-stream-head h3 .obs-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(52,211,153,0.15);
+    border: 1px solid rgba(52,211,153,0.45);
+    color: #6EE7B7;
+    letter-spacing: 0.02em;
+}
+.obs-stream-head p {
+    margin: 0;
+    font-size: 11.5px;
+    color: var(--t-secondary);
+    line-height: 1.55;
+}
+.obs-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+.obs-steps span {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--t-tertiary);
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.28);
+    border: 1px solid var(--border);
+}
+.obs-steps span i { color: #A78BFA; margin-right: 4px; }
 
 .stream-rows { display: flex; flex-direction: column; gap: 10px; }
 .stream-row {
@@ -374,36 +378,21 @@ body {
             <div class="live-cover" id="liveCover" title="点击更换封面">
                 <span class="chg"><i class="fa-regular fa-image"></i> 更换封面</span>
             </div>
-            <p class="cover-hint">默认使用账号头像作为直播封面；视频直播将尝试调用本机摄像头预览。</p>
+            <p class="cover-hint">默认使用账号头像作为直播封面；点击封面可上传自定义图片（建议 16:9）。</p>
 
-            <div class="lb" style="font-size:12px;color:var(--t-secondary);margin-top:14px;margin-bottom:8px">播放形式</div>
-            <div class="play-seg">
-                <label>
-                    <input type="radio" name="playMode" value="video" checked>
-                    <span class="pill"><i class="fa-solid fa-video" style="color:#60A5FA"></i> 视频直播</span>
-                </label>
-                <label>
-                    <input type="radio" name="playMode" value="obs">
-                    <span class="pill"><i class="fa-solid fa-display" style="color:#A855F7"></i> 电脑直播</span>
-                </label>
-            </div>
-
-            <div id="panelVideo" class="mode-panel show">
-                <div class="cam-preview-wrap">
-                    <video id="camPreview" playsinline muted autoplay></video>
-                    <div class="cam-placeholder" id="camPlaceholder">
-                        <i class="fa-solid fa-camera" style="font-size:28px;opacity:.5"></i>
-                        <span>预览未开启</span>
+            <div class="obs-stream-card" id="panelObs">
+                <div class="obs-stream-head">
+                    <div class="obs-icon"><i class="fa-solid fa-display"></i></div>
+                    <div class="obs-titles">
+                        <h3>OBS 推流开播 <span class="obs-badge">Web 端唯一方式</span></h3>
+                        <p>在 OBS、Streamlabs 等推流软件中填入下方地址与密钥，开始推流后平台将自动开播。</p>
                     </div>
                 </div>
-                <div class="cam-actions">
-                    <button type="button" class="btn btn-primary btn-sm" id="btnStartCam"><i class="fa-solid fa-video"></i> 开启摄像头预览</button>
-                    <button type="button" class="btn btn-secondary btn-sm" id="btnStopCam"><i class="fa-solid fa-stop"></i> 停止预览</button>
+                <div class="obs-steps">
+                    <span><i class="fa-solid fa-1"></i>复制推流信息</span>
+                    <span><i class="fa-solid fa-2"></i>粘贴到 OBS</span>
+                    <span><i class="fa-solid fa-3"></i>开始推流</span>
                 </div>
-                <p class="small-tip">正式开播后使用当前摄像头画面；若浏览器拦截权限，请在地址栏允许摄像头。</p>
-            </div>
-
-            <div id="panelObs" class="mode-panel">
                 <div class="stream-rows">
                     <div>
                         <div style="font-size:11px;color:var(--t-tertiary);margin-bottom:6px">推流地址（服务器）</div>
@@ -474,7 +463,7 @@ body {
     </div>
     <div class="pub-foot">
         <button type="button" class="btn btn-secondary" data-fl-modal-dismiss><i class="fa-solid fa-xmark"></i> 取消</button>
-        <button type="button" class="btn btn-primary" id="btnSubmitLive"><i class="fa-solid fa-tower-broadcast"></i> 创建直播</button>
+        <button type="button" class="btn btn-primary" id="btnSubmitLive"><i class="fa-solid fa-tower-broadcast"></i> 保存并等待 OBS 推流</button>
     </div>
 </div>
 
@@ -499,7 +488,7 @@ body {
 <script src="../js-web/fl-live-reservation.js"></script>
 <script>
 (function () {
-    const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&q=80';
+    const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&q=80';
     const friendSeed = [
         ['NovaPlay', '3年好友 · 游戏', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80'],
         ['Luna', '互关创作者', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80'],
@@ -519,26 +508,10 @@ body {
     const permHint = document.getElementById('permHint');
     const friendOverlay = document.getElementById('friendOverlay');
     const friendList = document.getElementById('friendList');
-    const panelVideo = document.getElementById('panelVideo');
-    const panelObs = document.getElementById('panelObs');
-    const camPreview = document.getElementById('camPreview');
-    const camPlaceholder = document.getElementById('camPlaceholder');
     const obsGuideOverlay = document.getElementById('obsGuideOverlay');
 
     let coverUrl = DEFAULT_AVATAR;
     let selectedFriends = [];
-    let camStream = null;
-
-    function getPlayMode() {
-        var r = document.querySelector('input[name="playMode"]:checked');
-        return r ? r.value : 'video';
-    }
-
-    function updatePlayPanels() {
-        var m = getPlayMode();
-        panelVideo.classList.toggle('show', m === 'video');
-        panelObs.classList.toggle('show', m === 'obs');
-    }
 
     function syncExistingHint() {
         var el = document.getElementById('existingLiveHint');
@@ -576,10 +549,6 @@ body {
     });
     descCount.textContent = descInput.value.length + ' / 30';
 
-    document.querySelectorAll('input[name="playMode"]').forEach(function (r) {
-        r.addEventListener('change', updatePlayPanels);
-    });
-
     liveCover.addEventListener('click', function () { coverInput.click(); });
     coverInput.addEventListener('change', function () {
         var f = coverInput.files && coverInput.files[0];
@@ -609,28 +578,6 @@ body {
         if (e.data && e.data.type === 'fansloop-close-obs-guide') {
             obsGuideOverlay.classList.remove('show');
         }
-    });
-
-    document.getElementById('btnStartCam').addEventListener('click', function () {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            alert('当前环境不支持摄像头预览（请使用 HTTPS 或 localhost）。');
-            return;
-        }
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(function (stream) {
-            camStream = stream;
-            camPreview.srcObject = stream;
-            camPlaceholder.style.display = 'none';
-        }).catch(function () {
-            alert('无法访问摄像头，请检查权限或设备。');
-        });
-    });
-    document.getElementById('btnStopCam').addEventListener('click', function () {
-        if (camStream) {
-            camStream.getTracks().forEach(function (t) { t.stop(); });
-            camStream = null;
-        }
-        camPreview.srcObject = null;
-        camPlaceholder.style.display = '';
     });
 
     function openFriendOverlay() { friendOverlay.classList.add('show'); }
@@ -686,8 +633,6 @@ body {
     });
 
     document.getElementById('btnSubmitLive').addEventListener('click', function () {
-        var mode = getPlayMode();
-
         function closeParentModal() {
             try {
                 window.parent.postMessage({ type: 'fansloop-close-modal' }, '*');
@@ -695,10 +640,10 @@ body {
         }
 
         try {
-            window.parent.postMessage({ type: 'fansloop-live-now', mode: mode }, '*');
+            window.parent.postMessage({ type: 'fansloop-live-now', mode: 'obs' }, '*');
             closeParentModal();
         } catch (e) {
-            window.location.href = 'live-detail.html?source=' + (mode === 'obs' ? 'obs&wait=1' : 'cam');
+            window.location.href = 'live-detail.html?source=obs&wait=1';
         }
     });
 
