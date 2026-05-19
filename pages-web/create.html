@@ -175,6 +175,28 @@
     padding: 24px;
 }
 .pub-success-overlay.show { display: flex; }
+.cr-confirm-card {
+    width: min(400px, 100%);
+    padding: 28px 24px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+}
+.cr-confirm-card .ic-warn {
+    width: 56px; height: 56px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: rgba(239,68,68,0.12);
+    color: #F87171;
+    font-size: 24px;
+    display: flex; align-items: center; justify-content: center;
+}
+.cr-confirm-card h3 { font-size: 17px; font-weight: 800; margin-bottom: 8px; }
+.cr-confirm-card .sub { font-size: 13px; color: var(--t-secondary); line-height: 1.55; margin-bottom: 20px; }
+.cr-confirm-actions { display: flex; gap: 10px; }
+.cr-confirm-actions .btn { flex: 1; }
 .pub-success-card {
     width: min(420px, 100%);
     padding: 32px 28px;
@@ -842,6 +864,102 @@
     border-color: rgba(239,68,68,0.45);
     color: #F87171;
 }
+.pending-actions .btn-edit[disabled],
+.pending-actions .btn-edit.is-hidden,
+.pending-actions .btn-cancel.is-hidden {
+    display: none;
+}
+.pending-status-th {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.status-pill.reviewing { color: #FBBF24; }
+.status-pill.rejected { color: #F87171; }
+.pending-status-cell {
+    vertical-align: top;
+}
+.pending-status-cell .status-pill { display: inline-flex; }
+.reject-reason {
+    margin-top: 6px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--t-secondary);
+    max-width: 220px;
+}
+.reject-reason strong {
+    color: #FCA5A5;
+    font-weight: 700;
+}
+
+/* 待审核卡片：避免裁切研发气泡 */
+#pending.editor-card {
+    overflow: visible;
+    position: relative;
+    z-index: 5;
+}
+#pending .editor-body {
+    overflow: visible;
+}
+#pending .dev-glass-wrap--pop-below .dev-glass-pop {
+    bottom: auto;
+    top: calc(100% + 10px);
+    transform: translateX(0) translateY(-4px);
+    z-index: 1200;
+    max-width: min(300px, 72vw);
+}
+#pending .dev-glass-wrap--pop-below:hover .dev-glass-pop,
+#pending .dev-glass-wrap--pop-below:focus-within .dev-glass-pop {
+    transform: translateX(0) translateY(0);
+}
+#pending .dev-glass-wrap--pop-below .dev-glass-pop::after {
+    bottom: auto;
+    top: -6px;
+    border-top-color: transparent;
+    border-bottom-color: rgba(22, 22, 34, 0.96);
+}
+
+.cr-editor-zone {
+    display: none;
+    margin-bottom: 8px;
+}
+.cr-editor-zone.is-open { display: block; }
+.type-grid.type-locked .type-card {
+    pointer-events: none;
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+.type-grid.type-locked::after {
+    content: '审核编辑中不可切换类型';
+    display: block;
+    font-size: 11px;
+    color: var(--t-tertiary);
+    margin-top: -14px;
+    margin-bottom: 18px;
+}
+
+.action-bar {
+    flex-wrap: wrap;
+}
+.action-bar-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+.action-bar-actions .btn-pending-only { display: none; }
+.action-bar.is-pending-edit .btn-pending-only { display: inline-flex; }
+.action-bar.is-pending-edit .btn-create-only { display: none !important; }
+.action-bar .dev-glass-wrap { margin-right: 2px; }
 
 /* 预约直播（与首页同源数据） */
 #create-live-res-wrap {
@@ -873,6 +991,7 @@
 
 </style>
 
+<link rel="stylesheet" href="../css-web/dev-glass-note.css">
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
 </head>
@@ -934,9 +1053,6 @@
                 <h1>创建内容 <span class="chip-pro">创作者工作室</span></h1>
                 <p>把你的想法变成图文、视频、直播或专属订阅，秒级发布到 FansLoop。</p>
             </div>
-            <div class="ph-r">
-                <button type="button" class="btn" id="btnDraftTop"><i class="fa-regular fa-floppy-disk"></i> 保存草稿</button>
-            </div>
         </div>
 
         <!-- 预约直播（localStorage 同步） -->
@@ -962,7 +1078,24 @@
         <div id="pending" class="editor-card" style="margin-bottom: 22px">
             <div class="editor-head">
                 <h3><i class="fa-solid fa-hourglass-half" style="color:#F59E0B"></i> 待审核列表</h3>
-                <span class="tag tag-warning"><i class="fa-solid fa-clock"></i> 2 条处理中</span>
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                    <span class="tag tag-warning"><i class="fa-solid fa-clock"></i> 2 条（待审核 / 不通过）</span>
+                    <span class="dev-glass-wrap dev-glass-wrap--align-end dev-glass-wrap--pop-below">
+                        <span class="dev-glass-sphere" tabindex="0" aria-describedby="devPendingStatusTip">
+                            <span class="dev-glass-sphere-shine"></span>
+                            <span class="dev-glass-sphere-txt">To 研发</span>
+                        </span>
+                        <span class="dev-glass-pop" id="devPendingStatusTip" role="tooltip">
+                            1. 提交审核后 AI 审核 → 列表展示「审核中」<br>
+                            2. AI 通过 → 后台记录「通过」，本列表不展示<br>
+                            3. AI 不通过 → 列表展示「不通过」<br>
+                            4. AI 无法判定 → 转人工，列表展示「审核中」<br>
+                            5. 人工通过 → 后台记录「通过」，本列表不展示<br>
+                            6. 人工不通过 → 列表展示「不通过」<br>
+                            7. 本列表仅展示待审核与审核不通过条目
+                        </span>
+                    </span>
+                </div>
             </div>
             <div class="editor-body" style="padding-top: 0">
                 <table style="width:100%;font-size:13px;border-collapse:collapse">
@@ -976,26 +1109,29 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
+                        <tr data-pending-status="reviewing">
                             <td style="padding:12px 0;border-bottom:1px solid var(--border)"><span class="tag tag-purple">图文</span></td>
-                            <td style="padding:12px 0;border-bottom:1px solid var(--border)">富士山日出 · 组图草稿</td>
+                            <td style="padding:12px 0;border-bottom:1px solid var(--border)">富士山日出 · 组图</td>
                             <td style="padding:12px 0;border-bottom:1px solid var(--border);color:var(--t-tertiary)">今天 09:12</td>
-                            <td style="padding:12px 0;border-bottom:1px solid var(--border)"><span style="color:#FBBF24">审核中</span></td>
+                            <td style="padding:12px 0;border-bottom:1px solid var(--border)"><span class="status-pill reviewing"><i class="fa-solid fa-spinner fa-spin"></i> 审核中</span></td>
                             <td style="padding:12px 0;border-bottom:1px solid var(--border);text-align:right" class="pending-actions">
-                                <button type="button" class="btn-preview btn-pending-preview" data-title="富士山日出 · 组图草稿" data-kind="image" data-desc="五合目日出组图草稿，待审核通过后对订阅者可见。" data-img1="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400" data-img2="https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=400" data-img3="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400"><i class="fa-solid fa-eye"></i> 预览</button>
-                                <button type="button" class="btn-edit" data-title="富士山日出 · 组图草稿"><i class="fa-solid fa-pen"></i> 编辑</button>
-                                <button type="button" class="btn-cancel" data-title="富士山日出 · 组图草稿"><i class="fa-solid fa-xmark"></i> 取消</button>
+                                <button type="button" class="btn-preview btn-pending-preview" data-title="富士山日出 · 组图" data-kind="image" data-desc="五合目日出组图，待审核通过后对订阅者可见。" data-img1="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400" data-img2="https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=400" data-img3="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400"><i class="fa-solid fa-eye"></i> 预览</button>
+                                <button type="button" class="btn-edit is-hidden" disabled data-title="富士山日出 · 组图" data-kind="image" data-desc="五合目日出组图，待修改后重新提交审核。"><i class="fa-solid fa-pen"></i> 编辑</button>
+                                <button type="button" class="btn-cancel" data-title="富士山日出 · 组图"><i class="fa-solid fa-xmark"></i> 取消</button>
                             </td>
                         </tr>
-                        <tr>
+                        <tr data-pending-status="rejected" data-reject-reason="含未授权背景音乐片段（00:42–01:15），请替换音轨或提供授权证明后重新提交。">
                             <td style="padding:12px 0"><span class="tag tag-info">视频</span></td>
-                            <td style="padding:12px 0">咖啡馆问答 Vol.4（粗剪）</td>
+                            <td style="padding:12px 0">咖啡馆问答 Vol.4</td>
                             <td style="padding:12px 0;color:var(--t-tertiary)">昨天 21:40</td>
-                            <td style="padding:12px 0"><span style="color:#FBBF24">审核中</span> <span style="color:var(--t-tertiary);font-size:10px">（机器初审）</span></td>
+                            <td style="padding:12px 0" class="pending-status-cell">
+                                <span class="status-pill rejected"><i class="fa-solid fa-circle-xmark"></i> 不通过</span>
+                                <div class="reject-reason"><strong>原因：</strong>含未授权背景音乐片段（00:42–01:15），请替换音轨或提供授权证明后重新提交。</div>
+                            </td>
                             <td style="padding:12px 0;text-align:right" class="pending-actions">
-                                <button type="button" class="btn-preview btn-pending-preview" data-title="咖啡馆问答 Vol.4（粗剪）" data-kind="video" data-desc="本期聊聊创作者如何定价订阅内容，并回答粉丝关于订阅档位、单独付费与免费试看的提问。" data-video-poster="https://images.unsplash.com/photo-1493612276216-ee3925520721?w=900&q=80"><i class="fa-solid fa-eye"></i> 预览</button>
-                                <button type="button" class="btn-edit" data-title="咖啡馆问答 Vol.4（粗剪）"><i class="fa-solid fa-pen"></i> 编辑</button>
-                                <button type="button" class="btn-cancel" data-title="咖啡馆问答 Vol.4（粗剪）"><i class="fa-solid fa-xmark"></i> 取消</button>
+                                <button type="button" class="btn-preview btn-pending-preview" data-title="咖啡馆问答 Vol.4" data-kind="video" data-desc="本期聊聊创作者如何定价订阅内容，并回答粉丝关于订阅档位、单独付费与免费试看的提问。" data-video-poster="https://images.unsplash.com/photo-1493612276216-ee3925520721?w=900&q=80"><i class="fa-solid fa-eye"></i> 预览</button>
+                                <button type="button" class="btn-edit" data-title="咖啡馆问答 Vol.4" data-kind="video" data-desc="本期聊聊创作者如何定价订阅内容，并回答粉丝关于订阅档位、单独付费与免费试看的提问。" data-video-poster="https://images.unsplash.com/photo-1493612276216-ee3925520721?w=900&q=80"><i class="fa-solid fa-pen"></i> 编辑</button>
+                                <button type="button" class="btn-cancel" data-title="咖啡馆问答 Vol.4"><i class="fa-solid fa-xmark"></i> 取消</button>
                             </td>
                         </tr>
                     </tbody>
@@ -1004,8 +1140,8 @@
         </div>
 
         <!-- 类型选择 -->
-        <div class="type-grid">
-            <div class="type-card t1 selected" data-type="image">
+        <div class="type-grid" id="createTypeGrid">
+            <div class="type-card t1" data-type="image">
                 <div class="ic-circle"><i class="fa-regular fa-image"></i></div>
                 <h3>图文动态</h3>
                 <p>1-9 张图 + 文字 + 标签，最快的创作方式</p>
@@ -1023,13 +1159,13 @@
             </div>
         </div>
 
+        <div id="createEditorZone" class="cr-editor-zone">
         <div class="cr-grid">
             <div>
-                <div id="panelImage">
+                <div id="panelImage" style="display:none">
                 <div class="editor-card">
                     <div class="editor-head">
                         <h3><span class="ic"><i class="fa-regular fa-image"></i></span> 图文动态编辑器</h3>
-                        <span class="tag tag-success"><i class="fa-solid fa-circle"></i> 自动保存</span>
                     </div>
                     <div class="editor-body">
                         <input class="title-input" placeholder="给你的动态加个标题（选填）" value="富士山五合目 · 零下 4℃ 的清晨" />
@@ -1198,11 +1334,25 @@
                 </div>
 
                 <!-- 操作栏 -->
-                <div class="action-bar">
-                    <div class="left-info">
-                        <div class="li-ti" id="actionBarInfo"><b style="color: #fff">3 张图片</b> · 字数 64 · 标签 3</div>
+                <div class="action-bar" id="createActionBar">
+                    <div class="action-bar-actions">
+                        <span class="dev-glass-wrap dev-glass-wrap--align-end" id="draftDevGlassWrap" style="display:none">
+                            <span class="dev-glass-sphere" tabindex="0" aria-describedby="devDraftBtnTip">
+                                <span class="dev-glass-sphere-shine"></span>
+                                <span class="dev-glass-sphere-txt">To 研发</span>
+                            </span>
+                            <span class="dev-glass-pop" id="devDraftBtnTip" role="tooltip">
+                                1. 图文、视频各保留 1 份本地草稿（直播无草稿）<br>
+                                2. 「保存草稿」：当前类型无草稿时显示，写入后同类型仅可覆盖更新<br>
+                                3. 「取消草稿」：当前类型已有草稿时显示，清除该类型草稿
+                            </span>
+                        </span>
+                        <button type="button" class="btn btn-secondary btn-create-only" id="btnSaveDraft" style="display:none"><i class="fa-regular fa-floppy-disk"></i> 保存草稿</button>
+                        <button type="button" class="btn btn-secondary btn-create-only" id="btnClearDraft" style="display:none"><i class="fa-solid fa-trash-can"></i> 取消草稿</button>
+                        <button type="button" class="btn btn-secondary btn-pending-only" id="btnPendingSaveEdit"><i class="fa-solid fa-check"></i> 保存编辑</button>
+                        <button type="button" class="btn btn-secondary btn-pending-only" id="btnPendingCancelEdit"><i class="fa-solid fa-xmark"></i> 取消编辑</button>
+                        <button type="button" class="btn btn-primary btn-lg" id="btnPublishMain"><i class="fa-solid fa-paper-plane"></i> 立即发布</button>
                     </div>
-                    <button type="button" class="btn btn-primary btn-lg" id="btnPublishMain"><i class="fa-solid fa-paper-plane"></i> 立即发布</button>
                 </div>
             </div>
 
@@ -1262,12 +1412,24 @@
                 </div>
             </aside>
         </div>
+        </div>
 
     </main>
 
 </div>
 
 <div class="cr-toast" id="crToast"></div>
+<div class="pub-success-overlay" id="pendingCancelOverlay" aria-hidden="true">
+    <div class="cr-confirm-card" onclick="event.stopPropagation()">
+        <div class="ic-warn"><i class="fa-solid fa-circle-question"></i></div>
+        <h3>是否要取消发布内容？</h3>
+        <p class="sub" id="pendingCancelSub">取消后该条将从待审核列表移除（原型演示）。</p>
+        <div class="cr-confirm-actions">
+            <button type="button" class="btn btn-secondary" id="pendingCancelDismiss">取消</button>
+            <button type="button" class="btn btn-primary" id="pendingCancelConfirm" style="background:linear-gradient(135deg,#DC2626,#EF4444);border:none">确认</button>
+        </div>
+    </div>
+</div>
 <div class="pub-success-overlay" id="pubSuccessOverlay">
     <div class="pub-success-card" onclick="event.stopPropagation()">
         <div class="ic"><i class="fa-solid fa-circle-check"></i></div>

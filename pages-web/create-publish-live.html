@@ -52,12 +52,21 @@ body {
 }
 @media (max-width: 920px) { .pub-body { grid-template-columns: 1fr; } }
 
+body > .cover-hint {
+    width: min(960px, 100%);
+    margin: 0 auto 10px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--t-tertiary);
+    line-height: 1.5;
+}
 .live-cover-wrap { position: relative; }
 .live-cover {
     aspect-ratio: 16/9;
     border-radius: var(--r-lg);
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
     border: 1.5px dashed var(--border-strong);
     cursor: pointer;
     display: flex;
@@ -66,7 +75,39 @@ body {
     padding: 10px;
     transition: .18s;
 }
+.live-cover.is-empty {
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-input);
+}
+.live-cover.is-empty:hover,
+.live-cover.is-dragover {
+    border-color: rgba(168,85,247,0.55);
+    background: rgba(168,85,247,0.06);
+}
 .live-cover:hover { border-color: rgba(168,85,247,0.5); }
+.live-cover .cover-empty-ui {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--t-tertiary);
+    font-size: 12px;
+    pointer-events: none;
+    text-align: center;
+    padding: 12px;
+}
+.live-cover .cover-empty-ui i {
+    font-size: 32px;
+    color: #A78BFA;
+    opacity: 0.75;
+}
+.live-cover .cover-empty-ui small {
+    font-size: 10.5px;
+    color: var(--t-quaternary, var(--t-tertiary));
+}
+.live-cover.is-empty .cover-empty-ui { display: flex; }
+.live-cover.is-empty .chg { display: none; }
 .live-cover .chg {
     font-size: 11px;
     font-weight: 600;
@@ -78,11 +119,6 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-}
-.cover-hint {
-    margin-top: 10px;
-    font-size: 11px;
-    color: var(--t-tertiary);
 }
 
 .obs-stream-card {
@@ -122,16 +158,6 @@ body {
     align-items: center;
     gap: 8px;
     flex-wrap: wrap;
-}
-.obs-stream-head h3 .obs-badge {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 999px;
-    background: rgba(52,211,153,0.15);
-    border: 1px solid rgba(52,211,153,0.45);
-    color: #6EE7B7;
-    letter-spacing: 0.02em;
 }
 .obs-stream-head p {
     margin: 0;
@@ -363,6 +389,7 @@ body {
 </head>
 <body>
 <input type="file" id="coverInput" accept="image/*" hidden>
+<p class="cover-hint">点击或拖拽上传直播封面（建议 16:9，支持 JPG / PNG / WebP）。</p>
 
 <div class="pub-modal">
     <div class="pub-head">
@@ -375,16 +402,20 @@ body {
     </div>
     <div class="pub-body">
         <section class="live-cover-wrap">
-            <div class="live-cover" id="liveCover" title="点击更换封面">
+            <div class="live-cover is-empty" id="liveCover" title="点击或拖拽上传封面">
+                <div class="cover-empty-ui">
+                    <i class="fa-regular fa-image"></i>
+                    <span>点击或拖拽上传封面</span>
+                    <small>建议 16:9</small>
+                </div>
                 <span class="chg"><i class="fa-regular fa-image"></i> 更换封面</span>
             </div>
-            <p class="cover-hint">默认使用账号头像作为直播封面；点击封面可上传自定义图片（建议 16:9）。</p>
 
             <div class="obs-stream-card" id="panelObs">
                 <div class="obs-stream-head">
                     <div class="obs-icon"><i class="fa-solid fa-display"></i></div>
                     <div class="obs-titles">
-                        <h3>OBS 推流开播 <span class="obs-badge">Web 端唯一方式</span></h3>
+                        <h3>OBS 推流开播</h3>
                         <p>在 OBS、Streamlabs 等推流软件中填入下方地址与密钥，开始推流后平台将自动开播。</p>
                     </div>
                 </div>
@@ -488,7 +519,6 @@ body {
 <script src="../js-web/fl-live-reservation.js"></script>
 <script>
 (function () {
-    const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&q=80';
     const friendSeed = [
         ['NovaPlay', '3年好友 · 游戏', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80'],
         ['Luna', '互关创作者', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80'],
@@ -510,8 +540,26 @@ body {
     const friendList = document.getElementById('friendList');
     const obsGuideOverlay = document.getElementById('obsGuideOverlay');
 
-    let coverUrl = DEFAULT_AVATAR;
+    let coverUrl = null;
     let selectedFriends = [];
+
+    function applyCover(url) {
+        coverUrl = url;
+        if (url) {
+            liveCover.style.backgroundImage = 'url("' + url + '")';
+            liveCover.classList.remove('is-empty');
+        } else {
+            liveCover.style.backgroundImage = '';
+            liveCover.classList.add('is-empty');
+        }
+    }
+
+    function handleCoverFile(file) {
+        if (!file || !(file.type || '').startsWith('image/')) return;
+        var reader = new FileReader();
+        reader.onload = function (e) { applyCover(e.target.result); };
+        reader.readAsDataURL(file);
+    }
 
     function syncExistingHint() {
         var el = document.getElementById('existingLiveHint');
@@ -539,7 +587,7 @@ body {
         document.body.removeChild(ta);
     }
 
-    liveCover.style.backgroundImage = 'url("' + coverUrl + '")';
+    applyCover(null);
     titleInput.addEventListener('input', function () {
         titleCount.textContent = titleInput.value.length + ' / 20';
     });
@@ -551,15 +599,26 @@ body {
 
     liveCover.addEventListener('click', function () { coverInput.click(); });
     coverInput.addEventListener('change', function () {
-        var f = coverInput.files && coverInput.files[0];
-        if (!f || !(f.type || '').startsWith('image/')) return;
-        var reader = new FileReader();
-        reader.onload = function (e) {
-            coverUrl = e.target.result;
-            liveCover.style.backgroundImage = 'url("' + coverUrl + '")';
-        };
-        reader.readAsDataURL(f);
+        handleCoverFile(coverInput.files && coverInput.files[0]);
         coverInput.value = '';
+    });
+    ['dragenter', 'dragover'].forEach(function (ev) {
+        liveCover.addEventListener(ev, function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            liveCover.classList.add('is-dragover');
+        });
+    });
+    ['dragleave', 'drop'].forEach(function (ev) {
+        liveCover.addEventListener(ev, function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            liveCover.classList.remove('is-dragover');
+        });
+    });
+    liveCover.addEventListener('drop', function (e) {
+        var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        handleCoverFile(f);
     });
 
     document.querySelectorAll('.btn-copy').forEach(function (btn) {
@@ -633,6 +692,11 @@ body {
     });
 
     document.getElementById('btnSubmitLive').addEventListener('click', function () {
+        if (!coverUrl) {
+            alert('请先上传直播封面（点击或拖拽至封面区域）。');
+            liveCover.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
         function closeParentModal() {
             try {
                 window.parent.postMessage({ type: 'fansloop-close-modal' }, '*');

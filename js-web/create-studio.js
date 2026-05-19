@@ -12,6 +12,16 @@
 
     var MAX_MEDIA = 9;
 
+    var LS_DRAFT_PREFIX = 'fl_cr_draft_';
+
+    var pendingEditMode = false;
+
+    var pendingEditRow = null;
+
+    var editorZone = document.getElementById('createEditorZone');
+
+    var typeGrid = document.getElementById('createTypeGrid');
+
 
 
     var toast = document.getElementById('crToast');
@@ -254,17 +264,277 @@
 
 
 
-    function syncActionBarMedia() {
+    function syncActionBarMedia() { /* 已移除统计文案 */ }
 
-        var barInfo = document.getElementById('actionBarInfo');
+    function hasDraft(type) {
 
-        if (!barInfo || currentType !== 'image') return;
+        try { return !!localStorage.getItem(LS_DRAFT_PREFIX + type); } catch (e) { return false; }
 
-        var n = countMediaCells();
+    }
 
-        var len = getEditorText().length;
+    function saveDraftForType(type) {
 
-        barInfo.innerHTML = '<b style="color:#fff">' + n + ' 张图片</b> · 字数 ' + len + ' · 标签 3';
+        var panel = document.getElementById('panel' + type.charAt(0).toUpperCase() + type.slice(1));
+
+        if (!panel) return;
+
+        var payload = {
+
+            title: panel.querySelector('.title-input')?.value || '',
+
+            text: panel.querySelector('.editor-text')?.value || '',
+
+            savedAt: Date.now()
+
+        };
+
+        try { localStorage.setItem(LS_DRAFT_PREFIX + type, JSON.stringify(payload)); } catch (e) {}
+
+    }
+
+    function clearDraftForType(type) {
+
+        try { localStorage.removeItem(LS_DRAFT_PREFIX + type); } catch (e) {}
+
+    }
+
+    function syncActionBarButtons() {
+
+        var bar = document.getElementById('createActionBar');
+
+        var saveDraftBtn = document.getElementById('btnSaveDraft');
+
+        var clearDraftBtn = document.getElementById('btnClearDraft');
+
+        var draftGlass = document.getElementById('draftDevGlassWrap');
+
+        var pubBtn = document.getElementById('btnPublishMain');
+
+        if (bar) bar.classList.toggle('is-pending-edit', pendingEditMode);
+
+        if (pendingEditMode) {
+
+            if (saveDraftBtn) saveDraftBtn.style.display = 'none';
+
+            if (clearDraftBtn) clearDraftBtn.style.display = 'none';
+
+            if (draftGlass) draftGlass.style.display = 'none';
+
+            if (pubBtn) pubBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> 重新提交审核';
+
+            return;
+
+        }
+
+        var isLive = currentType === 'live';
+
+        var has = !isLive && hasDraft(currentType);
+
+        if (saveDraftBtn) saveDraftBtn.style.display = isLive ? 'none' : (has ? 'none' : '');
+
+        if (clearDraftBtn) clearDraftBtn.style.display = isLive ? 'none' : (has ? '' : 'none');
+
+        if (draftGlass) draftGlass.style.display = isLive ? 'none' : ((has || editorZone?.classList.contains('is-open')) ? '' : 'none');
+
+        if (pubBtn) {
+
+            if (currentType === 'live') {
+
+                if (window.crUpdatePublishButton) window.crUpdatePublishButton('live');
+
+                else pubBtn.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i> 进入主播直播间';
+
+            } else if (currentType === 'video') {
+
+                pubBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> 提交视频审核';
+
+            } else {
+
+                pubBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> 立即发布';
+
+            }
+
+        }
+
+    }
+
+    function openCreateEditor(type) {
+
+        if (pendingEditMode && type !== currentType) {
+
+            showToast('审核编辑中不可切换内容类型，请先保存或取消编辑');
+
+            return;
+
+        }
+
+        if (editorZone) editorZone.classList.add('is-open');
+
+        setType(type);
+
+        setTimeout(function () {
+
+            editorZone?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        }, 60);
+
+    }
+
+    function fillPendingContentFromBtn(btn, kind) {
+
+        var panel = document.getElementById('panel' + kind.charAt(0).toUpperCase() + kind.slice(1));
+
+        if (!panel) return;
+
+        var title = btn.getAttribute('data-title') || '';
+
+        var desc = btn.getAttribute('data-desc') || '';
+
+        var titleEl = panel.querySelector('.title-input');
+
+        var textEl = panel.querySelector('.editor-text') || panel.querySelector('#liveNowDesc');
+
+        if (titleEl) titleEl.value = title;
+
+        if (textEl && desc) textEl.value = desc;
+
+        if (kind === 'image' && mediaGrid && mediaAddBtn) {
+
+            var urls = [];
+
+            ['data-img1', 'data-img2', 'data-img3', 'data-img4'].forEach(function (attr) {
+
+                var u = btn.getAttribute(attr);
+
+                if (u) urls.push(u);
+
+            });
+
+            if (urls.length) {
+
+                mediaGrid.querySelectorAll('.mp-cell:not(.add)').forEach(function (c) { c.remove(); });
+
+                urls.forEach(function (u) { addMediaFromUrl(u); });
+
+            }
+
+        }
+
+        if (kind === 'video') {
+
+            var poster = btn.getAttribute('data-video-poster');
+
+            var vz = document.getElementById('videoUploadZone');
+
+            var st = document.getElementById('videoStatus');
+
+            if (poster && vz) {
+
+                videoUploaded = true;
+
+                vz.classList.add('has-video');
+
+                vz.style.backgroundImage = "url('" + poster + "')";
+
+                if (st) st.textContent = '已载入审核稿件关联画面（原型）';
+
+            }
+
+        }
+
+    }
+
+    function enterPendingEdit(btn) {
+
+        pendingEditMode = true;
+
+        pendingEditRow = btn.closest('tr');
+
+        var kind = btn.getAttribute('data-kind') || 'image';
+
+        var title = btn.getAttribute('data-title') || '';
+
+        var kindLabel = kind === 'video' ? '视频' : kind === 'live' ? '直播' : '图文';
+
+        typeGrid?.classList.add('type-locked');
+
+        if (editorZone) editorZone.classList.add('is-open');
+
+        setType(kind);
+
+        requestAnimationFrame(function () {
+
+            requestAnimationFrame(function () {
+
+                fillPendingContentFromBtn(btn, kind);
+
+                syncActionBarButtons();
+
+                showToast('已选中「' + kindLabel + '」并载入「' + title + '」到下方编辑器');
+
+                typeGrid?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                setTimeout(function () {
+
+                    editorZone?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                }, 120);
+
+            });
+
+        });
+
+    }
+
+    function exitPendingEdit(restorePublish) {
+
+        pendingEditMode = false;
+
+        pendingEditRow = null;
+
+        typeGrid?.classList.remove('type-locked');
+
+        syncActionBarButtons();
+
+        if (restorePublish !== false) setType(currentType);
+
+    }
+
+    function initPendingRowActions() {
+
+        document.querySelectorAll('#pending tbody tr[data-pending-status]').forEach(function (tr) {
+
+            var status = tr.getAttribute('data-pending-status');
+
+            var editBtn = tr.querySelector('.btn-edit');
+
+            var cancelBtn = tr.querySelector('.btn-cancel');
+
+            if (editBtn) {
+
+                if (status === 'rejected') {
+
+                    editBtn.classList.remove('is-hidden');
+
+                    editBtn.disabled = false;
+
+                } else {
+
+                    editBtn.classList.add('is-hidden');
+
+                    editBtn.disabled = true;
+
+                }
+
+            }
+
+            if (cancelBtn) {
+
+                cancelBtn.classList.toggle('is-hidden', status !== 'rejected' && status !== 'reviewing');
+
+            }
+
+        });
 
     }
 
@@ -586,32 +856,7 @@
         });
         if (window.crToggleLiveOnlyUI) window.crToggleLiveOnlyUI(type === 'live');
 
-        var barInfo = document.getElementById('actionBarInfo');
-
-        if (barInfo) {
-
-            if (type === 'video') barInfo.innerHTML = '<b style="color:#fff">视频</b> · ' + (videoUploaded ? '已上传' : '未上传');
-
-            else if (type === 'live') barInfo.innerHTML = '<b style="color:#fff">直播</b> · 准备开播';
-
-            else syncActionBarMedia();
-
-        }
-
-        var pubBtn = document.getElementById('btnPublishMain');
-
-        if (pubBtn) {
-
-            if (type === 'live') {
-                if (window.crUpdatePublishButton) window.crUpdatePublishButton('live');
-                else pubBtn.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i> 进入主播直播间';
-            }
-
-            else if (type === 'video') pubBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> 提交视频审核';
-
-            else pubBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> 立即发布';
-
-        }
+        syncActionBarButtons();
 
     }
 
@@ -621,7 +866,7 @@
 
         card.addEventListener('click', function () {
 
-            setType(card.getAttribute('data-type'));
+            openCreateEditor(card.getAttribute('data-type'));
 
         });
 
@@ -675,17 +920,41 @@
 
 
 
-    ['btnDraftTop'].forEach(function (id) {
-
-        var b = document.getElementById(id);
-
-        if (b) b.addEventListener('click', function () { showToast('草稿已保存到云端（原型）'); });
-
-    });
-
-
-
     document.getElementById('btnPublishMain')?.addEventListener('click', function () {
+
+        if (pendingEditMode) {
+
+            openSuccess('修改已重新提交审核，通过后将更新线上内容（原型）。');
+
+            if (pendingEditRow) {
+
+                var titleCell = pendingEditRow.cells[1];
+
+                if (titleCell) {
+
+                    var panel = document.getElementById('panel' + currentType.charAt(0).toUpperCase() + currentType.slice(1));
+
+                    var t = panel?.querySelector('.title-input')?.value;
+
+                    if (t) titleCell.textContent = t;
+
+                }
+
+                pendingEditRow.setAttribute('data-pending-status', 'reviewing');
+
+                var stCell = pendingEditRow.cells[3];
+
+                if (stCell) stCell.innerHTML = '<span class="status-pill reviewing"><i class="fa-solid fa-spinner fa-spin"></i> 审核中</span>';
+
+                initPendingRowActions();
+
+            }
+
+            exitPendingEdit();
+
+            return;
+
+        }
 
         if (currentType === 'live') {
             if (window.crIsLivePreview && window.crIsLivePreview()) {
@@ -753,9 +1022,7 @@
 
                 if (st) st.textContent = '已选择：' + videoInput.files[0].name;
 
-                var barInfo = document.getElementById('actionBarInfo');
-
-                if (barInfo) barInfo.innerHTML = '<b style="color:#fff">视频</b> · 已上传';
+                syncActionBarButtons();
 
             }
 
@@ -765,19 +1032,97 @@
 
 
 
+    var pendingCancelOverlay = document.getElementById('pendingCancelOverlay');
+
+    var pendingCancelSub = document.getElementById('pendingCancelSub');
+
+    var pendingCancelTargetRow = null;
+
+    function openPendingCancelModal(btn) {
+
+        pendingCancelTargetRow = btn.closest('tr');
+
+        var t = btn.getAttribute('data-title') || '';
+
+        if (pendingCancelSub) {
+
+            pendingCancelSub.textContent = t
+
+                ? '将取消「' + t + '」的审核申请，确认后该条从列表移除。'
+
+                : '取消后该条将从待审核列表移除（原型演示）。';
+
+        }
+
+        if (pendingCancelOverlay) {
+
+            pendingCancelOverlay.classList.add('show');
+
+            pendingCancelOverlay.setAttribute('aria-hidden', 'false');
+
+        }
+
+    }
+
+    function closePendingCancelModal() {
+
+        pendingCancelTargetRow = null;
+
+        if (pendingCancelOverlay) {
+
+            pendingCancelOverlay.classList.remove('show');
+
+            pendingCancelOverlay.setAttribute('aria-hidden', 'true');
+
+        }
+
+    }
+
+    function updatePendingListCount() {
+
+        var n = document.querySelectorAll('#pending tbody tr[data-pending-status]').length;
+
+        var tag = document.querySelector('#pending .tag-warning');
+
+        if (tag) tag.innerHTML = '<i class="fa-solid fa-clock"></i> ' + n + ' 条（待审核 / 不通过）';
+
+    }
+
+    document.getElementById('pendingCancelDismiss')?.addEventListener('click', closePendingCancelModal);
+
+    pendingCancelOverlay?.addEventListener('click', function (e) {
+
+        if (e.target === pendingCancelOverlay) closePendingCancelModal();
+
+    });
+
+    document.getElementById('pendingCancelConfirm')?.addEventListener('click', function () {
+
+        var tr = pendingCancelTargetRow;
+
+        if (!tr) { closePendingCancelModal(); return; }
+
+        var t = tr.querySelector('.btn-cancel')?.getAttribute('data-title') || '';
+
+        if (pendingEditMode && pendingEditRow === tr) exitPendingEdit();
+
+        tr.remove();
+
+        updatePendingListCount();
+
+        closePendingCancelModal();
+
+        showToast(t ? '已取消「' + t + '」' : '已取消发布内容');
+
+    });
+
     document.querySelectorAll('.pending-actions .btn-cancel').forEach(function (btn) {
 
         btn.addEventListener('click', function () {
 
-            var t = btn.getAttribute('data-title') || '';
+            if (btn.classList.contains('is-hidden')) return;
 
-            if (confirm('确认撤回审核申请「' + t + '」？内容将退回草稿箱。')) {
-
-                showToast('已提交撤回（原型）：「' + t + '」');
-
-                btn.closest('tr').style.opacity = '0.35';
-
-            }
+            openPendingCancelModal(btn);
 
         });
 
@@ -787,13 +1132,57 @@
 
         btn.addEventListener('click', function () {
 
-            var t = btn.getAttribute('data-title') || '';
+            if (btn.disabled || btn.classList.contains('is-hidden')) return;
 
-            showToast('已从「' + t + '」载入编辑器字段（原型演示）');
-
-            document.querySelector('.title-input')?.focus();
+            enterPendingEdit(btn);
 
         });
+
+    });
+
+    document.getElementById('btnPendingSaveEdit')?.addEventListener('click', function () {
+
+        if (!pendingEditMode) return;
+
+        showToast('审核内容修改已保存（原型，未重新提审）');
+
+    });
+
+    document.getElementById('btnPendingCancelEdit')?.addEventListener('click', function () {
+
+        if (!pendingEditMode) return;
+
+        if (!confirm('放弃本次编辑？未保存的修改将丢失。')) return;
+
+        exitPendingEdit();
+
+        showToast('已取消编辑');
+
+    });
+
+    document.getElementById('btnSaveDraft')?.addEventListener('click', function () {
+
+        if (pendingEditMode || currentType === 'live') return;
+
+        saveDraftForType(currentType);
+
+        syncActionBarButtons();
+
+        showToast('「' + (currentType === 'video' ? '视频' : currentType === 'live' ? '直播' : '图文') + '」草稿已保存（每类型仅 1 份）');
+
+    });
+
+    document.getElementById('btnClearDraft')?.addEventListener('click', function () {
+
+        if (pendingEditMode || currentType === 'live') return;
+
+        if (!confirm('确定清除当前类型的草稿？')) return;
+
+        clearDraftForType(currentType);
+
+        syncActionBarButtons();
+
+        showToast('已清除当前类型草稿');
 
     });
 
@@ -803,7 +1192,19 @@
 
     initPricing();
 
-    setType('image');
+    initPendingRowActions();
+
+    ['image', 'video', 'live'].forEach(function (t) {
+
+        var panel = document.getElementById('panel' + t.charAt(0).toUpperCase() + t.slice(1));
+
+        if (panel) panel.style.display = 'none';
+
+    });
+
+    document.querySelectorAll('.type-card[data-type]').forEach(function (c) { c.classList.remove('selected'); });
+
+    syncActionBarButtons();
 
 })();
 
