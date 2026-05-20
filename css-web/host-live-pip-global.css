@@ -1,0 +1,117 @@
+/* 主播直播 · 全站可拖动小窗（原型） */
+.host-global-pip {
+    position: fixed;
+    z-index: 100000;
+    width: 300px;
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+    background: #0a0a12;
+    user-select: none;
+    touch-action: none;
+}
+.host-global-pip.is-dragging {
+    opacity: 0.92;
+    cursor: grabbing;
+}
+.host-global-pip .hgp-hd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(15, 15, 28, 0.96);
+    cursor: grab;
+}
+.host-global-pip .hgp-hd:active { cursor: grabbing; }
+.host-global-pip .hgp-live {
+    font-size: 10px;
+    font-weight: 800;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.host-global-pip .hgp-live .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #EF4444;
+    animation: hgpPulse 1.5s infinite;
+}
+@keyframes hgpPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+}
+.host-global-pip .hgp-title {
+    flex: 1;
+    min-width: 0;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--t-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-left: 4px;
+}
+.host-global-pip .hgp-hd-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+.host-global-pip .hgp-hd-actions button {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-size: 11px;
+    cursor: pointer;
+}
+.host-global-pip .hgp-hd-actions button:hover {
+    background: rgba(168, 85, 247, 0.35);
+}
+.host-global-pip .hgp-video {
+    aspect-ratio: 16/9;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    position: relative;
+}
+.host-global-pip .hgp-video::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.55));
+}
+.host-global-pip .hgp-video .hgp-hint {
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9);
+    z-index: 1;
+}
+.host-global-pip.is-paused .hgp-live .dot { background: #FBBF24; }
+.host-global-pip.is-paused .hgp-live .lbl { font-size: 0; }
+.host-global-pip.is-paused .hgp-live .lbl::before {
+    content: "暂离";
+    font-size: 10px;
+}
+
+.host-stage.is-pip-hidden {
+    visibility: hidden;
+}
+.host-stage.is-pip-hidden::after {
+    visibility: visible;
+    background: rgba(8, 8, 18, 0.85);
+}
+.host-stage.is-pip-hidden .host-top,
+.host-stage.is-pip-hidden .host-bottom,
+.host-stage.is-pip-hidden .host-pause-overlay {
+    visibility: hidden;
+}

@@ -1,17 +1,44 @@
 /* 主播直播控制台 · 侧边动态流与弹幕管理 */
-body.page-live-host .app-main { padding-bottom: 0; }
+body.page-live-host .app-main {
+    padding-bottom: 0;
+    max-height: calc(100vh - 64px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+body.page-live-host .page-head {
+    flex-shrink: 0;
+}
 
 .live-host-grid {
     display: grid;
     grid-template-columns: 1fr 340px;
     gap: 18px;
-    min-height: calc(100vh - 140px);
+    flex: 1;
+    min-height: 0;
+    height: calc(100vh - 132px);
+    max-height: calc(100vh - 132px);
     align-items: stretch;
+    overflow: hidden;
 }
 .host-side {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: auto auto auto minmax(0, 1fr);
     min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+    gap: 0;
+}
+.host-side > .card {
+    margin-bottom: 10px;
+}
+.host-side > .host-chat-fill {
+    margin-bottom: 0;
+}
+.host-side .host-chat-fill {
+    margin-bottom: 0;
+    min-height: 0;
+    overflow: hidden;
 }
 @media (max-width: 1100px) { .live-host-grid { grid-template-columns: 1fr; } }
 
@@ -160,22 +187,25 @@ body.page-live-host .app-main { padding-bottom: 0; }
 }
 
 .host-chat-fill {
-    flex: 1;
     display: flex;
     flex-direction: column;
     margin-bottom: 0 !important;
     min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
 }
 .host-chat-fill .host-chat-body {
     flex: 1;
     display: flex;
     flex-direction: column;
     min-height: 0;
+    overflow: hidden;
 }
 .host-chat-fill .host-chat-feed {
     flex: 1;
     height: auto !important;
-    min-height: 140px;
+    min-height: 100px;
+    max-height: none;
 }
 
 .host-compose {

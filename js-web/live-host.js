@@ -425,6 +425,9 @@
                 ? '<span class="dot"></span> 暂离'
                 : '<span class="dot"></span> LIVE';
         }
+        if (window.HostLivePip && window.HostLivePip.isActive()) {
+            window.HostLivePip.setPaused(isPaused);
+        }
     }
 
     if (hostStage) {
