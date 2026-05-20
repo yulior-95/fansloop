@@ -25,7 +25,7 @@
             <div class="card" style="padding:26px 24px;text-align:center;border-color:rgba(245,158,11,0.35);background:rgba(245,158,11,0.06)">
                 <div style="font-size:42px;margin-bottom:10px;color:#FCD34D"><i class="fa-solid fa-hourglass-half"></i></div>
                 <h1 style="margin:0 0 10px;font-size:20px;font-weight:800">KYC 已提交，状态：审核中</h1>
-                <p style="margin:0;font-size:13px;color:var(--t-secondary);line-height:1.65">系统将进行<strong>机器审核</strong>（清晰度、真伪、人脸与证件一致性）；无法自动判定则转入<strong>人工审核</strong>。结果将同步至本页与「设置」中的 KYC 入口。</p>
+                <p style="margin:0;font-size:13px;color:var(--t-secondary);line-height:1.65">资料已提交至 Verify，将进行<strong>机审 + 人工</strong>混合审核。平台侧仅需等待验证结果回传，无需在本平台人工处置。</p>
             </div>
             <div class="card" style="padding:18px 20px;margin-top:18px;font-size:12px;color:var(--t-secondary);line-height:1.7">
                 <div><strong style="color:#fff">单号</strong> <span id="kid" style="font-family:ui-monospace,monospace"></span></div>
@@ -37,7 +37,7 @@
             </div>
         </div>
     </main>
-    <footer class="kyc-lite-foot">审核人可在运营后台「KYC 管理」处置本条申请</footer>
+    <footer class="kyc-lite-foot">已合并至 kyc-doc-pending · Verify 混合审核</footer>
 </div>
 <script src="../js-web/kyc-store.js"></script>
 <script src="../js-web/kyc-flow-nav.js"></script>
@@ -68,32 +68,12 @@
         return;
     }
 
-    var id = "KYC-" + Date.now();
-    KS.writeKyc({
-        status: "submitted",
-        stage: "machine",
-        lastId: id,
-        rejectReason: null,
+    KS.submitDocument({
         idCardFront: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&q=80",
         idCardBack: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80",
         faceSnapshot: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face"
     });
-    var t = new Date().toLocaleString("zh-CN");
-    KS.pushAudit({
-        id: id,
-        time: t,
-        user: "Luna 🌙",
-        channel: "KYC 分步页",
-        pipeline: "机审",
-        status: "待处理",
-        note: "证件 + 人脸已完成，待机审"
-    });
-    fill(id, t);
-    try {
-        var u = new URL(location.href);
-        u.searchParams.delete("confirm");
-        history.replaceState({}, "", u.pathname + u.search + u.hash);
-    } catch (e) {}
+    window.KycFlowNav.go("kyc-doc-pending.html");
 })();
 </script>
 </body>

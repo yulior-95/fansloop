@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>钱包验证 · zkMe · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/kyc-subpages.css">
+</head>
+<body>
+<div class="kyc-lite-shell">
+    <header class="kyc-lite-top">
+        <div class="brand"><span class="lg"><i class="fa-brands fa-ethereum"></i></span> zkMe 钱包验证</div>
+        <a id="linkBack" href="#">返回</a>
+    </header>
+    <main class="kyc-lite-main">
+        <div class="kyc-flow-max">
+            <div id="stateConnect" class="kyc-state-panel active">
+                <div class="kyc-state-center">
+                    <div class="kyc-state-icon wallet"><i class="fa-solid fa-plug"></i></div>
+                    <h2>请连接你的钱包</h2>
+                    <p>将调用 MetaMask 等 Web3 钱包连接能力，用于读取地址并配合 zkMe 生成隐私证明。</p>
+                    <button type="button" class="btn btn-primary btn-lg" id="btnConnect"><i class="fa-solid fa-wallet"></i> 连接 MetaMask</button>
+                </div>
+            </div>
+            <div id="stateProve" class="kyc-state-panel">
+                <div class="kyc-state-center">
+                    <div class="kyc-state-icon wait pulse"><i class="fa-solid fa-fingerprint"></i></div>
+                    <h2>正在生成身份证明，请稍候</h2>
+                    <p>zkMe 正在本地生成零知识证明，不会上传你的原始证件影像。</p>
+                    <div class="kyc-wallet-chip" id="chipProve" style="display:none"><i class="fa-solid fa-circle-notch fa-spin"></i> <span></span></div>
+                </div>
+            </div>
+            <div id="stateVerify" class="kyc-state-panel">
+                <div class="kyc-state-center">
+                    <div class="kyc-state-icon wait pulse"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h2>正在验证你的身份信息</h2>
+                    <p>Verify 服务正在进行混合审核（机审 + 人工），请稍候…</p>
+                </div>
+            </div>
+            <div id="stateOk" class="kyc-state-panel">
+                <div class="kyc-state-center">
+                    <div class="kyc-state-icon ok"><i class="fa-solid fa-circle-check"></i></div>
+                    <h2>身份验证成功</h2>
+                    <p>zkMe 已确认你的有效身份凭证，实名认证已完成。</p>
+                    <button type="button" class="btn btn-primary btn-lg btn-block" id="btnContinueOk"><i class="fa-solid fa-arrow-right"></i> 继续</button>
+                </div>
+            </div>
+            <div id="stateFail" class="kyc-state-panel">
+                <div class="kyc-state-center">
+                    <div class="kyc-state-icon fail"><i class="fa-solid fa-circle-xmark"></i></div>
+                    <h2>未检测到有效的身份凭证</h2>
+                    <p>当前钱包地址未绑定 zkMe 身份凭证，或证明已失效。你可重试或改用证件认证。</p>
+                    <div class="kyc-actions-row" style="justify-content:center;margin-top:8px">
+                        <button type="button" class="btn btn-secondary" id="btnRetry"><i class="fa-solid fa-rotate-right"></i> 重新验证</button>
+                        <button type="button" class="btn btn-primary" id="btnGoDoc"><i class="fa-solid fa-id-card"></i> 使用证件认证</button>
+                    </div>
+                </div>
+            </div>
+            <div class="kyc-verify-note" style="margin-top:24px">
+                <strong>原型演示：</strong>连接后自动模拟全流程。加 <code>?demo=fail</code> 可预览失败态。后台可在「KYC 管理」查看流水。
+            </div>
+        </div>
+    </main>
+    <footer class="kyc-lite-foot">Powered by zkMe · Verify 混合审核</footer>
+</div>
+<script src="../js-web/kyc-store.js"></script>
+<script src="../js-web/kyc-flow-nav.js"></script>
+<script>
+(function () {
+    document.getElementById("linkBack").href = window.KycFlowNav.hrefWithRet("kyc-intro.html");
+    var panels = ["stateConnect", "stateProve", "stateVerify", "stateOk", "stateFail"];
+    var wallet = "";
+    function show(id) {
+        panels.forEach(function (p) {
+            document.getElementById(p).classList.toggle("active", p === id);
+        });
+    }
+    document.getElementById("btnConnect").addEventListener("click", function () {
+        wallet = "0x" + Array.from({ length: 40 }, function () {
+            return Math.floor(Math.random() * 16).toString(16);
+        }).join("");
+        show("stateProve");
+        var chip = document.getElementById("chipProve");
+        chip.style.display = "inline-flex";
+        chip.querySelector("span").textContent = wallet.slice(0, 6) + "…" + wallet.slice(-4);
+        setTimeout(function () {
+            show("stateVerify");
+            setTimeout(function () {
+                if (window.KycFlowNav.qp("demo") === "fail") {
+                    window.FansloopKycStore.setZkpFailed();
+                    show("stateFail");
+                } else {
+                    window.FansloopKycStore.setWalletSuccess(wallet);
+                    show("stateOk");
+                }
+            }, 1800);
+        }, 1600);
+    });
+    document.getElementById("btnContinueOk").addEventListener("click", function () {
+        window.KycFlowNav.go("kyc-complete.html", { source: "wallet" });
+    });
+    document.getElementById("btnRetry").addEventListener("click", function () { show("stateConnect"); });
+    document.getElementById("btnGoDoc").addEventListener("click", function () {
+        window.KycFlowNav.go("kyc-upload-id.html");
+    });
+})();
+</script>
+</body>
+</html>

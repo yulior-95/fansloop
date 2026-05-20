@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>身份认证已完成 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/kyc-subpages.css">
+</head>
+<body>
+<div class="kyc-lite-shell">
+    <header class="kyc-lite-top">
+        <div class="brand"><span class="lg"><i class="fa-solid fa-circle-check"></i></span> 认证完成</div>
+        <a id="linkBack" href="#">返回</a>
+    </header>
+    <main class="kyc-lite-main">
+        <div class="kyc-flow-max">
+            <div class="kyc-complete-hero">
+                <div class="ic"><i class="fa-solid fa-shield-halved"></i></div>
+                <h1 style="margin:0 0 10px;font-size:24px;font-weight:800">身份认证已完成</h1>
+                <p style="margin:0 auto 24px;max-width:400px;font-size:14px;color:var(--t-secondary);line-height:1.65">你现在可以正常使用平台全部功能</p>
+                <div class="kyc-meta-grid card" style="padding:14px 18px;max-width:360px;margin:0 auto 22px">
+                    <div>认证方式 <span id="metaSource">—</span></div>
+                    <div>隐私证明 <span id="metaZkp">—</span></div>
+                </div>
+                <button type="button" class="btn btn-primary btn-lg" id="btnContinue"><i class="fa-solid fa-arrow-right"></i> 继续</button>
+            </div>
+        </div>
+    </main>
+    <footer class="kyc-lite-foot">提现等受控操作将自动放行</footer>
+</div>
+<script src="../js-web/kyc-store.js"></script>
+<script src="../js-web/kyc-flow-nav.js"></script>
+<script>
+(function () {
+    var ret = window.KycFlowNav.retParam();
+    document.getElementById("linkBack").href = ret || "settings.html";
+    var k = window.FansloopKycStore.readKyc();
+    var src = window.KycFlowNav.qp("source") || k.authSource || "";
+    document.getElementById("metaSource").textContent = src === "wallet" ? "钱包验证 (zkMe)" : src === "document" ? "证件认证" : "—";
+    document.getElementById("metaZkp").textContent = k.zkpStatus === "success" ? "成功" : k.zkpStatus === "failed" ? "失败" : "未知";
+    document.getElementById("btnContinue").addEventListener("click", function () {
+        location.href = ret || "settings.html";
+    });
+})();
+</script>
+</body>
+</html>

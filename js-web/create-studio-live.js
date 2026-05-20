@@ -136,5 +136,48 @@
         livePreviewCoverInput.value = '';
     });
 
+    /* 直播标签：回车添加、点击 × 移除 */
+    var liveTagInput = document.getElementById('liveTagInput');
+    var liveTagField = document.getElementById('liveTagField');
+    var LIVE_TAG_MAX = 8;
+
+    function liveTagCount() {
+        return liveTagInput ? liveTagInput.querySelectorAll('.tag-pill').length : 0;
+    }
+
+    function addLiveTag(text) {
+        if (!liveTagInput || !text) return;
+        var t = text.replace(/^#+\s*/, '').trim();
+        if (!t) return;
+        if (liveTagCount() >= LIVE_TAG_MAX) {
+            if (window.crShowToast) window.crShowToast('最多添加 ' + LIVE_TAG_MAX + ' 个标签');
+            return;
+        }
+        var exists = false;
+        liveTagInput.querySelectorAll('.tag-pill').forEach(function (p) {
+            if (p.textContent.replace(/×/g, '').trim() === '# ' + t) exists = true;
+        });
+        if (exists) return;
+        var pill = document.createElement('span');
+        pill.className = 'tag-pill';
+        pill.innerHTML = '# ' + t + ' <span class="x" role="button" tabindex="0" title="移除">×</span>';
+        liveTagInput.insertBefore(pill, liveTagField);
+    }
+
+    if (liveTagInput) {
+        liveTagInput.addEventListener('click', function (e) {
+            var x = e.target.closest('.x');
+            if (x) x.closest('.tag-pill')?.remove();
+        });
+    }
+    if (liveTagField) {
+        liveTagField.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter') return;
+            e.preventDefault();
+            addLiveTag(liveTagField.value);
+            liveTagField.value = '';
+        });
+    }
+
     syncLiveModeUI();
 })();

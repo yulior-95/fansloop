@@ -18,12 +18,12 @@
             <div class="kyc-step-bar">
                 <div class="step done">1</div>
                 <div class="step done">2</div>
-                <div class="step done">3</div>
-                <div class="step on">4 人脸</div>
+                <div class="step on">3 人脸</div>
+                <div class="step">4</div>
                 <div class="step">5</div>
             </div>
-            <h1 style="font-size:20px;font-weight:800;margin:0 0 8px">活体检测与人脸比对</h1>
-            <p style="font-size:13px;color:var(--t-secondary);margin:0 0 18px">请正对摄像头完成识别。若<strong>电脑摄像头不可用</strong>，可使用下方入口生成链接，在手机浏览器中完成。</p>
+            <h1 style="font-size:20px;font-weight:800;margin:0 0 8px">人脸识别</h1>
+            <p style="font-size:13px;color:var(--t-secondary);margin:0 0 18px">请按照提示完成人脸识别。若<strong>电脑摄像头不可用</strong>，可使用下方入口生成链接，在手机浏览器中完成。</p>
             <div class="kyc-face-preview">
                 <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=480&fit=crop&crop=face" alt="人脸识别示意" />
             </div>
@@ -39,15 +39,16 @@
                 <button type="button" class="btn btn-secondary" id="btnCopy" disabled><i class="fa-regular fa-copy"></i> 复制链接</button>
                 <button type="button" class="btn btn-primary" id="btnDone" disabled><i class="fa-solid fa-check"></i> 我已完成人脸识别</button>
             </div>
-            <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top:16px" id="btnNext" disabled><i class="fa-solid fa-arrow-right"></i> 下一步：提交审核</button>
+            <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top:16px" id="btnNext" disabled><i class="fa-solid fa-arrow-right"></i> 提交并进入审核</button>
         </div>
     </main>
     <footer class="kyc-lite-foot">示意头像：Unsplash</footer>
 </div>
+<script src="../js-web/kyc-store.js"></script>
 <script src="../js-web/kyc-flow-nav.js"></script>
 <script>
 (function () {
-    document.getElementById("linkBack").href = window.KycFlowNav.hrefWithRet("kyc-third-party.html");
+    document.getElementById("linkBack").href = window.KycFlowNav.hrefWithRet("kyc-upload-id.html");
     var url = "";
     document.getElementById("btnGen").addEventListener("click", function () {
         var token = "face_" + Math.random().toString(36).slice(2, 12);
@@ -73,9 +74,18 @@
         document.getElementById("btnNext").disabled = false;
     });
     document.getElementById("btnNext").addEventListener("click", function () {
-        var base = window.KycFlowNav.hrefWithRet("kyc-submit-success.html");
-        var sep = base.indexOf("?") >= 0 ? "&" : "?";
-        location.href = base + sep + "confirm=1";
+        var draft = {};
+        try { draft = JSON.parse(sessionStorage.getItem("fansloop_kyc_draft") || "{}"); } catch (e) {}
+        if (window.FansloopKycStore) {
+            window.FansloopKycStore.submitDocument({
+                country: draft.country || null,
+                idType: draft.idType || null,
+                idCardFront: "demo_front",
+                idCardBack: "demo_back",
+                faceSnapshot: "demo_face"
+            });
+        }
+        window.KycFlowNav.go("kyc-doc-pending.html");
     });
 })();
 </script>

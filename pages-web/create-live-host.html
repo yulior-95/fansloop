@@ -5,148 +5,8 @@
 <title>主播直播中 · FansLoop</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
-<style>
-body.page-live-host .app-main { padding-bottom: 0; }
-.live-host-grid {
-    display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 18px;
-    min-height: calc(100vh - 140px);
-}
-@media (max-width: 1100px) { .live-host-grid { grid-template-columns: 1fr; } }
-
-.host-stage {
-    position: relative;
-    border-radius: var(--r-lg);
-    overflow: hidden;
-    border: 1px solid var(--border);
-    background: #000;
-    aspect-ratio: 16/9;
-    min-height: 420px;
-    background-image: url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1600&q=80');
-    background-size: cover;
-    background-position: center;
-}
-.host-stage::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,0.45) 0%, transparent 40%, transparent 55%, rgba(0,0,0,0.75) 100%);
-}
-.host-top {
-    position: absolute;
-    top: 16px; left: 16px; right: 16px;
-    z-index: 3;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-.host-live-pill {
-    padding: 6px 14px;
-    background: linear-gradient(135deg, #DC2626, #EF4444);
-    border-radius: 999px;
-    color: #fff;
-    font-size: 11px;
-    font-weight: 800;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    animation: hostPulse 2s infinite;
-}
-@keyframes hostPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.5); }
-    50% { box-shadow: 0 0 0 10px rgba(220,38,38,0); }
-}
-.host-live-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; }
-.host-meta-chip {
-    padding: 6px 12px;
-    background: rgba(0,0,0,0.55);
-    backdrop-filter: blur(8px);
-    border-radius: 999px;
-    color: #fff;
-    font-size: 11.5px;
-    font-weight: 600;
-}
-.host-bottom {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    z-index: 3;
-    padding: 18px 20px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 14px;
-    flex-wrap: wrap;
-}
-.host-title { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 4px; }
-.host-sub { font-size: 12px; color: rgba(255,255,255,0.75); }
-.host-controls { display: flex; gap: 8px; flex-wrap: wrap; }
-.host-ctl {
-    width: 44px; height: 44px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.2);
-    background: rgba(0,0,0,0.55);
-    backdrop-filter: blur(8px);
-    color: #fff;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    transition: 0.15s;
-}
-.host-ctl:hover { background: rgba(168,85,247,0.35); border-color: rgba(168,85,247,0.5); }
-.host-ctl.danger:hover { background: rgba(220,38,38,0.45); border-color: rgba(248,113,113,0.6); }
-.host-ctl.active { background: rgba(168,85,247,0.5); border-color: #C084FC; }
-
-.host-side .card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    margin-bottom: 14px;
-    overflow: hidden;
-}
-.host-side .card-hd {
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.host-side .card-bd { padding: 12px 14px; max-height: 280px; overflow-y: auto; }
-.chat-line {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
-    font-size: 12px;
-    line-height: 1.45;
-}
-.chat-line .u { color: #C084FC; font-weight: 700; flex-shrink: 0; }
-.chat-line .m { color: var(--t-secondary); }
-.gift-toast {
-    padding: 10px 12px;
-    background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(236,72,153,0.1));
-    border: 1px solid rgba(245,158,11,0.35);
-    border-radius: 10px;
-    font-size: 12px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.gift-toast i { color: #FBBF24; }
-.stat-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    font-size: 12px;
-    border-bottom: 1px solid var(--border);
-}
-.stat-row:last-child { border-bottom: none; }
-</style>
+<link rel="stylesheet" href="../css-web/live-host.css">
+<link rel="stylesheet" href="../css-web/dev-glass-note.css">
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
 </head>
@@ -198,13 +58,18 @@ body.page-live-host .app-main { padding-bottom: 0; }
         <div class="page-head">
             <div class="ph-l">
                 <h1>主播直播控制台</h1>
-                <p>当前为<strong style="color:#fff">主播端画面</strong>原型：摄像头预览、弹幕与礼物、推流控制。</p>
             </div>
         </div>
 
         <div class="live-host-grid">
             <div>
-                <div class="host-stage">
+                <div class="host-stage" id="hostStage">
+                    <div class="host-pause-overlay" id="hostPauseOverlay">
+                        <div class="ico"><i class="fa-solid fa-mug-hot"></i></div>
+                        <h3>主播暂时离开</h3>
+                        <p>主播稍作休息，马上回来。观众端将看到「主播暂时离开，马上回来。」提示，推流画面保持最后一帧。</p>
+                        <button type="button" class="btn btn-primary btn-lg host-resume-btn" id="btnResumeLive"><i class="fa-solid fa-play"></i> 继续直播</button>
+                    </div>
                     <div class="host-top">
                         <span class="host-live-pill"><span class="dot"></span> LIVE</span>
                         <span class="host-meta-chip"><i class="fa-solid fa-eye"></i> 1,284 观看</span>
@@ -214,43 +79,203 @@ body.page-live-host .app-main { padding-bottom: 0; }
                     <div class="host-bottom">
                         <div>
                             <div class="host-title">深夜爵士 · 即兴钢琴</div>
-                            <div class="host-sub">TRC20 打赏已开启</div>
+                            <div class="host-sub">TRC20 打赏已开启 · OBS 推流中</div>
                         </div>
                         <div class="host-controls">
-<button type="button" class="host-ctl danger" title="结束直播" onclick="if(confirm('确认结束本场直播？'))location.href='create.html'"><i class="fa-solid fa-power-off"></i></button>
+                            <button type="button" class="host-ctl" id="btnHostPause" title="暂时离开"><i class="fa-solid fa-pause"></i></button>
+                            <button type="button" class="host-ctl danger" title="结束直播" onclick="if(confirm('确认结束本场直播？'))location.href='create.html'"><i class="fa-solid fa-power-off"></i></button>
                         </div>
                     </div>
                 </div>
             </div>
 
             <aside class="host-side">
-                <div class="card">
-                    <div class="card-hd"><i class="fa-solid fa-chart-simple" style="color:#6EE7B7"></i> 实时数据</div>
-                    <div class="card-bd" style="max-height:none">
-                        <div class="stat-row"><span style="color:var(--t-tertiary)">峰值在线</span><b>1,420</b></div>
-                        <div class="stat-row"><span style="color:var(--t-tertiary)">礼物收益</span><b style="color:#FBBF24">86.4 USDT</b></div>
-                        <div class="stat-row"><span style="color:var(--t-tertiary)">新增关注</span><b style="color:var(--success-light)">+52</b></div>
+                <div class="card host-admin-card">
+                    <div class="card-hd">
+                        <span class="hd-l"><i class="fa-solid fa-user-shield" style="color:#6EE7B7"></i> 房管设置</span>
+                        <span class="hd-r-wrap">
+                            <span class="dev-glass-wrap dev-glass-wrap--align-end dev-glass-wrap--pop-below">
+                                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devHostAdminTip">
+                                    <span class="dev-glass-sphere-shine"></span>
+                                    <span class="dev-glass-sphere-txt">To 研发</span>
+                                </span>
+                                <span class="dev-glass-pop" id="devHostAdminTip" role="tooltip">
+                                    1. 粉丝进入直播间发言后，主播点击用户头像或评论 →「管理」<br>
+                                    2. 弹窗中「设为管理员」完成任命<br>
+                                    3. 房管可：协助回复活跃气氛、禁言/踢出违规用户、飘屏发布公告
+                                </span>
+                            </span>
+                        </span>
+                    </div>
+                    <div class="card-bd host-admin-bd">
+                        <p class="host-admin-tip">点击弹幕区用户头像或「管理」，将粉丝设为房管。</p>
+                        <ul class="host-admin-list" id="hostAdminList">
+                            <li class="host-admin-empty" id="hostAdminEmpty">暂无房管 · 从弹幕中任命</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card card-stat">
+                    <div class="card-hd"><span class="hd-l"><i class="fa-solid fa-chart-simple" style="color:#6EE7B7"></i> 实时数据</span></div>
+                    <div class="card-bd card-bd-align">
+                        <div class="stat-row"><span>峰值在线</span><b>1,420</b></div>
+                        <div class="stat-row"><span>礼物收益</span><b id="giftTotalUsdt" style="color:#FBBF24">40.0 USDT</b></div>
+                        <div class="stat-row"><span>新增关注</span><b style="color:var(--success-light)">+52</b></div>
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-hd"><i class="fa-solid fa-gift" style="color:#FBBF24"></i> 礼物动态</div>
-                    <div class="card-bd">
-                        <div class="gift-toast"><i class="fa-solid fa-gift"></i> Alex 送出 <b>星光 ×5</b> · 12 USDT</div>
-                        <div class="gift-toast"><i class="fa-solid fa-gift"></i> Mika 送出 <b>火箭</b> · 28 USDT</div>
+                    <div class="card-hd">
+                        <span class="hd-l"><i class="fa-solid fa-gift" style="color:#FBBF24"></i> 礼物动态</span>
+                        <span class="hd-r">新礼物自下而上</span>
+                    </div>
+                    <div class="feed-viewport">
+                        <div class="feed-scroll" id="giftFeedScroll">
+                            <div class="feed-inner" id="giftFeedInner">
+                                <div class="gift-toast"><i class="fa-solid fa-gift"></i> Alex 送出 <b>星光 ×5</b> · 12 USDT</div>
+                                <div class="gift-toast"><i class="fa-solid fa-gift"></i> Mika 送出 <b>火箭</b> · 28 USDT</div>
+                            </div>
+                        </div>
+                        <button type="button" class="feed-new-hint" id="giftFeedHint"><i class="fa-solid fa-arrow-down"></i> 新礼物</button>
+                    </div>
+                    <div class="host-mod-bar">
+                        <button type="button" class="btn btn-secondary btn-sm" id="btnSimGift"><i class="fa-solid fa-plus"></i> 模拟礼物</button>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-hd"><i class="fa-regular fa-comments" style="color:#C084FC"></i> 弹幕</div>
-                    <div class="card-bd">
-                        <div class="chat-line"><span class="u">Nova</span><span class="m">今晚音色太绝了！</span></div>
-                        <div class="chat-line"><span class="u">Ken</span><span class="m">已订阅，求 Encore</span></div>
-                        <div class="chat-line"><span class="u">Yuki</span><span class="m">可以点《Autumn Leaves》吗</span></div>
-                        <div class="chat-line"><span class="u">系统</span><span class="m">欢迎新订阅者 @River</span></div>
+                <div class="card host-chat-card host-chat-fill">
+                    <div class="card-hd">
+                        <span class="hd-l"><i class="fa-regular fa-comments" style="color:#C084FC"></i> 弹幕管理</span>
+                        <span class="hd-r-wrap">
+                            <span class="hd-r">悬停 · 删除 / 踢出</span>
+                            <span class="dev-glass-wrap dev-glass-wrap--align-end dev-glass-wrap--pop-below">
+                                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devHostChatTip">
+                                    <span class="dev-glass-sphere-shine"></span>
+                                    <span class="dev-glass-sphere-txt">To 研发</span>
+                                </span>
+                                <span class="dev-glass-pop" id="devHostChatTip" role="tooltip">
+                                    1. 触发后台管理敏感词库的敏感词发言，整条脱敏展示<br>
+                                    2. 动态效果从下往上，新的消息在下方<br>
+                                    3. 支持对单条发言进行删除，或者对异常发言用户踢出直播间
+                                </span>
+                            </span>
+                        </span>
+                    </div>
+                    <div class="host-chat-body">
+                    <div class="feed-viewport tall host-chat-feed">
+                        <div class="feed-scroll" id="chatFeedScroll">
+                            <div class="feed-inner" id="chatFeedInner">
+                                <div class="chat-line" data-id="c1" data-user="Nova" data-av="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80">
+                                    <div class="chat-main" data-act="manage" title="点击管理用户">
+                                        <span class="chat-av" style="background-image:url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80')"></span>
+                                        <span class="u">Nova</span><span class="m">今晚音色太绝了！</span>
+                                    </div>
+                                    <div class="chat-ops">
+                                        <button type="button" class="chat-op" title="管理" data-act="manage"><i class="fa-solid fa-user-gear"></i></button>
+                                        <button type="button" class="chat-op" title="删除发言" data-act="del"><i class="fa-regular fa-trash-can"></i></button>
+                                        <button type="button" class="chat-op danger" title="移出直播间" data-act="kick"><i class="fa-solid fa-user-slash"></i></button>
+                                    </div>
+                                </div>
+                                <div class="chat-line" data-id="c2" data-user="Ken" data-av="https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=80">
+                                    <div class="chat-main" data-act="manage" title="点击管理用户">
+                                        <span class="chat-av" style="background-image:url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=80')"></span>
+                                        <span class="u">Ken</span><span class="m">已订阅，求 Encore</span>
+                                    </div>
+                                    <div class="chat-ops">
+                                        <button type="button" class="chat-op" data-act="manage"><i class="fa-solid fa-user-gear"></i></button>
+                                        <button type="button" class="chat-op" data-act="del"><i class="fa-regular fa-trash-can"></i></button>
+                                        <button type="button" class="chat-op danger" data-act="kick"><i class="fa-solid fa-user-slash"></i></button>
+                                    </div>
+                                </div>
+                                <div class="chat-line" data-id="c3" data-user="Yuki" data-av="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80">
+                                    <div class="chat-main" data-act="manage" title="点击管理用户">
+                                        <span class="chat-av" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></span>
+                                        <span class="u">Yuki</span><span class="m">可以点《Autumn Leaves》吗</span>
+                                    </div>
+                                    <div class="chat-ops">
+                                        <button type="button" class="chat-op" data-act="manage"><i class="fa-solid fa-user-gear"></i></button>
+                                        <button type="button" class="chat-op" data-act="del"><i class="fa-regular fa-trash-can"></i></button>
+                                        <button type="button" class="chat-op danger" data-act="kick"><i class="fa-solid fa-user-slash"></i></button>
+                                    </div>
+                                </div>
+                                <div class="chat-line is-system" data-id="c4" data-user="系统">
+                                    <div class="chat-main"><span class="u">系统</span><span class="m">欢迎新订阅者 @River</span></div>
+                                </div>
+                                <div class="chat-line is-sensitive" data-id="c5" data-user="spam_bot" data-sensitive="1" data-av="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80">
+                                    <div class="chat-main" data-act="manage" title="点击管理用户">
+                                        <span class="chat-av" style="background-image:url('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80')"></span>
+                                        <span class="u">spam_bot</span><span class="m m-masked" title="原文已脱敏">████████████████（敏感词已脱敏）</span>
+                                    </div>
+                                    <div class="chat-ops">
+                                        <button type="button" class="chat-op" data-act="manage"><i class="fa-solid fa-user-gear"></i></button>
+                                        <button type="button" class="chat-op" data-act="del"><i class="fa-regular fa-trash-can"></i></button>
+                                        <button type="button" class="chat-op danger" data-act="kick"><i class="fa-solid fa-user-slash"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="feed-new-hint" id="chatFeedHint"><i class="fa-solid fa-arrow-down"></i> 新弹幕</button>
+                    </div>
+                    <div class="host-mod-bar">
+                        <button type="button" class="btn btn-secondary btn-sm" id="btnSimChat"><i class="fa-solid fa-plus"></i> 模拟弹幕</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="btnClearRisk"><i class="fa-solid fa-shield-halved"></i> 清除异常</button>
+                    </div>
+                    <div class="host-compose">
+                        <div class="host-emoji-pop" id="hostEmojiPop"></div>
+                        <button type="button" id="btnHostEmoji" title="表情"><i class="fa-regular fa-face-smile"></i></button>
+                        <input type="text" id="hostChatInput" placeholder="以主播身份发言…" maxlength="120">
+                        <button type="button" class="host-send" id="btnHostSend" title="发送"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
                     </div>
                 </div>
             </aside>
         </div>
     </main>
 </div>
+
+
+<div class="host-toast" id="hostToast" role="status"></div>
+
+<div class="host-modal-backdrop" id="hostManageModal">
+    <div class="host-modal host-modal-wide" onclick="event.stopPropagation()">
+        <h3><i class="fa-solid fa-user-gear" style="color:#6EE7B7"></i> 用户管理</h3>
+        <div class="host-manage-user">
+            <span class="host-manage-av" id="hostManageAv"></span>
+            <div>
+                <div class="host-manage-name" id="hostManageName">—</div>
+                <div class="host-manage-sub" id="hostManageSub">本场直播观众</div>
+            </div>
+        </div>
+        <div class="host-manage-actions">
+            <button type="button" class="btn btn-primary btn-sm" id="hostBtnSetAdmin"><i class="fa-solid fa-user-shield"></i> 设为管理员</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="hostBtnRevokeAdmin" style="display:none"><i class="fa-solid fa-user-minus"></i> 取消房管</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="hostBtnMute"><i class="fa-solid fa-comment-slash"></i> 禁言</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="hostBtnAnnounce" style="display:none"><i class="fa-solid fa-bullhorn"></i> 飘屏公告</button>
+            <button type="button" class="btn btn-secondary btn-sm danger-outline" id="hostBtnKickFromManage"><i class="fa-solid fa-user-slash"></i> 踢出直播间</button>
+        </div>
+        <div class="host-admin-cap">
+            <div class="cap-t">房管权限说明</div>
+            <ul>
+                <li><i class="fa-solid fa-comments"></i> 维护秩序：协助主播回复粉丝、活跃气氛</li>
+                <li><i class="fa-solid fa-ban"></i> 处理违规：对违规用户禁言或踢出直播间</li>
+                <li><i class="fa-solid fa-bullhorn"></i> 发布公告：可通过飘屏传递重要信息</li>
+            </ul>
+        </div>
+        <div class="host-modal-actions">
+            <button type="button" class="btn btn-secondary" id="hostManageClose">关闭</button>
+        </div>
+    </div>
+</div>
+
+<div class="host-modal-backdrop" id="hostKickModal">
+    <div class="host-modal" onclick="event.stopPropagation()">
+        <h3><i class="fa-solid fa-user-slash" style="color:#F87171"></i> 移出直播间</h3>
+        <p>确认将 <strong id="hostKickUserName">—</strong> 移出本场直播？移出后其发言将清除，且无法再发弹幕（原型）。</p>
+        <div class="host-modal-actions">
+            <button type="button" class="btn btn-secondary" id="hostKickCancel">取消</button>
+            <button type="button" class="btn btn-primary" id="hostKickConfirm" style="background:linear-gradient(135deg,#DC2626,#EF4444)">确认移出</button>
+        </div>
+    </div>
+</div>
+
+<script src="../js-web/live-meta-store.js"></script>
+<script src="../js-web/live-host.js"></script>
 </body>
 </html>

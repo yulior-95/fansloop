@@ -292,7 +292,7 @@
                         <div class="row-info"><div class="ti">兴趣标签</div><div class="sub">最多 6 个，影响推荐与发现</div></div>
                         <div class="row-action">摄影 / 旅行 / 音乐 <i class="fa-solid fa-chevron-right arrow"></i></div>
                     </div>
-                    <div class="st-row" id="kycSettingsRow" onclick="location.href='kyc-intro.html?return=settings.html'">
+                    <div class="st-row" id="kycSettingsRow" role="button" tabindex="0">
                         <div class="row-ic"><i class="fa-solid fa-id-card-clip"></i></div>
                         <div class="row-info"><div class="ti">KYC 身份验证</div><div class="sub" id="kycSettingsSub">用于提现与合规要求 · 默认未验证</div></div>
                         <div class="row-action" id="kycSettingsAction">未验证 <i class="fa-solid fa-chevron-right arrow"></i></div>
@@ -494,24 +494,47 @@
 (function () {
     var KS = window.FansloopKycStore;
     if (!KS) return;
-    var k = KS.readKyc();
-    var st = k.status || "none";
+    var row = document.getElementById("kycSettingsRow");
     var sub = document.getElementById("kycSettingsSub");
     var act = document.getElementById("kycSettingsAction");
     var bd = document.getElementById("kycProfileBadge");
-    var mapSub = {
-        none: "用于提现与合规要求 · 尚未提交认证",
-        submitted: "已提交材料，机审 / 人工审核处理中",
-        approved: "已通过，可进行法币与钱包提现",
-        rejected: "上次审核未通过，可重新发起"
-    };
-    var mapAct = { none: "未验证", submitted: "审核中", approved: "已通过", rejected: "未通过" };
-    if (sub) {
-        sub.textContent = mapSub[st] || mapSub.none;
-        if (st === "rejected" && k.rejectReason) sub.textContent += " · 原因：" + k.rejectReason;
+
+    function paint() {
+        var k = KS.readKyc();
+        var st = k.status || "none";
+        var mapSub = {
+            none: "用于提现与合规要求 · 尚未提交认证",
+            submitted: "Verify 混合审核处理中，请等待结果",
+            approved: "已通过，可进行法币与钱包提现",
+            rejected: "上次审核未通过，可重新发起"
+        };
+        var mapAct = { none: "未验证", submitted: "审核中", approved: "已通过", rejected: "未通过" };
+        if (sub) {
+            sub.textContent = mapSub[st] || mapSub.none;
+            if (k.authSource === "wallet" && st === "approved") sub.textContent += " · zkMe 钱包验证";
+            if (k.authSource === "document" && st === "approved") sub.textContent += " · 证件认证";
+            if (st === "rejected" && k.rejectReason) sub.textContent += " · 原因：" + k.rejectReason;
+        }
+        if (act) act.innerHTML = (mapAct[st] || mapAct.none) + ' <i class="fa-solid fa-chevron-right arrow"></i>';
+        if (bd) bd.style.display = st === "approved" ? "inline-block" : "none";
     }
-    if (act) act.innerHTML = (mapAct[st] || mapAct.none) + ' <i class="fa-solid fa-chevron-right arrow"></i>';
-    if (bd && st === "approved") bd.style.display = "inline-block";
+
+    function goKyc() {
+        var target = KS.routeForEntry() + "?return=" + encodeURIComponent("settings.html");
+        location.href = target;
+    }
+
+    if (row) {
+        row.addEventListener("click", goKyc);
+        row.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goKyc(); }
+        });
+    }
+    paint();
+    window.addEventListener("pageshow", paint);
+    window.addEventListener("storage", function (e) {
+        if (e.key === KS.KYC_STORE || e.key === KS.AUDIT_LOG) paint();
+    });
 })();
 </script>
 

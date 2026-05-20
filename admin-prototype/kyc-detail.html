@@ -92,7 +92,7 @@
 
   var st = k.status || "none";
   document.getElementById("kycStateBox").innerHTML =
-    "<div><strong>status</strong>：" + st + " &nbsp; <strong>stage</strong>：" + (k.stage || "—") + "</div>" +
+    "<div><strong>status</strong>：" + st + " &nbsp; <strong>authStatus</strong>：<code>" + (k.authStatus || "—") + "</code> 来源：" + (k.authSource || "—") + " 单号：<code>" + (k.lastId || "—") + "</code></div>" +
     (st === "rejected" && k.rejectReason ? "<div style='margin-top:8px;color:#cf1322'><strong>用户可见原因</strong>：" + k.rejectReason + "</div>" : "");
 
   var log = KS.readAuditLog();
@@ -108,48 +108,42 @@
     });
   if (!tl.children.length) tl.innerHTML = "<div style='color:#999;font-size:12px'>暂无匹配流水</div>";
 
-  function push(row) {
-    var a = KS.readAuditLog();
-    a.unshift(row);
-    KS.writeAuditLog(a.slice(0, 80));
-  }
-
   var lid = k.lastId || "KYC";
 
   document.getElementById("btnMachineOk").addEventListener("click", function () {
-    KS.writeKyc({ status: "approved", stage: null, rejectReason: null });
-    push({ id: lid + "-R", time: new Date().toLocaleString("zh-CN"), user: "系统", channel: "KYC", pipeline: "机审", status: "机审通过", note: "清晰度/真伪/人脸比对均通过（模拟）" });
-    M.toast("机审通过");
+    KS.setDocumentApproved("机审通过：清晰度/真伪/人脸比对均通过（后台模拟）");
+    KS.pushAudit({ id: lid + "-R", user: "系统", channel: "KYC", pipeline: "机审", status: "机审通过", note: "后台机审通过" });
+    M.toast("已通过，已同步用户端");
     location.reload();
   });
   document.getElementById("btnMachineHuman").addEventListener("click", function () {
-    KS.writeKyc({ status: "submitted", stage: "human" });
-    push({ id: lid + "-R", time: new Date().toLocaleString("zh-CN"), user: "系统", channel: "KYC", pipeline: "机审", status: "转人工", note: "置信度不足 / 抽检需人工复核（模拟）" });
-    M.toast("已转人工");
+    KS.writeKyc({ authStatus: "reviewing", status: "submitted", stage: "human" });
+    KS.pushAudit({ id: lid + "-R", user: "系统", channel: "KYC", pipeline: "机审", status: "转人工", note: "置信度不足 / 抽检需人工复核（模拟）" });
+    M.toast("已标记转人工，用户端仍为审核中");
     location.reload();
   });
   document.getElementById("btnMachineReject").addEventListener("click", function () {
     var reason = prompt("机审不通过原因（用户端可见）", "证件人像模糊，无法完成联网核查。");
     if (reason === null) return;
-    KS.writeKyc({ status: "rejected", stage: null, rejectReason: reason });
-    push({ id: lid + "-R", time: new Date().toLocaleString("zh-CN"), user: "系统", channel: "KYC", pipeline: "机审", status: "已驳回", note: reason });
-    M.toast("机审已拒绝");
+    KS.setDocumentRejected(reason);
+    KS.pushAudit({ id: lid + "-R", user: "系统", channel: "KYC", pipeline: "机审", status: "已驳回", note: reason });
+    M.toast("已拒绝，已同步用户端");
     location.reload();
   });
 
   document.getElementById("btnPass").addEventListener("click", function () {
     var note = document.getElementById("humanNote").value.trim() || "人工核验通过";
-    KS.writeKyc({ status: "approved", stage: null, rejectReason: null });
-    push({ id: (k.lastId || "KYC") + "-H", time: new Date().toLocaleString("zh-CN"), user: "审核员", channel: "KYC", pipeline: "人工", status: "人工通过", note: note });
-    M.toast("已通过");
+    KS.setDocumentApproved(note);
+    KS.pushAudit({ id: lid + "-H", user: "审核员", channel: "KYC", pipeline: "人工", status: "人工通过", note: note });
+    M.toast("已通过，已同步用户端");
     location.reload();
   });
   document.getElementById("btnReject").addEventListener("click", function () {
     var reason = prompt("审核不通过原因（用户端可见）", document.getElementById("humanNote").value.trim() || "证件与活体比对未通过，请重新提交。");
     if (reason === null) return;
-    KS.writeKyc({ status: "rejected", stage: null, rejectReason: reason });
-    push({ id: (k.lastId || "KYC") + "-H", time: new Date().toLocaleString("zh-CN"), user: "审核员", channel: "KYC", pipeline: "人工", status: "人工拒绝", note: reason });
-    M.toast("已拒绝");
+    KS.setDocumentRejected(reason);
+    KS.pushAudit({ id: lid + "-H", user: "审核员", channel: "KYC", pipeline: "人工", status: "人工拒绝", note: reason });
+    M.toast("已拒绝，已同步用户端");
     location.reload();
   });
 })();

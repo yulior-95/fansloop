@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>认证结果 · KYC · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/kyc-subpages.css">
+</head>
+<body>
+<div class="kyc-lite-shell">
+    <header class="kyc-lite-top">
+        <div class="brand"><span class="lg"><i class="fa-solid fa-clipboard-check"></i></span> 认证结果</div>
+        <a id="linkBack" href="#">返回</a>
+    </header>
+    <main class="kyc-lite-main">
+        <div class="kyc-flow-max">
+            <div id="panelOk" class="kyc-state-panel" style="display:none">
+                <div class="kyc-state-center">
+                    <div class="kyc-state-icon ok"><i class="fa-solid fa-circle-check"></i></div>
+                    <h2>认证已通过</h2>
+                    <button type="button" class="btn btn-primary btn-lg btn-block" id="btnOkContinue"><i class="fa-solid fa-arrow-right"></i> 继续</button>
+                </div>
+            </div>
+            <div id="panelFail" class="kyc-state-panel" style="display:none">
+                <div class="kyc-state-center">
+                    <div class="kyc-state-icon fail"><i class="fa-solid fa-circle-xmark"></i></div>
+                    <h2>认证未通过，请重新提交资料</h2>
+                    <p id="failReason" style="font-size:13px;color:var(--t-secondary)"></p>
+                    <div class="kyc-actions-row" style="justify-content:center;margin-top:12px">
+                        <button type="button" class="btn btn-primary" id="btnRetry"><i class="fa-solid fa-rotate-right"></i> 重新认证</button>
+                        <a class="btn btn-secondary" href="help.html"><i class="fa-solid fa-headset"></i> 联系客服</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script src="../js-web/kyc-store.js"></script>
+<script src="../js-web/kyc-flow-nav.js"></script>
+<script>
+(function () {
+    document.getElementById("linkBack").href = window.KycFlowNav.hrefWithRet("kyc-intro.html");
+    var outcome = window.KycFlowNav.qp("outcome");
+    var k = window.FansloopKycStore.readKyc();
+    if (outcome === "fail" || k.authStatus === "rejected") {
+        document.getElementById("panelFail").style.display = "block";
+        document.getElementById("failReason").textContent = k.rejectReason || "";
+    } else {
+        document.getElementById("panelOk").style.display = "block";
+    }
+    document.getElementById("btnOkContinue").addEventListener("click", function () {
+        window.KycFlowNav.go("kyc-complete.html", { source: "document" });
+    });
+    document.getElementById("btnRetry").addEventListener("click", function () {
+        window.KycFlowNav.go("kyc-upload-id.html");
+    });
+})();
+</script>
+</body>
+</html>

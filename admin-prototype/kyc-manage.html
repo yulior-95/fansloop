@@ -19,7 +19,10 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">KYC 管理</h1>
-      <p class="admin-page-desc">用户在前台「设置 / 分步认证页 / 提现弹窗」提交的 KYC 申请在此汇总。机审规则：证件清晰度、真伪校验、人脸与证件一致性；<strong>机审无法判定则转人工</strong>，人工可备注并通过或拒绝（原因回传用户端）。</p>
+      <p class="admin-page-desc">与前台 <code>localStorage</code> 共用数据：用户通过 <strong>zkMe 钱包验证</strong> 或 <strong>证件+人脸</strong> 提交后，Verify 混合审核（机审+人工）流水在此展示。处置结论将同步用户「设置」与认证状态页。</p>
+      <div class="ant-card ant-card-bordered" style="margin-bottom:16px">
+        <div class="ant-card-body" id="kycCurrentUser" style="font-size:13px;line-height:1.75"></div>
+      </div>
       <div class="admin-toolbar">
         <span class="ant-input-affix-wrapper" style="width:220px"><input class="ant-input" id="kycQ" placeholder="UID / 单号 / 用户昵称"></span>
         <button type="button" class="ant-btn ant-btn-primary" id="kycSearch">查询</button>
@@ -35,7 +38,7 @@
               <tbody class="ant-table-tbody" id="kycTbody"></tbody>
             </table>
           </div>
-          <div id="kycEmpty" style="display:none;padding:40px;text-align:center;color:#999">暂无 KYC 申请。可在用户站 <code>pages-web/kyc-submit-success.html</code> 或提现页完成一次提交后刷新。</div>
+          <div id="kycEmpty" style="display:none;padding:40px;text-align:center;color:#999">暂无 KYC 流水。请在前台完成钱包验证或证件认证后刷新本页。</div>
         </div>
       </div>
     </main>
@@ -55,11 +58,22 @@
     if (st.indexOf("人工") !== -1 || st === "转人工") return '<span class="ant-tag ant-tag-orange">' + st + "</span>";
     return '<span class="ant-tag">' + st + "</span>";
   }
+  function renderCurrent() {
+    var k = KS.readKyc();
+    var box = document.getElementById("kycCurrentUser");
+    if (!box) return;
+    var src = k.authSource === "wallet" ? "钱包 · zkMe" : k.authSource === "document" ? "证件认证" : "—";
+    box.innerHTML =
+      "<strong>当前演示用户</strong> · status: <code>" + (k.status || "none") + "</code> · auth: <code>" + (k.authStatus || "—") + "</code><br>" +
+      "认证方式：" + src + " · 单号：<code>" + (k.lastId || "—") + "</code> · ZKP：<code>" + (k.zkpStatus || "unknown") + "</code>" +
+      (k.walletAddress ? "<br>钱包：" + k.walletAddress : "");
+  }
   function render() {
+    renderCurrent();
     var rows = KS.readAuditLog().filter(function (r) {
-      var ch = r.channel || "";
+      var ch = (r.channel || "").toUpperCase();
       var pip = r.pipeline || "";
-      return ch.indexOf("KYC") !== -1 || ch.indexOf("提现") !== -1 || pip === "机审" || pip === "人工";
+      return ch.indexOf("KYC") !== -1 || ch.indexOf("ZKME") !== -1 || pip === "机审" || pip === "人工" || pip === "Verify" || pip === "zkMe";
     });
     var tb = document.getElementById("kycTbody");
     var empty = document.getElementById("kycEmpty");
@@ -88,8 +102,7 @@
   });
   document.getElementById("kycClearDemo").addEventListener("click", function () {
     if (!confirm("清空 fansloop_kyc 与审核流水？")) return;
-    localStorage.removeItem(KS.KYC_STORE);
-    localStorage.removeItem(KS.AUDIT_LOG);
+    KS.resetKyc();
     M.toast("已清空");
     render();
   });

@@ -963,6 +963,9 @@
                 openSuccess('直播预告已作为图文动态发布到 Feed，计划开播时间 ' + label + '（展示用，不会自动开播）。');
                 showToast('直播预告已发布（图文）');
             } else {
+                if (window.LiveMetaStore && window.LiveMetaStore.saveFromCreateForm) {
+                    window.LiveMetaStore.saveFromCreateForm();
+                }
                 location.href = 'create-live-host.html';
             }
             return;

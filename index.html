@@ -172,7 +172,7 @@ main.content { padding: 28px 24px 48px; }
         <section class="block" id="kyc">
             <h2><i class="fa-solid fa-id-card"></i>KYC 身份验证与提现门槛</h2>
             <p class="lead">
-                <strong>核心逻辑：</strong>默认未验证；用户上传身份证正反面 → 三方联网核查 → 人脸识别（可生成手机链接）→ 提交后状态为「审核中」；后台机审或人工回传通过/不通过，不通过时展示原因并允许重新发起；通过后个人资料展示实名标签。
+                <strong>核心逻辑：</strong>双路径入口——<strong>钱包 + zkMe</strong>（有 ZKP 快速验证）与<strong>证件 + 人脸</strong>（兜底）；Verify 混合审核（机审+人工），平台仅等待结果；统一成功页 <code>kyc-complete.html</code>。
                 <strong>提现：</strong>主路由 <code>withdraw-fiat.html</code> 现为「钱包提现」默认视图（法币 DOM 整段隐藏可恢复）；<code>withdraw-usdt.html</code> 双 Tab 隐藏。两页提交前均校验 KYC。
                 <strong>后台：</strong><code>admin-prototype/kyc-manage.html</code> 列表 + <code>kyc-detail.html</code> 材料与处置（与 <code>kyc-admin-list.html</code> 共用 localStorage）。
             </p>
@@ -184,18 +184,18 @@ main.content { padding: 28px 24px 48px; }
                 </div>
                 <div class="tile">
                     <div class="th">kyc-intro.html <a href="pages-web/kyc-intro.html" target="_blank">新窗口</a></div>
-                    <div class="tb" style="height:440px"><iframe src="pages-web/kyc-intro.html" title="KYC 说明" loading="lazy"></iframe></div>
-                    <div class="tf">分步认证起点 · return 参数回跳</div>
+                    <div class="tb" style="height:520px"><iframe src="pages-web/kyc-intro.html" title="身份认证入口" loading="lazy"></iframe></div>
+                    <div class="tf">双入口：钱包 zkMe / 证件认证</div>
                 </div>
                 <div class="tile">
                     <div class="th">kyc-upload-id.html</div>
                     <div class="tb" style="height:480px"><iframe src="pages-web/kyc-upload-id.html" title="证件上传" loading="lazy"></iframe></div>
-                    <div class="tf">身份证正反面 · Unsplash 真实图</div>
+                    <div class="tf">国家/地区 · 证件类型 · 正反面</div>
                 </div>
                 <div class="tile">
-                    <div class="th">kyc-third-party.html</div>
-                    <div class="tb" style="height:420px"><iframe src="pages-web/kyc-third-party.html" title="三方核查" loading="lazy"></iframe></div>
-                    <div class="tf">模拟 VerifyID 联网核查</div>
+                    <div class="th">kyc-wallet-verify.html</div>
+                    <div class="tb" style="height:560px"><iframe src="pages-web/kyc-wallet-verify.html" title="zkMe 钱包验证" loading="lazy"></iframe></div>
+                    <div class="tf">连接 → 生成证明 → 验证 → 成功/失败兜底</div>
                 </div>
                 <div class="tile">
                     <div class="th">kyc-face-verify.html</div>
@@ -208,9 +208,19 @@ main.content { padding: 28px 24px 48px; }
                     <div class="tf">手机浏览器识别会话（示意）</div>
                 </div>
                 <div class="tile">
-                    <div class="th">kyc-submit-success.html（需 confirm=1 才写入，直接 iframe 为只读提示）</div>
-                    <div class="tb" style="height:380px"><iframe src="pages-web/kyc-submit-success.html" title="提交页" loading="lazy"></iframe></div>
-                    <div class="tf">从人脸页带 confirm=1 进入才落库</div>
+                    <div class="th">kyc-doc-pending.html</div>
+                    <div class="tb" style="height:420px"><iframe src="pages-web/kyc-doc-pending.html" title="审核中" loading="lazy"></iframe></div>
+                    <div class="tf">资料已提交 · 等待 Verify 结果</div>
+                </div>
+                <div class="tile">
+                    <div class="th">kyc-doc-result.html?outcome=fail</div>
+                    <div class="tb" style="height:380px"><iframe src="pages-web/kyc-doc-result.html?outcome=fail" title="认证失败" loading="lazy"></iframe></div>
+                    <div class="tf">未通过 · 重新认证 / 联系客服</div>
+                </div>
+                <div class="tile">
+                    <div class="th">kyc-complete.html</div>
+                    <div class="tb" style="height:400px"><iframe src="pages-web/kyc-complete.html" title="认证完成" loading="lazy"></iframe></div>
+                    <div class="tf">统一成功页 · 钱包/证件路径汇合</div>
                 </div>
                 <div class="tile">
                     <div class="th">kyc-status.html</div>

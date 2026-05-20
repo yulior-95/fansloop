@@ -32,6 +32,7 @@ window.DEMO_PAGE_GROUPS = [
         ["subscriptions.html", "订阅"],
         ["discover.html", "发现"],
         ["create.html", "创建内容"],
+        ["create-live-host.html", "主播直播中"],
         ["messages.html", "消息"],
         ["notifications.html", "通知"],
         ["bookmarks.html", "收藏"],

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>KYC 身份验证 · FansLoop</title>
+<title>身份认证 · FansLoop</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
 <link rel="stylesheet" href="../css-web/kyc-subpages.css">
@@ -10,49 +10,61 @@
 <body>
 <div class="kyc-lite-shell">
     <header class="kyc-lite-top">
-        <div class="brand"><span class="lg"><i class="fa-solid fa-infinity"></i></span> FansLoop · KYC</div>
+        <div class="brand"><span class="lg"><i class="fa-solid fa-shield-halved"></i></span> 身份认证</div>
         <a id="linkBack" href="settings.html"><i class="fa-solid fa-arrow-left"></i> 返回</a>
     </header>
     <main class="kyc-lite-main">
         <div class="kyc-flow-max">
-            <div class="kyc-step-bar">
-                <div class="step on">1 说明</div>
-                <div class="step">2 证件</div>
-                <div class="step">3 联网核查</div>
-                <div class="step">4 人脸</div>
-                <div class="step">5 提交</div>
+            <div class="kyc-entry-hero">
+                <div class="shield"><i class="fa-solid fa-user-shield"></i></div>
+                <h1>需要完成身份认证</h1>
+                <p>为了保障账户安全，请完成身份认证后继续使用</p>
+                <span class="kyc-zk-badge"><i class="fa-brands fa-ethereum"></i> 支持 zkMe 隐私证明 · Verify 混合审核</span>
             </div>
-            <div class="kyc-hero">
-                <div class="ic"><i class="fa-solid fa-id-card"></i></div>
-                <div>
-                    <h2>KYC 身份验证</h2>
-                    <p>用于满足合规要求，并在你进行<strong>法币提现</strong>与<strong>钱包链上提现</strong>前完成身份核验。流程包含：上传身份证正反面 → 三方联网核查 → 人脸识别（支持复制链接到手机浏览器）→ 提交后台机审 / 人工审核。</p>
-                </div>
+            <div class="kyc-path-cards">
+                <button type="button" class="kyc-path-card wallet recommended" id="btnWallet">
+                    <span class="ic"><i class="fa-solid fa-wallet"></i></span>
+                    <span>
+                        <h3>使用钱包快速验证</h3>
+                        <p>连接 MetaMask 等钱包，通过 zkMe 提交零知识身份证明，验证通过后即时完成实名。</p>
+                        <span class="tag-rec">推荐 · 约 1 分钟</span>
+                    </span>
+                </button>
+                <button type="button" class="kyc-path-card doc" id="btnDoc">
+                    <span class="ic"><i class="fa-solid fa-id-card"></i></span>
+                    <span>
+                        <h3>使用证件进行认证</h3>
+                        <p>上传有效证件并完成人脸识别。审核由 Verify 服务商机审与人工混合处理，提交后等待结果即可。</p>
+                    </span>
+                </button>
             </div>
-            <div class="card" style="padding:22px 24px;margin-bottom:18px">
-                <h4 style="margin:0 0 12px;font-size:14px;font-weight:800"><i class="fa-solid fa-list-check" style="color:#C084FC"></i> 开始前请准备</h4>
-                <ul style="margin:0;padding-left:18px;font-size:13px;color:var(--t-secondary);line-height:1.85">
-                    <li>有效期内的二代身份证</li>
-                    <li>光线充足、网络稳定的环境</li>
-                    <li>若电脑摄像头不可用，可在人脸识别步骤生成<strong>手机识别链接</strong></li>
-                </ul>
-            </div>
-            <div class="kyc-actions-row">
-                <a class="btn btn-primary" id="btnStart" href="#"><i class="fa-solid fa-arrow-right"></i> 开始认证</a>
-                <a class="btn btn-secondary" id="btnStatus" href="kyc-status.html"><i class="fa-solid fa-signal"></i> 查看当前状态</a>
+            <a class="btn btn-secondary btn-block" id="btnStatus" href="kyc-status.html" style="margin-top:8px"><i class="fa-solid fa-signal"></i> 查看当前认证状态</a>
+            <div class="kyc-verify-note">
+                <strong>说明：</strong>若你已在 zkMe 持有有效身份凭证（ZKP），优先使用钱包验证；若无凭证或验证失败，可使用证件认证作为兜底方案。平台不介入人工审核，仅等待 Verify / zkMe 回传结果。
             </div>
         </div>
     </main>
-    <footer class="kyc-lite-foot">FansLoop 原型 · 数据仅存于本机浏览器 localStorage</footer>
+    <footer class="kyc-lite-foot">FansLoop 原型 · 状态存于 localStorage · 可中断后继续</footer>
 </div>
+<script src="../js-web/kyc-store.js"></script>
 <script src="../js-web/kyc-flow-nav.js"></script>
 <script>
 (function () {
     var r = window.KycFlowNav.retParam();
     document.getElementById("linkBack").href = r || "settings.html";
-    document.getElementById("btnStart").href = window.KycFlowNav.hrefWithRet("kyc-upload-id.html");
-    var rs = window.KycFlowNav.retParam();
-    document.getElementById("btnStatus").href = "kyc-status.html" + (rs ? "?return=" + encodeURIComponent(rs) : "");
+    document.getElementById("btnStatus").href = window.KycFlowNav.hrefWithRet("kyc-status.html");
+    document.getElementById("btnWallet").addEventListener("click", function () {
+        window.KycFlowNav.go("kyc-wallet-verify.html");
+    });
+    document.getElementById("btnDoc").addEventListener("click", function () {
+        window.KycFlowNav.go("kyc-upload-id.html");
+    });
+    var k = window.FansloopKycStore.readKyc();
+    if (k.authStatus === "approved") {
+        window.KycFlowNav.go("kyc-complete.html");
+    } else if (k.authStatus === "reviewing") {
+        window.KycFlowNav.go("kyc-doc-pending.html");
+    }
 })();
 </script>
 </body>

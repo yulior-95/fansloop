@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+const fs = require("fs");
+const path = require("path");
+let html = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -15,8 +17,8 @@
     </header>
     <main class="kyc-lite-main">
         <div class="kyc-flow-max">
-            <div class="kyc-step-bar">
-                <div class="step on" id="bar1">1 地区</div>
+            <motion class="kyc-step-bar">
+                <motion class="step on" id="bar1">1 地区</div>
                 <div class="step" id="bar2">2 证件</div>
                 <div class="step" id="bar3">3 人脸</div>
                 <div class="step" id="bar4">4 审核</div>
@@ -99,4 +101,9 @@
 })();
 </script>
 </body>
-</html>
+</html>`;
+const closeDiv = "<" + "/div>";
+html = html.replace(/<motion\b/g, "<div").replace(/<\/motion>/g, closeDiv);
+const out = path.join(__dirname, "..", "pages-web", "kyc-upload-id.html");
+fs.writeFileSync(out, html, "utf8");
+console.log("wrote", out);

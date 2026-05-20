@@ -1,4 +1,7 @@
-<!DOCTYPE html>
+# -*- coding: utf-8 -*-
+import pathlib
+p = pathlib.Path(__file__).resolve().parent.parent / "pages-web" / "kyc-upload-id.html"
+html = r'''<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -14,7 +17,7 @@
         <a id="linkBack" href="#">返回</a>
     </header>
     <main class="kyc-lite-main">
-        <div class="kyc-flow-max">
+        <motion class="kyc-flow-max">
             <div class="kyc-step-bar">
                 <div class="step on" id="bar1">1 地区</div>
                 <div class="step" id="bar2">2 证件</div>
@@ -100,3 +103,7 @@
 </script>
 </body>
 </html>
+'''
+html = html.replace('<motion', '<div').replace('</motion>', '</div>')
+p.write_text(html, encoding='utf-8')
+print('ok', p)
