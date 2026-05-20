@@ -88,7 +88,13 @@
     }
 
     function goConsole() {
-        var base = location.pathname.indexOf("/pages-web/") >= 0 ? "create-live-host.html" : "pages-web/create-live-host.html";
+        var base =
+            location.pathname.indexOf("/pages-web/") >= 0
+                ? "create-live-host.html"
+                : "pages-web/create-live-host.html";
+        try {
+            sessionStorage.setItem("fansloop_host_pip_return", "1");
+        } catch (e) {}
         location.href = base;
     }
 
@@ -151,14 +157,10 @@
     }
 
     function syncConsoleStage() {
-        var state = read();
         var stage = document.getElementById("hostStage");
         if (!stage || !isConsolePage()) return;
-        if (state.active) {
-            stage.classList.add("is-pip-hidden");
-        } else {
-            stage.classList.remove("is-pip-hidden");
-        }
+        /* 在控制台页始终展示大画面；小窗仅在其他页面悬浮 */
+        stage.classList.remove("is-pip-hidden");
     }
 
     function refreshPaused() {

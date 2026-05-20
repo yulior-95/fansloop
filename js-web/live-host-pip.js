@@ -24,7 +24,7 @@
 
     function syncStageHidden() {
         if (!stage) return;
-        stage.classList.toggle("is-pip-hidden", pip.isActive());
+        stage.classList.remove("is-pip-hidden");
     }
 
     function activateAndLeave(href) {
@@ -78,4 +78,12 @@
     syncPipBtn();
     syncStageHidden();
     if (pip.isActive()) pip.mount();
+
+    try {
+        if (sessionStorage.getItem("fansloop_host_pip_return")) {
+            sessionStorage.removeItem("fansloop_host_pip_return");
+            syncStageHidden();
+            syncPipBtn();
+        }
+    } catch (e) {}
 })();

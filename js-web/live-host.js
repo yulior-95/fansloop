@@ -488,6 +488,36 @@
         });
     }
 
+    /* 结束直播 */
+    var endModal = document.getElementById("hostEndLiveModal");
+    var btnEndLive = document.getElementById("btnHostEndLive");
+    function openEndModal() {
+        if (endModal) endModal.classList.add("open");
+    }
+    function closeEndModal() {
+        if (endModal) endModal.classList.remove("open");
+    }
+    if (btnEndLive) btnEndLive.addEventListener("click", openEndModal);
+    var endCancel = document.getElementById("hostEndLiveCancel");
+    var endConfirm = document.getElementById("hostEndLiveConfirm");
+    if (endCancel) endCancel.addEventListener("click", closeEndModal);
+    if (endConfirm) {
+        endConfirm.addEventListener("click", function () {
+            closeEndModal();
+            if (metaStore && metaStore.endLive) metaStore.endLive();
+            if (window.HostLivePip && window.HostLivePip.deactivate) window.HostLivePip.deactivate();
+            toast("直播已结束");
+            setTimeout(function () {
+                location.href = "create.html";
+            }, 600);
+        });
+    }
+    if (endModal) {
+        endModal.addEventListener("click", function (e) {
+            if (e.target === endModal) closeEndModal();
+        });
+    }
+
     if (metaStore && metaStore.applyToHostStage) metaStore.applyToHostStage();
     refreshAdminList();
     syncAllAdminStates();

@@ -7,7 +7,8 @@
         title: "深夜爵士 · 即兴钢琴",
         desc: "今晚即兴爵士，欢迎点歌；支持 USDT 打赏与礼物。",
         tags: ["爵士", "即兴钢琴", "深夜直播"],
-        admins: []
+        admins: [],
+        status: "live"
     };
 
     function read() {
@@ -19,7 +20,9 @@
                 title: o.title || DEFAULT.title,
                 desc: o.desc || DEFAULT.desc,
                 tags: Array.isArray(o.tags) && o.tags.length ? o.tags : DEFAULT.tags.slice(),
-                admins: Array.isArray(o.admins) ? o.admins : []
+                admins: Array.isArray(o.admins) ? o.admins : [],
+                status: o.status === "ended" ? "ended" : "live",
+                endedAt: o.endedAt || null
             };
         } catch (e) {
             return Object.assign({}, DEFAULT);
@@ -56,8 +59,20 @@
             return global.LiveMetaStore.save({
                 title: (title && title.value.trim()) || DEFAULT.title,
                 desc: (desc && desc.value.trim()) || DEFAULT.desc,
-                tags: collectTagsFromDom().length ? collectTagsFromDom() : DEFAULT.tags.slice()
+                tags: collectTagsFromDom().length ? collectTagsFromDom() : DEFAULT.tags.slice(),
+                status: "live",
+                endedAt: null
             });
+        },
+        isLiveEnded: function () {
+            return read().status === "ended";
+        },
+        endLive: function () {
+            write(Object.assign(read(), { status: "ended", endedAt: Date.now() }));
+            try {
+                localStorage.removeItem("fansloop_host_pip");
+            } catch (e) {}
+            return read();
         },
         getAdmins: function () {
             return read().admins.slice();

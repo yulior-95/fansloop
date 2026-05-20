@@ -422,11 +422,57 @@
             danmakuLayer.removeChild(danmakuLayer.firstChild);
         }
     }
-    setInterval(function () {
+    var giftFlyTimer = setInterval(function () {
         var d = giftFlyPool[Math.floor(Math.random() * giftFlyPool.length)];
         spawnGiftFly(d[0], d[1]);
     }, 3200);
     spawnGiftFly("WhaleX", "送出 🎁 钻石礼物");
+
+    var livePlayer = document.getElementById("livePlayer");
+    var liveEndedOverlay = document.getElementById("liveEndedOverlay");
+    var liveStatusPill = document.getElementById("liveStatusPill");
+    var endedApplied = false;
+
+    function applyViewerEndedState() {
+        if (endedApplied) return;
+        endedApplied = true;
+        if (livePlayer) livePlayer.classList.add("is-ended");
+        if (liveEndedOverlay) liveEndedOverlay.setAttribute("aria-hidden", "false");
+        if (liveStatusPill) {
+            liveStatusPill.innerHTML = '<span class="dot ended"></span> 已结束';
+            liveStatusPill.classList.add("is-ended");
+        }
+        if (giftFlyTimer) clearInterval(giftFlyTimer);
+        giftFlyTimer = null;
+        if (danmakuLayer) danmakuLayer.classList.add("is-hidden");
+        var floatGifts = livePlayer && livePlayer.querySelector(".float-gifts");
+        if (floatGifts) floatGifts.style.display = "none";
+        var ci = document.getElementById("chatInput");
+        var cs = document.getElementById("btnChatSend");
+        if (ci) {
+            ci.disabled = true;
+            ci.placeholder = "直播已结束，无法发言";
+        }
+        if (cs) cs.disabled = true;
+        ["btnTip", "btnCheer", "btnSubscribe"].forEach(function (id) {
+            var b = document.getElementById(id);
+            if (b) {
+                b.classList.add("is-disabled");
+                b.style.pointerEvents = "none";
+                b.style.opacity = "0.45";
+            }
+        });
+        toast("直播已结束");
+    }
+
+    function checkLiveEnded() {
+        var store = window.LiveMetaStore;
+        if (store && store.isLiveEnded && store.isLiveEnded()) applyViewerEndedState();
+    }
+    checkLiveEnded();
+    window.addEventListener("storage", function (e) {
+        if (e.key === "fansloop_live_session") checkLiveEnded();
+    });
 
     /* 主 Tabs */
     document.querySelectorAll(".live-tabs .tt").forEach(function (tab) {
@@ -510,6 +556,10 @@
     /* OBS 等待条（保留） */
     try {
         var p = new URLSearchParams(location.search);
+        if (p.get("ended") === "1" && window.LiveMetaStore && window.LiveMetaStore.endLive) {
+            window.LiveMetaStore.endLive();
+            applyViewerEndedState();
+        }
         if (p.get("source") === "obs" && p.get("wait") === "1") {
             var w = document.getElementById("waitStreamStrip");
             if (w) w.classList.add("show");
