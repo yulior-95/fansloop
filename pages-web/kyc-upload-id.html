@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
 <link rel="stylesheet" href="../css-web/kyc-subpages.css">
+<link rel="stylesheet" href="../css-web/kyc-combobox.css">
 </head>
 <body>
 <div class="kyc-lite-shell">
@@ -24,79 +25,44 @@
             </div>
             <section id="stepCountry" class="kyc-state-panel active">
                 <h1 style="font-size:20px;font-weight:800;margin:0 0 8px">选择国家或地区</h1>
-                <p style="font-size:13px;color:var(--t-secondary);margin:0 0 20px">请选择证件签发国家/地区。</p>
+                <p style="font-size:13px;color:var(--t-secondary);margin:0 0 20px">请选择证件签发国家/地区，支持输入关键词快速筛选。</p>
                 <div class="kyc-field">
-                    <label for="selCountry">国家或地区</label>
-                    <select id="selCountry">
-                        <option value="">请选择</option>
-                        <option value="CN">中国（大陆）</option>
-                        <option value="HK">中国香港</option>
-                        <option value="TW">中国台湾</option>
-                        <option value="US">美国</option>
-                        <option value="SG">新加坡</option>
-                        <option value="JP">日本</option>
-                    </select>
+                    <label for="countryCombo">国家或地区</label>
+                    <div id="countryCombo"></div>
                 </div>
                 <button type="button" class="btn btn-primary btn-block btn-lg" id="btnToUpload" disabled><i class="fa-solid fa-arrow-right"></i> 下一步：上传证件</button>
             </section>
             <section id="stepUpload" class="kyc-state-panel">
                 <h1 style="font-size:20px;font-weight:800;margin:0 0 8px">上传证件</h1>
-                <p style="font-size:13px;color:var(--t-secondary);margin:0 0 16px;line-height:1.55">请确保证件边框完整、文字清晰。点击示意区域模拟本机选择。</p>
+                <p style="font-size:13px;color:var(--t-secondary);margin:0 0 16px;line-height:1.55">请确保证件边框完整、文字清晰。点击区域从本机选择图片。</p>
                 <div class="kyc-field">
-                    <label for="selIdType">证件类型</label>
-                    <select id="selIdType">
-                        <option value="id_card">居民身份证</option>
-                        <option value="passport">护照</option>
-                        <option value="driver">驾驶证</option>
-                    </select>
+                    <label for="idTypeCombo">证件类型</label>
+                    <div id="idTypeCombo"></div>
                 </div>
                 <div class="kyc-upload-lg">
                     <div class="tile" id="tileFront" role="button" tabindex="0">
-                        <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=900&q=85" alt="证件正面" />
-                        <div class="lbl"><i class="fa-regular fa-id-card"></i> 上传证件正面</div>
+                        <div class="tile-preview" id="previewFront">
+                            <i class="fa-regular fa-id-card"></i>
+                            <span>点击上传证件正面</span>
+                        </div>
+                        <div class="lbl"><i class="fa-regular fa-id-card"></i> 证件正面</div>
                     </div>
                     <div class="tile" id="tileBack" role="button" tabindex="0">
-                        <img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=900&q=85" alt="证件反面" />
-                        <div class="lbl"><i class="fa-solid fa-landmark"></i> 上传证件反面</div>
+                        <div class="tile-preview" id="previewBack">
+                            <i class="fa-solid fa-landmark"></i>
+                            <span>点击上传证件反面</span>
+                        </div>
+                        <div class="lbl"><i class="fa-solid fa-landmark"></i> 证件反面</div>
                     </div>
                 </div>
                 <button type="button" class="btn btn-primary btn-block btn-lg" id="btnToFace" disabled><i class="fa-solid fa-arrow-right"></i> 下一步：人脸识别</button>
             </section>
         </div>
     </main>
-    <footer class="kyc-lite-foot">示意图源：Unsplash</footer>
+    <footer class="kyc-lite-foot">证件影像仅用于 Verify 审核，平台不长期留存原图（原型说明）</footer>
 </div>
 <script src="../js-web/kyc-flow-nav.js"></script>
-<script>
-(function () {
-    document.getElementById("linkBack").href = window.KycFlowNav.hrefWithRet("kyc-intro.html");
-    var country = "", f = false, b = false;
-    function setBar(n) {
-        for (var i = 1; i <= 5; i++) {
-            var el = document.getElementById("bar" + i);
-            el.classList.remove("on", "done");
-            if (i < n) el.classList.add("done");
-            if (i === n) el.classList.add("on");
-        }
-    }
-    function showStep(id, barN) {
-        document.getElementById("stepCountry").classList.toggle("active", id === "stepCountry");
-        document.getElementById("stepUpload").classList.toggle("active", id === "stepUpload");
-        setBar(barN);
-    }
-    document.getElementById("selCountry").addEventListener("change", function () {
-        country = this.value;
-        document.getElementById("btnToUpload").disabled = !country;
-    });
-    document.getElementById("btnToUpload").addEventListener("click", function () { showStep("stepUpload", 2); });
-    function syncUpload() { document.getElementById("btnToFace").disabled = !(f && b); }
-    document.getElementById("tileFront").addEventListener("click", function () { f = true; this.classList.add("ok"); syncUpload(); });
-    document.getElementById("tileBack").addEventListener("click", function () { b = true; this.classList.add("ok"); syncUpload(); });
-    document.getElementById("btnToFace").addEventListener("click", function () {
-        sessionStorage.setItem("fansloop_kyc_draft", JSON.stringify({ country: country, idType: document.getElementById("selIdType").value }));
-        window.KycFlowNav.go("kyc-face-verify.html");
-    });
-})();
-</script>
+<script src="../js-web/kyc-combobox.js"></script>
+<script src="../js-web/kyc-upload-id.js"></script>
 </body>
 </html>

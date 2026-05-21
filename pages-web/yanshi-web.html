@@ -242,9 +242,62 @@ body { display: grid; grid-template-rows: auto 1fr; }
 .reward-dock.wait-payout .rd-ring {
     animation: ringPulse 1.2s ease-in-out infinite;
 }
+.reward-dock.just-paid {
+    border-color: rgba(52, 211, 153, 0.55);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.45), 0 0 32px rgba(52, 211, 153, 0.25);
+}
 @keyframes ringPulse {
     0%, 100% { filter: brightness(1); }
     50% { filter: brightness(1.15); }
+}
+
+/* 非首次领取 · 积分上浮（自 dock 向上飘） */
+#rewardFloatLayer {
+    position: fixed;
+    right: 22px;
+    bottom: 96px;
+    z-index: 10055;
+    width: 220px;
+    height: 100px;
+    pointer-events: none;
+    overflow: visible;
+}
+.reward-float-burst {
+    position: absolute;
+    right: 8px;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.95), rgba(234, 88, 12, 0.9));
+    border: 1px solid rgba(253, 230, 138, 0.6);
+    box-shadow: 0 8px 28px rgba(245, 158, 11, 0.45);
+    font-size: 20px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+    animation: rewardFloatUp 1.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.reward-float-burst i {
+    font-size: 16px;
+    color: #FEF3C7;
+}
+@keyframes rewardFloatUp {
+    0% {
+        opacity: 0;
+        transform: translateY(12px) scale(0.88);
+    }
+    12% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-78px) scale(1.06);
+    }
 }
 
 #rewardModalRoot {
@@ -410,9 +463,11 @@ body { display: grid; grid-template-rows: auto 1fr; }
     <div class="rd-txt">
         <div class="lb"><i class="fa-solid fa-gift" style="margin-right:4px;color:#FBBF24"></i>积分奖励</div>
         <div class="tm" id="rewardTime">00:45</div>
-        <div class="rd-hint">点击进商城 · 结束弹出奖励</div>
+        <div class="rd-hint" id="rewardHint">点击进商城 · 结束弹出奖励</div>
     </div>
 </button>
+
+<div id="rewardFloatLayer" aria-live="polite"></div>
 
 <div id="embedModalRoot" aria-hidden="true">
     <iframe class="embed-modal-frame" id="embedModalFrame" title="FansLoop 交互弹窗"></iframe>
@@ -597,19 +652,37 @@ document.addEventListener('click', e => {
     if (!e.target.closest('.demo-search-wrap')) dsBox.classList.remove('show');
 });
 
-/* ========== 积分倒计时 · 顶层弹窗（不写入 iframe 内） ========== */
+/* ========== 积分倒计时 · 首次弹窗 + 后续 dock 上浮（不写入 iframe 内） ========== */
 const REWARD_TOTAL = 45;
+const REWARD_FIRST_CLAIM_KEY = 'fansloop_reward_first_claim_done';
 let rewardLeft = REWARD_TOTAL;
 let rewardTimer = null;
 
 const rewardDock = document.getElementById('rewardDock');
 const rewardTime = document.getElementById('rewardTime');
 const rewardRing = document.getElementById('rewardRing');
+const rewardHint = document.getElementById('rewardHint');
+const rewardFloatLayer = document.getElementById('rewardFloatLayer');
 const rewardModalRoot = document.getElementById('rewardModalRoot');
 const rmPoints = document.getElementById('rmPoints');
 const rmDetail = document.getElementById('rmDetail');
 const rmGoMall = document.getElementById('rmGoMall');
 const rmDismiss = document.getElementById('rmDismiss');
+
+function hasClaimedRewardBefore() {
+    try {
+        return localStorage.getItem(REWARD_FIRST_CLAIM_KEY) === '1';
+    } catch (e) {
+        return false;
+    }
+}
+
+function markFirstRewardClaimed() {
+    try {
+        localStorage.setItem(REWARD_FIRST_CLAIM_KEY, '1');
+    } catch (e) {}
+    if (rewardHint) rewardHint.textContent = '点击进商城 · 倒计时结束上浮奖励';
+}
 
 function formatTime(sec) {
     const m = Math.floor(sec / 60);
@@ -628,9 +701,8 @@ function pickReward() {
     return { total: base + bonus, base, bonus };
 }
 
-function showRewardModal() {
-    const r = pickReward();
-    rmPoints.textContent = '+' + r.total;
+function showRewardModal(r) {
+    rmPoints.textContent = '+' + r.total + ' 积分';
     rmDetail.textContent = r.bonus > 0
         ? '基础 ' + r.base + ' · 连续活跃加成 +' + r.bonus
         : '基础奖励 ' + r.base + ' 积分';
@@ -645,11 +717,36 @@ function hideRewardModal() {
     rewardDock.classList.remove('wait-payout');
 }
 
+/** 后续领取：右下角 dock 旁上浮展示，不弹全屏窗 */
+function showRewardFloat(r) {
+    if (!rewardFloatLayer) return;
+    const el = document.createElement('div');
+    el.className = 'reward-float-burst';
+    el.innerHTML = '<i class="fa-solid fa-coins"></i><span>+' + r.total + ' 积分</span>';
+    rewardFloatLayer.appendChild(el);
+    rewardDock.classList.add('just-paid');
+    setTimeout(() => rewardDock.classList.remove('just-paid'), 2000);
+    setTimeout(() => {
+        if (el.parentNode) el.parentNode.removeChild(el);
+    }, 2000);
+}
+
+function onRewardPayout() {
+    const r = pickReward();
+    if (!hasClaimedRewardBefore()) {
+        showRewardModal(r);
+        return;
+    }
+    showRewardFloat(r);
+    setTimeout(startRewardCountdown, 1200);
+}
+
 function startRewardCountdown() {
     if (rewardTimer) clearInterval(rewardTimer);
     rewardLeft = REWARD_TOTAL;
     syncRewardRing();
     rewardTime.textContent = formatTime(rewardLeft);
+    rewardDock.classList.remove('wait-payout', 'just-paid');
     rewardTimer = setInterval(() => {
         rewardLeft--;
         if (rewardLeft <= 0) {
@@ -658,7 +755,7 @@ function startRewardCountdown() {
             rewardLeft = 0;
             rewardTime.textContent = '00:00';
             syncRewardRing();
-            showRewardModal();
+            onRewardPayout();
             return;
         }
         rewardTime.textContent = formatTime(rewardLeft);
@@ -672,21 +769,28 @@ rewardDock.addEventListener('click', () => {
 
 rmGoMall.addEventListener('click', () => {
     hideRewardModal();
+    markFirstRewardClaimed();
     navigate('points-mall.html', '积分兑换商城');
+    startRewardCountdown();
 });
 
 rmDismiss.addEventListener('click', () => {
     hideRewardModal();
+    markFirstRewardClaimed();
     startRewardCountdown();
 });
 
 rewardModalRoot.addEventListener('click', e => {
     if (e.target === rewardModalRoot) {
         hideRewardModal();
+        markFirstRewardClaimed();
         startRewardCountdown();
     }
 });
 
+if (hasClaimedRewardBefore() && rewardHint) {
+    rewardHint.textContent = '点击进商城 · 倒计时结束上浮奖励';
+}
 startRewardCountdown();
 syncRewardDockForPage('guest-home.html');
 

@@ -856,6 +856,13 @@
         });
         if (window.crToggleLiveOnlyUI) window.crToggleLiveOnlyUI(type === 'live');
 
+        var tipSub = document.getElementById('rowAllowTipSub');
+        if (tipSub) {
+            if (type === 'live') tipSub.textContent = '直播中观众可发送 USDT 打赏与礼物';
+            else if (type === 'video') tipSub.textContent = '视频动态下观众可打赏与送礼';
+            else tipSub.textContent = '图文动态下观众可打赏与送礼';
+        }
+
         syncActionBarButtons();
 
     }

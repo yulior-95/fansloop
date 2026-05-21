@@ -11,7 +11,7 @@
 <div class="kyc-lite-shell">
     <header class="kyc-lite-top">
         <div class="brand"><span class="lg"><i class="fa-solid fa-face-smile"></i></span> 人脸识别</div>
-        <a id="linkBack" href="#">上一步</a>
+        <a id="linkBack" href="#" title="返回上传证件">上一步</a>
     </header>
     <main class="kyc-lite-main">
         <div class="kyc-flow-max">
@@ -23,71 +23,81 @@
                 <div class="step">5</div>
             </div>
             <h1 style="font-size:20px;font-weight:800;margin:0 0 8px">人脸识别</h1>
-            <p style="font-size:13px;color:var(--t-secondary);margin:0 0 18px">请按照提示完成人脸识别。若<strong>电脑摄像头不可用</strong>，可使用下方入口生成链接，在手机浏览器中完成。</p>
-            <div class="kyc-face-preview">
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=480&fit=crop&crop=face" alt="人脸识别示意" />
+            <p style="font-size:13px;color:var(--t-secondary);margin:0 0 14px">点击「开始人脸识别」将请求摄像头权限，校验取景框内人像并保存最后一帧快照。无摄像头时可使用手机链接，结果将自动同步。</p>
+
+            <span class="kyc-face-status-chip" id="faceStatusChip" style="display:none"></span>
+
+            <div class="kyc-face-stage" id="faceStage">
+                <img id="faceIllus" src="https://images.unsplash.com/photo-1531746790731-9c087f06e611?w=800&h=480&fit=crop" alt="人脸识别取景示意" />
+                <video id="faceVideo" playsinline muted></video>
+                <canvas id="faceCanvas" hidden></canvas>
+                <div class="face-scan-overlay">
+                    <div class="face-scan-frame"></div>
+                    <span class="face-scan-tip" id="faceScanTip">请将面部置于框内</span>
+                </div>
             </div>
-            <div class="card" style="padding:16px 18px;margin-bottom:14px">
+
+            <div class="kyc-file-banner" id="fileProtoBanner" style="display:none">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>当前以 <code>file://</code> 打开，浏览器无法调用摄像头。请用本地服务访问（如 <code>npx serve</code>），或点击下方「模拟识别通过」继续流程。</span>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-lg" id="btnStartFace" style="margin-top:14px"><i class="fa-solid fa-camera"></i> 开始人脸识别</button>
+
+            <div class="kyc-face-demo-row">
+                <button type="button" class="btn btn-secondary btn-sm" id="btnSimPass"><i class="fa-solid fa-wand-magic-sparkles"></i> 原型 · 模拟识别通过</button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnSimFail"><i class="fa-solid fa-vial"></i> 原型 · 模拟识别失败</button>
+            </div>
+
+            <div id="panelFaceLiveFail" class="kyc-face-result-card fail" style="display:none">
+                <i class="fa-solid fa-circle-xmark"></i>
+                <div>
+                    <strong>活体检测未通过</strong>
+                    <p id="faceLiveFailReason">—</p>
+                </div>
+            </div>
+
+            <div class="card" style="padding:16px 18px;margin-top:18px">
+                <p style="font-size:12px;color:var(--t-secondary);margin:0 0 12px;line-height:1.55"><i class="fa-solid fa-mobile-screen" style="color:#93c5fd"></i> 电脑摄像头不可用时，生成一次性链接在手机完成：</p>
                 <button type="button" class="btn btn-secondary btn-block" id="btnGen"><i class="fa-solid fa-link"></i> 生成手机人脸识别链接</button>
-                <div class="kyc-link-box" id="linkBox" style="display:none;margin-top:12px"></div>
-                <p style="font-size:11px;color:var(--t-tertiary);margin:10px 0 0;line-height:1.5">链接一次性有效。任意设备完成后，回到本页点击「已完成识别」。</p>
+                <div class="kyc-link-row" id="linkRow" style="display:none">
+                    <div class="kyc-link-box" id="linkBox"></div>
+                    <button type="button" class="kyc-link-copy-btn" id="btnLinkCopy" title="复制链接"><i class="fa-regular fa-copy"></i></button>
+                </div>
             </div>
-            <div class="kyc-mobile-hint">
-                <strong>小入口</strong>：复制链接发送到手机微信 / 备忘录，在手机 Safari 或 Chrome 中打开即可完成识别（原型中打开独立页模拟）。
+
+            <div id="panelFaceReview" class="kyc-face-result-card wait" style="display:none">
+                <i class="fa-solid fa-hourglass-half"></i>
+                <div>
+                    <strong>资料审核中</strong>
+                    <p>Verify 正在进行审核，请耐心等待结果回传。</p>
+                </div>
             </div>
-            <div class="kyc-actions-row" style="margin-top:22px">
-                <button type="button" class="btn btn-secondary" id="btnCopy" disabled><i class="fa-regular fa-copy"></i> 复制链接</button>
-                <button type="button" class="btn btn-primary" id="btnDone" disabled><i class="fa-solid fa-check"></i> 我已完成人脸识别</button>
+            <div id="panelFaceAuditOk" class="kyc-face-result-card ok" style="display:none">
+                <i class="fa-solid fa-circle-check"></i>
+                <div>
+                    <strong>认证审核通过</strong>
+                    <p>证件与人脸信息已通过 Verify 审核。</p>
+                </div>
             </div>
-            <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top:16px" id="btnNext" disabled><i class="fa-solid fa-arrow-right"></i> 提交并进入审核</button>
+            <div id="panelFaceAuditFail" class="kyc-face-result-card fail" style="display:none">
+                <i class="fa-solid fa-circle-xmark"></i>
+                <div>
+                    <strong>认证审核未通过</strong>
+                    <p id="faceAuditFailReason">请重新进行人脸识别后再次提交。</p>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" id="btnFaceRetry" style="margin-top:12px"><i class="fa-solid fa-rotate-right"></i> 重新人脸识别</button>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top:20px" id="btnNext" disabled><i class="fa-solid fa-arrow-right"></i> 提交并进入审核</button>
         </div>
     </main>
-    <footer class="kyc-lite-foot">示意头像：Unsplash</footer>
+    <footer class="kyc-lite-foot">活体检测 · 取景框人像校验 · Verify 混合审核</footer>
 </div>
 <script src="../js-web/kyc-store.js"></script>
 <script src="../js-web/kyc-flow-nav.js"></script>
-<script>
-(function () {
-    document.getElementById("linkBack").href = window.KycFlowNav.hrefWithRet("kyc-upload-id.html");
-    var url = "";
-    document.getElementById("btnGen").addEventListener("click", function () {
-        var token = "face_" + Math.random().toString(36).slice(2, 12);
-        url = new URL("kyc-face-mobile.html?token=" + encodeURIComponent(token), location.href).href;
-        var box = document.getElementById("linkBox");
-        box.style.display = "block";
-        box.textContent = url;
-        localStorage.setItem("fansloop_kyc_face_demo_url", url);
-        document.getElementById("btnCopy").disabled = false;
-        document.getElementById("btnDone").disabled = false;
-    });
-    document.getElementById("btnCopy").addEventListener("click", function () {
-        if (!url) return;
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(url).then(function () {
-                alert("已复制到剪贴板");
-            });
-        } else {
-            prompt("复制以下链接", url);
-        }
-    });
-    document.getElementById("btnDone").addEventListener("click", function () {
-        document.getElementById("btnNext").disabled = false;
-    });
-    document.getElementById("btnNext").addEventListener("click", function () {
-        var draft = {};
-        try { draft = JSON.parse(sessionStorage.getItem("fansloop_kyc_draft") || "{}"); } catch (e) {}
-        if (window.FansloopKycStore) {
-            window.FansloopKycStore.submitDocument({
-                country: draft.country || null,
-                idType: draft.idType || null,
-                idCardFront: "demo_front",
-                idCardBack: "demo_back",
-                faceSnapshot: "demo_face"
-            });
-        }
-        window.KycFlowNav.go("kyc-doc-pending.html");
-    });
-})();
-</script>
+<script src="../js-web/kyc-toast.js"></script>
+<script src="../js-web/kyc-face-detect.js"></script>
+<script src="../js-web/kyc-face-verify.js"></script>
 </body>
 </html>

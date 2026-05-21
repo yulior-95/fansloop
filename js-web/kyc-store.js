@@ -6,6 +6,7 @@
 (function (global) {
     var KYC_STORE = "fansloop_kyc";
     var AUDIT_LOG = "fansloop_kyc_audit_log";
+    var FACE_DONE_KEY = "fansloop_kyc_face_done";
     var DEMO_USER = "Luna \uD83C\uDF19";
 
     function readRaw() {
@@ -188,9 +189,38 @@
         });
     }
 
+    function setFaceDone(token, snapshot, extra) {
+        extra = extra || {};
+        var payload = {
+            token: token || null,
+            at: Date.now(),
+            snapshot: snapshot || null,
+            passed: extra.passed !== false,
+            reason: extra.reason || null
+        };
+        localStorage.setItem(FACE_DONE_KEY, JSON.stringify(payload));
+        try {
+            global.dispatchEvent(new CustomEvent("fansloop-kyc-face-done", { detail: payload }));
+        } catch (e) {}
+        return payload;
+    }
+
+    function readFaceDone() {
+        try {
+            return JSON.parse(localStorage.getItem(FACE_DONE_KEY) || "null");
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function clearFaceDone() {
+        localStorage.removeItem(FACE_DONE_KEY);
+    }
+
     function resetKyc() {
         localStorage.removeItem(KYC_STORE);
         localStorage.removeItem(AUDIT_LOG);
+        clearFaceDone();
     }
 
     function readAuditLog() {
@@ -224,6 +254,10 @@
         setDocumentApproved: setDocumentApproved,
         setDocumentRejected: setDocumentRejected,
         resetKyc: resetKyc,
+        setFaceDone: setFaceDone,
+        readFaceDone: readFaceDone,
+        clearFaceDone: clearFaceDone,
+        FACE_DONE_KEY: FACE_DONE_KEY,
         readAuditLog: readAuditLog,
         pushAudit: pushAudit,
         routeForEntry: routeForEntry

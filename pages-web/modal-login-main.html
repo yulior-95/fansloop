@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../css-web/auth-wizard-modal.css">
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
+<script src="../js-web/auth-session.js"></script>
 </head>
 <body>
 <div class="gf-modal-root">
@@ -105,7 +106,7 @@
                     <p style="font-size:15px;font-weight:800;">登录成功</p>
                     <p style="font-size:11px;color:var(--t-tertiary);margin-top:6px;line-height:1.45;">对齐 login-success · 新用户可继续 onboarding</p>
                 </div>
-                <a href="home.html" class="btn-gf-primary" style="width:100%;text-decoration:none;margin-top:12px;">进入首页 home.html</a>
+                <a href="home.html" class="btn-gf-primary" id="btnLoginSuccess" style="width:100%;text-decoration:none;margin-top:12px;">进入首页 home.html</a>
                 <a href="onboarding-profile-complete.html?source=wallet" class="aw-btn-ghost" style="display:block;text-align:center;text-decoration:none;margin-top:8px;">完善资料（可选）</a>
             </section>
         </div>
@@ -134,7 +135,14 @@
     var hash = (location.hash || '').replace('#', '');
     if (hash === 'wc') show(2);
     if (hash === 'mm') show(3);
+    var btnLoginOk = document.getElementById("btnLoginSuccess");
+    if (btnLoginOk) {
+        btnLoginOk.addEventListener("click", function () {
+            if (window.FansloopAuth) window.FansloopAuth.login();
+        });
+    }
 })();
 </script>
+
 </body>
 </html>

@@ -33,6 +33,13 @@
       return;
     }
     iframeEl.src = page;
+    if (page.indexOf('danmaku-send-modal') >= 0) {
+      iframeEl.style.width = 'min(500px, calc(100vw - 32px))';
+      iframeEl.style.height = 'min(420px, calc(100vh - 32px))';
+    } else {
+      iframeEl.style.width = 'min(940px, calc(100vw - 32px))';
+      iframeEl.style.height = 'min(920px, calc(100vh - 32px))';
+    }
     root.style.display = 'flex';
     root.setAttribute('aria-hidden', 'false');
   };

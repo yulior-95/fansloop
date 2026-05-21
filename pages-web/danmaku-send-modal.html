@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>发送弹幕 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+html, body { margin: 0; min-height: 100%; background: transparent; }
+.dm-root {
+    width: min(480px, calc(100vw - 24px));
+    margin: 0 auto;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    overflow: hidden;
+}
+.dm-head {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.dm-head h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.dm-head h2 i { color: #f472b6; }
+.dm-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: var(--bg-input);
+    color: var(--t-tertiary);
+    cursor: pointer;
+}
+.dm-body { padding: 16px 18px 18px; }
+.dm-live-hint {
+    font-size: 12px;
+    color: var(--t-secondary);
+    line-height: 1.55;
+    margin: 0 0 12px;
+    padding: 10px 12px;
+    border-radius: var(--r-md);
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+.dm-input {
+    width: 100%;
+    min-height: 88px;
+    padding: 12px 14px;
+    border-radius: var(--r-md);
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: #fff;
+    font-size: 14px;
+    resize: vertical;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+.dm-input:focus {
+    outline: none;
+    border-color: var(--brand-purple);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+}
+.dm-quick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0 14px;
+}
+.dm-quick button {
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--t-secondary);
+    font-size: 12px;
+    cursor: pointer;
+}
+.dm-quick button:hover { border-color: var(--brand-purple); color: #fff; }
+.dm-foot {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+</style>
+</head>
+<body>
+<div class="dm-root">
+    <div class="dm-head">
+        <h2><i class="fa-solid fa-comments"></i> 发送弹幕</h2>
+        <button type="button" class="dm-close" id="btnClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="dm-body">
+        <p class="dm-live-hint"><i class="fa-solid fa-tower-broadcast"></i> 弹幕将实时显示在直播间画面中，请文明发言。</p>
+        <textarea class="dm-input" id="dmInput" placeholder="说点什么…" maxlength="80"></textarea>
+        <div class="dm-quick">
+            <button type="button" data-t="666">666</button>
+            <button type="button" data-t="好听！">好听！</button>
+            <button type="button" data-t="来了来了">来了来了</button>
+            <button type="button" data-t="🎉">🎉</button>
+        </div>
+        <div class="dm-foot">
+            <button type="button" class="btn btn-secondary" id="btnCancel">取消</button>
+            <button type="button" class="btn btn-primary" id="btnSend"><i class="fa-solid fa-paper-plane"></i> 发送</button>
+        </div>
+    </div>
+</div>
+<script>
+(function () {
+    function closeModal() {
+        if (window.parent && window.parent !== window) {
+            try {
+                window.parent.postMessage({ type: "fansloop-close-modal" }, "*");
+                return;
+            } catch (e) {}
+        }
+        if (window.FL_closeStandaloneModal) window.FL_closeStandaloneModal();
+    }
+    document.getElementById("btnClose").addEventListener("click", closeModal);
+    document.getElementById("btnCancel").addEventListener("click", closeModal);
+    document.querySelectorAll(".dm-quick button").forEach(function (b) {
+        b.addEventListener("click", function () {
+            document.getElementById("dmInput").value = b.getAttribute("data-t") || "";
+        });
+    });
+    document.getElementById("btnSend").addEventListener("click", function () {
+        var t = (document.getElementById("dmInput").value || "").trim();
+        if (!t) return;
+        try {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: "fansloop-danmaku-sent", text: t }, "*");
+            }
+        } catch (e) {}
+        closeModal();
+    });
+})();
+</script>
+</body>
+</html>
