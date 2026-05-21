@@ -74,6 +74,9 @@
             } catch (e) {}
             return read();
         },
+        markLiveActive: function () {
+            return global.LiveMetaStore.save({ status: "live", endedAt: null });
+        },
         getAdmins: function () {
             return read().admins.slice();
         },

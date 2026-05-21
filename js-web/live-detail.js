@@ -465,13 +465,66 @@
         toast("直播已结束");
     }
 
+    function shouldShowEndedFromUrl() {
+        try {
+            var p = new URLSearchParams(location.search);
+            return p.get("ended") === "1" || p.get("status") === "ended";
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function ensureViewerLiveState() {
+        if (livePlayer) livePlayer.classList.remove("is-ended");
+        if (liveEndedOverlay) liveEndedOverlay.setAttribute("aria-hidden", "true");
+        if (liveStatusPill) {
+            liveStatusPill.innerHTML = '<span class="dot"></span> LIVE';
+            liveStatusPill.classList.remove("is-ended");
+        }
+        if (danmakuLayer) danmakuLayer.classList.remove("is-hidden");
+        var floatGifts = livePlayer && livePlayer.querySelector(".float-gifts");
+        if (floatGifts) floatGifts.style.display = "";
+        var ci = document.getElementById("chatInput");
+        var cs = document.getElementById("btnChatSend");
+        if (ci) {
+            ci.disabled = false;
+            ci.placeholder = "说点什么…";
+        }
+        if (cs) cs.disabled = false;
+        ["btnTip", "btnCheer", "btnSubscribe"].forEach(function (id) {
+            var b = document.getElementById(id);
+            if (b) {
+                b.classList.remove("is-disabled");
+                b.style.pointerEvents = "";
+                b.style.opacity = "";
+            }
+        });
+        endedApplied = false;
+    }
+
     function checkLiveEnded() {
         var store = window.LiveMetaStore;
-        if (store && store.isLiveEnded && store.isLiveEnded()) applyViewerEndedState();
+        if (shouldShowEndedFromUrl()) {
+            if (store && store.endLive) store.endLive();
+            applyViewerEndedState();
+            return;
+        }
+        /* 观众默认进入直播间为「直播中」，清除主播端遗留的 ended 状态 */
+        if (store && store.markLiveActive) store.markLiveActive();
+        else if (store && store.save) store.save({ status: "live", endedAt: null });
+        ensureViewerLiveState();
     }
+
     checkLiveEnded();
     window.addEventListener("storage", function (e) {
-        if (e.key === "fansloop_live_session") checkLiveEnded();
+        if (e.key !== "fansloop_live_session") return;
+        if (shouldShowEndedFromUrl()) return;
+        var store = window.LiveMetaStore;
+        if (store && store.isLiveEnded && store.isLiveEnded()) {
+            applyViewerEndedState();
+        } else {
+            ensureViewerLiveState();
+        }
     });
 
     /* 主 Tabs */
@@ -556,10 +609,6 @@
     /* OBS 等待条（保留） */
     try {
         var p = new URLSearchParams(location.search);
-        if (p.get("ended") === "1" && window.LiveMetaStore && window.LiveMetaStore.endLive) {
-            window.LiveMetaStore.endLive();
-            applyViewerEndedState();
-        }
         if (p.get("source") === "obs" && p.get("wait") === "1") {
             var w = document.getElementById("waitStreamStrip");
             if (w) w.classList.add("show");

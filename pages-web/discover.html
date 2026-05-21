@@ -83,6 +83,56 @@
     font-size: 9px;
 }
 
+.disc-rec-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 16px 18px;
+    margin-bottom: 22px;
+}
+.disc-rec-card .rec-hd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+.disc-rec-card .rec-hd h3 {
+    font-size: 16px;
+    font-weight: 800;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.disc-rec-card .rec-hd a {
+    font-size: 12px;
+    color: var(--brand-purple);
+}
+.who-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+}
+.who-row:last-child { border-bottom: none; padding-bottom: 0; }
+.who-row:first-child { padding-top: 0; }
+.who-row .info { flex: 1; min-width: 0; }
+.who-row .info .n { font-size: 14px; font-weight: 700; }
+.who-row .info .h { font-size: 12px; color: var(--t-tertiary); margin-top: 2px; }
+.who-row .follow-sidebar {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--brand-purple);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.who-row .follow-sidebar:hover { background: rgba(168,85,247,0.12); }
+
 .section-head {
     display: flex; justify-content: space-between; align-items: flex-end;
     margin-bottom: 16px;
@@ -246,10 +296,12 @@
     </aside>
 
     <header class="app-header">
-        <div class="h-search">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <span>搜索创作者、内容或话题…</span>
-            <span class="kbd">⌘ K</span>
+        <div class="h-search h-search-live h-search-unified">
+            <div class="hs-inner">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" placeholder="搜索创作者、内容或话题…" autocomplete="off" />
+            </div>
+            <div class="gs-drop"></div>
         </div>
         <div class="h-actions">
             <button class="h-icon"><i class="fa-solid fa-pen-to-square"></i></button>
@@ -286,6 +338,38 @@
             <span class="cat-pill"><span class="ico">📖</span>读书</span>
             <span class="cat-pill"><span class="ico">💻</span>科技</span>
             <span class="cat-pill"><span class="ico">👗</span>时尚</span>
+        </div>
+
+        <!-- 推荐关注（自首页侧栏迁移） -->
+        <div class="disc-rec-card" id="discRecommendFollow">
+            <div class="rec-hd">
+                <h3><i class="fa-solid fa-user-plus" style="color:#A855F7"></i> 推荐关注</h3>
+                <a href="#" id="discRecRefresh">换一批</a>
+            </div>
+            <div class="who-row" onclick="location.href='creator-profile.html'">
+                <div class="av av-sm" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></div>
+                <div class="info">
+                    <div class="n">银盐时代</div>
+                    <div class="h">摄影 · 1.2k 粉丝</div>
+                </div>
+                <button type="button" class="follow-sidebar" onclick="event.stopPropagation()">+ 关注</button>
+            </div>
+            <div class="who-row" onclick="location.href='creator-profile.html'">
+                <div class="av av-sm" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
+                <div class="info">
+                    <div class="n">夜间速写</div>
+                    <div class="h">绘画 · 856 粉丝</div>
+                </div>
+                <button type="button" class="follow-sidebar" onclick="event.stopPropagation()">+ 关注</button>
+            </div>
+            <div class="who-row" onclick="location.href='creator-profile.html'">
+                <div class="av av-sm" style="background-image:url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80')"></div>
+                <div class="info">
+                    <div class="n">代码诗人</div>
+                    <div class="h">科技 · 2.4k 粉丝</div>
+                </div>
+                <button type="button" class="follow-sidebar" onclick="event.stopPropagation()">+ 关注</button>
+            </div>
         </div>
 
         <!-- 热门创作者 -->
@@ -476,5 +560,16 @@
 
 <link rel="stylesheet" href="../css-web/host-live-pip-global.css">
 <script src="../js-web/host-live-pip-global.js"></script>
+<script>
+document.getElementById('discRecRefresh')?.addEventListener('click', function (e) {
+    e.preventDefault();
+    var names = ['银盐时代', '夜间速写', '代码诗人', '山野食光', 'Lens 旅记'];
+    var rows = document.querySelectorAll('#discRecommendFollow .who-row .info .n');
+    rows.forEach(function (el, i) {
+        el.textContent = names[(Math.floor(Math.random() * names.length) + i) % names.length];
+    });
+});
+</script>
+<script src="../js-web/global-search.js"></script>
 </body>
 </html>

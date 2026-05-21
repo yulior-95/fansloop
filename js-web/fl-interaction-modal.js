@@ -17,6 +17,7 @@
     if (!root || !iframeEl) return;
     root.style.display = 'none';
     root.setAttribute('aria-hidden', 'true');
+    root.classList.remove('fl-modal--comment', 'fl-modal--danmaku', 'fl-modal--default');
     iframeEl.src = 'about:blank';
   };
 
@@ -33,10 +34,17 @@
       return;
     }
     iframeEl.src = page;
+    root.classList.remove('fl-modal--comment', 'fl-modal--danmaku', 'fl-modal--default');
     if (page.indexOf('danmaku-send-modal') >= 0) {
+      root.classList.add('fl-modal--danmaku');
       iframeEl.style.width = 'min(500px, calc(100vw - 32px))';
       iframeEl.style.height = 'min(420px, calc(100vh - 32px))';
+    } else if (page.indexOf('comment-modal') >= 0) {
+      root.classList.add('fl-modal--comment');
+      iframeEl.style.width = 'min(940px, calc(100vw - 32px))';
+      iframeEl.style.height = 'min(920px, calc(100vh - 32px))';
     } else {
+      root.classList.add('fl-modal--default');
       iframeEl.style.width = 'min(940px, calc(100vw - 32px))';
       iframeEl.style.height = 'min(920px, calc(100vh - 32px))';
     }

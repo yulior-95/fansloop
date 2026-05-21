@@ -1,0 +1,213 @@
+/* 全局搜索框 · 统一圆角输入 + 下拉（全站 app-header） */
+
+.app-header .h-search-live.h-search-unified {
+    flex: 1;
+    max-width: 620px;
+    display: block;
+    position: relative;
+    background: transparent;
+    border: none;
+    padding: 0;
+    overflow: visible;
+    z-index: 1;
+}
+.app-header .h-search-unified:has(.gs-drop.show),
+.app-header .h-search-unified:focus-within {
+    z-index: 300;
+}
+.app-header .h-search-unified .hs-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 40px;
+    padding: 0 14px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    min-width: 0;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.app-header .h-search-unified .hs-inner:focus-within {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 1px var(--border-focus);
+}
+.app-header .h-search-unified .hs-inner > i {
+    color: var(--t-tertiary);
+    flex-shrink: 0;
+    font-size: 13px;
+}
+.app-header .h-search-unified .hs-inner input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    color: var(--t-primary);
+    font-size: 13px;
+    outline: none;
+}
+.app-header .h-search-unified .hs-inner input::placeholder {
+    color: var(--t-tertiary);
+}
+.app-header .h-search-unified .gs-drop {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 6px);
+    max-height: min(70vh, 480px);
+    overflow-y: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-md);
+    z-index: 500;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+}
+.app-header .h-search-unified .gs-drop.show {
+    display: block;
+}
+.gs-drop-sec {
+    padding: 10px 12px 8px;
+    border-bottom: 1px solid var(--border);
+}
+.gs-drop-sec:last-child {
+    border-bottom: none;
+}
+.gs-drop-sec .gs-sec-hd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: var(--t-tertiary);
+    white-space: nowrap;
+}
+.gs-drop-sec .gs-sec-hd > span {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.gs-drop-sec .gs-sec-hd button,
+.gs-drop-sec .gs-sec-hd a {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.gs-drop-sec .gs-sec-hd button {
+    font-size: 11px;
+    color: var(--brand-purple);
+    font-weight: 600;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.gs-drop-chip,
+.gs-drop-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    text-align: left;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    color: var(--t-secondary);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+.gs-drop-chip:hover,
+.gs-drop-row:hover {
+    background: var(--bg-input);
+    color: #fff;
+}
+.gs-drop-row .av-sm {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+}
+.gs-drop-row .info {
+    flex: 1;
+    min-width: 0;
+}
+.gs-drop-row .info .n {
+    font-weight: 600;
+    color: var(--t-primary);
+}
+.gs-drop-row .info .h {
+    font-size: 10px;
+    color: var(--t-tertiary);
+    margin-top: 2px;
+}
+.gs-drop-row .follow-mini {
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--brand-grad);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.gs-history-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.gs-history-tags button {
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--t-secondary);
+    cursor: pointer;
+}
+.gs-history-tags button:hover {
+    border-color: var(--brand-purple);
+    color: #fff;
+}
+
+/* 隐藏旧版独立「搜索」按钮 */
+.app-header .h-search-unified #btnGlobalSearch {
+    display: none !important;
+}
+
+/* Feed 筛选侧栏 · 提高层级避免被遮挡 */
+.filter-drawer-mask {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.52);
+    z-index: 880;
+}
+.filter-drawer-mask.show {
+    display: block;
+}
+.filter-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: min(380px, 100vw);
+    height: 100%;
+    background: var(--bg-card);
+    border-left: 1px solid var(--border-strong);
+    z-index: 890;
+    padding: 22px;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    overflow-y: auto;
+    box-shadow: -12px 0 40px rgba(0, 0, 0, 0.35);
+}
+.filter-drawer.show {
+    transform: translateX(0);
+}
+.filter-drawer h3 {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

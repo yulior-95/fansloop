@@ -1209,6 +1209,14 @@
 
     syncActionBarButtons();
 
+    (function applyCreateTypeFromQuery() {
+        var params = new URLSearchParams(window.location.search);
+        var t = params.get('type');
+        if (t === 'image' || t === 'video' || t === 'live') {
+            openCreateEditor(t);
+        }
+    })();
+
 })();
 
 

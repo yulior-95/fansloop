@@ -113,6 +113,7 @@
 .nf-ic.t-mention { background: linear-gradient(135deg, #14B8A6, #06B6D4); }
 .nf-ic.t-system { background: linear-gradient(135deg, #6B7280, #4B5563); }
 .nf-ic.t-live { background: linear-gradient(135deg, #DC2626, #F59E0B); }
+.nf-ic.t-preview { background: linear-gradient(135deg, #3B82F6, #8B5CF6); }
 
 .nf-item .nf-body { flex: 1; min-width: 0; }
 .nf-item .nf-body .nf-text {
@@ -226,7 +227,13 @@
     </aside>
 
     <header class="app-header">
-        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索创作者、内容或话题…</span><span class="kbd">⌘ K</span></div>
+        <div class="h-search h-search-live h-search-unified">
+            <div class="hs-inner">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" placeholder="搜索创作者、内容或话题…" autocomplete="off" />
+            </div>
+            <div class="gs-drop"></div>
+        </div>
         <div class="h-actions">
             <button class="h-icon"><i class="fa-solid fa-pen-to-square"></i></button>
             <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
@@ -239,8 +246,8 @@
     <main class="app-main">
         <div class="page-head">
             <div class="ph-l">
-                <h1>通知中心 <span class="chip-pro">12 NEW</span></h1>
-                <p>统一管理打赏、评论、订阅、系统消息——所有重要事件一目了然。</p>
+                <h1>通知中心 <span class="chip-pro">13 NEW</span></h1>
+                <p>统一管理打赏、评论、订阅、<strong style="color:#93c5fd">直播预告提醒</strong>与系统消息——所有重要事件一目了然。</p>
             </div>
             <div class="ph-r">
                 <button class="btn"><i class="fa-solid fa-check-double"></i> 全部标为已读</button>
@@ -254,7 +261,7 @@
                 <!-- 过滤栏 -->
                 <div class="nf-filter">
                     <div class="ck active">全部 <span class="cnt">42</span></div>
-                    <div class="ck">未读 <span class="cnt">12</span></div>
+                    <div class="ck">未读 <span class="cnt">13</span></div>
                     <div class="ck">提及我 <span class="cnt">3</span></div>
                     <div class="ck">打赏 <span class="cnt">8</span></div>
                     <div class="ck">评论 <span class="cnt">14</span></div>
@@ -266,12 +273,27 @@
                 <!-- 批量提示 -->
                 <div class="nf-bulk">
                     <i class="fa-solid fa-circle-info"></i>
-                    您有 <b style="color: #fff">12</b> 条未读通知 · <a style="color: var(--brand-purple); margin-left: auto; font-weight: 600">全部标记已读</a>
+                    您有 <b style="color: #fff">13</b> 条未读通知 · <a style="color: var(--brand-purple); margin-left: auto; font-weight: 600">全部标记已读</a>
                 </div>
 
                 <!-- 通知列表 -->
                 <div class="nf-list">
-                    <div class="nf-day">今天 · 2026年4月27日</div>
+                    <div class="nf-day">今天 · 2026年5月21日</div>
+
+                    <div class="nf-item unread" id="nfLivePreviewRemind">
+                        <div class="nf-ic t-preview"><i class="fa-regular fa-calendar-check"></i>
+                            <div class="av-mini" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
+                        </div>
+                        <div class="nf-body">
+                            <div class="nf-text"><span style="color:#93c5fd;font-weight:700">【直播预告提醒】</span> 您已预约 <b>夜雨听弦</b> 的预告「周末爵士夜」· 计划 <b>2026-05-23 21:00</b> 开播，届时将通过系统消息提醒您（Web）；APP 上线后同步推送到手机。</div>
+                            <div class="nf-meta"><span><i class="fa-regular fa-clock"></i> 刚刚</span><span class="dot"></span><span>系统消息</span><span class="dot"></span><span>开播提醒</span></div>
+                            <div class="nf-act">
+                                <button class="primary" onclick="location.href='home.html'"><i class="fa-regular fa-calendar-check"></i> 查看预告</button>
+                                <button type="button" id="btnCancelPreviewRemind"><i class="fa-regular fa-bell-slash"></i> 取消提醒</button>
+                            </div>
+                        </div>
+                        <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&q=80')"></div>
+                    </div>
 
                     <div class="nf-item unread">
                         <div class="nf-ic t-tip"><i class="fa-solid fa-gift"></i>
@@ -453,6 +475,10 @@
                         <div style="font-size: 12.5px"><i class="fa-solid fa-tower-broadcast" style="color: #F87171; margin-right: 6px"></i> 直播开播</div>
                         <div class="switch on"></div>
                     </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border)">
+                        <div style="font-size: 12.5px"><i class="fa-regular fa-calendar-check" style="color: #93c5fd; margin-right: 6px"></i> 直播预告开播提醒</div>
+                        <div class="switch on"></div>
+                    </div>
                     <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 0">
                         <div style="font-size: 12.5px"><i class="fa-regular fa-envelope" style="color: var(--t-tertiary); margin-right: 6px"></i> 邮件摘要</div>
                         <div class="switch"></div>
@@ -476,7 +502,31 @@
 
 </div>
 
+<script>
+(function () {
+    var LS_KEY = 'fl_live_preview_reminds';
+    var PREVIEW_ID = 'yeyu-jazz-0523';
+    function loadReminds() {
+        try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch (e) { return []; }
+    }
+    function saveReminds(list) {
+        try { localStorage.setItem(LS_KEY, JSON.stringify(list)); } catch (e) {}
+    }
+    var item = document.getElementById('nfLivePreviewRemind');
+    if (item && loadReminds().indexOf(PREVIEW_ID) === -1) {
+        item.remove();
+    }
+    document.getElementById('btnCancelPreviewRemind')?.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var list = loadReminds().filter(function (id) { return id !== PREVIEW_ID; });
+        saveReminds(list);
+        item?.remove();
+        alert('已取消直播预告提醒（原型：同步清除本地预约状态）');
+    });
+})();
+</script>
 <link rel="stylesheet" href="../css-web/host-live-pip-global.css">
+<script src="../js-web/global-search.js"></script>
 <script src="../js-web/host-live-pip-global.js"></script>
 </body>
 </html>

@@ -52,19 +52,18 @@
         feedFollow.insertBefore(clone, feedFollow.firstChild);
     }
 
-    document.querySelectorAll(".follow-dynamic").forEach(function (btn) {
-        btn.addEventListener("click", function (e) {
-            e.stopPropagation();
-            var on = btn.dataset.following === "true";
-            var card = btn.closest(".post-card");
+    document.addEventListener("click", function (e) {
+        var btn = e.target.closest(".follow-dynamic");
+        if (!btn) return;
+        e.stopPropagation();
+        var on = btn.dataset.following === "true";
+        var card = btn.closest(".post-card");
             if (!on) {
                 btn.dataset.following = "true";
                 btn.textContent = "已关注 ✓";
                 btn.style.background = "rgba(168,85,247,0.2)";
-                showToast("关注成功，已加入关注列表");
+                showToast("关注成功");
                 clonePostToFollow(card);
-                var tab = document.querySelector('#feedTabs .tab[data-feed="follow"]');
-                if (tab) tab.click();
             } else {
                 btn.dataset.following = "false";
                 btn.textContent = "+ 关注";
@@ -85,6 +84,5 @@
                 }
                 showToast("已取消关注");
             }
-        });
     });
 })();

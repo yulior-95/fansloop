@@ -13,6 +13,7 @@
     gap: 24px;
 }
 @media (max-width: 1280px) { .feed-grid { grid-template-columns: 1fr; } .feed-aside { display: none; } }
+/* 竖滑模式见 css-web/home-feed-v2.css */
 
 /* Composer */
 .composer {
@@ -190,12 +191,31 @@
     border: 1px solid var(--border);
     border-radius: var(--r-lg);
     margin-bottom: 16px;
-    overflow: hidden;
+    overflow: visible;
     transition: 0.2s;
+    position: relative;
 }
 .post-card:hover { border-color: var(--border-strong); }
-.post-head { display: flex; align-items: center; gap: 12px; padding: 14px 18px 12px; }
-.post-head .pi-info { flex: 1; }
+.post-card:has(.dev-glass-wrap:hover),
+.post-card:has(.dev-glass-wrap:focus-within) {
+    z-index: 8;
+}
+.post-card > .post-media,
+.post-card > .paid-cover {
+    overflow: hidden;
+    border-bottom-left-radius: var(--r-lg);
+    border-bottom-right-radius: var(--r-lg);
+}
+.post-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px 12px;
+    overflow: visible;
+    position: relative;
+    z-index: 1;
+}
+.post-head .pi-info { flex: 1; overflow: visible; min-width: 0; }
 .post-head .pi-info .name { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
 .post-head .pi-info .name .verified { color: #3B82F6; font-size: 12px; }
 .post-head .pi-info .meta { font-size: 11px; color: var(--t-tertiary); line-height: 1.45; }
@@ -206,6 +226,7 @@
     gap: 8px;
     margin-top: 3px;
     flex-wrap: wrap;
+    overflow: visible;
 }
 .post-head .pi-meta-row .meta { flex: 1; min-width: 180px; }
 .meta-online { color: #6ee7b7; font-weight: 600; }
@@ -247,19 +268,6 @@
     border: 2px solid var(--bg-card);
     z-index: 2;
 }
-.post-head .dev-glass-wrap--feed .dev-glass-sphere { width: 32px; height: 32px; }
-.post-head .dev-glass-wrap--feed .dev-glass-sphere-txt { font-size: 7.5px; }
-.post-head .dev-glass-wrap--feed .dev-glass-pop { max-width: 280px; font-size: 11px; line-height: 1.55; }
-.post-head .dev-glass-wrap--feed.dev-glass-wrap--pop-below .dev-glass-pop {
-    bottom: auto;
-    top: calc(100% + 8px);
-    transform: translateX(0) translateY(-4px);
-    z-index: 200;
-}
-.post-head .dev-glass-wrap--feed.dev-glass-wrap--pop-below:hover .dev-glass-pop,
-.post-head .dev-glass-wrap--feed.dev-glass-wrap--pop-below:focus-within .dev-glass-pop {
-    transform: translateX(0) translateY(0);
-}
 .post-head .pi-actions { display: flex; gap: 6px; }
 .post-head .pi-actions .ic-btn { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--t-tertiary); cursor: pointer; }
 .post-head .pi-actions .ic-btn:hover { background: var(--bg-input); color: var(--t-primary); }
@@ -281,6 +289,21 @@
     font-weight: 700;
 }
 .post-head .pi-actions .sub-btn:hover { background: rgba(168,85,247,0.2); }
+.post-head .pi-actions .sub-tag {
+    height: 28px;
+    padding: 0 12px;
+    background: linear-gradient(135deg, rgba(251,191,36,0.18), rgba(245,158,11,0.1));
+    border: 1px solid rgba(251,191,36,0.3);
+    color: var(--warning-light);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+}
+.post-head .av.av-md.av-link { cursor: pointer; }
 
 .post-text { padding: 0 18px 12px; font-size: 14px; line-height: 1.55; color: var(--t-primary); }
 .post-text .hashtag { color: var(--brand-purple); cursor: pointer; }
@@ -633,40 +656,27 @@
 .live-preview-schedule .lp-body { flex: 1; min-width: 0; }
 .live-preview-schedule .lp-body .lp-t { font-size: 13px; font-weight: 700; color: #fff; }
 .live-preview-schedule .lp-body .lp-s { font-size: 11px; color: var(--t-secondary); margin-top: 3px; }
+.live-preview-schedule .lp-remind-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
 .live-preview-schedule .lp-remind {
     padding: 6px 12px; border-radius: 8px; background: var(--brand-grad);
-    color: #fff; font-size: 11px; font-weight: 700; border: none; cursor: pointer; flex-shrink: 0;
+    color: #fff; font-size: 11px; font-weight: 700; border: none; cursor: pointer;
+    white-space: nowrap;
+}
+.live-preview-schedule .lp-remind.is-subscribed {
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.45);
+    color: #86efac;
 }
 .post-card[data-post-type="live-preview"] .post-media img { height: 260px; object-fit: cover; }
 
 .lc { margin-left: 2px; }
 .post-actions .like-act.liked { color: #F472B6; }
 .post-actions .bookmark-act.saved i { color: #A855F7; }
-
-.filter-drawer-mask {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 400;
-}
-.filter-drawer-mask.show { display: block; }
-.filter-drawer {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: min(380px, 100%);
-    height: 100%;
-    background: var(--bg-card);
-    border-left: 1px solid var(--border-strong);
-    z-index: 410;
-    padding: 22px;
-    transform: translateX(100%);
-    transition: transform 0.25s ease;
-    overflow-y: auto;
-}
-.filter-drawer.show { transform: translateX(0); }
-.filter-drawer h3 { font-size: 16px; font-weight: 800; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
 
 .toast-host-f {
     position: fixed;
@@ -691,84 +701,18 @@
 }
 @keyframes toastInTop { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 
-.app-header .h-search-live {
-    flex: 1;
-    max-width: 560px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    position: relative;
-}
-.app-header .h-search-live .hs-inner {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    height: 38px;
-    padding: 0 12px 0 14px;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    min-width: 0;
-}
-.app-header .h-search-live .hs-inner:focus-within { border-color: var(--border-focus); }
-.app-header .h-search-live .hs-inner i { color: var(--t-tertiary); flex-shrink: 0; }
-.app-header .h-search-live .hs-inner input {
-    flex: 1;
-    min-width: 0;
-    background: transparent;
-    border: none;
-    color: var(--t-primary);
-    font-size: 13px;
-    outline: none;
-}
-.app-header .h-search-live .hs-inner input::placeholder { color: var(--t-tertiary); }
-.app-header .h-search-live .gs-drop {
-    display: none;
-    position: absolute;
-    left: 0;
-    top: calc(100% + 6px);
-    right: 92px;
-    background: var(--bg-card);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--r-md);
-    max-height: 220px;
-    overflow-y: auto;
-    z-index: 80;
-    box-shadow: var(--shadow-lg);
-}
-.app-header .h-search-live .gs-drop.show { display: block; }
-.app-header .h-search-live .gs-drop button {
-    width: 100%;
-    text-align: left;
-    padding: 10px 14px;
-    font-size: 12.5px;
-    color: var(--t-secondary);
-    border-bottom: 1px solid var(--border);
-}
-.app-header .h-search-live .gs-drop button:hover { background: var(--bg-input); color: #fff; }
-.app-header .h-search-live #btnGlobalSearch {
-    height: 38px;
-    padding: 0 14px;
-    background: var(--brand-grad);
-    border: none;
-    border-radius: var(--r-md);
-    color: #fff;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    flex-shrink: 0;
-}
 .feed-panel-rec,
-.feed-panel-follow { display: none; }
+.feed-panel-follow,
+.feed-panel-live { display: none; }
 .feed-panel-rec.active,
-.feed-panel-follow.active { display: block; }
+.feed-panel-follow.active,
+.feed-panel-live.active { display: block; }
 
 .inline-overlay {
     display: none;
     position: fixed;
     inset: 0;
-    z-index: 600;
+    z-index: 950;
     background: rgba(0,0,0,0.72);
     backdrop-filter: blur(8px);
     align-items: center;
@@ -823,10 +767,68 @@
 .sub-result i { color: #10B981; font-size: 24px; margin-bottom: 8px; }
 .sub-result h4 { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
 .sub-result p { font-size: 12px; color: var(--t-secondary); }
+.sub-balance-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 12px; margin-bottom: 10px;
+    border-radius: var(--r-md);
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    font-size: 12px;
+}
+.sub-balance-bar.is-low { border-color: rgba(239, 68, 68, 0.45); background: rgba(239, 68, 68, 0.08); }
+.sub-balance-bar b { font-size: 14px; color: #fff; }
+.sub-pay-summary {
+    padding: 12px 14px; margin-bottom: 12px;
+    border-radius: var(--r-md);
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    font-size: 12px;
+}
+.sub-pay-summary .row { display: flex; justify-content: space-between; padding: 5px 0; }
+.sub-pay-summary .row .v { font-weight: 700; color: #fff; }
+.sub-pwd-stage { text-align: center; padding: 8px 0 4px; }
+.sub-pwd-stage .ic-wrap {
+    width: 56px; height: 56px; margin: 0 auto 10px; border-radius: 50%;
+    background: linear-gradient(135deg, rgba(168,85,247,0.18), rgba(236,72,153,0.08));
+    border: 1px solid rgba(168,85,247,0.35);
+    display: flex; align-items: center; justify-content: center;
+    color: #C084FC; font-size: 22px;
+}
+.sub-pwd-input { display: flex; gap: 8px; justify-content: center; margin: 16px 0 12px; }
+.sub-pwd-input .dot {
+    width: 40px; height: 46px; border-radius: 10px;
+    background: var(--bg-input); border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: var(--t-tertiary);
+}
+.sub-pwd-input .dot.filled { border-color: rgba(168,85,247,0.7); color: #fff; background: var(--bg-input-focus); }
+.sub-pwd-input .dot.err { border-color: rgba(239,68,68,0.7); animation: sub-pwd-shake 0.4s ease; }
+@keyframes sub-pwd-shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+.sub-pwd-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+.sub-pwd-pad button {
+    height: 42px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--bg-input); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer;
+}
+.sub-pwd-pad button:hover { border-color: var(--brand-purple); }
+.sub-pwd-hint { font-size: 11px; color: var(--t-tertiary); text-align: center; line-height: 1.45; }
+.sub-recharge-hint {
+    padding: 10px 12px; margin-bottom: 12px; border-radius: var(--r-md);
+    background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.35);
+    font-size: 12px; color: #FCA5A5; line-height: 1.5;
+}
+.sub-recharge-amt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+.sub-recharge-amt {
+    padding: 10px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--bg-input); color: #fff; font-weight: 700; cursor: pointer;
+}
+.sub-recharge-amt.active { border-color: rgba(168,85,247,0.7); background: rgba(168,85,247,0.12); }
+.sub-step-actions { display: flex; gap: 8px; margin-top: 12px; }
+.sub-step-actions .btn { flex: 1; }
 
 </style>
 
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
+<link rel="stylesheet" href="../css-web/home-feed-v2.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
 </head>
 <body>
@@ -880,13 +882,12 @@
 
     <!-- Header -->
     <header class="app-header">
-        <div class="h-search h-search-live">
+        <div class="h-search h-search-live h-search-unified">
             <div class="hs-inner">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="search" id="globalSearchInp" placeholder="搜索创作者、内容或话题…" autocomplete="off" />
-                <div class="gs-drop" id="globalSearchDrop"></div>
             </div>
-            <button type="button" id="btnGlobalSearch">搜索</button>
+            <div class="gs-drop" id="globalSearchDrop"></div>
         </div>
         <div class="h-actions">
             <button class="h-icon" title="通知"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
@@ -898,33 +899,18 @@
 
     <!-- Main -->
     <main class="app-main">
-        <div class="feed-grid">
+        <div class="feed-grid feed-grid--immersive">
 
-            <!-- 主 Feed -->
-            <div>
-                <!-- Composer -->
+            <!-- 主 Feed · 全宽竖滑 -->
+            <div class="feed-main-col">
+                <!-- [LEGACY] 原顶部 Composer 已改为右下角悬浮 FAB，结构保留见下方注释块 -->
+                <!--
                 <div class="composer">
-                    <div class="av av-md" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
-                    <div class="body">
-                        <textarea id="composerInput" placeholder="Luna，今天想分享点什么？&#10;支持多行输入与 Emoji 😊"></textarea>
-                        <div class="actions">
-                            <div class="emoji-wrap">
-                                <button type="button" class="act-btn" id="btnComposerEmoji"><i class="fa-regular fa-face-smile"></i>Emoji</button>
-                                <div class="emoji-panel" id="composerEmojiPanel">
-                                    <button type="button">😀</button><button type="button">🥳</button><button type="button">🔥</button><button type="button">❤️</button>
-                                    <button type="button">👏</button><button type="button">🎉</button><button type="button">🚀</button><button type="button">✨</button>
-                                    <button type="button">📸</button><button type="button">🎧</button><button type="button">🌸</button><button type="button">🌅</button>
-                                    <button type="button">💎</button><button type="button">💜</button><button type="button">🎁</button><button type="button">☕</button>
-                                </div>
-                            </div>
-                            <span class="act-btn image" onclick="FL_openInteractionModal('create-publish-image.html')"><i class="fa-regular fa-image"></i>图片</span>
-                            <span class="act-btn video" onclick="FL_openInteractionModal('create-publish-video.html')"><i class="fa-solid fa-video"></i>视频</span>
-                            <span class="act-btn live" onclick="FL_openInteractionModal('create-publish-live.html')"><i class="fa-solid fa-tower-broadcast"></i>开直播</span>
-                            <span style="flex:1"></span>
-                            <button type="button" class="btn btn-primary btn-sm" id="btnComposerPublish">发布</button>
-                        </div>
-                    </div>
+                    ... 原发帖框：Emoji / 图片 / 视频 / 开直播 / 发布 ...
                 </div>
+                -->
+
+                <!-- [LEGACY] 原平铺 Feed：所有 post-card 在 #feedRec 内纵向连续排列；现改为竖滑单条全屏浏览 -->
 
                 <!-- 直播预约（创建页写入 localStorage 后展示） -->
                 <!-- 我的预约直播 -->
@@ -942,266 +928,36 @@
                 <div class="feed-tabs" id="feedTabs">
                     <div class="tab active" data-feed="rec" role="button" tabindex="0"><i class="fa-solid fa-compass"></i>推荐</div>
                     <div class="tab" data-feed="follow" role="button" tabindex="0"><i class="fa-solid fa-fire"></i>关注</div>
+                    <div class="tab" data-feed="live" role="button" tabindex="0"><i class="fa-solid fa-tower-broadcast"></i>直播</div>
+                    <!-- [LEGACY] 筛选入口暂隐藏
                     <div class="grow"></div>
                     <button type="button" class="more" id="btnFeedFilter"><i class="fa-solid fa-sliders"></i> 筛选</button>
+                    -->
                 </div>
 
-                <div class="feed-panel-rec active" id="feedRec">
-                <!-- Post 1 · 普通图文 -->
-                <article class="post-card" data-post-type="image" data-creator="山野食光" id="postFeedImage1">
-                    <div class="post-head">
-                        <div class="av av-md" style="background-image: url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100')"></div>
-                        <div class="pi-info">
-                            <div class="name">山野食光 <i class="fa-solid fa-circle-check verified" title="认证创作者"></i></div>
-                            <div class="pi-meta-row">
-                                <div class="meta">
-                                    <span class="meta-online"><i class="fa-solid fa-circle"></i>在线</span>
-                                    <span class="dot">·</span>创作者 LV 6
-                                    <span class="dot">·</span>2 小时前
-                                    <span class="meta-tag">摄影</span><span class="meta-tag">旅行</span>
-                                </div>
-                                <span class="dev-glass-wrap dev-glass-wrap--feed dev-glass-wrap--pop-below">
-                                    <span class="dev-glass-sphere" tabindex="0" aria-describedby="devFeedImageMetaTip">
-                                        <span class="dev-glass-sphere-shine"></span>
-                                        <span class="dev-glass-sphere-txt">To 研发</span>
-                                    </span>
-                                    <span class="dev-glass-pop" id="devFeedImageMetaTip" role="tooltip">展示内容含：在线状态、创作者等级、兴趣标签</span>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="pi-actions">
-                            <button type="button" class="follow-btn follow-dynamic" data-following="false">+ 关注</button>
-                            <button type="button" class="sub-btn btn-open-subscribe" data-creator="山野食光" data-plan="16">订阅</button>
-                        </div>
-                    </div>
-                    <div class="post-text">
-                        清晨 5:40 的富士山五合目，云海像被风轻轻吹散的奶油 ☁️
-                        <br>这次用 35mm 定焦在零下 4℃ 拍了三个小时，每一张都是冻出来的浪漫
-                        <br><span class="hashtag">#富士山</span> <span class="hashtag">#旅行摄影</span> <span class="hashtag">#日出</span>
-                    </div>
-                    <div class="post-media grid-2">
-                        <img src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=900&q=80" alt="">
-                        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=900&q=80" alt="">
-                    </div>
-                    <div class="post-actions">
-                        <span class="a-btn liked like-act" role="button"><i class="fa-solid fa-heart"></i><span class="lc">2,148</span></span>
-                        <span class="a-btn" onclick="FL_openInteractionModal('comment-modal.html')"><i class="fa-regular fa-comment"></i>342</span>
-                        <span class="a-btn" onclick="FL_openInteractionModal('share-modal.html')"><i class="fa-solid fa-arrow-up-right-from-square"></i>分享</span>
-                        <span class="a-btn tip-cta" onclick="FL_openInteractionModal('gift-modal.html')"><i class="fa-solid fa-gift"></i>打赏</span>
-                        <span class="a-btn bookmark-act" role="button"><i class="fa-regular fa-bookmark"></i><span>收藏</span></span>
-                    </div>
-                </article>
+                <div class="feed-panel-rec feed-panel active" id="feedRec">
+                <div class="feed-stack-viewport" id="feedStackViewport">
+                <div class="feed-stack-track" id="feedStackTrack" data-stack="rec" data-build="30">
+                <!-- 内容由 feed-stack-builder.js 生成 30 条 -->
+                </div>
+                </div><!-- /feedStackViewport -->
+                </div><!-- /feedRec -->
 
-                <!-- Post 2 · 视频 / 付费 -->
-                <article class="post-card" data-post-type="video" data-creator="Lens 旅记">
-                    <div class="post-head">
-                        <div class="av av-md" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100')"></div>
-                        <div class="pi-info">
-                            <div class="name">Lens 旅记 <i class="fa-solid fa-circle-check verified"></i> <span class="tag tag-warning">优质</span></div>
-                            <div class="pi-meta-row">
-                                <div class="meta">
-                                    <span class="meta-online"><i class="fa-solid fa-circle"></i>在线</span>
-                                    <span class="dot">·</span>创作者 LV 8
-                                    <span class="dot">·</span>5 小时前
-                                    <span class="meta-tag">视频</span><span class="meta-tag">京都</span>
-                                </div>
-                                <span class="dev-glass-wrap dev-glass-wrap--feed dev-glass-wrap--pop-below">
-                                    <span class="dev-glass-sphere" tabindex="0" aria-describedby="devFeedVideoMetaTip">
-                                        <span class="dev-glass-sphere-shine"></span>
-                                        <span class="dev-glass-sphere-txt">To 研发</span>
-                                    </span>
-                                    <span class="dev-glass-pop" id="devFeedVideoMetaTip" role="tooltip">展示内容含：在线状态、创作者等级、兴趣标签</span>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="pi-actions">
-                            <button class="follow-btn">已订阅 ✓</button>
-                            <button type="button" class="sub-btn btn-open-subscribe" data-creator="Lens 旅记" data-plan="28">管理订阅</button>
-                        </div>
-                    </div>
-                    <div class="post-text">
-                        【会员专享】京都 4 月樱花季隐秘机位整理 · 含 GPS 坐标 + 拍摄建议 + 18 张原图…
-                    </div>
-                    <div class="paid-cover" style="background-image: url('https://images.unsplash.com/photo-1522383225653-ed111181a951?w=1200&q=80')">
-                        <span class="pc-tag"><i class="fa-solid fa-crown"></i> 优质付费</span>
-                        <div class="pc-blur-mask"></div>
-                        <div class="pc-content">
-                            <div class="pc-lock"><i class="fa-solid fa-lock"></i></div>
-                            <h4>京都 4 月樱花季 · 18 张原图与拍摄机位</h4>
-                            <p>包含 GPS 坐标、最佳光线时段与构图建议 · 5 USDT 单帖解锁，或订阅创作者解锁所有专享内容</p>
-                            <div class="pc-ctas">
-                                <button type="button" class="pc-buy" onclick="event.stopPropagation(); location.href='flow-unlock-paid.html'"><i class="fa-solid fa-bolt"></i> 立即解锁 · $5.00</button>
-                                <button type="button" class="pc-sub" onclick="event.stopPropagation(); location.href='flow-subscribe-creator.html'"><i class="fa-solid fa-crown"></i> 订阅 28 USDT/月</button>
-                            </div>
-                        </div>
-                        <div class="pc-blurred-thumbs">
-                            <div class="ti" style="background-image:url('https://images.unsplash.com/photo-1522383225653-ed111181a951?w=200&q=60')"></div>
-                            <div class="ti" style="background-image:url('https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=200&q=60')"></div>
-                            <div class="ti" style="background-image:url('https://images.unsplash.com/photo-1545569310-a85ba70d54e3?w=200&q=60')"></div>
-                            <div class="more-cnt">+15</div>
-                        </div>
-                    </div>
-                    <div class="post-actions">
-                        <span class="a-btn like-act" role="button"><i class="fa-regular fa-heart"></i><span class="lc">986</span></span>
-                        <span class="a-btn" onclick="FL_openInteractionModal('comment-modal.html')"><i class="fa-regular fa-comment"></i>148</span>
-                        <span class="a-btn" onclick="FL_openInteractionModal('share-modal.html')"><i class="fa-solid fa-arrow-up-right-from-square"></i>分享</span>
-                        <span class="a-btn tip-cta" onclick="FL_openInteractionModal('gift-modal.html')"><i class="fa-solid fa-gift"></i>打赏</span>
-                        <span class="a-btn bookmark-act" role="button"><i class="fa-regular fa-bookmark"></i><span>收藏</span></span>
-                    </div>
-                </article>
-
-                <!-- Post 2b · 直播预告 · 图文 -->
-                <article class="post-card" data-post-type="live-preview" data-preview-variant="image" data-creator="夜雨听弦">
-                    <div class="post-head">
-                        <div class="av av-md" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100')"></div>
-                        <div class="pi-info">
-                            <div class="name">夜雨听弦 <i class="fa-solid fa-circle-check verified"></i> <span class="tag-preview">直播预告</span></div>
-                            <div class="pi-meta-row">
-                                <div class="meta">
-                                    <span class="meta-preview"><i class="fa-regular fa-calendar-check"></i> 计划开播</span>
-                                    <span class="dot">·</span>2026-05-23 21:00
-                                    <span class="meta-tag">爵士</span><span class="meta-tag">现场</span>
-                                </div>
-                                <span class="dev-glass-wrap dev-glass-wrap--feed dev-glass-wrap--pop-below">
-                                    <span class="dev-glass-sphere" tabindex="0" aria-describedby="devFeedPreviewImgTip">
-                                        <span class="dev-glass-sphere-shine"></span>
-                                        <span class="dev-glass-sphere-txt">To 研发</span>
-                                    </span>
-                                    <span class="dev-glass-pop" id="devFeedPreviewImgTip" role="tooltip">直播预告（图文）：含封面图、计划开播时间、提醒按钮</span>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="pi-actions">
-                            <button type="button" class="follow-btn follow-dynamic" data-following="false">+ 关注</button>
-                        </div>
-                    </div>
-                    <div class="post-text">
-                        周末爵士夜 · 直播预告 🎷<br>
-                        曲目单已整理好，欢迎提前预约提醒，开播时会在 Feed 推送通知。
-                        <br><span class="hashtag">#爵士夜</span> <span class="hashtag">#直播预告</span>
-                    </div>
-                    <div class="live-preview-schedule">
-                        <div class="lp-icon"><i class="fa-regular fa-clock"></i></div>
-                        <div class="lp-body">
-                            <div class="lp-t">2026-05-23（周六）21:00 开播</div>
-                            <div class="lp-s">图文预告 · 请注意开播时间</div>
-                        </div>
-                        <button type="button" class="lp-remind"><i class="fa-regular fa-bell"></i> 预约提醒</button>
-                    </div>
-                    <div class="post-media">
-                        <img src="https://images.unsplash.com/photo-1415201361474-7edd6a50c022?w=1200&q=80" alt="爵士夜直播预告封面">
-                    </div>
-                    <div class="post-actions">
-                        <span class="a-btn like-act" role="button"><i class="fa-regular fa-heart"></i><span class="lc">412</span></span>
-                        <span class="a-btn" onclick="FL_openInteractionModal('comment-modal.html')"><i class="fa-regular fa-comment"></i>86</span>
-                        <span class="a-btn" onclick="FL_openInteractionModal('share-modal.html')"><i class="fa-solid fa-arrow-up-right-from-square"></i>分享</span>
-                        <span class="a-btn bookmark-act" role="button"><i class="fa-regular fa-bookmark"></i><span>收藏</span></span>
-                    </div>
-                </article>
-
-                <!-- Post 2c · 直播预告 · 纯文字 -->
-                <article class="post-card" data-post-type="live-preview" data-preview-variant="text" data-creator="代码诗人">
-                    <div class="post-head">
-                        <div class="av av-md" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=100')"></div>
-                        <div class="pi-info">
-                            <div class="name">代码诗人 <i class="fa-solid fa-circle-check verified"></i> <span class="tag-preview">直播预告</span></div>
-                            <div class="pi-meta-row">
-                                <div class="meta">
-                                    <span class="meta-preview"><i class="fa-regular fa-calendar-check"></i> 计划开播</span>
-                                    <span class="dot">·</span>2026-05-25 20:30
-                                    <span class="meta-tag">Web3</span><span class="meta-tag">AMA</span>
-                                </div>
-                                <span class="dev-glass-wrap dev-glass-wrap--feed dev-glass-wrap--pop-below">
-                                    <span class="dev-glass-sphere" tabindex="0" aria-describedby="devFeedPreviewTextTip">
-                                        <span class="dev-glass-sphere-shine"></span>
-                                        <span class="dev-glass-sphere-txt">To 研发</span>
-                                    </span>
-                                    <span class="dev-glass-pop" id="devFeedPreviewTextTip" role="tooltip">直播预告（纯文字）：无封面图，仅文案 + 时间条</span>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="pi-actions">
-                            <button type="button" class="follow-btn follow-dynamic" data-following="true">已关注</button>
-                        </div>
-                    </div>
-                    <div class="post-text">
-                        📢 下周三晚 8:30 · Web3 创作者经济 AMA（纯文字预告）<br>
-                        话题：链上订阅、积分激励与粉丝分层运营。无配图，适合快速发布档期通知。
-                    </div>
-                    <div class="live-preview-schedule">
-                        <div class="lp-icon"><i class="fa-regular fa-calendar-days"></i></div>
-                        <div class="lp-body">
-                            <div class="lp-t">2026-05-25（周三）20:30 开播</div>
-                            <div class="lp-s">纯文字预告 · 请注意开播时间</div>
-                        </div>
-                        <button type="button" class="lp-remind"><i class="fa-regular fa-bell"></i> 预约提醒</button>
-                    </div>
-                    <div class="post-actions">
-                        <span class="a-btn like-act" role="button"><i class="fa-regular fa-heart"></i><span class="lc">198</span></span>
-                        <span class="a-btn" onclick="FL_openInteractionModal('comment-modal.html')"><i class="fa-regular fa-comment"></i>42</span>
-                        <span class="a-btn" onclick="FL_openInteractionModal('share-modal.html')"><i class="fa-solid fa-arrow-up-right-from-square"></i>分享</span>
-                        <span class="a-btn bookmark-act" role="button"><i class="fa-regular fa-bookmark"></i><span>收藏</span></span>
-                    </div>
-                </article>
-
-                <!-- Post 3 · 直播 -->
-                <article class="post-card" data-post-type="live" data-creator="夜雨听弦">
-                    <div class="post-head">
-                        <div class="av-live-wrap">
-                            <div class="av-live-ring"></div>
-                            <div class="av av-md" onclick="location.href='creator-profile.html'" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100'); cursor: pointer"></div>
-                            <span class="av-live-badge" title="直播中"><i class="fa-solid fa-signal"></i></span>
-                        </div>
-                        <div class="pi-info">
-                            <div class="name" onclick="location.href='creator-profile.html'" style="cursor: pointer">夜雨听弦 <i class="fa-solid fa-circle-check verified"></i></div>
-                            <div class="pi-meta-row">
-                                <div class="meta">
-                                    <span style="color:#fca5a5;font-weight:600">正在直播</span>
-                                    <span class="dot">·</span><i class="fa-regular fa-eye"></i> 1,284 人实时观看
-                                    <span class="meta-tag">音乐</span><span class="meta-tag">现场</span>
-                                </div>
-                                <span class="dev-glass-wrap dev-glass-wrap--feed dev-glass-wrap--pop-below">
-                                    <span class="dev-glass-sphere" tabindex="0" aria-describedby="devFeedLiveMetaTip">
-                                        <span class="dev-glass-sphere-shine"></span>
-                                        <span class="dev-glass-sphere-txt">To 研发</span>
-                                    </span>
-                                    <span class="dev-glass-pop" id="devFeedLiveMetaTip" role="tooltip">展示内容含：正在直播、实时在线观看人数、兴趣标签</span>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="pi-actions">
-                            <button type="button" class="follow-btn follow-dynamic" data-following="false">+ 关注</button>
-                        </div>
-                    </div>
-                    <div class="post-text">🎻 雨夜小提琴现场，全程不带预告，欢迎来听</div>
-                    <div class="post-media" style="position: relative; cursor: pointer" onclick="location.href='live-detail.html'">
-                        <img src="https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=1200&q=80" style="height:300px; object-fit:cover">
-                        <div style="position:absolute; inset:0; background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.7))"></div>
-                        <div style="position:absolute; bottom:14px; left:14px; right:14px; display:flex; justify-content:space-between; align-items:flex-end">
-                            <div style="display:flex; gap:8px; align-items:center">
-                                <span class="tag tag-danger" style="font-size:11px; padding: 4px 9px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#fff;margin-right:4px;animation:pulse-live 1.2s ease-in-out infinite"></span>直播中</span>
-                                <span style="color:#fff; font-size:12px"><i class="fa-solid fa-eye"></i> 1,284</span>
-                            </div>
-                            <button class="btn btn-primary btn-sm"><i class="fa-solid fa-play"></i>进入直播间</button>
-                        </div>
-                    </div>
-                    <div class="post-actions">
-                        <span class="a-btn like-act" role="button"><i class="fa-regular fa-heart"></i><span class="lc">2,389</span></span>
-                        <span class="a-btn" onclick="FL_openDanmakuModal()"><i class="fa-regular fa-comment"></i>实时弹幕</span>
-                        <span class="a-btn tip-cta" onclick="FL_openInteractionModal('gift-modal.html')"><i class="fa-solid fa-gift"></i>送礼</span>
-                        <span class="a-btn" onclick="FL_openInteractionModal('share-modal.html')"><i class="fa-solid fa-arrow-up-right-from-square"></i>分享</span>
-                    </div>
-                </article>
+                                <div class="feed-panel-follow feed-panel" id="feedFollow">
+                <div class="feed-stack-viewport" id="feedFollowStackViewport">
+                <div class="feed-stack-track" id="feedFollowStackTrack" data-stack="follow" data-build="30"></div>
+                </div>
                 </div>
 
-                <div class="feed-panel-follow" id="feedFollow">
-                    <p class="feed-follow-empty" style="padding:32px 18px;text-align:center;font-size:13px;color:var(--t-tertiary);margin:0">关注创作者后，将在此展示其最新一条动态</p>
+                                <div class="feed-panel-live feed-panel" id="feedLive">
+                <div class="feed-stack-viewport" id="feedLiveStackViewport">
+                <div class="feed-stack-track" id="feedLiveStackTrack" data-stack="live" data-build="30"></div>
+                </div>
                 </div>
             </div>
 
-            <!-- 右侧 -->
-            <aside class="feed-aside">
-
+            <!-- [LEGACY] 右侧栏已迁移：热门话题保留搜索下拉；正在直播→Feed「直播」Tab；推荐关注→发现页；待审核与预约→创作内容页 -->
+            <!--aside class="feed-aside" hidden>
                 <div class="aside-card" id="asideReviewLiveCard">
                     <div class="ah">
                         <h4><i class="fa-solid fa-clock-rotate-left" style="color:#F59E0B"></i>待审核与预约</h4>
@@ -1325,10 +1081,21 @@
                     © FansLoop 2026 · v 2.0
                 </div>
             </aside>
+            -->
 
         </div>
     </main>
 
+</div>
+
+<!-- 悬浮创作入口 -->
+<div class="create-fab-wrap" id="createFabWrap">
+    <div class="create-fab-menu">
+        <button type="button" class="create-fab-item live" data-create-type="live"><i class="fa-solid fa-tower-broadcast"></i> 开直播</button>
+        <button type="button" class="create-fab-item video" data-create-type="video"><i class="fa-solid fa-video"></i> 视频</button>
+        <button type="button" class="create-fab-item image" data-create-type="image"><i class="fa-regular fa-image"></i> 图文</button>
+    </div>
+    <button type="button" class="create-fab-main" id="createFabMain" title="发布图文"><i class="fa-solid fa-plus"></i></button>
 </div>
 
 <div class="filter-drawer-mask" id="filterMask"></div>
@@ -1354,9 +1121,20 @@
     </div>
 </div>
 
-<div id="flStandaloneModalRoot" aria-hidden="true" style="display:none;position:fixed;inset:0;z-index:99999;align-items:center;justify-content:center;padding:clamp(12px,3vw,24px);background:rgba(0,0,0,0.58);backdrop-filter:blur(10px);">
-    <iframe title="FansLoop 弹窗" style="width:min(940px,calc(100vw - 32px));height:min(920px,calc(100vh - 32px));border:none;border-radius:var(--r-xl);background:transparent;box-shadow:0 28px 70px rgba(0,0,0,0.5);"></iframe>
+<div id="flStandaloneModalRoot" class="fl-modal--default" aria-hidden="true" style="display:none;position:fixed;inset:0;z-index:99999;align-items:center;justify-content:center;padding:clamp(12px,3vw,24px);background:rgba(0,0,0,0.58);backdrop-filter:blur(10px);">
+    <iframe title="FansLoop 弹窗" style="width:min(940px,calc(100vw - 32px));height:min(920px,calc(100vh - 32px));border:none;border-radius:var(--r-xl);background:transparent;box-shadow:0 28px 70px rgba(0,0,0,0.5);pointer-events:auto;"></iframe>
 </div>
+<style>
+#flStandaloneModalRoot.fl-modal--comment {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: none;
+    pointer-events: auto;
+}
+#flStandaloneModalRoot.fl-modal--comment iframe {
+    pointer-events: auto;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+}
+</style>
 <div class="inline-overlay" id="ovlSubscribe">
     <div class="iol-panel">
         <div class="iol-head">
@@ -1371,12 +1149,66 @@
                     <div style="font-size:11px;color:var(--t-tertiary)">订阅后可解锁专属内容与直播回放</div>
                 </div>
             </div>
+            <div class="sub-balance-bar" id="subBalanceBar">
+                <span><i class="fa-solid fa-wallet"></i> 钱包可用余额</span>
+                <b id="subBalanceVal">— USDT</b>
+            </div>
             <div class="sub-plan-list">
                 <button type="button" class="sub-plan active" data-price="16"><span><div class="p1">月度计划</div><div class="p2">可随时取消</div></span><span class="price">16 USDT</span></button>
                 <button type="button" class="sub-plan" data-price="42"><span><div class="p1">季度计划</div><div class="p2">节省 12%</div></span><span class="price">42 USDT</span></button>
                 <button type="button" class="sub-plan" data-price="150"><span><div class="p1">年度计划</div><div class="p2">含专属徽章</div></span><span class="price">150 USDT</span></button>
             </div>
+            <p style="font-size:11px;color:var(--t-tertiary);margin:0 0 12px;line-height:1.45">支付将从钱包 USDT 余额扣除；余额不足将引导充值。</p>
             <button type="button" class="btn btn-primary btn-block" id="btnConfirmSubscribe"><i class="fa-solid fa-bolt"></i> 确认订阅并支付</button>
+        </div>
+        <div class="sub-modal-step" id="subStepRecharge">
+            <div class="sub-recharge-hint" id="subRechargeHint">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>余额不足，需充值 <b id="subRechargeNeed">—</b> USDT 后再完成订阅。</span>
+            </div>
+            <div class="sub-pay-summary">
+                <div class="row"><span>当前余额</span><span class="v" id="subRechargeBalNow">—</span></div>
+                <div class="row"><span>订阅应付</span><span class="v" id="subRechargePayDue">—</span></div>
+            </div>
+            <div class="sub-recharge-amt-grid">
+                <button type="button" class="sub-recharge-amt" data-amt="50">50 USDT</button>
+                <button type="button" class="sub-recharge-amt active" data-amt="100">100 USDT</button>
+                <button type="button" class="sub-recharge-amt" data-amt="200">200 USDT</button>
+            </div>
+            <p style="font-size:11px;color:var(--t-tertiary);line-height:1.45;margin-bottom:12px"><i class="fa-solid fa-shield-halved"></i> 原型演示：确认充值即入账，无需真实链上支付。</p>
+            <div class="sub-step-actions">
+                <button type="button" class="btn btn-secondary" id="btnSubRechargeBack">返回</button>
+                <button type="button" class="btn btn-primary" id="btnSubRechargeConfirm"><i class="fa-solid fa-bolt"></i> 确认充值</button>
+            </div>
+            <button type="button" class="btn btn-secondary btn-block btn-sm" id="btnSubGoRecharge" style="margin-top:8px"><i class="fa-solid fa-arrow-up-right-from-square"></i> 前往充值页</button>
+        </div>
+        <div class="sub-modal-step" id="subStepPayPwd">
+            <div class="sub-pay-summary">
+                <div class="row"><span>订阅创作者</span><span class="v" id="subPayCreator">—</span></div>
+                <div class="row"><span>支付金额</span><span class="v" id="subPayAmount">— USDT</span></div>
+                <div class="row"><span>扣款后余额</span><span class="v" id="subPayAfterBal">— USDT</span></div>
+            </div>
+            <div class="sub-pwd-stage">
+                <div class="ic-wrap"><i class="fa-solid fa-lock"></i></div>
+                <h4 style="font-size:15px;font-weight:800;margin-bottom:4px">请输入支付密码</h4>
+                <p style="font-size:11px;color:var(--t-tertiary)">6 位资金密码 · 与登录密码不同</p>
+            </div>
+            <div class="sub-pwd-input" id="subPwdDots" aria-hidden="true">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            </div>
+            <div class="sub-pwd-pad" id="subPwdPad">
+                <button type="button" data-digit="1">1</button><button type="button" data-digit="2">2</button><button type="button" data-digit="3">3</button>
+                <button type="button" data-digit="4">4</button><button type="button" data-digit="5">5</button><button type="button" data-digit="6">6</button>
+                <button type="button" data-digit="7">7</button><button type="button" data-digit="8">8</button><button type="button" data-digit="9">9</button>
+                <button type="button" data-action="clear"><i class="fa-solid fa-delete-left"></i></button>
+                <button type="button" data-digit="0">0</button>
+                <button type="button" data-action="submit"><i class="fa-solid fa-check"></i></button>
+            </div>
+            <p class="sub-pwd-hint">原型演示密码：<b style="color:var(--brand-purple)">123456</b> · 连续输错 5 次将冻结 24 小时</p>
+            <div class="sub-step-actions">
+                <button type="button" class="btn btn-secondary" id="btnSubPwdBack">上一步</button>
+            </div>
         </div>
         <div class="sub-modal-step" id="subStep2">
             <div class="sub-result">
@@ -1389,6 +1221,8 @@
     </div>
 </div>
 <script src="../js-web/fl-interaction-modal.js"></script>
+<script src="../js-web/live-wallet-store.js"></script>
+<script src="../js-web/subscribe-modal.js"></script>
 <script src="../js-web/home-feed.js"></script>
 <script src="../js-web/fl-live-reservation.js"></script>
 
@@ -1415,9 +1249,13 @@ function escapeHtml(s) {
     return d.innerHTML;
 }
 
-const ASIDE_PENDING_REVIEW_COUNT = 2;
+window.ASIDE_PENDING_REVIEW_COUNT = 2;
+const ASIDE_PENDING_REVIEW_COUNT = window.ASIDE_PENDING_REVIEW_COUNT;
 
 function renderAsideLiveReservation() {
+    if (typeof window.renderCreatorPendingLiveCard === 'function') {
+        window.renderCreatorPendingLiveCard();
+    }
     const badge = document.getElementById('asidePendingBadge');
     const numEl = document.getElementById('asideMetricPending');
     const copyN = document.getElementById('asidePendingCopyN');
@@ -1499,25 +1337,31 @@ function renderLiveReservationStrip() {
         '</div>';
 }
 
-document.getElementById('asideLiveReservationMount').addEventListener('click', function (e) {
-    var btn = e.target.closest('.fl-aside-close-live-res');
-    if (!btn) return;
-    e.preventDefault();
-    if (!confirm('确定关闭本场预约直播？')) return;
-    if (typeof flLiveReservationClear === 'function') flLiveReservationClear();
-    toast('已关闭预约直播');
-    renderLiveReservationStrip();
-});
+var asideLiveReservationMount = document.getElementById('asideLiveReservationMount');
+if (asideLiveReservationMount) {
+    asideLiveReservationMount.addEventListener('click', function (e) {
+        var btn = e.target.closest('.fl-aside-close-live-res');
+        if (!btn) return;
+        e.preventDefault();
+        if (!confirm('确定关闭本场预约直播？')) return;
+        if (typeof flLiveReservationClear === 'function') flLiveReservationClear();
+        toast('已关闭预约直播');
+        renderLiveReservationStrip();
+    });
+}
 
-document.getElementById('liveReservationStrip').addEventListener('click', function (e) {
-    var btn = e.target.closest('.fl-close-live-res');
-    if (!btn) return;
-    e.preventDefault();
-    if (!confirm('确定关闭本场预约直播？')) return;
-    if (typeof flLiveReservationClear === 'function') flLiveReservationClear();
-    toast('已关闭预约直播');
-    renderLiveReservationStrip();
-});
+var liveReservationStripEl = document.getElementById('liveReservationStrip');
+if (liveReservationStripEl) {
+    liveReservationStripEl.addEventListener('click', function (e) {
+        var btn = e.target.closest('.fl-close-live-res');
+        if (!btn) return;
+        e.preventDefault();
+        if (!confirm('确定关闭本场预约直播？')) return;
+        if (typeof flLiveReservationClear === 'function') flLiveReservationClear();
+        toast('已关闭预约直播');
+        renderLiveReservationStrip();
+    });
+}
 
 window.addEventListener('message', function (e) {
     if (!e.data || typeof e.data !== 'object') return;
@@ -1533,37 +1377,30 @@ window.addEventListener('message', function (e) {
     }
 });
 
-document.getElementById('btnComposerPublish').addEventListener('click', function() {
-    toast('发布成功 · 内容已进入审核队列');
-});
-const composerInput = document.getElementById('composerInput');
-const btnComposerEmoji = document.getElementById('btnComposerEmoji');
-const composerEmojiPanel = document.getElementById('composerEmojiPanel');
-btnComposerEmoji.addEventListener('click', function(e) {
-    e.stopPropagation();
-    composerEmojiPanel.classList.toggle('show');
-});
-composerEmojiPanel.querySelectorAll('button').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-        composerInput.value += btn.textContent;
-        composerInput.focus();
+var btnComposerPublish = document.getElementById('btnComposerPublish');
+if (btnComposerPublish) {
+    btnComposerPublish.addEventListener('click', function() {
+        toast('发布成功 · 内容已进入审核队列');
     });
-});
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.emoji-wrap')) composerEmojiPanel.classList.remove('show');
-});
-
-const fd = document.getElementById('filterDrawer');
-const fm = document.getElementById('filterMask');
-function openFilter() { fd.classList.add('show'); fm.classList.add('show'); }
-function closeFilter() { fd.classList.remove('show'); fm.classList.remove('show'); }
-document.getElementById('btnFeedFilter').addEventListener('click', openFilter);
-document.getElementById('filterClose').addEventListener('click', closeFilter);
-fm.addEventListener('click', closeFilter);
-document.getElementById('filterApply').addEventListener('click', function() {
-    toast('筛选条件已应用');
-    closeFilter();
-});
+}
+var composerInput = document.getElementById('composerInput');
+var btnComposerEmoji = document.getElementById('btnComposerEmoji');
+var composerEmojiPanel = document.getElementById('composerEmojiPanel');
+if (btnComposerEmoji && composerEmojiPanel && composerInput) {
+    btnComposerEmoji.addEventListener('click', function(e) {
+        e.stopPropagation();
+        composerEmojiPanel.classList.toggle('show');
+    });
+    composerEmojiPanel.querySelectorAll('button').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            composerInput.value += btn.textContent;
+            composerInput.focus();
+        });
+    });
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.emoji-wrap')) composerEmojiPanel.classList.remove('show');
+    });
+}
 
 renderLiveReservationStrip();
 setInterval(renderLiveReservationStrip, 30000);
@@ -1580,66 +1417,9 @@ try {
     }
 } catch (e) {}
 
-document.querySelectorAll('.like-act').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        const liked = this.classList.toggle('liked');
-        const ic = this.querySelector('i');
-        ic.className = liked ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
-        toast(liked ? '点赞成功' : '已取消点赞');
-    });
-});
+/* 点赞 / 收藏 / 图文放大 · 由 home-feed-v2.js 事件委托处理 */
 
-document.querySelectorAll('.bookmark-act').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        const saved = this.classList.toggle('saved');
-        const ic = this.querySelector('i');
-        ic.className = saved ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark';
-        toast(saved ? '收藏成功' : '已取消收藏');
-    });
-});
-
-const ovlSubscribe = document.getElementById('ovlSubscribe');
-const subStep1 = document.getElementById('subStep1');
-const subStep2 = document.getElementById('subStep2');
-const subCreatorName = document.getElementById('subCreatorName');
-const subResultText = document.getElementById('subResultText');
-let selectedSubPrice = '16';
-document.querySelectorAll('.btn-open-subscribe').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        subCreatorName.textContent = this.dataset.creator || '创作者';
-        selectedSubPrice = this.dataset.plan || '16';
-        document.querySelectorAll('.sub-plan').forEach(p => p.classList.remove('active'));
-        const match = document.querySelector('.sub-plan[data-price="' + selectedSubPrice + '"]');
-        if (match) match.classList.add('active');
-        subStep1.classList.add('active');
-        subStep2.classList.remove('active');
-        ovlSubscribe.classList.add('show');
-    });
-});
-document.querySelectorAll('.sub-plan').forEach(plan => {
-    plan.addEventListener('click', function() {
-        document.querySelectorAll('.sub-plan').forEach(p => p.classList.remove('active'));
-        this.classList.add('active');
-        selectedSubPrice = this.dataset.price;
-    });
-});
-document.getElementById('btnConfirmSubscribe').addEventListener('click', function() {
-    subResultText.textContent = '你已成功订阅「' + subCreatorName.textContent + '」，扣款 ' + selectedSubPrice + ' USDT。';
-    subStep1.classList.remove('active');
-    subStep2.classList.add('active');
-});
-function closeSubscribeModal() { ovlSubscribe.classList.remove('show'); }
-document.getElementById('closeSubscribe').addEventListener('click', closeSubscribeModal);
-document.getElementById('btnDoneSubscribe').addEventListener('click', function() {
-    closeSubscribeModal();
-    toast('订阅已生效');
-});
-ovlSubscribe.addEventListener('click', function(e) {
-    if (e.target === ovlSubscribe) closeSubscribeModal();
-});
+/* 订阅支付流程 · subscribe-modal.js */
 
 document.querySelectorAll('.follow-sidebar').forEach(btn => {
     btn.addEventListener('click', function(e) {
@@ -1654,59 +1434,62 @@ document.querySelectorAll('.follow-sidebar').forEach(btn => {
     });
 });
 
-document.querySelectorAll('#feedTabs .tab[data-feed]').forEach(tab => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('#feedTabs .tab[data-feed]').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        const mode = tab.dataset.feed;
-        document.getElementById('feedRec').classList.toggle('active', mode === 'rec');
-        document.getElementById('feedFollow').classList.toggle('active', mode === 'follow');
-    });
-});
-document.querySelectorAll('.post-text .hashtag').forEach(tag => {
-    tag.addEventListener('click', function() {
-        const topic = (this.textContent || '').replace('#', '').trim();
-        window.location.href = 'topic-detail.html?tag=' + encodeURIComponent(topic);
-    });
-});
+/* Feed Tab / 话题标签 / 订阅按钮 · 由 home-feed-v2.js 事件委托处理 */
 
-const GS_ITEMS = [
-    { t: '创作者 Luna', sub: '@luna · 认证创作者', href: 'profile.html' },
-    { t: '# 富士山日出', sub: '话题 · 2.1k 帖子', href: 'topic-detail.html' },
-    { t: '京都樱花摄影教程', sub: '内容 · Lens 旅记', href: 'discover.html' },
-    { t: 'Web3 创作者经济', sub: '话题', href: 'topics.html' }
-];
-const gInp = document.getElementById('globalSearchInp');
-const gDrop = document.getElementById('globalSearchDrop');
-function renderGs() {
-    const q = (gInp.value || '').trim().toLowerCase();
-    const list = !q ? GS_ITEMS : GS_ITEMS.filter(x => x.t.toLowerCase().includes(q) || x.sub.toLowerCase().includes(q));
-    gDrop.innerHTML = '';
-    list.forEach(x => {
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.innerHTML = '<span>' + x.t + '</span><span style="display:block;font-size:11px;color:var(--t-tertiary)">' + x.sub + '</span>';
-        b.onclick = () => { window.location.href = x.href; };
-        gDrop.appendChild(b);
-    });
-    gDrop.classList.add('show');
-}
-gInp.addEventListener('focus', renderGs);
-gInp.addEventListener('input', renderGs);
-document.getElementById('btnGlobalSearch').addEventListener('click', () => {
-    toast('已搜索：' + (gInp.value || '热门推荐'));
-    gDrop.classList.remove('show');
-});
-document.addEventListener('click', e => {
-    if (!e.target.closest('.h-search-live')) gDrop.classList.remove('show');
-});
+window.toast = toast;
 
-document.getElementById('btnTroubleFoot').addEventListener('click', () => document.getElementById('ovlTroubleHome').classList.add('show'));
-document.getElementById('closeTroubleHome').addEventListener('click', () => document.getElementById('ovlTroubleHome').classList.remove('show'));
-document.getElementById('ovlTroubleHome').addEventListener('click', e => { if (e.target.id === 'ovlTroubleHome') document.getElementById('ovlTroubleHome').classList.remove('show'); });
+(function initLivePreviewRemind() {
+    var LS_KEY = 'fl_live_preview_reminds';
+    function loadReminds() {
+        try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch (e) { return []; }
+    }
+    function saveReminds(list) {
+        try { localStorage.setItem(LS_KEY, JSON.stringify(list)); } catch (e) {}
+    }
+    function markSubscribed(btn) {
+        btn.classList.add('is-subscribed');
+        btn.innerHTML = '<i class="fa-solid fa-bell"></i> 已预约';
+    }
+    function applySavedReminds() {
+        loadReminds().forEach(function (id) {
+            document.querySelectorAll('.lp-remind[data-preview-id="' + id + '"]').forEach(markSubscribed);
+        });
+    }
+    applySavedReminds();
+    window.FL_applyLivePreviewReminds = applySavedReminds;
+    if (!document.body.getAttribute('data-lp-remind-delegate')) {
+        document.body.setAttribute('data-lp-remind-delegate', '1');
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest('.lp-remind[data-preview-id]');
+            if (!btn || btn.getAttribute('onclick')) return;
+            e.stopPropagation();
+            var id = btn.getAttribute('data-preview-id');
+            var creator = btn.getAttribute('data-preview-creator') || '创作者';
+            var title = btn.getAttribute('data-preview-title') || '直播预告';
+            var time = btn.getAttribute('data-preview-time') || '';
+            if (btn.classList.contains('is-subscribed')) {
+                toast('已预约 · 开播前将通过系统消息提醒您');
+                return;
+            }
+            var list = loadReminds();
+            if (id && list.indexOf(id) === -1) list.push(id);
+            saveReminds(list);
+            markSubscribed(btn);
+            toast('已加入系统消息 · ' + creator + '「' + title + '」' + (time ? ' · ' + time : '') + ' 开播前提醒您');
+        });
+    }
+})();
+
+document.getElementById('btnTroubleFoot')?.addEventListener('click', () => document.getElementById('ovlTroubleHome')?.classList.add('show'));
+document.getElementById('closeTroubleHome')?.addEventListener('click', () => document.getElementById('ovlTroubleHome')?.classList.remove('show'));
+document.getElementById('ovlTroubleHome')?.addEventListener('click', e => { if (e.target.id === 'ovlTroubleHome') document.getElementById('ovlTroubleHome').classList.remove('show'); });
 })();
 </script>
 <link rel="stylesheet" href="../css-web/host-live-pip-global.css">
+<script src="../js-web/global-search.js"></script>
+<script src="../js-web/feed-filter.js"></script>
+<script src="../js-web/feed-stack-builder.js"></script>
+<script src="../js-web/home-feed-v2.js"></script>
 <script src="../js-web/host-live-pip-global.js"></script>
 </body>
 </html>

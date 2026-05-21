@@ -1037,7 +1037,13 @@
     </aside>
 
     <header class="app-header">
-        <div class="h-search"><i class="fa-solid fa-magnifying-glass"></i><span>搜索创作者、内容或话题…</span><span class="kbd">⌘ K</span></div>
+        <div class="h-search h-search-live h-search-unified">
+            <div class="hs-inner">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" placeholder="搜索创作者、内容或话题…" autocomplete="off" />
+            </div>
+            <div class="gs-drop"></div>
+        </div>
         <div class="h-actions">
             <button class="h-icon"><i class="fa-solid fa-pen-to-square"></i></button>
             <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
@@ -1325,6 +1331,36 @@
 
             <!-- 右侧 -->
             <aside class="cr-aside">
+                <div class="aside-card" id="createAsideReviewLiveCard" style="margin-bottom:14px">
+                    <div class="ah" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)">
+                        <h4 style="margin:0;font-size:13px;font-weight:800"><i class="fa-solid fa-clock-rotate-left" style="color:#F59E0B"></i> 待审核与预约</h4>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span class="tag tag-warning" id="createAsidePendingBadge" style="font-size:10px">审核 2</span>
+                            <a href="#pending" style="font-size:11px;color:var(--brand-purple)">全部</a>
+                        </div>
+                    </div>
+                    <div class="ab" style="padding:12px 16px 16px">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+                            <div style="padding:10px;border-radius:10px;background:var(--bg-input);border:1px solid var(--border);text-align:center">
+                                <div style="font-size:20px;font-weight:800" id="createAsideMetricPending">2</div>
+                                <div style="font-size:10px;color:var(--t-tertiary);margin-top:4px">待审核投稿</div>
+                            </div>
+                            <div style="padding:10px;border-radius:10px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);text-align:center">
+                                <div style="font-size:20px;font-weight:800;color:#FCA5A5" id="createAsideMetricLive">0</div>
+                                <div style="font-size:10px;color:var(--t-tertiary);margin-top:4px">预约直播</div>
+                            </div>
+                        </div>
+                        <p style="font-size:12px;color:var(--t-secondary);line-height:1.5;margin:0 0 12px">
+                            当前有 <b style="color:#fff" id="createAsidePendingCopyN">2</b> 条投稿正在审核，通过后将对粉丝可见。每位创作者最多保留 <b style="color:#FDE68A">1</b> 场预约直播。
+                        </p>
+                        <button type="button" class="btn btn-secondary btn-block btn-sm" onclick="location.hash='pending'" style="margin-bottom:6px"><i class="fa-solid fa-pen-to-square"></i> 待审核列表</button>
+                        <button type="button" class="btn btn-secondary btn-block btn-sm" onclick="FL_openInteractionModal('create-publish-live.html')"><i class="fa-solid fa-tower-broadcast"></i> 新建直播 / 预约</button>
+                        <div style="height:1px;background:var(--border);margin:14px 0"></div>
+                        <div style="font-size:11px;font-weight:700;color:var(--t-secondary);margin-bottom:8px"><i class="fa-regular fa-calendar-days" style="color:#F87171"></i> 预约直播详情</div>
+                        <div id="createAsideLiveReservationMount"></div>
+                    </div>
+                </div>
+
                 <div class="tip-card">
                     <i class="fa-solid fa-lightbulb"></i>
                     <div class="txt">
@@ -1440,6 +1476,7 @@
 <script src="../js-web/live-meta-store.js"></script>
 <script src="../js-web/create-studio.js"></script>
 <script src="../js-web/create-studio-live.js"></script>
+<script src="../js-web/home-feed-v2.js"></script>
 <script>
 if (window.location.hash === '#pending') {
   const el = document.getElementById('pending');
@@ -1450,6 +1487,7 @@ if (window.location.hash === '#live-res') {
 }
 </script>
 <link rel="stylesheet" href="../css-web/host-live-pip-global.css">
+<script src="../js-web/global-search.js"></script>
 <script src="../js-web/host-live-pip-global.js"></script>
 </body>
 </html>
