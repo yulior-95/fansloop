@@ -856,13 +856,6 @@
         });
         if (window.crToggleLiveOnlyUI) window.crToggleLiveOnlyUI(type === 'live');
 
-        var tipSub = document.getElementById('rowAllowTipSub');
-        if (tipSub) {
-            if (type === 'live') tipSub.textContent = '直播中观众可发送 USDT 打赏与礼物';
-            else if (type === 'video') tipSub.textContent = '视频动态下观众可打赏与送礼';
-            else tipSub.textContent = '图文动态下观众可打赏与送礼';
-        }
-
         syncActionBarButtons();
 
     }
@@ -967,7 +960,7 @@
             if (window.crIsLivePreview && window.crIsLivePreview()) {
                 var pt = document.getElementById('livePreviewTime')?.value || '';
                 var label = pt ? pt.replace('T', ' ') : '待定';
-                openSuccess('直播预告已作为图文动态发布到 Feed，计划开播时间 ' + label + '（展示用，不会自动开播）。');
+                openSuccess('直播预告已作为图文动态发布到 Feed，计划开播时间 ' + label + '，请注意开播时间。');
                 showToast('直播预告已发布（图文）');
             } else {
                 if (window.LiveMetaStore && window.LiveMetaStore.saveFromCreateForm) {
