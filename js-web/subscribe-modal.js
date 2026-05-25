@@ -5,17 +5,17 @@
     var PAY_PWD_DEMO = '123456';
     var pwdBuffer = '';
     var pendingRechargeAmt = 100;
-    var state = { creator: '创作者', price: 16 };
+    var state = { creator: '创作者', price: 16, mode: 'subscribe' };
 
     function toast(msg) {
         if (typeof window.toast === 'function') {
             window.toast(msg);
             return;
         }
-        var host = document.getElementById('toastHostF');
+        var host = document.getElementById('toastHostF') || document.getElementById('subToastHost');
         if (!host) return;
         var t = document.createElement('div');
-        t.className = 'toast-f';
+        t.className = host.id === 'subToastHost' ? 'sub-toast' : 'toast-f';
         t.textContent = msg;
         host.appendChild(t);
         setTimeout(function () { t.remove(); }, 2600);
@@ -69,14 +69,40 @@
         var subCreatorName = document.getElementById('subCreatorName');
         if (!ovl || !subCreatorName) return;
 
+        var isRenew = btn && btn.getAttribute('data-sub-mode') === 'renew';
+        state.mode = isRenew ? 'renew' : 'subscribe';
         state.creator = (btn && btn.getAttribute('data-creator')) || '创作者';
         state.price = parseFloat((btn && btn.getAttribute('data-plan')) || '16');
         subCreatorName.textContent = state.creator;
+        var titleEl = document.getElementById('subModalTitle');
+        var hintEl = document.getElementById('subCreatorHint');
+        var confirmBtn = document.getElementById('btnConfirmSubscribe');
+        if (titleEl) titleEl.textContent = isRenew ? '续费订阅' : '订阅创作者';
+        if (hintEl) {
+            hintEl.textContent = isRenew
+                ? '选择月 / 季 / 年计划完成续费'
+                : '订阅后可解锁专属内容与直播回放';
+        }
+        if (confirmBtn) {
+            confirmBtn.innerHTML = isRenew
+                ? '<i class="fa-solid fa-bolt"></i> 确认支付并续费'
+                : '<i class="fa-solid fa-bolt"></i> 确认订阅并支付';
+        }
+        var avEl = document.getElementById('subCreatorAv');
+        var avUrl = btn && btn.getAttribute('data-av');
+        if (avEl && avUrl) avEl.style.backgroundImage = "url('" + avUrl + "')";
         document.querySelectorAll('.sub-plan').forEach(function (p) {
             p.classList.remove('active');
         });
         var match = document.querySelector('.sub-plan[data-price="' + state.price + '"]');
         if (match) match.classList.add('active');
+        else {
+            var first = document.querySelector('.sub-plan');
+            if (first) {
+                first.classList.add('active');
+                state.price = parseFloat(first.getAttribute('data-price') || '16');
+            }
+        }
         resetPwdInput();
         refreshBalanceBar();
         showSubStep('subStep1');
@@ -163,10 +189,12 @@
         refreshBalanceBar();
         var subResultText = document.getElementById('subResultText');
         if (subResultText) {
-            subResultText.textContent = '你已成功订阅「' + state.creator + '」，扣款 ' + price + ' USDT。';
+            subResultText.textContent = state.mode === 'renew'
+                ? '你已成功为「' + state.creator + '」续费，扣款 ' + price + ' USDT，订阅已延长。'
+                : '你已成功订阅「' + state.creator + '」，扣款 ' + price + ' USDT。';
         }
         showSubStep('subStep2');
-        toast('支付成功，订阅已生效');
+        toast(state.mode === 'renew' ? '支付成功，续费已生效' : '支付成功，订阅已生效');
     }
 
     function onRechargeConfirm() {
@@ -255,9 +283,9 @@
         if (btnGoRecharge) {
             btnGoRecharge.addEventListener('click', function () {
                 try {
-                    localStorage.setItem('fl_home_toast', '充值完成后请返回首页继续订阅');
+                    localStorage.setItem('fl_home_toast', '充值完成后请返回继续续费/订阅');
                 } catch (e) {}
-                window.location.href = 'recharge.html';
+                window.location.href = 'recharge.html?return=' + encodeURIComponent('subscriptions.html');
             });
         }
 

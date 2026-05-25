@@ -8,6 +8,7 @@
 <script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
 <link rel="stylesheet" href="../css-web/dev-glass-note.css">
 <link rel="stylesheet" href="../css-web/subscriptions-page.css">
+<link rel="stylesheet" href="../css-web/subscribe-modal.css">
 
 
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
@@ -191,18 +192,12 @@
                     <div class="expire-mini">
                         <div class="av av-sm" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
                         <div class="info"><div class="n">夜雨听弦</div><div class="h warn">3 天后到期</div></div>
-                        <button type="button">续费</button>
+                        <button type="button" class="btn-sub-renew" data-creator="夜雨听弦" data-plan="28" data-av="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100">续费</button>
                     </div>
                     <div class="expire-mini">
                         <div class="av av-sm" style="background-image:url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=80')"></div>
                         <div class="info"><div class="n">山野食光</div><div class="h">12 天后到期</div></div>
-                        <button type="button">续费</button>
-                    </div>
-                    <h5 style="margin-top:10px"><i class="fa-solid fa-sparkles" style="color:#C084FC"></i> 你可能喜欢 <a href="discover.html">发现</a></h5>
-                    <div class="suggest-mini">
-                        <div class="av av-sm" style="background-image:url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80')"></div>
-                        <div class="info"><div class="n">银盐时代</div><div class="h">摄影 · 64k 粉丝</div></div>
-                        <button type="button" onclick="location.href='creator-profile.html'">查看</button>
+                        <button type="button" class="btn-sub-renew" data-creator="山野食光" data-plan="18" data-av="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100">续费</button>
                     </div>
                     <h5 style="margin-top:10px"><i class="fa-solid fa-coins" style="color:#FBBF24"></i> 订阅支出</h5>
                     <div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0"><span style="color:var(--t-tertiary)">本月</span><strong>68 USDT</strong></div>
@@ -433,35 +428,46 @@
             <button type="button" class="btn btn-secondary btn-sm" id="btnCloseManage"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="sub-manage-bd" id="subManageList">
-            <p style="font-size:12px;color:var(--t-tertiary);margin:0 4px 12px;line-height:1.55">管理月费、自动续费与开播提醒。点击行查看详情，可续费或取消订阅。</p>
+            <div class="sub-manage-intro">
+                <p>本页仅用于<strong>开启 / 关闭</strong>各创作者的<strong>自动续订</strong>。点击行可查看订阅详情、续费或取消订阅。</p>
+                <span class="dev-glass-wrap dev-glass-wrap--inline dev-glass-wrap--pop-left">
+                    <span class="dev-glass-sphere" tabindex="0" aria-describedby="subAutoRenewGlassTip">
+                        <span class="dev-glass-sphere-shine"></span>
+                        <span class="dev-glass-sphere-txt">To 研发</span>
+                    </span>
+                    <span class="dev-glass-pop" id="subAutoRenewGlassTip" role="tooltip">
+                        列表右侧开关 = <strong>该创作者订阅的自动续订</strong>（非开播提醒）。<strong>默认全部为开启</strong>（新订阅成功即写入自动续订 ON）；关闭后到期不扣款，需用户手动续费。Toast 文案：已开启/已关闭用户的自动续订功能。
+                    </span>
+                </span>
+            </div>
             <div class="sub-manage-row" data-name="夜雨听弦" data-plan="月度订阅" data-price="28" data-expire="2026-06-18 到期" data-av="url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')">
                 <div class="av av-sm" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
                 <div class="info"><div class="n">夜雨听弦</div><div class="h warn"><i class="fa-solid fa-triangle-exclamation"></i> 3 天后到期</div></div>
-                <div class="switch on" title="开播提醒"></div>
+                <div class="switch on" title="自动续订" data-auto-renew="1"></div>
                 <span class="price">28/月</span>
             </div>
             <div class="sub-manage-row" data-name="Lens 旅记" data-plan="月度订阅" data-price="28" data-expire="2026-07-02 到期" data-av="url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')">
                 <div class="av av-sm" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></div>
                 <div class="info"><div class="n">Lens 旅记</div><div class="h">自动续费已开启</div></div>
-                <div class="switch on"></div>
+                <div class="switch on" title="自动续订" data-auto-renew="1" aria-label="自动续订"></div>
                 <span class="price">28/月</span>
             </div>
             <div class="sub-manage-row" data-name="山野食光" data-plan="月度订阅" data-price="18" data-expire="2026-06-27 到期" data-av="url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=80')">
                 <div class="av av-sm" style="background-image:url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=80')"></div>
-                <div class="info"><div class="n">山野食光</div><div class="h">12 天后到期</div></div>
-                <div class="switch on"></div>
+                <div class="info"><div class="n">山野食光</div><div class="h">自动续费已开启</div></div>
+                <div class="switch on" title="自动续订" data-auto-renew="1"></div>
                 <span class="price">18/月</span>
             </div>
             <div class="sub-manage-row" data-name="代码诗人" data-plan="月度订阅" data-price="38" data-expire="2026-07-10 到期" data-av="url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80')">
                 <div class="av av-sm" style="background-image:url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80')"></div>
-                <div class="info"><div class="n">代码诗人</div><div class="h">自动续费已开启</div></div>
-                <div class="switch"></div>
+                <div class="info"><div class="n">代码诗人</div><div class="h">自动续费已关闭</div></div>
+                <div class="switch" title="自动续订" data-auto-renew="0"></div>
                 <span class="price">38/月</span>
             </div>
             <div class="sub-manage-row" data-name="夜间速写" data-plan="月度订阅" data-price="22" data-expire="2026-08-01 到期" data-av="url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')">
                 <div class="av av-sm" style="background-image:url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></div>
-                <div class="info"><div class="n">夜间速写</div><div class="h">直播中</div></div>
-                <div class="switch on"></div>
+                <div class="info"><div class="n">夜间速写</div><div class="h">自动续费已开启</div></div>
+                <div class="switch on" title="自动续订" data-auto-renew="1"></div>
                 <span class="price">22/月</span>
             </div>
             <p style="text-align:center;font-size:11px;color:var(--t-quaternary);margin-top:8px">另有 7 位创作者 · 原型仅展示部分</p>
@@ -476,14 +482,13 @@
                 <div style="display:flex;justify-content:space-between"><span>自动续费</span><strong style="color:#86efac">已开启</strong></div>
             </div>
             <div style="display:flex;flex-direction:column;gap:8px">
-                <button type="button" class="btn btn-primary" id="btnDetailRenew"><i class="fa-solid fa-rotate"></i> 立即续费</button>
+                <button type="button" class="btn btn-primary btn-sub-renew" id="btnDetailRenew" data-creator="" data-plan="28"><i class="fa-solid fa-rotate"></i> 立即续费</button>
                 <button type="button" class="btn btn-secondary" id="btnDetailProfile"><i class="fa-regular fa-user"></i> 查看主页</button>
                 <button type="button" class="btn btn-secondary" data-sub-cancel="" id="btnDetailCancel" style="color:#fca5a5;border-color:rgba(239,68,68,0.35)"><i class="fa-solid fa-ban"></i> 取消订阅</button>
             </div>
         </div>
-        <div class="sub-manage-ft">
-            <button type="button" class="btn btn-secondary" style="flex:1" id="btnCloseManageFt">关闭</button>
-            <button type="button" class="btn btn-primary" style="flex:1" id="btnBatchRenew"><i class="fa-solid fa-crown"></i> 批量续费即将到期</button>
+        <div class="sub-manage-ft sub-manage-ft--single">
+            <button type="button" class="btn btn-secondary btn-block" id="btnCloseManageFt">关闭</button>
         </div>
         <div class="sub-cancel-overlay" id="subCancelOverlay">
             <div class="sub-cancel-card">
@@ -500,7 +505,95 @@
 
 <div class="sub-toast-host" id="subToastHost"></div>
 
+<!-- 续费 / 订阅 · 与首页共用流程（月/季/年 + 余额不足充值） -->
+<div class="inline-overlay" id="ovlSubscribe">
+    <div class="iol-panel">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-crown" style="color:var(--brand-purple)"></i> <span id="subModalTitle">续费订阅</span></h3>
+            <button type="button" class="iol-close" id="closeSubscribe"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="sub-modal-step active" id="subStep1">
+            <div class="sub-creator">
+                <div class="av av-sm" id="subCreatorAv" style="background-image:url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100')"></div>
+                <div>
+                    <div style="font-size:13px;font-weight:700" id="subCreatorName">创作者</div>
+                    <div style="font-size:11px;color:var(--t-tertiary)" id="subCreatorHint">选择月 / 季 / 年计划完成续费</div>
+                </div>
+            </div>
+            <div class="sub-balance-bar" id="subBalanceBar">
+                <span><i class="fa-solid fa-wallet"></i> 钱包可用余额</span>
+                <b id="subBalanceVal">— USDT</b>
+            </div>
+            <div class="sub-plan-list">
+                <button type="button" class="sub-plan active" data-price="16"><span><div class="p1">月度计划</div><div class="p2">可随时取消自动续订</div></span><span class="price">16 USDT</span></button>
+                <button type="button" class="sub-plan" data-price="42"><span><div class="p1">季度计划</div><div class="p2">节省约 12%</div></span><span class="price">42 USDT</span></button>
+                <button type="button" class="sub-plan" data-price="150"><span><div class="p1">年度计划</div><div class="p2">含专属徽章</div></span><span class="price">150 USDT</span></button>
+            </div>
+            <p style="font-size:11px;color:var(--t-tertiary);margin:0 0 12px;line-height:1.45">支付从钱包 USDT 扣除；余额不足将引导充值（原型可页内快捷充值或跳转充值页）。</p>
+            <button type="button" class="btn btn-primary btn-block" id="btnConfirmSubscribe"><i class="fa-solid fa-bolt"></i> 确认支付并续费</button>
+        </div>
+        <div class="sub-modal-step" id="subStepRecharge">
+            <div class="sub-recharge-hint" id="subRechargeHint">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>余额不足，需充值 <b id="subRechargeNeed">—</b> USDT 后再完成续费。</span>
+            </div>
+            <div class="sub-pay-summary">
+                <div class="row"><span>当前余额</span><span class="v" id="subRechargeBalNow">—</span></div>
+                <div class="row"><span>应付金额</span><span class="v" id="subRechargePayDue">—</span></div>
+            </div>
+            <div class="sub-recharge-amt-grid">
+                <button type="button" class="sub-recharge-amt" data-amt="50">50 USDT</button>
+                <button type="button" class="sub-recharge-amt active" data-amt="100">100 USDT</button>
+                <button type="button" class="sub-recharge-amt" data-amt="200">200 USDT</button>
+            </div>
+            <p style="font-size:11px;color:var(--t-tertiary);line-height:1.45;margin-bottom:12px"><i class="fa-solid fa-shield-halved"></i> 原型：确认充值即入账；亦可前往充值页。</p>
+            <div class="sub-step-actions">
+                <button type="button" class="btn btn-secondary" id="btnSubRechargeBack">返回</button>
+                <button type="button" class="btn btn-primary" id="btnSubRechargeConfirm"><i class="fa-solid fa-bolt"></i> 确认充值</button>
+            </div>
+            <button type="button" class="btn btn-secondary btn-block btn-sm" id="btnSubGoRecharge" style="margin-top:8px"><i class="fa-solid fa-arrow-up-right-from-square"></i> 前往充值页</button>
+        </div>
+        <div class="sub-modal-step" id="subStepPayPwd">
+            <div class="sub-pay-summary">
+                <div class="row"><span>续费创作者</span><span class="v" id="subPayCreator">—</span></div>
+                <div class="row"><span>支付金额</span><span class="v" id="subPayAmount">— USDT</span></div>
+                <div class="row"><span>扣款后余额</span><span class="v" id="subPayAfterBal">— USDT</span></div>
+            </div>
+            <div class="sub-pwd-stage">
+                <div class="ic-wrap"><i class="fa-solid fa-lock"></i></div>
+                <h4 style="font-size:15px;font-weight:800;margin-bottom:4px">请输入支付密码</h4>
+                <p style="font-size:11px;color:var(--t-tertiary)">6 位资金密码 · 原型演示 123456</p>
+            </div>
+            <div class="sub-pwd-input" id="subPwdDots" aria-hidden="true">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            </div>
+            <div class="sub-pwd-pad" id="subPwdPad">
+                <button type="button" data-digit="1">1</button><button type="button" data-digit="2">2</button><button type="button" data-digit="3">3</button>
+                <button type="button" data-digit="4">4</button><button type="button" data-digit="5">5</button><button type="button" data-digit="6">6</button>
+                <button type="button" data-digit="7">7</button><button type="button" data-digit="8">8</button><button type="button" data-digit="9">9</button>
+                <button type="button" data-action="clear"><i class="fa-solid fa-delete-left"></i></button>
+                <button type="button" data-digit="0">0</button>
+                <button type="button" data-action="submit"><i class="fa-solid fa-check"></i></button>
+            </div>
+            <div class="sub-step-actions">
+                <button type="button" class="btn btn-secondary" id="btnSubPwdBack">上一步</button>
+            </div>
+        </div>
+        <div class="sub-modal-step" id="subStep2">
+            <div class="sub-result">
+                <i class="fa-solid fa-circle-check"></i>
+                <h4>续费成功</h4>
+                <p id="subResultText">订阅已延长，专属内容继续可用。</p>
+            </div>
+            <button type="button" class="btn btn-primary btn-block mt-16" id="btnDoneSubscribe">完成</button>
+        </div>
+    </div>
+</div>
+
 <link rel="stylesheet" href="../css-web/host-live-pip-global.css">
+<script src="../js-web/live-wallet-store.js"></script>
+<script src="../js-web/subscribe-modal.js"></script>
 <script src="../js-web/subscriptions-page.js"></script>
 <script src="../js-web/host-live-pip-global.js"></script>
 <script>

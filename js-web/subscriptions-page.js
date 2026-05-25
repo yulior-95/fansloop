@@ -123,8 +123,25 @@
             document.getElementById('subDetailPrice').textContent = price + ' USDT / 月';
             document.getElementById('subDetailExpire').textContent = expire;
             document.getElementById('subDetailAv').style.backgroundImage = row.getAttribute('data-av') || '';
+            var renewBtn = document.getElementById('btnDetailRenew');
+            if (renewBtn) {
+                renewBtn.setAttribute('data-creator', name || '');
+                renewBtn.setAttribute('data-plan', price || '28');
+                var avRaw = row.getAttribute('data-av') || '';
+                var avUrl = avRaw.replace(/^url\(['"]?|['"]?\)$/g, '');
+                if (avUrl) renewBtn.setAttribute('data-av', avUrl);
+            }
             manageList?.classList.add('hide');
             manageDetail?.classList.add('show');
+        });
+    });
+
+    document.getElementById('btnDetailRenew')?.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openRenewModal({
+            creator: this.getAttribute('data-creator') || document.getElementById('subDetailName')?.textContent,
+            price: this.getAttribute('data-plan') || '28',
+            av: this.getAttribute('data-av') || ''
         });
     });
 
@@ -133,10 +150,21 @@
         manageList?.classList.remove('hide');
     });
 
-    document.getElementById('btnDetailRenew')?.addEventListener('click', function () {
-        toast('续费成功 · 订阅已延长 30 天（原型）');
-        closeManage();
-    });
+    function openRenewModal(opts) {
+        var creator = opts.creator || '创作者';
+        var price = opts.price || '28';
+        var av = opts.av || '';
+        var btn = document.createElement('button');
+        btn.setAttribute('data-creator', creator);
+        btn.setAttribute('data-plan', String(price));
+        if (av) btn.setAttribute('data-av', av);
+        btn.setAttribute('data-sub-mode', 'renew');
+        if (window.FL_openSubscribeModal) {
+            window.FL_openSubscribeModal(btn);
+        } else {
+            toast('续费弹窗未加载（原型）');
+        }
+    }
 
     document.getElementById('btnDetailProfile')?.addEventListener('click', function () {
         location.href = 'creator-profile.html';
@@ -160,27 +188,31 @@
         closeManage();
     });
 
-    document.getElementById('btnBatchRenew')?.addEventListener('click', function () {
-        toast('已为 3 位即将到期创作者完成续费（原型）');
-        closeManage();
-    });
-
     document.querySelectorAll('.sub-manage-row .switch').forEach(function (sw) {
         sw.addEventListener('click', function (e) {
             e.stopPropagation();
             sw.classList.toggle('on');
+            var on = sw.classList.contains('on');
+            sw.setAttribute('data-auto-renew', on ? '1' : '0');
             var row = sw.closest('.sub-manage-row');
-            toast((sw.classList.contains('on') ? '已开启' : '已关闭') + ' · ' + (row?.getAttribute('data-name') || '') + ' 开播提醒');
+            var hint = row?.querySelector('.info .h');
+            if (hint && !hint.classList.contains('warn')) {
+                hint.textContent = on ? '自动续费已开启' : '自动续费已关闭';
+            }
+            toast(on ? '已开启用户的自动续订功能' : '已关闭用户的自动续订功能');
         });
     });
 
-    document.querySelectorAll('.expire-row button, .expire-mini button').forEach(function (btn) {
-        if (btn.textContent.trim() === '续费') {
-            btn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                openManage();
+    document.querySelectorAll('.btn-sub-renew').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+            openRenewModal({
+                creator: btn.getAttribute('data-creator'),
+                price: btn.getAttribute('data-plan'),
+                av: btn.getAttribute('data-av')
             });
-        }
+        });
     });
 
     var SESSION_PREVIEW_KEY = 'sub_page_preview_booked';
@@ -226,4 +258,9 @@
     });
 
     applyTab('feed');
+
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('manage') === 'open') {
+        setTimeout(openManage, 320);
+    }
 })();
