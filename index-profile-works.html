@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FansLoop · 个人主页作品管理原型（iframe 平铺）</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css-web/common-web.css">
+<style>
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg-canvas); color: #fff; min-height: 100vh; }
+
+.site-header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(11,11,20,0.94);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 14px;
+}
+.site-header .brand { display: flex; align-items: center; gap: 12px; }
+.site-header .logo {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: #fff;
+}
+.site-header h1 { font-size: 18px; font-weight: 800; margin: 0; }
+.site-header p { font-size: 12px; color: var(--t-tertiary); margin: 4px 0 0; max-width: 640px; line-height: 1.5; }
+
+.layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    max-width: 1760px;
+    margin: 0 auto;
+    min-height: calc(100vh - 72px);
+}
+@media (max-width: 960px) { .layout { grid-template-columns: 1fr; } }
+
+.sidebar {
+    border-right: 1px solid var(--border);
+    padding: 24px 18px;
+    background: var(--bg-elevated);
+    position: sticky; top: 73px; align-self: start;
+    max-height: calc(100vh - 73px);
+    overflow: auto;
+}
+.sidebar .sec { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--t-tertiary); margin: 18px 0 10px; }
+.sidebar .sec:first-child { margin-top: 0; }
+.sidebar a {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px; border-radius: 8px;
+    font-size: 13px; font-weight: 600; color: var(--t-secondary);
+    text-decoration: none; margin-bottom: 4px;
+}
+.sidebar a:hover { background: var(--bg-input); color: #fff; }
+.sidebar a i { width: 16px; text-align: center; color: var(--brand-purple); font-size: 12px; }
+
+main.content { padding: 28px 24px 48px; }
+.block { margin-bottom: 44px; }
+.block h2 { font-size: 22px; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.block h2 i { color: var(--brand-purple); }
+.block .lead { font-size: 13px; color: var(--t-secondary); line-height: 1.65; max-width: 920px; margin-bottom: 20px; }
+.block .lead ul { margin: 10px 0 0 18px; }
+.block .lead li { margin: 6px 0; }
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 18px;
+}
+.tile {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+}
+.tile .th {
+    padding: 10px 14px;
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+    font-size: 11.5px;
+    font-weight: 700;
+    font-family: ui-monospace, monospace;
+    color: var(--t-secondary);
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+}
+.tile .th a { font-size: 10px; color: var(--brand-purple); text-decoration: none; font-weight: 600; white-space: nowrap; }
+.tile .tb { height: 720px; background: var(--bg-app); }
+.tile .tb.tall { height: 820px; }
+.tile .tb iframe { width: 100%; height: 100%; border: none; display: block; }
+.tile .tf { padding: 12px 14px; font-size: 12px; color: var(--t-tertiary); line-height: 1.5; border-top: 1px solid var(--border); }
+
+.site-footer {
+    border-top: 1px solid var(--border);
+    padding: 28px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--t-tertiary);
+    background: var(--bg-elevated);
+}
+.site-footer a { color: var(--brand-purple); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+    <div class="brand">
+        <div class="logo"><i class="fa-solid fa-user"></i></div>
+        <div>
+            <h1>FansLoop Web · 个人主页作品管理原型</h1>
+            <p>主入口本页 · iframe 平铺预览；实现文件：<code>pages-web/profile.html</code> + <code>css-web/profile-works.css</code> + <code>js-web/profile-works.js</code></p>
+        </div>
+    </div>
+    <a href="index.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> 充提原型 index.html</a>
+</header>
+
+<div class="layout">
+    <aside class="sidebar">
+        <div class="sec">导览</div>
+        <a href="#ux"><i class="fa-solid fa-lightbulb"></i> 体验与 IA</a>
+        <a href="#screens"><i class="fa-solid fa-table-cells"></i> 界面平铺</a>
+        <div class="sec">页面</div>
+        <a href="pages-web/profile.html" target="_blank"><i class="fa-solid fa-up-right-from-square"></i> profile.html</a>
+        <a href="index.html#profile-creator"><i class="fa-solid fa-certificate"></i> 创作者认证</a>
+    </aside>
+
+    <main class="content">
+        <section class="block" id="ux">
+            <h2><i class="fa-solid fa-compass"></i> 用户体验与信息架构</h2>
+            <p class="lead">
+                <strong>产品定位：</strong>FansLoop 是 Web3 创作者平台；「我的主页」是创作者管理个人品牌与内容资产的中心。作品 Tab 是最高频的内容管理入口。
+            </p>
+            <p class="lead">
+                <strong>核心用户需求：</strong>
+                <ul>
+                    <li>快速识别每条作品（标题 + 发布时间），管理曝光顺序（置顶）。</li>
+                    <li>临时下线不合规或过时内容（下架），而非直接删除。</li>
+                    <li>在下架区复核、永久删除；已发布区保持整洁。</li>
+                </ul>
+            </p>
+            <p class="lead">
+                <strong>交互逻辑：</strong>
+                <ul>
+                    <li>作品 Tab 内二级筛选：<em>已发布</em> / <em>下架</em> — <strong>互斥展示</strong>，下架作品仅在下架网格。</li>
+                    <li>卡片：封面 + 标题 + 时间 + <strong>数据看板</strong> + 置顶/下架（已发布）或 数据看板/删除（下架）。</li>
+                    <li>数据看板：页内弹窗 — 封面/标题/精确发布时间、六项总览、14 日播放峰值柱状图、粉丝三指标（各带研发玻璃球）。</li>
+                    <li>置顶最多 3 条；下架 → 确认 → 从已发布<strong>移动</strong>至下架 Tab。</li>
+                </ul>
+            </p>
+        </section>
+
+        <section class="block" id="screens">
+            <h2><i class="fa-solid fa-images"></i> 高保真界面（iframe 平铺）</h2>
+            <p class="lead">以下均为真实 App Shell（顶栏 + 侧栏 + 主内容），配图来自 Unsplash / Pexels。可直接对照开发组件拆分。</p>
+            <div class="grid">
+                <div class="tile">
+                    <div class="th">profile.html · 作品 Tab 默认 <a href="pages-web/profile.html" target="_blank">新窗口</a></div>
+                    <div class="tb tall"><iframe src="pages-web/profile.html" title="个人主页作品" loading="lazy"></iframe></div>
+                    <div class="tf">已发布列表 · 标题/时间 · 置顶角标（示例 3/3）· 置顶/下架 · 研发玻璃球</div>
+                </div>
+                <div class="tile">
+                    <div class="th">profile.html?works=unlisted&amp;seed=1 <a href="pages-web/profile.html?works=unlisted&amp;seed=1" target="_blank">新窗口</a></div>
+                    <div class="tb tall"><iframe src="pages-web/profile.html?works=unlisted&amp;seed=1" title="下架列表" loading="lazy"></iframe></div>
+                    <div class="tf">下架 Tab · 同布局 · 仅「删除」· 永久删除确认弹窗可交互</div>
+                </div>
+                <div class="tile">
+                    <div class="th">profile.html?modal=analytics <a href="pages-web/profile.html?modal=analytics" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:640px"><iframe src="pages-web/profile.html?modal=analytics" title="数据看板" loading="lazy"></iframe></div>
+                    <div class="tf">数据看板弹窗 · 曲线 · 粉丝指标玻璃球</div>
+                </div>
+                <div class="tile">
+                    <div class="th">profile.html?modal=takedown <a href="pages-web/profile.html?modal=takedown" target="_blank">新窗口</a></div>
+                    <div class="tb"><iframe src="pages-web/profile.html?modal=takedown" title="下架确认" loading="lazy"></iframe></div>
+                    <div class="tf">下架二次确认 · 确认后移至下架 Tab</div>
+                </div>
+                <div class="tile">
+                    <div class="th">modal-profile-work-analytics.html</div>
+                    <div class="tb" style="height:620px"><iframe src="pages-web/modal-profile-work-analytics.html" title="数据看板切片" loading="lazy"></iframe></div>
+                    <div class="tf">弹窗组件独立切片</div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<footer class="site-footer">
+    <div>FansLoop 原型 · 个人主页作品管理 · 仅供设计与前端对齐</div>
+    <div style="margin-top:8px"><a href="index.html">充提原型 index.html</a> · <a href="index-web.html">完整目录 index-web.html</a></div>
+</footer>
+
+</body>
+</html>

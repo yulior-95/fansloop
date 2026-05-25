@@ -103,6 +103,13 @@ img { display: block; max-width: 100%; }
    APP SHELL · Header + Sidebar + Main
    ========================================================================= */
 
+/* 主应用 · 固定一屏高度，仅主内容区纵向滚动 */
+body:has(> .app-shell) {
+    height: 100vh;
+    min-height: 0;
+    overflow: hidden;
+}
+
 .app-shell {
     display: grid;
     grid-template-columns: var(--sidebar-w) 1fr;
@@ -110,7 +117,17 @@ img { display: block; max-width: 100%; }
     grid-template-areas:
         "sidebar header"
         "sidebar main";
-    min-height: 100vh;
+    height: 100vh;
+    min-height: 0;
+    max-height: 100vh;
+    overflow: hidden;
+    transition: grid-template-columns 0.22s ease;
+}
+
+/* 侧栏收起（含首屏预加载 class，避免闪烁） */
+html.sidebar-collapsed-pre .app-shell,
+.app-shell.sidebar-collapsed {
+    grid-template-columns: var(--sidebar-w-collapsed) 1fr;
 }
 
 /* ---------- Header ---------- */
@@ -238,9 +255,104 @@ img { display: block; max-width: 100%; }
     border-right: 1px solid var(--border);
     padding: 18px 14px 24px;
     display: flex; flex-direction: column;
-    position: sticky; top: 0;
-    height: 100vh;
+    position: relative;
+    min-height: 0;
+    height: 100%;
+    overflow-x: hidden;
     overflow-y: auto;
+    transition: padding 0.22s ease;
+}
+
+/* 侧栏展开/收起按钮 */
+.s-sidebar-toggle {
+    position: absolute;
+    top: 26px;
+    right: -13px;
+    z-index: 80;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    color: var(--t-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    transition: color 0.15s, border-color 0.15s, transform 0.2s;
+}
+.s-sidebar-toggle:hover {
+    color: #fff;
+    border-color: rgba(168, 85, 247, 0.45);
+    background: var(--bg-card-2);
+}
+.s-sidebar-toggle i { transition: transform 0.22s ease; }
+html.sidebar-collapsed-pre .s-sidebar-toggle i,
+.app-shell.sidebar-collapsed .s-sidebar-toggle i {
+    transform: rotate(180deg);
+}
+
+html.sidebar-collapsed-pre .app-sidebar .s-brand .name,
+.app-shell.sidebar-collapsed .app-sidebar .s-brand .name,
+html.sidebar-collapsed-pre .app-sidebar .s-section,
+.app-shell.sidebar-collapsed .app-sidebar .s-section,
+html.sidebar-collapsed-pre .app-sidebar .s-item .lb,
+.app-shell.sidebar-collapsed .app-sidebar .s-item .lb,
+html.sidebar-collapsed-pre .app-sidebar .s-item .badge,
+.app-shell.sidebar-collapsed .app-sidebar .s-item .badge,
+html.sidebar-collapsed-pre .app-sidebar .s-item .chip,
+.app-shell.sidebar-collapsed .app-sidebar .s-item .chip,
+html.sidebar-collapsed-pre .app-sidebar .s-pro-card,
+.app-shell.sidebar-collapsed .app-sidebar .s-pro-card,
+html.sidebar-collapsed-pre .app-sidebar .s-user .info,
+.app-shell.sidebar-collapsed .app-sidebar .s-user .info,
+html.sidebar-collapsed-pre .app-sidebar .s-user .more,
+.app-shell.sidebar-collapsed .app-sidebar .s-user .more {
+    opacity: 0;
+    width: 0;
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    pointer-events: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+html.sidebar-collapsed-pre .app-sidebar .s-brand,
+.app-shell.sidebar-collapsed .app-sidebar .s-brand {
+    justify-content: center;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+html.sidebar-collapsed-pre .app-sidebar .s-item,
+.app-shell.sidebar-collapsed .app-sidebar .s-item {
+    justify-content: center;
+    padding-left: 8px;
+    padding-right: 8px;
+    gap: 0;
+}
+html.sidebar-collapsed-pre .app-sidebar .s-item.active,
+.app-shell.sidebar-collapsed .app-sidebar .s-item.active {
+    padding-left: 7px;
+    padding-right: 7px;
+}
+html.sidebar-collapsed-pre .app-sidebar .s-item.active::before,
+.app-shell.sidebar-collapsed .app-sidebar .s-item.active::before {
+    left: -10px;
+    height: 16px;
+}
+html.sidebar-collapsed-pre .app-sidebar .s-user,
+.app-shell.sidebar-collapsed .app-sidebar .s-user {
+    justify-content: center;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+html.sidebar-collapsed-pre .app-sidebar,
+.app-shell.sidebar-collapsed .app-sidebar {
+    padding-left: 10px;
+    padding-right: 10px;
 }
 .app-sidebar .s-brand {
     display: flex; align-items: center; gap: 10px;
@@ -404,6 +516,9 @@ img { display: block; max-width: 100%; }
     grid-area: main;
     padding: 28px 32px 60px;
     overflow-x: hidden;
+    overflow-y: auto;
+    min-height: 0;
+    -webkit-overflow-scrolling: touch;
 }
 .app-main.narrow { padding: 28px 36px 60px; }
 .app-main.wide   { padding: 28px 48px 80px; }

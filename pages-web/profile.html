@@ -5,6 +5,7 @@
 <title>个人主页 · FansLoop</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
+<script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
 <style>
 .app-main { padding: 0 0 60px; }
 
@@ -278,6 +279,9 @@
 .about-card p { font-size: 13px; color: var(--t-secondary); line-height: 1.6; margin-bottom: 10px; }
 
 </style>
+<link rel="stylesheet" href="../css-web/dev-glass-note.css">
+<link rel="stylesheet" href="../css-web/profile-works.css">
+<link rel="stylesheet" href="../css-web/profile-creator-cert.css">
 
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
@@ -342,11 +346,11 @@
                     <div class="name-row">
                         <h1>Luna 🌙 <i class="fa-solid fa-circle-check vfy"></i></h1>
                     </div>
-                    <div class="tags-row">
-                        <span class="tag tag-purple"><i class="fa-solid fa-palette"></i>认证创作者</span>
+                    <div class="tags-row" id="creatorTagsRow">
+                        <span id="creatorCertTagWrap"></span>
                         <span class="tag tag-info"><i class="fa-solid fa-shield-halved"></i>身份认证</span>
                     </div>
-                    <div class="h" style="margin-top:6px">Creator · 0x7A3F...3F2C</div>
+                    <div class="h" id="profileRoleLine" style="margin-top:6px">用户 · 0x7A3F...3F2C</div>
                     <div class="bio">📷 旅行 / 美食 / 慢生活 摄影师｜📍现居东京｜35mm 定焦执着患者｜合作请私信</div>
                 </div>
                 <div class="acts">
@@ -383,37 +387,180 @@
         </div>
 
         <div class="profile-pane active" id="pane-works" role="tabpanel">
-            <div class="posts-grid">
-                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=600')">
-                    <div class="meta"><span><i class="fa-solid fa-heart"></i> 2.4k</span><span><i class="fa-regular fa-comment"></i> 312</span></div>
+            <div class="works-pane-head">
+                <div class="works-subtabs" role="tablist" aria-label="作品列表筛选">
+                    <button type="button" class="active" data-works-filter="published" role="tab" aria-selected="true">
+                        <i class="fa-solid fa-table-cells"></i> 已发布 <span class="sub-cnt" id="worksCntPublished">9</span>
+                    </button>
+                    <button type="button" data-works-filter="unlisted" role="tab" aria-selected="false">
+                        <i class="fa-solid fa-box-archive"></i> 下架 <span class="sub-cnt" id="worksCntUnlisted">0</span>
+                    </button>
                 </div>
-                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=600')">
-                    <div class="meta"><span><i class="fa-solid fa-heart"></i> 1.8k</span><span><i class="fa-regular fa-comment"></i> 240</span></div>
+                <div class="works-dev-notes">
+                    <span class="dev-label">研发批注</span>
+                    <span class="dev-glass-wrap dev-glass-wrap--pop-below">
+                        <span class="dev-glass-sphere" tabindex="0" aria-describedby="devWorkTimeTip">
+                            <span class="dev-glass-sphere-shine"></span>
+                            <span class="dev-glass-sphere-txt">To 研发</span>
+                        </span>
+                        <span class="dev-glass-pop" id="devWorkTimeTip" role="tooltip">
+                            发布时间展示规则：距当前 &lt; 3 个月显示相对时间（如「1 小时前」「4 天前」「2 个月前」）；超过 3 个月显示具体日期 <strong>YYYY-MM-DD</strong>（按用户时区）。列表与详情需一致，服务端建议下发 ISO8601 时间戳。
+                        </span>
+                    </span>
+                    <span class="dev-glass-wrap dev-glass-wrap--pop-below">
+                        <span class="dev-glass-sphere" tabindex="0" aria-describedby="devWorkPinTip">
+                            <span class="dev-glass-sphere-shine"></span>
+                            <span class="dev-glass-sphere-txt">To 研发</span>
+                        </span>
+                        <span class="dev-glass-pop" id="devWorkPinTip" role="tooltip">
+                            <strong>置顶</strong>：点击后在<strong>创作者首页</strong>作品区置顶展示，卡片角标「置顶」；再次点击取消。同一创作者最多 <strong>3</strong> 个置顶，超出时 Toast 提示。置顶作品在「已发布」列表内排在最前。
+                        </span>
+                    </span>
                 </div>
-                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600')">
-                    <span class="premium"><i class="fa-solid fa-crown"></i> $5</span>
-                    <div class="meta"><span><i class="fa-solid fa-heart"></i> 986</span><span><i class="fa-regular fa-comment"></i> 148</span></div>
-                </div>
-                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600')">
-                    <div class="meta"><span><i class="fa-solid fa-heart"></i> 2.1k</span><span><i class="fa-regular fa-comment"></i> 342</span></div>
-                </div>
-                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=600')">
-                    <div class="meta"><span><i class="fa-solid fa-heart"></i> 1.2k</span><span><i class="fa-regular fa-comment"></i> 89</span></div>
-                </div>
-                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1542435503-956c469947f6?w=600')">
-                    <span class="premium"><i class="fa-solid fa-crown"></i> $9</span>
-                    <div class="meta"><span><i class="fa-solid fa-heart"></i> 968</span><span><i class="fa-regular fa-comment"></i> 124</span></div>
-                </div>
-                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1493612276216-ee3925520721?w=600')">
-                    <div class="meta"><span><i class="fa-solid fa-heart"></i> 1.5k</span><span><i class="fa-regular fa-comment"></i> 198</span></div>
-                </div>
-                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600')">
-                    <div class="meta"><span><i class="fa-solid fa-heart"></i> 768</span><span><i class="fa-regular fa-comment"></i> 92</span></div>
-                </div>
-                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=600')">
-                    <span class="premium"><i class="fa-solid fa-crown"></i> $3</span>
-                    <div class="meta"><span><i class="fa-solid fa-heart"></i> 1.1k</span><span><i class="fa-regular fa-comment"></i> 86</span></div>
-                </div>
+            </div>
+
+            <div class="works-grid" id="worksGridPublished">
+                <article class="work-card is-pinned" data-work-id="w1" data-published-at="2026-05-23T08:30:00+09:00">
+                    <span class="work-pin-badge"><i class="fa-solid fa-thumbtack"></i> 置顶</span>
+                    <div class="work-thumb" style="background-image: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=800&q=80')">
+                        <div class="thumb-meta"><span><i class="fa-solid fa-heart"></i> 2.4k</span><span><i class="fa-regular fa-comment"></i> 312</span></div>
+                    </div>
+                    <div class="work-body">
+                        <h4 class="work-title">富士山脚下晨雾 · 4K 航拍</h4>
+                        <time class="work-time" data-published-at="2026-05-23T08:30:00+09:00">—</time>
+                    </div>
+                    <div class="work-actions">
+                        <button type="button" class="work-act is-pinned-active" data-act="pin"><i class="fa-solid fa-thumbtack"></i> 取消置顶</button>
+                        <button type="button" class="work-act danger" data-act="takedown"><i class="fa-solid fa-eye-slash"></i> 下架</button>
+                    </div>
+                </article>
+                <article class="work-card" data-work-id="w2" data-published-at="2026-05-19T14:00:00+09:00">
+                    <span class="work-pin-badge"><i class="fa-solid fa-thumbtack"></i> 置顶</span>
+                    <div class="work-thumb" style="background-image: url('https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=800&q=80')">
+                        <div class="thumb-meta"><span><i class="fa-solid fa-heart"></i> 1.8k</span><span><i class="fa-regular fa-comment"></i> 240</span></div>
+                    </div>
+                    <div class="work-body">
+                        <h4 class="work-title">东京拉面深夜档 · 纪实短片</h4>
+                        <time class="work-time" data-published-at="2026-05-19T14:00:00+09:00">—</time>
+                    </div>
+                    <div class="work-actions">
+                        <button type="button" class="work-act" data-act="pin"><i class="fa-regular fa-thumbtack"></i> 置顶</button>
+                        <button type="button" class="work-act danger" data-act="takedown"><i class="fa-solid fa-eye-slash"></i> 下架</button>
+                    </div>
+                </article>
+                <article class="work-card is-pinned" data-work-id="w3" data-published-at="2026-04-08T10:00:00+09:00">
+                    <span class="work-pin-badge"><i class="fa-solid fa-thumbtack"></i> 置顶</span>
+                    <span class="work-premium"><i class="fa-solid fa-crown"></i> $5</span>
+                    <div class="work-thumb" style="background-image: url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80')">
+                        <div class="thumb-meta"><span><i class="fa-solid fa-heart"></i> 986</span><span><i class="fa-regular fa-comment"></i> 148</span></div>
+                    </div>
+                    <div class="work-body">
+                        <h4 class="work-title">巴黎铁塔黄昏 · 付费专栏</h4>
+                        <time class="work-time" data-published-at="2026-04-08T10:00:00+09:00">—</time>
+                    </div>
+                    <div class="work-actions">
+                        <button type="button" class="work-act is-pinned-active" data-act="pin"><i class="fa-solid fa-thumbtack"></i> 取消置顶</button>
+                        <button type="button" class="work-act danger" data-act="takedown"><i class="fa-solid fa-eye-slash"></i> 下架</button>
+                    </div>
+                </article>
+                <article class="work-card" data-work-id="w4" data-published-at="2026-03-20T18:00:00+09:00">
+                    <span class="work-pin-badge"><i class="fa-solid fa-thumbtack"></i> 置顶</span>
+                    <div class="work-thumb" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80')">
+                        <div class="thumb-meta"><span><i class="fa-solid fa-heart"></i> 2.1k</span><span><i class="fa-regular fa-comment"></i> 342</span></div>
+                    </div>
+                    <div class="work-body">
+                        <h4 class="work-title">雪山星空延时 · 幕后花絮</h4>
+                        <time class="work-time" data-published-at="2026-03-20T18:00:00+09:00">—</time>
+                    </div>
+                    <div class="work-actions">
+                        <button type="button" class="work-act" data-act="pin"><i class="fa-regular fa-thumbtack"></i> 置顶</button>
+                        <button type="button" class="work-act danger" data-act="takedown"><i class="fa-solid fa-eye-slash"></i> 下架</button>
+                    </div>
+                </article>
+                <article class="work-card" data-work-id="w5" data-published-at="2025-12-15T09:00:00+09:00">
+                    <span class="work-pin-badge"><i class="fa-solid fa-thumbtack"></i> 置顶</span>
+                    <div class="work-thumb" style="background-image: url('https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=800&q=80')">
+                        <div class="thumb-meta"><span><i class="fa-solid fa-heart"></i> 1.2k</span><span><i class="fa-regular fa-comment"></i> 89</span></div>
+                    </div>
+                    <div class="work-body">
+                        <h4 class="work-title">京都红叶季的清晨漫步</h4>
+                        <time class="work-time" data-published-at="2025-12-15T09:00:00+09:00">—</time>
+                    </div>
+                    <div class="work-actions">
+                        <button type="button" class="work-act" data-act="pin"><i class="fa-regular fa-thumbtack"></i> 置顶</button>
+                        <button type="button" class="work-act danger" data-act="takedown"><i class="fa-solid fa-eye-slash"></i> 下架</button>
+                    </div>
+                </article>
+                <article class="work-card is-pinned" data-work-id="w6" data-published-at="2026-02-01T12:00:00+09:00">
+                    <span class="work-pin-badge"><i class="fa-solid fa-thumbtack"></i> 置顶</span>
+                    <span class="work-premium"><i class="fa-solid fa-crown"></i> $9</span>
+                    <div class="work-thumb" style="background-image: url('https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80')">
+                        <div class="thumb-meta"><span><i class="fa-solid fa-heart"></i> 968</span><span><i class="fa-regular fa-comment"></i> 124</span></div>
+                    </div>
+                    <div class="work-body">
+                        <h4 class="work-title">胶原波海边人像 · 商业样片</h4>
+                        <time class="work-time" data-published-at="2026-02-01T12:00:00+09:00">—</time>
+                    </div>
+                    <div class="work-actions">
+                        <button type="button" class="work-act is-pinned-active" data-act="pin"><i class="fa-solid fa-thumbtack"></i> 取消置顶</button>
+                        <button type="button" class="work-act danger" data-act="takedown"><i class="fa-solid fa-eye-slash"></i> 下架</button>
+                    </div>
+                </article>
+                <article class="work-card" data-work-id="w7" data-published-at="2026-05-16T20:00:00+09:00">
+                    <span class="work-pin-badge"><i class="fa-solid fa-thumbtack"></i> 置顶</span>
+                    <div class="work-thumb" style="background-image: url('https://images.unsplash.com/photo-1493612276216-ee3925520721?w=800&q=80')">
+                        <div class="thumb-meta"><span><i class="fa-solid fa-heart"></i> 1.5k</span><span><i class="fa-regular fa-comment"></i> 198</span></div>
+                    </div>
+                    <div class="work-body">
+                        <h4 class="work-title">街头胶片随拍 · 35mm</h4>
+                        <time class="work-time" data-published-at="2026-05-16T20:00:00+09:00">—</time>
+                    </div>
+                    <div class="work-actions">
+                        <button type="button" class="work-act" data-act="pin"><i class="fa-regular fa-thumbtack"></i> 置顶</button>
+                        <button type="button" class="work-act danger" data-act="takedown"><i class="fa-solid fa-eye-slash"></i> 下架</button>
+                    </div>
+                </article>
+                <article class="work-card" data-work-id="w8" data-published-at="2026-05-03T11:00:00+09:00">
+                    <span class="work-pin-badge"><i class="fa-solid fa-thumbtack"></i> 置顶</span>
+                    <div class="work-thumb" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&q=80')">
+                        <div class="thumb-meta"><span><i class="fa-solid fa-heart"></i> 768</span><span><i class="fa-regular fa-comment"></i> 92</span></div>
+                    </div>
+                    <div class="work-body">
+                        <h4 class="work-title">慢食餐桌特写 · 品牌合作</h4>
+                        <time class="work-time" data-published-at="2026-05-03T11:00:00+09:00">—</time>
+                    </div>
+                    <div class="work-actions">
+                        <button type="button" class="work-act" data-act="pin"><i class="fa-regular fa-thumbtack"></i> 置顶</button>
+                        <button type="button" class="work-act danger" data-act="takedown"><i class="fa-solid fa-eye-slash"></i> 下架</button>
+                    </div>
+                </article>
+                <article class="work-card" data-work-id="w9" data-published-at="2025-11-02T16:00:00+09:00">
+                    <span class="work-pin-badge"><i class="fa-solid fa-thumbtack"></i> 置顶</span>
+                    <span class="work-premium"><i class="fa-solid fa-crown"></i> $3</span>
+                    <div class="work-thumb" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=800&q=80')">
+                        <div class="thumb-meta"><span><i class="fa-solid fa-heart"></i> 1.1k</span><span><i class="fa-regular fa-comment"></i> 86</span></div>
+                    </div>
+                    <div class="work-body">
+                        <h4 class="work-title">高原湖泊倒影 · 风光合集</h4>
+                        <time class="work-time" data-published-at="2025-11-02T16:00:00+09:00">—</time>
+                    </div>
+                    <div class="work-actions">
+                        <button type="button" class="work-act" data-act="pin"><i class="fa-regular fa-thumbtack"></i> 置顶</button>
+                        <button type="button" class="work-act danger" data-act="takedown"><i class="fa-solid fa-eye-slash"></i> 下架</button>
+                    </div>
+                </article>
+            </div>
+            <div class="works-empty works-empty--hidden" id="worksEmptyPublished">
+                <i class="fa-regular fa-folder-open"></i>
+                暂无已发布作品，去「创建内容」发布第一条吧。
+            </div>
+
+            <div class="works-grid works-grid--hidden" id="worksGridUnlisted">
+                <!-- 下架作品仅在此网格展示，由 JS 从已发布移入 -->
+            </div>
+            <div class="works-empty works-empty--hidden" id="worksEmptyUnlisted">
+                <i class="fa-solid fa-box-archive"></i>
+                暂无下架作品。在「已发布」中点击下架后，内容会出现在此列表。
             </div>
         </div>
 
@@ -470,6 +617,130 @@
 
 <div class="pf-toast" id="pfToast"></div>
 
+<div class="pf-modal" id="modalWorkTakedown" aria-hidden="true" role="dialog" aria-labelledby="modalWorkTakedownHd">
+    <div class="md-panel">
+        <div class="md-head" id="modalWorkTakedownHd">
+            <span class="ic-warn"><i class="fa-solid fa-eye-slash"></i></span>
+            确认下架作品？
+        </div>
+        <div class="md-body">
+            下架后作品将从<strong>已发布</strong>列表移除，并出现在「下架」Tab；访客在创作者首页与作品流中不可见。可随时在「下架」中删除。
+            <br><br>作品：<strong id="modalWorkTakedownTitle">—</strong>
+        </div>
+        <div class="md-actions">
+            <button type="button" class="ghost" data-md-cancel>取消</button>
+            <button type="button" class="danger" data-md-confirm>确认下架</button>
+        </div>
+    </div>
+</div>
+
+<div class="pf-modal" id="modalWorkDelete" aria-hidden="true" role="dialog" aria-labelledby="modalWorkDeleteHd">
+    <div class="md-panel">
+        <div class="md-head" id="modalWorkDeleteHd">
+            <span class="ic-warn" style="background:rgba(239,68,68,0.15);color:#FCA5A5"><i class="fa-regular fa-trash-can"></i></span>
+            永久删除作品？
+        </div>
+        <div class="md-body">
+            删除后无法恢复，草稿、数据与收益关联记录将按平台规则处理。
+            <br><br>作品：<strong id="modalWorkDeleteTitle">—</strong>
+        </div>
+        <div class="md-actions">
+            <button type="button" class="ghost" data-md-cancel>取消</button>
+            <button type="button" class="danger" data-md-confirm>确认删除</button>
+        </div>
+    </div>
+</div>
+
+<div class="pf-modal pf-modal--analytics" id="modalWorkAnalytics" aria-hidden="true" role="dialog" aria-labelledby="modalWorkAnalyticsHd">
+    <div class="wa-panel">
+        <div class="wa-head">
+            <h2 id="modalWorkAnalyticsHd"><i class="fa-solid fa-chart-line"></i> 数据看板</h2>
+            <button type="button" class="wa-close" data-wa-close aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="wa-body">
+            <div class="wa-hero">
+                <div class="wa-cover" id="waCover"></div>
+                <div class="wa-meta">
+                    <h3 id="waTitle">—</h3>
+                    <div class="wa-dt"><i class="fa-regular fa-clock"></i> <span id="waPublishedAt">—</span></div>
+                </div>
+            </div>
+            <section class="wa-overview" aria-label="数据总览">
+                <h4>数据总览</h4>
+                <div class="wa-stat-grid">
+                    <div class="wa-stat"><div class="k">播放量</div><div class="v" id="waPlays">—</div></div>
+                    <div class="wa-stat"><div class="k">点赞量</div><div class="v" id="waLikes">—</div></div>
+                    <div class="wa-stat"><div class="k">评论量</div><div class="v" id="waComments">—</div></div>
+                    <div class="wa-stat"><div class="k">分享量</div><div class="v" id="waShares">—</div></div>
+                    <div class="wa-stat"><div class="k">弹幕量</div><div class="v" id="waDanmaku">—</div></div>
+                    <div class="wa-stat"><div class="k">完播率</div><div class="v pct" id="waCompletion">—</div></div>
+                </div>
+            </section>
+            <section class="wa-chart-block" aria-label="播放趋势">
+                <h4>每日播放人数峰值</h4>
+                <div class="wa-chart-wrap">
+                    <div class="wa-chart-sub">
+                        <span>近 14 日</span>
+                        <span id="waChartPeak">峰值 —</span>
+                    </div>
+                    <svg class="wa-chart-svg" id="waChartSvg" viewBox="0 0 560 140" preserveAspectRatio="none" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="waBarGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#A855F7"/>
+                                <stop offset="100%" stop-color="#6366F1" stop-opacity="0.35"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+            </section>
+            <section class="wa-fans" aria-label="粉丝数据">
+                <h4><i class="fa-solid fa-users" style="color:var(--brand-purple);font-size:12px"></i> 粉丝</h4>
+                <div class="wa-fan-grid">
+                    <div class="wa-fan-card">
+                        <div class="fan-hd">
+                            <span class="k">粉丝量</span>
+                            <span class="dev-glass-wrap dev-glass-wrap--inline dev-glass-wrap--pop-left">
+                                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devFanCountTip">
+                                    <span class="dev-glass-sphere-shine"></span>
+                                    <span class="dev-glass-sphere-txt">To 研发</span>
+                                </span>
+                                <span class="dev-glass-pop" id="devFanCountTip" role="tooltip">粉丝量 = 当前订阅中的总人头数（去重）。</span>
+                            </span>
+                        </div>
+                        <div class="v" id="waFans">—</div>
+                    </div>
+                    <div class="wa-fan-card">
+                        <div class="fan-hd">
+                            <span class="k">订阅断开量</span>
+                            <span class="dev-glass-wrap dev-glass-wrap--inline dev-glass-wrap--pop-left">
+                                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devChurnTip">
+                                    <span class="dev-glass-sphere-shine"></span>
+                                    <span class="dev-glass-sphere-txt">To 研发</span>
+                                </span>
+                                <span class="dev-glass-pop" id="devChurnTip" role="tooltip">订阅断开量 = 曾订阅、当前未续订的去重人头。中间断订 +1；重新订阅 -1；再次断订 +1（按人头净变动累计）。</span>
+                            </span>
+                        </div>
+                        <div class="v" id="waChurn">—</div>
+                    </div>
+                    <div class="wa-fan-card">
+                        <div class="fan-hd">
+                            <span class="k">粉丝播放占比</span>
+                            <span class="dev-glass-wrap dev-glass-wrap--inline dev-glass-wrap--pop-left">
+                                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devFanPlayTip">
+                                    <span class="dev-glass-sphere-shine"></span>
+                                    <span class="dev-glass-sphere-txt">To 研发</span>
+                                </span>
+                                <span class="dev-glass-pop" id="devFanPlayTip" role="tooltip">粉丝播放占比 = 观看人数中粉丝占比（粉丝观看 UV / 总观看 UV × 100%）。</span>
+                            </span>
+                        </div>
+                        <div class="v pct" id="waFanPlay">—</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
 <div class="profile-sheet" id="sheetShare" aria-hidden="true">
     <div class="sh-panel">
         <div class="sh-head">分享主页 <button type="button" class="sh-close" data-close="sheetShare"><i class="fa-solid fa-xmark"></i></button></div>
@@ -513,6 +784,104 @@
         <div class="sh-actions">
             <button type="button" class="ghost sh-close" data-close="sheetPro">稍后再说</button>
             <button type="button" class="primary" id="btnCheckoutPro">前往结算（原型）</button>
+        </div>
+    </div>
+</div>
+
+<div class="profile-sheet cert-sheet" id="sheetCreatorCert" aria-hidden="true" role="dialog" aria-labelledby="certSheetTitle">
+    <div class="sh-panel">
+        <div class="sh-head">
+            <div class="cert-head-main">
+                <div id="certSheetTitle">申请成为创作者</div>
+                <p>官方认证创作者 · 参考抖音个人认证类型</p>
+            </div>
+            <button type="button" class="sh-close" id="certBtnClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+            <div class="cert-dev-row">
+                <span class="dev-label">To 研发</span>
+                <span class="dev-glass-wrap dev-glass-wrap--pop-below">
+                    <span class="dev-glass-sphere" tabindex="0" aria-describedby="devCertBenefitTip">
+                        <span class="dev-glass-sphere-shine"></span>
+                        <span class="dev-glass-sphere-txt">To 研发</span>
+                    </span>
+                    <span class="dev-glass-pop" id="devCertBenefitTip" role="tooltip">
+                        <strong>创作者</strong> = 官方认证创作者：获得更大曝光与流量扶持、搜索排名加权、主页与内容流<strong>专属认证标识</strong>。
+                    </span>
+                </span>
+                <span class="dev-glass-wrap dev-glass-wrap--pop-below">
+                    <span class="dev-glass-sphere" tabindex="0" aria-describedby="devCertReviewTip">
+                        <span class="dev-glass-sphere-shine"></span>
+                        <span class="dev-glass-sphere-txt">To 研发</span>
+                    </span>
+                    <span class="dev-glass-pop" id="devCertReviewTip" role="tooltip">
+                        审核流程：<strong>机审 + 人工审</strong>。提交后先走机审，大部分申请可机审通过；命中风险规则或机审不确定时转人工复核。
+                    </span>
+                </span>
+                <span class="dev-glass-wrap dev-glass-wrap--pop-below">
+                    <span class="dev-glass-sphere" tabindex="0" aria-describedby="devCertMechanismTip">
+                        <span class="dev-glass-sphere-shine"></span>
+                        <span class="dev-glass-sphere-txt">To 研发</span>
+                    </span>
+                    <span class="dev-glass-pop" id="devCertMechanismTip" role="tooltip">
+                        <strong>审核机制</strong>：状态机 none → pending → approved / rejected；pending 期间不可重复提交；终态后按规则允许重新申请。
+                    </span>
+                </span>
+                <span class="dev-glass-wrap dev-glass-wrap--pop-below">
+                    <span class="dev-glass-sphere" tabindex="0" aria-describedby="devCertStepsTip">
+                        <span class="dev-glass-sphere-shine"></span>
+                        <span class="dev-glass-sphere-txt">To 研发</span>
+                    </span>
+                    <span class="dev-glass-pop" id="devCertStepsTip" role="tooltip">
+                        <strong>审核步骤</strong>：① 选择创作类型（单选）→ ② 资质条件校验 → ③ 提交申请 → ④ 机审 → ⑤ 人工审（如需）→ ⑥ 结果通知与标识下发。
+                    </span>
+                </span>
+                <span class="dev-glass-wrap dev-glass-wrap--pop-below">
+                    <span class="dev-glass-sphere" tabindex="0" aria-describedby="devCertLogicTip">
+                        <span class="dev-glass-sphere-shine"></span>
+                        <span class="dev-glass-sphere-txt">To 研发</span>
+                    </span>
+                    <span class="dev-glass-pop" id="devCertLogicTip" role="tooltip">
+                        <strong>审核逻辑</strong>：实名认证 + 内容合规两项均为「符合」方可点击「去认证」；提交后展示「认证创作者审核中」标签；通过后替换为「认证创作者」；不通过保留 none 并返回原因（正式环境）。
+                    </span>
+                </span>
+            </div>
+        </div>
+        <div class="sh-body">
+            <div class="cert-steps" aria-hidden="true">
+                <div class="cert-step-dot active" data-step="1"><div class="num"><span>1</span></div><span class="lbl">选择类型</span></div>
+                <div class="cert-step-dot" data-step="2"><div class="num"><span>2</span></div><span class="lbl">资质校验</span></div>
+                <div class="cert-step-dot" data-step="3"><div class="num"><span>3</span></div><span class="lbl">提交审核</span></div>
+            </div>
+
+            <div class="cert-pane active" data-cert-step="1">
+                <p style="font-size:12px;color:var(--t-secondary);margin:0 0 14px;line-height:1.5">请选择与主要内容方向一致的类型（单选），将影响推荐与搜索分类。</p>
+                <div class="cert-type-grid" id="certTypeGrid"></div>
+            </div>
+
+            <div class="cert-pane" data-cert-step="2">
+                <p style="font-size:12px;color:var(--t-secondary);margin:0 0 14px;line-height:1.5">以下门槛需全部「符合」方可提交官方认证（原型可用 URL 模拟：<code>?kyc=0</code> / <code>?compliance=0</code>）。</p>
+                <div class="cert-cond-list" id="certCondList"></div>
+            </div>
+
+            <div class="cert-pane" data-cert-step="3">
+                <div class="cert-pending-box">
+                    <div class="pend-ic"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <h3>审核中</h3>
+                    <p>您的创作者认证申请已提交，正在进行机审。大部分申请将自动通过；若需人工复核，将在 1–3 个工作日内完成。</p>
+                </div>
+            </div>
+
+            <div class="cert-demo-bar">
+                <span>原型调试：</span>
+                <button type="button" id="certDemoApprove">模拟审核通过</button>
+                <button type="button" id="certDemoReset">重置未认证</button>
+            </div>
+            <p id="certFootNote" style="font-size:11px;color:var(--warning-light);margin:10px 0 0;min-height:16px"></p>
+        </div>
+        <div class="sh-actions">
+            <button type="button" class="ghost" id="certBtnBack" style="display:none">上一步</button>
+            <button type="button" class="ghost" id="certBtnDone" style="display:none">关闭</button>
+            <button type="button" class="primary" id="certBtnNext">下一步</button>
+            <button type="button" class="primary" id="certBtnSubmit" style="display:none">去认证</button>
         </div>
     </div>
 </div>
@@ -586,8 +955,11 @@
     });
 })();
 </script>
+<script src="../js-web/profile-works.js"></script>
+<script src="../js-web/profile-creator-cert.js"></script>
 <link rel="stylesheet" href="../css-web/host-live-pip-global.css">
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/host-live-pip-global.js"></script>
+<script src="../js-web/app-sidebar-global.js"></script>
 </body>
 </html>

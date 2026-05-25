@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>创作者认证申请 · 弹窗切片</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/dev-glass-note.css">
+<link rel="stylesheet" href="../css-web/profile-creator-cert.css">
+<style>
+body { margin: 0; min-height: 100vh; background: var(--bg-canvas); }
+.demo-bg {
+    position: fixed; inset: 0;
+    background: linear-gradient(180deg, rgba(7,7,13,0.4), rgba(7,7,13,0.92)),
+        url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=1200&q=80') center/cover;
+}
+.demo-cap {
+    position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 1;
+    font-size: 11px; color: var(--t-tertiary); padding: 8px 14px; border-radius: 999px;
+    background: rgba(0,0,0,0.55); border: 1px solid var(--border);
+}
+.profile-sheet.cert-sheet { display: flex; position: relative; z-index: 2; min-height: 100vh; }
+.cert-pane[data-cert-step="1"],
+.cert-pane[data-cert-step="3"] { display: none !important; }
+.cert-pane[data-cert-step="2"] { display: block !important; }
+.cert-step-dot[data-step="1"] .num span { display: none; }
+.cert-step-dot[data-step="1"] .num::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 10px;
+    color: var(--success-light);
+}
+</style>
+</head>
+<body>
+<div class="demo-bg" aria-hidden="true"></div>
+<p class="demo-cap">高保真片段 · 创作者认证 Step 2 资质校验（含不符合示例）</p>
+
+<div class="profile-sheet cert-sheet show">
+    <div class="sh-panel">
+        <div class="sh-head">
+            <div class="cert-head-main">
+                <div>申请成为创作者</div>
+                <p>官方认证 · 资质校验</p>
+            </div>
+            <button type="button" class="sh-close"><i class="fa-solid fa-xmark"></i></button>
+            <div class="cert-dev-row">
+                <span class="dev-label">To 研发</span>
+                <span class="dev-glass-wrap dev-glass-wrap--pop-below">
+                    <span class="dev-glass-sphere" tabindex="0"><span class="dev-glass-sphere-shine"></span><span class="dev-glass-sphere-txt">To 研发</span></span>
+                    <span class="dev-glass-pop" role="tooltip">审核逻辑：两项均为「符合」方可去认证。</span>
+                </span>
+            </div>
+        </div>
+        <div class="sh-body">
+            <div class="cert-steps">
+                <div class="cert-step-dot done" data-step="1"><div class="num"><span>1</span></div><span class="lbl">选择类型</span></div>
+                <div class="cert-step-dot active" data-step="2"><div class="num"><span>2</span></div><span class="lbl">资质校验</span></div>
+                <div class="cert-step-dot" data-step="3"><div class="num"><span>3</span></div><span class="lbl">提交审核</span></div>
+            </div>
+            <div class="cert-pane active" data-cert-step="2">
+                <div class="cert-cond-list">
+                    <div class="cert-cond pass">
+                        <div class="cond-ic"><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="cond-body"><h4>实名认证</h4><p>已完成平台实名认证（KYC）</p></div>
+                        <span class="cond-st">符合</span>
+                    </div>
+                    <div class="cert-cond fail">
+                        <div class="cond-ic"><i class="fa-solid fa-circle-xmark"></i></div>
+                        <div class="cond-body"><h4>内容合规</h4><p>存在近期违规或低质/非原创记录，暂不可提交认证</p></div>
+                        <span class="cond-st">不符合</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="sh-actions">
+            <button type="button" class="ghost">上一步</button>
+            <button type="button" class="primary" disabled>去认证</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

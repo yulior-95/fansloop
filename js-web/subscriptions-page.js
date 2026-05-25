@@ -1,5 +1,5 @@
 /**
- * 我的订阅页 · 管理订阅弹层 / Tab 筛选 / 创作者横滑
+ * 我的订阅页 · 管理订阅 / Tab 筛选 / 左栏创作者（25%）
  */
 (function () {
     var rail = document.getElementById('creatorRail');
@@ -23,16 +23,27 @@
         setTimeout(function () { t.remove(); }, 2600);
     }
 
-    /* 横滑：滚轮纵向 → 横向 */
-    if (rail) {
-        rail.addEventListener('wheel', function (e) {
-            if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
-            e.preventDefault();
-            rail.scrollLeft += e.deltaY;
-        }, { passive: false });
+    function sortCreatorCol() {
+        if (!rail) return;
+        var items = Array.prototype.slice.call(rail.querySelectorAll('.creator-col-item'));
+        items.sort(function (a, b) {
+            var liveA = Number(a.getAttribute('data-live') || 0);
+            var liveB = Number(b.getAttribute('data-live') || 0);
+            if (liveB !== liveA) return liveB - liveA;
+            return Number(b.getAttribute('data-subscribed-at') || 0) - Number(a.getAttribute('data-subscribed-at') || 0);
+        });
+        items.forEach(function (el) { rail.appendChild(el); });
+    }
 
+    sortCreatorCol();
+
+    if (rail) {
         rail.querySelectorAll('.cr-card').forEach(function (card) {
             card.addEventListener('click', function () {
+                rail.querySelectorAll('.creator-col-item').forEach(function (c) {
+                    c.classList.remove('active');
+                });
+                card.classList.add('active');
                 var name = card.getAttribute('data-creator') || card.querySelector('.nm')?.textContent;
                 toast('查看创作者：' + (name || ''));
                 var href = card.getAttribute('data-href');
@@ -84,7 +95,6 @@
         applyTab(currentTab);
     });
 
-    /* 管理订阅 */
     function openManage() {
         manageOverlay?.classList.add('show');
         manageDetail?.classList.remove('show');
@@ -164,7 +174,7 @@
         });
     });
 
-    document.querySelectorAll('.expire-row button').forEach(function (btn) {
+    document.querySelectorAll('.expire-row button, .expire-mini button').forEach(function (btn) {
         if (btn.textContent.trim() === '续费') {
             btn.addEventListener('click', function (e) {
                 e.stopPropagation();
@@ -173,7 +183,6 @@
         }
     });
 
-    /* 订阅页 · 直播预告「预约/已预约」切换（仅 session，离页清除） */
     var SESSION_PREVIEW_KEY = 'sub_page_preview_booked';
     var previewBookBtn = document.getElementById('subPreviewBookBtn');
 
@@ -211,6 +220,10 @@
             }
         });
     }
+
+    document.querySelectorAll('.sfc-footer button, .sfc-footer .a-btn, .sub-preview-book-wrap').forEach(function (el) {
+        el.addEventListener('click', function (e) { e.stopPropagation(); });
+    });
 
     applyTab('feed');
 })();
