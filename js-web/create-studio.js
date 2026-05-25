@@ -358,15 +358,7 @@
 
     }
 
-    function openCreateEditor(type) {
-
-        if (pendingEditMode && type !== currentType) {
-
-            showToast('审核编辑中不可切换内容类型，请先保存或取消编辑');
-
-            return;
-
-        }
+    function openCreateEditorInner(type) {
 
         if (editorZone) editorZone.classList.add('is-open');
 
@@ -377,6 +369,30 @@
             editorZone?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
         }, 60);
+
+    }
+
+    window.__crOpenCreateEditor = openCreateEditorInner;
+
+
+
+    function openCreateEditor(type) {
+
+        if (pendingEditMode && type !== currentType) {
+
+            showToast('审核编辑中不可切换内容类型，请先保存或取消编辑');
+
+            return;
+
+        }
+
+        if (window.FansloopCreatePublishGate && !window.FansloopCreatePublishGate.ensurePublish(type)) {
+
+            return;
+
+        }
+
+        openCreateEditorInner(type);
 
     }
 

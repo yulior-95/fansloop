@@ -156,7 +156,8 @@ main.content { padding: 28px 24px 48px; }
         <div class="sec">内容</div>
         <a href="index-profile-works.html"><i class="fa-solid fa-user"></i>个人主页作品</a>
         <a href="#profile-works"><i class="fa-solid fa-table-cells"></i>作品 Tab（本页）</a>
-        <a href="#profile-creator"><i class="fa-solid fa-certificate"></i>创作者认证</a>
+        <a href="#publish-gate"><i class="fa-solid fa-pen-to-square"></i>发布门槛 KYC</a>
+        <a href="#profile-creator"><i class="fa-solid fa-certificate"></i>创作者标签</a>
         <div class="sec">资产</div>
         <a href="pages-web/transactions.html" target="_blank"><i class="fa-solid fa-list-ul"></i>账变记录</a>
         <a href="pages-web/transaction-detail.html" target="_blank"><i class="fa-solid fa-file-invoice"></i>账单详情</a>
@@ -177,14 +178,20 @@ main.content { padding: 28px 24px 48px; }
             <h2><i class="fa-solid fa-id-card"></i>KYC 身份验证与提现门槛</h2>
             <p class="lead">
                 <strong>核心逻辑：</strong>双路径入口——<strong>钱包 + zkMe</strong>（有 ZKP 快速验证）与<strong>证件 + 人脸</strong>（兜底）；Verify 混合审核（机审+人工），平台仅等待结果；统一成功页 <code>kyc-complete.html</code>。
+                <strong>设置页：</strong><code>settings.html</code> KYC 行提供「未认证 / 已通过」原型切换 + 研发玻璃球（仅走查用，非上线功能）。
                 <strong>提现：</strong>主路由 <code>withdraw-fiat.html</code> 现为「钱包提现」默认视图（法币 DOM 整段隐藏可恢复）；<code>withdraw-usdt.html</code> 双 Tab 隐藏。两页提交前均校验 KYC。
                 <strong>后台：</strong><code>admin-prototype/kyc-manage.html</code> 列表 + <code>kyc-detail.html</code> 材料与处置（与 <code>kyc-admin-list.html</code> 共用 localStorage）。
             </p>
             <div class="grid">
                 <div class="tile">
-                    <div class="th">settings.html（含 KYC 行） <a href="pages-web/settings.html" target="_blank">新窗口</a></div>
-                    <div class="tb" style="height:520px"><iframe src="pages-web/settings.html" title="设置" loading="lazy"></iframe></div>
-                    <div class="tf">兴趣标签下方 · KYC 入口 · 通过后头像区标签</div>
+                    <div class="th">settings.html?kyc=none&amp;reset=1</div>
+                    <div class="tb" style="height:560px"><iframe src="pages-web/settings.html?kyc=none&amp;reset=1" title="KYC 未认证" loading="lazy"></iframe></div>
+                    <div class="tf">KYC 行「未验证」· 原型切换条 · 玻璃球说明（非产品功能）</div>
+                </div>
+                <div class="tile">
+                    <div class="th">settings.html?kyc=approved <a href="pages-web/settings.html?kyc=approved" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:560px"><iframe src="pages-web/settings.html?kyc=approved" title="KYC 已通过" loading="lazy"></iframe></div>
+                    <div class="tf">已通过 + 证件认证 · 头像区「身份验证通过」标签 · 点击行仍进 KYC 流程</div>
                 </div>
                 <div class="tile">
                     <div class="th">kyc-intro.html <a href="pages-web/kyc-intro.html" target="_blank">新窗口</a></div>
@@ -370,41 +377,48 @@ main.content { padding: 28px 24px 48px; }
             </div>
         </section>
 
-        <section class="block" id="profile-creator">
-            <h2><i class="fa-solid fa-certificate"></i>个人主页 · 创作者官方认证</h2>
+        <section class="block" id="publish-gate">
+            <h2><i class="fa-solid fa-pen-to-square"></i>发布内容 · KYC 成为创作者</h2>
             <p class="lead">
-                未认证展示「申请成为创作者」；页内弹窗：① 类型单选（参考抖音）② 资质符合/不符合 ③ 提交后「认证创作者审核中」→ 通过为「认证创作者」。弹窗内 <strong>To 研发</strong> 玻璃球含权益、机审+人工、审核机制/步骤/逻辑说明。
+                <strong>须成为创作者方可发布。</strong>完成 KYC 即成为创作者。首页 FAB / 创建页类型卡片：未 KYC 时弹窗说明 →「去认证」进入 <code>kyc-intro.html</code> 现有流程；已通过则走原发布流程。原多步创作者类型认证弹窗已注释下线。
             </p>
             <div class="grid">
                 <div class="tile">
-                    <div class="th">profile.html?creator=none <a href="pages-web/profile.html?creator=none&amp;reset=1" target="_blank">新窗口</a></div>
-                    <div class="tb" style="height:640px"><iframe src="pages-web/profile.html?creator=none&amp;reset=1" title="未认证" loading="lazy"></iframe></div>
-                    <div class="tf">申请成为创作者 · 点击打开认证弹窗</div>
+                    <div class="th">home.html · FAB 未 KYC</div>
+                    <div class="tb" style="height:640px"><iframe src="pages-web/home.html" title="首页FAB" loading="lazy"></iframe></div>
+                    <div class="tf">点击图文/视频/直播 → 弹窗 → 去 KYC</div>
                 </div>
                 <div class="tile">
-                    <div class="th">profile.html?creator=none&amp;cert=open</div>
-                    <div class="tb" style="height:680px"><iframe src="pages-web/profile.html?creator=none&amp;reset=1&amp;cert=open" title="认证申请" loading="lazy"></iframe></div>
-                    <div class="tf">Step1 选择类型 · 研发玻璃球（权益/审核）</div>
+                    <div class="th">create.html?reset=1 <a href="pages-web/create.html?reset=1" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/create.html?reset=1" title="创建页门槛" loading="lazy"></iframe></div>
+                    <div class="tf">横幅文案 · 立即申请 → kyc-intro</div>
                 </div>
                 <div class="tile">
-                    <div class="th">profile.html?creator=none&amp;cert=step2&amp;compliance=0</div>
-                    <div class="tb" style="height:680px"><iframe src="pages-web/profile.html?creator=none&amp;reset=1&amp;cert=step2&amp;type=photo&amp;compliance=0" title="资质校验失败" loading="lazy"></iframe></div>
-                    <div class="tf">Step2 条件符合/不符合 · 去认证禁用</div>
+                    <div class="th">create.html?kyc=approved&amp;type=image</div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/create.html?kyc=approved&amp;creator=approved&amp;type=image" title="可发布" loading="lazy"></iframe></div>
+                    <div class="tf">KYC+创作者通过 · 展示编辑器（原流程）</div>
                 </div>
                 <div class="tile">
-                    <div class="th">profile.html?creator=pending</div>
-                    <div class="tb" style="height:640px"><iframe src="pages-web/profile.html?creator=pending" title="审核中" loading="lazy"></iframe></div>
-                    <div class="tf">标签：认证创作者审核中</div>
+                    <div class="th">kyc-intro.html</div>
+                    <div class="tb" style="height:560px"><iframe src="pages-web/kyc-intro.html?return=create.html" title="KYC入口" loading="lazy"></iframe></div>
+                    <div class="tf">现有 KYC 双路径认证流程</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="block" id="profile-creator">
+            <h2><i class="fa-solid fa-certificate"></i>个人主页 · 创作者状态标签</h2>
+            <p class="lead">标签随 KYC/创作者状态变化；「申请成为创作者」跳转 <code>kyc-intro.html</code>（不再使用页内类型认证弹窗）。</p>
+            <div class="grid">
+                <div class="tile">
+                    <div class="th">profile.html?reset=1</div>
+                    <div class="tb" style="height:640px"><iframe src="pages-web/profile.html?reset=1" title="未认证" loading="lazy"></iframe></div>
+                    <div class="tf">申请成为创作者 → KYC</div>
                 </div>
                 <div class="tile">
-                    <div class="th">profile.html?creator=approved</div>
-                    <div class="tb" style="height:640px"><iframe src="pages-web/profile.html?creator=approved" title="已认证" loading="lazy"></iframe></div>
-                    <div class="tf">标签：认证创作者（现有样式）</div>
-                </div>
-                <div class="tile">
-                    <div class="th">modal-profile-creator-cert.html</div>
-                    <div class="tb" style="height:560px"><iframe src="pages-web/modal-profile-creator-cert.html" title="认证弹窗切片" loading="lazy"></iframe></div>
-                    <div class="tf">Step2 UI 走查切片</div>
+                    <div class="th">profile.html?kyc=approved&amp;creator=approved</div>
+                    <div class="tb" style="height:640px"><iframe src="pages-web/profile.html?kyc=approved&amp;creator=approved" title="已认证" loading="lazy"></iframe></div>
+                    <div class="tf">认证创作者标签</div>
                 </div>
             </div>
         </section>
