@@ -13,6 +13,9 @@
     var currentTab = 'feed';
     var cancelTargetName = '';
 
+    var SUB_READ_SET_KEY = 'fl_sub_read_item_ids_v1';
+    var SUB_UNREAD_COUNT_KEY = 'fl_sub_unread_counts_v1';
+
     function toast(msg) {
         var host = document.getElementById('subToastHost');
         if (!host) return;
@@ -21,6 +24,96 @@
         t.textContent = msg;
         host.appendChild(t);
         setTimeout(function () { t.remove(); }, 2600);
+    }
+
+    function safeJsonParse(str, fallback) {
+        try { return JSON.parse(str); } catch (e) { return fallback; }
+    }
+
+    function getReadSet() {
+        try {
+            var raw = localStorage.getItem(SUB_READ_SET_KEY) || '[]';
+            var arr = safeJsonParse(raw, []);
+            if (!Array.isArray(arr)) return new Set();
+            return new Set(arr.filter(Boolean));
+        } catch (e) {
+            return new Set();
+        }
+    }
+
+    function saveReadSet(set) {
+        try { localStorage.setItem(SUB_READ_SET_KEY, JSON.stringify(Array.from(set))); } catch (e) {}
+    }
+
+    function getUnreadCounts() {
+        var defaults = {};
+        tabs.forEach(function (t) {
+            var tab = t.getAttribute('data-sub-tab');
+            var num = t.querySelector('.num');
+            var v = Number(num?.getAttribute('data-unread-count') || 0);
+            defaults[tab] = isFinite(v) ? v : 0;
+        });
+        try {
+            var raw = localStorage.getItem(SUB_UNREAD_COUNT_KEY);
+            if (!raw) return defaults;
+            var obj = safeJsonParse(raw, {});
+            if (!obj || typeof obj !== 'object') return defaults;
+            return Object.assign({}, defaults, obj);
+        } catch (e) {
+            return defaults;
+        }
+    }
+
+    function saveUnreadCounts(counts) {
+        try { localStorage.setItem(SUB_UNREAD_COUNT_KEY, JSON.stringify(counts || {})); } catch (e) {}
+    }
+
+    function formatCount(n) {
+        if (!isFinite(n)) return '0';
+        if (n >= 100) return '99+';
+        if (n < 0) return '0';
+        return String(n);
+    }
+
+    function setTabCount(tabKey, n) {
+        var el = document.querySelector('.sub-tabs .tab[data-sub-tab="' + tabKey + '"] .num');
+        if (!el) return;
+        el.textContent = formatCount(n);
+    }
+
+    function applyAllTabCounts(counts) {
+        Object.keys(counts || {}).forEach(function (k) { setTabCount(k, Number(counts[k] || 0)); });
+    }
+
+    function tabKeyForCard(card) {
+        var type = card?.getAttribute('data-sub-type') || '';
+        if (type === 'post') return 'feed';
+        if (type === 'live' || type === 'preview') return 'live';
+        if (type === 'paid' || type === 'video') return 'paid';
+        return '';
+    }
+
+    function markCardReadUI(card) {
+        if (!card) return;
+        card.classList.add('is-read');
+        card.setAttribute('data-unread', '0');
+    }
+
+    function initUnreadReadState() {
+        if (!feedList) return;
+        var readSet = getReadSet();
+
+        // 离开页面再回来：已读条目从列表消失（本次点击不立即消失）
+        feedList.querySelectorAll('.sub-feed-card[data-item-id]').forEach(function (card) {
+            var id = card.getAttribute('data-item-id');
+            if (id && readSet.has(id)) {
+                card.style.display = 'none';
+                markCardReadUI(card);
+            }
+        });
+
+        var counts = getUnreadCounts();
+        applyAllTabCounts(counts);
     }
 
     function sortCreatorCol() {
@@ -56,6 +149,93 @@
         return feedList ? Array.prototype.slice.call(feedList.querySelectorAll('[data-sub-type]')) : [];
     }
 
+    function parseBgUrl(el) {
+        if (!el) return '';
+        var raw = '';
+        if (el.style && el.style.backgroundImage) raw = el.style.backgroundImage;
+        if (!raw) raw = getComputedStyle(el).backgroundImage || '';
+        var m = raw.match(/url\(["']?([^"')]+)["']?\)/);
+        return m ? m[1] : '';
+    }
+
+    function openPostDetailFromCard(card) {
+        if (!card) return;
+        if (typeof window.FL_openContentDetail !== 'function') {
+            toast('详情抽屉脚本未加载');
+            return;
+        }
+        var title = card.querySelector('.sfc-title')?.textContent?.trim() || '图文详情';
+        var author = card.querySelector('.sfc-creator-name')?.textContent?.trim() || '创作者';
+        var authorAv = parseBgUrl(card.querySelector('.sfc-av'));
+        var cover = parseBgUrl(card.querySelector('.sfc-cover-img')) || parseBgUrl(card.querySelector('.sfc-cover-mosaic .m-cell'));
+        var desc = '来自订阅动态的图文帖，支持查看完整内容、评论、点赞与打赏。';
+
+        var likes = '0';
+        var comments = '0';
+        card.querySelectorAll('.sfc-stats span').forEach(function (s) {
+            var txt = s.textContent || '';
+            if (txt.indexOf('心') >= 0 || txt.indexOf('赞') >= 0 || txt.indexOf('❤') >= 0) likes = txt.replace(/[^\d.kK,]/g, '') || likes;
+            if (txt.indexOf('评') >= 0 || txt.indexOf('讨论') >= 0) comments = txt.replace(/[^\d.kK,]/g, '') || comments;
+        });
+        var tips = card.getAttribute('data-tip-count') || '0';
+
+        window.FL_openContentDetail({
+            title: title,
+            image: cover,
+            author: author,
+            authorAv: authorAv,
+            desc: desc,
+            likes: likes,
+            comments: comments
+        });
+
+        var likeEl = document.getElementById('subCddLike');
+        var cmEl = document.getElementById('subCddComment');
+        var tipEl = document.getElementById('subCddTip');
+        if (likeEl) likeEl.textContent = likes;
+        if (cmEl) cmEl.textContent = comments;
+        if (tipEl) tipEl.textContent = tips;
+    }
+
+    function markAsRead(card) {
+        if (!card) return;
+        var isUnread = String(card.getAttribute('data-unread') || '') === '1';
+        var id = card.getAttribute('data-item-id') || '';
+        var tabKey = tabKeyForCard(card);
+        if (!isUnread) return;
+
+        // 1) 点击即已读：未读数量 -1
+        var counts = getUnreadCounts();
+        if (tabKey) {
+            counts[tabKey] = Math.max(0, Number(counts[tabKey] || 0) - 1);
+            applyAllTabCounts(counts);
+            saveUnreadCounts(counts);
+        }
+
+        // 2) 已读后数据仍在当前列表位置：只做 UI 置灰，不移除 DOM
+        markCardReadUI(card);
+
+        // 3) 切换到其他页面再回来才消失：记录 readSet，在下次 init 时隐藏
+        if (id) {
+            var set = getReadSet();
+            set.add(id);
+            saveReadSet(set);
+        }
+    }
+
+    function bindPostDetailDrawer() {
+        if (!feedList) return;
+        feedList.addEventListener('click', function (e) {
+            var card = e.target.closest('.sub-feed-card[data-sub-type="post"]');
+            if (!card) return;
+            if (e.target.closest('.sfc-footer button, .sfc-footer .a-btn, .sub-preview-book-wrap')) return;
+            e.preventDefault();
+            e.stopPropagation();
+            markAsRead(card);
+            openPostDetailFromCard(card);
+        });
+    }
+
     function applyTab(tab) {
         currentTab = tab;
         tabs.forEach(function (t) {
@@ -66,21 +246,12 @@
         items.forEach(function (el) {
             var type = el.getAttribute('data-sub-type');
             var show = false;
-            if (tab === 'feed') show = type === 'post' || type === 'paid' || type === 'preview';
-            else if (tab === 'live') show = type === 'live';
-            else if (tab === 'paid') show = type === 'paid';
-            else if (tab === 'video') show = type === 'video';
-            else if (tab === 'latest') show = true;
+            if (tab === 'feed') show = type === 'post';
+            else if (tab === 'live') show = type === 'live' || type === 'preview';
+            else if (tab === 'paid') show = type === 'paid' || type === 'video';
             el.style.display = show ? '' : 'none';
             if (show) shown++;
         });
-        if (tab === 'latest') {
-            shown = items.length;
-            items.sort(function (a, b) {
-                return Number(b.getAttribute('data-sort') || 0) - Number(a.getAttribute('data-sort') || 0);
-            });
-            items.forEach(function (el) { feedList.appendChild(el); });
-        }
         if (feedEmpty) feedEmpty.style.display = shown ? 'none' : 'block';
     }
 
@@ -256,6 +427,9 @@
     document.querySelectorAll('.sfc-footer button, .sfc-footer .a-btn, .sub-preview-book-wrap').forEach(function (el) {
         el.addEventListener('click', function (e) { e.stopPropagation(); });
     });
+
+    initUnreadReadState();
+    bindPostDetailDrawer();
 
     applyTab('feed');
 

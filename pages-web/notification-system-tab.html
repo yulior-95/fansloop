@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>系统通知 · 活动公告 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
+<link rel="stylesheet" href="../css-web/notifications-interactions.css">
+<link rel="stylesheet" href="../css-web/dev-glass-note.css">
+<style>
+.nf-shell { max-width: 880px; margin: 0 auto; }
+.nf-intro {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 18px 20px;
+    margin-bottom: 18px;
+}
+.nf-intro h2 { margin: 0 0 8px; font-size: 17px; }
+.nf-intro p { margin: 0; font-size: 13px; color: var(--t-secondary); line-height: 1.65; }
+.nf-filter { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.nf-filter .ck {
+    padding: 8px 14px; border-radius: 8px; font-size: 12px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    color: var(--t-tertiary); cursor: default;
+}
+.nf-filter .ck.active {
+    background: var(--brand-grad); color: #fff; border-color: transparent;
+    font-weight: 600; box-shadow: 0 4px 10px rgba(168,85,247,0.3);
+}
+.nf-list { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
+.nf-item {
+    padding: 16px 22px; display: flex; gap: 14px; border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: 0.15s;
+}
+.nf-item:hover { background: var(--bg-hover); }
+.nf-item.unread::before {
+    content: ''; position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+    width: 6px; height: 6px; border-radius: 50%; background: var(--brand-pink);
+}
+.nf-item { position: relative; }
+.nf-ic {
+    width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; background: linear-gradient(135deg, #6B7280, #4B5563);
+}
+.nf-body { flex: 1; min-width: 0; }
+.nf-text { font-size: 13.5px; line-height: 1.55; margin-bottom: 4px; }
+.nf-text b { color: #fff; }
+.nf-meta { font-size: 11.5px; color: var(--t-tertiary); display: flex; gap: 10px; flex-wrap: wrap; }
+.nf-thumb { width: 52px; height: 52px; border-radius: 10px; background-size: cover; flex-shrink: 0; }
+.nf-act { margin-top: 8px; }
+.nf-act button {
+    padding: 5px 11px; border-radius: 7px; font-size: 11px; font-weight: 600;
+    border: none; background: var(--brand-grad); color: #fff; cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><i class="fa-solid fa-infinity"></i><span>FansLoop</span></div>
+        <nav class="s-nav">
+            <div class="s-item" onclick="location.href='notifications.html?tab=unread'"><i class="fa-regular fa-bell"></i><span class="lb">通知中心</span></div>
+            <div class="s-item active"><i class="fa-solid fa-bullhorn"></i><span class="lb">系统通知</span></div>
+        </nav>
+    </aside>
+    <main class="app-main">
+        <header class="app-header">
+            <div class="h-left"><h1>系统通知</h1></div>
+            <div class="h-actions">
+                <button type="button" class="h-icon" title="通知"><i class="fa-regular fa-bell"></i></button>
+            </div>
+        </header>
+        <div class="page-inner" style="padding:0 24px 40px">
+            <section class="nf-intro">
+                <h2><i class="fa-solid fa-bullhorn" style="color:#93c5fd"></i> 平台活动 / 系统公告</h2>
+                <p>「系统通知」筛选仅展示平台下发的活动、维护、合规与服务类消息，多为<strong>图文</strong>形态。点击列表项或「查看详情」在当前页打开高保真详情弹窗（含头图、正文、要点与主操作），供前端直接对接 API 字段。</p>
+            </section>
+            <div class="nf-filter">
+                <div class="ck">全部</div>
+                <div class="ck">未读</div>
+                <div class="ck active">系统通知</div>
+            </div>
+            <div class="nf-shell">
+                <div class="nf-list" id="nfSystemList">
+                    <div class="nf-item unread" data-nf-announcement-id="growth-plan">
+                        <div class="nf-ic"><i class="fa-solid fa-bullhorn"></i></div>
+                        <div class="nf-body">
+                            <div class="nf-text"><b>平台活动</b> 创作者增长计划已开启 · 完成目标可获流量加权与专属徽章</div>
+                            <div class="nf-meta"><span>5 小时前</span><span>活动公告</span><span><i class="fa-solid fa-image"></i> 图文</span></div>
+                            <div class="nf-act"><button type="button">查看详情</button></div>
+                        </div>
+                        <div class="nf-thumb" style="background-image:url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=200')"></div>
+                    </div>
+                    <div class="nf-item unread" data-nf-announcement-id="spring-festival">
+                        <div class="nf-ic"><i class="fa-solid fa-gift"></i></div>
+                        <div class="nf-body">
+                            <div class="nf-text"><b>平台活动</b> 春季创作者节 · 投稿即有机会获得首页推荐位与 500 USDT 奖池</div>
+                            <div class="nf-meta"><span>6 小时前</span><span>限时活动</span><span><i class="fa-solid fa-image"></i> 图文</span></div>
+                            <div class="nf-act"><button type="button">查看详情</button></div>
+                        </div>
+                        <div class="nf-thumb" style="background-image:url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=200')"></div>
+                    </div>
+                    <div class="nf-item unread" data-nf-announcement-id="maintenance-notice">
+                        <div class="nf-ic"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                        <div class="nf-body">
+                            <div class="nf-text"><b>平台公告</b> 5 月 28 日 02:00–04:00 钱包与结算模块维护</div>
+                            <div class="nf-meta"><span>8 小时前</span><span>系统公告</span><span><i class="fa-solid fa-image"></i> 图文</span></div>
+                            <div class="nf-act"><button type="button">查看详情</button></div>
+                        </div>
+                        <div class="nf-thumb" style="background-image:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=200')"></div>
+                    </div>
+                    <div class="nf-item" data-nf-announcement-id="compliance-update">
+                        <div class="nf-ic"><i class="fa-solid fa-shield-halved"></i></div>
+                        <div class="nf-body">
+                            <div class="nf-text"><b>平台公告</b> Web3 创作者合规指引更新</div>
+                            <div class="nf-meta"><span>昨天</span><span>合规公告</span><span><i class="fa-solid fa-image"></i> 图文</span></div>
+                            <div class="nf-act"><button type="button">查看详情</button></div>
+                        </div>
+                        <div class="nf-thumb" style="background-image:url('https://images.unsplash.com/photo-1563986768609-322da13575f3?w=200')"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div class="nf-overlay" id="nfOvlAnnouncement" role="dialog" aria-modal="true">
+    <div class="nf-modal nf-modal--announcement">
+        <div class="nf-modal-head">
+            <div style="flex:1;min-width:0">
+                <span class="nf-ann-badge" id="nfAnnBadge">平台公告</span>
+                <h3 id="nfAnnTitle">—</h3>
+                <p class="nf-ann-time" id="nfAnnTime">—</p>
+            </div>
+            <button type="button" class="nf-modal-close" data-nf-close="nfOvlAnnouncement"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="nf-modal-body">
+            <img class="nf-ann-hero" id="nfAnnHero" src="" alt="">
+            <div id="nfAnnRich"></div>
+        </div>
+    </div>
+</div>
+
+<div class="nf-toast-host" id="nfToastHost"></div>
+
+<script src="../js-web/notification-system-announcements.js"></script>
+<script src="../js-web/notifications-interactions.js"></script>
+<script>
+(function () {
+    var q = new URLSearchParams(location.search);
+    var openId = q.get('announcement') || q.get('open');
+    if (openId && window.FL_nfOpenAnnouncement) {
+        setTimeout(function () { window.FL_nfOpenAnnouncement(openId); }, 400);
+    }
+})();
+</script>
+<script src="../js-web/app-sidebar-global.js"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>通知详情 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/notification-prototype.css">
+</head>
+<body>
+<div class="np-shell">
+    <header class="np-header">
+        <div class="np-brand">
+            <i class="fa-solid fa-infinity"></i>
+            <span>FansLoop Creator Web</span>
+        </div>
+        <div class="np-actions">
+            <button class="h-icon" title="返回通知中心" onclick="location.href='notification-center.html?tab=unread'">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="np-main">
+        <div class="np-title-wrap">
+            <h1 id="detailTitle">通知详情</h1>
+            <p id="detailType">系统通知</p>
+        </div>
+
+        <div class="nf-layout">
+            <section class="nf-card" style="padding:18px">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;color:#a7acb8;font-size:12px">
+                    <span id="detailTime">--</span>
+                    <span>•</span>
+                    <span id="detailTag">--</span>
+                </div>
+                <h2 id="detailHeading" style="margin:0 0 12px;font-size:20px;line-height:1.45">--</h2>
+                <p id="detailDesc" style="margin:0 0 14px;color:#a7acb8;line-height:1.7;font-size:13px">--</p>
+                <img id="detailImage" src="" alt="通知配图" style="width:100%;max-height:300px;object-fit:cover;border-radius:12px;border:1px solid rgba(148,163,184,.2)">
+                <div style="display:flex;gap:10px;margin-top:16px">
+                    <button id="detailAction" class="btn btn-primary"><i class="fa-solid fa-arrow-up-right-from-square"></i> 立即处理</button>
+                    <button class="btn btn-secondary" onclick="location.href='notification-center.html?tab=all'"><i class="fa-solid fa-list"></i> 返回列表</button>
+                </div>
+            </section>
+
+            <aside class="nf-card nf-side">
+                <h4>通知处理建议</h4>
+                <ul class="nf-kv">
+                    <li><span>优先级</span><strong id="detailPriority">高</strong></li>
+                    <li><span>来源</span><strong>系统通知中心</strong></li>
+                    <li><span>状态</span><strong>已查看</strong></li>
+                </ul>
+                <p style="margin-top:12px;line-height:1.65;color:#8f97ac">
+                    本详情页用于开发联调：通知列表点击“查看详情”后进入此页，支持按通知类型展示不同说明与处理入口。
+                </p>
+            </aside>
+        </div>
+    </main>
+</div>
+
+<script>
+(function () {
+    var map = {
+        n_live_001: { type: "开播提醒", title: "开播提醒：夜雨听弦 已开播", desc: "你关注的创作者已开播，建议立即进入直播间并开启互动。", time: "刚刚", action: "进入直播间", priority: "高", image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1280" },
+        n_sub_001: { type: "订阅提醒", title: "订阅提醒：NeoMaster 已续费", desc: "订阅续费成功，权益持续生效。你可以发送欢迎私信提升留存。", time: "3 分钟前", action: "查看订阅管理", priority: "中", image: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=1280" },
+        n_income_001: { type: "收益通知", title: "收益通知：本日收益已到账", desc: "创作收益已结算到账，可前往钱包查看资金流水和提现入口。", time: "9 分钟前", action: "前往钱包", priority: "高", image: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1280" },
+        n_system_001: { type: "系统通知", title: "系统通知：创作者增长活动已开启", desc: "活动期间完成任务可获得流量加权和奖金。建议尽快报名参与。", time: "昨天 20:16", action: "查看活动公告", priority: "中", image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1280" },
+        n_expiry_001: { type: "到期提醒", title: "到期提醒：订阅将在 24 小时后到期", desc: "请及时续费，避免专属内容和直播回放权益中断。", time: "昨天 18:06", action: "立即续费", priority: "高", image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1280" },
+        n_system_002: { type: "系统通知", title: "系统通知：平台维护公告", desc: "维护期间通知投递可能延迟，建议提前处理关键业务动作。", time: "2 天前", action: "查看公告详情", priority: "低", image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1280" }
+    };
+    var id = new URLSearchParams(location.search).get("id") || "n_live_001";
+    var data = map[id] || map.n_live_001;
+    document.getElementById("detailTitle").textContent = data.type + " · 详情";
+    document.getElementById("detailType").textContent = data.type;
+    document.getElementById("detailHeading").textContent = data.title;
+    document.getElementById("detailDesc").textContent = data.desc;
+    document.getElementById("detailTime").textContent = data.time;
+    document.getElementById("detailTag").textContent = data.type;
+    document.getElementById("detailPriority").textContent = data.priority;
+    document.getElementById("detailAction").innerHTML = '<i class="fa-solid fa-arrow-up-right-from-square"></i> ' + data.action;
+    document.getElementById("detailImage").src = data.image;
+})();
+</script>
+</body>
+</html>

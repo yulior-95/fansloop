@@ -351,6 +351,12 @@
 
     function bindCard(card) {
         ensureStatsButton(card);
+        card.addEventListener('click', function (e) {
+            if (e.target.closest('.work-act')) return;
+            if (typeof global.FL_openContentDetailFromCard === 'function') {
+                global.FL_openContentDetailFromCard(card);
+            }
+        });
         card.querySelectorAll('.work-act').forEach(btn => {
             btn.replaceWith(btn.cloneNode(true));
         });

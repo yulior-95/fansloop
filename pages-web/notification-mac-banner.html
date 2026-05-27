@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>macOS 系统通知 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
+<link rel="stylesheet" href="../css-web/mac-notification-banner.css">
+<link rel="stylesheet" href="../css-web/dev-glass-note.css">
+<style>
+.mac-demo-feed {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+}
+.mac-demo-feed .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+}
+.mac-demo-feed .card .cover {
+    height: 140px;
+    background-size: cover;
+    background-position: center;
+}
+.mac-demo-feed .card .body { padding: 12px 14px; font-size: 13px; color: var(--t-secondary); }
+</style>
+</head>
+<body data-mac-notify-auto="full">
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><i class="fa-solid fa-infinity"></i><span>FansLoop</span></div>
+        <nav class="s-nav">
+            <div class="s-item" onclick="location.href='home.html'"><i class="fa-solid fa-house"></i><span class="lb">首页</span></div>
+            <div class="s-item active"><i class="fa-regular fa-bell"></i><span class="lb">通知演示</span></div>
+            <div class="s-item" onclick="location.href='notifications.html?tab=unread'"><i class="fa-solid fa-list"></i><span class="lb">通知中心</span></div>
+        </nav>
+    </aside>
+
+    <main class="app-main">
+        <header class="app-header">
+            <div class="h-left"><h1>macOS 系统通知交互</h1></div>
+            <div class="h-actions">
+                <button type="button" class="h-icon" title="通知"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            </div>
+        </header>
+
+        <div class="page-inner" style="max-width: 960px; padding: 0 24px 32px">
+            <section class="mac-demo-panel">
+                <h2><i class="fa-brands fa-apple"></i> 侧边系统消息提醒（Web 高保真）</h2>
+                <p class="lead">
+                    <strong>体验分析：</strong>参考 macOS 通知中心，新消息从屏幕<strong>右上角滑入</strong>，不打断当前浏览；悬停显示关闭，点击横幅进入通知中心或业务页；多条通知纵向堆叠，超出自动收起最早一条。
+                    <strong>开发约定：</strong>调用 <code>FL_macNotify({...})</code> 或预设 <code>FL_macNotifyPresets.tip()</code>。
+                </p>
+                <div class="mac-demo-btns">
+                    <button type="button" class="btn btn-primary" id="btnMacTip"><i class="fa-solid fa-gift"></i> 打赏通知</button>
+                    <button type="button" class="btn btn-secondary" id="btnMacLive"><i class="fa-solid fa-tower-broadcast"></i> 开播提醒</button>
+                    <button type="button" class="btn btn-secondary" id="btnMacMention"><i class="fa-solid fa-at"></i> 提及我</button>
+                    <button type="button" class="btn btn-secondary" id="btnMacSystem"><i class="fa-solid fa-bullhorn"></i> 系统公告</button>
+                    <button type="button" class="btn btn-secondary" id="btnMacExpiry"><i class="fa-solid fa-hourglass-half"></i> 到期提醒</button>
+                    <button type="button" class="btn btn-ghost" id="btnMacBurst"><i class="fa-solid fa-layer-group"></i> 连续推送 4 条</button>
+                    <button type="button" class="btn btn-ghost" id="btnMacClear"><i class="fa-solid fa-xmark"></i> 全部关闭</button>
+                </div>
+                <div class="mac-demo-spec">
+                    交互规格（可直接对接开发）：<br>
+                    1. 入场动画：自右向左滑入 + 淡入，时长约 420ms，缓动 cubic-bezier(0.22, 1, 0.36, 1)<br>
+                    2. 退场：滑出右侧；默认 5.5s 自动消失；悬停显示左上角关闭钮<br>
+                    3. 点击卡片主体 → 跳转 <code>href</code>；操作按钮独立触发且不冒泡<br>
+                    4. 最多堆叠 4 条；毛玻璃背景 + 圆角 14px，贴近 macOS Sonoma 通知样式
+                </div>
+            </section>
+
+            <p style="font-size:13px;color:var(--t-tertiary);margin:0 0 12px">下方为模拟「正在浏览首页」时的背景内容，通知从右侧叠加，不遮挡主操作区。</p>
+            <div class="mac-demo-feed">
+                <article class="card">
+                    <div class="cover" style="background-image:url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=600')"></div>
+                    <div class="body">富士山日出 · 图文动态</div>
+                </article>
+                <article class="card">
+                    <div class="cover" style="background-image:url('https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600')"></div>
+                    <div class="body">NovaPlay · 游戏直播</div>
+                </article>
+                <article class="card">
+                    <div class="cover" style="background-image:url('https://images.unsplash.com/photo-1493612276216-ee3925520721?w=600')"></div>
+                    <div class="body">街头胶片随拍 · 35mm</div>
+                </article>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="../js-web/mac-notification-banner.js"></script>
+<script>
+(function () {
+    var P = window.FL_macNotifyPresets;
+    document.getElementById('btnMacTip')?.addEventListener('click', function () { P.tip(); });
+    document.getElementById('btnMacLive')?.addEventListener('click', function () { P.live(); });
+    document.getElementById('btnMacMention')?.addEventListener('click', function () { P.mention(); });
+    document.getElementById('btnMacSystem')?.addEventListener('click', function () { P.system(); });
+    document.getElementById('btnMacExpiry')?.addEventListener('click', function () { P.expiry(); });
+    document.getElementById('btnMacClear')?.addEventListener('click', function () { FL_macNotifyDismissAll(); });
+    document.getElementById('btnMacBurst')?.addEventListener('click', function () {
+        [P.tip, P.live, P.mention, P.system].forEach(function (fn, i) { setTimeout(fn, i * 600); });
+    });
+})();
+</script>
+<script src="../js-web/app-sidebar-global.js"></script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FansLoop · 充提原型（iframe 平铺）</title>
+<title>FansLoop · Web 高保真原型（iframe 平铺）</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="css-web/common-web.css">
 <style>
@@ -135,8 +135,8 @@ main.content { padding: 28px 24px 48px; }
     <div class="brand">
         <div class="logo"><i class="fa-solid fa-infinity"></i></div>
         <div>
-            <h1>FansLoop Web · 充提高保真原型</h1>
-            <p>主入口：<b style="color:#C084FC">index.html</b> 并列 iframe 预览（无整页跳转）；收银台与清算对用户侧统一为「FansLoop 订单 / 安全收银台」。VaultX 移动合集：<a href="vaultx-mobile-index.html" style="color:var(--brand-purple)">vaultx-mobile-index.html</a>。</p>
+            <h1>FansLoop Web · 高保真原型</h1>
+            <p>主入口：<b style="color:#C084FC">index.html</b> 并列 iframe 预览（无整页跳转）；本页新增通知中心高保真原型，并保留原有资金与个人主页设计集。VaultX 移动合集：<a href="vaultx-mobile-index.html" style="color:var(--brand-purple)">vaultx-mobile-index.html</a>。</p>
         </div>
     </div>
     <div class="actions">
@@ -148,6 +148,7 @@ main.content { padding: 28px 24px 48px; }
 <div class="layout">
     <aside class="sidebar">
         <div class="sec">导览</div>
+        <a href="#notification"><i class="fa-regular fa-bell"></i>通知中心</a>
         <a href="#ux"><i class="fa-solid fa-lightbulb"></i>体验与 IA</a>
         <a href="#recharge"><i class="fa-solid fa-arrow-down"></i>充值</a>
         <a href="#withdraw"><i class="fa-solid fa-arrow-up"></i>提现</a>
@@ -165,6 +166,69 @@ main.content { padding: 28px 24px 48px; }
     </aside>
 
     <main class="content">
+        <section class="block" id="notification">
+            <h2><i class="fa-regular fa-bell"></i>通知中心模块（本次优化）</h2>
+            <p class="lead">
+                <strong>用户体验分析：</strong>通知中心承载创作者最关键的运营触达，目标是“快速感知、快速处理、可追溯”；
+                <strong>产品界面设计：</strong>统一收敛为 5 类系统通知（开播提醒、订阅提醒、收益通知、系统通知、到期提醒），并提供详情闭环；
+                <strong>高保真 UI：</strong>采用 Web 端标准 Header + Main + Aside 布局，真实图片素材与状态化按钮；
+                <strong>macOS 系统通知：</strong>参考 Mac 消息中心，新通知从右上角侧边滑入（毛玻璃横幅），可堆叠、自动消失、点击进入通知中心；
+                <strong>HTML 原型实现：</strong>列表页支持筛选、已读与页内操作；独立文件 <code>notification-mac-banner.html</code> 承载侧边通知组件，可直接用于开发联调。
+            </p>
+            <div class="grid">
+                <div class="tile">
+                    <div class="th">notification-home-entry.html（Header 通知入口） <a href="pages-web/notification-home-entry.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:460px"><iframe src="pages-web/notification-home-entry.html" title="通知入口页" loading="lazy"></iframe></div>
+                    <div class="tf">点击右上角通知按钮，直接进入未读通知列表。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">notification-center.html?tab=unread（默认未读） <a href="pages-web/notification-center.html?tab=unread" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:640px"><iframe src="pages-web/notification-center.html?tab=unread" title="通知中心未读" loading="lazy"></iframe></div>
+                    <div class="tf">符合你给的 DOM 语义：进入即未读列表，支持单条与批量已读。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">notification-center.html?tab=all（全量视图） <a href="pages-web/notification-center.html?tab=all" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:640px"><iframe src="pages-web/notification-center.html?tab=all" title="通知中心全部" loading="lazy"></iframe></div>
+                    <div class="tf">用于对比“全部”与“未读”筛选内容与计数差异，便于开发联调。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">notification-detail.html?id=n_income_001（详情态） <a href="pages-web/notification-detail.html?id=n_income_001" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:640px"><iframe src="pages-web/notification-detail.html?id=n_income_001" title="通知详情" loading="lazy"></iframe></div>
+                    <div class="tf">支持从通知列表“查看详情”进入，承载通知正文、时效与处理动作。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">notifications.html?tab=unread（列表操作 + macOS 侧边推送） <a href="pages-web/notifications.html?tab=unread" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/notifications.html?tab=unread" title="通知中心完整交互" loading="lazy"></iframe></div>
+                    <div class="tf">进入自动弹出 macOS 侧边通知；打赏项已去掉「查看动态」；系统类见 <code>?tab=system</code> 筛选。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">notifications.html?saveFail=1（设置保存失败演示） <a href="pages-web/notifications.html?saveFail=1" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/notifications.html?saveFail=1" title="设置保存失败" loading="lazy"></iframe></div>
+                    <div class="tf">打开「通知设置」→ 保存，展示失败提示与 Toast（或 Shift+保存 模拟失败）。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">notification-mac-banner.html（macOS 侧边系统通知 · 交互演示） <a href="pages-web/notification-mac-banner.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/notification-mac-banner.html" title="macOS 系统通知" loading="lazy"></iframe></div>
+                    <div class="tf">右上角滑入毛玻璃通知横幅，支持堆叠、自动消失、悬停关闭、操作按钮与点击跳转。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">notification-mac-on-home.html（首页浏览 + 自动推送） <a href="pages-web/notification-mac-on-home.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/notification-mac-on-home.html" title="首页 macOS 通知" loading="lazy"></iframe></div>
+                    <div class="tf">模拟用户浏览首页时连续收到打赏 / 开播 / 提及 / 系统通知，不打断主内容区。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">notifications.html?tab=system（系统通知 · 活动/公告） <a href="pages-web/notifications.html?tab=system" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/notifications.html?tab=system" title="系统通知筛选" loading="lazy"></iframe></div>
+                    <div class="tf">仅展示平台活动/公告类图文通知；点击「查看详情」打开页内图文弹窗。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">notification-system-tab.html?announcement=growth-plan <a href="pages-web/notification-system-tab.html?announcement=growth-plan" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/notification-system-tab.html?announcement=growth-plan" title="系统通知详情弹窗" loading="lazy"></iframe></div>
+                    <div class="tf">独立系统通知原型页；进入即打开「创作者增长计划」图文详情弹窗，含头图与 CTA。</div>
+                </div>
+            </div>
+        </section>
+
         <section class="block" id="ux">
             <h2><i class="fa-solid fa-compass"></i>用户体验与信息架构（摘要）</h2>
             <p class="lead">
@@ -459,7 +523,7 @@ main.content { padding: 28px 24px 48px; }
             </p>
             <div class="grid">
                 <div class="tile">
-                    <div class="th">profile.html · 已发布 <a href="pages-web/profile.html" target="_blank">新窗口</a></div>
+                    <div class="th">profile.html · 已发布（点击作品卡 · 右侧内容详情抽屉） <a href="pages-web/profile.html" target="_blank">新窗口</a></div>
                     <div class="tb" style="height:720px"><iframe src="pages-web/profile.html" title="个人主页作品" loading="lazy"></iframe></div>
                     <div class="tf">置顶/下架/数据看板 · 下架后从本列表移除</div>
                 </div>

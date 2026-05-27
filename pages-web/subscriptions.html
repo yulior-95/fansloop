@@ -8,6 +8,7 @@
 <script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
 <link rel="stylesheet" href="../css-web/dev-glass-note.css">
 <link rel="stylesheet" href="../css-web/subscriptions-page.css">
+<link rel="stylesheet" href="../css-web/content-detail-drawer.css">
 <link rel="stylesheet" href="../css-web/subscribe-modal.css">
 
 
@@ -33,7 +34,7 @@
 
         <div class="s-section">互动</div>
         <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
-        <div class="s-item" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-item" onclick="location.href='notifications.html?tab=unread'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
 
         <div class="s-section">资产</div>
         <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
@@ -86,7 +87,7 @@
         <div class="page-head">
             <div class="ph-l">
                 <h1>我的订阅 <span class="chip-pro" style="background: linear-gradient(135deg, rgba(168,85,247,0.18), rgba(236,72,153,0.1)); border-color: rgba(168,85,247,0.3); color: #C084FC">12 位创作者</span></h1>
-                <p>聚合你订阅的创作者最新内容、直播预告与专属付费帖。</p>
+                <p>聚合你订阅的创作者图文动态；付费内容请查看「付费独享」，直播与直播预告见「直播」Tab。</p>
             </div>
             <div class="ph-r">
                 <button type="button" class="btn" id="btnSubRefresh"><i class="fa-solid fa-arrows-rotate"></i> 刷新</button>
@@ -106,7 +107,7 @@
                 </div>
                 <div class="ss-v-foot delta-row">
                     <span class="delta">2 场你感兴趣</span>
-                    <span class="dev-glass-wrap dev-glass-wrap--feed dev-glass-wrap--pop-below">
+                    <span class="dev-glass-wrap dev-glass-wrap--stats-live">
                         <span class="dev-glass-sphere" tabindex="0" aria-describedby="devSubLiveInterestTip">
                             <span class="dev-glass-sphere-shine"></span>
                             <span class="dev-glass-sphere-txt">To 研发</span>
@@ -123,7 +124,7 @@
                         <div class="vl">28<span class="u">条</span></div>
                     </div>
                 </div>
-                <div class="ss-v-foot"><span class="delta">12 条付费帖</span></div>
+                <div class="ss-v-foot delta-row"><span class="delta">12 条付费帖</span></div>
             </div>
             <div class="ss-card ss-card--v c4">
                 <div class="ss-v-main">
@@ -139,7 +140,7 @@
 
                 <div class="sub-layout-v2">
             <aside class="sub-creator-col">
-                <div class="sub-creator-col-head">
+                <div class="sub-creator-col-head" id="subCreatorColHead">
                     <div class="title">
                         <i class="fa-solid fa-user-group"></i>
                         <span class="title-txt">我订阅的创作者</span>
@@ -150,7 +151,11 @@
                             <span class="dev-glass-sphere-shine"></span>
                             <span class="dev-glass-sphere-txt">To 研发</span>
                         </span>
-                        <span class="dev-glass-pop" id="devSubCreatorRailTip" role="tooltip">① 左栏占主内容区 <strong>25%（1/4）</strong> 宽度，头像+名称纵向列表<br>② 支持<strong>上下滑动</strong>；排序：<strong>直播中</strong> ＞ <strong>订阅时间降序</strong><br>③ 未看更新显示「X个作品未看」</span>
+                        <div class="dev-glass-pop dev-glass-pop--creator-rail" id="devSubCreatorRailTip" role="tooltip">
+                            <p>① 左栏占主内容区 <strong>25%（1/4）</strong> 宽度，头像 + 名称纵向列表。</p>
+                            <p>② 支持<strong>上下滑动</strong>；排序：<strong>直播中</strong> 优先，其次<strong>订阅时间降序</strong>。</p>
+                            <p>③ 有未读作品时显示「X 个作品未看」。</p>
+                        </div>
                     </span>
                 </div>
                 <div class="creator-col-list" id="creatorRail">
@@ -208,19 +213,44 @@
             <div class="sub-content-col">
                 <div class="sub-tabs-bar">
                     <div class="sub-tabs" role="tablist">
-                        <div class="tab active" role="tab" data-sub-tab="feed" tabindex="0"><i class="fa-solid fa-stream"></i>动态<span class="num" data-unread-count="28">28</span></div>
-                        <div class="tab" role="tab" data-sub-tab="live" tabindex="0"><i class="fa-solid fa-tower-broadcast"></i>直播<span class="num" data-unread-count="3">3</span></div>
-                        <div class="tab" role="tab" data-sub-tab="paid" tabindex="0"><i class="fa-solid fa-crown"></i>付费独享<span class="num" data-unread-count="105">99+</span></div>
-                        <div class="tab" role="tab" data-sub-tab="video" tabindex="0"><i class="fa-solid fa-circle-play"></i>视频<span class="num" data-unread-count="15">15</span></div>
+                        <div class="tab active" role="tab" data-sub-tab="feed" tabindex="0">
+                            <span class="dev-glass-wrap dev-glass-wrap--tab-tip">
+                                <i class="fa-solid fa-circle-info tab-help-ic" tabindex="0" aria-describedby="devTabFeedTip"></i>
+                                <span class="dev-glass-pop" id="devTabFeedTip" role="tooltip">动态展示的是您订阅的创作者发布的未读的免费图文帖</span>
+                            </span>
+                            <i class="fa-solid fa-stream"></i>动态<span class="num" data-unread-count="28">28</span>
+                        </div>
+                        <div class="tab" role="tab" data-sub-tab="live" tabindex="0">
+                            <span class="dev-glass-wrap dev-glass-wrap--tab-tip">
+                                <i class="fa-solid fa-circle-info tab-help-ic" tabindex="0" aria-describedby="devTabLiveTip"></i>
+                                <span class="dev-glass-pop" id="devTabLiveTip" role="tooltip">直播展示的是您订阅的创作者发布的直播预告和正在直播的内容</span>
+                            </span>
+                            <i class="fa-solid fa-tower-broadcast"></i>直播<span class="num" data-unread-count="3">3</span>
+                        </div>
+                        <div class="tab" role="tab" data-sub-tab="paid" tabindex="0">
+                            <span class="dev-glass-wrap dev-glass-wrap--tab-tip">
+                                <i class="fa-solid fa-circle-info tab-help-ic" tabindex="0" aria-describedby="devTabPaidTip"></i>
+                                <span class="dev-glass-pop" id="devTabPaidTip" role="tooltip">付费独享展示的是您订阅的创作者发布的仅会员专享或付费的未读的图文帖、视频帖</span>
+                            </span>
+                            <i class="fa-solid fa-crown"></i>付费独享<span class="num" data-unread-count="105">99+</span>
+                        </div>
                         <div class="grow"></div>
-                        <div class="tab" role="tab" data-sub-tab="latest" tabindex="0"><i class="fa-solid fa-sort"></i>最新</div>
                     </div>
-                    <span class="dev-glass-wrap dev-glass-wrap--feed dev-glass-wrap--pop-below sub-tabs-glass">
-                        <span class="dev-glass-sphere" tabindex="0" aria-describedby="devSubTabUnreadTip">
+                    <span class="dev-glass-wrap dev-glass-wrap--feed sub-tabs-glass">
+                        <span class="dev-glass-sphere" tabindex="0" aria-describedby="devSubTabGuideTip">
                             <span class="dev-glass-sphere-shine"></span>
                             <span class="dev-glass-sphere-txt">To 研发</span>
                         </span>
-                        <span class="dev-glass-pop" id="devSubTabUnreadTip" role="tooltip">Tab 后面的数值 = 该分类下<strong>新增未观看</strong>的作品数量；用户一直未看会持续累加，达到 100 条时显示 <strong>99+</strong></span>
+                        <span class="dev-glass-pop dev-glass-pop--tabs-guide" id="devSubTabGuideTip" role="tooltip">
+                            <strong>订阅 Feed · Tab 分类说明</strong>
+                            <ul class="dev-glass-tab-list">
+                                <li><b>动态</b>：已订阅创作者的<strong>图文帖</strong>（不含付费独享、直播、视频）</li>
+                                <li><b>直播</b>：<strong>正在直播</strong>的场次 + <strong>直播预告</strong>（可预约提醒）</li>
+                                <li><b>付费独享</b>：仅展示带会员/付费标识的<strong>图文与视频独家内容</strong></li>
+                            </ul>
+                            <span class="dev-glass-tab-note">Tab 后数字 = 该分类下<strong>未观看</strong>条数，持续累加；≥100 显示 <strong>99+</strong>。</span>
+                            <span class="dev-glass-tab-note"><strong>已读规则：</strong>① 点击卡片即标记已读，未读数量 -1；② 已读卡片当前列表位置保留，仅切换到其他页面并返回后才从列表隐藏。</span>
+                        </span>
                     </span>
                 </div>
                 <div class="sub-feed-wrap">
@@ -231,7 +261,7 @@
                     <div class="sub-feed-card-aurora" aria-hidden="true"></div>
                     <div class="sfc-cover" onclick="location.href='live-detail.html'">
                         <div class="sfc-cover-img" style="background-image:url('https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=900&q=80')"></div>
-                        <span class="sfc-badge sfc-badge--live">LIVE</span>
+                        <span class="sfc-badge sfc-badge--live">直播中</span>
                         <span class="sfc-views-overlay"><i class="fa-solid fa-eye"></i> 1,284</span>
                     </div>
                     <div class="sfc-body">
@@ -260,7 +290,7 @@
                         <h3 class="sfc-title" onclick="location.href='live-detail.html'">深夜绘画直播间</h3>
                         <div class="sfc-stats"><span><i class="fa-solid fa-eye"></i>642 观看</span></div>
                     </div>
-                    <div class="sfc-footer"><button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation();location.href='live-detail.html'"><i class="fa-solid fa-play"></i> 进入</button></div>
+                    <div class="sfc-footer"><button type="button" class="btn btn-primary btn-sm" onclick="event.stopPropagation();location.href='live-detail.html'"><i class="fa-solid fa-play"></i> 进入直播间</button></div>
                 </article>
 
                 <article class="sub-feed-card" data-sub-type="preview" data-sort="850" style="--aurora-a:rgba(168,85,247,0.5);--aurora-b:rgba(110,231,183,0.3)">
@@ -327,9 +357,9 @@
                 </article>
 
                 <!-- 四图 · 对齐首页 Feed 富士山帖 -->
-                <article class="sub-feed-card" data-sub-type="post" data-sort="650" style="--aurora-a:rgba(56,189,248,0.5);--aurora-b:rgba(147,197,253,0.4)">
+                <article class="sub-feed-card" data-sub-type="post" data-item-id="sub_post_fuji_mosaic" data-unread="1" data-sort="650" data-tip-count="36" style="--aurora-a:rgba(56,189,248,0.5);--aurora-b:rgba(147,197,253,0.4)">
                     <div class="sub-feed-card-aurora" aria-hidden="true"></div>
-                    <div class="sfc-cover" onclick="location.href='topic-detail.html'">
+                    <div class="sfc-cover">
                         <div class="sfc-cover-mosaic" aria-label="4张图片">
                             <div class="m-cell" style="background-image:url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=500&q=80')"></div>
                             <div class="m-cell" style="background-image:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80')"></div>
@@ -343,14 +373,14 @@
                             <div class="sfc-av" style="background-image:url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100')"></div>
                             <div class="sfc-creator-info"><span class="sfc-creator-name">山野食光</span><span class="sfc-time">2 小时前</span></div>
                         </div>
-                        <h3 class="sfc-title" onclick="location.href='topic-detail.html'">清晨五合目的云海，像被风轻轻吹散的奶油 ☁️ 35mm 定焦零下 4℃ 拍了三小时</h3>
+                        <h3 class="sfc-title">清晨五合目的云海，像被风轻轻吹散的奶油 ☁️ 35mm 定焦零下 4℃ 拍了三小时</h3>
                         <div class="sfc-stats"><span><i class="fa-solid fa-eye"></i>2.1k</span><span><i class="fa-solid fa-heart"></i>2,148</span><span>#富士山 #旅行摄影</span></div>
                     </div>
                 </article>
 
-                <article class="sub-feed-card" data-sub-type="post" data-sort="600" style="--aurora-a:rgba(16,185,129,0.4);--aurora-b:rgba(52,211,153,0.3)">
+                <article class="sub-feed-card" data-sub-type="post" data-item-id="sub_post_fuji_single" data-unread="1" data-sort="600" data-tip-count="18" style="--aurora-a:rgba(16,185,129,0.4);--aurora-b:rgba(52,211,153,0.3)">
                     <div class="sub-feed-card-aurora" aria-hidden="true"></div>
-                    <div class="sfc-cover" onclick="location.href='creator-profile.html'">
+                    <div class="sfc-cover">
                         <div class="sfc-cover-img" style="background-image:url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=900&q=80')"></div>
                         <span class="sfc-views-overlay"><i class="fa-solid fa-eye"></i> 1.8k</span>
                     </div>
@@ -359,7 +389,7 @@
                             <div class="sfc-av" style="background-image:url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100')"></div>
                             <div class="sfc-creator-info"><span class="sfc-creator-name">山野食光</span><span class="sfc-time">3 小时前</span></div>
                         </div>
-                        <h3 class="sfc-title" onclick="location.href='creator-profile.html'">富士山五合目 · 每一张都是冻出来的浪漫</h3>
+                        <h3 class="sfc-title">富士山五合目 · 每一张都是冻出来的浪漫</h3>
                         <div class="sfc-stats"><span><i class="fa-solid fa-heart"></i>892</span></div>
                     </div>
                 </article>
@@ -397,9 +427,9 @@
                     </div>
                 </article>
 
-                <article class="sub-feed-card" data-sub-type="post" data-sort="450" style="--aurora-a:rgba(251,146,60,0.4);--aurora-b:rgba(253,186,116,0.35)">
+                <article class="sub-feed-card" data-sub-type="post" data-item-id="sub_post_miso" data-unread="1" data-sort="450" data-tip-count="9" style="--aurora-a:rgba(251,146,60,0.4);--aurora-b:rgba(253,186,116,0.35)">
                     <div class="sub-feed-card-aurora" aria-hidden="true"></div>
-                    <div class="sfc-cover" onclick="location.href='creator-profile.html'">
+                    <div class="sfc-cover">
                         <div class="sfc-cover-img" style="background-image:url('https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=900&q=80')"></div>
                     </div>
                     <div class="sfc-body">
@@ -407,7 +437,7 @@
                             <div class="sfc-av" style="background-image:url('https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=100')"></div>
                             <div class="sfc-creator-info"><span class="sfc-creator-name">极简料理</span><span class="sfc-time">6 小时前</span></div>
                         </div>
-                        <h3 class="sfc-title" onclick="location.href='creator-profile.html'">15 分钟味噌汤饭 · 冬日暖胃</h3>
+                        <h3 class="sfc-title">15 分钟味噌汤饭 · 冬日暖胃</h3>
                         <div class="sfc-stats"><span><i class="fa-solid fa-eye"></i>534</span></div>
                     </div>
                 </article>
@@ -505,6 +535,53 @@
 
 <div class="sub-toast-host" id="subToastHost"></div>
 
+<div class="cdd-root" id="contentDetailDrawer" aria-hidden="true" role="dialog" aria-label="图文内容详情">
+    <div class="cdd-backdrop"></div>
+    <aside class="cdd-panel">
+        <header class="cdd-head">
+            <div class="cdd-author">
+                <div class="av" id="cddAuthorAv"></div>
+                <div class="meta">
+                    <div class="n" id="cddAuthorName">—</div>
+                    <div class="s">订阅图文</div>
+                </div>
+            </div>
+            <button type="button" class="cdd-close" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </header>
+        <div class="cdd-scroll">
+            <div class="cdd-media">
+                <img id="cddMediaImg" src="" alt="图文封面">
+            </div>
+            <div class="cdd-body">
+                <h2 class="cdd-title" id="cddTitle">—</h2>
+                <p class="cdd-desc" id="cddDesc">—</p>
+                <div class="cdd-tags">#订阅 #图文 #创作者动态</div>
+                <div class="sub-cdd-kpi">
+                    <span>点赞 <b id="subCddLike">—</b></span>
+                    <span>评论 <b id="subCddComment">—</b></span>
+                    <span>打赏 <b id="subCddTip">—</b></span>
+                </div>
+            </div>
+            <div class="cdd-actions">
+                <button type="button" data-cdd-act="like"><i class="fa-regular fa-heart"></i><span id="cddLikeCount">0</span></button>
+                <button type="button" data-cdd-act="forward"><i class="fa-solid fa-share"></i>转发</button>
+                <button type="button" data-cdd-act="share"><i class="fa-solid fa-link"></i>分享</button>
+                <button type="button" data-cdd-act="save"><i class="fa-regular fa-bookmark"></i>收藏</button>
+            </div>
+            <div class="cdd-comments-head">
+                <span>全部评论</span>
+                <span id="cddCommentsTotal">0 条评论</span>
+            </div>
+            <div class="cdd-comments" id="cddCommentList"></div>
+        </div>
+        <div class="cdd-compose">
+            <input type="text" id="cddCommentInput" placeholder="说点什么…" autocomplete="off">
+            <button type="button" id="cddSendComment">发送</button>
+        </div>
+        <div class="cdd-toast"></div>
+    </aside>
+</div>
+
 <!-- 续费 / 订阅 · 与首页共用流程（月/季/年 + 余额不足充值） -->
 <div class="inline-overlay" id="ovlSubscribe">
     <div class="iol-panel">
@@ -594,6 +671,7 @@
 <link rel="stylesheet" href="../css-web/host-live-pip-global.css">
 <script src="../js-web/live-wallet-store.js"></script>
 <script src="../js-web/subscribe-modal.js"></script>
+<script src="../js-web/content-detail-drawer.js"></script>
 <script src="../js-web/subscriptions-page.js"></script>
 <script src="../js-web/host-live-pip-global.js"></script>
 <script>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>首页 + macOS 通知 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
+<link rel="stylesheet" href="../css-web/mac-notification-banner.css">
+<link rel="stylesheet" href="../css-web/dev-glass-note.css">
+<style>
+.nmh-hero {
+    padding: 20px 22px;
+    border-radius: var(--r-lg);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    margin-bottom: 18px;
+}
+.nmh-hero h2 { margin: 0 0 8px; font-size: 17px; }
+.nmh-hero p { margin: 0; font-size: 13px; color: var(--t-secondary); line-height: 1.6; }
+.nmh-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+@media (max-width: 1100px) { .nmh-grid { grid-template-columns: 1fr 1fr; } }
+.nmh-card {
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+}
+.nmh-card .img { height: 160px; background-size: cover; background-position: center; }
+.nmh-card .cap { padding: 12px; font-size: 12px; color: var(--t-secondary); }
+</style>
+</head>
+<body data-mac-notify-auto="full">
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><i class="fa-solid fa-infinity"></i><span>FansLoop</span></div>
+        <nav class="s-nav">
+            <div class="s-item active"><i class="fa-solid fa-house"></i><span class="lb">首页</span></div>
+            <div class="s-item" onclick="location.href='notifications.html?tab=unread'"><i class="fa-regular fa-bell"></i><span class="lb">通知</span></div>
+        </nav>
+    </aside>
+    <main class="app-main">
+        <header class="app-header">
+            <div class="h-left"><h1>首页</h1></div>
+            <div class="h-actions">
+                <button type="button" class="h-icon" title="通知"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnSimNotify"><i class="fa-solid fa-bell"></i> 模拟新通知</button>
+            </div>
+        </header>
+        <div class="page-inner" style="padding:0 24px 32px">
+            <div class="nmh-hero">
+                <h2>浏览首页时收到系统提醒</h2>
+                <p>进入本页 0.8s 后将自动推送一条打赏通知，随后按 macOS 节奏连续弹出开播 / 提及 / 系统公告（与通知中心列表数据一致）。点击横幅可跳转对应页面。</p>
+            </div>
+            <div class="nmh-grid">
+                <article class="nmh-card"><div class="img" style="background-image:url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=800')"></div><div class="cap">富士山日出</div></article>
+                <article class="nmh-card"><div class="img" style="background-image:url('https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800')"></div><div class="cap">游戏直播精选</div></article>
+                <article class="nmh-card"><div class="img" style="background-image:url('https://images.unsplash.com/photo-1493612276216-ee3925520721?w=800')"></div><div class="cap">街头胶片随拍</div></article>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="../js-web/mac-notification-banner.js"></script>
+<script>
+document.getElementById('btnSimNotify')?.addEventListener('click', function () {
+    window.FL_macNotifyPresets.tip();
+});
+</script>
+<script src="../js-web/app-sidebar-global.js"></script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+/* 内容详情 · 右侧抽屉（参考抖音 Web 端：列表 + 右侧详情） */
+.cdd-root {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    pointer-events: none;
+    visibility: hidden;
+}
+.cdd-root.show {
+    pointer-events: auto;
+    visibility: visible;
+}
+
+.cdd-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    transition: opacity 0.22s ease;
+}
+.cdd-root.show .cdd-backdrop { opacity: 1; }
+
+.cdd-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: min(440px, 100vw);
+    height: 100%;
+    background: var(--bg-card);
+    border-left: 1px solid var(--border-strong);
+    box-shadow: -12px 0 48px rgba(0, 0, 0, 0.45);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cdd-root.show .cdd-panel { transform: translateX(0); }
+
+.cdd-head {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+.cdd-head .cdd-close {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--r-md);
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--t-secondary);
+    cursor: pointer;
+    margin-left: auto;
+}
+.cdd-head .cdd-close:hover { color: #fff; }
+
+.cdd-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+.cdd-author .av {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+}
+.cdd-author .meta .n { font-size: 14px; font-weight: 700; }
+.cdd-author .meta .s { font-size: 11px; color: var(--t-tertiary); margin-top: 2px; }
+
+.cdd-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.cdd-media {
+    background: #000;
+    position: relative;
+}
+.cdd-media img {
+    width: 100%;
+    max-height: 52vh;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+.cdd-body { padding: 14px 16px 0; }
+.cdd-body .cdd-title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.5;
+    margin: 0 0 8px;
+}
+.cdd-body .cdd-desc {
+    font-size: 13px;
+    color: var(--t-secondary);
+    line-height: 1.6;
+    margin: 0 0 12px;
+}
+.cdd-body .cdd-tags {
+    font-size: 12px;
+    color: var(--brand-purple);
+    margin-bottom: 14px;
+}
+
+.cdd-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 12px 14px;
+    border-bottom: 1px solid var(--border);
+}
+.cdd-actions button {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 6px;
+    border: none;
+    background: transparent;
+    color: var(--t-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: var(--r-md);
+    cursor: pointer;
+}
+.cdd-actions button:hover { background: var(--bg-input); color: #fff; }
+.cdd-actions button i { font-size: 18px; }
+.cdd-actions button.liked { color: #F472B6; }
+.cdd-actions button.saved { color: #A855F7; }
+
+.cdd-comments-head {
+    padding: 12px 16px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--t-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.cdd-comments {
+    padding: 0 16px 16px;
+    max-height: clamp(180px, 32vh, 320px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.cdd-comment {
+    display: flex;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+}
+.cdd-comment:last-child { border-bottom: none; }
+.cdd-comment .av {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-size: cover;
+    flex-shrink: 0;
+}
+.cdd-comment .txt { flex: 1; min-width: 0; }
+.cdd-comment .txt .n { font-size: 12px; font-weight: 700; margin-right: 6px; }
+.cdd-comment .txt .c { font-size: 12.5px; color: var(--t-secondary); line-height: 1.5; }
+.cdd-comment .txt .t { font-size: 10px; color: var(--t-tertiary); margin-top: 4px; }
+
+.cdd-compose {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    background: var(--bg-elevated);
+}
+.cdd-compose input {
+    flex: 1;
+    height: 38px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    padding: 0 14px;
+    color: var(--t-primary);
+    font-size: 13px;
+    outline: none;
+}
+.cdd-compose button {
+    height: 38px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: none;
+    background: var(--brand-grad);
+    color: #fff;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.cdd-toast {
+    position: absolute;
+    bottom: 72px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 14px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-md);
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+.cdd-toast.show { opacity: 1; }
+
+@media (max-width: 900px) {
+    .cdd-panel { width: 100%; }
+}

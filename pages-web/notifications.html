@@ -183,10 +183,13 @@
 .aside-card h4 .dt { width: 3px; height: 14px; background: var(--brand-grad); border-radius: 2px; }
 </style>
 
+<link rel="stylesheet" href="../css-web/content-detail-drawer.css">
+<link rel="stylesheet" href="../css-web/mac-notification-banner.css">
+<link rel="stylesheet" href="../css-web/notifications-interactions.css">
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
 </head>
-<body>
+<body data-mac-notify-auto="tip">
 
 <div class="app-shell">
 
@@ -202,7 +205,7 @@
         <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
         <div class="s-section">互动</div>
         <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
-        <div class="s-item active" onclick="location.href='notifications.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-item active" onclick="location.href='notifications.html?tab=unread'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
         <div class="s-section">资产</div>
         <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
         <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span></div>
@@ -248,11 +251,11 @@
         <div class="page-head">
             <div class="ph-l">
                 <h1>通知中心 <span class="chip-pro">13 NEW</span></h1>
-                <p>统一管理打赏、评论、订阅、<strong style="color:#93c5fd">直播预告提醒</strong>与系统消息——所有重要事件一目了然。</p>
             </div>
             <div class="ph-r">
-                <button class="btn"><i class="fa-solid fa-check-double"></i> 全部标为已读</button>
-                <button class="btn" onclick="location.href='settings.html'"><i class="fa-solid fa-gear"></i> 通知设置</button>
+                <button type="button" class="btn" id="btnMarkAllReadTop"><i class="fa-solid fa-check-double"></i> 全部标为已读</button>
+                <button type="button" class="btn" id="btnNfSettings"><i class="fa-solid fa-gear"></i> 通知设置</button>
+                <button type="button" class="btn" id="btnMacNotifyDemo" title="模拟 macOS 侧边通知"><i class="fa-brands fa-apple"></i> 模拟推送</button>
             </div>
         </div>
 
@@ -260,26 +263,25 @@
 
             <div>
                 <!-- 过滤栏 -->
-                <div class="nf-filter">
-                    <div class="ck active">全部 <span class="cnt">42</span></div>
-                    <div class="ck">未读 <span class="cnt">13</span></div>
-                    <div class="ck">提及我 <span class="cnt">3</span></div>
-                    <div class="ck">打赏 <span class="cnt">8</span></div>
-                    <div class="ck">评论 <span class="cnt">14</span></div>
-                    <div class="ck">订阅 <span class="cnt">6</span></div>
-                    <div class="ck">直播</div>
-                    <div class="ck">系统</div>
+                <div class="nf-filter" id="nfFilter">
+                    <div class="ck active" data-tab="all">全部 <span class="cnt" id="nfCntAll">42</span></div>
+                    <div class="ck" data-tab="unread">未读 <span class="cnt" id="nfCntUnread">13</span></div>
+                    <div class="ck" data-tab="live">开播提醒</div>
+                    <div class="ck" data-tab="subscription">订阅提醒</div>
+                    <div class="ck" data-tab="income">收益通知</div>
+                    <div class="ck" data-tab="system">系统通知</div>
+                    <div class="ck" data-tab="expiry">到期提醒</div>
                 </div>
 
                 <!-- 批量提示 -->
                 <div class="nf-bulk">
                     <i class="fa-solid fa-circle-info"></i>
-                    您有 <b style="color: #fff">13</b> 条未读通知 · <a style="color: var(--brand-purple); margin-left: auto; font-weight: 600">全部标记已读</a>
+                    您有 <b style="color: #fff" id="nfBulkUnreadCount">13</b> 条未读通知 · <a id="nfMarkAllRead" style="color: var(--brand-purple); margin-left: auto; font-weight: 600">全部标记已读</a>
                 </div>
 
                 <!-- 通知列表 -->
-                <div class="nf-list">
-                    <div class="nf-day">今天 · 2026年5月21日</div>
+                <div class="nf-list" id="nfListRoot">
+                    <div class="nf-day" data-day="today">今天 · 2026年5月27日</div>
 
                     <div class="nf-item unread" id="nfLivePreviewRemind">
                         <div class="nf-ic t-preview"><i class="fa-regular fa-calendar-check"></i>
@@ -289,7 +291,7 @@
                             <div class="nf-text"><span style="color:#93c5fd;font-weight:700">【直播预告提醒】</span> 您已预约 <b>夜雨听弦</b> 的预告「周末爵士夜」· 计划 <b>2026-05-23 21:00</b> 开播，届时将通过系统消息提醒您（Web）；APP 上线后同步推送到手机。</div>
                             <div class="nf-meta"><span><i class="fa-regular fa-clock"></i> 刚刚</span><span class="dot"></span><span>系统消息</span><span class="dot"></span><span>开播提醒</span></div>
                             <div class="nf-act">
-                                <button class="primary" onclick="location.href='home.html'"><i class="fa-regular fa-calendar-check"></i> 查看预告</button>
+                                <button type="button" class="primary"><i class="fa-regular fa-calendar-check"></i> 查看预告</button>
                                 <button type="button" id="btnCancelPreviewRemind"><i class="fa-regular fa-bell-slash"></i> 取消提醒</button>
                             </div>
                         </div>
@@ -304,9 +306,8 @@
                             <div class="nf-text"><b>BlockTrader</b> 给你打赏了 <span class="amt">+50 USDT</span> · 「画面太美了，期待下一组！」</div>
                             <div class="nf-meta"><span><i class="fa-regular fa-clock"></i> 2 分钟前</span><span class="dot"></span><span>富士山日出</span><span class="dot"></span><span><i class="fa-solid fa-image"></i> 图文动态</span></div>
                             <div class="nf-act">
-                                <button class="primary"><i class="fa-solid fa-heart"></i> 感谢</button>
-                                <button>回复</button>
-                                <button>查看动态</button>
+                                <button type="button" class="primary"><i class="fa-solid fa-heart"></i> 感谢</button>
+                                <button type="button">回复</button>
                             </div>
                         </div>
                         <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=200')"></div>
@@ -321,8 +322,8 @@
                             <div class="nf-text"><b>NeoMaster</b> 订阅了你的「专属内容」频道 <span style="color: var(--success-light); font-weight: 700">月费 28 USDT</span></div>
                             <div class="nf-meta"><span><i class="fa-regular fa-clock"></i> 8 分钟前</span><span class="dot"></span><span>新订阅者 · 第 1287 位</span></div>
                             <div class="nf-act">
-                                <button class="primary"><i class="fa-solid fa-paper-plane"></i> 发欢迎私信</button>
-                                <button>查看主页</button>
+                                <button type="button" class="primary"><i class="fa-solid fa-paper-plane"></i> 发欢迎私信</button>
+                                <button type="button">查看主页</button>
                             </div>
                         </div>
                     </div>
@@ -337,9 +338,8 @@
                             <div class="nf-quote">"这个角度的富士山真是绝了，能问下用的什么镜头吗？想求一份 RAW 文件参考一下色彩处理 🙏"</div>
                             <div class="nf-meta" style="margin-top: 6px"><span><i class="fa-regular fa-clock"></i> 18 分钟前</span><span class="dot"></span><span>富士山日出</span></div>
                             <div class="nf-act">
-                                <button class="primary">回复</button>
-                                <button>点赞</button>
-                                <button>查看</button>
+                                <button type="button" class="primary">回复</button>
+                                <button type="button">点赞</button>
                             </div>
                         </div>
                         <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=200')"></div>
@@ -371,11 +371,58 @@
                             <div class="nf-text"><b>NovaPlay</b> 正在直播：「Apex 周五开黑 · 准点上分到大师」</div>
                             <div class="nf-meta"><span><i class="fa-solid fa-circle" style="font-size: 8px; color: #EF4444"></i> 直播中</span><span class="dot"></span><span>2.4K 在线</span><span class="dot"></span><span><i class="fa-regular fa-clock"></i> 1 小时前</span></div>
                             <div class="nf-act">
-                                <button class="primary" onclick="location.href='live-detail.html'"><i class="fa-solid fa-circle-play"></i> 立即观看</button>
-                                <button>不再提示</button>
+                                <button type="button" class="primary"><i class="fa-solid fa-circle-play"></i> 立即观看</button>
                             </div>
                         </div>
                         <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?w=200')"></div>
+                    </div>
+
+                    <div class="nf-item unread">
+                        <div class="nf-ic t-expiry"><i class="fa-solid fa-hourglass-half"></i></div>
+                        <div class="nf-body">
+                            <div class="nf-text"><b>到期提醒</b> 你订阅的「山野食光 · 月度会员」将在 <b>24 小时</b> 后到期</div>
+                            <div class="nf-meta"><span><i class="fa-regular fa-clock"></i> 3 小时前</span><span class="dot"></span><span>到期提醒</span><span class="dot"></span><span>续费 28 USDT/月</span></div>
+                            <div class="nf-act">
+                                <button type="button" class="primary"><i class="fa-solid fa-rotate"></i> 立即续费</button>
+                            </div>
+                        </div>
+                        <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=200')"></div>
+                    </div>
+
+                    <div class="nf-item unread" data-nf-type="system" data-nf-announcement-id="growth-plan">
+                        <div class="nf-ic t-system"><i class="fa-solid fa-bullhorn"></i></div>
+                        <div class="nf-body">
+                            <div class="nf-text"><b>平台活动</b> 创作者增长计划已开启 · 完成目标可获流量加权与专属徽章</div>
+                            <div class="nf-meta"><span><i class="fa-regular fa-clock"></i> 5 小时前</span><span class="dot"></span><span>活动公告</span><span class="dot"></span><span><i class="fa-solid fa-image"></i> 图文</span></div>
+                            <div class="nf-act">
+                                <button type="button" class="primary"><i class="fa-solid fa-file-lines"></i> 查看详情</button>
+                            </div>
+                        </div>
+                        <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=200')"></div>
+                    </div>
+
+                    <div class="nf-item unread" data-nf-type="system" data-nf-announcement-id="spring-festival">
+                        <div class="nf-ic t-system"><i class="fa-solid fa-gift"></i></div>
+                        <div class="nf-body">
+                            <div class="nf-text"><b>平台活动</b> 春季创作者节 · 投稿即有机会获得首页推荐位与 500 USDT 奖池</div>
+                            <div class="nf-meta"><span><i class="fa-regular fa-clock"></i> 6 小时前</span><span class="dot"></span><span>限时活动</span><span class="dot"></span><span><i class="fa-solid fa-image"></i> 图文</span></div>
+                            <div class="nf-act">
+                                <button type="button" class="primary"><i class="fa-solid fa-file-lines"></i> 查看详情</button>
+                            </div>
+                        </div>
+                        <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=200')"></div>
+                    </div>
+
+                    <div class="nf-item unread" data-nf-type="system" data-nf-announcement-id="maintenance-notice">
+                        <div class="nf-ic t-system"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                        <div class="nf-body">
+                            <div class="nf-text"><b>平台公告</b> 5 月 28 日 02:00–04:00 将进行钱包与结算模块维护，期间暂停充提</div>
+                            <div class="nf-meta"><span><i class="fa-regular fa-clock"></i> 8 小时前</span><span class="dot"></span><span>系统公告</span><span class="dot"></span><span><i class="fa-solid fa-image"></i> 图文</span></div>
+                            <div class="nf-act">
+                                <button type="button" class="primary"><i class="fa-solid fa-file-lines"></i> 查看详情</button>
+                            </div>
+                        </div>
+                        <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=200')"></div>
                     </div>
 
                     <div class="nf-item unread">
@@ -386,11 +433,14 @@
                         <div class="nf-body">
                             <div class="nf-text"><b>Echo</b> 在动态中提到了你</div>
                             <div class="nf-quote">"和我一起期待的 photographer，强烈推荐去看 Luna 这组 ✨"</div>
-                            <div class="nf-meta" style="margin-top: 6px"><span><i class="fa-regular fa-clock"></i> 2 小时前</span></div>
+                            <div class="nf-meta" style="margin-top: 6px"><span><i class="fa-regular fa-clock"></i> 2 小时前</span><span class="dot"></span><span>提及我</span></div>
+                            <div class="nf-act">
+                                <button type="button" class="primary">回复</button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="nf-day">昨天 · 2026年4月26日</div>
+                    <div class="nf-day" data-day="yesterday">昨天 · 2026年5月26日</div>
 
                     <div class="nf-item">
                         <div class="nf-ic t-tip"><i class="fa-solid fa-gift"></i>
@@ -402,13 +452,25 @@
                         </div>
                     </div>
 
-                    <div class="nf-item">
-                        <div class="nf-ic t-system"><i class="fa-solid fa-coins"></i></div>
+                    <div class="nf-item" data-nf-type="income">
+                        <div class="nf-ic t-tip"><i class="fa-solid fa-coins"></i></div>
                         <div class="nf-body">
                             <div class="nf-text">本月收益已结算到您的钱包：<span class="amt">2,840.50 USDT</span> ，可随时提现到链上地址。</div>
-                            <div class="nf-meta"><span>昨天 18:00</span><span class="dot"></span><span>系统结算</span></div>
-                            <div class="nf-act"><button class="primary" onclick="location.href='wallet.html'"><i class="fa-solid fa-wallet"></i> 前往钱包</button></div>
+                            <div class="nf-meta"><span>昨天 18:00</span><span class="dot"></span><span>收益结算</span></div>
+                            <div class="nf-act"><button type="button" class="primary"><i class="fa-solid fa-wallet"></i> 前往钱包</button></div>
                         </div>
+                    </div>
+
+                    <div class="nf-item" data-nf-type="system" data-nf-announcement-id="compliance-update">
+                        <div class="nf-ic t-system"><i class="fa-solid fa-shield-halved"></i></div>
+                        <div class="nf-body">
+                            <div class="nf-text"><b>平台公告</b> Web3 创作者合规指引更新 · 请完成 KYC 与内容自查清单</div>
+                            <div class="nf-meta"><span>昨天 10:30</span><span class="dot"></span><span>合规公告</span><span class="dot"></span><span><i class="fa-solid fa-image"></i> 图文</span></div>
+                            <div class="nf-act">
+                                <button type="button" class="primary"><i class="fa-solid fa-file-lines"></i> 查看详情</button>
+                            </div>
+                        </div>
+                        <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1563986768609-322da13575f3?w=200')"></div>
                     </div>
 
                     <div class="nf-item">
@@ -422,13 +484,16 @@
                         </div>
                     </div>
 
-                    <div class="nf-day">本周早些时候</div>
+                    <div class="nf-day" data-day="week">本周早些时候</div>
 
-                    <div class="nf-item">
-                        <div class="nf-ic t-system"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="nf-item" data-nf-type="system" data-nf-announcement-id="apple-pay-bind">
+                        <div class="nf-ic t-system"><i class="fa-solid fa-credit-card"></i></div>
                         <div class="nf-body">
-                            <div class="nf-text">您的账户已成功绑定 <b>Apple Pay</b> ，可使用快捷支付订阅创作者。</div>
-                            <div class="nf-meta"><span>4 月 25 日</span><span class="dot"></span><span>账户安全</span></div>
+                            <div class="nf-text"><b>平台公告</b> 您的账户已成功绑定 <b>Apple Pay</b>，可使用快捷支付订阅创作者。</div>
+                            <div class="nf-meta"><span>4 月 25 日</span><span class="dot"></span><span>账户服务</span></div>
+                            <div class="nf-act">
+                                <button type="button" class="primary"><i class="fa-solid fa-file-lines"></i> 查看详情</button>
+                            </div>
                         </div>
                     </div>
 
@@ -505,6 +570,94 @@
 
 <script>
 (function () {
+    var typeMap = {
+        "t-tip": "income",
+        "t-comment": "interaction",
+        "t-like": "interaction",
+        "t-sub": "subscription",
+        "t-mention": "interaction",
+        "t-system": "system",
+        "t-live": "live",
+        "t-preview": "live",
+        "t-expiry": "expiry"
+    };
+    var filterHost = document.getElementById("nfFilter");
+    if (!filterHost) return;
+    function refreshItems() {
+        allItems = Array.prototype.slice.call(document.querySelectorAll(".nf-list .nf-item"));
+    }
+    var allItems = [];
+    refreshItems();
+    function resolveType(item) {
+        var explicit = item.getAttribute("data-nf-type");
+        if (explicit) return explicit;
+        var ic = item.querySelector(".nf-ic");
+        if (!ic) return "interaction";
+        for (var key in typeMap) {
+            if (ic.classList.contains(key)) return typeMap[key];
+        }
+        return "interaction";
+    }
+    function updateUnreadCount() {
+        var unread = allItems.filter(function (x) { return x.classList.contains("unread"); }).length;
+        var bulk = document.getElementById("nfBulkUnreadCount");
+        var chip = document.getElementById("nfCntUnread");
+        if (bulk) bulk.textContent = String(unread);
+        if (chip) chip.textContent = String(unread);
+    }
+    function applyTab(tab) {
+        filterHost.querySelectorAll(".ck").forEach(function (ck) {
+            ck.classList.toggle("active", ck.getAttribute("data-tab") === tab);
+        });
+        allItems.forEach(function (item) {
+            var type = resolveType(item);
+            var show = tab === "all"
+                || (tab === "unread" && item.classList.contains("unread"))
+                || (tab === "expiry" && item.id === "nfLivePreviewRemind")
+                || type === tab;
+            item.style.display = show ? "" : "none";
+        });
+    }
+    filterHost.addEventListener("click", function (e) {
+        var ck = e.target.closest(".ck[data-tab]");
+        if (!ck) return;
+        applyTab(ck.getAttribute("data-tab"));
+    });
+    allItems.forEach(function (item) {
+        item.addEventListener("click", function () {
+            if (!item.classList.contains("unread")) return;
+            item.classList.remove("unread");
+            updateUnreadCount();
+            var active = filterHost.querySelector(".ck.active");
+            if (active && active.getAttribute("data-tab") === "unread") applyTab("unread");
+        });
+    });
+    function markAllRead() {
+        refreshItems();
+        allItems.forEach(function (x) { x.classList.remove("unread"); });
+        updateUnreadCount();
+        var active = filterHost.querySelector(".ck.active");
+        if (active && active.getAttribute("data-tab") === "unread") applyTab("unread");
+        if (window.FL_nfToast) window.FL_nfToast("已全部标记为已读", "ok");
+    }
+    document.getElementById("nfMarkAllRead")?.addEventListener("click", function (e) {
+        e.preventDefault();
+        markAllRead();
+    });
+    document.getElementById("btnMarkAllReadTop")?.addEventListener("click", markAllRead);
+    window.addEventListener("fl-nf-unread-changed", function () {
+        refreshItems();
+        updateUnreadCount();
+    });
+    updateUnreadCount();
+    var q = new URLSearchParams(location.search);
+    applyTab(q.get("tab") || "unread");
+    window.addEventListener("fl-notification-focus-unread", function () {
+        applyTab("unread");
+    });
+})();
+
+(function () {
     var LS_KEY = 'fl_live_preview_reminds';
     var PREVIEW_ID = 'yeyu-jazz-0523';
     function loadReminds() {
@@ -522,13 +675,277 @@
         var list = loadReminds().filter(function (id) { return id !== PREVIEW_ID; });
         saveReminds(list);
         item?.remove();
-        alert('已取消直播预告提醒（原型：同步清除本地预约状态）');
+        window.dispatchEvent(new CustomEvent('fl-nf-unread-changed'));
+        if (window.FL_nfToast) window.FL_nfToast('已取消直播预告提醒', 'ok');
     });
 })();
 </script>
+
+<div class="nf-toast-host" id="nfToastHost"></div>
+
+<!-- 通知设置 -->
+<div class="nf-overlay" id="nfOvlSettings" role="dialog" aria-modal="true">
+    <div class="nf-modal nf-modal--wide">
+        <div class="nf-modal-head">
+            <div>
+                <h3><i class="fa-solid fa-gear" style="color:var(--brand-purple)"></i> 通知设置</h3>
+                <p>配置五类系统通知与免打扰时段，保存后立即生效。</p>
+            </div>
+            <button type="button" class="nf-modal-close" data-nf-close="nfOvlSettings" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="nf-modal-body">
+            <div class="nf-alert" id="nfSettingsAlert"></div>
+            <div class="nf-setting-row"><div class="lb"><i class="fa-solid fa-tower-broadcast" style="color:#F87171"></i> 开播提醒</div><div class="switch on" data-nf-setting="live"></div></div>
+            <div class="nf-setting-row"><div class="lb"><i class="fa-solid fa-crown" style="color:#C084FC"></i> 订阅提醒</div><div class="switch on" data-nf-setting="subscription"></div></div>
+            <div class="nf-setting-row"><div class="lb"><i class="fa-solid fa-coins" style="color:#FBBF24"></i> 收益通知</div><div class="switch on" data-nf-setting="income"></div></div>
+            <div class="nf-setting-row"><div class="lb"><i class="fa-solid fa-bullhorn" style="color:#93c5fd"></i> 系统通知</div><div class="switch on" data-nf-setting="system"></div></div>
+            <div class="nf-setting-row"><div class="lb"><i class="fa-solid fa-hourglass-half" style="color:#F59E0B"></i> 到期提醒</div><div class="switch on" data-nf-setting="expiry"></div></div>
+            <p style="font-size:11px;color:var(--t-tertiary);margin:14px 0 8px;line-height:1.5">免打扰时段内仅保留收益与到期类紧急通知。</p>
+            <div style="display:flex;gap:8px;align-items:center">
+                <input class="input" type="time" id="nfDndStart" value="22:00" style="flex:1;height:36px;font-size:12px" />
+                <span style="font-size:12px;color:var(--t-tertiary)">至</span>
+                <input class="input" type="time" id="nfDndEnd" value="08:00" style="flex:1;height:36px;font-size:12px" />
+            </div>
+        </div>
+        <div class="nf-modal-foot">
+            <button type="button" class="btn btn-secondary" data-nf-close="nfOvlSettings">取消</button>
+            <button type="button" class="btn btn-primary" id="btnNfSettingsSave"><i class="fa-solid fa-check"></i> 保存设置</button>
+        </div>
+    </div>
+</div>
+
+<!-- 回复 -->
+<div class="nf-overlay" id="nfOvlReply" role="dialog" aria-modal="true">
+    <div class="nf-modal">
+        <div class="nf-modal-head">
+            <div><h3><i class="fa-solid fa-reply" style="color:var(--info-light)"></i> 回复评论</h3><p>回复给 <b id="nfReplyTo">用户</b></p></div>
+            <button type="button" class="nf-modal-close" data-nf-close="nfOvlReply"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="nf-modal-body">
+            <div class="nf-field"><label>回复内容</label><textarea id="nfReplyText" placeholder="写下你的回复…"></textarea></div>
+        </div>
+        <div class="nf-modal-foot">
+            <button type="button" class="btn btn-secondary" data-nf-close="nfOvlReply">取消</button>
+            <button type="button" class="btn btn-primary" id="btnNfReplySend"><i class="fa-solid fa-paper-plane"></i> 发送回复</button>
+        </div>
+    </div>
+</div>
+
+<!-- 查看动态 -->
+<div class="nf-overlay" id="nfOvlPost" role="dialog" aria-modal="true">
+    <div class="nf-modal nf-modal--wide">
+        <div class="nf-modal-head">
+            <div><h3><i class="fa-solid fa-image" style="color:#10B981"></i> 动态预览</h3><p>在当前页预览关联内容，不跳转 Feed。</p></div>
+            <button type="button" class="nf-modal-close" data-nf-close="nfOvlPost"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="nf-modal-body">
+            <div class="nf-post-preview">
+                <img id="nfPostImg" src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=800" alt="动态配图">
+                <div class="cap" id="nfPostCap">—</div>
+            </div>
+        </div>
+        <div class="nf-modal-foot">
+            <button type="button" class="btn btn-secondary" data-nf-close="nfOvlPost">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- 欢迎私信 -->
+<div class="nf-overlay" id="nfOvlDm" role="dialog" aria-modal="true">
+    <div class="nf-modal">
+        <div class="nf-modal-head">
+            <div><h3><i class="fa-solid fa-paper-plane" style="color:#A855F7"></i> 发欢迎私信</h3><p>发送给 <b id="nfDmTo">订阅者</b></p></div>
+            <button type="button" class="nf-modal-close" data-nf-close="nfOvlDm"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="nf-modal-body">
+            <div class="nf-field"><label>私信内容</label><textarea id="nfDmText"></textarea></div>
+        </div>
+        <div class="nf-modal-foot">
+            <button type="button" class="btn btn-secondary" data-nf-close="nfOvlDm">取消</button>
+            <button type="button" class="btn btn-primary" id="btnNfDmSend">发送</button>
+        </div>
+    </div>
+</div>
+
+<!-- 查看主页 -->
+<div class="nf-overlay" id="nfOvlProfile" role="dialog" aria-modal="true">
+    <div class="nf-modal">
+        <div class="nf-modal-head">
+            <div><h3><i class="fa-regular fa-user"></i> 创作者主页</h3></div>
+            <button type="button" class="nf-modal-close" data-nf-close="nfOvlProfile"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="nf-modal-body">
+            <div class="nf-profile-mini">
+                <div class="av" id="nfProfileAv" style="background-image:url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=120')"></div>
+                <div class="meta"><div class="n" id="nfProfileName">NeoMaster</div><div class="s">摄影 · 1.2k 粉丝 · 已订阅你</div></div>
+            </div>
+            <p style="font-size:12px;color:var(--t-secondary);line-height:1.6">原型：此处可嵌入迷你主页卡片；开发可对接 <code>creator-profile</code> 抽屉组件。</p>
+        </div>
+        <div class="nf-modal-foot">
+            <button type="button" class="btn btn-secondary" data-nf-close="nfOvlProfile">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- 直播观看 -->
+<div class="nf-overlay" id="nfOvlLive" role="dialog" aria-modal="true">
+    <div class="nf-modal nf-modal--wide">
+        <div class="nf-modal-head">
+            <div><h3><i class="fa-solid fa-circle-play" style="color:#EF4444"></i> 进入直播间</h3><p>NovaPlay · Apex 周五开黑</p></div>
+            <button type="button" class="nf-modal-close" data-nf-close="nfOvlLive"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="nf-modal-body">
+            <div class="nf-live-embed">
+                <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800" alt="直播封面">
+                <div class="bar"><span class="dot"></span> 直播中 · 2.4K 在线</div>
+            </div>
+        </div>
+        <div class="nf-modal-foot">
+            <button type="button" class="btn btn-secondary" data-nf-close="nfOvlLive">稍后再看</button>
+            <button type="button" class="btn btn-primary" id="btnNfLiveJoin"><i class="fa-solid fa-circle-play"></i> 进入直播</button>
+        </div>
+    </div>
+</div>
+
+<!-- 平台活动 / 公告图文详情 -->
+<div class="nf-overlay" id="nfOvlAnnouncement" role="dialog" aria-modal="true" aria-labelledby="nfAnnTitle">
+    <div class="nf-modal nf-modal--announcement">
+        <div class="nf-modal-head">
+            <div style="flex:1;min-width:0">
+                <span class="nf-ann-badge" id="nfAnnBadge">平台公告</span>
+                <h3 id="nfAnnTitle">—</h3>
+                <p class="nf-ann-time" id="nfAnnTime">—</p>
+            </div>
+            <button type="button" class="nf-modal-close" data-nf-close="nfOvlAnnouncement" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="nf-modal-body">
+            <img class="nf-ann-hero" id="nfAnnHero" src="" alt="">
+            <div id="nfAnnRich"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 通知详情 -->
+<div class="nf-overlay" id="nfOvlDetail" role="dialog" aria-modal="true">
+    <div class="nf-modal nf-modal--wide">
+        <div class="nf-modal-head">
+            <div><h3 id="nfDetailTitle">通知详情</h3><p id="nfDetailType">—</p></div>
+            <button type="button" class="nf-modal-close" data-nf-close="nfOvlDetail"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="nf-modal-body">
+            <ul class="nf-detail-kv">
+                <li><span>时间</span><span id="nfDetailTime">—</span></li>
+                <li><span>状态</span><span>已读</span></li>
+            </ul>
+            <p id="nfDetailBody" style="font-size:13px;line-height:1.65;color:var(--t-secondary);margin:0 0 14px"></p>
+            <img id="nfDetailImg" src="" alt="" style="width:100%;border-radius:12px;max-height:200px;object-fit:cover">
+        </div>
+        <div class="nf-modal-foot">
+            <button type="button" class="btn btn-secondary" data-nf-close="nfOvlDetail">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- 钱包 -->
+<div class="nf-overlay" id="nfOvlWallet" role="dialog" aria-modal="true">
+    <div class="nf-modal nf-modal--sheet">
+        <div class="nf-modal-head">
+            <div><h3><i class="fa-solid fa-wallet" style="color:#FBBF24"></i> 收益到账</h3></div>
+            <button type="button" class="nf-modal-close" data-nf-close="nfOvlWallet"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="nf-modal-body">
+            <p style="font-size:22px;font-weight:800;color:#fff;margin:0 0 8px">+2,840.50 <span style="font-size:14px">USDT</span></p>
+            <p style="font-size:12px;color:var(--t-tertiary);margin:0 0 14px">本月收益已结算，可随时提现至链上地址。</p>
+        </div>
+        <div class="nf-modal-foot">
+            <button type="button" class="btn btn-secondary" data-nf-close="nfOvlWallet">关闭</button>
+            <button type="button" class="btn btn-primary" id="btnNfWalletGo">查看钱包流水</button>
+        </div>
+    </div>
+</div>
+
+<!-- 续费 -->
+<div class="nf-overlay" id="nfOvlRenew" role="dialog" aria-modal="true">
+    <div class="nf-modal nf-modal--sheet">
+        <div class="nf-modal-head">
+            <div><h3><i class="fa-solid fa-rotate" style="color:#F59E0B"></i> 订阅续费</h3><p>山野食光 · 月度会员</p></div>
+            <button type="button" class="nf-modal-close" data-nf-close="nfOvlRenew"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="nf-modal-body">
+            <ul class="nf-detail-kv">
+                <li><span>应付金额</span><span>28 USDT</span></li>
+                <li><span>续费后到期</span><span>2026-06-27</span></li>
+            </ul>
+        </div>
+        <div class="nf-modal-foot">
+            <button type="button" class="btn btn-secondary" data-nf-close="nfOvlRenew">取消</button>
+            <button type="button" class="btn btn-primary" id="btnNfRenewConfirm"><i class="fa-solid fa-bolt"></i> 确认续费</button>
+        </div>
+    </div>
+</div>
+
+<div class="cdd-root" id="contentDetailDrawer" aria-hidden="true" role="dialog" aria-label="内容详情">
+    <div class="cdd-backdrop"></div>
+    <aside class="cdd-panel">
+        <header class="cdd-head">
+            <div class="cdd-author">
+                <div class="av" id="cddAuthorAv"></div>
+                <div class="meta">
+                    <div class="n" id="cddAuthorName">Luna 🌙</div>
+                    <div class="s">创作者</div>
+                </div>
+            </div>
+            <button type="button" class="cdd-close" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </header>
+        <div class="cdd-scroll">
+            <div class="cdd-media">
+                <img id="cddMediaImg" src="" alt="内容配图">
+            </div>
+            <div class="cdd-body">
+                <h2 class="cdd-title" id="cddTitle">—</h2>
+                <p class="cdd-desc" id="cddDesc">—</p>
+                <div class="cdd-tags">#摄影 #富士山 #创作者日常</div>
+            </div>
+            <div class="cdd-actions">
+                <button type="button" data-cdd-act="like"><i class="fa-regular fa-heart"></i><span id="cddLikeCount">0</span></button>
+                <button type="button" data-cdd-act="forward"><i class="fa-solid fa-share"></i>转发</button>
+                <button type="button" data-cdd-act="share"><i class="fa-solid fa-link"></i>分享</button>
+                <button type="button" data-cdd-act="save"><i class="fa-regular fa-bookmark"></i>收藏</button>
+            </div>
+            <div class="cdd-comments-head">
+                <span>评论</span>
+                <span id="cddCommentsTotal">0 条评论</span>
+            </div>
+            <div class="cdd-comments" id="cddCommentList"></div>
+        </div>
+        <div class="cdd-compose">
+            <input type="text" id="cddCommentInput" placeholder="说点什么…" autocomplete="off">
+            <button type="button" id="cddSendComment">发送</button>
+        </div>
+        <div class="cdd-toast"></div>
+    </aside>
+</div>
+
 <link rel="stylesheet" href="../css-web/host-live-pip-global.css">
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/host-live-pip-global.js"></script>
+<script src="../js-web/content-detail-drawer.js"></script>
+<script src="../js-web/mac-notification-banner.js" data-fl-mac-notify="1"></script>
+<script src="../js-web/notification-system-announcements.js"></script>
+<script src="../js-web/notifications-interactions.js"></script>
+<script>
+document.getElementById('btnMacNotifyDemo')?.addEventListener('click', function () {
+    var P = window.FL_macNotifyPresets;
+    if (!P) return;
+    [P.tip, P.live, P.mention].forEach(function (fn, i) { setTimeout(fn, i * 700); });
+});
+(function () {
+    var id = new URLSearchParams(location.search).get('announcement');
+    if (id && window.FL_nfOpenAnnouncement) {
+        setTimeout(function () { window.FL_nfOpenAnnouncement(id); }, 500);
+    }
+})();
+</script>
 <script src="../js-web/app-sidebar-global.js"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@
  * — 用法：外层 .dev-glass-wrap，球体 .dev-glass-sphere（tabindex="0" + aria-describedby），
  *   高光 .dev-glass-sphere-shine，文案 .dev-glass-sphere-txt 固定「To 研发」，气泡 .dev-glass-pop（id 与 aria 配对）
  * — 交互：悬停 .dev-glass-wrap 或球体获焦（focus-within）显示气泡；移出隐藏
+ * — 视口：../js-web/dev-glass-viewport.js 悬停时将气泡 fixed 到原坐标，避免被 overflow 裁切
  */
 
 .dev-glass-wrap {
@@ -165,4 +166,20 @@
     transform: none;
     border-top-color: transparent;
     border-bottom-color: rgba(22, 22, 34, 0.96);
+}
+
+/* 订阅页等：气泡始终压过相邻 Tab / 卡片（避免被右侧栏遮挡） */
+.dev-glass-wrap--layer-top {
+    position: relative;
+    z-index: 10080;
+}
+.dev-glass-wrap--layer-top .dev-glass-pop {
+    z-index: 10081;
+}
+
+/* 悬停时由 dev-glass-viewport.js 挂载：保持原视觉位置，脱离 overflow 裁切 */
+.dev-glass-pop.dev-glass-pop--viewport-fixed {
+    position: fixed !important;
+    z-index: 99990 !important;
+    margin: 0 !important;
 }
