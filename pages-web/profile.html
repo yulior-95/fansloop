@@ -282,6 +282,10 @@
 <link rel="stylesheet" href="../css-web/dev-glass-note.css">
 <link rel="stylesheet" href="../css-web/profile-works.css">
 <link rel="stylesheet" href="../css-web/profile-creator-cert.css">
+<link rel="stylesheet" href="../css-web/profile-social-lists.css">
+<link rel="stylesheet" href="../css-web/profile-unread-viewer.css">
+<link rel="stylesheet" href="../css-web/profile-share.css">
+<link rel="stylesheet" href="../css-web/subscribe-modal.css">
 
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
@@ -333,8 +337,9 @@
     </header>
 
     <main class="app-main">
-        <div class="cover">
-            <button class="edit-cov"><i class="fa-solid fa-camera"></i> 更换封面</button>
+        <div class="cover" id="profileCover">
+            <input type="file" id="profileCoverFileInput" accept="image/*" hidden aria-hidden="true" />
+            <button type="button" class="edit-cov" id="btnEditCover"><i class="fa-solid fa-camera"></i> 更换封面</button>
         </div>
 
         <div class="profile-head">
@@ -344,7 +349,7 @@
                 </div>
                 <div class="info">
                     <div class="name-row">
-                        <h1>Luna 🌙 <i class="fa-solid fa-circle-check vfy"></i></h1>
+                        <h1>Luna 🌙</h1>
                     </div>
                     <div class="tags-row" id="creatorTagsRow">
                         <span id="creatorCertTagWrap"></span>
@@ -370,9 +375,9 @@
 
             <div class="profile-stats">
                 <div class="pst"><div class="v">142</div><div class="k">作品</div></div>
-                <div class="pst"><div class="v">28.4k</div><div class="k">粉丝</div><div class="delta">+248 本周</div></div>
-                <div class="pst"><div class="v">368</div><div class="k">关注</div></div>
-                <div class="pst"><div class="v">1,284</div><div class="k">订阅者</div><div class="delta">+18 本月</div></div>
+                <div class="pst pst-clickable" data-social-list="fans" role="button" tabindex="0" title="查看粉丝列表"><div class="v">28.4k</div><div class="k">粉丝</div><div class="delta">+248 本周</div></div>
+                <div class="pst pst-clickable" data-social-list="following" role="button" tabindex="0" title="查看关注列表"><div class="v">368</div><div class="k">关注</div></div>
+                <div class="pst pst-clickable" data-social-list="subscribers" role="button" tabindex="0" title="查看订阅者列表"><div class="v">1,284</div><div class="k">订阅者</div><div class="delta">+18 本月</div></div>
                 <div class="pst"><div class="v t-grad">$18,420</div><div class="k">累计收入</div></div>
             </div>
 
@@ -617,6 +622,164 @@
 
 <div class="pf-toast" id="pfToast"></div>
 
+<div class="pf-push-demo" id="pfPushDemo" aria-live="polite">
+    <div class="ic"><i class="fa-solid fa-bell"></i></div>
+    <div class="txt">
+        <strong>系统通知 · <span class="push-name">—</span></strong>
+        <p class="push-body">发布了新作品</p>
+        <span class="dev-tag">To 研发 · 特别关注推送效果演示</span>
+    </div>
+</div>
+
+<div class="profile-sheet pf-social-sheet" id="sheetSocialList" aria-hidden="true" role="dialog" aria-labelledby="socialListTitle">
+    <div class="sh-panel">
+        <div class="sh-head">
+            <h3 id="socialListTitle"><i class="fa-solid fa-user-group" style="color:#C084FC"></i> 粉丝</h3>
+            <button type="button" id="btnCloseSocialList" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="pf-social-search">
+            <div class="pf-social-search-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" id="socialListSearch" placeholder="搜索昵称" autocomplete="off" />
+            </div>
+        </div>
+        <div class="pf-social-list" id="socialListBody"></div>
+    </div>
+</div>
+<div class="pf-social-menu" id="socialMoreMenu" role="menu"></div>
+
+<div class="profile-sheet pf-unread-viewer" id="sheetUnreadViewer" aria-hidden="true" role="dialog">
+    <div class="pf-unread-panel" onclick="event.stopPropagation()">
+        <div class="pf-unread-hd">
+            <button type="button" class="btn btn-secondary btn-sm" id="btnCloseUnreadViewer"><i class="fa-solid fa-arrow-left"></i> 返回</button>
+            <h3><i class="fa-solid fa-circle-play" style="color:#F472B6"></i> 未看作品 · <span id="unreadViewerCreator">—</span></h3>
+            <span class="prog" id="unreadViewerProgress">—</span>
+        </div>
+        <div class="pf-unread-body">
+            <aside class="pf-unread-rail" id="unreadFollowRail" aria-label="有未看作品的关注"></aside>
+            <div class="pf-unread-stage">
+                <div class="pf-unread-scroll" id="unreadVideoScroll"></div>
+                <div class="pf-unread-user-nav">
+                    <button type="button" id="btnUnreadPrevCreator"><i class="fa-solid fa-chevron-up"></i> 上一创作者</button>
+                    <button type="button" id="btnUnreadNextCreator"><i class="fa-solid fa-chevron-down"></i> 下一创作者</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="profile-sheet pf-social-sub-sheet" id="sheetReportUser" aria-hidden="true">
+    <div class="sh-panel">
+        <div class="sh-head">举报用户 <button type="button" data-close-social-sub="sheetReportUser"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="sh-body">
+            <p>举报对象：<strong id="reportUserName" style="color:#fff">—</strong></p>
+            <div class="field"><label>举报原因</label>
+                <select style="width:100%;padding:10px;border-radius:8px;background:var(--bg-input);border:1px solid var(--border);color:#fff">
+                    <option>垃圾营销</option>
+                    <option>色情低俗</option>
+                    <option>侵权冒充</option>
+                    <option>其他</option>
+                </select>
+            </div>
+        </div>
+        <div class="sh-actions">
+            <button type="button" class="ghost" data-close-social-sub="sheetReportUser">取消</button>
+            <button type="button" class="primary" id="btnReportSubmit">提交举报</button>
+        </div>
+    </div>
+</div>
+
+<div class="profile-sheet pf-social-sub-sheet is-stack-top" id="sheetRemarkUser" aria-hidden="true">
+    <div class="sh-panel">
+        <div class="sh-head">设置备注 <button type="button" data-close-social-sub="sheetRemarkUser"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="sh-body">
+            <p style="margin:0 0 12px;font-size:12px;color:var(--t-tertiary)">为关注用户设置备注名，将显示在昵称后（列表内所有人可见，仅自己可见备注逻辑由服务端实现）。</p>
+            <p style="margin:0 0 10px">用户：<strong id="remarkUserName" style="color:#fff">—</strong></p>
+            <div class="field"><label>备注名</label><input type="text" id="remarkUserInput" maxlength="20" placeholder="例如：播客搭子、街拍老师" /></div>
+            <p style="font-size:11px;color:var(--t-quaternary);margin:8px 0 0">留空并保存将清除备注</p>
+        </div>
+        <div class="sh-actions">
+            <button type="button" class="ghost" data-close-social-sub="sheetRemarkUser">取消</button>
+            <button type="button" class="primary" id="btnRemarkSave"><i class="fa-solid fa-check"></i> 保存</button>
+        </div>
+    </div>
+</div>
+
+<div class="profile-sheet pf-social-sub-sheet" id="sheetBlockUser" aria-hidden="true">
+    <div class="sh-panel">
+        <div class="sh-head">拉黑用户 <button type="button" data-close-social-sub="sheetBlockUser"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="sh-body">
+            <p>确定将 <strong id="blockUserName" style="color:#fff">—</strong> 加入黑名单？对方将无法私信你或查看你的内容（原型说明）。</p>
+        </div>
+        <div class="sh-actions">
+            <button type="button" class="ghost" data-close-social-sub="sheetBlockUser">取消</button>
+            <button type="button" class="primary" id="btnBlockConfirm" style="background:linear-gradient(135deg,#ef4444,#dc2626)">确认拉黑</button>
+        </div>
+    </div>
+</div>
+
+<div class="inline-overlay" id="ovlSubscribe">
+    <div class="iol-panel">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-crown" style="color:var(--brand-purple)"></i> <span id="subModalTitle">订阅</span></h3>
+            <button type="button" class="iol-close" id="closeSubscribe"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="sub-modal-step active" id="subStep1">
+            <div class="sub-creator">
+                <div class="av av-sm" id="subCreatorAv" style="background-image:url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100')"></div>
+                <div>
+                    <div style="font-size:13px;font-weight:700" id="subCreatorName">—</div>
+                    <div style="font-size:11px;color:var(--t-tertiary)" id="subCreatorHint">选择订阅计划</div>
+                </div>
+            </div>
+            <div class="sub-balance-bar" id="subBalanceBar"><span><i class="fa-solid fa-wallet"></i> 钱包余额</span><b id="subBalanceVal">—</b></div>
+            <div class="sub-plan-list">
+                <button type="button" class="sub-plan active" data-price="16"><span><div class="p1">月度</div><div class="p2">可随时取消</div></span><span class="price">16 USDT</span></button>
+                <button type="button" class="sub-plan" data-price="42"><span><div class="p1">季度</div><div class="p2">省 12%</div></span><span class="price">42 USDT</span></button>
+                <button type="button" class="sub-plan" data-price="150"><span><div class="p1">年度</div><div class="p2">专属徽章</div></span><span class="price">150 USDT</span></button>
+            </div>
+            <button type="button" class="btn btn-primary btn-block" id="btnConfirmSubscribe"><i class="fa-solid fa-bolt"></i> 确认订阅并支付</button>
+        </div>
+        <div class="sub-modal-step" id="subStepRecharge">
+            <div class="sub-recharge-hint"><i class="fa-solid fa-circle-exclamation"></i> 余额不足，需充值 <b id="subRechargeNeed">—</b> USDT</div>
+            <div class="sub-pay-summary">
+                <div class="row"><span>当前余额</span><span class="v" id="subRechargeBalNow">—</span></div>
+                <div class="row"><span>应付</span><span class="v" id="subRechargePayDue">—</span></div>
+            </div>
+            <div class="sub-recharge-amt-grid">
+                <button type="button" class="sub-recharge-amt" data-amt="50">50</button>
+                <button type="button" class="sub-recharge-amt active" data-amt="100">100</button>
+                <button type="button" class="sub-recharge-amt" data-amt="200">200</button>
+            </div>
+            <div class="sub-step-actions">
+                <button type="button" class="btn btn-secondary" id="btnSubRechargeBack">返回</button>
+                <button type="button" class="btn btn-primary" id="btnSubRechargeConfirm">确认充值</button>
+            </div>
+            <button type="button" class="btn btn-secondary btn-block btn-sm" id="btnSubGoRecharge" style="margin-top:8px">前往充值页</button>
+        </div>
+        <div class="sub-modal-step" id="subStepPayPwd">
+            <div class="sub-pay-summary">
+                <div class="row"><span>创作者</span><span class="v" id="subPayCreator">—</span></div>
+                <div class="row"><span>金额</span><span class="v" id="subPayAmount">—</span></div>
+            </div>
+            <div class="sub-pwd-input" id="subPwdDots"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+            <div class="sub-pwd-pad" id="subPwdPad">
+                <button type="button" data-digit="1">1</button><button type="button" data-digit="2">2</button><button type="button" data-digit="3">3</button>
+                <button type="button" data-digit="4">4</button><button type="button" data-digit="5">5</button><button type="button" data-digit="6">6</button>
+                <button type="button" data-digit="7">7</button><button type="button" data-digit="8">8</button><button type="button" data-digit="9">9</button>
+                <button type="button" data-action="clear"><i class="fa-solid fa-delete-left"></i></button>
+                <button type="button" data-digit="0">0</button>
+                <button type="button" data-action="submit"><i class="fa-solid fa-check"></i></button>
+            </div>
+            <p class="sub-pwd-hint">演示密码 <b style="color:#C084FC">123456</b></p>
+        </div>
+        <div class="sub-modal-step" id="subStep2">
+            <div class="sub-result"><i class="fa-solid fa-circle-check"></i><h4>订阅成功</h4><p id="subResultText">—</p></div>
+            <button type="button" class="btn btn-primary btn-block mt-16" id="btnDoneSubscribe">完成</button>
+        </div>
+    </div>
+</div>
+
 <div class="pf-modal" id="modalWorkTakedown" aria-hidden="true" role="dialog" aria-labelledby="modalWorkTakedownHd">
     <div class="md-panel">
         <div class="md-head" id="modalWorkTakedownHd">
@@ -741,17 +904,57 @@
     </div>
 </div>
 
-<div class="profile-sheet" id="sheetShare" aria-hidden="true">
-    <div class="sh-panel">
-        <div class="sh-head">分享主页 <button type="button" class="sh-close" data-close="sheetShare"><i class="fa-solid fa-xmark"></i></button></div>
-        <div class="sh-body">
-            <p>通过链接或海报邀请他人访问你的 FansLoop 主页。</p>
-            <div class="field"><label>主页链接</label><input type="text" readonly value="https://fansloop.io/@luna" /></div>
-            <p style="font-size:11px;color:var(--t-tertiary)">缩短链接与二维码在正式环境中生成；此处为高保真占位。</p>
+<div class="profile-sheet share-sheet" id="sheetShare" aria-hidden="true" role="dialog" aria-labelledby="sheetShareTitle">
+    <div class="sh-panel share-sheet-panel">
+        <div class="sh-head" id="sheetShareTitle">分享主页 <button type="button" class="sh-close" data-close="sheetShare" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="sh-body share-sheet-body">
+            <p class="share-lead">扫码海报或复制链接/邀请码，好友注册后你可获得积分奖励</p>
+            <div class="profile-share-poster" id="profileSharePoster" aria-label="分享海报预览">
+                <span class="psp-brand"><i class="fa-solid fa-infinity"></i> FansLoop</span>
+                <div class="psp-cover" style="background-image:url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=900&q=80')">
+                    <span class="psp-av" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400')"></span>
+                </div>
+                <div class="psp-body">
+                    <h2 class="psp-name">Luna 🌙</h2>
+                    <div class="psp-role"><i class="fa-solid fa-palette"></i> 认证创作者</div>
+                    <p class="psp-bio">📷 旅行 / 美食 / 慢生活摄影师 · 现居东京 · 35mm 定焦</p>
+                    <div class="psp-invite">
+                        <span class="psp-invite-lbl"><i class="fa-solid fa-gift"></i> 我的邀请码</span>
+                        <strong class="psp-invite-code" id="profileInviteCodeDisplay">LUNA-8K3F</strong>
+                        <span class="psp-invite-hint">新用户注册填码 · 双方得积分</span>
+                    </div>
+                    <div class="psp-foot">
+                        <div>
+                            <div class="psp-url-lbl">主页链接</div>
+                            <div class="psp-url">fansloop.io/@luna</div>
+                        </div>
+                        <div class="psp-qr">
+                            <img id="profileShareQr" src="" alt="主页二维码" width="72" height="72" />
+                            <span>扫码注册</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="share-field-block">
+                <label>主页链接</label>
+                <div class="share-link-row">
+                    <input type="text" id="profileShareLinkInput" readonly value="https://fansloop.io/@luna" aria-label="主页链接" />
+                    <button type="button" class="btn-mini" id="btnCopyProfileLink" title="复制链接"><i class="fa-regular fa-copy"></i></button>
+                </div>
+            </div>
+            <div class="share-field-block">
+                <label>邀请码 <span class="share-field-tip">拉新奖励</span></label>
+                <div class="share-link-row">
+                    <input type="text" id="profileInviteCodeInput" readonly value="LUNA-8K3F" aria-label="邀请码" />
+                    <button type="button" class="btn-mini" id="btnCopyInviteCode" title="复制邀请码"><i class="fa-regular fa-copy"></i></button>
+                </div>
+            </div>
         </div>
-        <div class="sh-actions">
-            <button type="button" class="ghost sh-close" data-close="sheetShare">关闭</button>
-            <button type="button" class="primary" id="btnCopyLink"><i class="fa-regular fa-copy"></i> 复制链接</button>
+        <div class="sh-actions share-sheet-actions">
+            <button type="button" class="btn-save-poster" id="btnSaveProfilePoster"><i class="fa-solid fa-download"></i> 保存海报</button>
+            <button type="button" class="btn-copy-invite" id="btnCopyInviteCodeMain"><i class="fa-solid fa-gift"></i> 复制邀请码</button>
+            <button type="button" class="btn-copy-link" id="btnCopyProfileLinkMain"><i class="fa-regular fa-link"></i> 复制主页链接</button>
+            <button type="button" class="btn-ghost-close sh-close" data-close="sheetShare">关闭</button>
         </div>
     </div>
 </div>
@@ -788,8 +991,6 @@
     </div>
 </div>
 
-<!-- ARCHIVED：原创作者「类型认证」多步弹窗已改为 KYC 成为创作者，入口见 kyc-intro.html / create.html 横幅 -->
-<!--
 <div class="profile-sheet cert-sheet" id="sheetCreatorCert" aria-hidden="true" role="dialog" aria-labelledby="certSheetTitle">
     <div class="sh-panel">
         <div class="sh-head">
@@ -887,10 +1088,7 @@
         </div>
     </div>
 </div>
--->
 
-<script src="../js-web/kyc-store.js"></script>
-<script src="../js-web/publish-gate-shared.js"></script>
 <script>
 (function () {
     const tabs = document.querySelectorAll('#profileTabs .tb');
@@ -946,10 +1144,6 @@
         });
     });
 
-    document.getElementById('btnCopyLink').addEventListener('click', () => {
-        showToast('链接已复制到剪贴板（原型演示）');
-        closeSheet('sheetShare');
-    });
     document.getElementById('btnSaveProfile').addEventListener('click', () => {
         showToast('资料已更新（原型）');
         closeSheet('sheetEdit');
@@ -960,8 +1154,14 @@
     });
 })();
 </script>
+<script src="../js-web/live-wallet-store.js"></script>
+<script src="../js-web/subscribe-modal.js"></script>
 <script src="../js-web/profile-works.js"></script>
 <script src="../js-web/profile-creator-cert.js"></script>
+<script src="../js-web/profile-social-lists.js"></script>
+<script src="../js-web/profile-unread-viewer.js"></script>
+<script src="../js-web/profile-share.js"></script>
+<script src="../js-web/profile-cover.js"></script>
 <link rel="stylesheet" href="../css-web/host-live-pip-global.css">
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/host-live-pip-global.js"></script>

@@ -12,10 +12,10 @@
             window.toast(msg);
             return;
         }
-        var host = document.getElementById('toastHostF') || document.getElementById('subToastHost');
+        var host = document.getElementById('toastHostF') || document.getElementById('subToastHost') || document.getElementById('pfToast');
         if (!host) return;
         var t = document.createElement('div');
-        t.className = host.id === 'subToastHost' ? 'sub-toast' : 'toast-f';
+        t.className = host.id === 'subToastHost' ? 'sub-toast' : host.id === 'pfToast' ? '' : 'toast-f';
         t.textContent = msg;
         host.appendChild(t);
         setTimeout(function () { t.remove(); }, 2600);
@@ -114,6 +114,9 @@
         if (ovl) ovl.classList.remove('show');
         resetPwdInput();
         showSubStep('subStep1');
+        try {
+            global.dispatchEvent(new CustomEvent('fl-subscribe-closed'));
+        } catch (e) { /* ignore */ }
     }
 
     function openRechargeStep(price) {
@@ -195,6 +198,9 @@
         }
         showSubStep('subStep2');
         toast(state.mode === 'renew' ? '支付成功，续费已生效' : '支付成功，订阅已生效');
+        try {
+            global.dispatchEvent(new CustomEvent('fl-subscribe-paid', { detail: { creator: state.creator } }));
+        } catch (e) { /* ignore */ }
     }
 
     function onRechargeConfirm() {

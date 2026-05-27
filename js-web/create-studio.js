@@ -358,24 +358,6 @@
 
     }
 
-    function openCreateEditorInner(type) {
-
-        if (editorZone) editorZone.classList.add('is-open');
-
-        setType(type);
-
-        setTimeout(function () {
-
-            editorZone?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-        }, 60);
-
-    }
-
-    window.__crOpenCreateEditor = openCreateEditorInner;
-
-
-
     function openCreateEditor(type) {
 
         if (pendingEditMode && type !== currentType) {
@@ -386,13 +368,15 @@
 
         }
 
-        if (window.FansloopCreatePublishGate && !window.FansloopCreatePublishGate.ensurePublish(type)) {
+        if (editorZone) editorZone.classList.add('is-open');
 
-            return;
+        setType(type);
 
-        }
+        setTimeout(function () {
 
-        openCreateEditorInner(type);
+            editorZone?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        }, 60);
 
     }
 

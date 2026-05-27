@@ -340,9 +340,19 @@
 
     activeStack = 'rec';
 
-    /* —— 创作 FAB：展开/收起；点击发布见 home-fab-publish-gate.js（KYC→创作者门槛） —— */
+    /* —— 创作 FAB —— */
     var fabWrap = document.getElementById('createFabWrap');
     var fabCloseTimer;
+    document.getElementById('createFabMain')?.addEventListener('click', function () {
+        location.href = 'create.html?type=image';
+    });
+    document.querySelectorAll('.create-fab-item').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var type = btn.getAttribute('data-create-type') || 'image';
+            location.href = 'create.html?type=' + type;
+        });
+    });
     if (fabWrap) {
         fabWrap.addEventListener('mouseenter', function () {
             clearTimeout(fabCloseTimer);

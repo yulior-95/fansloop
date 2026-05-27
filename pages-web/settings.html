@@ -5,8 +5,6 @@
 <title>设置 · FansLoop</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
-<link rel="stylesheet" href="../css-web/dev-glass-note.css">
-<link rel="stylesheet" href="../css-web/settings-kyc-proto.css">
 <script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
 <style>
 .st-grid { display: grid; grid-template-columns: 240px 1fr; gap: 24px; }
@@ -303,24 +301,8 @@
                     </div>
                     <div class="st-row" id="kycSettingsRow" role="button" tabindex="0">
                         <div class="row-ic"><i class="fa-solid fa-id-card-clip"></i></div>
-                        <div class="row-info"><div class="ti">KYC 身份验证</div><div class="sub" id="kycSettingsSub">用于提现与合规要求 · 尚未提交认证</div></div>
+                        <div class="row-info"><div class="ti">KYC 身份验证</div><div class="sub" id="kycSettingsSub">用于提现与合规要求 · 默认未验证</div></div>
                         <div class="row-action" id="kycSettingsAction">未验证 <i class="fa-solid fa-chevron-right arrow"></i></div>
-                    </div>
-                    <div class="kyc-settings-proto" id="kycSettingsProto" aria-hidden="false">
-                        <span class="kyc-proto-label">原型</span>
-                        <div class="kyc-proto-seg" role="group" aria-label="KYC 原型状态切换">
-                            <button type="button" class="active" data-kyc-demo="none" id="kycDemoNone">未认证</button>
-                            <button type="button" data-kyc-demo="approved" id="kycDemoApproved">已通过</button>
-                        </div>
-                        <span class="dev-glass-wrap dev-glass-wrap--inline dev-glass-wrap--pop-left">
-                            <span class="dev-glass-sphere" tabindex="0" aria-describedby="kycProtoGlassTip">
-                                <span class="dev-glass-sphere-shine"></span>
-                                <span class="dev-glass-sphere-txt">To 研发</span>
-                            </span>
-                            <span class="dev-glass-pop" id="kycProtoGlassTip" role="tooltip">
-                                上方「未认证 / 已通过」切换<strong>仅用于原型走查</strong>，写入 localStorage 模拟 KYC 结果，方便联调提现、发布门槛等下游页面；<strong>不是上线功能</strong>，正式环境状态仅由 Verify 审核结果驱动。点击 KYC 行仍进入现有认证流程（<code>kyc-intro.html</code> 等）。
-                            </span>
-                        </span>
                     </div>
                     <div class="st-row">
                         <div class="row-ic"><i class="fa-solid fa-link"></i></div>
@@ -515,7 +497,6 @@
 </div>
 
 <script src="../js-web/kyc-store.js"></script>
-<script src="../js-web/publish-gate-shared.js"></script>
 <script>
 (function () {
     var KS = window.FansloopKycStore;
@@ -524,47 +505,6 @@
     var sub = document.getElementById("kycSettingsSub");
     var act = document.getElementById("kycSettingsAction");
     var bd = document.getElementById("kycProfileBadge");
-    var btnNone = document.getElementById("kycDemoNone");
-    var btnApproved = document.getElementById("kycDemoApproved");
-    var PG = window.FansloopPublishGate;
-
-    function applyUrlDemo() {
-        var params = new URLSearchParams(window.location.search);
-        if (params.get("reset") === "1" || params.get("kyc") === "none") {
-            KS.resetKyc();
-        }
-        if (params.get("kyc") === "approved") {
-            KS.writeKyc({
-                authStatus: "approved",
-                status: "approved",
-                authSource: params.get("source") === "wallet" ? "wallet" : "document",
-                zkpStatus: params.get("source") === "wallet" ? "success" : "unknown"
-            });
-        }
-    }
-
-    function setDemoState(mode) {
-        if (mode === "approved") {
-            KS.writeKyc({
-                authStatus: "approved",
-                status: "approved",
-                authSource: "document",
-                zkpStatus: "unknown"
-            });
-            if (PG) PG.syncCreatorFromKyc();
-        } else {
-            KS.resetKyc();
-        }
-        syncProtoButtons();
-        paint();
-    }
-
-    function syncProtoButtons() {
-        var st = KS.readKyc().status || "none";
-        var approved = st === "approved";
-        if (btnNone) btnNone.classList.toggle("active", !approved);
-        if (btnApproved) btnApproved.classList.toggle("active", approved);
-    }
 
     function paint() {
         var k = KS.readKyc();
@@ -582,21 +522,8 @@
             if (k.authSource === "document" && st === "approved") sub.textContent += " · 证件认证";
             if (st === "rejected" && k.rejectReason) sub.textContent += " · 原因：" + k.rejectReason;
         }
-        if (act) {
-            if (st === "approved") {
-                act.innerHTML = '<span class="tag tag-success">已通过</span> <i class="fa-solid fa-chevron-right arrow"></i>';
-            } else if (st === "submitted") {
-                act.innerHTML = '<span class="tag tag-warning">审核中</span> <i class="fa-solid fa-chevron-right arrow"></i>';
-            } else {
-                act.innerHTML = (mapAct[st] || mapAct.none) + ' <i class="fa-solid fa-chevron-right arrow"></i>';
-            }
-        }
-        if (row) {
-            row.classList.toggle("is-kyc-approved", st === "approved");
-            row.classList.toggle("is-kyc-none", st === "none");
-        }
+        if (act) act.innerHTML = (mapAct[st] || mapAct.none) + ' <i class="fa-solid fa-chevron-right arrow"></i>';
         if (bd) bd.style.display = st === "approved" ? "inline-block" : "none";
-        syncProtoButtons();
     }
 
     function goKyc() {
@@ -610,27 +537,8 @@
             if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goKyc(); }
         });
     }
-
-    document.getElementById("kycSettingsProto")?.addEventListener("click", function (e) {
-        e.stopPropagation();
-    });
-
-    btnNone?.addEventListener("click", function (e) {
-        e.stopPropagation();
-        setDemoState("none");
-    });
-    btnApproved?.addEventListener("click", function (e) {
-        e.stopPropagation();
-        setDemoState("approved");
-    });
-
-    applyUrlDemo();
-    if (PG) PG.syncCreatorFromKyc();
     paint();
-    window.addEventListener("pageshow", function () {
-        applyUrlDemo();
-        paint();
-    });
+    window.addEventListener("pageshow", paint);
     window.addEventListener("storage", function (e) {
         if (e.key === KS.KYC_STORE || e.key === KS.AUDIT_LOG) paint();
     });
