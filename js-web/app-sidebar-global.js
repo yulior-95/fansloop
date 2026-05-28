@@ -183,4 +183,124 @@
     } else {
         loadDevGlassViewport();
     }
+
+    /** 全局直播悬浮窗（站内页面切换保持） */
+    var LIVE_PIP_KEY = 'fl_live_pip_state';
+
+    function readLivePipState() {
+        try {
+            var raw = localStorage.getItem(LIVE_PIP_KEY) || '';
+            var obj = raw ? JSON.parse(raw) : null;
+            if (!obj || typeof obj !== 'object') return null;
+            return obj;
+        } catch (e) { return null; }
+    }
+
+    function writeLivePipState(state) {
+        try {
+            if (!state || !state.active) localStorage.removeItem(LIVE_PIP_KEY);
+            else localStorage.setItem(LIVE_PIP_KEY, JSON.stringify(state));
+        } catch (e) {}
+    }
+
+    function injectLivePipStyle() {
+        if (document.getElementById('flGlobalPipStyle')) return;
+        var style = document.createElement('style');
+        style.id = 'flGlobalPipStyle';
+        style.textContent =
+            '.fl-live-pip{position:fixed;right:20px;bottom:20px;width:320px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.18);background:#000;z-index:10090;box-shadow:0 22px 60px rgba(0,0,0,.6);display:none;}' +
+            '.fl-live-pip.show{display:block;}' +
+            '.fl-live-pip .hd{height:40px;padding:0 10px;background:rgba(16,18,30,.94);display:flex;align-items:center;justify-content:space-between;color:#fff;font-size:11px;font-weight:700;}' +
+            '.fl-live-pip .hd .title{display:inline-flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
+            '.fl-live-pip .hd .title i{color:#ef4444;font-size:8px;}' +
+            '.fl-live-pip .hd .actions{display:flex;gap:6px;}' +
+            '.fl-live-pip .hd button{height:26px;padding:0 8px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:10px;font-weight:700;cursor:pointer;}' +
+            '.fl-live-pip .hd button.back{background:linear-gradient(135deg,#8B5CF6,#EC4899);border:none;}' +
+            '.fl-live-pip .body{aspect-ratio:16/9;position:relative;background:url("https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200") center/cover no-repeat;}' +
+            '.fl-live-pip .body:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 52%,rgba(0,0,0,.66));}' +
+            '.fl-live-pip .body .tx{position:absolute;left:10px;right:10px;bottom:8px;z-index:2;color:#fff;font-size:11px;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}';
+        document.head.appendChild(style);
+    }
+
+    function ensureLivePipNode() {
+        var node = document.getElementById('flGlobalLivePip');
+        if (node) return node;
+        node = document.createElement('div');
+        node.id = 'flGlobalLivePip';
+        node.className = 'fl-live-pip';
+        node.innerHTML =
+            '<div class="hd">' +
+            '  <span class="title"><i class="fa-solid fa-circle"></i><span data-pip-title>直播中</span></span>' +
+            '  <div class="actions">' +
+            '    <button type="button" class="back" data-pip-back><i class="fa-solid fa-up-right-and-down-left-from-center"></i> 回到页面</button>' +
+            '    <button type="button" data-pip-close><i class="fa-solid fa-xmark"></i></button>' +
+            '  </div>' +
+            '</div>' +
+            '<div class="body"><span class="tx" data-pip-tx>直播进行中</span></div>';
+        document.body.appendChild(node);
+        return node;
+    }
+
+    function resolveBackByRole(role) {
+        return role === 'host' ? 'create-live-host.html' : 'live-detail.html';
+    }
+
+    function renderLivePip(state) {
+        injectLivePipStyle();
+        var node = ensureLivePipNode();
+        if (!state || !state.active) {
+            node.classList.remove('show');
+            return;
+        }
+        node.classList.add('show');
+        var title = state.title || '直播中';
+        var role = state.role === 'host' ? 'host' : 'viewer';
+        var back = state.back || resolveBackByRole(role);
+
+        var titleEl = node.querySelector('[data-pip-title]');
+        var txEl = node.querySelector('[data-pip-tx]');
+        var btnBack = node.querySelector('[data-pip-back]');
+        var btnClose = node.querySelector('[data-pip-close]');
+        if (titleEl) titleEl.textContent = role === 'host' ? '主播端直播中' : '直播中';
+        if (txEl) txEl.textContent = title;
+
+        if (btnBack && btnBack.getAttribute('data-bound') !== '1') {
+            btnBack.setAttribute('data-bound', '1');
+            btnBack.addEventListener('click', function () {
+                var s = readLivePipState() || {};
+                location.href = s.back || resolveBackByRole(s.role);
+            });
+        }
+        if (btnClose && btnClose.getAttribute('data-bound') !== '1') {
+            btnClose.setAttribute('data-bound', '1');
+            btnClose.addEventListener('click', function () {
+                writeLivePipState(null);
+                node.classList.remove('show');
+            });
+        }
+    }
+
+    function initLivePip() {
+        var state = readLivePipState();
+        if (state && state.active) renderLivePip(state);
+    }
+
+    global.FL_openGlobalLivePip = function (payload) {
+        var state = payload || {};
+        state.active = true;
+        state.role = state.role === 'host' ? 'host' : 'viewer';
+        state.back = state.back || resolveBackByRole(state.role);
+        writeLivePipState(state);
+        renderLivePip(state);
+    };
+    global.FL_closeGlobalLivePip = function () {
+        writeLivePipState(null);
+        renderLivePip(null);
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initLivePip);
+    } else {
+        initLivePip();
+    }
 })(typeof window !== 'undefined' ? window : this);

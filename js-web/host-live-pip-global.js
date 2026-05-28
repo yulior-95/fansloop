@@ -104,6 +104,7 @@
                 e.stopPropagation();
                 goConsole();
             });
+
         });
     }
 

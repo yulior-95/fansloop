@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>直播悬浮窗</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+html,body{margin:0;height:100%;background:#06070d;color:#fff;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif}
+.pip{height:100%;display:flex;flex-direction:column;border:1px solid rgba(255,255,255,.15);border-radius:12px;overflow:hidden;background:#000}
+.hd{height:40px;padding:0 12px;display:flex;align-items:center;justify-content:space-between;background:rgba(16,18,30,.95);font-size:12px;font-weight:700}
+.hd .tag{display:inline-flex;gap:6px;align-items:center}
+.hd .tag i{color:#ef4444;font-size:8px}
+.actions{display:flex;gap:6px}
+.actions button{height:28px;border-radius:8px;border:1px solid rgba(255,255,255,.18);padding:0 10px;background:rgba(255,255,255,.08);color:#fff;font-size:11px;font-weight:700;cursor:pointer}
+.actions .back{background:linear-gradient(135deg,#8b5cf6,#ec4899);border:none}
+.body{flex:1;position:relative;background:url('https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200') center/cover}
+.body::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 48%,rgba(0,0,0,.66))}
+.txt{position:absolute;left:10px;right:10px;bottom:10px;z-index:2;font-size:12px;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,.65)}
+</style>
+</head>
+<body>
+<div class="pip">
+  <div class="hd">
+    <span class="tag"><i class="fa-solid fa-circle"></i> <span id="pipTitle">NovaPlay · 直播中</span></span>
+    <div class="actions">
+      <button type="button" id="btnBack" class="back"><i class="fa-solid fa-up-right-and-down-left-from-center"></i> 回到页面</button>
+      <button type="button" id="btnExitViewer" style="display:none"><i class="fa-solid fa-right-from-bracket"></i> 退出直播</button>
+      <button type="button" id="btnClose"><i class="fa-solid fa-xmark"></i> 关闭</button>
+    </div>
+  </div>
+  <div class="body"><div class="txt">Apex 大师之路 · 周五开黑准点上分</div></div>
+</div>
+<script>
+(function () {
+  var p = new URLSearchParams(window.location.search);
+  var role = (p.get("role") || "viewer").toLowerCase();
+  var back = p.get("back") || (role === "host" ? "create-live-host.html" : "live-detail.html");
+  var btnBack = document.getElementById("btnBack");
+  var btnClose = document.getElementById("btnClose");
+  var btnExitViewer = document.getElementById("btnExitViewer");
+  var title = document.getElementById("pipTitle");
+  if (title) title.textContent = role === "host" ? "主播端 · 直播中" : "NovaPlay · 直播中";
+  if (btnExitViewer && role === "viewer") btnExitViewer.style.display = "";
+
+  function go(url) {
+    if (window.opener && !window.opener.closed) {
+      try { window.opener.location.href = url; window.opener.focus(); } catch (e) {}
+      window.close();
+      return;
+    }
+    window.location.href = url;
+  }
+
+  if (btnBack) btnBack.addEventListener("click", function () { go(back); });
+  if (btnExitViewer) btnExitViewer.addEventListener("click", function () { go("home.html"); });
+  if (btnClose) btnClose.addEventListener("click", function () { window.close(); });
+})();
+</script>
+</body>
+</html>

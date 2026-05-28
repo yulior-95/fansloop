@@ -294,8 +294,8 @@
     var gearPop = document.getElementById("ldSettingsPop");
     var btnExpand = document.getElementById("btnPlayerExpand");
     var btnPip = document.getElementById("btnPlayerPip");
-    var btnClearDm = document.getElementById("btnClearDanmaku");
     var pipWin = document.getElementById("livePipWin");
+    var dmAreaMode = "scroll";
 
     if (btnVol && player) {
         btnVol.addEventListener("click", function () {
@@ -307,12 +307,93 @@
         });
     }
     if (btnGear && gearPop) {
+        var btnDanmakuSettingsClose = document.getElementById("btnDanmakuSettingsClose");
+        var dmAreaGroup = document.getElementById("dmAreaGroup");
+        var dmFontSizeRange = document.getElementById("dmFontSizeRange");
+        var dmFontSizeVal = document.getElementById("dmFontSizeVal");
+        var dmOpacityRange = document.getElementById("dmOpacityRange");
+        var dmOpacityVal = document.getElementById("dmOpacityVal");
+        var dmSafeAreaToggle = document.getElementById("dmSafeAreaToggle");
+        var giftFxToggle = document.getElementById("giftFxToggle");
+
+        function closeDanmakuSettings() {
+            gearPop.classList.remove("open");
+            btnGear.classList.remove("is-active");
+        }
+
+        function updateRangeTrack(input) {
+            if (!input) return;
+            var min = Number(input.min || 0);
+            var max = Number(input.max || 100);
+            var value = Number(input.value || min);
+            var ratio = ((value - min) / Math.max(1, max - min)) * 100;
+            input.style.background = "linear-gradient(90deg,#FBBF24 " + ratio + "%, rgba(255,255,255,0.2) " + ratio + "%)";
+        }
+
         btnGear.addEventListener("click", function (e) {
             e.stopPropagation();
-            gearPop.classList.toggle("open");
+            var opening = !gearPop.classList.contains("open");
+            gearPop.classList.toggle("open", opening);
+            btnGear.classList.toggle("is-active", opening);
         });
-        document.addEventListener("click", function () { gearPop.classList.remove("open"); });
+        document.addEventListener("click", function () { closeDanmakuSettings(); });
         gearPop.addEventListener("click", function (e) { e.stopPropagation(); });
+        if (btnDanmakuSettingsClose) {
+            btnDanmakuSettingsClose.addEventListener("click", function () { closeDanmakuSettings(); });
+        }
+        if (dmAreaGroup) {
+            dmAreaGroup.addEventListener("click", function (e) {
+                var btn = e.target.closest("button[data-dm-area]");
+                if (!btn) return;
+                dmAreaGroup.querySelectorAll("button[data-dm-area]").forEach(function (n) {
+                    n.classList.remove("is-active");
+                });
+                btn.classList.add("is-active");
+                dmAreaMode = btn.getAttribute("data-dm-area") || "scroll";
+            });
+        }
+        if (dmFontSizeRange) {
+            var syncDmFont = function () {
+                if (dmFontSizeVal) dmFontSizeVal.textContent = dmFontSizeRange.value;
+                if (danmakuLayer) {
+                    danmakuLayer.style.setProperty("--dm-font-size", dmFontSizeRange.value + "px");
+                    danmakuLayer.querySelectorAll(".danmaku-item").forEach(function (item) {
+                        item.style.fontSize = dmFontSizeRange.value + "px";
+                    });
+                }
+                updateRangeTrack(dmFontSizeRange);
+            };
+            dmFontSizeRange.addEventListener("input", syncDmFont);
+            syncDmFont();
+        }
+        if (dmOpacityRange) {
+            var syncDmOpacity = function () {
+                if (dmOpacityVal) dmOpacityVal.textContent = dmOpacityRange.value + "%";
+                if (danmakuLayer) danmakuLayer.style.setProperty("--dm-opacity", String(Math.max(0.2, Number(dmOpacityRange.value) / 100)));
+                updateRangeTrack(dmOpacityRange);
+            };
+            dmOpacityRange.addEventListener("input", syncDmOpacity);
+            syncDmOpacity();
+        }
+        if (dmSafeAreaToggle && player) {
+            var syncSafeArea = function () {
+                player.classList.toggle("dm-safe-area", !!dmSafeAreaToggle.checked);
+            };
+            dmSafeAreaToggle.addEventListener("change", syncSafeArea);
+            syncSafeArea();
+        }
+        if (giftFxToggle && player) {
+            var syncGiftFx = function () {
+                player.classList.toggle("gift-fx-muted", !!giftFxToggle.checked);
+            };
+            giftFxToggle.addEventListener("change", syncGiftFx);
+            syncGiftFx();
+        }
+        var params = new URLSearchParams(window.location.search);
+        if (params.get("autoDanmakuSettings") === "1") {
+            gearPop.classList.add("open");
+            btnGear.classList.add("is-active");
+        }
     }
     if (btnExpand && player) {
         btnExpand.addEventListener("click", function () {
@@ -332,8 +413,22 @@
     }
     if (btnPip && pipWin) {
         btnPip.addEventListener("click", function () {
+            var role = (new URLSearchParams(window.location.search).get("liveRole") || "viewer").toLowerCase();
+            var titleEl = document.querySelector(".bottom-overlay h2");
+            var payload = {
+                role: role === "host" ? "host" : "viewer",
+                back: role === "host" ? "create-live-host.html" : "live-detail.html",
+                title: titleEl ? titleEl.textContent.trim() : "直播中",
+                active: true
+            };
+            if (typeof window.FL_openGlobalLivePip === "function") {
+                window.FL_openGlobalLivePip(payload);
+                toast("已开启悬浮窗，切换站内页面将持续显示");
+                return;
+            }
+            try { localStorage.setItem("fl_live_pip_state", JSON.stringify(payload)); } catch (e) {}
             pipWin.classList.add("open");
-            toast("已开启悬浮小窗，可继续浏览其他页面");
+            toast("已开启悬浮窗");
         });
     }
     var btnPipClose = document.getElementById("btnPipClose");
@@ -351,14 +446,6 @@
             toast("已回到直播页");
         });
     }
-    if (btnClearDm && danmakuLayer) {
-        btnClearDm.addEventListener("click", function () {
-            var hidden = danmakuLayer.classList.toggle("is-hidden");
-            btnClearDm.classList.toggle("active", hidden);
-            toast(hidden ? "礼物飘屏已隐藏 · 再次点击恢复" : "礼物飘屏已恢复");
-        });
-    }
-
     /* 喝彩 · 抖音式上浮点赞 */
     var btnCheer = document.getElementById("btnCheer");
     var likeLayer = document.getElementById("likeBurstLayer");
@@ -414,7 +501,9 @@
         var el = document.createElement("div");
         el.className = "danmaku-item gift";
         el.innerHTML = '<i class="fa-solid fa-gift"></i><b>' + user + "</b> " + text;
-        el.style.top = 10 + Math.random() * 68 + "%";
+        if (dmAreaMode === "top") el.style.top = 8 + Math.random() * 22 + "%";
+        else if (dmAreaMode === "bottom") el.style.top = 66 + Math.random() * 22 + "%";
+        else el.style.top = 10 + Math.random() * 68 + "%";
         el.style.animationDuration = 9 + Math.random() * 6 + "s";
         danmakuLayer.appendChild(el);
         setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 18000);

@@ -46,6 +46,9 @@
     pointer-events: none;
     overflow: hidden;
     transition: opacity 0.25s;
+    --dm-font-size: 13px;
+    --dm-opacity: 0.75;
+    opacity: var(--dm-opacity);
 }
 .danmaku-layer.is-hidden { opacity: 0; visibility: hidden; }
 .danmaku-item {
@@ -54,7 +57,7 @@
     white-space: nowrap;
     padding: 4px 12px;
     border-radius: 999px;
-    font-size: 13px;
+    font-size: var(--dm-font-size);
     font-weight: 700;
     color: #fff;
     text-shadow: 0 1px 3px rgba(0,0,0,0.8);
@@ -488,31 +491,185 @@
 
 .ld-settings-pop {
     position: absolute;
-    top: calc(100% + 8px);
+    top: 0;
     right: 0;
-    min-width: 200px;
-    padding: 12px;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--r-md);
-    box-shadow: var(--shadow-lg);
-    display: none;
-    z-index: 10;
+    width: min(360px, 86vw);
+    height: 100%;
+    padding: 16px;
+    background: linear-gradient(180deg, rgba(8, 10, 18, 0.96), rgba(10, 12, 20, 0.94));
+    border-left: 1px solid rgba(255,255,255,0.15);
+    box-shadow: -16px 0 40px rgba(0,0,0,0.45);
+    z-index: 16;
+    transform: translateX(104%);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform .28s cubic-bezier(.2,.8,.2,1), opacity .2s ease, visibility .2s;
+    overflow-y: auto;
 }
-.ld-settings-pop.open { display: block; }
-.ld-settings-pop label { display: block; font-size: 11px; color: var(--t-tertiary); margin-bottom: 6px; }
-.ld-settings-pop select {
-    width: 100%;
-    height: 34px;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
+.ld-settings-pop.open {
+    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+}
+.ldsp-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+.ldsp-head h4 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 800;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.ldsp-head h4 i { color: #FBBF24; font-size: 14px; }
+.ldsp-close {
+    width: 30px;
+    height: 30px;
     border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.06);
     color: #fff;
     font-size: 12px;
+}
+.ldsp-item {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.ldsp-item:last-child { border-bottom: none; }
+.ldsp-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 10px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+}
+.ldsp-row b {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1;
+}
+.ldsp-area-group {
+    display: inline-flex;
+    gap: 8px;
+}
+.ldsp-area-group button {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 2px solid rgba(255,255,255,0.9);
+    background: transparent;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+}
+.ldsp-area-group button.is-active {
+    border-color: #FBBF24;
+    color: #FBBF24;
+}
+.ld-settings-pop input[type="range"] {
+    width: 100%;
+    appearance: none;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.2);
+    outline: none;
+}
+.ld-settings-pop input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+}
+.ldsp-switches { padding-top: 6px; }
+.ldsp-switch-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 0;
+}
+.ldsp-switch-row input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.ldsp-switch-ui {
+    position: relative;
+    width: 48px;
+    height: 28px;
+    border-radius: 999px;
+    background: #d1d5db;
+    transition: .2s;
+    flex-shrink: 0;
+}
+.ldsp-switch-ui::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    transition: .2s;
+}
+.ldsp-switch-row input:checked + .ldsp-switch-ui {
+    background: #FBBF24;
+}
+.ldsp-switch-row input:checked + .ldsp-switch-ui::after {
+    transform: translateX(20px);
 }
 .top-actions { position: relative; }
-.top-actions .btn-clear-danmaku.active { color: #FBBF24; border-color: rgba(251,191,36,0.5); }
+.top-actions #btnPlayerGear.is-active {
+    color: #FBBF24;
+    border-color: rgba(251,191,36,0.55);
+    background: rgba(251,191,36,0.14);
+}
+.top-actions #btnPlayerHalf.is-active {
+    color: #A78BFA;
+    border-color: rgba(167,139,250,0.55);
+    background: rgba(167,139,250,0.14);
+}
+
+.live-player.dm-safe-area .danmaku-layer { padding-top: 70px; }
+.live-player.gift-fx-muted .float-gifts { display: none; }
+.live-player.gift-fx-muted .gift-fly-layer .danmaku-item.gift { display: none; }
+
+.app-shell.live-halfscreen .live-grid {
+    grid-template-columns: 50% 50%;
+    gap: 12px;
+}
+.app-shell.live-halfscreen .live-player {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    min-height: 100vh;
+    aspect-ratio: auto;
+    border-radius: 0;
+    z-index: 100;
+}
+.app-shell.live-halfscreen .live-player .ld-settings-pop {
+    width: min(360px, 50vw);
+}
+.app-shell.live-halfscreen .chat-shell {
+    height: calc(100vh - 24px);
+}
 
 .rank-list { list-style: none; padding: 0; margin: 0; }
 .rank-list li {
