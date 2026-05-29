@@ -1,0 +1,353 @@
+/**
+ * 发现页 · 视频卡片控件 + 页面内悬浮屏
+ */
+
+.disc-vp {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.disc-vp-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+    background: #000;
+}
+
+.disc-vp-video--pip {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+    background: #000;
+}
+
+.disc-vp-poster {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-size: cover;
+    background-position: center;
+    transition: opacity 0.3s ease, filter 0.35s ease, transform 0.35s ease;
+    pointer-events: none;
+}
+
+[data-disc-vp].is-playing .disc-vp-poster {
+    opacity: 0;
+}
+
+.disc-pip-panel.is-playing .disc-pip-media::after {
+    opacity: 0.35;
+}
+
+.content-tile--video.is-pip-source .disc-vp-poster {
+    filter: blur(10px) brightness(0.55);
+    transform: scale(1.04);
+}
+
+.disc-vp-pip-badge {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    pointer-events: none;
+}
+
+.content-tile--video.is-pip-source .disc-vp-pip-badge { display: flex; }
+
+.disc-vp-pip-badge .pip-pulse {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    background: rgba(168, 85, 247, 0.35);
+    animation: disc-vp-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes disc-vp-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.55); transform: scale(1); }
+    50% { box-shadow: 0 0 0 14px rgba(168, 85, 247, 0); transform: scale(1.06); }
+}
+
+/* 工具条：无背景，浮在封面底部进度条上方 */
+.disc-vp-toolbar {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 14px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    pointer-events: auto;
+}
+
+.content-tile--hero .disc-vp-toolbar {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    gap: 10px;
+}
+
+.content-tile--video.is-pip-source .disc-vp-toolbar,
+.content-tile--video.is-pip-source .disc-vp-progress-rail {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.disc-vp-btn {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, transform 0.15s;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.disc-vp-btn:hover {
+    background: rgba(0, 0, 0, 0.62);
+    transform: scale(1.06);
+}
+
+.content-tile--hero .disc-vp-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+}
+
+.disc-vp-time {
+    flex: 1;
+    min-width: 0;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
+}
+
+.disc-vp-time .sep { opacity: 0.65; margin: 0 3px; }
+
+/* 进度条：贴封面底边（卡片封面与 stats 分界处） */
+.disc-vp-progress-rail {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 6;
+    padding: 0;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.disc-vp-progress-rail .disc-vp-progress {
+    position: relative;
+    height: 3px;
+    border-radius: 0;
+    background: rgba(255, 255, 255, 0.28);
+    transition: height 0.18s ease;
+}
+
+.disc-vp-progress-rail:hover .disc-vp-progress,
+.disc-vp-progress-rail .disc-vp-progress.is-dragging {
+    height: 6px;
+}
+
+.disc-vp-progress-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0%;
+    background: linear-gradient(90deg, #a855f7, #ec4899);
+    pointer-events: none;
+}
+
+.disc-vp-progress-thumb {
+    position: absolute;
+    top: 50%;
+    left: 0%;
+    width: 10px;
+    height: 10px;
+    margin-top: -5px;
+    margin-left: -5px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.55);
+    opacity: 0;
+    transition: opacity 0.15s;
+    pointer-events: none;
+}
+
+.disc-vp-progress-rail:hover .disc-vp-progress-thumb,
+.disc-vp-progress-rail .disc-vp-progress.is-dragging .disc-vp-progress-thumb {
+    opacity: 1;
+}
+
+.disc-vp-btn.is-muted .fa-volume-high { display: none; }
+.disc-vp-btn:not(.is-muted) .fa-volume-xmark { display: none; }
+
+/* 悬浮屏 */
+.disc-pip {
+    position: fixed;
+    right: 24px;
+    bottom: 100px;
+    z-index: 200;
+    display: none;
+    pointer-events: none;
+}
+
+.disc-pip.is-open { display: block; pointer-events: auto; }
+
+.disc-pip-shell {
+    display: flex;
+    align-items: stretch;
+    filter: drop-shadow(0 24px 48px rgba(0, 0, 0, 0.55));
+}
+
+.disc-pip-panel {
+    position: relative;
+    width: 360px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: #0a0a12;
+}
+
+.disc-pip-media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    overflow: hidden;
+}
+
+.disc-pip-media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.75) 100%);
+    pointer-events: none;
+}
+
+.disc-pip-info {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 56px;
+    z-index: 2;
+    color: #fff;
+    pointer-events: none;
+}
+
+.disc-pip-info .pip-title {
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.35;
+    margin-bottom: 4px;
+}
+
+.disc-pip-info .pip-author {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.disc-pip-panel .disc-vp-toolbar {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 14px;
+    z-index: 3;
+}
+
+.disc-pip-panel .disc-vp-progress-rail--pip {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 4;
+}
+
+.disc-pip-back {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 5;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.disc-pip-back:hover { background: rgba(168, 85, 247, 0.45); }
+
+.disc-pip-nav {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    padding-left: 6px;
+}
+
+.disc-pip-nav button {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(20, 20, 32, 0.92);
+    color: #fff;
+    cursor: pointer;
+}
+
+.disc-pip-nav button:hover:not(:disabled) {
+    background: rgba(168, 85, 247, 0.35);
+}
+
+.disc-pip-nav button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+body.disc-pip-active .disc-mosaic .content-tile:not(.is-pip-source) { opacity: 0.92; }
+
+@media (max-width: 900px) {
+    .disc-pip { right: 12px; bottom: 80px; }
+    .disc-pip-panel { width: min(320px, calc(100vw - 80px)); }
+}

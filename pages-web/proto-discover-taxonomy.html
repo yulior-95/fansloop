@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>发现分类体系 · 试算器</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<style>
+.proto-wrap { max-width: 900px; margin: 32px auto; padding: 0 24px 48px; }
+.proto-wrap h1 { font-size: 22px; font-weight: 900; margin-bottom: 8px; }
+.proto-wrap .sub { color: var(--t-secondary); font-size: 13px; margin-bottom: 24px; }
+.proto-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+}
+.proto-card h2 { font-size: 14px; font-weight: 800; margin: 0 0 12px; color: #c084fc; }
+.proto-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; align-items: center; }
+.proto-row label { font-size: 12px; font-weight: 600; color: var(--t-secondary); min-width: 88px; }
+.proto-row select, .proto-row input {
+    flex: 1;
+    min-width: 160px;
+    height: 38px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--t-primary);
+    font-size: 13px;
+}
+.tag-input { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+.tag-input input { flex: 1; min-width: 120px; }
+.btn-run {
+    height: 40px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 10px;
+    background: var(--brand-grad);
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+}
+.result-box {
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 10px;
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px dashed rgba(59, 130, 246, 0.35);
+    font-size: 13px;
+    line-height: 1.6;
+}
+.result-box .primary { font-size: 18px; font-weight: 800; color: #93c5fd; }
+.result-box ol { margin: 8px 0 0; padding-left: 18px; }
+.doc-link { font-size: 12px; margin-top: 20px; }
+.doc-link a { color: var(--brand-purple); }
+</style>
+</head>
+<body>
+<div class="proto-wrap">
+    <h1><i class="fa-solid fa-flask"></i> 发现 · 分类划分试算器</h1>
+    <p class="sub">模拟发布时的 primary_category 判定，供研发 / 算法对齐。完整说明见 <code>docs/discover-taxonomy-spec.md</code></p>
+
+    <div class="proto-card">
+        <h2>输入</h2>
+        <div class="proto-row">
+            <label>主垂类</label>
+            <select id="inPrimary">
+                <option value="">（未选择）</option>
+            </select>
+        </div>
+        <div class="proto-row">
+            <label>话题 #</label>
+            <div class="tag-input">
+                <input type="text" id="inHashtags" placeholder="京都, Vlog（逗号分隔）" />
+            </div>
+        </div>
+        <div class="proto-row">
+            <label>创作者默认</label>
+            <select id="inCreatorDefault">
+                <option value="">（无）</option>
+            </select>
+        </div>
+        <div class="proto-row">
+            <button type="button" class="btn-run" id="btnRun"><i class="fa-solid fa-play"></i> 试算归类</button>
+        </div>
+        <div class="result-box" id="resultBox" hidden>
+            <div>判定主垂类：<span class="primary" id="outPrimary">—</span></div>
+            <div>方法：<span id="outMethod">—</span></div>
+            <ol id="outSteps"></ol>
+        </div>
+    </div>
+
+    <div class="proto-card">
+        <h2>划分规则优先级</h2>
+        <ol id="ruleClassify"></ol>
+    </div>
+    <div class="proto-card">
+        <h2>推荐规则摘要</h2>
+        <ol id="ruleRecommend"></ol>
+    </div>
+
+    <p class="doc-link"><a href="../docs/discover-taxonomy-spec.md" target="_blank"><i class="fa-solid fa-file-lines"></i> 打开完整需求文档</a>
+     · <a href="discover.html"><i class="fa-solid fa-compass"></i> 返回发现页</a></p>
+</div>
+<script src="../js-web/discover-taxonomy.js"></script>
+<script>
+(function () {
+    var T = window.FL_DISCOVER_TAXONOMY;
+    if (!T) return;
+    var selPrimary = document.getElementById('inPrimary');
+    var selCreator = document.getElementById('inCreatorDefault');
+    T.getCategories().filter(function (c) { return c.id !== 'all'; }).forEach(function (c) {
+        var o1 = document.createElement('option');
+        o1.value = c.id;
+        o1.textContent = c.icon + ' ' + c.name;
+        selPrimary.appendChild(o1);
+        var o2 = o1.cloneNode(true);
+        selCreator.appendChild(o2);
+    });
+    T.rules.classify.forEach(function (t) {
+        var li = document.createElement('li');
+        li.textContent = t;
+        document.getElementById('ruleClassify').appendChild(li);
+    });
+    T.rules.recommend.forEach(function (t) {
+        var li = document.createElement('li');
+        li.textContent = t;
+        document.getElementById('ruleRecommend').appendChild(li);
+    });
+    document.getElementById('btnRun').addEventListener('click', function () {
+        var tags = (document.getElementById('inHashtags').value || '')
+            .split(/[,，\s]+/).filter(Boolean);
+        var r = T.resolveContentCategory({
+            primaryCategory: selPrimary.value || null,
+            hashtags: tags,
+            creatorDefaultCategory: selCreator.value || null
+        });
+        var box = document.getElementById('resultBox');
+        box.hidden = false;
+        var cat = T.getCategoryById(r.primaryCategory);
+        document.getElementById('outPrimary').textContent = cat ? (cat.icon + ' ' + cat.name) : '待补全';
+        document.getElementById('outMethod').textContent = r.method;
+        var steps = document.getElementById('outSteps');
+        steps.innerHTML = '';
+        (r.steps || []).forEach(function (s) {
+            var li = document.createElement('li');
+            li.textContent = 'Step ' + s.step + '：' + s.source + (s.result ? ' → ' + s.result : '');
+            steps.appendChild(li);
+        });
+    });
+})();
+</script>
+</body>
+</html>
