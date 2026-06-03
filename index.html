@@ -149,6 +149,7 @@ main.content { padding: 28px 24px 48px; }
     <aside class="sidebar">
         <div class="sec">导览</div>
         <a href="#notification"><i class="fa-regular fa-bell"></i>通知中心</a>
+        <a href="#messages-im"><i class="fa-regular fa-comments"></i>私信 IM</a>
         <a href="#discover-detail"><i class="fa-solid fa-compass"></i>发现详情</a>
         <a href="#ux"><i class="fa-solid fa-lightbulb"></i>体验与 IA</a>
         <a href="#recharge"><i class="fa-solid fa-arrow-down"></i>充值</a>
@@ -231,34 +232,171 @@ main.content { padding: 28px 24px 48px; }
             </div>
         </section>
 
-        <section class="block" id="discover-detail">
-            <h2><i class="fa-solid fa-compass"></i>发现页 · 内容沉浸详情（本次新增）</h2>
+        <section class="block" id="messages-im">
+            <h2><i class="fa-regular fa-comments"></i>私信 IM · 粉丝群私域（高保真可开发原型）</h2>
             <p class="lead">
-                <strong>用户体验分析：</strong>用户在发现马赛克流中点击卡片后，需要「零跳转」进入全屏沉浸消费，保留侧栏与顶栏以维持平台上下文，同时不丢失点赞/评论/分享等轻互动路径；
-                <strong>产品界面设计：</strong>详情舞台仅覆盖 <code>app-main</code>（左侧菜单至浏览器内容区右缘、顶栏下方至底），含创作者条、全屏媒体、底部标题标签、右侧透明操作轨、视频控件与评论抽屉三层结构；
-                <strong>高保真 UI：</strong>深色沉浸 + 毛玻璃操作轨 + Unsplash 实景图/样例 MP4，控件语义与 <code>discover-video-player</code> 对齐；
-                <strong>HTML 原型：</strong>独立页面 + <code>index.html</code> iframe 平铺，规格见 <code>docs/proto-discover-detail-spec.md</code>。
+                <strong>1. 用户体验分析：</strong>私聊轻量对话；群聊私域运营含成员/管理员/公告/禁言/转让/解散/退出；通知汇总收件箱处理高热申请；快捷操作与群管理均在当前页完成。
+                <strong>2. 产品界面设计：</strong>群聊顶部强展示群公告；「群管理」侧栏分概览/成员/管理员/公告/危险操作；群主退出须先转让；聊天输入区暂不展示打赏。
+                <strong>3. 高保真 UI：</strong>Web Header + Sidebar + 三栏布局；Unsplash 真实头像；页内抽屉与居中确认弹窗；分享作品、用户详情侧栏。
+                <strong>4. HTML 实现：</strong><code>messages.html</code> 为主；<code>index.html</code> iframe 平铺各状态深链，可直接交付开发。
             </p>
             <div class="grid">
                 <div class="tile">
-                    <div class="th">proto-discover-detail-image.html（图文详情） <a href="pages-web/proto-discover-detail-image.html" target="_blank">新窗口</a></div>
-                    <div class="tb" style="height:720px"><iframe src="pages-web/proto-discover-detail-image.html" title="图文详情" loading="lazy"></iframe></div>
-                    <div class="tf">全屏配图 · 顶栏创作者+关注 · 右侧点赞/评论/分享/收藏 · 底部标题与话题标签。</div>
+                    <div class="th">messages.html（主 IM · 可发送） <a href="pages-web/messages.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/messages.html" title="私信 IM" loading="lazy"></iframe></div>
+                    <div class="tf">汇总入口 · 页内新建私聊/通讯录/建群 · 会话右键删除 · 无「最近聊天」分区标题。</div>
                 </div>
                 <div class="tile">
-                    <div class="th">proto-discover-detail-video.html（视频详情 · 播放中） <a href="pages-web/proto-discover-detail-video.html" target="_blank">新窗口</a></div>
+                    <div class="th">messages.html?inbox=group（群聊通知收件箱） <a href="pages-web/messages.html?inbox=group" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/messages.html?inbox=group" title="群聊通知" loading="lazy"></iframe></div>
+                    <div class="tf">列表内同意/拒绝 · 全局拒绝（开启自动拒邀请演示）· 全高列表。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages.html?panel=compose（页内新建私聊） <a href="pages-web/messages.html?panel=compose" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/messages.html?panel=compose" title="新建私聊" loading="lazy"></iframe></div>
+                    <div class="tf">右侧抽屉选人 · 不跳转独立页 · 私聊图标 <code>fa-message</code>。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages.html?panel=contacts（页内通讯录） <a href="pages-web/messages.html?panel=contacts" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/messages.html?panel=contacts" title="通讯录" loading="lazy"></iframe></div>
+                    <div class="tf">群聊/好友 Tab · 字母索引 · 点击在当前页打开会话。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages.html?panel=group-create（页内建群） <a href="pages-web/messages.html?panel=group-create" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/messages.html?panel=group-create" title="创建群聊" loading="lazy"></iframe></div>
+                    <div class="tf">群信息 + 多选粉丝 · 创建后进入新群会话。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages.html?tab=group&panel=group-manage（群管理） <a href="pages-web/messages.html?tab=group&panel=group-manage" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/messages.html?tab=group&panel=group-manage" title="群管理" loading="lazy"></iframe></div>
+                    <div class="tf">私聊更多/详情侧栏「删除好友」· 与 profile 关注/粉丝列表同步（localStorage）。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages-group-settings.html（群权限说明） <a href="pages-web/messages-group-settings.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:640px"><iframe src="pages-web/messages-group-settings.html" title="群权限" loading="lazy"></iframe></div>
+                    <div class="tf">群主/管理员/成员权限对照表 · 链回 IM 群管理。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages-friend-notifications.html（好友通知全量） <a href="pages-web/messages-friend-notifications.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:680px"><iframe src="pages-web/messages-friend-notifications.html" title="好友通知" loading="lazy"></iframe></div>
+                    <div class="tf">好友申请 / 陌生人私信 Tab 分离 · 顶部搜索。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages-contacts.html（通讯录） <a href="pages-web/messages-contacts.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/messages-contacts.html" title="通讯录" loading="lazy"></iframe></div>
+                    <div class="tf">群聊 / 好友分 Tab · 顶部搜索 · 字母分组排序。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages.html?share=open（分享作品弹窗） <a href="pages-web/messages.html?share=open" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/messages.html?share=open" title="分享作品" loading="lazy"></iframe></div>
+                    <div class="tf">选作品 → 预览 → 发送 → 成功态；会话内出现作品卡片气泡。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages.html?panel=open（用户详情侧栏） <a href="pages-web/messages.html?panel=open" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/messages.html?panel=open" title="用户详情" loading="lazy"></iframe></div>
+                    <div class="tf">宽屏无蒙层遮挡；置顶/静音等开关可操作。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages-group-create.html（建群 · 独立页备份） <a href="pages-web/messages-group-create.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/messages-group-create.html" title="创建群聊" loading="lazy"></iframe></div>
+                    <div class="tf">主流程已并入 messages 页内抽屉；本页供对照开发。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages-group-invites.html（进群邀请） <a href="pages-web/messages-group-invites.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:600px"><iframe src="pages-web/messages-group-invites.html" title="进群邀请" loading="lazy"></iframe></div>
+                    <div class="tf">同意 / 拒绝进群；与设置页开关联动。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">settings-privacy.html#group-invite <a href="pages-web/settings-privacy.html#group-invite" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:640px"><iframe src="pages-web/settings-privacy.html#group-invite" title="进群设置" loading="lazy"></iframe></div>
+                    <div class="tf">被邀请进群需我确认 · 谁可以邀请我进群。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages-group.html（粉丝群 · 常用语） <a href="pages-web/messages-group.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/messages-group.html" title="粉丝群私域" loading="lazy"></iframe></div>
+                    <div class="tf">私域群运营：欢迎/开播/续费/群规等分类常用语，一键填入后发送。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages.html?peer=Lens%20旅记（深链） <a href="pages-web/messages.html?peer=Lens%20%E6%97%85%E8%AE%B0" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/messages.html?peer=Lens%20%E6%97%85%E8%AE%B0" title="私信深链" loading="lazy"></iframe></div>
+                    <div class="tf">从粉丝/关注列表「私信」跳转对齐。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages-requests.html <a href="pages-web/messages-requests.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:560px"><iframe src="pages-web/messages-requests.html" title="消息请求" loading="lazy"></iframe></div>
+                    <div class="tf">陌生人私信 · 接受 / 拒绝，与隐私设置「请求文件夹」联动。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages-interactions.html <a href="pages-web/messages-interactions.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:560px"><iframe src="pages-web/messages-interactions.html" title="互动消息" loading="lazy"></iframe></div>
+                    <div class="tf">赞和收藏 / 评论@ / 新粉丝 / 钱包通知 Tab。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages-compose.html <a href="pages-web/messages-compose.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:520px"><iframe src="pages-web/messages-compose.html" title="新建私信" loading="lazy"></iframe></div>
+                    <div class="tf">选择关注的人发起私信。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">pages/messages.html（移动收件箱） <a href="pages/messages.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:640px"><iframe src="pages/messages.html" title="移动消息" loading="lazy"></iframe></div>
+                    <div class="tf">四宫格互动入口 · 点击进入单聊。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">pages/messages-chat.html?peer=Luna <a href="pages/messages-chat.html?peer=Luna" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:640px"><iframe src="pages/messages-chat.html?peer=Luna" title="移动单聊" loading="lazy"></iframe></div>
+                    <div class="tf">移动端全屏对话 · 发消息 / 作品卡片 / 语音气泡。</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="block" id="discover-detail">
+            <h2><i class="fa-solid fa-compass"></i>发现页 · OnlyFans 公域逻辑 + 沉浸详情</h2>
+            <p class="lead">
+                <strong>1. 用户体验分析：</strong>FansLoop Web 端发现页承担公域获客：游客先刷得下去（仅免费），登录用户可看到付费 Teaser 并完成订阅转化；完整付费消费在「订阅 · 付费独享」。详情零跳转，分享复用 <code>share-modal.html</code>。
+                <strong>2. 产品界面设计：</strong>游客 ≤5 条免费卡片；登录 = 免费完整 + 付费 Teaser（角标「订阅专享」/「$X 解锁」）；免费详情直接观看；付费详情 = 模糊预览 + 订阅墙 + 标题/摘要，已移除 PREMIUM 优质误导标签。
+                <strong>3. 高保真 UI：</strong>网格 Teaser 遮罩、详情 <code>.dd-paywall</code>、右下角玻璃体「展示/划分/推荐」向研发说明算法（见 <code>discover-access.js</code>）。
+                <strong>4. HTML 原型：</strong>以下 iframe 平铺，可直接对照开发。
+            </p>
+            <div class="grid">
+                <div class="tile">
+                    <div class="th">discover.html?guest=1（游客 · 仅免费） <a href="pages-web/discover.html?guest=1" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:640px"><iframe src="pages-web/discover.html?guest=1" title="发现页游客" loading="lazy"></iframe></div>
+                    <div class="tf">网格最多 5 条免费内容，无付费卡片（<code>?guest=1</code>）。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">discover.html（登录 · 推荐流 + Teaser） <a href="pages-web/discover.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:640px"><iframe src="pages-web/discover.html" title="发现页登录" loading="lazy"></iframe></div>
+                    <div class="tf">免费 + 付费均可出现；付费卡片仅角标「订阅专享」，Teaser 在点击进入详情后呈现。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">proto-discover-detail-image.html（免费 · 完整观看） <a href="pages-web/proto-discover-detail-image.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/proto-discover-detail-image.html" title="免费详情" loading="lazy"></iframe></div>
+                    <div class="tf">点击免费卡片后的目标态：全图清晰、无解锁墙、话题标签无 PREMIUM。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">proto-discover-detail-paid-teaser.html（付费 · Teaser + 订阅墙） <a href="pages-web/proto-discover-detail-paid-teaser.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/proto-discover-detail-paid-teaser.html" title="付费Teaser" loading="lazy"></iframe></div>
+                    <div class="tf">图文高斯模糊 + 标题/两行摘要 + 订阅 CTA；评论需先解锁。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">discover.html?post=p1（从网格打开付费帖） <a href="pages-web/discover.html?post=p1" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/discover.html?post=p1" title="付费帖详情" loading="lazy"></iframe></div>
+                    <div class="tf">动态渲染与 paid-teaser 一致；视频帖预览前 12 秒后暂停。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">proto-discover-detail-image.html?share=open（分享弹窗） <a href="pages-web/proto-discover-detail-image.html?share=open" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/proto-discover-detail-image.html?share=open" title="分享弹窗" loading="lazy"></iframe></div>
+                    <div class="tf">与首页 share-modal 一致；Esc 先关弹窗再关详情。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">proto-discover-detail-video.html（免费视频） <a href="pages-web/proto-discover-detail-video.html" target="_blank">新窗口</a></div>
                     <div class="tb" style="height:720px"><iframe src="pages-web/proto-discover-detail-video.html" title="视频详情" loading="lazy"></iframe></div>
-                    <div class="tf">保留暂停、进度条、静音；单击画面切换播放；Esc 关闭返回发现页。</div>
+                    <div class="tf">免费视频完整控件；付费视频在 discover 内打开时仅预览 12 秒。</div>
                 </div>
                 <div class="tile">
-                    <div class="th">proto-discover-detail-comments.html（评论抽屉展开） <a href="pages-web/proto-discover-detail-comments.html" target="_blank">新窗口</a></div>
-                    <div class="tb" style="height:720px"><iframe src="pages-web/proto-discover-detail-comments.html" title="评论展开" loading="lazy"></iframe></div>
-                    <div class="tf">评论列表 + 输入发表；点击遮罩或关闭按钮收起；支持 Enter 发送。</div>
-                </div>
-                <div class="tile">
-                    <div class="th">discover.html（发现网格 · 点击卡片入口） <a href="pages-web/discover.html" target="_blank">新窗口</a></div>
-                    <div class="tb" style="height:640px"><iframe src="pages-web/discover.html" title="发现页" loading="lazy"></iframe></div>
-                    <div class="tf">研发接入时：卡片点击 → 路由或 overlay 打开上述详情舞台（见规格文档交互图）。</div>
+                    <div class="th">proto-discover-detail-comments.html（评论抽屉） <a href="pages-web/proto-discover-detail-comments.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/proto-discover-detail-comments.html" title="评论" loading="lazy"></iframe></div>
+                    <div class="tf">评论列表 + 发表；付费锁定态下评论入口提示先订阅。</div>
                 </div>
             </div>
         </section>
@@ -524,7 +662,7 @@ main.content { padding: 28px 24px 48px; }
         <section class="block" id="profile-social">
             <h2><i class="fa-solid fa-users"></i>个人主页 · 粉丝 / 关注 / 订阅者</h2>
             <p class="lead">
-                统计数字可点击打开列表弹窗，支持昵称搜索。粉丝：回关/互关、举报/拉黑/私信；关注：未看作品、取消关注、备注、特别关注（含推送演示）；订阅者：订阅流程、私信。已移除昵称旁蓝勾。
+                统计数字可点击打开列表弹窗。互关用户可在粉丝/关注列表 ⋯ 菜单「删除好友」；私信 IM 更多菜单与详情侧栏同步（fl_removed_friends_v1）。
             </p>
             <div class="grid">
                 <div class="tile">

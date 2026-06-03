@@ -95,12 +95,15 @@
             p.classList.remove('active');
         });
         var match = document.querySelector('.sub-plan[data-price="' + state.price + '"]');
-        if (match) match.classList.add('active');
-        else {
+        if (match) {
+            match.classList.add('active');
+        } else {
             var first = document.querySelector('.sub-plan');
             if (first) {
                 first.classList.add('active');
-                state.price = parseFloat(first.getAttribute('data-price') || '16');
+                first.setAttribute('data-price', String(state.price));
+                var priceEl = first.querySelector('.price');
+                if (priceEl) priceEl.textContent = state.price + ' USDT';
             }
         }
         resetPwdInput();
@@ -221,6 +224,10 @@
     }
 
     function bindSubscribeUI() {
+        if (document.body.getAttribute('data-sub-ui-bound') === '1') return;
+        if (!document.getElementById('ovlSubscribe')) return;
+        document.body.setAttribute('data-sub-ui-bound', '1');
+
         document.querySelectorAll('.sub-plan').forEach(function (plan) {
             plan.addEventListener('click', function () {
                 document.querySelectorAll('.sub-plan').forEach(function (p) {
@@ -314,7 +321,18 @@
         }
     }
 
+    function openSubscribeForCreator(opts) {
+        opts = opts || {};
+        var btn = document.createElement('button');
+        btn.setAttribute('data-creator', opts.creator || '创作者');
+        btn.setAttribute('data-plan', String(opts.price != null ? opts.price : 28));
+        if (opts.av) btn.setAttribute('data-av', opts.av);
+        if (opts.mode) btn.setAttribute('data-sub-mode', opts.mode);
+        openSubscribeModal(btn);
+    }
+
     window.FL_openSubscribeModal = openSubscribeModal;
+    window.FL_openSubscribeForCreator = openSubscribeForCreator;
     window.FL_closeSubscribeModal = closeSubscribeModal;
 
     if (!document.body.getAttribute('data-subscribe-delegate')) {
@@ -328,5 +346,8 @@
         });
     }
 
-    bindSubscribeUI();
+    if (document.getElementById('ovlSubscribe')) {
+        bindSubscribeUI();
+    }
+    window.FL_bindSubscribeUI = bindSubscribeUI;
 })();

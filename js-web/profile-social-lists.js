@@ -34,8 +34,8 @@
             { id: 'f6', name: '代码诗人', av: AV[7], followsMe: true, iFollow: false, profilePage: 'creator-profile.html', livePage: 'live-detail.html' }
         ],
         following: [
-            { id: 'g1', name: 'Lens 旅记', av: AV[2], iFollow: true, unreadWorks: 5, remark: '', specialFollow: true, isLive: false, profilePage: 'creator-profile.html', livePage: 'live-detail.html' },
-            { id: 'g2', name: '夜雨听弦', av: AV[3], iFollow: true, unreadWorks: 0, remark: '播客搭子', specialFollow: false, isLive: true, profilePage: 'creator-profile.html', livePage: 'live-detail.html?host=yeyu' },
+            { id: 'g1', name: 'Lens 旅记', av: AV[2], iFollow: true, followsMe: true, unreadWorks: 5, remark: '', specialFollow: true, isLive: false, profilePage: 'creator-profile.html', livePage: 'live-detail.html' },
+            { id: 'g2', name: '夜雨听弦', av: AV[3], iFollow: true, followsMe: true, unreadWorks: 0, remark: '播客搭子', specialFollow: false, isLive: true, profilePage: 'creator-profile.html', livePage: 'live-detail.html?host=yeyu' },
             { id: 'g3', name: '银盐时代', av: AV[5], iFollow: true, unreadWorks: 12, remark: '', specialFollow: false, isLive: false, profilePage: 'creator-profile.html', livePage: 'live-detail.html' },
             { id: 'g4', name: '声音之外', av: AV[0], iFollow: true, unreadWorks: 3, remark: '', specialFollow: true, isLive: false, profilePage: 'creator-profile.html', livePage: 'live-detail.html' },
             { id: 'g5', name: '极简料理', av: AV[6], iFollow: true, unreadWorks: 0, remark: '', specialFollow: false, profilePage: 'creator-profile.html', livePage: 'live-detail.html' }
@@ -62,6 +62,51 @@
             if (list[i].id === id) return list[i];
         }
         return null;
+    }
+
+    function isMutualFriend(item) {
+        if (!item) return false;
+        if (currentType === 'following') return !!item.followsMe;
+        if (currentType === 'fans') return !!(item.iFollow && item.followsMe);
+        return false;
+    }
+
+    function applyRemovedFromStore() {
+        if (!window.FL_friendsStore) return;
+        store.following = store.following.filter(function (item) {
+            return !FL_friendsStore.isRemoved({ name: item.name, socialId: item.id });
+        });
+        store.fans.forEach(function (item) {
+            if (FL_friendsStore.isRemoved({ name: item.name, socialId: item.id })) {
+                item.iFollow = false;
+            }
+        });
+    }
+
+    function removeFriendFromProfile(item) {
+        var msg = '删除后将解除与「' + item.name + '」的互相关注。对方仍可能关注你，你可在粉丝列表中管理。确定删除好友？';
+        if (!window.confirm(msg)) return;
+        var map = (window.FL_friendsStore && FL_friendsStore.lookup(item.name)) || {};
+        if (window.FL_friendsStore) {
+            FL_friendsStore.removeFriend({
+                name: item.name,
+                socialId: item.id,
+                threadId: map.threadId,
+                socialIds: map.socialIds
+            });
+        }
+        if (currentType === 'following') {
+            store.following = store.following.filter(function (x) { return x.id !== item.id; });
+        }
+        store.fans.forEach(function (f) {
+            if (f.name === item.name) f.iFollow = false;
+        });
+        store.following.forEach(function (g) {
+            if (g.name === item.name) g.iFollow = false;
+        });
+        closeMenu();
+        showToast('已删除好友「' + item.name + '」');
+        renderList();
     }
 
     function fanBtnLabel(item) {
@@ -215,10 +260,12 @@
         if (currentType === 'fans') {
             html =
                 '<button type="button" data-menu="dm"><i class="fa-regular fa-envelope"></i> 私信</button>' +
+                (isMutualFriend(item) ? '<button type="button" class="danger" data-menu="delete-friend"><i class="fa-solid fa-user-minus"></i> 删除好友</button>' : '') +
                 '<button type="button" data-menu="report"><i class="fa-solid fa-flag"></i> 举报</button>' +
                 '<button type="button" class="danger" data-menu="block"><i class="fa-solid fa-ban"></i> 拉黑</button>';
         } else if (currentType === 'following') {
             html =
+                (isMutualFriend(item) ? '<button type="button" class="danger" data-menu="delete-friend"><i class="fa-solid fa-user-minus"></i> 删除好友</button>' : '') +
                 '<button type="button" data-menu="unfollow"><i class="fa-solid fa-user-minus"></i> 取消关注</button>' +
                 '<button type="button" data-menu="remark"><i class="fa-solid fa-pen"></i> 设置备注</button>' +
                 '<button type="button" data-menu="special">' +
@@ -362,6 +409,10 @@
             openSubSheet('sheetBlockUser', item.name);
             return;
         }
+        if (action === 'delete-friend') {
+            removeFriendFromProfile(item);
+            return;
+        }
         if (action === 'unfollow') {
             item.iFollow = false;
             closeMenu();
@@ -498,6 +549,12 @@
         };
         window.FL_closeSubscribeModal._pfWrapped = true;
     }
+
+    applyRemovedFromStore();
+    window.addEventListener('fl-friend-removed', function () {
+        applyRemovedFromStore();
+        if (currentType) renderList();
+    });
 
     var params = new URLSearchParams(window.location.search);
     var social = params.get('social');

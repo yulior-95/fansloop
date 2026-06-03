@@ -28,9 +28,11 @@
     var POSTS = [
         {
             id: 'p1', title: '京都樱花季隐秘机位 · 18 张原图', author: 'Lens 旅记', handle: '@lensjourney',
-            av: 'photo-1438761681033-6461ffad8d80', cover: 'photo-1490806843957-31f4c9a91c65',
+            creatorId: 'c_lens', av: 'photo-1438761681033-6461ffad8d80', cover: 'photo-1490806843957-31f4c9a91c65',
             primaryCategory: 'photo', categories: ['photo', 'travel'], hashtags: ['京都', '旅行摄影'],
-            premium: true, likes: '2.4k', comments: 312, views: '18k', type: 'image'
+            premium: true, payType: 'subscribe', subscribePrice: 28, paidPostCount: 18,
+            summary: '清晨 6 点无人小路机位，附 18 张 RAW 与拍摄参数。订阅解锁完整图集与路线坐标。',
+            likes: '2.4k', comments: 312, views: '18k', type: 'image'
         },
         {
             id: 'p2', title: '雨夜小提琴现场 · 1,284 观看', author: '夜雨听弦', handle: '@nightrain',
@@ -53,9 +55,11 @@
         },
         {
             id: 'p5', title: '咖啡店主的 30 天生活观察', author: '咖啡店主', handle: '@coffeetalk',
-            av: 'photo-1500648767791-00dcc994a43e', cover: 'photo-1493612276216-ee3925520721',
+            creatorId: 'c_coffee', av: 'photo-1500648767791-00dcc994a43e', cover: 'photo-1493612276216-ee3925520721',
             primaryCategory: 'food', categories: ['food', 'film'], hashtags: ['咖啡', 'Vlog'],
-            premium: true, likes: 968, comments: 124, views: '5.6k', type: 'image'
+            premium: true, payType: 'ppv', price: 5, paidPostCount: 9,
+            summary: '30 天开店日记精选：客流、配方与情绪。付费解锁完整 12 分钟 Vlog 与幕后花絮。',
+            likes: 968, comments: 124, views: '5.6k', type: 'image'
         },
         {
             id: 'p6', title: '环游 Vlog #023 · 北海道冬日', author: 'Lens 旅记', handle: '@lensjourney',
@@ -180,6 +184,12 @@
                 '频道 = primary 筛选 + 热度/新鲜度',
                 '小流量池试推 → 完播/互动/负反馈',
                 '首条 3×2 大卡为频道置顶视频'
+            ],
+            discoverDisplay: [
+                '游客：仅展示 5 条免费内容',
+                '登录：网格免费/付费同封面展示，付费仅角标；未订阅付费帖 consumability×0.55 降权',
+                '详情：免费完整观看；付费进入后 Teaser（图文分屏模糊/视频 12 秒+订阅墙+摘要）',
+                '完整付费消费 → 订阅页「付费独享」'
             ]
         },
         getCategories: getCategories,

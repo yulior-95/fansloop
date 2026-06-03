@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>私聊</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body { background: var(--bg-primary); }
+.mob-chat { min-height: 100vh; display: flex; flex-direction: column; }
+.mob-chat-msgs {
+    flex: 1;
+    padding: 12px 14px 80px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.mob-bub {
+    max-width: 78%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 14px;
+    background: var(--bg-card);
+    align-self: flex-start;
+    line-height: 1.45;
+}
+.mob-bub.me { align-self: flex-end; background: var(--brand-gradient); color: #fff; }
+.mob-chat-bar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    background: var(--bg-primary);
+    border-top: 0.5px solid var(--border-color);
+}
+.mob-chat-bar .tools { display: flex; gap: 12px; margin-bottom: 8px; padding: 0 4px; }
+.mob-chat-bar .tools button { font-size: 18px; color: var(--text-secondary); }
+.mob-chat-bar .row { display: flex; gap: 8px; align-items: flex-end; }
+.mob-chat-bar textarea {
+    flex: 1;
+    min-height: 36px;
+    max-height: 100px;
+    border-radius: 18px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    padding: 8px 14px;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    color: var(--text-primary);
+}
+.mob-chat-bar .send-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--brand-gradient);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+}
+</style>
+</head>
+<body data-page="messages-chat">
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><a class="nav-btn" href="messages.html"><i class="fa-solid fa-chevron-left"></i></a></div>
+    <div class="nav-title" id="chatTitle">Luna</div>
+    <div class="nav-right"><div class="nav-btn"><i class="fa-solid fa-ellipsis"></i></div></div>
+</div>
+
+<div class="mob-chat" style="padding-top: calc(var(--status-bar-height) + var(--nav-bar-height))">
+    <div class="mob-chat-msgs" id="mobMsgList"></div>
+</div>
+
+<div class="mob-chat-bar">
+    <div class="tools">
+        <button type="button" id="mobBtnShare" title="分享作品"><i class="fa-solid fa-share"></i></button>
+        <button type="button" title="图片"><i class="fa-regular fa-image"></i></button>
+        <button type="button" id="mobBtnGift" title="送礼"><i class="fa-solid fa-gift"></i></button>
+    </div>
+    <div class="row">
+        <textarea id="mobChatInput" placeholder="发消息…" rows="1"></textarea>
+        <button type="button" class="send-btn" id="mobChatSend"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+<script src="../js/messages-mobile.js"></script>
+</body>
+</html>

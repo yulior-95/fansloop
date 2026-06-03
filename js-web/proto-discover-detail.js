@@ -16,18 +16,31 @@
         toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2200);
     }
 
+    function isShareModalOpen() {
+        var root = document.getElementById('flStandaloneModalRoot');
+        return !!(root && root.style.display === 'flex');
+    }
+
+    function openShare() {
+        if (window.FL_openInteractionModal) {
+            window.FL_openInteractionModal('share-modal.html');
+            return;
+        }
+        toast('分享链接已复制（原型）');
+    }
+
     function closeDetail() {
         location.href = 'discover.html';
     }
 
     document.getElementById('ddClose')?.addEventListener('click', closeDetail);
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') {
-            if (stage.classList.contains('dd-comments-open')) {
-                stage.classList.remove('dd-comments-open');
-            } else {
-                closeDetail();
-            }
+        if (e.key !== 'Escape') return;
+        if (isShareModalOpen()) return;
+        if (stage.classList.contains('dd-comments-open')) {
+            stage.classList.remove('dd-comments-open');
+        } else {
+            closeDetail();
         }
     });
 
@@ -73,7 +86,7 @@
     });
 
     stage.querySelectorAll('[data-dd-share]').forEach(function (btn) {
-        btn.addEventListener('click', function () { toast('分享链接已复制（原型）'); });
+        btn.addEventListener('click', openShare);
     });
 
     function formatCount(n) {
@@ -86,6 +99,10 @@
     var commentsOpen = stage.classList.contains('dd-comments-open');
 
     function openComments() {
+        if (stage.classList.contains('is-locked')) {
+            toast('订阅或解锁后可评论');
+            return;
+        }
         stage.classList.add('dd-comments-open');
         document.getElementById('ddCommentInput')?.focus();
     }
@@ -249,4 +266,11 @@
 
     setPlaying(isPlaying);
     syncUi();
+})();
+
+(function () {
+    if (new URLSearchParams(location.search).get('share') !== 'open') return;
+    setTimeout(function () {
+        if (window.FL_openInteractionModal) window.FL_openInteractionModal('share-modal.html');
+    }, 360);
 })();

@@ -259,6 +259,36 @@
                     </div>
                 </div>
 
+                <!-- 粉丝群邀请 -->
+                <div class="set-card" id="group-invite">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#10B981,#3B82F6)"><i class="fa-solid fa-users"></i></div>
+                        <div><h3>粉丝群与邀请</h3><p>控制他人邀请你进群的方式，与消息中心「进群邀请」联动</p></div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic"><i class="fa-solid fa-user-check"></i></div>
+                        <div class="row-info">
+                            <div class="ti">被邀请进群需我确认</div>
+                            <div class="sub">开启后，他人邀请你加入粉丝群时，需你在 <a href="messages-group-invites.html" style="color:var(--brand-purple)">进群邀请</a> 中同意；关闭则直接入群</div>
+                        </div>
+                        <div class="row-action"><div class="switch on" id="swGroupInviteConsent" role="switch" aria-checked="true" tabindex="0"></div></div>
+                    </div>
+                    <div class="pri-row">
+                        <div class="row-ic"><i class="fa-solid fa-user-plus"></i></div>
+                        <div class="row-info">
+                            <div class="ti">谁可以邀请我进群</div>
+                            <div class="sub">仅你关注的创作者、或已订阅的创作者可发起邀请</div>
+                        </div>
+                        <div class="row-action">
+                            <div class="seg">
+                                <button>所有人</button>
+                                <button class="on">已订阅创作者</button>
+                                <button>关闭邀请</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 屏蔽列表 -->
                 <div class="set-card">
                     <div class="ssh">
@@ -425,5 +455,26 @@
 
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>
+<script>
+(function () {
+    var KEY = 'fl_group_invite_need_consent';
+    var sw = document.getElementById('swGroupInviteConsent');
+    if (!sw) return;
+    try {
+        var v = localStorage.getItem(KEY);
+        if (v === '0') { sw.classList.remove('on'); sw.setAttribute('aria-checked', 'false'); }
+    } catch (e) { /* ignore */ }
+    function toggle() {
+        sw.classList.toggle('on');
+        var on = sw.classList.contains('on');
+        sw.setAttribute('aria-checked', on ? 'true' : 'false');
+        try { localStorage.setItem(KEY, on ? '1' : '0'); } catch (e) { /* ignore */ }
+    }
+    sw.addEventListener('click', toggle);
+    sw.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+})();
+</script>
 </body>
 </html>

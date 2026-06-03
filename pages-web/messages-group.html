@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>粉丝群 · 私域 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
+<style>
+.app-main { padding: 0; height: calc(100vh - var(--header-h)); overflow: hidden; }
+.im-layout { display: grid; grid-template-columns: 300px 1fr; height: 100%; min-height: 0; }
+.im-list { border-right: 1px solid var(--border); display: flex; flex-direction: column; background: var(--bg-app); min-height: 0; overflow: hidden; }
+.im-thread { display: flex; flex-direction: column; background: var(--bg-canvas); min-height: 0; height: 100%; overflow: hidden; }
+.iml-head { padding: 16px; border-bottom: 1px solid var(--border); }
+.iml-head h2 { font-size: 18px; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.iml-head .back-link { font-size: 12px; color: var(--brand-purple); text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 10px; }
+.thread-row { display: flex; gap: 11px; padding: 12px 14px; cursor: pointer; border-left: 3px solid transparent; align-items: flex-start; }
+.thread-row:hover { background: var(--bg-hover); }
+.thread-row.active { background: linear-gradient(90deg, rgba(168,85,247,0.1), transparent); border-left-color: var(--brand-purple); }
+.thread-row .av { width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0; }
+.thread-row .info { flex: 1; min-width: 0; }
+.thread-row .info .top { display: flex; justify-content: space-between; margin-bottom: 2px; }
+.thread-row .info .name { font-size: 13px; font-weight: 700; }
+.thread-row .info .time { font-size: 10px; color: var(--t-tertiary); }
+.thread-row .info .pre { font-size: 11.5px; color: var(--t-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.imt-head { flex-shrink: 0; padding: 14px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; background: rgba(11,11,20,0.85); }
+.imt-head .av { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg,#A855F7,#EC4899); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; }
+.imt-head .info { flex: 1; }
+.imt-head .info .n { font-size: 14px; font-weight: 700; }
+.imt-head .info .s { font-size: 11px; color: var(--t-tertiary); margin-top: 2px; }
+.imt-msgs { flex: 1 1 auto; min-height: 0; padding: 22px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+.day-sep { text-align: center; font-size: 11px; color: var(--t-tertiary); margin: 8px 0; }
+.day-sep span { padding: 3px 12px; background: var(--bg-input); border-radius: 999px; }
+.msg-row { display: flex; gap: 10px; max-width: 75%; }
+.msg-row .av { width: 32px; height: 32px; border-radius: 50%; background-size: cover; flex-shrink: 0; }
+.bub { padding: 9px 14px; background: var(--bg-input); border-radius: 14px; font-size: 13px; line-height: 1.45; color: var(--t-primary); }
+.msg-time { font-size: 10px; color: var(--t-tertiary); margin-top: 4px; }
+.imt-input { flex-shrink: 0; border-top: 1px solid var(--border); padding: 12px 18px; background: rgba(11,11,20,0.92); }
+.imt-input .tools { display: flex; gap: 4px; margin-bottom: 8px; }
+.imt-input .tools button { width: 30px; height: 30px; border-radius: 6px; color: var(--t-tertiary); display: flex; align-items: center; justify-content: center; }
+.imt-input .tools button:hover { background: var(--bg-input); color: var(--t-primary); }
+.imt-input .row { display: flex; gap: 10px; align-items: flex-end; }
+.imt-input textarea { flex: 1; min-height: 38px; max-height: 120px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px; padding: 9px 14px; color: var(--t-primary); font-size: 13px; resize: none; outline: none; }
+.imt-input button.send { width: 38px; height: 38px; border-radius: 50%; background: var(--brand-grad); color: #fff; display: flex; align-items: center; justify-content: center; }
+</style>
+<link rel="stylesheet" href="../css-web/messages-im.css">
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <div class="s-item active" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span></div>
+    </aside>
+    <header class="app-header">
+        <div class="h-actions" style="margin-left:auto"><a href="messages.html" class="btn btn-sm btn-secondary"><i class="fa-solid fa-arrow-left"></i> 返回私聊</a></div>
+    </header>
+    <main class="app-main">
+        <div class="im-layout">
+            <div class="im-list">
+                <div class="iml-head">
+                    <a class="back-link" href="messages.html"><i class="fa-solid fa-arrow-left"></i> 私聊</a>
+                    <h2><i class="fa-solid fa-users"></i> 粉丝群 · 私域</h2>
+                </div>
+                <div class="grp-hint"><i class="fa-solid fa-bullhorn"></i> 常用语模板仅用于群运营维护，1v1 私聊不提供。</div>
+                <div style="overflow-y:auto;flex:1" id="grpThreadList"></div>
+            </div>
+            <div class="im-thread">
+                <div class="imt-head">
+                    <div class="av"><i class="fa-solid fa-users"></i></div>
+                    <div class="info">
+                        <div class="n" id="grpHeadName">VIP 订阅者群</div>
+                        <div class="s" id="grpHeadStatus">128 位成员</div>
+                    </div>
+                </div>
+                <div class="imt-msgs" id="grpMsgList"></div>
+                <div class="grp-template-panel" id="grpTemplatePanel">
+                    <div class="tpl-cats" id="grpTplCats"></div>
+                    <div class="tpl-list" id="grpTplList"></div>
+                </div>
+                <div class="imt-input">
+                    <div class="tools">
+                        <button type="button" id="grpBtnTemplate" title="常用语（私域运营）"><i class="fa-solid fa-file-lines"></i></button>
+                        <button type="button" title="图片"><i class="fa-regular fa-image"></i></button>
+                        <button type="button" title="公告"><i class="fa-solid fa-bullhorn"></i></button>
+                    </div>
+                    <div class="row">
+                        <textarea id="grpInputTa" placeholder="发送至群内…"></textarea>
+                        <button type="button" class="send" id="grpBtnSend"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<div id="grpToast"></div>
+<script src="../js-web/messages-group-page.js"></script>
+<script src="../js-web/app-sidebar-global.js"></script>
+</body>
+</html>

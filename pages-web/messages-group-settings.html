@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>群管理 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/messages-im.css">
+<style>
+.app-main { padding: 0; height: calc(100vh - var(--header-h)); overflow: hidden; }
+.gs-layout { display: grid; grid-template-columns: 280px 1fr; height: 100%; min-height: 0; }
+.gs-side { border-right: 1px solid var(--border); padding: 20px 16px; background: var(--bg-app); overflow-y: auto; }
+.gs-side h1 { font-size: 18px; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.gs-side .meta { font-size: 12px; color: var(--t-tertiary); margin-bottom: 16px; }
+.gs-nav button {
+    width: 100%; text-align: left; padding: 10px 12px; border-radius: 8px;
+    font-size: 13px; color: var(--t-secondary); margin-bottom: 4px; border: 1px solid transparent;
+}
+.gs-nav button.on { background: rgba(168,85,247,0.12); border-color: rgba(168,85,247,0.35); color: #fff; font-weight: 600; }
+.gs-main { padding: 24px 28px; overflow-y: auto; }
+.gs-perm-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 16px; }
+.gs-perm-table th, .gs-perm-table td { border: 1px solid var(--border); padding: 10px 12px; text-align: center; }
+.gs-perm-table th:first-child, .gs-perm-table td:first-child { text-align: left; }
+.gs-perm-table .yes { color: #34D399; font-weight: 700; }
+.gs-perm-table .no { color: var(--t-tertiary); }
+</style>
+</head>
+<body>
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop</div></div>
+        <div class="s-item active" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span></div>
+    </aside>
+    <header class="app-header">
+        <div class="h-actions" style="margin-left:auto">
+            <a href="messages.html?tab=group" class="btn btn-sm btn-secondary"><i class="fa-solid fa-arrow-left"></i> 返回消息</a>
+            <a href="messages.html?panel=group-manage" class="btn btn-sm" style="background:var(--brand-grad);color:#fff;border:none"><i class="fa-solid fa-users-gear"></i> 在 IM 中打开</a>
+        </div>
+    </header>
+    <main class="app-main">
+        <div class="gs-layout">
+            <aside class="gs-side">
+                <a href="messages.html" style="font-size:12px;color:var(--brand-purple);text-decoration:none;display:inline-flex;gap:6px;margin-bottom:12px"><i class="fa-solid fa-arrow-left"></i> 消息</a>
+                <h1><i class="fa-solid fa-users"></i> VIP 订阅者群</h1>
+                <div class="meta">128 人 · 你是 <b style="color:#FBBF24">群主</b></div>
+                <nav class="gs-nav" id="gsNav">
+                    <button type="button" class="on" data-pane="perm">权限说明</button>
+                    <button type="button" data-pane="notice">群公告</button>
+                    <button type="button" data-pane="members">成员管理</button>
+                    <button type="button" data-pane="admins">管理员</button>
+                    <button type="button" data-pane="danger">转让 / 解散 / 退出</button>
+                </nav>
+            </aside>
+            <div class="gs-main" id="gsMain">
+                <h2 style="font-size:20px;font-weight:800;margin-bottom:12px">角色与权限</h2>
+                <p style="font-size:13px;color:var(--t-tertiary);line-height:1.55;margin-bottom:8px">主流程在 <code>messages.html</code> 群聊会话内通过「群管理」侧栏完成；本页为产品说明与权限对照表。</p>
+                <table class="gs-perm-table">
+                    <thead><tr><th>能力</th><th>群主</th><th>管理员</th><th>成员</th></tr></thead>
+                    <tbody>
+                        <tr><td>发布群公告（聊天页强展示）</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">—</td></tr>
+                        <tr><td>添加群成员</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">—</td></tr>
+                        <tr><td>移除群成员</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">—</td></tr>
+                        <tr><td>禁言 / 解除禁言</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">—</td></tr>
+                        <tr><td>任命 / 移除管理员</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td></tr>
+                        <tr><td>转让群主</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td></tr>
+                        <tr><td>解散群聊</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td></tr>
+                        <tr><td>退出群聊</td><td class="yes">须先转让</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+(function () {
+    var panes = {
+        perm: document.getElementById('gsMain').innerHTML,
+        notice: '<h2 style="font-size:20px;font-weight:800;margin-bottom:12px">群公告</h2><p style="font-size:13px;color:var(--t-tertiary)">发布后顶部金色公告条强展示，并插入一条系统公告消息。</p><div class="im-grp-notice-editor" style="margin-top:16px"><textarea placeholder="公告内容…">本周五 20:00 订阅者专属直播…</textarea><button type="button" class="btn" style="margin-top:10px;background:var(--brand-grad);color:#fff;border:none">发布公告</button></div>',
+        members: '<h2 style="font-size:20px;font-weight:800;margin-bottom:12px">成员管理</h2><p class="im-panel-hint">禁言、移除、添加成员（群主/管理员）</p>',
+        admins: '<h2 style="font-size:20px;font-weight:800;margin-bottom:12px">管理员</h2><p class="im-panel-hint">仅群主可任命或取消管理员</p>',
+        danger: '<h2 style="font-size:20px;font-weight:800;margin-bottom:12px">危险操作</h2><div class="im-grp-danger" style="max-width:400px"><h4>群操作</h4><button type="button" class="btn btn-secondary" style="width:100%;margin-bottom:8px">转让群主</button><button type="button" class="btn btn-secondary" style="width:100%;margin-bottom:8px;color:#F87171">解散群聊</button><button type="button" class="btn btn-secondary" style="width:100%">退出并转让群主</button></div>'
+    };
+    document.getElementById('gsNav').addEventListener('click', function (e) {
+        var b = e.target.closest('button[data-pane]');
+        if (!b) return;
+        document.querySelectorAll('#gsNav button').forEach(function (x) { x.classList.remove('on'); });
+        b.classList.add('on');
+        document.getElementById('gsMain').innerHTML = panes[b.getAttribute('data-pane')] || panes.perm;
+    });
+})();
+</script>
+<script src="../js-web/app-sidebar-global.js"></script>
+</body>
+</html>

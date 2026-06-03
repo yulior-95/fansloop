@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>好友通知 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/messages-im.css">
+<style>
+.app-main { padding: 24px 28px; overflow: auto; max-width: 880px; margin: 0 auto; }
+.fn-toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+.fn-toolbar .search-wrap { flex: 1; min-width: 200px; position: relative; }
+.fn-toolbar .search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--t-tertiary); font-size: 12px; }
+.fn-toolbar input { width: 100%; height: 40px; padding: 0 12px 0 36px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-input); color: var(--t-primary); outline: none; }
+#fnTabs { display: flex; gap: 6px; margin-bottom: 14px; }
+#fnTabs button { padding: 7px 14px; border-radius: 8px; font-size: 12px; border: 1px solid var(--border); background: var(--bg-input); color: var(--t-secondary); cursor: pointer; }
+#fnTabs button.on { background: var(--brand-grad); color: #fff; border-color: transparent; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop</div></div>
+        <div class="s-item active" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span></div>
+    </aside>
+    <header class="app-header">
+        <div class="h-actions" style="margin-left:auto"><a href="messages.html?inbox=friend" class="btn btn-sm btn-secondary"><i class="fa-solid fa-arrow-left"></i> 返回消息</a></div>
+    </header>
+    <main class="app-main">
+        <a href="messages.html" style="font-size:13px;color:var(--brand-purple);text-decoration:none;display:inline-flex;gap:6px;margin-bottom:12px"><i class="fa-solid fa-arrow-left"></i> 消息</a>
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:6px">好友通知 <span class="tag" id="fnCount">0</span></h1>
+        <p style="font-size:13px;color:var(--t-tertiary);margin-bottom:16px">热门创作者场景：好友申请与陌生人私信分开展示，支持搜索与批量处理。</p>
+        <div class="fn-toolbar">
+            <div class="search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input type="search" id="fnSearch" placeholder="搜索昵称、摘要…" autocomplete="off" /></div>
+            <button type="button" class="btn btn-sm btn-secondary" id="fnRejectAll">全部忽略</button>
+        </div>
+        <div id="fnTabs">
+            <button type="button" class="on" data-tab="all">全部</button>
+            <button type="button" data-tab="friend">好友申请</button>
+            <button type="button" data-tab="stranger">陌生人私信</button>
+        </div>
+        <div class="grp-notice"><i class="fa-solid fa-lightbulb"></i> 主消息页左侧仅显示汇总入口；全量列表在此页处理，避免挤占会话列表。</div>
+        <div id="fnList"></div>
+    </main>
+</div>
+<div id="fnToast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 18px;background:rgba(30,30,45,0.95);border-radius:999px;font-size:13px;opacity:0;transition:0.2s;z-index:9000"></div>
+<style>#fnToast.show{opacity:1}</style>
+<script src="../js-web/messages-friend-notifications.js"></script>
+<script src="../js-web/app-sidebar-global.js"></script>
+</body>
+</html>

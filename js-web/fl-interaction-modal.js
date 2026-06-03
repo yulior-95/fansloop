@@ -17,7 +17,7 @@
     if (!root || !iframeEl) return;
     root.style.display = 'none';
     root.setAttribute('aria-hidden', 'true');
-    root.classList.remove('fl-modal--comment', 'fl-modal--danmaku', 'fl-modal--default');
+    root.classList.remove('fl-modal--comment', 'fl-modal--danmaku', 'fl-modal--share', 'fl-modal--gift', 'fl-modal--default');
     iframeEl.src = 'about:blank';
   };
 
@@ -34,7 +34,7 @@
       return;
     }
     iframeEl.src = page;
-    root.classList.remove('fl-modal--comment', 'fl-modal--danmaku', 'fl-modal--default');
+    root.classList.remove('fl-modal--comment', 'fl-modal--danmaku', 'fl-modal--share', 'fl-modal--gift', 'fl-modal--default');
     if (page.indexOf('danmaku-send-modal') >= 0) {
       root.classList.add('fl-modal--danmaku');
       iframeEl.style.width = 'min(500px, calc(100vw - 32px))';
@@ -43,10 +43,18 @@
       root.classList.add('fl-modal--comment');
       iframeEl.style.width = 'min(940px, calc(100vw - 32px))';
       iframeEl.style.height = 'min(920px, calc(100vh - 32px))';
+    } else if (page.indexOf('share-modal') >= 0) {
+      root.classList.add('fl-modal--share');
+      iframeEl.style.width = '';
+      iframeEl.style.height = '';
+    } else if (page.indexOf('gift-modal') >= 0) {
+      root.classList.add('fl-modal--gift');
+      iframeEl.style.width = '';
+      iframeEl.style.height = '';
     } else {
       root.classList.add('fl-modal--default');
-      iframeEl.style.width = 'min(940px, calc(100vw - 32px))';
-      iframeEl.style.height = 'min(920px, calc(100vh - 32px))';
+      iframeEl.style.width = root.classList.contains('fl-interaction-ovl') ? '' : 'min(940px, calc(100vw - 32px))';
+      iframeEl.style.height = root.classList.contains('fl-interaction-ovl') ? '' : 'min(920px, calc(100vh - 32px))';
     }
     root.style.display = 'flex';
     root.setAttribute('aria-hidden', 'false');
@@ -60,8 +68,15 @@
   function attachRootClick() {
     bindElements();
     if (!root) return;
-    root.addEventListener('click', function () {
-      window.FL_closeStandaloneModal();
+    root.addEventListener('click', function (e) {
+      var backdrop = root.querySelector('.fl-modal-backdrop');
+      if (backdrop && e.target === backdrop) {
+        window.FL_closeStandaloneModal();
+        return;
+      }
+      if (!backdrop && e.target === root) {
+        window.FL_closeStandaloneModal();
+      }
     });
   }
 

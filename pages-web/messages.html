@@ -10,13 +10,113 @@
 .app-main { padding: 0; height: calc(100vh - var(--header-h)); overflow: hidden; }
 .im-layout {
     display: grid;
-    grid-template-columns: 320px 1fr 320px;
+    grid-template-columns: 320px 1fr;
     height: 100%;
+    min-height: 0;
+    transition: grid-template-columns 0.22s ease;
 }
-.im-list { border-right: 1px solid var(--border); display: flex; flex-direction: column; background: var(--bg-app); }
-.im-thread { display: flex; flex-direction: column; background: var(--bg-canvas); }
-.im-info { border-left: 1px solid var(--border); display: flex; flex-direction: column; background: var(--bg-app); overflow-y: auto; }
-@media (max-width: 1280px) { .im-layout { grid-template-columns: 280px 1fr; } .im-info { display: none; } }
+.im-layout.im-info-open { grid-template-columns: 320px 1fr 320px; }
+.im-list {
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-app);
+    min-height: 0;
+    overflow: hidden;
+}
+.im-thread {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-canvas);
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+}
+.im-info {
+    display: none;
+    flex-direction: column;
+    border-left: 1px solid var(--border);
+    background: var(--bg-app);
+    overflow-y: auto;
+}
+.im-layout.im-info-open .im-info { display: flex; }
+.im-head-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+    border-radius: 10px;
+    margin: -6px 0 -6px -6px;
+    padding: 6px;
+    transition: background 0.15s;
+}
+.im-head-profile:hover { background: var(--bg-hover); }
+.im-head-profile .info { flex: 1; min-width: 0; pointer-events: none; }
+.im-head-profile .av { pointer-events: none; }
+.imt-head .btn-profile-detail {
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--t-secondary);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+.imt-head .btn-profile-detail:hover { background: var(--bg-input); color: var(--t-primary); }
+.imi-head { position: relative; }
+.imi-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    color: var(--t-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+}
+.imi-close:hover { background: var(--bg-input); color: var(--t-primary); }
+.im-info-backdrop {
+    display: none;
+    position: fixed;
+    inset: var(--header-h) 0 0 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 450;
+    pointer-events: auto;
+}
+.im-info-backdrop.show { display: block; }
+/* 宽屏：第三栏内嵌，无蒙层，资料栏可正常点击操作 */
+@media (min-width: 1281px) {
+    .im-info-backdrop { display: none !important; pointer-events: none; }
+    .im-layout.im-info-open .im-info {
+        position: relative;
+        z-index: 1;
+        pointer-events: auto;
+    }
+}
+@media (max-width: 1280px) {
+    .im-layout { grid-template-columns: 280px 1fr; }
+    .im-layout.im-info-open { grid-template-columns: 280px 1fr; }
+    .im-layout.im-info-open .im-info {
+        position: fixed;
+        top: var(--header-h);
+        right: 0;
+        bottom: 0;
+        width: min(320px, 92vw);
+        z-index: 500;
+        pointer-events: auto;
+        box-shadow: -12px 0 40px rgba(0,0,0,0.45);
+    }
+}
 
 /* List */
 .iml-head { padding: 16px; border-bottom: 1px solid var(--border); }
@@ -74,7 +174,7 @@
 .thread-row.active { background: linear-gradient(90deg, rgba(168,85,247,0.1), transparent); border-left-color: var(--brand-purple); }
 .thread-row.unread .pre { color: #fff; font-weight: 600; }
 .thread-row .av { width: 42px; height: 42px; border-radius: 50%; background-size: cover; flex-shrink: 0; position: relative; }
-.thread-row .av .online { position: absolute; bottom: 0; right: 0; width: 11px; height: 11px; border-radius: 50%; background: var(--success); border: 2px solid var(--bg-app); }
+.thread-row .av .online { position: absolute; bottom: 0; right: 0; width: 11px; height: 11px; border-radius: 50%; background: var(--success); border: 2px solid var(--bg-app); z-index: 2; }
 .thread-row .info { flex: 1; min-width: 0; }
 .thread-row .info .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
 .thread-row .info .name { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
@@ -102,8 +202,9 @@
     font-weight: 700;
 }
 
-/* Thread (right side) */
+/* Thread (middle column) */
 .imt-head {
+    flex-shrink: 0;
     padding: 14px 22px;
     border-bottom: 1px solid var(--border);
     display: flex; align-items: center; gap: 12px;
@@ -126,10 +227,14 @@
 .imt-head .acts button:hover { background: var(--bg-input); color: var(--t-primary); }
 
 .imt-msgs {
-    flex: 1;
+    flex: 1 1 auto;
+    min-height: 0;
     padding: 22px;
     overflow-y: auto;
-    display: flex; flex-direction: column; gap: 10px;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 .day-sep { text-align: center; font-size: 11px; color: var(--t-tertiary); margin: 12px 0; }
 .day-sep span { padding: 3px 12px; background: var(--bg-input); border-radius: 999px; }
@@ -169,9 +274,12 @@
 .msg-row.me .msg-time { align-self: flex-end; }
 
 .imt-input {
+    flex-shrink: 0;
     border-top: 1px solid var(--border);
     padding: 12px 18px;
-    background: rgba(11,11,20,0.85);
+    background: rgba(11,11,20,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 2;
 }
 .imt-input .tools { display: flex; gap: 4px; margin-bottom: 8px; }
 .imt-input .tools button {
@@ -183,7 +291,8 @@
     transition: 0.15s;
 }
 .imt-input .tools button:hover { background: var(--bg-input); color: var(--t-primary); }
-.imt-input .tools button.gift i { color: #F59E0B; }
+.imt-input .tools button.gift { display: none !important; }
+.imi-head .ic-btn.tip { display: none !important; }
 .imt-input .row { display: flex; gap: 10px; align-items: flex-end; }
 .imt-input textarea {
     flex: 1;
@@ -272,6 +381,7 @@
 .imi-media .grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; cursor: pointer; }
 
 </style>
+<link rel="stylesheet" href="../css-web/messages-im.css">
 
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
@@ -314,7 +424,7 @@
             <div class="gs-drop"></div>
         </div>
         <div class="h-actions">
-            <button class="h-icon"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="h-icon" type="button" onclick="location.href='messages-contacts.html'" title="通讯录"><i class="fa-solid fa-address-book"></i></button>
             <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
             <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
             <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
@@ -322,212 +432,134 @@
     </header>
 
     <main class="app-main">
-        <div class="im-layout">
+        <div class="im-info-backdrop" id="imInfoBackdrop" aria-hidden="true"></div>
+        <div class="im-layout" id="imLayout">
 
             <!-- 左:列表 -->
             <div class="im-list">
                 <div class="iml-head">
-                    <h2><i class="fa-regular fa-comments"></i>消息<span class="cnt">8 未读</span></h2>
+                    <div class="iml-title-row">
+                        <h2><i class="fa-regular fa-comments"></i>消息<span class="cnt" id="imUnreadHead">8 未读</span></h2>
+                        <div class="iml-quick-actions">
+                            <button type="button" id="imBtnCompose" title="新建私聊"><i class="fa-regular fa-message"></i></button>
+                            <button type="button" id="imBtnGroupCreate" title="创建群聊"><i class="fa-solid fa-user-group"></i></button>
+                            <button type="button" id="imBtnContacts" title="通讯录"><i class="fa-solid fa-address-book"></i></button>
+                        </div>
+                    </div>
                     <div class="iml-search-wrap">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <input class="iml-search" placeholder="搜索好友、订阅者…" />
+                        <input class="iml-search" id="imListSearch" placeholder="搜索会话、群聊、联系人…" />
                     </div>
                 </div>
-                <div class="iml-tabs">
-                    <span class="t active">全部 <span class="cnt">8</span></span>
-                    <span class="t">粉丝</span>
-                    <span class="t">订阅者 <span class="cnt">3</span></span>
-                    <span class="t">系统</span>
+                <div class="iml-tabs" id="imlTabs">
+                    <span class="t active" data-tab="all">全部</span>
+                    <span class="t" data-tab="dm">私聊</span>
+                    <span class="t" data-tab="group">群聊</span>
                 </div>
-                <div style="overflow-y: auto; flex: 1">
-
-                    <div class="thread-row active unread">
-                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120')"><span class="online"></span></div>
-                        <div class="info">
-                            <div class="top">
-                                <div class="name">Lens 旅记 <i class="fa-solid fa-circle-check vfy"></i></div>
-                                <div class="time">2 分钟前</div>
-                            </div>
-                            <div class="pre"><span class="typing">正在输入…</span></div>
-                            <div class="meta"><span class="tag-mini tag-fan">粉丝</span></div>
-                        </div>
-                    </div>
-
-                    <div class="thread-row unread">
-                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=120')"></div>
-                        <div class="info">
-                            <div class="top">
-                                <div class="name">山野食光 <i class="fa-solid fa-circle-check vfy"></i></div>
-                                <div class="time">14:22</div>
-                            </div>
-                            <div class="pre">谢谢你订阅我的频道！这是一份…</div>
-                            <div class="meta"><span class="tag-mini tag-vip">VIP 订阅者</span></div>
-                        </div>
-                        <span class="badge">2</span>
-                    </div>
-
-                    <div class="thread-row unread">
-                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120')"><span class="online"></span></div>
-                        <div class="info">
-                            <div class="top">
-                                <div class="name">夜雨听弦</div>
-                                <div class="time">14:08</div>
-                            </div>
-                            <div class="pre"><span class="you">你：</span>那首小夜曲真的太美了 🎻</div>
-                        </div>
-                        <span class="badge">1</span>
-                    </div>
-
-                    <div class="thread-row">
-                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=120')"></div>
-                        <div class="info">
-                            <div class="top">
-                                <div class="name">代码诗人</div>
-                                <div class="time">昨天</div>
-                            </div>
-                            <div class="pre">[图片]</div>
-                            <div class="meta"><span class="tag-mini tag-fan">粉丝</span></div>
-                        </div>
-                    </div>
-
-                    <div class="thread-row">
-                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120')"></div>
-                        <div class="info">
-                            <div class="top">
-                                <div class="name">银盐时代</div>
-                                <div class="time">昨天</div>
-                            </div>
-                            <div class="pre">想和你聊一下合作那个组合包…</div>
-                        </div>
-                    </div>
-
-                    <div class="thread-row">
-                        <div class="av" style="background: linear-gradient(135deg,#A855F7,#EC4899); display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px"><i class="fa-solid fa-infinity"></i></div>
-                        <div class="info">
-                            <div class="top">
-                                <div class="name">FansLoop 官方</div>
-                                <div class="time">2 天前</div>
-                            </div>
-                            <div class="pre">本月创作者激励计划已发放…</div>
-                        </div>
-                    </div>
-
-                </div>
+                <div style="overflow-y: auto; flex: 1" id="imThreadList"></div>
             </div>
 
             <!-- 中:对话 -->
-            <div class="im-thread">
+            <div class="im-thread" id="imThreadCol">
                 <div class="imt-head">
-                    <div class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120')"></div>
-                    <div class="info">
-                        <div class="n">Lens 旅记 <i class="fa-solid fa-circle-check" style="color:#3B82F6;font-size:11px"></i></div>
-                        <div class="s">在线 · 正在输入…</div>
+                    <div class="im-head-profile" id="imHeadProfile" role="button" tabindex="0" title="查看用户详情" aria-label="会话信息">
+                        <div class="av" id="imHeadAv" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120')"></div>
+                        <div class="info">
+                            <div class="n" id="imHeadName">Lens 旅记 <i class="fa-solid fa-circle-check" style="color:#3B82F6;font-size:11px"></i></div>
+                            <div class="s" id="imHeadStatus">在线 · 正在输入…</div>
+                        </div>
                     </div>
                     <div class="acts">
-                        <button title="语音通话"><i class="fa-solid fa-phone"></i></button>
-                        <button title="视频通话"><i class="fa-solid fa-video"></i></button>
-                        <button title="搜索"><i class="fa-solid fa-magnifying-glass"></i></button>
-                        <button title="更多"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                        <button type="button" class="btn-profile-detail" id="imBtnProfile" title="用户详情"><i class="fa-regular fa-user"></i> 详情</button>
+                        <button type="button" class="im-act-dm-only" id="imBtnCall" title="语音通话" onclick="alert('语音通话演示')"><i class="fa-solid fa-phone"></i></button>
+                        <button type="button" class="im-act-dm-only" id="imBtnVideo" title="视频通话" onclick="alert('视频通话演示')"><i class="fa-solid fa-video"></i></button>
+                        <button type="button" id="imBtnSearch" title="搜索"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <button type="button" id="imBtnMore" title="更多"><i class="fa-solid fa-ellipsis-vertical"></i></button>
                     </div>
                 </div>
 
-                <div class="imt-msgs">
-                    <div class="day-sep"><span>今天</span></div>
+                <div class="im-search-panel" id="imSearchPanel">
+                    <input type="search" id="imSearchInput" placeholder="搜索聊天记录…" autocomplete="off" />
+                    <div class="im-search-hits" id="imSearchHits"></div>
+                </div>
 
-                    <div class="msg-row">
-                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></div>
-                        <div class="group">
-                            <div class="bub">嗨 Luna！我看到你最近富士山的那组片子真是太赞了！能跟我分享一下你用什么镜头拍的吗？</div>
-                            <div class="msg-time">14:02</div>
+                <div class="im-group-notice" id="imGroupNotice" hidden>
+                    <div class="im-group-notice-inner">
+                        <span class="badge"><i class="fa-solid fa-bullhorn"></i> 群公告</span>
+                        <div class="body">
+                            <div class="meta" id="imGroupNoticeMeta"></div>
+                            <div class="txt" id="imGroupNoticeText"></div>
                         </div>
-                    </div>
-
-                    <div class="msg-row me">
-                        <div class="group">
-                            <div class="bub">谢谢你喜欢～主要是 35mm f/1.4 定焦，配 Sony A7R 第四代 📷</div>
-                            <div class="msg-time">14:05 · 已读</div>
-                        </div>
-                    </div>
-
-                    <div class="msg-row me">
-                        <div class="group">
-                            <div class="bub image"><img src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=600" alt=""></div>
-                            <div class="msg-time">14:05</div>
-                        </div>
-                    </div>
-
-                    <div class="msg-row">
-                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></div>
-                        <div class="group">
-                            <div class="bub">这张光线绝了 🤩 想问下你下次还有摄影工作坊吗？</div>
-                            <div class="msg-time">14:08</div>
-                        </div>
-                    </div>
-
-                    <div class="msg-row">
-                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></div>
-                        <div class="group">
-                            <div class="bub tip"><i class="fa-solid fa-gift"></i>送出礼物 · 樱花信使 × 1 · ≈ $5.00</div>
-                            <div class="msg-time">14:10</div>
-                        </div>
-                    </div>
-
-                    <div class="msg-row me">
-                        <div class="group">
-                            <div class="bub">哇 谢谢支持！下个月会有，到时候第一时间邀请你 ✨</div>
-                            <div class="msg-time">14:12 · 已读</div>
-                        </div>
-                    </div>
-
-                    <div class="msg-row">
-                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></div>
-                        <div class="group">
-                            <div class="bub" style="display: inline-flex; align-items: center; gap: 4px">
-                                <span class="d" style="width:6px;height:6px;border-radius:50%;background:#999;animation:typing 1.2s ease-in-out infinite"></span>
-                                <span class="d" style="width:6px;height:6px;border-radius:50%;background:#999;animation:typing 1.2s ease-in-out infinite 0.2s"></span>
-                                <span class="d" style="width:6px;height:6px;border-radius:50%;background:#999;animation:typing 1.2s ease-in-out infinite 0.4s"></span>
-                            </div>
-                            <div class="msg-time">正在输入…</div>
-                        </div>
+                        <button type="button" class="fold" id="imGroupNoticeFold" title="收起"><i class="fa-solid fa-chevron-up"></i></button>
                     </div>
                 </div>
+                <div class="imt-msgs" id="imMsgList"></div>
+                <div class="im-notif-inbox" id="imNotifInbox" hidden>
+                    <div class="im-notif-inbox-head">
+                        <button type="button" class="back" id="imInboxBack"><i class="fa-solid fa-arrow-left"></i></button>
+                        <div class="tit" id="imInboxTitle">群聊通知</div>
+                        <span class="cnt" id="imInboxCount">0</span>
+                    </div>
+                    <div class="im-notif-inbox-toolbar">
+                        <div class="search-wrap">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="search" id="imInboxSearch" placeholder="搜索邀请、昵称…" autocomplete="off" />
+                        </div>
+                        <div class="batch">
+                            <button type="button" class="btn btn-sm btn-secondary" id="imInboxRejectAll" title="拒绝本页全部并开启自动拒绝（演示）">全局拒绝</button>
+                            <button type="button" class="btn btn-sm" id="imInboxAcceptAll" style="background:var(--brand-grad);color:#fff;border:none">批量同意</button>
+                        </div>
+                    </div>
+                    <div class="im-notif-inbox-list" id="imNotifInboxList"></div>
+                </div>
+
+                <div class="im-quote-bar" id="imQuoteBar">
+                    <span class="txt"></span>
+                    <button type="button" id="imQuoteClose" aria-label="取消引用"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <div class="im-voice-rec" id="imVoiceRec"><span class="dot"></span> 正在录音… 松开结束</div>
+
+                <div class="im-emoji-panel" id="imEmojiPanel"></div>
 
                 <div class="imt-input">
                     <div class="tools">
-                        <button title="表情"><i class="fa-regular fa-face-smile"></i></button>
-                        <button title="图片"><i class="fa-regular fa-image"></i></button>
-                        <button title="文件"><i class="fa-solid fa-paperclip"></i></button>
-                        <button title="语音"><i class="fa-solid fa-microphone"></i></button>
-                        <button class="gift" title="送礼"><i class="fa-solid fa-gift"></i></button>
-                        <button title="模板"><i class="fa-solid fa-file-lines"></i></button>
+                        <button type="button" id="imBtnEmoji" title="表情"><i class="fa-regular fa-face-smile"></i></button>
+                        <button type="button" id="imBtnImage" title="图片"><i class="fa-regular fa-image"></i></button>
+                        <button type="button" id="imBtnAttach" title="文件"><i class="fa-solid fa-paperclip"></i></button>
+                        <button type="button" id="imBtnVoice" title="语音"><i class="fa-solid fa-microphone"></i></button>
+                        <button type="button" id="imBtnSharePost" title="分享作品"><i class="fa-solid fa-share"></i></button>
+                        <button type="button" class="gift" id="imBtnGift" title="送礼"><i class="fa-solid fa-gift"></i></button>
                     </div>
-                    <div class="row">
-                        <textarea placeholder="发送消息给 Lens 旅记…"></textarea>
-                        <button class="send"><i class="fa-solid fa-paper-plane"></i></button>
+                    <div class="im-mention-wrap">
+                        <div class="im-mention-picker" id="imMentionPicker" hidden></div>
+                        <div class="row">
+                            <textarea id="imInputTa" placeholder="发送消息给 Lens 旅记…"></textarea>
+                            <button type="button" class="send" id="imBtnSend"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- 右:用户信息 -->
-            <div class="im-info">
+            <div class="im-info" id="imInfoPanel" aria-hidden="true">
                 <div class="imi-head">
+                    <button type="button" class="imi-close" id="imInfoClose" aria-label="关闭用户详情"><i class="fa-solid fa-xmark"></i></button>
                     <div class="av-big" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=240')">
                         <span class="online"></span>
                     </div>
                     <h3>Lens 旅记 <i class="fa-solid fa-circle-check vfy"></i></h3>
                     <div class="h">@lensjourney · 旅行摄影</div>
                     <div class="acts">
-                        <button class="ic-btn" title="个人主页"><i class="fa-regular fa-user"></i></button>
-                        <button class="ic-btn tip" title="送礼"><i class="fa-solid fa-gift"></i></button>
-                        <button class="ic-btn" title="静音"><i class="fa-solid fa-bell-slash"></i></button>
-                        <button class="ic-btn" title="拉黑"><i class="fa-solid fa-ban"></i></button>
+                        <button type="button" class="ic-btn" id="imBtnUserProfile" title="查看 Ta 的创作者个人主页"><i class="fa-regular fa-user"></i></button>
+                        <button type="button" class="ic-btn" id="imBtnConvMute" title="消息免打扰（列表显示免打扰图标）"><i class="fa-solid fa-bell-slash"></i></button>
                     </div>
                 </div>
 
                 <div class="imi-stats">
-                    <div><div class="v">64k</div><div class="k">粉丝</div></div>
-                    <div><div class="v">312</div><div class="k">作品</div></div>
-                    <div><div class="v">88%</div><div class="k">活跃</div></div>
+                    <div class="imi-stat-click" data-stat="fans" title="粉丝数据"><div class="v">64k</div><div class="k">粉丝</div></div>
+                    <button type="button" class="imi-stat-click" id="imBtnWorksStat" title="进入用户主页 · 查看全部作品"><div class="v">312</div><div class="k">作品</div></button>
+                    <div class="imi-stat-click" data-stat="active" title="活跃度"><div class="v">88%</div><div class="k">活跃</div></div>
                 </div>
 
                 <div class="imi-section">
@@ -539,13 +571,19 @@
 
                 <div class="imi-section">
                     <h4>对话设置</h4>
-                    <div class="imi-row"><i class="fa-regular fa-bell ic"></i>消息通知<span class="switch-mini on"></span></div>
-                    <div class="imi-row"><i class="fa-solid fa-thumbtack ic"></i>置顶对话<span class="switch-mini"></span></div>
-                    <div class="imi-row"><i class="fa-solid fa-eye-slash ic"></i>隐藏聊天记录<span class="switch-mini"></span></div>
+                    <div class="imi-row"><i class="fa-regular fa-bell ic"></i>接收消息通知<span class="switch-mini on" data-switch="notify" title="关闭后仍可收发，仅不推送"></span></div>
+                    <div class="imi-row"><i class="fa-solid fa-thumbtack ic"></i>置顶对话<span class="switch-mini" data-switch="pin"></span></div>
                 </div>
 
-                <div class="imi-media">
-                    <h4 style="font-size: 11px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 10px">共享媒体 · 24</h4>
+                <div class="imi-section" id="imFriendActions" hidden>
+                    <h4>好友</h4>
+                    <div class="imi-row imi-row-danger" id="imRowDeleteFriend" role="button" tabindex="0" title="解除互相关注，会话与聊天记录仍保留">
+                        <i class="fa-solid fa-user-minus ic"></i> 删除好友
+                    </div>
+                </div>
+
+                <div class="imi-media" id="imSharedMedia" role="button" tabindex="0" title="查看本会话的图片、视频与文件">
+                    <h4><span>聊天文件 · <span id="imMediaCount">24</span></span><i class="fa-solid fa-chevron-right"></i></h4>
                     <div class="grid">
                         <img src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=200">
                         <img src="https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=200">
@@ -565,8 +603,227 @@
 <style>
 @keyframes typing { 0%, 100% { transform: translateY(0); opacity: 0.4; } 50% { transform: translateY(-3px); opacity: 1; } }
 </style>
+
+<div class="im-ctx-menu" id="imThreadCtxMenu" role="menu" hidden>
+    <button type="button" data-thread-action="delete"><i class="fa-solid fa-trash"></i> 删除会话</button>
+</div>
+
+<div class="im-ovl" id="imConfirmOvl" aria-hidden="true">
+    <div class="im-ovl-backdrop" data-close="imConfirmOvl"></div>
+    <div class="im-confirm-dialog" role="alertdialog" aria-labelledby="imConfirmTitle">
+        <h3 id="imConfirmTitle">确认</h3>
+        <p id="imConfirmBody"></p>
+        <div class="im-confirm-actions">
+            <button type="button" class="btn btn-secondary" data-close="imConfirmOvl">取消</button>
+            <button type="button" class="btn" id="imConfirmOk" style="background:var(--brand-grad);color:#fff;border:none">确定</button>
+        </div>
+    </div>
+</div>
+
+<!-- 页内：新建私聊 -->
+<div class="im-ovl im-ovl--panel" id="imPanelCompose" aria-hidden="true">
+    <div class="im-ovl-backdrop" data-close="imPanelCompose"></div>
+    <div class="im-side-panel" role="dialog" aria-labelledby="imComposeTitle">
+        <div class="im-side-panel-head">
+            <button type="button" class="back" data-close="imPanelCompose"><i class="fa-solid fa-xmark"></i></button>
+            <h3 id="imComposeTitle"><i class="fa-regular fa-message"></i> 新建私聊</h3>
+        </div>
+        <div class="im-side-panel-body">
+            <p class="im-panel-hint">选择互相关注或订阅者，在当前页打开对话</p>
+            <div class="im-panel-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" id="imComposeSearch" placeholder="搜索昵称…" autocomplete="off" /></div>
+            <div id="imComposeList"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 页内：通讯录 -->
+<div class="im-ovl im-ovl--panel" id="imPanelContacts" aria-hidden="true">
+    <div class="im-ovl-backdrop" data-close="imPanelContacts"></div>
+    <div class="im-side-panel im-side-panel--wide" role="dialog" aria-labelledby="imContactsTitle">
+        <div class="im-side-panel-head">
+            <button type="button" class="back" data-close="imPanelContacts"><i class="fa-solid fa-xmark"></i></button>
+            <h3 id="imContactsTitle"><i class="fa-solid fa-address-book"></i> 通讯录</h3>
+        </div>
+        <div class="im-side-panel-body">
+            <div class="im-panel-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" id="imContactsSearch" placeholder="搜索群聊、好友…" autocomplete="off" /></div>
+            <div class="im-panel-tabs" id="imContactsTabs">
+                <button type="button" class="on" data-tab="group">群聊</button>
+                <button type="button" data-tab="friend">好友</button>
+            </div>
+            <div class="im-contacts-scroll" id="imContactsBody"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 页内：群管理 -->
+<div class="im-ovl im-ovl--panel" id="imPanelGroupManage" aria-hidden="true">
+    <div class="im-ovl-backdrop" data-close="imPanelGroupManage"></div>
+    <div class="im-side-panel im-side-panel--wide im-grp-manage-panel" role="dialog" aria-labelledby="imGrpManageTitle">
+        <div class="im-side-panel-head">
+            <button type="button" class="back" data-close="imPanelGroupManage"><i class="fa-solid fa-xmark"></i></button>
+            <h3 id="imGrpManageTitle"><i class="fa-solid fa-users-gear"></i> 群管理</h3>
+        </div>
+        <div class="im-side-panel-body im-grp-manage-body" id="imGrpManageBody"></div>
+    </div>
+</div>
+
+<!-- 页内：从通讯录添加群成员 -->
+<div class="im-ovl im-ovl--panel" id="imPanelGroupAddMember" aria-hidden="true">
+    <div class="im-ovl-backdrop" data-close="imPanelGroupAddMember"></div>
+    <div class="im-side-panel im-side-panel--wide" role="dialog" aria-labelledby="imGrpAddTitle">
+        <div class="im-side-panel-head">
+            <button type="button" class="back" data-close="imPanelGroupAddMember"><i class="fa-solid fa-xmark"></i></button>
+            <h3 id="imGrpAddTitle"><i class="fa-solid fa-user-plus"></i> 添加群成员</h3>
+        </div>
+        <div class="im-side-panel-body">
+            <p class="im-panel-hint">从通讯录选择好友；已在群内的成员不会显示</p>
+            <div class="im-panel-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" id="imGrpAddSearch" placeholder="搜索好友昵称…" autocomplete="off" /></div>
+            <div class="im-grp-add-list" id="imGrpAddList"></div>
+            <div class="im-panel-foot">
+                <button type="button" class="btn btn-secondary" data-close="imPanelGroupAddMember">取消</button>
+                <button type="button" class="btn" id="imGrpAddConfirm" style="background:var(--brand-grad);color:#fff;border:none" disabled><i class="fa-solid fa-check"></i> 添加选中</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 页内：选择成员（转让群主 / 退出转让） -->
+<div class="im-ovl" id="imGrpPickMemberOvl" aria-hidden="true">
+    <div class="im-ovl-backdrop" data-close="imGrpPickMemberOvl"></div>
+    <div class="im-confirm-dialog im-grp-pick-dialog" role="dialog">
+        <h3 id="imGrpPickTitle">选择新群主</h3>
+        <p id="imGrpPickHint" class="im-panel-hint"></p>
+        <div class="im-grp-pick-list" id="imGrpPickList"></div>
+        <div class="im-confirm-actions">
+            <button type="button" class="btn btn-secondary" data-close="imGrpPickMemberOvl">取消</button>
+            <button type="button" class="btn" id="imGrpPickConfirm" style="background:var(--brand-grad);color:#fff;border:none" disabled>确认</button>
+        </div>
+    </div>
+</div>
+
+<!-- 页内：创建群聊 -->
+<div class="im-ovl im-ovl--panel" id="imPanelGroupCreate" aria-hidden="true">
+    <div class="im-ovl-backdrop" data-close="imPanelGroupCreate"></div>
+    <div class="im-side-panel im-side-panel--wide" role="dialog" aria-labelledby="imGcTitle">
+        <div class="im-side-panel-head">
+            <button type="button" class="back" data-close="imPanelGroupCreate"><i class="fa-solid fa-xmark"></i></button>
+            <h3 id="imGcTitle"><i class="fa-solid fa-user-group"></i> 创建粉丝群</h3>
+        </div>
+        <div class="im-side-panel-body im-gc-body">
+            <div class="grp-notice" id="imGcNotice"></div>
+            <div class="grp-field"><label for="imGcName">群名称</label><input id="imGcName" type="text" value="VIP 订阅者交流群" /></div>
+            <div class="grp-field"><label for="imGcDesc">群介绍</label><textarea id="imGcDesc" rows="2">订阅者专属内容预告、直播通知与互动</textarea></div>
+            <div class="grp-field"><label>邀请粉丝</label><input type="search" id="imGcFanSearch" placeholder="搜索昵称…" /></div>
+            <div class="grp-fan-list" id="imGcFanList"></div>
+            <div class="im-panel-foot">
+                <button type="button" class="btn btn-secondary" data-close="imPanelGroupCreate">取消</button>
+                <button type="button" class="btn" id="imGcSubmit" style="background:var(--brand-grad);color:#fff;border:none"><i class="fa-solid fa-check"></i> 创建并邀请</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 设置备注 -->
+<div class="im-ovl" id="imRemarkOvl" aria-hidden="true">
+    <div class="im-ovl-backdrop" data-close="imRemarkOvl"></div>
+    <div class="im-confirm-dialog" role="dialog">
+        <h3 id="imRemarkTitle"><i class="fa-solid fa-pen"></i> 设置备注</h3>
+        <p class="im-panel-hint" id="imRemarkHint">备注名将优先显示在会话列表与 @ 提及中</p>
+        <input type="text" id="imRemarkInput" maxlength="32" placeholder="输入备注名，留空则恢复原名" style="width:100%;height:40px;padding:0 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-input);color:var(--t-primary);margin-bottom:14px" />
+        <div class="im-confirm-actions">
+            <button type="button" class="btn btn-secondary" data-close="imRemarkOvl">取消</button>
+            <button type="button" class="btn" id="imRemarkSave" style="background:var(--brand-grad);color:#fff;border:none">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- 举报 -->
+<div class="im-ovl" id="imReportOvl" aria-hidden="true">
+    <div class="im-ovl-backdrop" data-close="imReportOvl"></div>
+    <div class="im-confirm-dialog im-report-dialog" role="dialog">
+        <h3 id="imReportTitle"><i class="fa-solid fa-flag"></i> 举报</h3>
+        <p class="im-panel-hint" id="imReportHint">将提交至后台「举报反馈管理」列表（演示写入 localStorage）</p>
+        <div class="im-report-reasons" id="imReportReasons">
+            <label><input type="radio" name="imReportReason" value="spam" checked /> 垃圾广告 / 骚扰</label>
+            <label><input type="radio" name="imReportReason" value="fraud" /> 欺诈 / 虚假内容</label>
+            <label><input type="radio" name="imReportReason" value="abuse" /> 辱骂 / 不当言论</label>
+            <label><input type="radio" name="imReportReason" value="other" /> 其他</label>
+        </div>
+        <textarea id="imReportDetail" rows="3" placeholder="补充说明（选填）" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-input);color:var(--t-primary);margin:12px 0;font-size:13px"></textarea>
+        <div class="im-confirm-actions">
+            <button type="button" class="btn btn-secondary" data-close="imReportOvl">取消</button>
+            <button type="button" class="btn" id="imReportSubmit" style="background:#EF4444;color:#fff;border:none">提交举报</button>
+        </div>
+    </div>
+</div>
+
+<!-- 聊天文件 -->
+<div class="im-ovl im-ovl--panel" id="imMediaOvl" aria-hidden="true">
+    <div class="im-ovl-backdrop" data-close="imMediaOvl"></div>
+    <div class="im-side-panel" role="dialog">
+        <div class="im-side-panel-head">
+            <button type="button" class="back" data-close="imMediaOvl"><i class="fa-solid fa-xmark"></i></button>
+            <h3><i class="fa-regular fa-folder-open"></i> 聊天文件</h3>
+        </div>
+        <div class="im-side-panel-body"><div class="im-media-grid-lg" id="imMediaGridLg"></div></div>
+    </div>
+</div>
+
+<div class="im-dropdown" id="imDropdown" role="menu">
+    <button type="button" data-action="remark"><i class="fa-solid fa-pen"></i> 设置备注</button>
+    <button type="button" data-action="unfriend" class="danger" id="imDropdownUnfriend" hidden><i class="fa-solid fa-user-minus"></i> 删除好友</button>
+    <button type="button" data-action="clear"><i class="fa-solid fa-eraser"></i> 清空聊天记录</button>
+    <button type="button" data-action="delete"><i class="fa-solid fa-trash"></i> 删除会话</button>
+    <button type="button" data-action="report" class="danger"><i class="fa-solid fa-flag"></i> 举报</button>
+</div>
+<div class="im-toast-host" id="imToastHost"></div>
+
+<div id="flStandaloneModalRoot" class="fl-interaction-ovl" aria-hidden="true">
+    <div class="fl-modal-backdrop" aria-hidden="true"></div>
+    <iframe class="fl-modal-iframe" title="FansLoop 弹窗"></iframe>
+</div>
+
+<!-- 分享作品弹窗 -->
+<div class="im-ovl" id="imShareOverlay" aria-hidden="true">
+    <div class="im-ovl-backdrop" data-close="imShareOverlay"></div>
+    <div class="im-share-dialog" role="dialog" aria-labelledby="imShareTitle">
+        <div class="im-share-head">
+            <h3 id="imShareTitle"><i class="fa-solid fa-share"></i> 选择要分享的作品</h3>
+            <button type="button" class="im-share-x" data-close="imShareOverlay" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="im-share-search-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" id="imShareSearch" placeholder="搜索作品标题…" autocomplete="off" />
+        </div>
+        <div class="im-share-grid" id="imShareGrid"></div>
+        <div class="im-share-preview" id="imSharePreview" hidden>
+            <img id="imSharePreviewImg" alt="" />
+            <div><div class="t" id="imSharePreviewTitle"></div><div class="m" id="imSharePreviewMeta"></div></div>
+        </div>
+        <div class="im-share-foot">
+            <button type="button" class="btn btn-secondary" data-close="imShareOverlay">取消</button>
+            <button type="button" class="btn" id="imShareSendBtn" disabled><i class="fa-solid fa-paper-plane"></i> 发送作品卡片</button>
+        </div>
+    </div>
+</div>
+<div class="im-ovl im-ovl--success" id="imShareSuccessOvl" aria-hidden="true">
+    <div class="im-ovl-backdrop" data-close="imShareSuccessOvl"></div>
+    <div class="im-share-success">
+        <div class="ic"><i class="fa-solid fa-circle-check"></i></div>
+        <h3>作品已发送</h3>
+        <p>对方可在会话中点击卡片查看详情</p>
+        <button type="button" class="btn" data-close="imShareSuccessOvl">完成</button>
+    </div>
+</div>
+
 <link rel="stylesheet" href="../css-web/host-live-pip-global.css">
 <script src="../js-web/global-search.js"></script>
+<script src="../js-web/fl-interaction-modal.js"></script>
+<script src="../js-web/fl-friends-store.js"></script>
+<script src="../js-web/messages-page.js"></script>
+<script src="../js-web/messages-group-manage.js"></script>
+<script src="../js-web/messages-im-extras.js"></script>
+<script src="../js-web/messages-share-work.js"></script>
 <script src="../js-web/host-live-pip-global.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>
 </body>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>互动消息 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/messages-im.css">
+<script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
+<style>
+.app-main { padding: 24px 28px; overflow: auto; }
+.int-tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+.int-tabs button {
+    padding: 8px 14px; border-radius: 8px; font-size: 12px;
+    background: var(--bg-input); border: 1px solid var(--border); color: var(--t-secondary); cursor: pointer;
+}
+.int-tabs button.on { background: var(--brand-grad); color: #fff; border-color: transparent; font-weight: 600; }
+.int-row { cursor: pointer; transition: 0.15s; }
+.int-row:hover { border-color: var(--border-strong); }
+.int-row .thumb { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+</style>
+</head>
+<body data-msg-sub="interactions" class="msg-sub-page">
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <div class="s-item active" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span></div>
+    </aside>
+    <header class="app-header">
+        <div class="h-search h-search-live h-search-unified"><div class="hs-inner"><i class="fa-solid fa-magnifying-glass"></i><input type="search" placeholder="搜索…" /></div><div class="gs-drop"></div></div>
+    </header>
+    <main class="app-main">
+        <div class="msg-sub-wrap">
+            <a class="back" href="messages.html"><i class="fa-solid fa-arrow-left"></i> 返回私信</a>
+            <h1>互动消息</h1>
+            <p style="font-size:13px;color:var(--t-tertiary);margin-bottom:16px">赞、评论、@ 与新粉丝关注，与私聊分开（对齐抖音互动 inbox）。</p>
+            <div class="int-tabs" id="intTabs">
+                <button type="button" class="on" data-tab="all">全部</button>
+                <button type="button" data-tab="like">赞和收藏</button>
+                <button type="button" data-tab="comment">评论 @</button>
+                <button type="button" data-tab="fan">新粉丝</button>
+            </div>
+
+            <div class="int-row" data-type="like" data-href="discover.html">
+                <img class="thumb" src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=120" alt="">
+                <div class="body">
+                    <div style="font-size:13px"><b>Lens 旅记</b> 赞了你的作品 <span style="color:var(--brand-purple)">富士山晨雾</span></div>
+                    <div style="font-size:11px;color:var(--t-tertiary);margin-top:4px">5 分钟前</div>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color:var(--t-tertiary);font-size:11px"></i>
+            </div>
+            <div class="int-row" data-type="comment" data-href="proto-discover-detail-comments.html">
+                <img class="thumb" src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=120" alt="">
+                <div class="body">
+                    <div style="font-size:13px"><b>代码诗人</b> 评论：构图太绝了！<span style="color:var(--t-tertiary)"> @Luna</span></div>
+                    <div style="font-size:11px;color:var(--t-tertiary);margin-top:4px">32 分钟前</div>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color:var(--t-tertiary);font-size:11px"></i>
+            </div>
+            <div class="int-row" data-type="fan" data-href="messages.html?peer=山野食光">
+                <div class="av" style="background-image:url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=120')"></div>
+                <div class="body">
+                    <div style="font-size:13px"><b>山野食光</b> 关注了你</div>
+                    <div style="font-size:11px;color:var(--t-tertiary);margin-top:4px">1 小时前 · <a href="messages.html?peer=山野食光" style="color:var(--brand-purple)" onclick="event.stopPropagation()">发私信</a></div>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color:var(--t-tertiary);font-size:11px"></i>
+            </div>
+            <div class="int-row" data-type="like">
+                <img class="thumb" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=120" alt="">
+                <div class="body">
+                    <div style="font-size:13px"><b>夜雨听弦</b> 等 3 人收藏了你的作品</div>
+                    <div style="font-size:11px;color:var(--t-tertiary);margin-top:4px">昨天</div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+document.getElementById('intTabs').addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-tab]');
+    if (!btn) return;
+    document.querySelectorAll('#intTabs button').forEach(function (b) { b.classList.remove('on'); });
+    btn.classList.add('on');
+    var tab = btn.getAttribute('data-tab');
+    document.querySelectorAll('.int-row').forEach(function (row) {
+        if (tab === 'all') row.style.display = '';
+        else row.style.display = row.getAttribute('data-type') === tab ? '' : 'none';
+    });
+});
+</script>
+<script src="../js-web/messages-sub-pages.js"></script>
+<script src="../js-web/app-sidebar-global.js"></script>
+</body>
+</html>

@@ -18,6 +18,18 @@
 
     if (!T) return;
 
+    var currentPostId = null;
+
+    var A = global.FL_DISCOVER_ACCESS || {
+        canViewFull: function (p) { return !p || !p.premium; },
+        needsTeaser: function (p) { return !!(p && p.premium); },
+        payLabel: function () { return '订阅专享'; },
+        subscribePrice: function () { return 28; },
+        paidPostCount: function () { return 12; }
+    };
+
+    var PREVIEW_SEC = 12;
+
     function img(id, w) {
         return 'https://images.unsplash.com/' + id + '?w=' + (w || 800) + '&q=85';
     }
@@ -46,6 +58,78 @@
         toast._t = setTimeout(function () { el.classList.remove('show'); }, 2200);
     }
 
+    function isShareModalOpen() {
+        var root = document.getElementById('flStandaloneModalRoot');
+        return !!(root && root.style.display === 'flex');
+    }
+
+    function isSubscribeModalOpen() {
+        var ovl = document.getElementById('ovlSubscribe');
+        return !!(ovl && ovl.classList.contains('show'));
+    }
+
+    function openShare() {
+        if (window.FL_openInteractionModal) {
+            window.FL_openInteractionModal('share-modal.html');
+            return;
+        }
+        toast('分享链接已复制（原型）');
+    }
+
+    function openSubscribeFlow(p) {
+        function launch() {
+            if (window.FL_openSubscribeForCreator) {
+                window.FL_openSubscribeForCreator({
+                    creator: p.author,
+                    price: A.subscribePrice(p),
+                    av: p.av ? img(p.av, 200) : ''
+                });
+                return;
+            }
+            if (window.FL_openSubscribeModal) {
+                var btn = document.createElement('button');
+                btn.setAttribute('data-creator', p.author);
+                btn.setAttribute('data-plan', String(A.subscribePrice(p)));
+                if (p.av) btn.setAttribute('data-av', img(p.av, 200));
+                window.FL_openSubscribeModal(btn);
+                return;
+            }
+            location.href = 'flow-subscribe-creator.html';
+        }
+        if (!document.getElementById('ovlSubscribe') && window.FL_mountSubscribeOverlay) {
+            window.FL_mountSubscribeOverlay().then(launch);
+            return;
+        }
+        launch();
+    }
+
+    function markCreatorSubscribed(creatorId) {
+        if (!creatorId) return;
+        try {
+            var subs = JSON.parse(localStorage.getItem('fl_disc_mock_subs') || '[]');
+            if (subs.indexOf(creatorId) < 0) {
+                subs.push(creatorId);
+                localStorage.setItem('fl_disc_mock_subs', JSON.stringify(subs));
+            }
+        } catch (_) { /* noop */ }
+    }
+
+    function bindSubscribePaidListener() {
+        if (global._flDiscSubPaidBound) return;
+        global._flDiscSubPaidBound = true;
+        document.addEventListener('fl-subscribe-paid', function (e) {
+            var name = e.detail && e.detail.creator;
+            if (!name) return;
+            var post = T.posts.find(function (p) { return p.author === name; });
+            if (!post) return;
+            markCreatorSubscribed(post.creatorId);
+            if (!stage || stage.hidden || currentPostId !== post.id) return;
+            if (window.FL_closeSubscribeModal) window.FL_closeSubscribeModal();
+            renderStage(post);
+            toast('订阅成功，已解锁完整内容');
+        });
+    }
+
     function getPost(id) {
         return T.posts.find(function (p) { return p.id === id; });
     }
@@ -65,11 +149,34 @@
     function buildTagsHtml(p) {
         var html = '';
         if (p.live) html += '<span class="tg live">● LIVE</span>';
-        if (p.premium) html += '<span class="tg premium"><i class="fa-solid fa-crown"></i> PREMIUM</span>';
         (p.hashtags || []).forEach(function (h) {
             html += '<span class="tg">#' + esc(h) + '</span>';
         });
         return html;
+    }
+
+    function paywallHtml(p) {
+        var price = A.subscribePrice(p);
+        var count = A.paidPostCount(p);
+        var ppv = p.payType === 'ppv' && p.price != null;
+        return (
+            '<div class="dd-paywall" role="dialog" aria-label="解锁内容">' +
+            '<div class="dd-paywall-icon"><i class="fa-solid fa-lock"></i></div>' +
+            '<p class="dd-paywall-tip">' + (ppv ? '单篇解锁后可永久查看' : '订阅后解锁全部专享内容') + '</p>' +
+            '<p class="dd-paywall-sub">@' + esc((p.handle || '').replace(/^@/, '')) + ' 另有 <b>' + count + '</b> 条专享内容</p>' +
+            (ppv
+                ? '<div class="dd-paywall-price"><span class="amt">$' + esc(String(p.price)) + '</span><span class="unit">USDT · 单篇</span></div>' +
+                  '<button type="button" class="dd-paywall-cta" data-dd-unlock-ppv><i class="fa-solid fa-bolt"></i> 支付并解锁</button>' +
+                  '<button type="button" class="dd-paywall-ghost" data-dd-subscribe>或订阅 $' + price + '/月</button>'
+                : '<div class="dd-paywall-price"><span class="amt">' + price + '</span><span class="unit">USDT / 月</span></div>' +
+                  '<button type="button" class="dd-paywall-cta" data-dd-subscribe><i class="fa-solid fa-crown"></i> 立即订阅</button>') +
+            '</div>'
+        );
+    }
+
+    function excerptHtml(p) {
+        if (!p.summary) return '';
+        return '<p class="dd-excerpt">' + esc(p.summary) + '</p>';
     }
 
     function sampleComments(p) {
@@ -82,12 +189,14 @@
         );
     }
 
-    function mediaHtml(p) {
+    function mediaHtml(p, locked) {
         if (isVideoPost(p)) {
             var src = p.videoSrc || '';
+            var loopAttr = locked ? '' : ' loop';
             return (
-                '<video data-dd-video playsinline muted loop poster="' + img(p.cover, 1600) + '"' +
+                '<video data-dd-video playsinline muted' + loopAttr + ' poster="' + img(p.cover, 1600) + '"' +
                 (src ? ' src="' + src.replace(/"/g, '&quot;') + '"' : '') + '></video>' +
+                (locked ? '<div class="dd-teaser-badge"><i class="fa-solid fa-lock"></i> 试看 ' + PREVIEW_SEC + ' 秒 · 订阅解锁完整版</div>' : '') +
                 '<div class="dd-pause-hint" aria-hidden="true"><div class="ring"><i class="fa-solid fa-play"></i></div></div>' +
                 '<div class="disc-vp" data-disc-vp>' +
                 '<div class="disc-vp-toolbar" data-disc-vp-controls>' +
@@ -99,6 +208,16 @@
                 '<div class="disc-vp-progress" data-dd-action="seek" role="slider">' +
                 '<div class="disc-vp-progress-fill" data-role="fill"></div>' +
                 '<div class="disc-vp-progress-thumb" data-role="thumb"></div></div></div></div>'
+            );
+        }
+        if (locked) {
+            var cover = img(p.cover, 1600);
+            return (
+                '<div class="dd-media-split" aria-hidden="true">' +
+                '<div class="dd-media-clear" style="background-image:url(\'' + cover + '\')"></div>' +
+                '<div class="dd-media-blur" style="background-image:url(\'' + cover + '\')"></div>' +
+                '</div>' +
+                '<img src="' + cover + '" alt="" class="dd-media-sr" tabindex="-1" />'
             );
         }
         return '<img src="' + img(p.cover, 1600) + '" alt="' + esc(p.title) + '">';
@@ -115,9 +234,11 @@
     }
 
     function renderStage(p) {
+        var locked = A.needsTeaser(p);
         var av = p.av ? img(p.av, 120) : img('photo-1438761681033-6461ffad8d80', 120);
+        stage.classList.toggle('is-locked', locked);
         stage.innerHTML =
-            '<div class="dd-media">' + mediaHtml(p) + '</div>' +
+            '<div class="dd-media">' + mediaHtml(p, locked) + (locked ? paywallHtml(p) : '') + '</div>' +
             '<div class="dd-top">' +
             '<button type="button" class="dd-close" id="ddClose" aria-label="关闭详情"><i class="fa-solid fa-arrow-left"></i></button>' +
             '<div class="dd-creator">' +
@@ -131,6 +252,7 @@
             '<button type="button" class="dd-rail-btn" data-dd-share><i class="fa-solid fa-share"></i><span>分享</span></button>' +
             '<button type="button" class="dd-rail-btn" data-dd-save><i class="fa-regular fa-bookmark"></i><span>收藏</span></button></aside>' +
             '<footer class="dd-bottom"><h1 class="dd-title">' + esc(p.title) + '</h1>' +
+            (locked ? excerptHtml(p) : '') +
             '<div class="dd-tags">' + buildTagsHtml(p) + '</div></footer>' +
             '<div class="dd-comments-backdrop"></div>' +
             '<aside class="dd-comments-panel" aria-label="评论">' +
@@ -142,11 +264,11 @@
             '<button type="button" id="ddSendComment" disabled>发送</button></div></aside>' +
             '<div class="dd-toast" id="ddToast" role="status"></div>';
 
-        bindStageEvents(p);
-        if (isVideoPost(p)) bindDetailVideo();
+        bindStageEvents(p, locked);
+        if (isVideoPost(p)) bindDetailVideo(locked);
     }
 
-    function bindStageEvents(p) {
+    function bindStageEvents(p, locked) {
         document.getElementById('ddClose').addEventListener('click', close);
         document.getElementById('ddFollow').addEventListener('click', function () {
             var btn = document.getElementById('ddFollow');
@@ -170,13 +292,27 @@
             icon.classList.toggle('fa-solid', btn.classList.contains('is-saved'));
             toast(btn.classList.contains('is-saved') ? '已加入收藏' : '已取消收藏');
         });
-        stage.querySelector('[data-dd-share]').addEventListener('click', function () {
-            toast('分享链接已复制（原型）');
-        });
+        stage.querySelector('[data-dd-share]').addEventListener('click', openShare);
         stage.querySelector('[data-dd-comment-open]').addEventListener('click', function () {
+            if (locked) {
+                toast('订阅或解锁后可评论');
+                return;
+            }
             stage.classList.add('dd-comments-open');
             document.getElementById('ddCommentInput').focus();
         });
+        stage.querySelectorAll('[data-dd-subscribe]').forEach(function (subBtn) {
+            subBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                openSubscribeFlow(p);
+            });
+        });
+        var ppvBtn = stage.querySelector('[data-dd-unlock-ppv]');
+        if (ppvBtn) {
+            ppvBtn.addEventListener('click', function () {
+                location.href = 'flow-unlock-paid.html';
+            });
+        }
         document.getElementById('ddCommentsClose').addEventListener('click', function () {
             stage.classList.remove('dd-comments-open');
         });
@@ -217,7 +353,7 @@
         toast('评论已发布');
     }
 
-    function bindDetailVideo() {
+    function bindDetailVideo(locked) {
         var video = stage.querySelector('video[data-dd-video]');
         if (!video) return;
         videoState.playing = true;
@@ -227,6 +363,16 @@
         var playBtn = stage.querySelector('[data-dd-action="toggle-play"]');
         var muteBtn = stage.querySelector('[data-dd-action="toggle-mute"]');
         var seekWrap = stage.querySelector('[data-dd-action="seek-wrap"]');
+
+        function onPreviewLimit() {
+            if (!locked) return;
+            if (video.currentTime >= PREVIEW_SEC) {
+                video.pause();
+                video.currentTime = PREVIEW_SEC;
+                setPlaying(false);
+                stage.classList.add('dd-preview-ended');
+            }
+        }
 
         function syncUi() {
             var cur = video.currentTime || 0;
@@ -263,21 +409,30 @@
             video.muted = videoState.muted;
             muteBtn.classList.toggle('is-muted', videoState.muted);
         });
-        seekWrap.addEventListener('click', function (e) {
-            e.stopPropagation();
-            var bar = stage.querySelector('[data-dd-action="seek"]');
-            var rect = bar.getBoundingClientRect();
-            var ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
-            var dur = video.duration && isFinite(video.duration) ? video.duration : 60;
-            video.currentTime = ratio * dur;
-            syncUi();
-        });
+        if (seekWrap) {
+            seekWrap.addEventListener('click', function (e) {
+                e.stopPropagation();
+                if (locked) {
+                    toast('订阅后可拖动完整进度');
+                    return;
+                }
+                var bar = stage.querySelector('[data-dd-action="seek"]');
+                var rect = bar.getBoundingClientRect();
+                var ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+                var dur = video.duration && isFinite(video.duration) ? video.duration : 60;
+                video.currentTime = ratio * dur;
+                syncUi();
+            });
+        }
         stage.querySelector('.dd-media').addEventListener('click', function (e) {
             if (e.target.closest('[data-disc-vp-controls], [data-dd-action], .dd-rail, .dd-top, .dd-bottom')) return;
             setPlaying(!videoState.playing);
         });
         video.addEventListener('loadedmetadata', syncUi);
-        video.addEventListener('timeupdate', syncUi);
+        video.addEventListener('timeupdate', function () {
+            syncUi();
+            onPreviewLimit();
+        });
         video.addEventListener('ended', function () { setPlaying(false); });
         setPlaying(true);
         syncUi();
@@ -299,6 +454,7 @@
         if (!ensureDom()) return;
 
         pauseGridVideo();
+        currentPostId = p.id;
         renderStage(p);
         stage.hidden = false;
         stage.classList.add('is-open');
@@ -316,10 +472,11 @@
         if (!stage) return;
         clearInterval(videoState.tick);
         stage.hidden = true;
-        stage.classList.remove('is-open', 'dd-comments-open', 'is-paused');
+        stage.classList.remove('is-open', 'dd-comments-open', 'is-paused', 'is-locked', 'dd-preview-ended');
         stage.setAttribute('aria-hidden', 'true');
         if (mainEl) mainEl.classList.remove('app-main--dd');
         document.body.classList.remove('disc-detail-open');
+        currentPostId = null;
         var params = new URLSearchParams(location.search);
         params.delete('post');
         var qs = params.toString();
@@ -373,12 +530,15 @@
 
     document.addEventListener('keydown', function (e) {
         if (e.key !== 'Escape' || !stage || stage.hidden) return;
+        if (isShareModalOpen() || isSubscribeModalOpen()) return;
         if (stage.classList.contains('dd-comments-open')) {
             stage.classList.remove('dd-comments-open');
         } else {
             close();
         }
     });
+
+    bindSubscribePaidListener();
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);

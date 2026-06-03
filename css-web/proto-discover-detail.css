@@ -246,11 +246,176 @@ body.disc-detail-open .disc-rules-fab {
     transition: background 0.15s;
 }
 .dd-tags .tg:hover { background: rgba(168,85,247,0.38); }
-.dd-tags .tg.premium {
-    background: linear-gradient(135deg, rgba(245,158,11,0.35), rgba(236,72,153,0.35));
-    border-color: rgba(236,72,153,0.5);
-    color: #fde68a;
+/* —— 付费 Teaser / 解锁墙 —— */
+.dd-media-split {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    overflow: hidden;
 }
+
+.dd-media-split .dd-media-clear,
+.dd-media-split .dd-media-blur {
+    flex: 1;
+    background-size: cover;
+    background-position: center;
+}
+
+.dd-media-split .dd-media-clear {
+    flex: 0 0 38%;
+    filter: saturate(1.05);
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.dd-media-split .dd-media-blur {
+    filter: blur(32px) brightness(0.72);
+    transform: scale(1.12);
+    transform-origin: left center;
+}
+
+.dd-media-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.dd-stage.is-locked.dd-preview-ended .dd-media video,
+.dd-stage.is-locked .dd-media video {
+    filter: blur(18px);
+}
+
+.dd-teaser-badge {
+    position: absolute;
+    top: 72px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 24;
+    padding: 8px 14px;
+    border-radius: var(--r-pill);
+    background: rgba(0, 0, 0, 0.62);
+    border: 1px solid rgba(251, 191, 36, 0.45);
+    color: #fde68a;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.dd-paywall {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -46%);
+    z-index: 32;
+    width: min(360px, calc(100% - 48px));
+    padding: 22px 20px;
+    text-align: center;
+    border-radius: var(--r-xl);
+    background: rgba(18, 18, 28, 0.82);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    pointer-events: auto;
+}
+
+.dd-paywall-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    background: var(--brand-grad);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.45);
+}
+
+.dd-paywall-tip {
+    font-size: 15px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 6px;
+}
+
+.dd-paywall-sub {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.72);
+    margin: 0 0 14px;
+    line-height: 1.5;
+}
+
+.dd-paywall-price {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.dd-paywall-price .amt {
+    font-size: 26px;
+    font-weight: 900;
+    background: var(--brand-grad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.dd-paywall-price .unit {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.dd-paywall-cta {
+    width: 100%;
+    height: 44px;
+    border: none;
+    border-radius: var(--r-pill);
+    background: var(--brand-grad);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 8px 22px rgba(168, 85, 247, 0.4);
+}
+
+.dd-paywall-cta:hover { filter: brightness(1.06); }
+
+.dd-paywall-ghost {
+    width: 100%;
+    margin-top: 8px;
+    height: 38px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--r-pill);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.dd-excerpt {
+    font-size: 13px;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.82);
+    margin: 0 0 10px;
+    max-width: 640px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
+}
+
+.dd-stage.is-locked .dd-rail-btn[data-dd-comment-open] { opacity: 0.55; }
 
 /* —— 视频控件（复用发现页语义，贴底） —— */
 .dd-stage .disc-vp {

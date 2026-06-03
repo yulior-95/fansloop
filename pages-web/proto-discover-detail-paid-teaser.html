@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>发现详情 · 付费 Teaser · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
+<link rel="stylesheet" href="../css-web/discover-video-player.css?v=2">
+<link rel="stylesheet" href="../css-web/proto-discover-detail.css">
+<link rel="stylesheet" href="../css-web/subscribe-modal.css">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <div class="s-item active"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-bottom">
+            <div class="s-user">
+                <div class="av" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info"><div class="n">Luna 🌙</div></div>
+            </div>
+        </div>
+    </aside>
+    <header class="app-header">
+        <div class="h-search h-search-unified"><div class="hs-inner"><i class="fa-solid fa-magnifying-glass"></i><input type="search" placeholder="搜索…" /></div></div>
+        <div class="h-actions"><button class="h-cta" type="button"><i class="fa-solid fa-bolt"></i>充值</button></div>
+    </header>
+    <main class="app-main app-main--dd">
+        <div class="dd-stage is-locked" id="ddStage" role="dialog" aria-modal="true" aria-label="付费内容预览">
+            <span class="dd-proto-badge">付费 Teaser · 订阅解锁</span>
+
+            <div class="dd-media">
+                <div class="dd-media-split" aria-hidden="true">
+                    <div class="dd-media-clear" style="background-image:url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=1600&q=85')"></div>
+                    <div class="dd-media-blur" style="background-image:url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=1600&q=85')"></div>
+                </div>
+                <div class="dd-paywall" role="dialog" aria-label="解锁内容">
+                    <div class="dd-paywall-icon"><i class="fa-solid fa-lock"></i></div>
+                    <p class="dd-paywall-tip">订阅后解锁全部专享内容</p>
+                    <p class="dd-paywall-sub">@lensjourney 另有 <b>18</b> 条专享内容</p>
+                    <div class="dd-paywall-price"><span class="amt">28</span><span class="unit">USDT / 月</span></div>
+                    <button type="button" class="dd-paywall-cta" data-dd-subscribe><i class="fa-solid fa-crown"></i> 立即订阅</button>
+                </div>
+            </div>
+
+            <div class="dd-top">
+                <button type="button" class="dd-close" id="ddClose" aria-label="关闭"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="dd-creator">
+                    <div class="av" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120')"></div>
+                    <div class="meta"><div class="n">Lens 旅记</div><div class="h">@lensjourney</div></div>
+                </div>
+                <button type="button" class="dd-follow" id="ddFollow"><i class="fa-solid fa-user-plus"></i></button>
+            </div>
+
+            <aside class="dd-rail">
+                <button type="button" class="dd-rail-btn" data-dd-like><i class="fa-regular fa-heart"></i><span>2.4k</span></button>
+                <button type="button" class="dd-rail-btn" data-dd-comment-open><i class="fa-regular fa-comment-dots"></i><span>312</span></button>
+                <button type="button" class="dd-rail-btn" data-dd-share><i class="fa-solid fa-share"></i><span>分享</span></button>
+                <button type="button" class="dd-rail-btn" data-dd-save><i class="fa-regular fa-bookmark"></i><span>收藏</span></button>
+            </aside>
+
+            <footer class="dd-bottom">
+                <h1 class="dd-title">京都樱花季隐秘机位 · 18 张原图</h1>
+                <p class="dd-excerpt">清晨 6 点无人小路机位，附 18 张 RAW 与拍摄参数。订阅解锁完整图集与路线坐标。</p>
+                <div class="dd-tags">
+                    <span class="tg">#京都</span>
+                    <span class="tg">#樱花</span>
+                    <span class="tg">#摄影</span>
+                </div>
+            </footer>
+
+            <div class="dd-toast" id="ddToast"></div>
+        </div>
+    </main>
+</div>
+<div class="inline-overlay" id="ovlSubscribe" aria-hidden="true">
+    <div class="iol-panel">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-crown" style="color:var(--brand-purple)"></i> <span id="subModalTitle">订阅创作者</span></h3>
+            <button type="button" class="iol-close" id="closeSubscribe" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="sub-modal-step active" id="subStep1">
+            <div class="sub-creator">
+                <div class="av av-sm" id="subCreatorAv" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100')"></div>
+                <div>
+                    <div style="font-size:13px;font-weight:700" id="subCreatorName">Lens 旅记</div>
+                    <div style="font-size:11px;color:var(--t-tertiary)" id="subCreatorHint">订阅后可解锁专属内容与直播回放</div>
+                </div>
+            </div>
+            <div class="sub-balance-bar" id="subBalanceBar"><span><i class="fa-solid fa-wallet"></i> 钱包可用余额</span><b id="subBalanceVal">— USDT</b></div>
+            <div class="sub-plan-list">
+                <button type="button" class="sub-plan active" data-price="28"><span><div class="p1">月度计划</div><div class="p2">可随时取消</div></span><span class="price">28 USDT</span></button>
+                <button type="button" class="sub-plan" data-price="42"><span><div class="p1">季度计划</div><div class="p2">节省 12%</div></span><span class="price">42 USDT</span></button>
+                <button type="button" class="sub-plan" data-price="150"><span><div class="p1">年度计划</div><div class="p2">含专属徽章</div></span><span class="price">150 USDT</span></button>
+            </div>
+            <button type="button" class="btn btn-primary btn-block" id="btnConfirmSubscribe"><i class="fa-solid fa-bolt"></i> 确认订阅并支付</button>
+        </div>
+        <div class="sub-modal-step" id="subStepRecharge">
+            <div class="sub-recharge-hint"><i class="fa-solid fa-circle-exclamation"></i> 余额不足，需充值 <b id="subRechargeNeed">—</b> USDT</div>
+            <div class="sub-pay-summary">
+                <div class="row"><span>当前余额</span><span class="v" id="subRechargeBalNow">—</span></div>
+                <div class="row"><span>订阅应付</span><span class="v" id="subRechargePayDue">—</span></div>
+            </div>
+            <div class="sub-recharge-amt-grid">
+                <button type="button" class="sub-recharge-amt" data-amt="50">50 USDT</button>
+                <button type="button" class="sub-recharge-amt active" data-amt="100">100 USDT</button>
+                <button type="button" class="sub-recharge-amt" data-amt="200">200 USDT</button>
+            </div>
+            <div class="sub-step-actions">
+                <button type="button" class="btn btn-secondary" id="btnSubRechargeBack">返回</button>
+                <button type="button" class="btn btn-primary" id="btnSubRechargeConfirm"><i class="fa-solid fa-bolt"></i> 确认充值</button>
+            </div>
+            <button type="button" class="btn btn-secondary btn-block btn-sm" id="btnSubGoRecharge" style="margin-top:8px">前往充值页</button>
+        </div>
+        <div class="sub-modal-step" id="subStepPayPwd">
+            <div class="sub-pay-summary">
+                <div class="row"><span>订阅创作者</span><span class="v" id="subPayCreator">—</span></div>
+                <div class="row"><span>支付金额</span><span class="v" id="subPayAmount">— USDT</span></div>
+                <div class="row"><span>扣款后余额</span><span class="v" id="subPayAfterBal">— USDT</span></div>
+            </div>
+            <div class="sub-pwd-input" id="subPwdDots"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+            <div class="sub-pwd-pad" id="subPwdPad">
+                <button type="button" data-digit="1">1</button><button type="button" data-digit="2">2</button><button type="button" data-digit="3">3</button>
+                <button type="button" data-digit="4">4</button><button type="button" data-digit="5">5</button><button type="button" data-digit="6">6</button>
+                <button type="button" data-digit="7">7</button><button type="button" data-digit="8">8</button><button type="button" data-digit="9">9</button>
+                <button type="button" data-action="clear"><i class="fa-solid fa-delete-left"></i></button>
+                <button type="button" data-digit="0">0</button>
+                <button type="button" data-action="submit"><i class="fa-solid fa-check"></i></button>
+            </div>
+            <div class="sub-step-actions"><button type="button" class="btn btn-secondary" id="btnSubPwdBack">上一步</button></div>
+        </div>
+        <div class="sub-modal-step" id="subStep2">
+            <div class="sub-result"><i class="fa-solid fa-circle-check"></i><h4>订阅成功</h4><p id="subResultText">—</p></div>
+            <button type="button" class="btn btn-primary btn-block mt-16" id="btnDoneSubscribe">完成</button>
+        </div>
+    </div>
+</div>
+<div id="subToastHost" aria-live="polite" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9500;pointer-events:none"></div>
+<div id="flStandaloneModalRoot" class="fl-modal--default" aria-hidden="true" style="display:none;position:fixed;inset:0;z-index:99999;align-items:center;justify-content:center;padding:clamp(12px,3vw,24px);background:rgba(0,0,0,0.58);backdrop-filter:blur(10px);">
+    <iframe title="FansLoop 弹窗" style="width:min(600px,calc(100vw - 32px));height:min(880px,calc(100vh - 32px));border:none;border-radius:var(--r-xl);background:transparent;box-shadow:0 28px 70px rgba(0,0,0,0.5);pointer-events:auto;"></iframe>
+</div>
+<script src="../js-web/live-wallet-store.js"></script>
+<script src="../js-web/subscribe-modal.js"></script>
+<script src="../js-web/fl-interaction-modal.js"></script>
+<script src="../js-web/proto-discover-detail.js"></script>
+<script>
+document.querySelector('[data-dd-subscribe]')?.addEventListener('click', function (e) {
+    e.stopPropagation();
+    if (window.FL_openSubscribeForCreator) {
+        FL_openSubscribeForCreator({
+            creator: 'Lens 旅记',
+            price: 28,
+            av: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200'
+        });
+    }
+});
+document.querySelector('[data-dd-comment-open]')?.addEventListener('click', function () {
+    var t = document.getElementById('ddToast');
+    if (t) { t.textContent = '订阅或解锁后可评论'; t.classList.add('show'); setTimeout(function () { t.classList.remove('show'); }, 2200); }
+});
+try {
+    localStorage.setItem('fl_disc_mock_subs', JSON.stringify([]));
+} catch (e) {}
+document.addEventListener('fl-subscribe-paid', function () {
+    try { localStorage.setItem('fl_disc_mock_subs', JSON.stringify(['c_lens'])); } catch (e) {}
+    var stage = document.getElementById('ddStage');
+    if (!stage) return;
+    stage.classList.remove('is-locked');
+    stage.querySelector('.dd-paywall')?.remove();
+    stage.querySelector('.dd-media-split')?.remove();
+    var media = stage.querySelector('.dd-media');
+    if (media && !media.querySelector('img:not(.dd-media-sr)')) {
+        var img = document.createElement('img');
+        img.src = 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=1600&q=85';
+        img.alt = '京都樱花季';
+        media.insertBefore(img, media.firstChild);
+    }
+    if (window.FL_closeSubscribeModal) FL_closeSubscribeModal();
+    var t = document.getElementById('ddToast');
+    if (t) { t.textContent = '订阅成功，已解锁完整内容'; t.classList.add('show'); setTimeout(function () { t.classList.remove('show'); }, 2200); }
+});
+</script>
+</body>
+</html>

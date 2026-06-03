@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../css-web/discover-v2.css">
 <link rel="stylesheet" href="../css-web/discover-video-player.css?v=2">
 <link rel="stylesheet" href="../css-web/proto-discover-detail.css">
+<link rel="stylesheet" href="../css-web/subscribe-modal.css">
 <link rel="stylesheet" href="../css-web/dev-glass-note.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
 </head>
@@ -78,34 +79,118 @@
     </main>
 </div>
 
+<!-- 订阅弹层 · 与 home / profile 共用 subscribe-modal.js -->
+<div class="inline-overlay" id="ovlSubscribe" aria-hidden="true">
+    <div class="iol-panel">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-crown" style="color:var(--brand-purple)"></i> <span id="subModalTitle">订阅创作者</span></h3>
+            <button type="button" class="iol-close" id="closeSubscribe" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="sub-modal-step active" id="subStep1">
+            <div class="sub-creator">
+                <div class="av av-sm" id="subCreatorAv" style="background-image:url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100')"></div>
+                <div>
+                    <div style="font-size:13px;font-weight:700" id="subCreatorName">—</div>
+                    <div style="font-size:11px;color:var(--t-tertiary)" id="subCreatorHint">订阅后可解锁专属内容与直播回放</div>
+                </div>
+            </div>
+            <div class="sub-balance-bar" id="subBalanceBar"><span><i class="fa-solid fa-wallet"></i> 钱包可用余额</span><b id="subBalanceVal">— USDT</b></div>
+            <div class="sub-plan-list">
+                <button type="button" class="sub-plan active" data-price="28"><span><div class="p1">月度计划</div><div class="p2">可随时取消</div></span><span class="price">28 USDT</span></button>
+                <button type="button" class="sub-plan" data-price="42"><span><div class="p1">季度计划</div><div class="p2">节省 12%</div></span><span class="price">42 USDT</span></button>
+                <button type="button" class="sub-plan" data-price="150"><span><div class="p1">年度计划</div><div class="p2">含专属徽章</div></span><span class="price">150 USDT</span></button>
+            </div>
+            <p style="font-size:11px;color:var(--t-tertiary);margin:0 0 12px;line-height:1.45">支付将从钱包 USDT 余额扣除；余额不足将引导充值。</p>
+            <button type="button" class="btn btn-primary btn-block" id="btnConfirmSubscribe"><i class="fa-solid fa-bolt"></i> 确认订阅并支付</button>
+        </div>
+        <div class="sub-modal-step" id="subStepRecharge">
+            <div class="sub-recharge-hint"><i class="fa-solid fa-circle-exclamation"></i> 余额不足，需充值 <b id="subRechargeNeed">—</b> USDT</div>
+            <div class="sub-pay-summary">
+                <div class="row"><span>当前余额</span><span class="v" id="subRechargeBalNow">—</span></div>
+                <div class="row"><span>订阅应付</span><span class="v" id="subRechargePayDue">—</span></div>
+            </div>
+            <div class="sub-recharge-amt-grid">
+                <button type="button" class="sub-recharge-amt" data-amt="50">50 USDT</button>
+                <button type="button" class="sub-recharge-amt active" data-amt="100">100 USDT</button>
+                <button type="button" class="sub-recharge-amt" data-amt="200">200 USDT</button>
+            </div>
+            <p style="font-size:11px;color:var(--t-tertiary);line-height:1.45;margin-bottom:12px"><i class="fa-solid fa-shield-halved"></i> 原型演示：确认充值即入账。</p>
+            <div class="sub-step-actions">
+                <button type="button" class="btn btn-secondary" id="btnSubRechargeBack">返回</button>
+                <button type="button" class="btn btn-primary" id="btnSubRechargeConfirm"><i class="fa-solid fa-bolt"></i> 确认充值</button>
+            </div>
+            <button type="button" class="btn btn-secondary btn-block btn-sm" id="btnSubGoRecharge" style="margin-top:8px"><i class="fa-solid fa-arrow-up-right-from-square"></i> 前往充值页</button>
+        </div>
+        <div class="sub-modal-step" id="subStepPayPwd">
+            <div class="sub-pay-summary">
+                <div class="row"><span>订阅创作者</span><span class="v" id="subPayCreator">—</span></div>
+                <div class="row"><span>支付金额</span><span class="v" id="subPayAmount">— USDT</span></div>
+                <div class="row"><span>扣款后余额</span><span class="v" id="subPayAfterBal">— USDT</span></div>
+            </div>
+            <div class="sub-pwd-stage">
+                <div class="ic-wrap"><i class="fa-solid fa-lock"></i></div>
+                <h4 style="font-size:15px;font-weight:800;margin-bottom:4px">请输入支付密码</h4>
+                <p style="font-size:11px;color:var(--t-tertiary)">6 位资金密码 · 演示密码 123456</p>
+            </div>
+            <div class="sub-pwd-input" id="subPwdDots" aria-hidden="true">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            </div>
+            <div class="sub-pwd-pad" id="subPwdPad">
+                <button type="button" data-digit="1">1</button><button type="button" data-digit="2">2</button><button type="button" data-digit="3">3</button>
+                <button type="button" data-digit="4">4</button><button type="button" data-digit="5">5</button><button type="button" data-digit="6">6</button>
+                <button type="button" data-digit="7">7</button><button type="button" data-digit="8">8</button><button type="button" data-digit="9">9</button>
+                <button type="button" data-action="clear"><i class="fa-solid fa-delete-left"></i></button>
+                <button type="button" data-digit="0">0</button>
+                <button type="button" data-action="submit"><i class="fa-solid fa-check"></i></button>
+            </div>
+            <div class="sub-step-actions">
+                <button type="button" class="btn btn-secondary" id="btnSubPwdBack">上一步</button>
+            </div>
+        </div>
+        <div class="sub-modal-step" id="subStep2">
+            <div class="sub-result"><i class="fa-solid fa-circle-check"></i><h4>订阅成功</h4><p id="subResultText">你已成功订阅该创作者，专属内容已解锁。</p></div>
+            <button type="button" class="btn btn-primary btn-block mt-16" id="btnDoneSubscribe">完成</button>
+        </div>
+    </div>
+</div>
+<div id="subToastHost" aria-live="polite" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9500;pointer-events:none"></div>
+
+<div id="flStandaloneModalRoot" class="fl-modal--default" aria-hidden="true" style="display:none;position:fixed;inset:0;z-index:99999;align-items:center;justify-content:center;padding:clamp(12px,3vw,24px);background:rgba(0,0,0,0.58);backdrop-filter:blur(10px);">
+    <iframe title="FansLoop 弹窗" style="width:min(600px,calc(100vw - 32px));height:min(880px,calc(100vh - 32px));border:none;border-radius:var(--r-xl);background:transparent;box-shadow:0 28px 70px rgba(0,0,0,0.5);pointer-events:auto;"></iframe>
+</div>
+
 <div class="disc-rules-fab" aria-label="研发规则说明">
-    <span class="dev-glass-wrap dev-glass-wrap--disc dev-glass-wrap--pop-left">
-        <span class="dev-glass-sphere" tabindex="0" aria-describedby="discGlassClassify">
-            <span class="dev-glass-sphere-shine"></span>
-            <span class="dev-glass-sphere-txt">划分</span>
-        </span>
-        <span class="dev-glass-pop" id="discGlassClassify" role="tooltip">
-            <strong>内容归类（划分规则）</strong>
-            <ol>
-                <li>发布主垂类 → primary_category</li>
-                <li>#话题 映射 hashtag_map</li>
-                <li>多标签存储，频道按 primary 筛</li>
-                <li>卡片不展示垂类（避免误导）</li>
-            </ol>
-        </span>
-    </span>
     <span class="dev-glass-wrap dev-glass-wrap--disc dev-glass-wrap--pop-left">
         <span class="dev-glass-sphere" tabindex="0" aria-describedby="discGlassRecommend">
             <span class="dev-glass-sphere-shine"></span>
             <span class="dev-glass-sphere-txt">推荐</span>
         </span>
         <span class="dev-glass-pop" id="discGlassRecommend" role="tooltip">
-            <strong>发现页推荐规则</strong>
+            <strong>发现页推荐规则（登录用户）</strong>
             <ol>
-                <li>首条 3×2 大卡 = 频道置顶视频</li>
-                <li>其余 4 列按热度+新鲜度</li>
-                <li>兴趣×标签个性化 + 小流量试推</li>
-                <li>详见 docs/discover-taxonomy-spec.md</li>
+                <li>频道筛选：primary_category = 当前 Tab</li>
+                <li>排序分 = 点赞 + 评论×2 + 置顶加权</li>
+                <li>付费 Teaser（未订阅）：排序分 × 0.55 降权</li>
+                <li>首条 3×2 大卡优先免费/已订阅内容</li>
+                <li>兴趣向量 × 标签 + 小流量试推（完播/互动/负反馈）</li>
+            </ol>
+        </span>
+    </span>
+    <span class="dev-glass-wrap dev-glass-wrap--disc dev-glass-wrap--pop-left">
+        <span class="dev-glass-sphere" tabindex="0" aria-describedby="discGlassDisplay">
+            <span class="dev-glass-sphere-shine"></span>
+            <span class="dev-glass-sphere-txt">展示</span>
+        </span>
+        <span class="dev-glass-pop dev-glass-pop--wide" id="discGlassDisplay" role="tooltip">
+            <strong>发现页展示与访问（OnlyFans 公域逻辑）</strong>
+            <p style="margin:6px 0 8px;font-size:11px;opacity:0.9">游客 <code>?guest=1</code> · 登录 <code>discover.html</code></p>
+            <ol>
+                <li><b>游客</b>：仅 5 条免费内容，无付费卡片</li>
+                <li><b>登录</b>：免费 + 付费均可推荐；网格仅角标「订阅专享」，无列表预览</li>
+                <li><b>免费详情</b>：点击即全屏完整观看</li>
+                <li><b>付费详情</b>：进入后 Teaser（图文模糊 / 视频前 12 秒 + 订阅墙 + 摘要）</li>
+                <li><b>已订阅</b>：同帖完整播放，消费入口在订阅页「付费独享」</li>
             </ol>
         </span>
     </span>
@@ -113,10 +198,14 @@
 
 <link rel="stylesheet" href="../css-web/host-live-pip-global.css">
 <script src="../js-web/host-live-pip-global.js"></script>
-<script src="../js-web/discover-taxonomy.js?v=3"></script>
+<script src="../js-web/discover-taxonomy.js?v=4"></script>
+<script src="../js-web/discover-access.js"></script>
 <script src="../js-web/discover-video-player.js?v=3"></script>
-<script src="../js-web/discover-page.js?v=4"></script>
-<script src="../js-web/discover-detail.js?v=3"></script>
+<script src="../js-web/discover-page.js?v=7"></script>
+<script src="../js-web/live-wallet-store.js"></script>
+<script src="../js-web/subscribe-modal.js"></script>
+<script src="../js-web/discover-detail.js?v=6"></script>
+<script src="../js-web/fl-interaction-modal.js"></script>
 <script src="../js-web/dev-glass-viewport.js"></script>
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>
