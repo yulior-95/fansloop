@@ -157,11 +157,13 @@ main.content { padding: 28px 24px 48px; }
         <a href="#appeal"><i class="fa-solid fa-gavel"></i>申诉</a>
         <a href="#kyc"><i class="fa-solid fa-id-card"></i>KYC / 提现门槛</a>
         <a href="#live-danmaku"><i class="fa-solid fa-tower-broadcast"></i>直播弹幕设置</a>
+        <a href="#global-accessibility"><i class="fa-solid fa-earth-americas"></i>跨国界无障碍</a>
         <div class="sec">内容</div>
         <a href="index-profile-works.html"><i class="fa-solid fa-user"></i>个人主页作品</a>
         <a href="#profile-works"><i class="fa-solid fa-table-cells"></i>作品 Tab（本页）</a>
         <a href="#profile-social"><i class="fa-solid fa-users"></i>社交列表</a>
         <a href="#profile-share"><i class="fa-solid fa-share-nodes"></i>分享海报</a>
+        <a href="#invite-referral"><i class="fa-solid fa-user-group"></i>邀请拉新</a>
         <a href="#profile-creator"><i class="fa-solid fa-certificate"></i>创作者认证</a>
         <div class="sec">资产</div>
         <a href="pages-web/transactions.html" target="_blank"><i class="fa-solid fa-list-ul"></i>账变记录</a>
@@ -233,18 +235,28 @@ main.content { padding: 28px 24px 48px; }
         </section>
 
         <section class="block" id="messages-im">
-            <h2><i class="fa-regular fa-comments"></i>私信 IM · 粉丝群私域（高保真可开发原型）</h2>
+            <h2><i class="fa-regular fa-comments"></i>私信 IM · 互关规则优化（高保真可开发原型）</h2>
             <p class="lead">
-                <strong>1. 用户体验分析：</strong>私聊轻量对话；群聊私域运营含成员/管理员/公告/禁言/转让/解散/退出；通知汇总收件箱处理高热申请；快捷操作与群管理均在当前页完成。
-                <strong>2. 产品界面设计：</strong>群聊顶部强展示群公告；「群管理」侧栏分概览/成员/管理员/公告/危险操作；群主退出须先转让；聊天输入区暂不展示打赏。
-                <strong>3. 高保真 UI：</strong>Web Header + Sidebar + 三栏布局；Unsplash 真实头像；页内抽屉与居中确认弹窗；分享作品、用户详情侧栏。
+                <strong>1. 用户体验分析：</strong>取消添加好友与通讯录；私聊仅互关好友可自由会话；非互关用户从主页发首条私信（限 1 条），对方回复或互关后解锁；建群/拉人仅从互关列表选人；群聊私域运营不变。
+                <strong>2. 产品界面设计：</strong>新建私聊/建群/添加群成员统一互关数据源；「私信请求」收件箱替代好友申请；非互关会话展示输入锁定条 + 系统提示气泡。
+                <strong>3. 高保真 UI：</strong>Web Header + Sidebar + 三栏布局；玻璃体「To 研发」批注标注 5 条规则与接口约定；Unsplash 真实头像。
                 <strong>4. HTML 实现：</strong><code>messages.html</code> 为主；<code>index.html</code> iframe 平铺各状态深链，可直接交付开发。
             </p>
             <div class="grid">
                 <div class="tile">
-                    <div class="th">messages.html（主 IM · 可发送） <a href="pages-web/messages.html" target="_blank">新窗口</a></div>
+                    <div class="th">messages.html（主 IM · 互关会话） <a href="pages-web/messages.html" target="_blank">新窗口</a></div>
                     <div class="tb" style="height:720px"><iframe src="pages-web/messages.html" title="私信 IM" loading="lazy"></iframe></div>
-                    <div class="tf">汇总入口 · 页内新建私聊/通讯录/建群 · 会话右键删除 · 无「最近聊天」分区标题。</div>
+                    <div class="tf">汇总入口 · 新建私聊/建群（无通讯录）· 标题旁玻璃体批注 5 条规则 · 会话右键删除。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages.html?peer=胶片爱好者（非互关 · 输入锁定） <a href="pages-web/messages.html?peer=%E8%83%B6%E7%89%87%E7%88%B1%E5%A5%BD%E8%80%85" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/messages.html?peer=%E8%83%B6%E7%89%87%E7%88%B1%E5%A5%BD%E8%80%85" title="非互关锁定" loading="lazy"></iframe></div>
+                    <div class="tf">首条私信已发 · 输入区锁定 · 系统提示气泡 · 解锁条件：对方回复或互关。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages.html?inbox=stranger（私信请求收件箱） <a href="pages-web/messages.html?inbox=stranger" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/messages.html?inbox=stranger" title="私信请求" loading="lazy"></iframe></div>
+                    <div class="tf">陌生人私信汇总 · 已取消好友申请 · 接受/拒绝/批量处理。</div>
                 </div>
                 <div class="tile">
                     <div class="th">messages.html?inbox=group（群聊通知收件箱） <a href="pages-web/messages.html?inbox=group" target="_blank">新窗口</a></div>
@@ -252,24 +264,19 @@ main.content { padding: 28px 24px 48px; }
                     <div class="tf">列表内同意/拒绝 · 全局拒绝（开启自动拒邀请演示）· 全高列表。</div>
                 </div>
                 <div class="tile">
-                    <div class="th">messages.html?panel=compose（页内新建私聊） <a href="pages-web/messages.html?panel=compose" target="_blank">新窗口</a></div>
+                    <div class="th">messages.html?panel=compose（页内新建私聊 · 互关） <a href="pages-web/messages.html?panel=compose" target="_blank">新窗口</a></div>
                     <div class="tb" style="height:720px"><iframe src="pages-web/messages.html?panel=compose" title="新建私聊" loading="lazy"></iframe></div>
-                    <div class="tf">右侧抽屉选人 · 不跳转独立页 · 私聊图标 <code>fa-message</code>。</div>
+                    <div class="tf">右侧抽屉 · 仅互关好友列表 · 玻璃体批注 API 约定。</div>
                 </div>
                 <div class="tile">
-                    <div class="th">messages.html?panel=contacts（页内通讯录） <a href="pages-web/messages.html?panel=contacts" target="_blank">新窗口</a></div>
-                    <div class="tb" style="height:720px"><iframe src="pages-web/messages.html?panel=contacts" title="通讯录" loading="lazy"></iframe></div>
-                    <div class="tf">群聊/好友 Tab · 字母索引 · 点击在当前页打开会话。</div>
-                </div>
-                <div class="tile">
-                    <div class="th">messages.html?panel=group-create（页内建群） <a href="pages-web/messages.html?panel=group-create" target="_blank">新窗口</a></div>
+                    <div class="th">messages.html?panel=group-create（页内建群 · 互关） <a href="pages-web/messages.html?panel=group-create" target="_blank">新窗口</a></div>
                     <div class="tb" style="height:720px"><iframe src="pages-web/messages.html?panel=group-create" title="创建群聊" loading="lazy"></iframe></div>
-                    <div class="tf">群信息 + 多选粉丝 · 创建后进入新群会话。</div>
+                    <div class="tf">群信息 + 多选互关好友 · 创建后进入新群会话。</div>
                 </div>
                 <div class="tile">
-                    <div class="th">messages.html?tab=group&panel=group-manage（群管理） <a href="pages-web/messages.html?tab=group&panel=group-manage" target="_blank">新窗口</a></div>
+                    <div class="th">messages.html?tab=group&panel=group-manage（群管理 · 互关拉人） <a href="pages-web/messages.html?tab=group&panel=group-manage" target="_blank">新窗口</a></div>
                     <div class="tb" style="height:720px"><iframe src="pages-web/messages.html?tab=group&panel=group-manage" title="群管理" loading="lazy"></iframe></div>
-                    <div class="tf">私聊更多/详情侧栏「删除好友」· 与 profile 关注/粉丝列表同步（localStorage）。</div>
+                    <div class="tf">添加群成员从互关列表 · 过滤已在群成员 · 公告/禁言/转让/解散。</div>
                 </div>
                 <div class="tile">
                     <div class="th">messages-group-settings.html（群权限说明） <a href="pages-web/messages-group-settings.html" target="_blank">新窗口</a></div>
@@ -277,14 +284,14 @@ main.content { padding: 28px 24px 48px; }
                     <div class="tf">群主/管理员/成员权限对照表 · 链回 IM 群管理。</div>
                 </div>
                 <div class="tile">
-                    <div class="th">messages-friend-notifications.html（好友通知全量） <a href="pages-web/messages-friend-notifications.html" target="_blank">新窗口</a></div>
-                    <div class="tb" style="height:680px"><iframe src="pages-web/messages-friend-notifications.html" title="好友通知" loading="lazy"></iframe></div>
-                    <div class="tf">好友申请 / 陌生人私信 Tab 分离 · 顶部搜索。</div>
+                    <div class="th">messages-friend-notifications.html（私信请求全量） <a href="pages-web/messages-friend-notifications.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:680px"><iframe src="pages-web/messages-friend-notifications.html" title="私信请求" loading="lazy"></iframe></div>
+                    <div class="tf">陌生人私信全量列表 · 已取消好友申请 Tab · 玻璃体批注。</div>
                 </div>
                 <div class="tile">
-                    <div class="th">messages-contacts.html（通讯录） <a href="pages-web/messages-contacts.html" target="_blank">新窗口</a></div>
-                    <div class="tb" style="height:720px"><iframe src="pages-web/messages-contacts.html" title="通讯录" loading="lazy"></iframe></div>
-                    <div class="tf">群聊 / 好友分 Tab · 顶部搜索 · 字母分组排序。</div>
+                    <div class="th">messages-contacts.html（通讯录已下线） <a href="pages-web/messages-contacts.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:400px"><iframe src="pages-web/messages-contacts.html" title="通讯录下线" loading="lazy"></iframe></div>
+                    <div class="tf">功能已取消 · 引导返回消息页 · 互关列表替代通讯录。</div>
                 </div>
                 <div class="tile">
                     <div class="th">messages.html?share=open（分享作品弹窗） <a href="pages-web/messages.html?share=open" target="_blank">新窗口</a></div>
@@ -334,7 +341,7 @@ main.content { padding: 28px 24px 48px; }
                 <div class="tile">
                     <div class="th">messages-compose.html <a href="pages-web/messages-compose.html" target="_blank">新窗口</a></div>
                     <div class="tb" style="height:520px"><iframe src="pages-web/messages-compose.html" title="新建私信" loading="lazy"></iframe></div>
-                    <div class="tf">选择关注的人发起私信。</div>
+                    <div class="tf">仅互关好友 · 玻璃体批注 · 跳转 messages?peer=。</div>
                 </div>
                 <div class="tile">
                     <div class="th">pages/messages.html（移动收件箱） <a href="pages/messages.html" target="_blank">新窗口</a></div>
@@ -659,6 +666,68 @@ main.content { padding: 28px 24px 48px; }
             </div>
         </section>
 
+        <section class="block" id="invite-referral">
+            <h2><i class="fa-solid fa-user-group"></i>邀请拉新 · 注册绑定与数据中心</h2>
+            <p class="lead">
+                <strong>用户体验分析：</strong>邀请人需要「分享—追踪—兑现」闭环；被邀请人需要「选填码—确认不可反悔—看到奖励」；平台需用额度条表达「邀请不限、奖励有上限」。<br>
+                <strong>产品界面设计：</strong>注册邮箱流增加选填邀请码 + 二次确认弹窗；邀请人在<strong>我的主页</strong>内切换主内容区查看邀请数据（侧栏不增菜单）；被邀请人只读「我的邀请人」。<br>
+                <strong>高保真 UI：</strong>标准 Web Header + Sidebar + Main；真实头像（Unsplash/Pexels）；奖励额度进度条与明细表可直接映射 API。<br>
+                <strong>配置：</strong><code>js-web/invite-reward-config.js</code> mock 后台 <code>GET /api/v1/invite/reward-config</code>。
+            </p>
+            <div class="grid">
+                <div class="tile">
+                    <div class="th">modal-login-main.html?tab=email&amp;mode=register <a href="pages-web/modal-login-main.html?tab=email&mode=register" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/modal-login-main.html?tab=email&mode=register" title="登录注册一体·邮箱注册" loading="lazy"></iframe></div>
+                    <div class="tf">同一弹窗 · 登录/注册切换 · 注册区邀请码选填 + 实时校验</div>
+                </div>
+                <div class="tile">
+                    <div class="th">modal-login-main.html?tab=email&amp;mode=register&amp;ref=LUNA-8K3F</div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/modal-login-main.html?tab=email&mode=register&ref=LUNA-8K3F" title="带 ref 预填" loading="lazy"></iframe></div>
+                    <div class="tf">分享链接 ref 自动填入邀请码</div>
+                </div>
+                <div class="tile">
+                    <div class="th">modal-login-main.html?tab=wallet&amp;mode=register</div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/modal-login-main.html?tab=wallet&mode=register" title="钱包注册邀请码" loading="lazy"></iframe></div>
+                    <div class="tf">钱包 Tab · 注册子模式 · 首屏即显示邀请码（选填）</div>
+                </div>
+                <div class="tile">
+                    <div class="th">modal-login-main.html?tab=wallet&amp;mode=register&amp;ref=LUNA-8K3F</div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/modal-login-main.html?tab=wallet&mode=register&ref=LUNA-8K3F" title="钱包注册 ref" loading="lazy"></iframe></div>
+                    <div class="tf">分享 ref 预填 · 签名步展示已填邀请码</div>
+                </div>
+                <div class="tile">
+                    <div class="th">modal-invite-bind-confirm.html</div>
+                    <div class="tb" style="height:620px"><iframe src="pages-web/modal-invite-bind-confirm.html" title="确认永久关联" loading="lazy"></iframe></div>
+                    <div class="tf">注册前二次确认 · 关联不可取消</div>
+                </div>
+                <div class="tile">
+                    <div class="th">onboarding-profile-complete.html?invite=bound</div>
+                    <div class="tb" style="height:640px"><iframe src="pages-web/onboarding-profile-complete.html?source=email&invite=bound" title="注册后完善资料" loading="lazy"></iframe></div>
+                    <div class="tf">绑定成功横幅 · 奖励已发放提示</div>
+                </div>
+                <div class="tile">
+                    <div class="th">profile.html?view=invite <a href="pages-web/profile.html?view=invite" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:760px"><iframe src="pages-web/profile.html?view=invite" title="我的主页·邀请数据" loading="lazy"></iframe></div>
+                    <div class="tf">侧栏仍为「我的主页」· 主内容区切换邀请数据 · 无单独菜单项</div>
+                </div>
+                <div class="tile">
+                    <div class="th">profile.html?view=invite&amp;tab=rewards</div>
+                    <div class="tb" style="height:760px"><iframe src="pages-web/profile.html?view=invite&tab=rewards" title="奖励明细 Tab" loading="lazy"></iframe></div>
+                    <div class="tf">每一笔邀请奖励 · 达上限标记</div>
+                </div>
+                <div class="tile">
+                    <div class="th">settings-invite-relation.html</div>
+                    <div class="tb" style="height:680px"><iframe src="pages-web/settings-invite-relation.html" title="我的邀请人" loading="lazy"></iframe></div>
+                    <div class="tf">被邀请人视角 · 只读永久关联</div>
+                </div>
+                <div class="tile">
+                    <div class="th">settings.html · 入口</div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/settings.html" title="设置入口" loading="lazy"></iframe></div>
+                    <div class="tf">账户资料区 · 邀请数据 / 我的邀请人</div>
+                </div>
+            </div>
+        </section>
+
         <section class="block" id="profile-social">
             <h2><i class="fa-solid fa-users"></i>个人主页 · 粉丝 / 关注 / 订阅者</h2>
             <p class="lead">
@@ -745,6 +814,31 @@ main.content { padding: 28px 24px 48px; }
                     <div class="th">live-pip-global.html?role=viewer（全局悬浮窗） <a href="pages-web/live-pip-global.html?role=viewer" target="_blank">新窗口</a></div>
                     <div class="tb" style="height:340px"><iframe src="pages-web/live-pip-global.html?role=viewer" title="全局悬浮窗" loading="lazy"></iframe></div>
                     <div class="tf">支持观众/主播来源判定；回到页面按角色路由，观众额外支持“退出直播”。</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="block" id="global-accessibility">
+            <h2><i class="fa-solid fa-earth-americas"></i>跨国界无障碍（独立原型 · 不改现有直播/私信页）</h2>
+            <p class="lead">
+                <strong>用户体验：</strong>界面语言（外观）与内容翻译分离；观看直播自动译弹幕/字幕，聊天双向译且可发送前预览。<br>
+                <strong>实现：</strong>新增 <code>settings-global-access.html</code>、<code>live-translate-demo.html</code>、<code>messages-translate-demo.html</code>；配置写入 <code>fl_global_accessibility_v1</code>。PRD 见 <code>docs/Global-Accessibility-Spec.md</code>。
+            </p>
+            <div class="grid">
+                <div class="tile">
+                    <div class="th">settings-display.html#ga-global-access <a href="pages-web/settings-display.html#ga-global-access" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/settings-display.html#ga-global-access" title="跨国界无障碍设置" loading="lazy"></iframe></div>
+                    <div class="tf">已合并至「外观与语言」页 · 界面语言卡片之后 · 侧栏「跨国界无障碍」可直达。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">live-translate-demo.html <a href="pages-web/live-translate-demo.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:760px"><iframe src="pages-web/live-translate-demo.html" title="直播翻译演示" loading="lazy"></iframe></div>
+                    <div class="tf">播放器「译」+ 无障碍侧滑 · 弹幕双语 · 底部实时字幕演示。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">messages-translate-demo.html <a href="pages-web/messages-translate-demo.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:640px"><iframe src="pages-web/messages-translate-demo.html" title="私信翻译演示" loading="lazy"></iframe></div>
+                    <div class="tf">顶栏无障碍条 · 气泡译文+原文 · 发送前预览（与全局设置联动）。</div>
                 </div>
             </div>
         </section>

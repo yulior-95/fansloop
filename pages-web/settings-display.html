@@ -5,6 +5,7 @@
 <title>外观与语言 · 设置 · FansLoop</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/settings-layout.css">
 <script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
 <style>
 .set-grid { display: grid; grid-template-columns: 240px 1fr; gap: 24px; }
@@ -15,7 +16,7 @@
 .crumb a:hover { color: #fff; }
 .crumb .curr { color: #fff; font-weight: 600; }
 
-.set-nav { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 80px; align-self: flex-start; }
+.set-nav { display: flex; flex-direction: column; gap: 4px; align-self: flex-start; }
 .set-nav .group-ti { padding: 14px 12px 6px; font-size: 10px; color: var(--t-tertiary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
 .set-nav .nav-item { padding: 10px 12px; border-radius: 8px; font-size: 13px; color: var(--t-secondary); display: flex; align-items: center; gap: 10px; cursor: pointer; }
 .set-nav .nav-item:hover { background: var(--bg-hover); color: #fff; }
@@ -108,9 +109,10 @@
 </style>
 
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
+<link rel="stylesheet" href="../css-web/global-accessibility.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
 </head>
-<body>
+<body class="page-settings">
 
 <div class="app-shell">
 
@@ -186,7 +188,8 @@
                 <div class="group-ti">体验</div>
                 <div class="nav-item" onclick="location.href='settings-notification.html'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span>通知偏好</span></div>
                 <div class="nav-item" onclick="location.href='settings-privacy.html'"><span class="ic"><i class="fa-solid fa-user-shield"></i></span><span>隐私设置</span></div>
-                <div class="nav-item active"><span class="ic"><i class="fa-solid fa-palette"></i></span><span>外观语言</span></div>
+                <div class="nav-item active" id="navDisplayLang"><span class="ic"><i class="fa-solid fa-palette"></i></span><span>外观语言</span></div>
+                <div class="nav-item" id="navGaGlobal" role="button" tabindex="0"><span class="ic"><i class="fa-solid fa-earth-americas"></i></span><span>跨国界无障碍</span></div>
                 <div class="group-ti">创作者</div>
                 <div class="nav-item"><span class="ic"><i class="fa-solid fa-crown"></i></span><span>会员订阅设置</span></div>
                 <div class="nav-item"><span class="ic"><i class="fa-solid fa-coins"></i></span><span>收益与提现</span></div>
@@ -346,6 +349,80 @@
                     </div>
                 </div>
 
+                <!-- 跨国界无障碍（内容翻译，与界面语言分离） -->
+                <div id="ga-global-access"></div>
+                <div class="ga-info-banner" style="margin-bottom:18px">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <div><strong>界面语言</strong>只改菜单与按钮；下方 <strong>跨国界无障碍</strong> 控制直播弹幕/字幕与私信内容的自动翻译。消息可能经翻译服务处理。</div>
+                </div>
+
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#3B82F6,#2563EB)"><i class="fa-solid fa-earth-americas"></i></div>
+                        <div><h3>跨国界无障碍</h3><p>跨国观看直播与无障碍聊天 · 与界面语言独立配置</p></div>
+                    </div>
+                    <div class="ga-switch-row">
+                        <div class="lb"><div class="ti">我的沟通语言</div><div class="sub">观看直播与阅读聊天时优先显示此语言的译文；可与界面语言不同</div></div>
+                        <select class="ga-select" id="gaCommLang" aria-label="沟通语言"></select>
+                    </div>
+                </div>
+
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#3B82F6,#2563EB)"><i class="fa-solid fa-tower-broadcast"></i></div>
+                        <div><h3>观看直播 · 默认偏好</h3><p>进入直播间后可在播放器 <strong>齿轮</strong> / <strong>译</strong> 按钮即时调整</p></div>
+                    </div>
+                    <div class="ga-switch-row">
+                        <div class="lb"><div class="ti">默认开启弹幕翻译</div><div class="sub">新进入直播间时自动翻译聊天弹幕</div></div>
+                        <div class="ga-switch on" id="swLiveChat" role="switch" tabindex="0"></div>
+                    </div>
+                    <div class="ga-switch-row" style="border-bottom:none">
+                        <div class="lb"><div class="ti">主播语音实时字幕</div><div class="sub">请在 <a href="live-detail.html" target="_blank" rel="noopener" style="color:#93C5FD">观看直播页</a> 播放器右侧设置面板中开关（ASR + 翻译）</div></div>
+                    </div>
+                </div>
+
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#3B82F6,#2563EB)"><i class="fa-regular fa-message"></i></div>
+                        <div><h3>聊天与私信</h3><p>私信、群聊、直播聊天室</p></div>
+                    </div>
+                    <div class="ga-switch-row">
+                        <div class="lb"><div class="ti">自动双向翻译</div><div class="sub">母语输入，对方看到其语言版本； incoming 消息自动翻译</div></div>
+                        <div class="ga-switch on" id="swChatBoth" role="switch" tabindex="0"></div>
+                    </div>
+                    <div class="ga-switch-row">
+                        <div class="lb"><div class="ti">发送前预览译文</div><div class="sub">发送前确认对方将看到的语言</div></div>
+                        <div class="ga-switch" id="swChatPreview" role="switch" tabindex="0"></div>
+                    </div>
+                    <div class="ga-switch-row">
+                        <div class="lb"><div class="ti">显示偏好</div></div>
+                        <select class="ga-select" id="gaDisplayMode">
+                            <option value="dual">译文 + 原文对照</option>
+                            <option value="translated-only">仅显示译文</option>
+                            <option value="tap-original">默认译文，点击看原文</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#3B82F6,#2563EB)"><i class="fa-solid fa-shield-halved"></i></div>
+                        <div><h3>网络与隐私</h3></div>
+                    </div>
+                    <div class="ga-switch-row">
+                        <div class="lb"><div class="ti">仅在 Wi‑Fi 下翻译</div><div class="sub">移动网络下仅显示原文</div></div>
+                        <div class="ga-switch" id="swWifi" role="switch" tabindex="0"></div>
+                    </div>
+                    <div style="padding:14px 22px;display:flex;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--border)">
+                        <button type="button" class="btn btn-secondary btn-sm" id="btnGaReset"><i class="fa-solid fa-rotate-left"></i> 恢复默认</button>
+                    </div>
+                    <div class="ga-demo-links">
+                        <button type="button" class="ga-demo-btn" data-ga-demo-open="live-translate-demo.html"><i class="fa-solid fa-tower-broadcast"></i> 直播翻译演示</button>
+                        <button type="button" class="ga-demo-btn" data-ga-demo-open="messages-translate-demo.html"><i class="fa-regular fa-message"></i> 私信翻译演示</button>
+                        <button type="button" class="ga-demo-btn" data-ga-demo-open="live-detail.html"><i class="fa-solid fa-play"></i> 正式直播页</button>
+                    </div>
+                </div>
+
                 <!-- 区域与货币 -->
                 <div class="set-card">
                     <div class="ssh">
@@ -418,7 +495,10 @@
     </main>
 </div>
 
+<div id="gaToast"></div>
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>
+<script src="../js-web/global-accessibility-store.js"></script>
+<script src="../js-web/global-accessibility-settings.js"></script>
 </body>
 </html>

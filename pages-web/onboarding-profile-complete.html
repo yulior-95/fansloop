@@ -61,6 +61,10 @@
         <h1>完善你的创作者名片</h1>
         <p class="sub" id="onboardSub">昵称为必填；邮箱与安全绑定可在稍后「设置」补齐。地区字段默认读取 IP 归属（示意）。</p>
 
+        <div id="inviteBoundBanner" style="display:none;margin-bottom:14px;padding:12px 14px;border-radius:var(--r-md);background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.35);font-size:12px;line-height:1.5;color:var(--success-light)">
+            <i class="fa-solid fa-link"></i> 已与邀请人 <strong id="inviteBoundName" style="color:#fff">—</strong> 建立永久关联 · 注册奖励已发放（原型）
+        </div>
+
         <div class="gf-field">
             <label>昵称（必填）</label>
             <input type="text" placeholder="例如：LoopKid" value="" />
@@ -110,6 +114,15 @@
         if (sub) {
             sub.textContent = '昵称为必填；邮箱注册用户可稍后在「设置」补充安全绑定。地区字段默认读取 IP 归属（示意）。';
         }
+    }
+    if (new URLSearchParams(location.search).get('invite') === 'bound') {
+        var banner = document.getElementById('inviteBoundBanner');
+        if (banner) banner.style.display = 'block';
+        try {
+            var rel = JSON.parse(localStorage.getItem('fl_invite_relation') || '{}');
+            var nm = document.getElementById('inviteBoundName');
+            if (nm && rel.inviterName) nm.textContent = rel.inviterName;
+        } catch (e) {}
     }
 })();
 </script>

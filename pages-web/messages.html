@@ -382,6 +382,7 @@
 
 </style>
 <link rel="stylesheet" href="../css-web/messages-im.css">
+<link rel="stylesheet" href="../css-web/dev-glass-note.css">
 
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
@@ -424,7 +425,6 @@
             <div class="gs-drop"></div>
         </div>
         <div class="h-actions">
-            <button class="h-icon" type="button" onclick="location.href='messages-contacts.html'" title="通讯录"><i class="fa-solid fa-address-book"></i></button>
             <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
             <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
             <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
@@ -439,11 +439,25 @@
             <div class="im-list">
                 <div class="iml-head">
                     <div class="iml-title-row">
-                        <h2><i class="fa-regular fa-comments"></i>消息<span class="cnt" id="imUnreadHead">8 未读</span></h2>
+                        <h2><i class="fa-regular fa-comments"></i>消息<span class="cnt" id="imUnreadHead">8 未读</span>
+                            <span class="dev-glass-wrap dev-glass-wrap--feed">
+                                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devImRulesTip">
+                                    <span class="dev-glass-sphere-shine"></span>
+                                    <span class="dev-glass-sphere-txt">To 研发</span>
+                                </span>
+                                <span class="dev-glass-pop" id="devImRulesTip" role="tooltip">
+                                    <strong>私信规则（5 条）</strong><br>
+                                    1. 已取消「添加好友」功能<br>
+                                    2. 私聊会话仅支持<strong>互相关注</strong>用户（官方/群聊除外）<br>
+                                    3. 建群/拉人仅从<strong>互关列表</strong>选择<br>
+                                    4. 向非互关用户仅可发<strong>1 条</strong>；对方回复或互关前不可再发<br>
+                                    5. 已取消<strong>通讯录</strong>入口
+                                </span>
+                            </span>
+                        </h2>
                         <div class="iml-quick-actions">
-                            <button type="button" id="imBtnCompose" title="新建私聊"><i class="fa-regular fa-message"></i></button>
+                            <button type="button" id="imBtnCompose" title="新建私聊（互关好友）"><i class="fa-regular fa-message"></i></button>
                             <button type="button" id="imBtnGroupCreate" title="创建群聊"><i class="fa-solid fa-user-group"></i></button>
-                            <button type="button" id="imBtnContacts" title="通讯录"><i class="fa-solid fa-address-book"></i></button>
                         </div>
                     </div>
                     <div class="iml-search-wrap">
@@ -522,7 +536,24 @@
 
                 <div class="im-emoji-panel" id="imEmojiPanel"></div>
 
-                <div class="imt-input">
+                <div class="im-dm-limit-banner" id="imDmLimitBanner" hidden>
+                    <i class="fa-solid fa-lock"></i>
+                    <div class="txt">
+                        <strong>已发送首条私信</strong>
+                        <span id="imDmLimitHint">对方回复或与你互相关注前，暂不可继续发送消息</span>
+                    </div>
+                    <span class="dev-glass-wrap">
+                        <span class="dev-glass-sphere" tabindex="0" aria-describedby="devDmLimitTip">
+                            <span class="dev-glass-sphere-shine"></span>
+                            <span class="dev-glass-sphere-txt">To 研发</span>
+                        </span>
+                        <span class="dev-glass-pop dev-glass-pop--below" id="devDmLimitTip" role="tooltip">
+                            非互关用户：<code>sentCount &gt;= 1</code> 且 <code>!hasReply &amp;&amp; !isMutualFollow</code> 时锁定输入区；对方回复或互关后解锁。首条消息可从 profile「私信」入口发起。
+                        </span>
+                    </span>
+                </div>
+
+                <div class="imt-input" id="imInputWrap">
                     <div class="tools">
                         <button type="button" id="imBtnEmoji" title="表情"><i class="fa-regular fa-face-smile"></i></button>
                         <button type="button" id="imBtnImage" title="图片"><i class="fa-regular fa-image"></i></button>
@@ -575,13 +606,6 @@
                     <div class="imi-row"><i class="fa-solid fa-thumbtack ic"></i>置顶对话<span class="switch-mini" data-switch="pin"></span></div>
                 </div>
 
-                <div class="imi-section" id="imFriendActions" hidden>
-                    <h4>好友</h4>
-                    <div class="imi-row imi-row-danger" id="imRowDeleteFriend" role="button" tabindex="0" title="解除互相关注，会话与聊天记录仍保留">
-                        <i class="fa-solid fa-user-minus ic"></i> 删除好友
-                    </div>
-                </div>
-
                 <div class="imi-media" id="imSharedMedia" role="button" tabindex="0" title="查看本会话的图片、视频与文件">
                     <h4><span>聊天文件 · <span id="imMediaCount">24</span></span><i class="fa-solid fa-chevron-right"></i></h4>
                     <div class="grid">
@@ -627,30 +651,20 @@
         <div class="im-side-panel-head">
             <button type="button" class="back" data-close="imPanelCompose"><i class="fa-solid fa-xmark"></i></button>
             <h3 id="imComposeTitle"><i class="fa-regular fa-message"></i> 新建私聊</h3>
+            <span class="dev-glass-wrap dev-glass-wrap--align-end">
+                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devComposeTip">
+                    <span class="dev-glass-sphere-shine"></span>
+                    <span class="dev-glass-sphere-txt">To 研发</span>
+                </span>
+                <span class="dev-glass-pop" id="devComposeTip" role="tooltip">
+                    列表数据源 = <strong>互相关注列表</strong>（API: <code>GET /social/mutual-follows</code>）。非互关用户不在此出现；可从 Ta 的主页「私信」发首条消息。
+                </span>
+            </span>
         </div>
         <div class="im-side-panel-body">
-            <p class="im-panel-hint">选择互相关注或订阅者，在当前页打开对话</p>
+            <p class="im-panel-hint"><i class="fa-solid fa-user-check"></i> 仅显示互相关注好友，选择后在当前页打开会话</p>
             <div class="im-panel-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" id="imComposeSearch" placeholder="搜索昵称…" autocomplete="off" /></div>
             <div id="imComposeList"></div>
-        </div>
-    </div>
-</div>
-
-<!-- 页内：通讯录 -->
-<div class="im-ovl im-ovl--panel" id="imPanelContacts" aria-hidden="true">
-    <div class="im-ovl-backdrop" data-close="imPanelContacts"></div>
-    <div class="im-side-panel im-side-panel--wide" role="dialog" aria-labelledby="imContactsTitle">
-        <div class="im-side-panel-head">
-            <button type="button" class="back" data-close="imPanelContacts"><i class="fa-solid fa-xmark"></i></button>
-            <h3 id="imContactsTitle"><i class="fa-solid fa-address-book"></i> 通讯录</h3>
-        </div>
-        <div class="im-side-panel-body">
-            <div class="im-panel-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" id="imContactsSearch" placeholder="搜索群聊、好友…" autocomplete="off" /></div>
-            <div class="im-panel-tabs" id="imContactsTabs">
-                <button type="button" class="on" data-tab="group">群聊</button>
-                <button type="button" data-tab="friend">好友</button>
-            </div>
-            <div class="im-contacts-scroll" id="imContactsBody"></div>
         </div>
     </div>
 </div>
@@ -674,10 +688,19 @@
         <div class="im-side-panel-head">
             <button type="button" class="back" data-close="imPanelGroupAddMember"><i class="fa-solid fa-xmark"></i></button>
             <h3 id="imGrpAddTitle"><i class="fa-solid fa-user-plus"></i> 添加群成员</h3>
+            <span class="dev-glass-wrap dev-glass-wrap--align-end">
+                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devGrpAddTip">
+                    <span class="dev-glass-sphere-shine"></span>
+                    <span class="dev-glass-sphere-txt">To 研发</span>
+                </span>
+                <span class="dev-glass-pop" id="devGrpAddTip" role="tooltip">
+                    数据源 = <strong>互相关注列表</strong>，过滤已在群内的成员。不支持从粉丝/关注单向列表拉人。
+                </span>
+            </span>
         </div>
         <div class="im-side-panel-body">
-            <p class="im-panel-hint">从通讯录选择好友；已在群内的成员不会显示</p>
-            <div class="im-panel-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" id="imGrpAddSearch" placeholder="搜索好友昵称…" autocomplete="off" /></div>
+            <p class="im-panel-hint"><i class="fa-solid fa-user-check"></i> 从互关好友中选择；已在群内的成员自动过滤</p>
+            <div class="im-panel-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" id="imGrpAddSearch" placeholder="搜索互关好友昵称…" autocomplete="off" /></div>
             <div class="im-grp-add-list" id="imGrpAddList"></div>
             <div class="im-panel-foot">
                 <button type="button" class="btn btn-secondary" data-close="imPanelGroupAddMember">取消</button>
@@ -708,12 +731,21 @@
         <div class="im-side-panel-head">
             <button type="button" class="back" data-close="imPanelGroupCreate"><i class="fa-solid fa-xmark"></i></button>
             <h3 id="imGcTitle"><i class="fa-solid fa-user-group"></i> 创建粉丝群</h3>
+            <span class="dev-glass-wrap dev-glass-wrap--align-end">
+                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devGcTip">
+                    <span class="dev-glass-sphere-shine"></span>
+                    <span class="dev-glass-sphere-txt">To 研发</span>
+                </span>
+                <span class="dev-glass-pop" id="devGcTip" role="tooltip">
+                    邀请成员列表 = <strong>互相关注好友</strong>。创建后邀请走「群聊通知」收件箱；受隐私设置「进群需确认」控制。
+                </span>
+            </span>
         </div>
         <div class="im-side-panel-body im-gc-body">
             <div class="grp-notice" id="imGcNotice"></div>
             <div class="grp-field"><label for="imGcName">群名称</label><input id="imGcName" type="text" value="VIP 订阅者交流群" /></div>
             <div class="grp-field"><label for="imGcDesc">群介绍</label><textarea id="imGcDesc" rows="2">订阅者专属内容预告、直播通知与互动</textarea></div>
-            <div class="grp-field"><label>邀请粉丝</label><input type="search" id="imGcFanSearch" placeholder="搜索昵称…" /></div>
+            <div class="grp-field"><label>邀请互关好友</label><input type="search" id="imGcFanSearch" placeholder="搜索互关好友昵称…" /></div>
             <div class="grp-fan-list" id="imGcFanList"></div>
             <div class="im-panel-foot">
                 <button type="button" class="btn btn-secondary" data-close="imPanelGroupCreate">取消</button>
@@ -771,7 +803,6 @@
 
 <div class="im-dropdown" id="imDropdown" role="menu">
     <button type="button" data-action="remark"><i class="fa-solid fa-pen"></i> 设置备注</button>
-    <button type="button" data-action="unfriend" class="danger" id="imDropdownUnfriend" hidden><i class="fa-solid fa-user-minus"></i> 删除好友</button>
     <button type="button" data-action="clear"><i class="fa-solid fa-eraser"></i> 清空聊天记录</button>
     <button type="button" data-action="delete"><i class="fa-solid fa-trash"></i> 删除会话</button>
     <button type="button" data-action="report" class="danger"><i class="fa-solid fa-flag"></i> 举报</button>
@@ -819,7 +850,7 @@
 <link rel="stylesheet" href="../css-web/host-live-pip-global.css">
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/fl-interaction-modal.js"></script>
-<script src="../js-web/fl-friends-store.js"></script>
+<script src="../js-web/dev-glass-viewport.js"></script>
 <script src="../js-web/messages-page.js"></script>
 <script src="../js-web/messages-group-manage.js"></script>
 <script src="../js-web/messages-im-extras.js"></script>

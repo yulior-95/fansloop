@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>确认邀请关联 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/prototype-guest-first.css">
+<link rel="stylesheet" href="../css-web/invite-referral.css">
+<link rel="stylesheet" href="../css-web/global-lang-switch.css">
+<script src="../js-web/global-lang-switch.js" defer></script>
+</head>
+<body>
+<div class="gf-modal-root">
+    <div class="gf-modal invite-bind-sheet" style="max-width:400px">
+        <div class="gf-modal-head">
+            <div>
+                <h2 style="font-size:16px;font-weight:800">确认邀请关联</h2>
+                <p style="font-size:11px;color:var(--t-tertiary);margin-top:4px">注册前二次确认 · 关联不可取消</p>
+            </div>
+            <a href="modal-email-register-code.html" class="close-x"><i class="fa-solid fa-xmark"></i></a>
+        </div>
+        <div class="gf-modal-body">
+            <div class="inviter-preview">
+                <div class="av" id="bindInviterAv" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=240&q=80')"></div>
+                <div style="font-size:15px;font-weight:800" id="bindInviterName">Luna 🌙</div>
+                <div style="font-size:12px;color:var(--t-tertiary);margin-top:4px">邀请码 <span id="bindInviteCode" style="font-family:ui-monospace;color:#FBBF24;font-weight:700">LUNA-8K3F</span></div>
+            </div>
+            <p style="font-size:12px;color:var(--t-secondary);text-align:center;line-height:1.55" id="bindRewardTip">双方各得 200 积分</p>
+            <div class="warn-box">
+                <i class="fa-solid fa-lock"></i> 确认注册后，你将与上述用户建立<strong>永久邀请关联</strong>，平台不支持用户自行解绑或更换邀请人。请核对邀请码无误。
+            </div>
+            <button type="button" class="btn-gf-primary" id="btnConfirmBind" style="width:100%"><i class="fa-solid fa-check"></i> 确认并完成注册</button>
+            <button type="button" class="btn-gf-ghost" style="width:100%;margin-top:8px" onclick="location.href='modal-email-register-code.html'">返回修改邀请码</button>
+        </div>
+    </div>
+</div>
+<script src="../js-web/invite-reward-config.js"></script>
+<script>
+(function () {
+    var FL = window.FLInviteReward;
+    var params = new URLSearchParams(location.search);
+    var code = (params.get('code') || 'LUNA-8K3F').toUpperCase();
+    document.getElementById('bindInviteCode').textContent = code;
+
+    FL.fetchConfig().then(function (cfg) {
+        document.getElementById('bindRewardTip').textContent = FL.formatInviteRewardTip(cfg);
+        return FL.resolveInviteCode(code);
+    }).then(function (inv) {
+        if (!inv) return;
+        document.getElementById('bindInviterName').textContent = inv.inviterName;
+        document.getElementById('bindInviterAv').style.backgroundImage = "url('" + inv.inviterAvatar + "')";
+    });
+
+    document.getElementById('btnConfirmBind').addEventListener('click', function () {
+        try {
+            localStorage.setItem('fl_invite_relation', JSON.stringify({
+                code: code,
+                inviterName: 'Luna 🌙',
+                boundAt: new Date().toISOString()
+            }));
+        } catch (e) {}
+        location.href = 'onboarding-profile-complete.html?source=email&invite=bound';
+    });
+})();
+</script>
+</body>
+</html>

@@ -492,9 +492,33 @@
                         <span class="live-pill" id="liveStatusPill"><span class="dot"></span> LIVE</span>
                         <span class="viewers"><i class="fa-regular fa-eye"></i> 2,486 在线</span>
                         <span class="viewers duration-lbl"><span class="lbl">直播时长：</span>2:14:36</span>
+                        <div class="ld-live-subtitle" id="ldLiveSubtitle" hidden aria-live="polite">
+                            <span id="ldSubMain"></span>
+                            <span class="orig" id="ldSubOrig"></span>
+                        </div>
                         <div class="top-actions">
                             <button type="button" class="btn-vol" id="btnPlayerVol" title="音量"><i class="fa-solid fa-volume-high"></i></button>
-                            <button type="button" id="btnPlayerGear" title="设置"><i class="fa-solid fa-gear"></i></button>
+                            <button type="button" id="btnLdGaTranslate" title="弹幕翻译"><i class="fa-solid fa-language"></i></button>
+                            <span class="dev-glass-wrap dev-glass-wrap--translate-tip dev-glass-wrap--align-end dev-glass-wrap--pop-below dev-glass-wrap--layer-top">
+                                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devLdGaTranslateTip">
+                                    <span class="dev-glass-sphere-shine"></span>
+                                    <span class="dev-glass-sphere-txt">To 研发</span>
+                                </span>
+                                <span class="dev-glass-pop dev-glass-pop--wide" id="devLdGaTranslateTip" role="tooltip">
+                                    <p style="margin:0 0 8px"><strong style="color:#f3e8ff">功能说明 · 弹幕翻译</strong></p>
+                                    <p style="margin:0 0 10px">观众点击本按钮或齿轮面板开关，将<strong>右侧聊天室</strong>观众消息译为「观看语言」（<code>commLang</code>，与设置页「跨国界无障碍」一致）。开启后按钮高亮 <code>is-on</code>；可选<strong>译文 + 原文对照</strong>（<code>displayMode=dual</code>）。</p>
+                                    <p style="margin:0 0 6px"><strong style="color:#f3e8ff">技术实现（建议）</strong></p>
+                                    <ol style="margin:0;padding-left:1.15em">
+                                        <li>偏好：<code>GET/PATCH /v1/user/accessibility</code>，键 <code>liveTranslateChat</code>、<code>commLang</code>；原型 <code>localStorage fl_global_accessibility_v1</code></li>
+                                        <li>翻译：<code>POST /v1/translate</code>，<code>context=live_chat</code>；按 <code>messageId+targetLang</code> 缓存</li>
+                                        <li>推送（推荐）：<code>WS live.{roomId}.chat.translated</code> 广播译文，客户端只渲染不重复请求</li>
+                                        <li>前端：本页 <code>live-detail-accessibility.js</code> 写 <code>.chat-msg .text</code>；飘屏层可复用同一管道</li>
+                                        <li>合规：翻译前后走同一内容安全策略；用户可在设置关闭「经翻译服务处理」</li>
+                                    </ol>
+                                    <p style="margin:10px 0 0;font-size:10px;color:var(--t-tertiary)">同面板另含「主播语音实时字幕」— ASR 流式 + 底部 <code>#ldLiveSubtitle</code>，需独立字幕服务。</p>
+                                </span>
+                            </span>
+                            <button type="button" id="btnPlayerGear" title="弹幕与无障碍设置"><i class="fa-solid fa-gear"></i></button>
                             <button type="button" id="btnPlayerPip" title="悬浮小窗" aria-label="悬浮小窗"><i class="fa-solid fa-window-restore"></i></button>
                             <button type="button" class="btn-expand" id="btnPlayerExpand" title="全屏"><i class="fa-solid fa-expand"></i></button>
                         </div>
@@ -539,6 +563,26 @@
                                 <input type="checkbox" id="giftFxToggle">
                                 <span class="ldsp-switch-ui"></span>
                             </label>
+                        </div>
+                        <div class="ldsp-divider"><i class="fa-solid fa-earth-americas"></i> 跨国界无障碍</div>
+                        <div class="ldsp-item ldsp-switches">
+                            <label class="ldsp-switch-row">
+                                <span>自动翻译聊天弹幕</span>
+                                <input type="checkbox" id="ldGaChatTranslate" checked>
+                                <span class="ldsp-switch-ui"></span>
+                            </label>
+                            <label class="ldsp-switch-row">
+                                <span>主播语音实时字幕</span>
+                                <input type="checkbox" id="ldGaLiveSubtitle">
+                                <span class="ldsp-switch-ui"></span>
+                            </label>
+                        </div>
+                        <div class="ldsp-item">
+                            <div class="ldsp-row">
+                                <span>观看语言</span>
+                                <select id="ldGaCommLang" class="ldsp-ga-lang" aria-label="观看语言"></select>
+                            </div>
+                            <p style="font-size:11px;color:rgba(255,255,255,0.45);margin:8px 0 0;line-height:1.45">账户默认可在 <a href="settings-display.html#ga-global-access" style="color:#93C5FD">设置 · 跨国界无障碍</a> 调整</p>
                         </div>
                     </div>
 
@@ -916,7 +960,10 @@
 </script>
 <script src="../js-web/live-wallet-store.js"></script>
 <script src="../js-web/live-meta-store.js"></script>
+<script src="../js-web/dev-glass-viewport.js" defer></script>
+<script src="../js-web/global-accessibility-store.js"></script>
 <script src="../js-web/live-detail.js"></script>
+<script src="../js-web/live-detail-accessibility.js"></script>
 
 <link rel="stylesheet" href="../css-web/host-live-pip-global.css">
 <script src="../js-web/global-search.js"></script>

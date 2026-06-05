@@ -5,12 +5,10 @@
     var LS_CONSENT = 'fl_group_invite_need_consent';
 
     var FANS = [
-        { id: 'f1', name: 'Lens 旅记', av: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120', tag: 'VIP 订阅者' },
-        { id: 'f2', name: '山野食光', av: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=120', tag: '订阅者' },
+        { id: 'f1', name: 'Lens 旅记', av: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120', tag: '互关' },
         { id: 'f3', name: '夜雨听弦', av: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120', tag: '互关' },
-        { id: 'f4', name: '代码诗人', av: 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=120', tag: '粉丝' },
-        { id: 'f5', name: '银盐时代', av: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120', tag: '粉丝' },
-        { id: 'f6', name: '小鹿订阅', av: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120', tag: '订阅者' }
+        { id: 'f4', name: '代码诗人', av: 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=120', tag: '互关' },
+        { id: 'f6', name: 'Mila', av: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120', tag: '互关' }
     ];
 
     function needConsent() {
@@ -46,7 +44,7 @@
             if (needConsent()) {
                 notice.innerHTML = '<i class="fa-solid fa-shield-halved"></i> 你已开启「进群需本人同意」。邀请将发送至对方的 <b>进群邀请</b> 列表，同意后才加入群聊。';
             } else {
-                notice.innerHTML = '<i class="fa-solid fa-bolt"></i> 你已关闭进群确认，选中粉丝将 <b>直接加入</b> 群聊并收到系统通知。';
+                notice.innerHTML = '<i class="fa-solid fa-bolt"></i> 你已关闭进群确认，选中的互关好友将 <b>直接加入</b> 群聊并收到系统通知。';
             }
         }
         renderFans('');

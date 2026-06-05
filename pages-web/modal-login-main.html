@@ -3,16 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>登录 · FansLoop</title>
+<title>登录 / 注册 · FansLoop</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
 <link rel="stylesheet" href="../css-web/prototype-guest-first.css">
 <link rel="stylesheet" href="../css-web/auth-wizard-modal.css">
+<link rel="stylesheet" href="../css-web/invite-referral.css">
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
 <script src="../js-web/auth-session.js"></script>
 </head>
-<body>
+<body data-auth-tab="wallet" data-wallet-auth-mode="login">
 <div class="gf-modal-root">
     <div class="gf-modal auth-wizard-modal">
         <div class="gf-modal-head" style="padding-bottom: 10px;">
@@ -20,20 +21,42 @@
                 <div class="aw-logo"><i class="fa-solid fa-infinity"></i></div>
                 <div>
                     <div class="aw-title">FansLoop</div>
-                    <p style="font-size:11px;color:var(--t-tertiary);margin-top:2px;">Web3 创作者平台 · 钱包登录/注册一体化</p>
+                    <p style="font-size:11px;color:var(--t-tertiary);margin-top:2px;">登录与注册同一入口 · 钱包或邮箱</p>
                 </div>
             </div>
             <a href="guest-home.html" class="close-x" title="关闭"><i class="fa-solid fa-xmark"></i></a>
         </div>
 
         <nav class="gf-tabs-fixed" aria-label="登录方式">
-            <button type="button" class="tab active" id="tabStayWallet">钱包登录 / 注册</button>
-            <a class="tab" href="modal-email-login.html">邮箱登录</a>
+            <button type="button" class="tab active" id="tabAuthWallet">钱包登录 / 注册</button>
+            <button type="button" class="tab" id="tabAuthEmail">邮箱登录 / 注册</button>
         </nav>
 
+        <!-- 钱包 · 登录/注册一体 -->
+        <div id="walletAuthWrap">
+            <div class="toggle-sub wallet-mode-toggle">
+                <button type="button" class="on" id="btnWalletModeLogin">钱包登录</button>
+                <button type="button" id="btnWalletModeRegister">钱包注册</button>
+            </div>
         <div id="walletWizard">
             <section class="wiz-step active" data-step="0">
-                <p style="font-size:12px;color:var(--t-secondary);margin-bottom:12px;line-height:1.45;">选择连接方式（示意对齐 login-entry → login-success 全流程，无插画）。</p>
+                <div class="auth-wallet-reg-banner" id="walletRegBanner">
+                    <i class="fa-solid fa-user-plus" style="color:#FBBF24"></i>
+                    <strong style="color:#fff">钱包注册</strong>：首次连接该钱包将创建账号。可先填写邀请码（选填），注册后与邀请人永久关联。
+                </div>
+                <p class="wallet-step0-lead" data-wallet-login-only style="font-size:12px;color:var(--t-secondary);margin-bottom:12px;line-height:1.45;">选择钱包并签名，登录已有账号。</p>
+                <p class="wallet-step0-lead" data-wallet-reg-only style="display:none;font-size:12px;color:var(--t-secondary);margin-bottom:12px;line-height:1.45;">选择钱包完成注册；邀请码可在下方填写（选填）。</p>
+
+                <div class="aw-invite-block" data-wallet-reg-only style="display:none;margin-bottom:14px;padding-bottom:0;border-top:none;">
+                    <div class="gf-field" style="margin-bottom:0">
+                        <label>邀请码 <span style="font-weight:600;color:var(--t-quaternary)">（选填）</span></label>
+                        <input type="text" id="walletInviteCode" placeholder="例如 LUNA-8K3F" autocomplete="off" style="font-family:ui-monospace,monospace;letter-spacing:1px;text-transform:uppercase" />
+                        <div class="hint" id="walletInviteHint">新用户注册填码 · 双方得积分</div>
+                        <div id="walletInviteValid" class="invite-field-valid"></div>
+                        <div id="walletInviteErr" class="invite-field-err"></div>
+                    </div>
+                </div>
+
                 <button type="button" class="aw-wallet-card" data-go="1">
                     <span class="ic mm"><i class="fa-brands fa-ethereum"></i></span>
                     <span class="grow"><span>MetaMask</span><span class="sub d-block">浏览器插件签名</span></span>
@@ -46,55 +69,50 @@
                 </button>
                 <button type="button" class="aw-wallet-card" data-go="1">
                     <span class="ic more"><i class="fa-solid fa-wallet"></i></span>
-                    <span class="grow"><span>更多钱包</span><span class="sub d-block">同 login-select-method</span></span>
+                    <span class="grow"><span>更多钱包</span><span class="sub d-block">OKX / Coinbase 等</span></span>
                     <i class="fa-solid fa-chevron-right" style="opacity:.4;"></i>
                 </button>
                 <div class="aw-foot-note">继续即表示同意服务条款与隐私政策</div>
             </section>
 
             <section class="wiz-step" data-step="1">
-                <p style="font-size:12px;color:var(--t-secondary);margin-bottom:10px;">选择钱包（精简版 · login-select-method）</p>
+                <p style="font-size:12px;color:var(--t-secondary);margin-bottom:10px;">选择钱包</p>
                 <button type="button" class="aw-wallet-card" data-go="3"><span class="ic mm"><i class="fa-brands fa-ethereum"></i></span><span class="grow"><span>MetaMask</span></span><i class="fa-solid fa-chevron-right" style="opacity:.4;"></i></button>
                 <button type="button" class="aw-wallet-card" data-go="2"><span class="ic wc"><i class="fa-solid fa-mobile-screen"></i></span><span class="grow"><span>WalletConnect</span></span><i class="fa-solid fa-chevron-right" style="opacity:.4;"></i></button>
                 <button type="button" class="aw-wallet-card" data-go="3"><span class="ic more"><i class="fa-solid fa-bolt"></i></span><span class="grow"><span>OKX Wallet</span></span><i class="fa-solid fa-chevron-right" style="opacity:.4;"></i></button>
-                <div class="aw-btn-row">
-                    <button type="button" class="aw-btn-ghost" data-back="0">返回</button>
-                </div>
+                <div class="aw-btn-row"><button type="button" class="aw-btn-ghost" data-back="0">返回</button></div>
             </section>
 
             <section class="wiz-step" data-step="2">
                 <p style="font-size:13px;font-weight:700;margin-bottom:8px;text-align:center;">WalletConnect</p>
-                <p style="font-size:11px;color:var(--t-tertiary);text-align:center;line-height:1.45;">对齐 login-walletconnect-qr · 使用手机钱包扫码</p>
+                <p style="font-size:11px;color:var(--t-tertiary);text-align:center;line-height:1.45;">使用手机钱包扫码</p>
                 <div class="aw-qr-box"><i class="fa-solid fa-qrcode"></i><span>二维码区域</span></div>
                 <button type="button" class="btn-gf-primary" style="width:100%;" data-go="4">已扫码 · 继续</button>
-                <div class="aw-btn-row">
-                    <button type="button" class="aw-btn-ghost" data-back="1">返回</button>
-                </div>
+                <div class="aw-btn-row"><button type="button" class="aw-btn-ghost" data-back="1">返回</button></div>
             </section>
 
             <section class="wiz-step" data-step="3">
                 <p style="font-size:13px;font-weight:700;text-align:center;margin-bottom:8px;">唤起 MetaMask</p>
-                <p style="font-size:12px;color:var(--t-secondary);text-align:center;line-height:1.5;">对齐 login-metamask · 请在浏览器插件中确认连接。</p>
+                <p style="font-size:12px;color:var(--t-secondary);text-align:center;line-height:1.5;">请在浏览器插件中确认连接。</p>
                 <div class="aw-spinner"></div>
                 <button type="button" class="btn-gf-primary" style="width:100%;margin-top:8px;" data-go="4">模拟 · 已连接</button>
-                <div class="aw-btn-row">
-                    <button type="button" class="aw-btn-ghost" data-back="1">返回</button>
-                </div>
+                <div class="aw-btn-row"><button type="button" class="aw-btn-ghost" data-back="1">返回</button></div>
             </section>
 
             <section class="wiz-step" data-step="4">
-                <p style="font-size:12px;font-weight:700;margin-bottom:8px;">签名请求（login-sign-request）</p>
-                <div class="aw-mono">fansloop.io wants you to sign in with your Ethereum account…<br/>URI: https://fansloop.io<br/>Version: 1<br/>Chain ID: 1<br/>Nonce: 8f7e2a…</div>
-                <button type="button" class="btn-gf-primary" style="width:100%;margin-top:12px;" data-go="5">签名</button>
-                <div class="aw-btn-row">
-                    <button type="button" class="aw-btn-ghost" data-back="3">返回</button>
+                <p style="font-size:12px;font-weight:700;margin-bottom:8px;">签名请求</p>
+                <div class="aw-mono">fansloop.io wants you to sign in with your Ethereum account…<br/>URI: https://fansloop.io<br/>Version: 1 · Chain ID: 1</div>
+                <div class="aw-invite-block" data-wallet-reg-only style="display:none;margin-top:12px;">
+                    <p style="font-size:11px;color:var(--t-tertiary);margin-bottom:6px;"><i class="fa-solid fa-gift" style="color:#FBBF24"></i> 注册邀请码</p>
+                    <div id="walletInviteSignSummary" style="font-size:12px;color:var(--t-secondary);padding:8px 10px;background:var(--bg-input);border-radius:8px;border:1px solid var(--border);">未填写邀请码</div>
                 </div>
+                <button type="button" class="btn-gf-primary" style="width:100%;margin-top:12px;" data-go="5" id="btnWalletSign">签名并继续</button>
+                <div class="aw-btn-row"><button type="button" class="aw-btn-ghost" data-back="3">返回</button></div>
             </section>
 
             <section class="wiz-step" data-step="5">
-                <p style="font-size:13px;font-weight:700;text-align:center;">等待签名（login-signing）</p>
+                <p style="font-size:13px;font-weight:700;text-align:center;">等待签名</p>
                 <div class="aw-spinner"></div>
-                <p style="font-size:11px;color:var(--t-tertiary);text-align:center;">链上确认中…</p>
                 <button type="button" class="btn-gf-primary" style="width:100%;margin-top:14px;" data-go="6">模拟 · 签名完成</button>
             </section>
 
@@ -103,29 +121,140 @@
                     <div style="width:52px;height:52px;margin:0 auto 12px;border-radius:50%;background:rgba(16,185,129,0.15);display:flex;align-items:center;justify-content:center;">
                         <i class="fa-solid fa-circle-check" style="font-size:26px;color:var(--success-light);"></i>
                     </div>
-                    <p style="font-size:15px;font-weight:800;">登录成功</p>
-                    <p style="font-size:11px;color:var(--t-tertiary);margin-top:6px;line-height:1.45;">对齐 login-success · 新用户可继续 onboarding</p>
+                    <p style="font-size:15px;font-weight:800;" id="walletSuccessTitle">登录成功</p>
+                    <p style="font-size:11px;color:var(--t-tertiary);margin-top:6px;line-height:1.45;" id="walletSuccessSub">欢迎回来</p>
                 </div>
-                <a href="home.html" class="btn-gf-primary" id="btnLoginSuccess" style="width:100%;text-decoration:none;margin-top:12px;">进入首页 home.html</a>
-                <a href="onboarding-profile-complete.html?source=wallet" class="aw-btn-ghost" style="display:block;text-align:center;text-decoration:none;margin-top:8px;">完善资料（可选）</a>
+                <a href="home.html" class="btn-gf-primary" id="btnLoginSuccess" style="width:100%;text-decoration:none;margin-top:12px;">进入首页</a>
+                <a href="onboarding-profile-complete.html?source=wallet" class="aw-btn-ghost" id="btnWalletOnboard" style="display:block;text-align:center;text-decoration:none;margin-top:8px;">完善资料（可选）</a>
+                <button type="button" class="btn-gf-primary" id="btnWalletRegBind" data-wallet-reg-only style="display:none;width:100%;margin-top:10px;"><i class="fa-solid fa-link"></i> 确认邀请关联并完成注册</button>
             </section>
+        </div>
+        </div><!-- /walletAuthWrap -->
+
+        <!-- 邮箱 · 登录注册一体 -->
+        <div id="emailAuthPanel" class="auth-email-panel" style="display:none">
+            <div class="toggle-sub" style="margin:12px 18px 0;">
+                <button type="button" class="on" id="btnAuthModeLogin">登录</button>
+                <button type="button" id="btnAuthModeRegister">注册</button>
+            </div>
+
+            <div class="gf-modal-body-inner">
+                <div id="emailLoginPanel">
+                    <div id="loginErr"></div>
+                    <div class="gf-field">
+                        <label>邮箱</label>
+                        <input type="email" id="emailLoginInput" placeholder="name@company.com" value="creator@example.com" />
+                    </div>
+                    <div class="gf-field">
+                        <label>验证码</label>
+                        <div class="gf-row2">
+                            <input type="text" id="loginOtp" placeholder="6 位验证码" maxlength="6" />
+                            <button type="button" class="btn-gf-ghost" style="white-space:nowrap;">获取验证码</button>
+                        </div>
+                        <div class="hint">已注册用户使用验证码或切换密码登录（原型：非 new-user 邮箱直接登录）</div>
+                    </div>
+                    <button type="button" class="btn-gf-primary" id="btnEmailLogin" style="width:100%"><i class="fa-solid fa-right-to-bracket"></i> 登录</button>
+                    <p style="margin-top:10px;font-size:11px;color:var(--t-quaternary);text-align:center;">试用未注册邮箱 <code style="color:#FBBF24">new-user@example.com</code> 将提示转入注册</p>
+                </div>
+
+                <div id="emailRegisterPanel" style="display:none">
+                    <div id="regErr"></div>
+                    <div class="gf-field">
+                        <label>邮箱</label>
+                        <input type="email" id="regEmail" placeholder="name@company.com" value="new-user@example.com" />
+                    </div>
+                    <div class="gf-field">
+                        <label>验证码 <span style="color:var(--danger-light)">*</span></label>
+                        <div class="gf-row2">
+                            <input type="text" id="regOtp" placeholder="6 位验证码" maxlength="6" autocomplete="one-time-code" />
+                            <button type="button" class="btn-gf-ghost" style="white-space:nowrap;">获取验证码</button>
+                        </div>
+                    </div>
+                    <div class="gf-field">
+                        <label>登录密码 <span style="font-weight:600;color:var(--t-quaternary)">（选填）</span></label>
+                        <input type="password" id="regPwd" placeholder="不设密码则后续仅用验证码登录" />
+                    </div>
+                    <div class="gf-field" data-auth-reg-only>
+                        <label>邀请码 <span style="font-weight:600;color:var(--t-quaternary)">（选填）</span></label>
+                        <input type="text" id="regInviteCode" placeholder="例如 LUNA-8K3F" autocomplete="off" style="font-family:ui-monospace,monospace;letter-spacing:1px;text-transform:uppercase" />
+                        <div class="hint" id="regInviteHint">填写有效邀请码后，注册成功将与邀请人建立永久关联，不可自行解除。</div>
+                        <div id="regInviteValid" class="invite-field-valid"></div>
+                        <div id="regInviteErr" class="invite-field-err"></div>
+                    </div>
+                    <button type="button" class="btn-gf-primary" id="btnEmailRegDone" style="width:100%"><i class="fa-solid fa-user-plus"></i> 注册并登录</button>
+                    <p style="margin-top:10px;font-size:11px;color:var(--t-quaternary);text-align:center;line-height:1.45;">
+                        原型：验证码填 <strong style="color:#FBBF24">123456</strong> 完成注册；填写有效邀请码需二次确认关联。
+                    </p>
+                </div>
+            </div>
+
+            <div id="emailUnregOverlay" class="auth-unreg-overlay" aria-hidden="true">
+                <div class="sheet">
+                    <h3><i class="fa-solid fa-circle-exclamation" style="color:var(--warning-light);margin-right:6px"></i>账号未注册</h3>
+                    <p>该邮箱尚未注册，是否使用当前邮箱<strong style="color:#fff">注册并登录</strong>？注册时可填写邀请码（选填）。</p>
+                    <div class="dialog-actions">
+                        <button type="button" class="btn-gf-ghost" id="btnUnregCancel">取消</button>
+                        <button type="button" class="btn-gf-primary" id="btnUnregToRegister">去注册</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <style>.d-block{display:block;}</style>
+<script src="../js-web/invite-reward-config.js"></script>
+<script src="../js-web/invite-register-flow.js"></script>
+<script src="../js-web/auth-unified-flow.js"></script>
 <script>
 (function () {
-    var steps = document.querySelectorAll('.wiz-step');
+    var steps = document.querySelectorAll('#walletWizard .wiz-step');
     function show(n) {
         steps.forEach(function (s) {
             s.classList.toggle('active', parseInt(s.getAttribute('data-step'), 10) === n);
         });
     }
+    function isWalletRegister() {
+        return document.body.getAttribute('data-wallet-auth-mode') === 'register';
+    }
+
+    function proceedWalletSign(next) {
+        if (!isWalletRegister()) {
+            show(next);
+            return;
+        }
+        var ctrl = window.FL_walletInviteCtrl;
+        if (!ctrl) {
+            show(next);
+            return;
+        }
+        var r = ctrl.beforeRegisterSubmit();
+        if (!r.ok) {
+            var err = document.getElementById('walletInviteErr');
+            if (err) {
+                err.textContent = r.message;
+                err.classList.add('show');
+            }
+            show(0);
+            return;
+        }
+        if (r.redirect) {
+            location.href = r.redirect + (r.redirect.indexOf('source=') < 0 ? '&source=wallet' : '');
+            return;
+        }
+        show(next);
+    }
+
     document.getElementById('walletWizard').addEventListener('click', function (e) {
         var t = e.target.closest('[data-go]');
         if (t) {
-            show(parseInt(t.getAttribute('data-go'), 10));
+            var next = parseInt(t.getAttribute('data-go'), 10);
+            if (next === 4 && window.FL_syncWalletInviteSummary) window.FL_syncWalletInviteSummary();
+            if (next === 5) {
+                proceedWalletSign(next);
+                return;
+            }
+            show(next);
             return;
         }
         var b = e.target.closest('[data-back]');
@@ -135,14 +264,31 @@
     var hash = (location.hash || '').replace('#', '');
     if (hash === 'wc') show(2);
     if (hash === 'mm') show(3);
-    var btnLoginOk = document.getElementById("btnLoginSuccess");
+    if (hash === 'wallet-invite') {
+        document.getElementById('btnWalletModeRegister')?.click();
+        show(0);
+    }
+
+    var btnLoginOk = document.getElementById('btnLoginSuccess');
     if (btnLoginOk) {
-        btnLoginOk.addEventListener("click", function () {
+        btnLoginOk.addEventListener('click', function () {
             if (window.FansloopAuth) window.FansloopAuth.login();
+        });
+    }
+
+    var btnOnboard = document.getElementById('btnWalletOnboard');
+    if (btnOnboard) {
+        btnOnboard.addEventListener('click', function (e) {
+            try {
+                if (sessionStorage.getItem('fl_pending_invite')) {
+                    e.preventDefault();
+                    var inv = JSON.parse(sessionStorage.getItem('fl_pending_invite'));
+                    location.href = 'modal-invite-bind-confirm.html?code=' + encodeURIComponent(inv.code || '');
+                }
+            } catch (ex) {}
         });
     }
 })();
 </script>
-
 </body>
 </html>

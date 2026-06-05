@@ -8,10 +8,27 @@
     var COVER_IMG = 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=900&q=80';
     var AVATAR_IMG = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80';
 
+    var FL = window.FLInviteReward;
+    var inviteRewardConfig = FL ? FL.DEFAULT : { inviterPoints: 200, inviteePoints: 200 };
+
     var qrImg = document.getElementById('profileShareQr');
     var linkInput = document.getElementById('profileShareLinkInput');
     var inviteInput = document.getElementById('profileInviteCodeInput');
+    var inviteTipEl = document.getElementById('profileShareInviteTip');
     var toast = document.getElementById('pfToast');
+
+    function formatInviteRewardTip(cfg) {
+        return FL ? FL.formatInviteRewardTip(cfg) : '新用户注册填码 · 双方得积分';
+    }
+
+    function applyInviteRewardConfig(cfg) {
+        inviteRewardConfig = cfg;
+        if (inviteTipEl) inviteTipEl.textContent = formatInviteRewardTip(cfg);
+    }
+
+    function fetchInviteRewardConfig() {
+        return FL ? FL.fetchConfig() : Promise.resolve(inviteRewardConfig);
+    }
 
     function showToast(msg) {
         if (!toast) return;
@@ -58,7 +75,7 @@
     }
 
     function copyInvite() {
-        copyText(inviteInput ? inviteInput.value : INVITE_CODE, '邀请码已复制 · 好友注册后双方得积分');
+        copyText(inviteInput ? inviteInput.value : INVITE_CODE, '邀请码已复制 · ' + formatInviteRewardTip(inviteRewardConfig));
     }
 
     function loadImage(url) {
@@ -131,7 +148,7 @@
 
                 var invY = ty + 100;
                 ctx.fillStyle = 'rgba(168,85,247,0.2)';
-                roundRect(ctx, 32, invY, w - 64, 72, 12);
+                roundRect(ctx, 32, invY, w - 64, 58, 12);
                 ctx.fill();
                 ctx.strokeStyle = 'rgba(168,85,247,0.5)';
                 ctx.stroke();
@@ -142,9 +159,6 @@
                 ctx.fillStyle = '#fff';
                 ctx.font = 'bold 36px ui-monospace, monospace';
                 ctx.fillText(INVITE_CODE, w / 2, invY + 52);
-                ctx.font = '11px system-ui, sans-serif';
-                ctx.fillStyle = 'rgba(255,255,255,0.55)';
-                ctx.fillText('新用户注册填码 · 双方得积分', w / 2, invY + 68);
                 ctx.textAlign = 'left';
 
                 var footY = h - 118;
@@ -201,6 +215,7 @@
     }
 
     initQr();
+    fetchInviteRewardConfig().then(applyInviteRewardConfig);
     if (linkInput) linkInput.value = PROFILE_URL;
     if (inviteInput) inviteInput.value = INVITE_CODE;
     var disp = document.getElementById('profileInviteCodeDisplay');

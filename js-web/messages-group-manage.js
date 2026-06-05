@@ -16,17 +16,19 @@
         { id: 'gm6', name: '小鹿订阅', av: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120', role: 'member' }
     ];
 
-    /** 通讯录好友（与 messages-page 通讯录一致，添加时过滤已在群成员） */
-    var ADDRESS_BOOK_FRIENDS = [
+    /** 互关好友（与 messages-page MUTUAL_FOLLOW_USERS 一致） */
+    var MUTUAL_FOLLOW_FALLBACK = [
         { id: 'lens', name: 'Lens 旅记', av: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120', sub: '互相关注 · 粉丝' },
-        { id: 'food', name: '山野食光', av: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=120', sub: 'VIP 订阅者' },
         { id: 'yeyu', name: '夜雨听弦', av: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120', sub: '互相关注' },
-        { id: 'code', name: '代码诗人', av: 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=120', sub: '粉丝' },
-        { id: 'silver', name: '银盐时代', av: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120', sub: '粉丝' },
-        { id: 'mila', name: 'Mila', av: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120', sub: '订阅者' },
-        { id: 'nova', name: 'Nova', av: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120', sub: '粉丝' },
-        { id: 'mio', name: 'Mio_摄影', av: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120', sub: '已关注' }
+        { id: 'code', name: '代码诗人', av: 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=120', sub: '互相关注' },
+        { id: 'mila', name: 'Mila', av: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120', sub: '互相关注' }
     ];
+
+    function getMutualFollowList() {
+        var a = getApi();
+        if (a && a.getMutualFollowUsers) return a.getMutualFollowUsers();
+        return MUTUAL_FOLLOW_FALLBACK.slice();
+    }
 
     var addPickState = { selected: {}, q: '' };
 
@@ -67,7 +69,7 @@
     }
 
     function getAddableFriends(t) {
-        return ADDRESS_BOOK_FRIENDS.filter(function (f) {
+        return getMutualFollowList().filter(function (f) {
             return !memberInGroup(t, f.id, f.name);
         });
     }
@@ -214,7 +216,7 @@
             return !q || f.name.toLowerCase().indexOf(q) >= 0 || (f.sub && f.sub.toLowerCase().indexOf(q) >= 0);
         });
         if (!list.length) {
-            el.addList.innerHTML = '<div class="im-grp-add-empty"><i class="fa-solid fa-user-check"></i><br>暂无可添加的好友<br><span style="font-size:11px">通讯录中已在群内的成员已自动过滤</span></div>';
+            el.addList.innerHTML = '<div class="im-grp-add-empty"><i class="fa-solid fa-user-check"></i><br>暂无可添加的互关好友<br><span style="font-size:11px">互关列表中已在群内的成员已自动过滤</span></div>';
             updateAddConfirmBtn();
             return;
         }

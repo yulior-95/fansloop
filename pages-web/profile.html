@@ -286,6 +286,7 @@
 <link rel="stylesheet" href="../css-web/profile-social-lists.css">
 <link rel="stylesheet" href="../css-web/profile-unread-viewer.css">
 <link rel="stylesheet" href="../css-web/profile-share.css">
+<link rel="stylesheet" href="../css-web/invite-referral.css">
 <link rel="stylesheet" href="../css-web/subscribe-modal.css">
 
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
@@ -338,6 +339,7 @@
     </header>
 
     <main class="app-main">
+        <div id="profileViewHome">
         <div class="cover" id="profileCover">
             <input type="file" id="profileCoverFileInput" accept="image/*" hidden aria-hidden="true" />
             <button type="button" class="edit-cov" id="btnEditCover"><i class="fa-solid fa-camera"></i> 更换封面</button>
@@ -361,6 +363,7 @@
                 </div>
                 <div class="acts">
                     <button type="button" class="btn" id="btnShareProfile"><i class="fa-solid fa-share-nodes"></i>分享主页</button>
+                    <button type="button" class="btn btn-secondary" id="btnProfileInviteData"><i class="fa-solid fa-user-group"></i>邀请数据</button>
                     <button type="button" class="btn btn-secondary" id="btnEditProfile"><i class="fa-solid fa-pen"></i>编辑资料</button>
                     <button type="button" class="btn btn-primary" id="btnUpgradePro"><i class="fa-solid fa-bolt"></i>升级 Pro</button>
                 </div>
@@ -618,6 +621,106 @@
                 <p><strong style="color:var(--t-secondary)">设备</strong>：Leica Q3 · DJI Pocket 3 · 自备灯光组</p>
             </div>
         </div>
+        </div><!-- /profileViewHome -->
+
+        <div id="profileViewInvite" aria-hidden="true">
+            <div class="profile-invite-head">
+                <div>
+                    <button type="button" class="btn btn-secondary btn-sm" id="btnProfileInviteBack" style="margin-bottom:10px"><i class="fa-solid fa-arrow-left"></i> 返回主页</button>
+                    <h2><i class="fa-solid fa-gift" style="color:#FBBF24;margin-right:8px"></i>邀请拉新数据</h2>
+                    <p>通过你的邀请码注册的用户与每一笔奖励。<strong style="color:#E9D5FF">邀请人数不设上限</strong>，积分发放受后台额度控制。</p>
+                </div>
+                <div class="ph-actions">
+                    <button type="button" class="btn btn-secondary" id="btnInviteShareFromView"><i class="fa-solid fa-qrcode"></i> 分享邀请码</button>
+                    <button type="button" class="btn btn-primary" onclick="location.href='points-mall.html'"><i class="fa-solid fa-coins"></i> 积分商城</button>
+                </div>
+            </div>
+
+            <div class="inv-code-banner">
+                <div>
+                    <div style="font-size:11px;color:var(--t-tertiary);font-weight:700;margin-bottom:4px">我的邀请码</div>
+                    <div class="code">LUNA-8K3F</div>
+                </div>
+                <div class="hint" id="inviteRewardTipBanner">加载奖励说明…</div>
+                <button type="button" class="btn btn-secondary" id="btnInviteCopyFromView"><i class="fa-regular fa-copy"></i> 复制</button>
+            </div>
+
+            <div class="inv-cap-grid">
+                <div class="inv-stat-card highlight">
+                    <div class="lb">累计邀请注册</div>
+                    <div class="v">128</div>
+                    <div class="sub"><i class="fa-solid fa-infinity" style="color:var(--brand-purple)"></i> 邀请人数无上限</div>
+                </div>
+                <div class="inv-stat-card">
+                    <div class="lb">本月有效邀请</div>
+                    <div class="v">24</div>
+                    <div class="sub">完成注册且通过风控</div>
+                </div>
+                <div class="inv-stat-card">
+                    <div class="lb">累计邀请奖励积分</div>
+                    <div class="v gold" id="inviteRewardTotal">—</div>
+                    <div class="sub">仅统计邀请相关发放</div>
+                </div>
+            </div>
+
+            <div class="inv-cap-panel">
+                <h3><i class="fa-solid fa-gauge-high"></i> 奖励额度（后台配置）</h3>
+                <p class="lead">达到上限后当日/累计不再发放邀请类积分，但用户仍可继续邀请注册。</p>
+                <div class="inv-cap-row">
+                    <div class="meta"><span>今日总积分获取上限</span><strong id="capDailyText">—</strong></div>
+                    <div class="bar"><span id="capDailyBar" style="width:64%"></span></div>
+                </div>
+                <div class="inv-cap-row">
+                    <div class="meta"><span>今日邀请奖励上限</span><strong id="capInviteDailyText">—</strong></div>
+                    <div class="bar"><span id="capInviteDailyBar" style="width:60%"></span></div>
+                </div>
+                <div class="inv-cap-row">
+                    <div class="meta"><span>累计邀请奖励上限</span><strong id="capInviteTotalText">—</strong></div>
+                    <div class="bar"><span id="capInviteTotalBar" style="width:37%"></span></div>
+                </div>
+                <div class="inv-cap-note"><i class="fa-solid fa-circle-info"></i> 邀请注册不受次数限制；额度仅约束积分发放。</div>
+            </div>
+
+            <div class="inv-tabs" role="tablist">
+                <button type="button" class="tab active" data-tab="invitees">邀请用户 <span class="cnt" id="tabInviteeCount">5</span></button>
+                <button type="button" class="tab" data-tab="rewards">奖励明细</button>
+                <button type="button" class="tab" data-tab="rules">规则说明</button>
+            </div>
+
+            <div data-inv-panel="invitees">
+                <div class="inv-toolbar">
+                    <div class="search-mini">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="search" id="inviteUserSearch" placeholder="搜索昵称或 UID…" />
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm"><i class="fa-solid fa-file-export"></i> 导出</button>
+                </div>
+                <div class="inv-user-list" id="inviteUserList"></div>
+            </div>
+
+            <div data-inv-panel="rewards" style="display:none">
+                <div class="card inv-reward-table" style="padding:0;overflow:hidden">
+                    <table class="table">
+                        <thead>
+                            <tr><th>时间</th><th>关联用户</th><th>类型</th><th>积分</th><th>备注</th></tr>
+                        </thead>
+                        <tbody id="inviteRewardTbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div data-inv-panel="rules" style="display:none">
+                <div class="card" style="padding:22px;max-width:720px;line-height:1.65;font-size:13px;color:var(--t-secondary)">
+                    <h3 style="font-size:15px;font-weight:800;color:#fff;margin-bottom:12px"><i class="fa-solid fa-book" style="color:var(--brand-purple)"></i> 邀请与关联规则</h3>
+                    <ol style="padding-left:18px;margin:0;display:flex;flex-direction:column;gap:10px">
+                        <li>新用户注册时可<strong style="color:#fff">选填</strong>邀请码；填写有效码后与邀请人<strong style="color:#fff">永久关联</strong>，不可自行解除。</li>
+                        <li>注册成功且风控通过后，双方按后台配置获得积分。</li>
+                        <li>邀请人数无上限；积分发放受日/累计上限约束。</li>
+                        <li>被邀请人可在「设置 → 我的邀请人」只读查看关联。</li>
+                    </ol>
+                </div>
+            </div>
+        </div><!-- /profileViewInvite -->
     </main>
 </div>
 
@@ -964,7 +1067,6 @@
                     <div class="psp-invite">
                         <span class="psp-invite-lbl"><i class="fa-solid fa-gift"></i> 我的邀请码</span>
                         <strong class="psp-invite-code" id="profileInviteCodeDisplay">LUNA-8K3F</strong>
-                        <span class="psp-invite-hint">新用户注册填码 · 双方得积分</span>
                     </div>
                     <div class="psp-foot">
                         <div>
@@ -986,7 +1088,7 @@
                 </div>
             </div>
             <div class="share-field-block">
-                <label>邀请码 <span class="share-field-tip">拉新奖励</span></label>
+                <label>邀请码 <span class="share-field-tip" id="profileShareInviteTip">新用户注册填码 · 双方得积分</span></label>
                 <div class="share-link-row">
                     <input type="text" id="profileInviteCodeInput" readonly value="LUNA-8K3F" aria-label="邀请码" />
                     <button type="button" class="btn-mini" id="btnCopyInviteCode" title="复制邀请码"><i class="fa-regular fa-copy"></i></button>
@@ -1205,6 +1307,9 @@
 <script src="../js-web/fl-friends-store.js"></script>
 <script src="../js-web/profile-social-lists.js"></script>
 <script src="../js-web/profile-unread-viewer.js"></script>
+<script src="../js-web/invite-reward-config.js"></script>
+<script src="../js-web/invite-referral.js"></script>
+<script src="../js-web/profile-invite-view.js"></script>
 <script src="../js-web/profile-share.js"></script>
 <script src="../js-web/profile-cover.js"></script>
 <link rel="stylesheet" href="../css-web/host-live-pip-global.css">

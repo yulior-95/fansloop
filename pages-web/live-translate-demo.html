@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>直播 · 跨国界无障碍演示 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/global-accessibility.css">
+<script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
+<style>
+.page-wrap { max-width: 1280px; margin: 0 auto; padding: 20px 28px 48px; }
+.page-head { margin-bottom: 18px; }
+.page-head h1 { font-size: 20px; font-weight: 800; }
+.page-head p { font-size: 12.5px; color: var(--t-tertiary); margin-top: 6px; line-height: 1.5; }
+#ltToast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 10px 18px; border-radius: 999px; background: rgba(20,20,35,0.95); border: 1px solid var(--border-strong); font-size: 12px; opacity: 0; transition: 0.25s; z-index: 300; pointer-events: none; }
+#ltToast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <nav class="s-nav">
+            <a href="home.html"><i class="fa-solid fa-house"></i><span>首页</span></a>
+            <a href="live-detail.html"><i class="fa-solid fa-tower-broadcast"></i><span>直播（正式页）</span></a>
+            <a href="settings-global-access.html"><i class="fa-solid fa-earth-americas"></i><span>无障碍设置</span></a>
+        </nav>
+    </aside>
+    <main class="app-main">
+        <div class="page-wrap">
+            <div class="page-head">
+                <div class="crumb" style="display:flex;gap:8px;font-size:12px;color:var(--t-tertiary);margin-bottom:8px">
+                    <a href="settings-display.html#ga-global-access" style="color:var(--t-secondary)">跨国界无障碍</a>
+                    <i class="fa-solid fa-chevron-right"></i>
+                    <span style="color:#fff;font-weight:600">直播演示</span>
+                </div>
+                <h1><i class="fa-solid fa-tower-broadcast" style="color:#60A5FA"></i> 直播观看 · 自动翻译演示</h1>
+                <p>独立原型，不修改 <code>live-detail.html</code>。演示：弹幕译为你的沟通语言、可选主播实时字幕、播放器内「无障碍」侧滑面板。</p>
+            </div>
+
+            <div class="ga-info-banner">
+                <i class="fa-solid fa-language"></i>
+                <div>当前观看语言：<strong id="ltLangBadge">简体中文</strong> · 设置保存在 <code>fl_global_accessibility_v1</code>，与全局设置页同步。</div>
+            </div>
+
+            <div class="lt-grid">
+                <div>
+                    <div class="lt-player" id="ltPlayer">
+                        <div class="lt-top-bar">
+                            <span class="lt-live-pill"><span class="dot"></span> LIVE</span>
+                            <span class="ga-badge"><i class="fa-solid fa-eye"></i> 12.4k</span>
+                            <span style="margin-left:auto;font-size:12px;color:rgba(255,255,255,0.85);font-weight:600">NovaPlay · Apex 大师之路</span>
+                        </div>
+                        <div class="lt-subtitle" id="ltSubtitle" hidden>
+                            <span id="ltSubMain">好的，我们下一局继续冲 A 点。</span>
+                            <span class="orig" id="ltSubOrig">Alright, next round we keep pushing A site.</span>
+                        </div>
+                        <div class="lt-tool-row">
+                            <button type="button" class="lt-tool-btn on" id="btnLtTranslate" title="弹幕翻译"><i class="fa-solid fa-language"></i></button>
+                            <button type="button" class="lt-tool-btn" id="btnLtAccess" title="无障碍设置"><i class="fa-solid fa-earth-americas"></i></button>
+                        </div>
+                    </div>
+                    <p style="font-size:11px;color:var(--t-tertiary);margin-top:10px"><i class="fa-solid fa-circle-info"></i> 正式接入：工具栏「译」与齿轮旁「无障碍」并入 live-detail 播放器控件区。</p>
+                </div>
+
+                <div class="lt-chat-shell">
+                    <div class="lt-chat-head">
+                        <h4><i class="fa-regular fa-comments"></i> 直播聊天室</h4>
+                        <span class="ga-badge" id="ltChatBadge"><i class="fa-solid fa-language"></i> 自动翻译开</span>
+                    </div>
+                    <div class="lt-chat-body" id="ltChatBody"></div>
+                    <div style="padding:10px 12px;border-top:1px solid var(--border);font-size:11px;color:var(--t-tertiary)">
+                        <i class="fa-solid fa-keyboard"></i> 输入框翻译逻辑见 <a href="messages-translate-demo.html" style="color:#93C5FD">私信演示</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div class="lt-panel-backdrop" id="ltBackdrop"></div>
+<aside class="lt-panel" id="ltPanel" aria-label="直播无障碍设置">
+    <div class="lt-panel-head">
+        <h3><i class="fa-solid fa-earth-americas"></i> 本场无障碍</h3>
+        <button type="button" class="btn btn-ghost btn-sm" id="btnLtPanelClose"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="lt-panel-body">
+        <p style="font-size:12px;color:var(--t-tertiary);margin-bottom:16px;line-height:1.5">仅影响当前直播间观看体验；默认读取账户全局设置，可临时覆盖。</p>
+        <div class="ga-switch-row" style="padding:12px 0">
+            <div class="lb"><div class="ti">观看语言</div></div>
+            <select class="ga-select" id="pCommLang"></select>
+        </div>
+        <div class="ga-switch-row" style="padding:12px 0">
+            <div class="lb"><div class="ti">翻译弹幕</div></div>
+            <div class="ga-switch on" id="pLiveChat" role="switch" tabindex="0"></div>
+        </div>
+        <div class="ga-switch-row" style="padding:12px 0">
+            <div class="lb"><div class="ti">实时字幕</div><div class="sub">主播语音 ASR → 翻译</div></div>
+            <div class="ga-switch" id="pLiveSub" role="switch" tabindex="0"></div>
+        </div>
+        <div class="ga-switch-row" style="padding:12px 0;border-bottom:none">
+            <div class="lb"><div class="ti">显示</div></div>
+            <select class="ga-select" id="pDisplay">
+                <option value="dual">译文 + 原文</option>
+                <option value="translated-only">仅译文</option>
+            </select>
+        </div>
+            <a href="settings-display.html#ga-global-access" class="btn btn-secondary" style="width:100%;margin-top:20px;justify-content:center;display:inline-flex;gap:8px;align-items:center">
+            <i class="fa-solid fa-gear"></i> 账户全局设置
+        </a>
+    </div>
+</aside>
+
+<div id="ltToast"></div>
+<script src="../js-web/app-sidebar-global.js"></script>
+<script src="../js-web/global-accessibility-store.js"></script>
+<script src="../js-web/live-translate-demo.js"></script>
+</body>
+</html>
