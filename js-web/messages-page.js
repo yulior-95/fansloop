@@ -3,7 +3,7 @@
  * 不修改其他模块；仅增强 messages.html
  */
 (function () {
-    var LS_KEY = 'fl_messages_mock_v1';
+    var LS_KEY = 'fl_messages_mock_v4';
 
     var THREADS = [
         {
@@ -14,26 +14,23 @@
             category: 'fan',
             tags: ['粉丝'],
             online: true,
-            typing: true,
-            unread: 1,
+            unread: 0,
             pinned: false,
-            time: '2 分钟前',
-            preview: '正在输入…',
-            previewTyping: true,
+            time: '1 小时前',
+            preview: '嗨！看到你发布的作品很喜欢，想认识一下～',
+            previewYou: true,
             verified: true,
-            isMutualFollow: true,
+            isMutualFollow: false,
+            isSubscribed: false,
+            isFollowing: false,
+            isFollowedByThem: false,
+            dmLimitReached: true,
+            tipTotal: '$48.00',
             stats: { fans: '64k', works: '312', active: '88%' },
-            relation: ['已互相关注 12 天', '已订阅创作者 · $9.9/月', '总打赏 $48.00'],
             messages: [
                 { type: 'day', text: '今天' },
-                { from: 'them', type: 'text', text: '嗨 Luna！我看到你最近富士山的那组片子真是太赞了！能跟我分享一下你用什么镜头拍的吗？', time: '14:02' },
-                { from: 'me', type: 'text', text: '谢谢你喜欢～主要是 35mm f/1.4 定焦，配 Sony A7R 第四代 📷', time: '14:05', read: true },
-                { from: 'me', type: 'image', src: 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=600', time: '14:05' },
-                { from: 'them', type: 'text', text: '这张光线绝了 🤩 想问下你下次还有摄影工作坊吗？', time: '14:08' },
-                { from: 'them', type: 'gift', text: '送出礼物 · 樱花信使 × 1 · ≈ $5.00', time: '14:10' },
-                { from: 'me', type: 'text', text: '哇 谢谢支持！下个月会有，到时候第一时间邀请你 ✨', time: '14:12', read: true },
-                { from: 'them', type: 'share', title: '富士山晨雾 · 35mm 实拍', cover: 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400', meta: 'Lens 旅记 · 2.4k 赞', time: '14:14' },
-                { from: 'them', type: 'typing' }
+                { from: 'me', type: 'text', text: '嗨！看到你发布的作品很喜欢，想认识一下～', time: '13:20', read: true },
+                { from: 'system', type: 'tip', text: '你已发送首条私信。订阅、互关或获对方回复后可继续聊天。', time: '13:20' }
             ]
         },
         {
@@ -47,6 +44,10 @@
             time: '14:22',
             preview: '谢谢你订阅我的频道！这是一份…',
             verified: true,
+            isMutualFollow: false,
+            isSubscribed: true,
+            isFollowing: false,
+            subPrice: '$9.9/月',
             messages: [
                 { type: 'day', text: '今天' },
                 { from: 'them', type: 'text', text: '谢谢你订阅我的频道！这是一份订阅者专属菜谱 PDF～', time: '14:20' }
@@ -58,6 +59,8 @@
             av: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120',
             category: 'fan',
             isMutualFollow: true,
+            isSubscribed: false,
+            mutualFollowDays: 30,
             online: true,
             unread: 1,
             time: '14:08',
@@ -73,10 +76,18 @@
             av: 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=120',
             category: 'fan',
             tags: ['粉丝'],
+            isMutualFollow: false,
+            isSubscribed: false,
+            isFollowing: true,
+            isFollowedByThem: false,
+            dmLimitReached: true,
             time: '昨天',
-            preview: '[图片]',
+            previewYou: true,
+            preview: '你好，想请教一下开源项目的事',
             messages: [
-                { from: 'them', type: 'image', src: 'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=500', time: '昨天' }
+                { type: 'day', text: '昨天' },
+                { from: 'me', type: 'text', text: '你好，想请教一下开源项目的事', time: '昨天', read: true },
+                { from: 'system', type: 'tip', text: '你已发送首条私信。订阅、互关或获对方回复后可继续聊天。', time: '昨天' }
             ]
         },
         {
@@ -89,11 +100,13 @@
             time: '1 小时前',
             previewYou: true,
             preview: '你好，想咨询摄影工作坊怎么报名？',
-            relation: ['未互相关注 · 等待对方回复'],
+            isSubscribed: false,
+            isFollowing: false,
+            isFollowedByThem: false,
             messages: [
                 { type: 'day', text: '今天' },
                 { from: 'me', type: 'text', text: '你好，想咨询摄影工作坊怎么报名？', time: '13:20', read: true },
-                { from: 'system', type: 'tip', text: '你已发送首条私信。对方回复或与你互相关注后可继续聊天。', time: '13:20' }
+                { from: 'system', type: 'tip', text: '你已发送首条私信。订阅、互关或获对方回复后可继续聊天。', time: '13:20' }
             ]
         },
         {
@@ -208,9 +221,7 @@
 
     /** 互相关注列表 · 新建私聊 / 建群 / 拉群成员共用 */
     var MUTUAL_FOLLOW_USERS = [
-        { id: 'lens', name: 'Lens 旅记', sub: '互相关注 · 粉丝', av: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120', threadId: 'lens', sortKey: 'L' },
         { id: 'yeyu', name: '夜雨听弦', sub: '互相关注', av: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120', threadId: 'yeyu', sortKey: 'Y' },
-        { id: 'code', name: '代码诗人', sub: '互相关注', av: 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=120', threadId: 'code', sortKey: 'D' },
         { id: 'mila', name: 'Mila', sub: '互相关注', av: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120', threadId: null, sortKey: 'M' }
     ];
 
@@ -276,10 +287,11 @@
                     if (m.remark != null) t.remark = m.remark;
                     if (m.convMuted != null) t.convMuted = m.convMuted;
                     if (m.hiddenChat != null) t.hiddenChat = m.hiddenChat;
-                    if (m.isMutualFollow != null) t.isMutualFollow = m.isMutualFollow;
-                    if (m.dmLimitReached != null) t.dmLimitReached = m.dmLimitReached;
+                    if (m.isFollowing != null) t.isFollowing = m.isFollowing;
+                    if (m.isFollowedByThem != null) t.isFollowedByThem = m.isFollowedByThem;
                 });
             }
+            THREADS.forEach(recomputeDmLimitState);
         } catch (e) { /* ignore */ }
     }
 
@@ -307,46 +319,199 @@
         });
     }
 
+    function isSubscribed(t) {
+        if (!t || t.kind === 'group' || t.official) return false;
+        if (t.isSubscribed === true) return true;
+        if (t.category === 'subscriber') return true;
+        if (t.relation) {
+            for (var si = 0; si < t.relation.length; si++) {
+                if (t.relation[si].indexOf('已订阅') >= 0) return true;
+            }
+        }
+        return false;
+    }
+
+    function isFollowingThem(t) {
+        if (!t || t.kind === 'group' || t.official) return false;
+        if (isMutualFollow(t)) return true;
+        return t.isFollowing === true;
+    }
+
+    function isFollowedByThem(t) {
+        if (!t || t.kind === 'group' || t.official) return false;
+        if (isMutualFollow(t)) return true;
+        return t.isFollowedByThem === true;
+    }
+
+    /** @deprecated 仅兼容旧调用；单向关注不解除首条限制 */
+    function isFollowing(t) {
+        return isFollowingThem(t);
+    }
+
+    /** 已订阅或互关 · 可自由私信，不受首条限制 */
+    function hasDmPrivilege(t) {
+        return isMutualFollow(t) || isSubscribed(t);
+    }
+
+    /** 未互关且未订阅 · 适用首条私信限制（含单向关注） */
+    function isDmStrangerLimited(t) {
+        if (!t || t.kind === 'group' || t.official) return false;
+        return !hasDmPrivilege(t);
+    }
+
     function isDmInputLocked(t) {
         if (!t || t.kind === 'group' || t.official) return false;
-        if (isMutualFollow(t)) return false;
-        if (t.dmLimitReached) return true;
+        if (hasDmPrivilege(t)) return false;
         return countMyOutboundMessages(t) >= 1 && !hasPeerReply(t);
+    }
+
+    /**
+     * 按关系 + 消息重算锁定态：
+     * - 已订阅 / 互关 → 永不锁定，并清理误存提示
+     * - 未互关且未订阅 → 已发首条且对方未回复则锁定
+     */
+    function recomputeDmLimitState(t) {
+        if (!t || t.kind === 'group' || t.official) return;
+        if (hasDmPrivilege(t)) {
+            var hadTip = t.messages && t.messages.some(function (m) {
+                return m.from === 'system' && m.type === 'tip';
+            });
+            if (t.dmLimitReached || hadTip) {
+                t.dmLimitReached = false;
+                if (hadTip) {
+                    t.messages = t.messages.filter(function (m) {
+                        return !(m.from === 'system' && m.type === 'tip');
+                    });
+                }
+                saveThreadMeta(t.id, { dmLimitReached: false });
+            }
+            return;
+        }
+        var shouldLock = isDmInputLocked(t);
+        if (t.dmLimitReached !== shouldLock) {
+            t.dmLimitReached = shouldLock;
+            saveThreadMeta(t.id, { dmLimitReached: shouldLock });
+        }
     }
 
     function canSendMessage(t) {
         return !isDmInputLocked(t);
     }
 
+    function dmLimitHintText() {
+        return '未互关且未订阅时，暂不可继续发送；互关、订阅或获对方回复后可解除';
+    }
+
+    function dmLimitTipText() {
+        return '你已发送首条私信。订阅、互关或获对方回复后可继续聊天。';
+    }
+
+    function relationStatusLabel(t) {
+        var follow;
+        if (isMutualFollow(t)) follow = '互相关注';
+        else if (isFollowingThem(t)) follow = '单向关注';
+        else if (isFollowedByThem(t)) follow = '对方已关注';
+        else follow = '未互关';
+        var sub = isSubscribed(t) ? '已订阅' : '未订阅';
+        return follow + ' · ' + sub;
+    }
+
+    function buildRelationRows(t) {
+        var rows = [];
+        if (isMutualFollow(t)) {
+            var days = t.mutualFollowDays;
+            rows.push({
+                iconType: 'mutual',
+                text: days ? ('已互相关注 ' + days + ' 天') : '已互相关注'
+            });
+        } else if (isFollowingThem(t)) {
+            rows.push({ iconType: 'follow-oneway', text: '已关注对方 · 未互关' });
+        } else if (isFollowedByThem(t)) {
+            rows.push({ iconType: 'followed-oneway', text: '对方已关注你 · 未互关' });
+        } else {
+            rows.push({ iconType: 'not-mutual', text: '未互相关注' });
+        }
+        if (isSubscribed(t)) {
+            rows.push({ iconType: 'subscribed', text: '已订阅创作者 · ' + (t.subPrice || '$9.9/月') });
+        } else {
+            rows.push({ iconType: 'not-subscribed', text: '未订阅创作者' });
+        }
+        if (t.tipTotal) {
+            rows.push({ iconType: 'tip', text: '总打赏 ' + t.tipTotal });
+        }
+        return rows;
+    }
+
+    function relationRowIcon(iconType) {
+        switch (iconType) {
+            case 'mutual':
+                return '<i class="fa-solid fa-heart ic" style="color:#F472B6"></i>';
+            case 'not-mutual':
+                return '<i class="fa-solid fa-user-slash ic imi-ic-muted"></i>';
+            case 'follow-oneway':
+                return '<i class="fa-solid fa-user-plus ic" style="color:#FBBF24"></i>';
+            case 'followed-oneway':
+                return '<i class="fa-solid fa-user-check ic" style="color:#60A5FA"></i>';
+            case 'subscribed':
+                return '<i class="fa-solid fa-crown ic" style="color:#FBBF24"></i>';
+            case 'not-subscribed':
+                return '<span class="imi-rel-icon imi-rel-icon--unsub ic" aria-hidden="true"><i class="fa-solid fa-crown"></i></span>';
+            case 'tip':
+                return '<i class="fa-solid fa-gift ic" style="color:#F59E0B"></i>';
+            default:
+                return '<i class="fa-regular fa-circle ic"></i>';
+        }
+    }
+
+    function renderHeadStatus(t) {
+        if (t.kind === 'group') return (t.memberCount || 0) + ' 位成员 · 私域群';
+        if (isDmInputLocked(t)) return relationStatusLabel(t) + ' · 首条已发';
+        if (isSubscribed(t)) return '已订阅 · 可自由私信';
+        if (isMutualFollow(t)) {
+            if (t.typing) return '在线 · 互相关注 · 可自由私信';
+            return (t.online ? '在线 · ' : '离线 · ') + '互相关注 · 可自由私信';
+        }
+        if (isDmStrangerLimited(t) && hasPeerReply(t)) {
+            var prefix = t.typing ? '在线 · 正在输入… · ' : (t.online ? '在线 · ' : '离线 · ');
+            return prefix + relationStatusLabel(t) + ' · 已获回复';
+        }
+        if (t.typing) return '在线 · 正在输入… · ' + relationStatusLabel(t);
+        if (t.online) return '在线 · ' + relationStatusLabel(t);
+        return '离线 · ' + relationStatusLabel(t);
+    }
+
     function updateDmInputState(t) {
+        if (t) recomputeDmLimitState(t);
         var locked = t ? isDmInputLocked(t) : false;
         var wrap = $('imInputWrap');
         var banner = $('imDmLimitBanner');
         if (wrap) wrap.classList.toggle('im-input-locked', locked);
-        if (banner) banner.hidden = !locked;
+        if (banner) {
+            banner.hidden = !locked;
+            banner.setAttribute('aria-hidden', locked ? 'false' : 'true');
+        }
         if (el.inputTa) {
             el.inputTa.placeholder = locked
-                ? '等待对方回复或互相关注…'
+                ? '互关、订阅或获对方回复后可继续发送…'
                 : ('发送消息给 ' + (t ? displayThreadName(t) : '') + '…');
             el.inputTa.disabled = locked;
         }
         if (el.btnSend) el.btnSend.disabled = locked;
+        var hint = $('imDmLimitHint');
+        if (hint && locked) hint.textContent = dmLimitHintText();
     }
 
     function applyDmLimitAfterSend(t) {
-        if (!t || t.kind === 'group' || t.official || isMutualFollow(t)) return;
-        if (countMyOutboundMessages(t) >= 1 && !hasPeerReply(t)) {
-            t.dmLimitReached = true;
-            saveThreadMeta(t.id, { dmLimitReached: true });
-            if (!t.messages.some(function (m) { return m.from === 'system' && m.type === 'tip'; })) {
-                t.messages.push({
-                    from: 'system',
-                    type: 'tip',
-                    text: '你已发送首条私信。对方回复或与你互相关注后可继续聊天。',
-                    time: formatNow()
-                });
-            }
+        if (!t || t.kind === 'group' || t.official || hasDmPrivilege(t)) return;
+        if (isDmInputLocked(t) && !t.messages.some(function (m) { return m.from === 'system' && m.type === 'tip'; })) {
+            t.messages.push({
+                from: 'system',
+                type: 'tip',
+                text: dmLimitTipText(),
+                time: formatNow()
+            });
         }
+        recomputeDmLimitState(t);
         updateDmInputState(t);
     }
 
@@ -878,13 +1043,7 @@
             el.headName.innerHTML = esc(dn) + (t.remark ? ' <span style="font-size:11px;color:var(--t-tertiary);font-weight:400">(' + esc(t.name) + ')</span>' : '') +
                 (t.verified && t.kind !== 'group' ? ' <i class="fa-solid fa-circle-check" style="color:#3B82F6;font-size:11px"></i>' : '');
         }
-        if (el.headStatus) {
-            if (t.kind === 'group') el.headStatus.textContent = (t.memberCount || 0) + ' 位成员 · 私域群';
-            else if (!isMutualFollow(t)) el.headStatus.textContent = '未互关 · 首条私信已发';
-            else if (t.typing) el.headStatus.textContent = '在线 · 正在输入…';
-            else if (t.online) el.headStatus.textContent = '在线 · 互相关注';
-            else el.headStatus.textContent = '离线 · 互相关注';
-        }
+        if (el.headStatus) el.headStatus.textContent = renderHeadStatus(t);
         applyThreadHeadChrome(t);
         if (t.kind !== 'group') renderInfoPanel(t);
         updateDmInputState(t);
@@ -901,7 +1060,9 @@
         if (el.layout) el.layout.classList.toggle('im-info-open', state.infoOpen);
         if (el.infoPanel) el.infoPanel.setAttribute('aria-hidden', state.infoOpen ? 'false' : 'true');
         if (el.infoBackdrop) {
-            el.infoBackdrop.classList.toggle('show', state.infoOpen && isInfoOverlayMode());
+            var overlay = state.infoOpen && isInfoOverlayMode();
+            el.infoBackdrop.classList.toggle('show', overlay);
+            el.infoBackdrop.setAttribute('aria-hidden', overlay ? 'false' : 'true');
         }
         if (el.btnProfile) el.btnProfile.setAttribute('aria-expanded', state.infoOpen ? 'true' : 'false');
     }
@@ -940,15 +1101,21 @@
         if (notifySw) notifySw.classList.toggle('on', t.notifyOff !== true);
         var muteBtn = $('imBtnConvMute');
         if (muteBtn) muteBtn.classList.toggle('on', !!t.convMuted);
-        var relRows = el.infoPanel.querySelectorAll('.imi-section .imi-row');
-        if (relRows[0] && t.relation && t.relation[0]) {
-            relRows[0].innerHTML = '<i class="fa-regular fa-heart ic"></i> ' + esc(t.relation[0]);
+        var relSec = el.infoPanel.querySelector('.imi-section[data-relation]');
+        if (relSec) {
+            var rows = buildRelationRows(t);
+            var relHtml = '<h4>关系</h4>';
+            for (var ri = 0; ri < rows.length; ri++) {
+                relHtml += '<div class="imi-row">' + relationRowIcon(rows[ri].iconType) + ' ' + esc(rows[ri].text) + '</div>';
+            }
+            relSec.innerHTML = relHtml;
         }
     }
 
     function selectThread(id) {
         var t = findThread(id);
         if (!t) return;
+        recomputeDmLimitState(t);
         restoreThread(id);
         state.activeType = 'thread';
         state.notifInbox = null;
@@ -1004,7 +1171,7 @@
         if (!text) return;
         var t = findThread(state.activeId);
         if (t && !canSendMessage(t)) {
-            toast('对方回复或与你互相关注前，暂不可继续发送');
+            toast('未互关且未订阅时，仅可发送一条；互关、订阅或获对方回复后可继续');
             return;
         }
         var mentions = t ? parseMentionsInText(text, t) : [];
@@ -1024,10 +1191,10 @@
         if (!t || t.official || isDmInputLocked(t)) return;
         setTimeout(function () {
             addMessage({ from: 'them', type: 'text', text: '收到啦～稍后回复你更多细节 ✨' });
-            if (!isMutualFollow(t)) {
-                t.dmLimitReached = false;
-                saveThreadMeta(t.id, { dmLimitReached: false });
+            if (isDmStrangerLimited(t)) {
+                recomputeDmLimitState(t);
                 updateDmInputState(t);
+                renderHeader();
             }
         }, 1800);
     }
@@ -1378,7 +1545,7 @@
         }
         if (el.btnImage) el.btnImage.addEventListener('click', function () {
             var t = findThread(state.activeId);
-            if (t && !canSendMessage(t)) { toast('对方回复或与你互相关注前，暂不可继续发送'); return; }
+            if (t && !canSendMessage(t)) { toast('未互关且未订阅时，仅可发送一条；互关、订阅或获对方回复后可继续'); return; }
             addMessage({ from: 'me', type: 'image', src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600' });
             toast('图片已发送（演示）');
         });
@@ -1518,27 +1685,78 @@
         var th = findThreadByName(peerName);
         if (th) {
             selectThread(th.id);
+            applyPostPeerOpen();
             return;
         }
         var isLocked = /[?&]dm=locked/.test(location.search);
+        var fromProfile = /[?&]from=profile/.test(location.search);
+        var profileMeta = getProfilePeerMeta(peerName);
         THREADS.unshift({
-            id: 'peer_' + Date.now(),
+            id: profileMeta.id || ('peer_' + Date.now()),
             name: peerName,
-            av: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120',
+            av: profileMeta.av,
+            handle: profileMeta.handle,
             category: 'fan',
-            isMutualFollow: false,
+            isMutualFollow: profileMeta.isMutualFollow,
+            isSubscribed: profileMeta.isSubscribed === true,
+            isFollowing: profileMeta.isFollowing === true,
+            isFollowedByThem: profileMeta.isFollowedByThem === true,
             dmLimitReached: isLocked,
+            verified: profileMeta.verified,
+            online: profileMeta.online,
             time: '刚刚',
-            preview: isLocked ? '你好…' : '开始新对话',
+            preview: isLocked ? profileMeta.preview : '开始新对话',
             previewYou: isLocked,
-            relation: ['未互相关注'],
-            messages: isLocked ? [
-                { type: 'day', text: '今天' },
-                { from: 'me', type: 'text', text: '你好，想和你聊聊合作的事～', time: '刚刚', read: true },
-                { from: 'system', type: 'tip', text: '你已发送首条私信。对方回复或与你互相关注后可继续聊天。', time: '刚刚' }
-            ] : [{ type: 'day', text: '今天' }]
+            messages: isLocked ? profileMeta.lockedMessages : [{ type: 'day', text: '今天' }]
         });
         selectThread(THREADS[0].id);
+        applyPostPeerOpen();
+    }
+
+    function getProfilePeerMeta(name) {
+        if (name === 'Luna 🌙' || name.indexOf('Luna') >= 0) {
+            return {
+                id: 'luna-dm',
+                av: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120',
+                handle: '@luna_moon',
+                isMutualFollow: false,
+                isSubscribed: false,
+                isFollowing: false,
+                isFollowedByThem: false,
+                verified: true,
+                online: true,
+                preview: '开始新对话',
+                lockedMessages: [{ type: 'day', text: '今天' }]
+            };
+        }
+        return {
+            av: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120',
+            isMutualFollow: false,
+            isSubscribed: false,
+            isFollowing: false,
+            isFollowedByThem: false,
+            preview: '你好…',
+            lockedMessages: [
+                { type: 'day', text: '今天' },
+                { from: 'me', type: 'text', text: '你好，想和你聊聊合作的事～', time: '刚刚', read: true },
+                { from: 'system', type: 'tip', text: '你已发送首条私信。订阅、互关或获对方回复后可继续聊天。', time: '刚刚' }
+            ]
+        };
+    }
+
+    function applyPostPeerOpen() {
+        if (/[?&]from=profile/.test(location.search)) {
+            state.tab = 'dm';
+            if (el.tabs) {
+                el.tabs.querySelectorAll('.t').forEach(function (x) {
+                    x.classList.toggle('active', x.getAttribute('data-tab') === 'dm');
+                });
+            }
+            renderThreadList();
+            setTimeout(function () {
+                if (el.inputTa && !el.inputTa.disabled) el.inputTa.focus();
+            }, 200);
+        }
     }
 
     function init() {
@@ -1638,9 +1856,12 @@
             var inboxKind = inboxM[1] === 'friend' ? 'stranger' : inboxM[1];
             setTimeout(function () { openNotifInbox(inboxKind); }, 350);
         }
-        if (/[?&]peer=胶片爱好者/.test(location.search) || /[?&]dm=locked/.test(location.search)) {
+        if (/[?&]peer=胶片爱好者/.test(location.search) || (/[?&]dm=locked/.test(location.search) && !/[?&]from=profile/.test(location.search))) {
             var st = findThread('stranger-film');
             if (st) state.activeId = 'stranger-film';
+        }
+        if (/[?&]from=profile/.test(location.search) && !/[?&]peer=/.test(location.search)) {
+            applyPostPeerOpen();
         }
         var tabM = /[?&]tab=(\w+)/.exec(location.search);
         if (tabM && el.tabs) {
@@ -1676,6 +1897,14 @@
         state: state,
         deleteThread: deleteThread,
         isMutualFollow: isMutualFollow,
+        isSubscribed: isSubscribed,
+        isFollowing: isFollowing,
+        isFollowingThem: isFollowingThem,
+        isFollowedByThem: isFollowedByThem,
+        buildRelationRows: buildRelationRows,
+        hasDmPrivilege: hasDmPrivilege,
+        isDmStrangerLimited: isDmStrangerLimited,
+        recomputeDmLimitState: recomputeDmLimitState,
         canSendMessage: canSendMessage,
         isThreadDeleted: isThreadDeleted,
         displayThreadName: displayThreadName,

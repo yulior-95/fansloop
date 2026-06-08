@@ -41,6 +41,8 @@
             if (c.width > 0) pop.style.width = c.width + 'px';
             pop.style.right = 'auto';
             pop.style.bottom = 'auto';
+            pop.style.transform = 'none';
+            pop.style.zIndex = '100002';
         }
 
         global.requestAnimationFrame(function () {
@@ -57,6 +59,8 @@
         pop.style.removeProperty('right');
         pop.style.removeProperty('bottom');
         pop.style.removeProperty('width');
+        pop.style.removeProperty('transform');
+        pop.style.removeProperty('z-index');
     }
 
     function activate(wrap) {

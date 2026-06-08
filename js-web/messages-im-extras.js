@@ -266,20 +266,22 @@
     }
 
     function bindInfoPanel() {
-        $('imBtnUserProfile')?.addEventListener('click', function () {
-            var t = activeThread();
+        function openCreatorProfilePage(t) {
             if (!t || t.kind === 'group') {
                 api().toast('群聊无个人主页，请查看群管理');
                 return;
             }
-            api().toast('打开「' + api().displayThreadName(t) + '」的创作者主页（演示）');
-            window.open('profile.html?user=' + encodeURIComponent(t.handle || t.name), '_blank');
+            var q = 'creator-profile.html?user=' + encodeURIComponent(t.name);
+            if (t.handle) q += '&handle=' + encodeURIComponent(t.handle);
+            location.href = q;
+        }
+        $('imBtnUserProfile')?.addEventListener('click', function () {
+            openCreatorProfilePage(activeThread());
         });
         $('imBtnWorksStat')?.addEventListener('click', function () {
             var t = activeThread();
             if (!t || t.kind === 'group') return;
-            api().toast('进入用户详情 · 作品列表（演示）');
-            window.open('profile.html?user=' + encodeURIComponent(t.handle || t.name) + '&tab=works', '_blank');
+            location.href = 'creator-profile.html?user=' + encodeURIComponent(t.name) + '#works';
         });
         $('imBtnConvMute')?.addEventListener('click', function () {
             var t = activeThread();

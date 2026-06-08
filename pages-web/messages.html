@@ -22,7 +22,14 @@
     flex-direction: column;
     background: var(--bg-app);
     min-height: 0;
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
+    z-index: 30;
+}
+.im-list #imThreadList {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
 }
 .im-thread {
     display: flex;
@@ -32,6 +39,8 @@
     min-height: 0;
     height: 100%;
     overflow: hidden;
+    position: relative;
+    z-index: 1;
 }
 .im-info {
     display: none;
@@ -90,7 +99,7 @@
     position: fixed;
     inset: var(--header-h) 0 0 0;
     background: rgba(0,0,0,0.45);
-    z-index: 450;
+    z-index: 440;
     pointer-events: auto;
 }
 .im-info-backdrop.show { display: block; }
@@ -99,7 +108,7 @@
     .im-info-backdrop { display: none !important; pointer-events: none; }
     .im-layout.im-info-open .im-info {
         position: relative;
-        z-index: 1;
+        z-index: 2;
         pointer-events: auto;
     }
 }
@@ -432,7 +441,6 @@
     </header>
 
     <main class="app-main">
-        <div class="im-info-backdrop" id="imInfoBackdrop" aria-hidden="true"></div>
         <div class="im-layout" id="imLayout">
 
             <!-- 左:列表 -->
@@ -440,17 +448,17 @@
                 <div class="iml-head">
                     <div class="iml-title-row">
                         <h2><i class="fa-regular fa-comments"></i>消息<span class="cnt" id="imUnreadHead">8 未读</span>
-                            <span class="dev-glass-wrap dev-glass-wrap--feed">
+                            <span class="dev-glass-wrap dev-glass-wrap--feed dev-glass-wrap--pop-right dev-glass-wrap--layer-top dev-glass-wrap--im-rules">
                                 <span class="dev-glass-sphere" tabindex="0" aria-describedby="devImRulesTip">
                                     <span class="dev-glass-sphere-shine"></span>
                                     <span class="dev-glass-sphere-txt">To 研发</span>
                                 </span>
-                                <span class="dev-glass-pop" id="devImRulesTip" role="tooltip">
+                                <span class="dev-glass-pop dev-glass-pop--wide" id="devImRulesTip" role="tooltip">
                                     <strong>私信规则（5 条）</strong><br>
                                     1. 已取消「添加好友」功能<br>
-                                    2. 私聊会话仅支持<strong>互相关注</strong>用户（官方/群聊除外）<br>
+                                    2. 新建私聊仅<strong>互关列表</strong>；已订阅/互关可自由收发（官方/群聊除外）<br>
                                     3. 建群/拉人仅从<strong>互关列表</strong>选择<br>
-                                    4. 向非互关用户仅可发<strong>1 条</strong>；对方回复或互关前不可再发<br>
+                                    4. <strong>未互关且未订阅</strong>（含单向关注）仅可发 1 条；已订阅或互关可自由发送<br>
                                     5. 已取消<strong>通讯录</strong>入口
                                 </span>
                             </span>
@@ -480,7 +488,7 @@
                         <div class="av" id="imHeadAv" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120')"></div>
                         <div class="info">
                             <div class="n" id="imHeadName">Lens 旅记 <i class="fa-solid fa-circle-check" style="color:#3B82F6;font-size:11px"></i></div>
-                            <div class="s" id="imHeadStatus">在线 · 正在输入…</div>
+                            <div class="s" id="imHeadStatus">在线 · 未互关 · 未订阅 · 首条已发</div>
                         </div>
                     </div>
                     <div class="acts">
@@ -540,15 +548,19 @@
                     <i class="fa-solid fa-lock"></i>
                     <div class="txt">
                         <strong>已发送首条私信</strong>
-                        <span id="imDmLimitHint">对方回复或与你互相关注前，暂不可继续发送消息</span>
+                        <span id="imDmLimitHint">未互关且未订阅时，暂不可继续发送；互关、订阅或获对方回复后可解除</span>
                     </div>
-                    <span class="dev-glass-wrap">
+                    <span class="dev-glass-wrap dev-glass-wrap--pop-left dev-glass-wrap--layer-top">
                         <span class="dev-glass-sphere" tabindex="0" aria-describedby="devDmLimitTip">
                             <span class="dev-glass-sphere-shine"></span>
                             <span class="dev-glass-sphere-txt">To 研发</span>
                         </span>
-                        <span class="dev-glass-pop dev-glass-pop--below" id="devDmLimitTip" role="tooltip">
-                            非互关用户：<code>sentCount &gt;= 1</code> 且 <code>!hasReply &amp;&amp; !isMutualFollow</code> 时锁定输入区；对方回复或互关后解锁。首条消息可从 profile「私信」入口发起。
+                        <span class="dev-glass-pop dev-glass-pop--wide" id="devDmLimitTip" role="tooltip">
+                            <strong>锁定条件</strong>（须同时满足）：<br>
+                            ① <code>!isSubscribed</code> 未订阅对方<br>
+                            ② <code>!isMutualFollow</code> 未互相关注（<em>单向关注也算</em>）<br>
+                            ③ <code>sentCount &gt;= 1</code> 且 <code>!hasReply</code><br>
+                            <strong>例外：</strong>已订阅或互关可自由私信。解锁：订阅 / 互关 / 对方回复。首条可从 profile「私信」发起。
                         </span>
                     </span>
                 </div>
@@ -572,6 +584,9 @@
                 </div>
             </div>
 
+            <!-- 窄屏用户详情蒙层（置于详情栏之下，避免挡住侧栏操作） -->
+            <div class="im-info-backdrop" id="imInfoBackdrop" aria-hidden="true"></div>
+
             <!-- 右:用户信息 -->
             <div class="im-info" id="imInfoPanel" aria-hidden="true">
                 <div class="imi-head">
@@ -582,7 +597,7 @@
                     <h3>Lens 旅记 <i class="fa-solid fa-circle-check vfy"></i></h3>
                     <div class="h">@lensjourney · 旅行摄影</div>
                     <div class="acts">
-                        <button type="button" class="ic-btn" id="imBtnUserProfile" title="查看 Ta 的创作者个人主页"><i class="fa-regular fa-user"></i></button>
+                        <button type="button" class="ic-btn" id="imBtnUserProfile" title="打开创作者主页"><i class="fa-regular fa-user"></i></button>
                         <button type="button" class="ic-btn" id="imBtnConvMute" title="消息免打扰（列表显示免打扰图标）"><i class="fa-solid fa-bell-slash"></i></button>
                     </div>
                 </div>
@@ -593,10 +608,10 @@
                     <div class="imi-stat-click" data-stat="active" title="活跃度"><div class="v">88%</div><div class="k">活跃</div></div>
                 </div>
 
-                <div class="imi-section">
+                <div class="imi-section" data-relation>
                     <h4>关系</h4>
-                    <div class="imi-row"><i class="fa-regular fa-heart ic"></i> 已互相关注 12 天</div>
-                    <div class="imi-row"><i class="fa-solid fa-crown ic" style="color:#FBBF24"></i> 已订阅创作者 · $9.9/月</div>
+                    <div class="imi-row"><i class="fa-solid fa-user-slash ic imi-ic-muted"></i> 未互相关注</div>
+                    <div class="imi-row"><span class="imi-rel-icon imi-rel-icon--unsub ic" aria-hidden="true"><i class="fa-solid fa-crown"></i></span> 未订阅创作者</div>
                     <div class="imi-row"><i class="fa-solid fa-gift ic" style="color:#F59E0B"></i> 总打赏 $48.00</div>
                 </div>
 

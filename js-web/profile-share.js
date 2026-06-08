@@ -7,6 +7,7 @@
     var SHARE_URL = PROFILE_URL + '?ref=' + encodeURIComponent(INVITE_CODE);
     var COVER_IMG = 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=900&q=80';
     var AVATAR_IMG = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80';
+    var POSTER_FILENAME = 'FansLoop-Luna-profile.png';
 
     var FL = window.FLInviteReward;
     var inviteRewardConfig = FL ? FL.DEFAULT : { inviterPoints: 200, inviteePoints: 200 };
@@ -88,13 +89,109 @@
         });
     }
 
-    function savePoster() {
-        showToast('正在生成海报…');
+    function waitForQr() {
+        if (!qrImg || !qrImg.src) return Promise.resolve();
+        if (qrImg.complete && qrImg.naturalWidth) return Promise.resolve();
+        return new Promise(function (resolve) {
+            qrImg.addEventListener('load', resolve, { once: true });
+            qrImg.addEventListener('error', resolve, { once: true });
+        });
+    }
+
+    function loadHtml2Canvas() {
+        if (window.html2canvas) return Promise.resolve(window.html2canvas);
+        return new Promise(function (resolve, reject) {
+            var s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+            s.onload = function () { resolve(window.html2canvas); };
+            s.onerror = function () { reject(new Error('html2canvas load failed')); };
+            document.head.appendChild(s);
+        });
+    }
+
+    function canvasToBlob(canvas) {
+        return new Promise(function (resolve, reject) {
+            if (canvas.toBlob) {
+                canvas.toBlob(function (blob) {
+                    if (blob) resolve(blob);
+                    else reject(new Error('toBlob failed'));
+                }, 'image/png');
+            } else {
+                var parts = canvas.toDataURL('image/png').split(',');
+                var bin = atob(parts[1]);
+                var arr = new Uint8Array(bin.length);
+                for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+                resolve(new Blob([arr], { type: 'image/png' }));
+            }
+        });
+    }
+
+    function savePngBlob(blob) {
+        if (window.showSaveFilePicker) {
+            return window.showSaveFilePicker({
+                suggestedName: POSTER_FILENAME,
+                types: [{ description: 'PNG 图片', accept: { 'image/png': ['.png'] } }]
+            }).then(function (handle) {
+                return handle.createWritable().then(function (writable) {
+                    return writable.write(blob).then(function () {
+                        return writable.close();
+                    });
+                });
+            }).then(function () {
+                showToast('海报已保存（PNG）');
+            }).catch(function (err) {
+                if (err && err.name === 'AbortError') return;
+                return fallbackDownload(blob);
+            });
+        }
+        return fallbackDownload(blob);
+    }
+
+    function fallbackDownload(blob) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.download = POSTER_FILENAME;
+        a.href = url;
+        a.click();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+        showToast('海报已保存（PNG）');
+        return Promise.resolve();
+    }
+
+    function capturePosterFromDom() {
+        var poster = document.getElementById('profileSharePoster');
+        if (!poster) return Promise.reject(new Error('no poster'));
+
+        return waitForQr().then(function () {
+            return loadHtml2Canvas();
+        }).then(function (html2canvas) {
+            return html2canvas(poster, {
+                scale: 2,
+                useCORS: true,
+                allowTaint: false,
+                backgroundColor: '#0c0c14',
+                logging: false
+            });
+        });
+    }
+
+    function readPosterText(sel, fallback) {
+        var el = document.querySelector('#profileSharePoster ' + sel);
+        return el && el.textContent ? el.textContent.trim() : fallback;
+    }
+
+    function savePosterCanvasFallback() {
+        var name = readPosterText('.psp-name', 'Luna 🌙');
+        var role = readPosterText('.psp-role', '认证创作者');
+        var bio = readPosterText('.psp-bio', '旅行 / 美食 / 慢生活摄影师 · 现居东京 · 35mm 定焦');
+        var urlText = readPosterText('.psp-url', 'fansloop.io/@luna');
+        var inviteCode = readPosterText('.psp-invite-code', INVITE_CODE);
+
         var qrUrl =
             'https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=0&data=' +
             encodeURIComponent(SHARE_URL);
 
-        Promise.all([loadImage(COVER_IMG), loadImage(AVATAR_IMG), loadImage(qrUrl)])
+        return Promise.all([loadImage(COVER_IMG), loadImage(AVATAR_IMG), loadImage(qrUrl)])
             .then(function (imgs) {
                 var w = 640;
                 var h = 996;
@@ -138,13 +235,13 @@
                 var ty = coverH + 48;
                 ctx.fillStyle = '#fff';
                 ctx.font = 'bold 34px system-ui, sans-serif';
-                ctx.fillText('Luna', 32, ty);
+                ctx.fillText(name, 32, ty);
                 ctx.fillStyle = '#c084fc';
                 ctx.font = '600 16px system-ui, sans-serif';
-                ctx.fillText('认证创作者', 32, ty + 32);
+                ctx.fillText(role.replace(/^\s*[^\s]+\s*/, '').trim() || role, 32, ty + 32);
                 ctx.fillStyle = 'rgba(255,255,255,0.75)';
                 ctx.font = '15px system-ui, sans-serif';
-                wrapText(ctx, '旅行 / 美食 / 慢生活摄影师 · 东京', 32, ty + 58, w - 64, 22);
+                wrapText(ctx, bio, 32, ty + 58, w - 64, 22);
 
                 var invY = ty + 100;
                 ctx.fillStyle = 'rgba(168,85,247,0.2)';
@@ -154,11 +251,11 @@
                 ctx.stroke();
                 ctx.fillStyle = '#fcd34d';
                 ctx.font = '600 12px system-ui, sans-serif';
-                ctx.fillText('我的邀请码', w / 2, invY + 22);
                 ctx.textAlign = 'center';
+                ctx.fillText('我的邀请码', w / 2, invY + 22);
                 ctx.fillStyle = '#fff';
                 ctx.font = 'bold 36px ui-monospace, monospace';
-                ctx.fillText(INVITE_CODE, w / 2, invY + 52);
+                ctx.fillText(inviteCode, w / 2, invY + 52);
                 ctx.textAlign = 'left';
 
                 var footY = h - 118;
@@ -169,20 +266,29 @@
                 ctx.stroke();
                 ctx.fillStyle = 'rgba(255,255,255,0.45)';
                 ctx.font = '11px system-ui, sans-serif';
-                ctx.fillText('SCAN TO REGISTER', 32, footY + 20);
+                ctx.fillText('主页链接', 32, footY + 20);
                 ctx.fillStyle = '#e9d5ff';
                 ctx.font = 'bold 16px system-ui, sans-serif';
-                ctx.fillText('fansloop.io/@luna', 32, footY + 44);
+                ctx.fillText(urlText, 32, footY + 44);
 
                 var qrSize = 88;
                 ctx.drawImage(imgs[2], w - 32 - qrSize, footY + 6, qrSize, qrSize);
+                ctx.fillStyle = 'rgba(255,255,255,0.45)';
+                ctx.font = '10px system-ui, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('扫码注册', w - 32 - qrSize / 2, footY + qrSize + 22);
+                ctx.textAlign = 'left';
 
-                var a = document.createElement('a');
-                a.download = 'FansLoop-Luna-profile.png';
-                a.href = canvas.toDataURL('image/png');
-                a.click();
-                showToast('海报已保存（PNG）');
-            })
+                return canvas;
+            });
+    }
+
+    function savePoster() {
+        showToast('正在生成海报…');
+        capturePosterFromDom()
+            .catch(function () { return savePosterCanvasFallback(); })
+            .then(function (canvas) { return canvasToBlob(canvas); })
+            .then(savePngBlob)
             .catch(function () {
                 showToast('海报保存失败，请稍后重试（原型）');
             });
@@ -214,6 +320,14 @@
         ctx.fillText(line, x, ly);
     }
 
+    function bindSavePosterButtons() {
+        var ids = ['btnSaveProfilePoster', 'btnSaveProfilePosterInline'];
+        ids.forEach(function (id) {
+            var btn = document.getElementById(id);
+            if (btn) btn.addEventListener('click', savePoster);
+        });
+    }
+
     initQr();
     fetchInviteRewardConfig().then(applyInviteRewardConfig);
     if (linkInput) linkInput.value = PROFILE_URL;
@@ -225,7 +339,7 @@
     document.getElementById('btnCopyProfileLinkMain')?.addEventListener('click', copyLink);
     document.getElementById('btnCopyInviteCode')?.addEventListener('click', copyInvite);
     document.getElementById('btnCopyInviteCodeMain')?.addEventListener('click', copyInvite);
-    document.getElementById('btnSaveProfilePoster')?.addEventListener('click', savePoster);
+    bindSavePosterButtons();
 
     var params = new URLSearchParams(window.location.search);
     if (params.get('share') === 'open') {
