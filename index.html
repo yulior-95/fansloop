@@ -164,6 +164,7 @@ main.content { padding: 28px 24px 48px; }
         <a href="#profile-social"><i class="fa-solid fa-users"></i>社交列表</a>
         <a href="#profile-share"><i class="fa-solid fa-share-nodes"></i>分享海报</a>
         <a href="#invite-referral"><i class="fa-solid fa-user-group"></i>邀请拉新</a>
+        <a href="#admin-points-activities"><i class="fa-solid fa-sliders"></i>后台·积分活动</a>
         <a href="#profile-creator"><i class="fa-solid fa-certificate"></i>创作者认证</a>
         <div class="sec">资产</div>
         <a href="pages-web/transactions.html" target="_blank"><i class="fa-solid fa-list-ul"></i>账变记录</a>
@@ -679,10 +680,10 @@ main.content { padding: 28px 24px 48px; }
         <section class="block" id="invite-referral">
             <h2><i class="fa-solid fa-user-group"></i>邀请拉新 · 注册绑定与数据中心</h2>
             <p class="lead">
-                <strong>用户体验分析：</strong>邀请人需要「分享—追踪—兑现」闭环；被邀请人需要「选填码—确认不可反悔—看到奖励」；平台需用额度条表达「邀请不限、奖励有上限」。<br>
-                <strong>产品界面设计：</strong>注册邮箱流增加选填邀请码 + 二次确认弹窗；邀请人在<strong>我的主页</strong>内切换主内容区查看邀请数据（侧栏不增菜单）；被邀请人只读「我的邀请人」。<br>
-                <strong>高保真 UI：</strong>标准 Web Header + Sidebar + Main；真实头像（Unsplash/Pexels）；奖励额度进度条与明细表可直接映射 API。<br>
-                <strong>配置：</strong><code>js-web/invite-reward-config.js</code> mock 后台 <code>GET /api/v1/invite/reward-config</code>。
+                <strong>用户体验分析：</strong>邀请闭环含风控三态 + <strong>收紧额度</strong>（日邀请 600 / 日总 480 / 累计 12,000）+ <strong>7 天冷静期</strong>（发放≠可兑换，期满进可用池）；被邀请人选填码 + 永久绑定确认。<br>
+                <strong>产品界面设计：</strong>邀请数据在主页主内容区切换；额度面板与冷静期卡片分开展示；积分商城双池（可用 / 冷静中）；玻璃体批注说明额度策略与双池 API。<br>
+                <strong>高保真 UI：</strong>Web Header + Sidebar + Main；额度进度条；冷静期信息卡；商城账户区与邀请页数据同源 <code>invite-reward-config.js</code>。<br>
+                <strong>配置：</strong><code>caps</code> · <code>coolingPeriodDays</code> · <code>pointsWallet</code> → <code>GET /api/v1/invite/reward-config</code>、<code>GET /api/v1/wallet/points</code>。
             </p>
             <div class="grid">
                 <div class="tile">
@@ -718,7 +719,22 @@ main.content { padding: 28px 24px 48px; }
                 <div class="tile">
                     <div class="th">profile.html?view=invite <a href="pages-web/profile.html?view=invite" target="_blank">新窗口</a></div>
                     <div class="tb" style="height:760px"><iframe src="pages-web/profile.html?view=invite" title="我的主页·邀请数据" loading="lazy"></iframe></div>
-                    <div class="tf">侧栏仍为「我的主页」· 主内容区切换邀请数据 · 无单独菜单项</div>
+                    <div class="tf">防薅额度 480/600/12k · 冷静期卡片 · 列表三态 + 玻璃体批注</div>
+                </div>
+                <div class="tile">
+                    <div class="th">points-mall.html <a href="pages-web/points-mall.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:880px"><iframe src="pages-web/points-mall.html" title="积分商城" loading="lazy"></iframe></div>
+                    <div class="tf">历史兑换大尺寸弹窗 · 余额卡入口 · Hero 权益玻璃体 · 说明区滚轮横滑</div>
+                </div>
+                <div class="tile">
+                    <div class="th">points-mall.html?history=open</div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/points-mall.html?history=open" title="积分商城·历史弹窗" loading="lazy"></iframe></div>
+                    <div class="tf">历史兑换弹窗 · 搜索/筛选/分页 · 960px 宽</div>
+                </div>
+                <div class="tile">
+                    <div class="th">points-mall.html?wheel=open</div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/points-mall.html?wheel=open" title="积分商城·转盘" loading="lazy"></iframe></div>
+                    <div class="tf">转盘弹窗 · 消耗/奖励池研发批注 · 日上限 2,500</div>
                 </div>
                 <div class="tile">
                     <div class="th">profile.html?view=invite&amp;tab=rewards</div>
@@ -734,6 +750,43 @@ main.content { padding: 28px 24px 48px; }
                     <div class="th">settings.html · 入口</div>
                     <div class="tb" style="height:720px"><iframe src="pages-web/settings.html" title="设置入口" loading="lazy"></iframe></div>
                     <div class="tf">账户资料区 · 邀请数据 / 我的邀请人</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="block" id="admin-points-activities">
+            <h2><i class="fa-solid fa-sliders"></i>运营后台 · 积分活动 CRUD</h2>
+            <p class="lead">
+                <strong>用户体验分析：</strong>运营需在后台统一管理「获取积分」任务与「商城兑换」商品，并与前台 <code>points-mall.html#mallTabs</code> 五个 Tab 对齐；支持扩展自定义活动类型。<br>
+                <strong>产品界面设计：</strong>列表（查/停/删/复制）+ 独立编辑页（增/改）+ 类型管理（扩展 schema）；数据层 <code>activities-points-store.js</code> mock localStorage。<br>
+                <strong>高保真 UI：</strong>Ant Design 运营后台壳（Header + Sider + Main）；真实封面图；统计卡片 + 多维筛选。<br>
+                <strong>API：</strong><code>/api/v1/admin/points-activities</code> · <code>/api/v1/admin/points-activity-types</code>
+            </p>
+            <div class="grid">
+                <div class="tile">
+                    <div class="th">activities-points-crud.html <a href="admin-prototype/activities-points-crud.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="admin-prototype/activities-points-crud.html" title="积分活动列表" loading="lazy"></iframe></div>
+                    <div class="tf">列表 · 筛选（类型/商城Tab/状态/渠道）· 编辑/复制/启停/删除</div>
+                </div>
+                <div class="tile">
+                    <div class="th">activities-points-edit.html</div>
+                    <div class="tb" style="height:800px"><iframe src="admin-prototype/activities-points-edit.html" title="新建活动" loading="lazy"></iframe></div>
+                    <div class="tf">新建 · 基础/商城展示/奖励频控/类型扩展字段</div>
+                </div>
+                <div class="tile">
+                    <div class="th">activities-points-edit.html?id=act_watch_30</div>
+                    <div class="tb" style="height:800px"><iframe src="admin-prototype/activities-points-edit.html?id=act_watch_30" title="编辑活动" loading="lazy"></iframe></div>
+                    <div class="tf">编辑已有活动 · 预填观看直播任务</div>
+                </div>
+                <div class="tile">
+                    <div class="th">activities-points-types.html</div>
+                    <div class="tb" style="height:680px"><iframe src="admin-prototype/activities-points-types.html" title="活动类型" loading="lazy"></iframe></div>
+                    <div class="tf">内置 + 自定义类型 · schema 扩展 · 商城 Tab 对照表</div>
+                </div>
+                <div class="tile">
+                    <div class="th">points-mall.html（用户端对照）</div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/points-mall.html" title="积分商城" loading="lazy"></iframe></div>
+                    <div class="tf">单行 4 列 · 滚轮横滑 · Hero 内权益/历史切换</div>
                 </div>
             </div>
         </section>

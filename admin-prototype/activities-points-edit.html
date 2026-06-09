@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>编辑积分活动 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/activities-points-admin.css">
+</head>
+<body data-admin-page="activities-points-edit">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 活动管理 / <span id="hdrMode">新建</span>积分活动</span></div>
+      <div class="admin-header-right">
+        <a href="activities-points-crud.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-arrow-left"></i> 返回列表</a>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>活动运营</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title" id="pageTitle">新建积分活动</h1>
+      <p class="admin-page-desc">配置活动规则、奖励、频控、商城展示与冷静期；保存后写入 Mock Store，可映射 <code>POST/PUT /api/v1/admin/points-activities</code>。</p>
+
+      <form id="actForm" class="ant-card ant-card-bordered" style="max-width:960px">
+        <div class="ant-card-body">
+
+          <section class="ap-form-section">
+            <h3><i class="fa-solid fa-circle-info"></i> 基础信息</h3>
+            <div class="ap-form-grid">
+              <div class="ap-field">
+                <label>活动名称 <span class="req">*</span></label>
+                <input class="ant-input" name="name" required placeholder="如：观看直播满 30 分钟">
+              </div>
+              <div class="ap-field">
+                <label>活动编码 <span class="req">*</span></label>
+                <input class="ant-input" name="code" required placeholder="WATCH_LIVE_30" style="font-family:monospace">
+                <div class="hint">全局唯一，用于 API / 埋点</div>
+              </div>
+              <div class="ap-field">
+                <label>活动类型 <span class="req">*</span></label>
+                <select class="ant-input" name="typeId" id="fldType" style="width:100%;height:32px"></select>
+                <div class="hint"><a href="activities-points-types.html">管理活动类型</a> · 可扩展自定义类型</div>
+              </div>
+              <div class="ap-field">
+                <label>投放渠道</label>
+                <select class="ant-input" name="channel" style="width:100%;height:32px">
+                  <option value="task">任务中心（获取积分）</option>
+                  <option value="mall">积分商城（消耗积分）</option>
+                </select>
+              </div>
+              <div class="ap-field">
+                <label>状态</label>
+                <select class="ant-input" name="status" style="width:100%;height:32px">
+                  <option value="draft">草稿</option>
+                  <option value="enabled">启用</option>
+                  <option value="disabled">停用</option>
+                </select>
+              </div>
+              <div class="ap-field">
+                <label>排序权重</label>
+                <input class="ant-input" name="sort" type="number" value="100">
+              </div>
+            </div>
+          </section>
+
+          <section class="ap-form-section">
+            <h3><i class="fa-solid fa-store"></i> 商城展示（对齐前台 Tab）</h3>
+            <div class="ap-form-grid">
+              <div class="ap-field ap-field-full">
+                <label>商城分类（多选 · 对应 points-mall #mallTabs）</label>
+                <div class="ap-cat-chips" id="mallCatChips"></div>
+              </div>
+              <div class="ap-field ap-field-full">
+                <label>封面图 URL</label>
+                <input class="ant-input" name="image" id="fldImage" placeholder="https://images.unsplash.com/...">
+                <div class="ap-preview-img" id="imgPreview"></div>
+              </div>
+              <div class="ap-field ap-field-full">
+                <label>前台描述</label>
+                <textarea class="ant-input" name="description" rows="2" placeholder="展示在商城卡片或任务说明"></textarea>
+              </div>
+            </div>
+          </section>
+
+          <section class="ap-form-section">
+            <h3><i class="fa-solid fa-coins"></i> 奖励与频控</h3>
+            <div class="ap-form-grid">
+              <div class="ap-field">
+                <label>积分值</label>
+                <input class="ant-input" name="rewardPoints" type="number" value="0">
+                <div class="hint">获取为正数；兑换商品为负数（消耗）</div>
+              </div>
+              <div class="ap-field">
+                <label>奖励文案</label>
+                <input class="ant-input" name="rewardDesc" placeholder="+50 积分 / 次">
+              </div>
+              <div class="ap-field">
+                <label>频控说明</label>
+                <input class="ant-input" name="freqDesc" placeholder="每日 3 次">
+              </div>
+              <div class="ap-field">
+                <label>日积分上限（该活动）</label>
+                <input class="ant-input" name="dailyCap" type="number" placeholder="150">
+              </div>
+              <div class="ap-field">
+                <label>累计上限（可选）</label>
+                <input class="ant-input" name="totalCap" type="number" placeholder="12000">
+              </div>
+              <div class="ap-field">
+                <label>冷静期（天）</label>
+                <input class="ant-input" name="coolingDays" type="number" value="0" min="0">
+                <div class="hint">邀请类建议 7 天；计时任务可为 0</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="ap-form-section">
+            <h3><i class="fa-solid fa-sliders"></i> 触发规则（按类型扩展）</h3>
+            <div class="ap-form-grid" id="typeExtraFields"></div>
+            <p class="hint" style="margin:8px 0 0;font-size:12px;color:rgba(0,0,0,.45)">不同活动类型展示不同字段；自定义类型在「活动类型」页配置 schema。</p>
+          </section>
+
+          <div style="display:flex;gap:10px;margin-top:8px">
+            <button type="submit" class="ant-btn ant-btn-primary"><i class="fa-solid fa-floppy-disk"></i> 保存</button>
+            <button type="button" class="ant-btn" id="btnSaveDraft">存为草稿</button>
+            <a href="activities-points-crud.html" class="ant-btn">取消</a>
+          </div>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="js/activities-points-store.js"></script>
+<script src="js/activities-points-edit.js"></script>
+</body>
+</html>

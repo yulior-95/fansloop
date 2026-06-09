@@ -1,8 +1,116 @@
 /**
  * FansLoop · 全局侧栏展开/收起 + 一屏布局（配合 common-web.css）
+ * · 统一侧栏导航：各子页面菜单结构一致
  */
 (function (global) {
     var STORAGE_KEY = 'fl_sidebar_collapsed';
+
+    /** 全站统一侧栏菜单（不含 badge/chip 等页面差异） */
+    var SIDEBAR_NAV = [
+        {
+            section: '主导航',
+            items: [
+                { id: 'home', label: '首页', href: 'home.html', icon: 'fa-solid fa-house' },
+                { id: 'subscriptions', label: '订阅', href: 'subscriptions.html', icon: 'fa-solid fa-crown' },
+                { id: 'discover', label: '发现', href: 'discover.html', icon: 'fa-solid fa-compass' },
+                { id: 'create', label: '创建内容', href: 'create.html', icon: 'fa-solid fa-pen-to-square' }
+            ]
+        },
+        {
+            section: '互动',
+            items: [
+                { id: 'messages', label: '消息', href: 'messages.html', icon: 'fa-regular fa-comments' },
+                { id: 'notifications', label: '通知', href: 'notifications.html?tab=unread', icon: 'fa-regular fa-bell' }
+            ]
+        },
+        {
+            section: '资产',
+            items: [
+                { id: 'wallet', label: '钱包', href: 'wallet.html', icon: 'fa-solid fa-wallet' },
+                { id: 'creator-income', label: '创作者收入', href: 'creator-income.html', icon: 'fa-solid fa-coins' },
+                { id: 'points-mall', label: '积分商城', href: 'points-mall.html', icon: 'fa-solid fa-store' },
+                { id: 'transactions', label: '账变记录', href: 'transactions.html', icon: 'fa-solid fa-list-ul' }
+            ]
+        },
+        {
+            section: '个人',
+            items: [
+                { id: 'profile', label: '我的主页', href: 'profile.html', icon: 'fa-regular fa-user' },
+                { id: 'settings', label: '设置', href: 'settings.html', icon: 'fa-solid fa-gear' }
+            ]
+        }
+    ];
+
+    var DEFAULT_BOTTOM =
+        '<div class="s-bottom">' +
+        '  <div class="s-pro-card">' +
+        '    <div class="crown"><i class="fa-solid fa-crown"></i></div>' +
+        '    <h4>升级 Creator Pro</h4>' +
+        '    <p>解锁高级数据 / 优先推流</p>' +
+        '    <button type="button">立即升级</button>' +
+        '  </div>' +
+        '  <div class="s-user">' +
+        '    <div class="av" style="background-image: url(\'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80\')"></div>' +
+        '    <div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div>' +
+        '    <i class="fa-solid fa-ellipsis-vertical more"></i>' +
+        '  </div>' +
+        '</div>';
+
+    function currentPageName() {
+        return (location.pathname.split('/').pop() || 'home.html').split('?')[0].toLowerCase();
+    }
+
+    function detectActiveNavId(page) {
+        if (page === 'home.html' || page === 'guest-home.html' || page === 'yanshi-web.html') return 'home';
+        if (page === 'subscriptions.html') return 'subscriptions';
+        if (
+            page === 'discover.html' || page === 'topics.html' || page === 'topic-detail.html' ||
+            page === 'bookmarks.html' || page.indexOf('live-') === 0 || page.indexOf('proto-discover') === 0
+        ) return 'discover';
+        if (page.indexOf('create') === 0) return 'create';
+        if (page.indexOf('messages') === 0) return 'messages';
+        if (page.indexOf('notification') === 0) return 'notifications';
+        if (page === 'points-mall.html') return 'points-mall';
+        if (page === 'creator-income.html') return 'creator-income';
+        if (page.indexOf('transaction') === 0) return 'transactions';
+        if (
+            page.indexOf('wallet') === 0 || page.indexOf('recharge') === 0 ||
+            page.indexOf('withdraw') === 0 || page.indexOf('funds-') === 0 ||
+            page.indexOf('kyc-') === 0
+        ) return 'wallet';
+        if (page.indexOf('profile') === 0 || page === 'creator-profile.html') return 'profile';
+        if (page.indexOf('settings') === 0) return 'settings';
+        return '';
+    }
+
+    function buildSidebarNavHtml(activeId) {
+        var html = '';
+        SIDEBAR_NAV.forEach(function (group) {
+            html += '<div class="s-section">' + group.section + '</div>';
+            group.items.forEach(function (item) {
+                var cls = 's-item' + (item.id === activeId ? ' active' : '');
+                html += '<div class="' + cls + '" data-nav-id="' + item.id + '" onclick="location.href=\'' + item.href + '\'">' +
+                    '<span class="ic"><i class="' + item.icon + '"></i></span>' +
+                    '<span class="lb">' + item.label + '</span>' +
+                    '</div>';
+            });
+        });
+        return html;
+    }
+
+    function renderUnifiedSidebarNav(sidebar) {
+        if (!sidebar) return;
+        var brand = sidebar.querySelector('.s-brand');
+        var bottom = sidebar.querySelector('.s-bottom');
+        var brandHtml = brand ? brand.outerHTML : '';
+        var bottomHtml = bottom ? bottom.outerHTML : DEFAULT_BOTTOM;
+        var activeId = detectActiveNavId(currentPageName());
+        sidebar.innerHTML = brandHtml + buildSidebarNavHtml(activeId) + bottomHtml;
+        sidebar.setAttribute('data-fl-nav-unified', '1');
+    }
+
+    global.FL_renderSidebarNav = renderUnifiedSidebarNav;
+    global.FL_sidebarNavConfig = SIDEBAR_NAV;
 
     function isCollapsed() {
         try { return localStorage.getItem(STORAGE_KEY) === '1'; } catch (e) { return false; }
@@ -49,6 +157,7 @@
         var sidebar = shell.querySelector('.app-sidebar');
         if (!sidebar) return;
         if (!sidebar.id) sidebar.id = 'app-sidebar';
+        renderUnifiedSidebarNav(sidebar);
         ensureToggle(shell, sidebar);
         applyState(shell, isCollapsed() || document.documentElement.classList.contains('sidebar-collapsed-pre'));
     }

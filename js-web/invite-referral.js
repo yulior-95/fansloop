@@ -10,7 +10,8 @@
         { uid: 'u7712', name: '阿Ken · 街拍', avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=200', at: '2026-06-03 21:40', reward: 200, status: 'ok' },
         { uid: 'u6603', name: 'Sora旅行记', avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200&q=80', at: '2026-06-02 14:08', reward: 200, status: 'ok' },
         { uid: 'u5594', name: '夜猫子剪辑', avatar: 'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=200', at: '2026-06-01 11:22', reward: 0, status: 'pending' },
-        { uid: 'u4485', name: 'LoopKid', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80', at: '2026-05-28 08:55', reward: 200, status: 'ok' }
+        { uid: 'u4485', name: 'LoopKid', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80', at: '2026-05-28 08:55', reward: 200, status: 'ok' },
+        { uid: 'u3312', name: '批量小号A', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80', at: '2026-05-26 03:18', reward: 0, status: 'rejected', rejectReason: '同 IP 短时批量注册' }
     ];
 
     var MOCK_REWARDS = [
@@ -22,9 +23,36 @@
         { at: '2026-05-28 08:55', user: 'LoopKid', type: '注册奖励', amt: 200, capHit: false }
     ];
 
+    function esc(s) {
+        var d = document.createElement('div');
+        d.textContent = s == null ? '' : String(s);
+        return d.innerHTML;
+    }
+
     function pct(earned, cap) {
         if (!cap) return 0;
         return Math.min(100, Math.round((earned / cap) * 100));
+    }
+
+    function renderPts(u) {
+        if (u.status === 'ok' && u.reward > 0) {
+            return '<span class="pts">+' + FL.formatPoints(u.reward) + ' 积分</span>';
+        }
+        if (u.status === 'pending') {
+            return '<span class="pts is-pending">待发放</span>';
+        }
+        if (u.status === 'rejected') {
+            return '<span class="pts is-reason" title="' + esc(u.rejectReason || '风控未通过') + '">' +
+                esc(u.rejectReason || '风控未通过') + '</span>';
+        }
+        return '<span class="pts is-pending">—</span>';
+    }
+
+    function renderStatus(u) {
+        if (u.status === 'ok') return '<span class="status ok">已发放</span>';
+        if (u.status === 'pending') return '<span class="status pending">待风控</span>';
+        if (u.status === 'rejected') return '<span class="status rejected">风控未通过</span>';
+        return '';
     }
 
     function renderCaps(cfg) {
@@ -54,6 +82,24 @@
         }
         var tip = document.getElementById('inviteCapTip');
         if (tip) tip.textContent = FL.formatInviteRewardTip(cfg);
+        renderCooling(cfg);
+    }
+
+    function renderCooling(cfg) {
+        var daysEl = document.getElementById('inviteCoolingDays');
+        var descEl = document.getElementById('inviteCoolingDesc');
+        var frozenEl = document.getElementById('inviteFrozenPts');
+        var availEl = document.getElementById('inviteAvailPts');
+        var hintEl = document.getElementById('inviteFrozenHint');
+        var w = cfg.pointsWallet || {};
+        var d = cfg.coolingPeriodDays || 7;
+        if (daysEl) daysEl.textContent = String(d);
+        if (descEl) {
+            descEl.innerHTML = '邀请等渠道发放的积分先入「冷静池」，期满（' + d + ' 天）后才转入<strong>可用积分</strong>，方可于积分商城兑换消耗。';
+        }
+        if (frozenEl) frozenEl.textContent = FL.formatPoints(w.frozen || 0);
+        if (availEl) availEl.textContent = FL.formatPoints(w.available || 0);
+        if (hintEl) hintEl.textContent = w.frozenHint || '';
     }
 
     function renderInvitees(filter) {
@@ -68,15 +114,11 @@
             return;
         }
         box.innerHTML = list.map(function (u) {
-            var st = u.status === 'ok'
-                ? '<span class="status ok">已发放</span>'
-                : '<span class="status pending">待风控</span>';
-            var pts = u.reward > 0 ? '+' + FL.formatPoints(u.reward) + ' 积分' : '待发放';
-            return '<article class="inv-user-row" role="button" tabindex="0" data-uid="' + u.uid + '">' +
+            return '<article class="inv-user-row inv-user-row--' + esc(u.status) + '" role="button" tabindex="0" data-uid="' + esc(u.uid) + '">' +
                 '<div class="av" style="background-image:url(\'' + u.avatar + '\')"></div>' +
-                '<div class="body"><div class="nm">' + u.name + '</div>' +
-                '<div class="meta">UID ' + u.uid + ' · 注册 ' + u.at + '</div></div>' +
-                '<div class="acts"><span class="pts">' + pts + '</span>' + st + '</div></article>';
+                '<div class="body"><div class="nm">' + esc(u.name) + '</div>' +
+                '<div class="meta">UID ' + esc(u.uid) + ' · 注册 ' + esc(u.at) + '</div></div>' +
+                '<div class="acts">' + renderPts(u) + renderStatus(u) + '</div></article>';
         }).join('');
         var cnt = document.getElementById('tabInviteeCount');
         if (cnt) cnt.textContent = String(MOCK_INVITEES.length);

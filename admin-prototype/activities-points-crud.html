@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>积分活动管理 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/activities-points-admin.css">
+</head>
+<body data-admin-page="activities-points-crud">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 活动管理 / 积分活动 CRUD</span></div>
+      <div class="admin-header-right">
+        <a href="activities-points-types.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-layer-group"></i> 活动类型</a>
+        <button type="button" class="ant-btn ant-btn-primary ant-btn-sm" id="btnNewAct"><i class="fa-solid fa-plus"></i> 新建活动</button>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>活动运营</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">积分活动管理</h1>
+      <p class="admin-page-desc">
+        统一管理<strong>获取类</strong>（任务/邀请/签到）与<strong>消耗类</strong>（商城兑换）活动；商城 Tab（热门推荐、付费权益等）与前台 <code>points-mall.html#mallTabs</code> 对齐。
+        支持新建、编辑、停用、删除；活动类型可扩展。
+      </p>
+
+      <div class="ap-stat-row" id="apStats"></div>
+
+      <div class="ap-filter-bar">
+        <span class="ant-input-affix-wrapper" style="width:220px"><input class="ant-input" id="fQ" placeholder="搜索名称 / 编码"></span>
+        <select class="ant-select ant-select-single" id="fType" style="height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 8px">
+          <option value="">全部类型</option>
+        </select>
+        <select class="ant-select ant-select-single" id="fCat" style="height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 8px">
+          <option value="">全部商城分类</option>
+        </select>
+        <select class="ant-select ant-select-single" id="fStatus" style="height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 8px">
+          <option value="">全部状态</option>
+          <option value="enabled">启用</option>
+          <option value="draft">草稿</option>
+          <option value="disabled">停用</option>
+        </select>
+        <select class="ant-select ant-select-single" id="fChannel" style="height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 8px">
+          <option value="">全部渠道</option>
+          <option value="task">任务中心</option>
+          <option value="mall">积分商城</option>
+        </select>
+        <button type="button" class="ant-btn ant-btn-primary" id="btnSearch"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
+        <button type="button" class="ant-btn" id="btnReset">重置</button>
+      </div>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-bordered ant-table-middle">
+            <table style="width:100%">
+              <thead class="ant-table-thead">
+                <tr>
+                  <th style="width:280px">活动</th>
+                  <th>类型</th>
+                  <th>商城分类</th>
+                  <th>奖励/消耗</th>
+                  <th>频控</th>
+                  <th>冷静期</th>
+                  <th>状态</th>
+                  <th style="width:200px">操作</th>
+                </tr>
+              </thead>
+              <tbody class="ant-table-tbody" id="actTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="js/activities-points-store.js"></script>
+<script src="js/activities-points-crud.js"></script>
+</body>
+</html>

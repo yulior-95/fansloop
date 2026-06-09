@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>活动类型管理 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/activities-points-admin.css">
+</head>
+<body data-admin-page="activities-points-types">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 活动管理 / 活动类型</span></div>
+      <div class="admin-header-right">
+        <a href="activities-points-crud.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-list"></i> 活动列表</a>
+        <button type="button" class="ant-btn ant-btn-primary ant-btn-sm" id="btnNewType"><i class="fa-solid fa-plus"></i> 新增类型</button>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>活动运营</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">积分活动类型</h1>
+      <p class="admin-page-desc">
+        内置类型覆盖任务、邀请、签到、兑换等；运营可<strong>新增自定义类型</strong>并配置 schema 字段，创建活动时自动加载对应表单项。
+        映射 <code>GET/POST /api/v1/admin/points-activity-types</code>。
+      </p>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-bordered ant-table-middle">
+            <table style="width:100%">
+              <thead class="ant-table-thead">
+                <tr><th>类型</th><th>标识 ID</th><th>Schema 字段</th><th>来源</th><th style="width:160px">操作</th></tr>
+              </thead>
+              <tbody class="ant-table-tbody" id="typeTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="ant-card ant-card-bordered" style="margin-top:20px;max-width:720px">
+        <div class="ant-card-body">
+          <h3 style="font-size:14px;font-weight:600;margin:0 0 10px"><i class="fa-solid fa-lightbulb" style="color:#faad14"></i> 与前台商城 Tab 对应关系</h3>
+          <table class="ant-table ant-table-small" style="width:100%">
+            <thead><tr><th>商城 Tab</th><th>典型活动类型</th><th>后台配置入口</th></tr></thead>
+            <tbody>
+              <tr><td>热门推荐</td><td>兑换商品、转盘、邀请</td><td>活动列表 → 商城分类勾选「热门推荐」</td></tr>
+              <tr><td>付费权益</td><td>试看券、订阅折扣券</td><td>redeem_goods · mallCats=pay</td></tr>
+              <tr><td>加速成长</td><td>计时任务、加速卡、签到</td><td>earn_task / redeem_goods</td></tr>
+              <tr><td>会员&装扮</td><td>徽章、头像框、会员天数</td><td>redeem_goods · mallCats=vip</td></tr>
+              <tr><td>资产专区</td><td>SFL 资格、NFT 抽奖</td><td>campaign / custom 类型</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="js/activities-points-store.js"></script>
+<script src="js/activities-points-types.js"></script>
+</body>
+</html>

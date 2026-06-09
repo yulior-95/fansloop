@@ -32,9 +32,12 @@
       items: [
         { key: "orders-recharge", href: "orders-recharge.html", icon: "fa-arrow-down", label: "充值订单" },
         { key: "orders-withdraw", href: "orders-withdraw.html", icon: "fa-arrow-up", label: "提现订单" },
-        { key: "activities-points-reward", href: "activities-points-reward.html", icon: "fa-gift", label: "积分奖励" },
-        { key: "activities-points-consume", href: "activities-points-consume.html", icon: "fa-fire", label: "积分消耗" },
-        { key: "activities-config", href: "activities-config.html", icon: "fa-sliders", label: "活动配置" },
+        { key: "activities-points-crud", href: "activities-points-crud.html", icon: "fa-table-list", label: "积分活动管理" },
+        { key: "activities-points-edit", href: "activities-points-edit.html", icon: "fa-pen-to-square", label: "新建/编辑活动" },
+        { key: "activities-points-types", href: "activities-points-types.html", icon: "fa-layer-group", label: "活动类型" },
+        { key: "activities-points-reward", href: "activities-points-reward.html", icon: "fa-gift", label: "积分奖励流水" },
+        { key: "activities-points-consume", href: "activities-points-consume.html", icon: "fa-fire", label: "积分消耗流水" },
+        { key: "activities-config", href: "activities-config.html", icon: "fa-sliders", label: "活动配置（旧）" },
         { key: "activities-redeem", href: "activities-redeem.html", icon: "fa-arrow-right-arrow-left", label: "积分兑换" },
         { key: "subscriptions", href: "subscriptions.html", icon: "fa-bell", label: "订阅管理" }
       ]

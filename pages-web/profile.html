@@ -627,7 +627,7 @@
             <div class="profile-invite-head">
                 <div>
                     <button type="button" class="btn btn-secondary btn-sm" id="btnProfileInviteBack" style="margin-bottom:10px"><i class="fa-solid fa-arrow-left"></i> 返回主页</button>
-                    <h2><i class="fa-solid fa-gift" style="color:#FBBF24;margin-right:8px"></i>邀请拉新数据</h2>
+                    <h2 class="profile-invite-title"><i class="fa-solid fa-gift" style="color:#FBBF24"></i>邀请拉新数据</h2>
                     <p>通过你的邀请码注册的用户与每一笔奖励。<strong style="color:#E9D5FF">邀请人数不设上限</strong>，积分发放受后台额度控制。</p>
                 </div>
                 <div class="ph-actions">
@@ -664,25 +664,72 @@
             </div>
 
             <div class="inv-cap-panel">
-                <h3><i class="fa-solid fa-gauge-high"></i> 奖励额度（后台配置）</h3>
-                <p class="lead">达到上限后当日/累计不再发放邀请类积分，但用户仍可继续邀请注册。</p>
+                <h3 class="inv-cap-head">
+                    <span><i class="fa-solid fa-gauge-high"></i> 奖励额度（防薅策略）</span>
+                    <span class="dev-glass-wrap dev-glass-wrap--pop-right dev-glass-wrap--layer-top">
+                        <span class="dev-glass-sphere" tabindex="0" aria-describedby="devInviteCapTip">
+                            <span class="dev-glass-sphere-shine"></span>
+                            <span class="dev-glass-sphere-txt">To 研发</span>
+                        </span>
+                        <span class="dev-glass-pop dev-glass-pop--wide" id="devInviteCapTip" role="tooltip">
+                            <strong>额度设计（参考市面风控）</strong><br>
+                            · 单笔邀请奖励 200，<strong>日邀请奖励上限 600</strong>（≈3 名/日）<br>
+                            · <strong>日总获取 480</strong>：任务+邀请合计熔断，防多号刷任务叠加<br>
+                            · <strong>累计邀请 12,000</strong>：终身封顶，抑制专业羊毛党<br>
+                            · 达上限仍计邀请注册，但不发积分（与额度条联动）<br>
+                            配置源：<code>invite-reward-config.js</code> → <code>GET /api/v1/invite/reward-config</code>
+                        </span>
+                    </span>
+                </h3>
+                <p class="lead">达到上限后当日/累计不再发放邀请类积分；邀请注册次数仍不限。</p>
                 <div class="inv-cap-row">
                     <div class="meta"><span>今日总积分获取上限</span><strong id="capDailyText">—</strong></div>
-                    <div class="bar"><span id="capDailyBar" style="width:64%"></span></div>
+                    <div class="bar"><span id="capDailyBar"></span></div>
                 </div>
                 <div class="inv-cap-row">
                     <div class="meta"><span>今日邀请奖励上限</span><strong id="capInviteDailyText">—</strong></div>
-                    <div class="bar"><span id="capInviteDailyBar" style="width:60%"></span></div>
+                    <div class="bar"><span id="capInviteDailyBar"></span></div>
                 </div>
                 <div class="inv-cap-row">
                     <div class="meta"><span>累计邀请奖励上限</span><strong id="capInviteTotalText">—</strong></div>
-                    <div class="bar"><span id="capInviteTotalBar" style="width:37%"></span></div>
+                    <div class="bar"><span id="capInviteTotalBar"></span></div>
                 </div>
                 <div class="inv-cap-note"><i class="fa-solid fa-circle-info"></i> 邀请注册不受次数限制；额度仅约束积分发放。</div>
             </div>
 
+            <div class="inv-cooling-panel" id="inviteCoolingPanel">
+                <div class="inv-cooling-ic"><i class="fa-solid fa-hourglass-half"></i></div>
+                <div class="inv-cooling-body">
+                    <div class="inv-cooling-title">积分冷静期 · <span id="inviteCoolingDays">7</span> 天</div>
+                    <p class="inv-cooling-desc" id="inviteCoolingDesc">邀请等渠道发放的积分先入「冷静池」，期满后才转入<strong>可用积分</strong>，方可于积分商城兑换消耗。</p>
+                    <div class="inv-cooling-stats">
+                        <div class="inv-cooling-stat">
+                            <span class="k">冷静中</span>
+                            <span class="v frozen" id="inviteFrozenPts">—</span>
+                        </div>
+                        <div class="inv-cooling-stat">
+                            <span class="k">可用积分</span>
+                            <span class="v avail" id="inviteAvailPts">—</span>
+                        </div>
+                    </div>
+                    <p class="inv-cooling-hint" id="inviteFrozenHint"></p>
+                </div>
+                <span class="dev-glass-wrap dev-glass-wrap--pop-left dev-glass-wrap--layer-top">
+                    <span class="dev-glass-sphere" tabindex="0" aria-describedby="devInviteCoolingTip">
+                        <span class="dev-glass-sphere-shine"></span>
+                        <span class="dev-glass-sphere-txt">To 研发</span>
+                    </span>
+                    <span class="dev-glass-pop dev-glass-pop--wide" id="devInviteCoolingTip" role="tooltip">
+                        <strong>冷静期机制</strong><br>
+                        状态：<code>issued</code> → <code>frozen</code>（冷静池）→ <code>available</code>（可兑换）<br>
+                        默认 7 天；邀请/活动大额奖励适用；计时任务等可配置豁免。<br>
+                        商城仅扣减 <code>available</code>；UI 需分开展示，避免用户误以为可立刻套现。
+                    </span>
+                </span>
+            </div>
+
             <div class="inv-tabs" role="tablist">
-                <button type="button" class="tab active" data-tab="invitees">邀请用户 <span class="cnt" id="tabInviteeCount">5</span></button>
+                <button type="button" class="tab active" data-tab="invitees">邀请用户 <span class="cnt" id="tabInviteeCount">6</span></button>
                 <button type="button" class="tab" data-tab="rewards">奖励明细</button>
                 <button type="button" class="tab" data-tab="rules">规则说明</button>
             </div>
@@ -693,7 +740,19 @@
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <input type="search" id="inviteUserSearch" placeholder="搜索昵称或 UID…" />
                     </div>
-                    <button type="button" class="btn btn-secondary btn-sm"><i class="fa-solid fa-file-export"></i> 导出</button>
+                    <span class="dev-glass-wrap dev-glass-wrap--pop-left dev-glass-wrap--layer-top inv-status-glass">
+                        <span class="dev-glass-sphere" tabindex="0" aria-describedby="devInviteStatusTip">
+                            <span class="dev-glass-sphere-shine"></span>
+                            <span class="dev-glass-sphere-txt">To 研发</span>
+                        </span>
+                        <span class="dev-glass-pop dev-glass-pop--wide" id="devInviteStatusTip" role="tooltip">
+                            <strong>邀请用户行 · 状态机</strong><br>
+                            1. 注册完成 → 默认 <strong>待风控</strong>（积分位「待发放」）<br>
+                            2. 后台风控通过且未达额度 → <strong>已发放</strong>（展示 +N 积分）<br>
+                            3. 风控不通过 → <strong>风控未通过</strong>（积分位改为拒绝原因，如「同 IP 批量注册」）<br><br>
+                            API 字段建议：<code>reward_status</code> = pending | ok | rejected；<code>reject_reason</code> 仅 rejected 时返回。
+                        </span>
+                    </span>
                 </div>
                 <div class="inv-user-list" id="inviteUserList"></div>
             </div>
@@ -714,8 +773,10 @@
                     <h3 style="font-size:15px;font-weight:800;color:#fff;margin-bottom:12px"><i class="fa-solid fa-book" style="color:var(--brand-purple)"></i> 邀请与关联规则</h3>
                     <ol style="padding-left:18px;margin:0;display:flex;flex-direction:column;gap:10px">
                         <li>新用户注册时可<strong style="color:#fff">选填</strong>邀请码；填写有效码后与邀请人<strong style="color:#fff">永久关联</strong>，不可自行解除。</li>
-                        <li>注册成功且风控通过后，双方按后台配置获得积分。</li>
-                        <li>邀请人数无上限；积分发放受日/累计上限约束。</li>
+                        <li>注册成功即建立永久关联；积分进入<strong style="color:#fff">风控队列</strong>，通过后发放（待风控 / 已发放 / 风控未通过）。</li>
+                        <li>风控场景：批量注册、可疑身份、设备风险、邀请人异常等（详见标题旁 To 研发批注）。</li>
+                        <li>邀请人数无上限；积分发放受日/累计上限约束（日邀请约 3 笔满额、终身约 60 笔）。</li>
+                        <li>积分到账后进入 <strong style="color:#fff">7 天冷静期</strong>，期满转入可用积分池方可兑换；冷静中积分不可用于商城消耗。</li>
                         <li>被邀请人可在「设置 → 我的邀请人」只读查看关联。</li>
                     </ol>
                 </div>
@@ -1310,6 +1371,7 @@
 <script src="../js-web/fl-friends-store.js"></script>
 <script src="../js-web/profile-social-lists.js"></script>
 <script src="../js-web/profile-unread-viewer.js"></script>
+<script src="../js-web/dev-glass-viewport.js"></script>
 <script src="../js-web/invite-reward-config.js"></script>
 <script src="../js-web/invite-referral.js"></script>
 <script src="../js-web/profile-invite-view.js"></script>
