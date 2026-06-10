@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>积分明细抽屉 · 首页原型切片</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/home-points.css">
+<style>
+body {
+    min-height: 100vh;
+    background:
+        url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1400&q=80') center/cover fixed,
+        var(--bg-canvas);
+}
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(7,7,13,0.88);
+    backdrop-filter: blur(6px);
+}
+.demo-shell { position: relative; z-index: 1; min-height: 100vh; }
+.demo-feed-mock {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 80px 24px 40px;
+}
+.demo-feed-mock h1 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+.demo-feed-mock p { font-size: 13px; color: var(--t-secondary); line-height: 1.6; max-width: 520px; }
+.hp-drawer-mask.is-open { display: block; }
+.hp-drawer.is-open { transform: translateX(0); }
+</style>
+</head>
+<body>
+<div class="demo-shell">
+    <div class="demo-feed-mock">
+        <h1>首页 Feed（背景示意）</h1>
+        <p>用户浏览推荐流时，点击 Header 积分入口或条带「查看任务与明细」，右侧滑出本抽屉。任务来源与后台 <code>activities-points-crud</code> 配置对齐。</p>
+    </div>
+</div>
+
+<div class="hp-drawer-mask is-open" id="hpDrawerMask"></div>
+<aside class="hp-drawer is-open" id="hpDrawer" aria-label="积分明细">
+    <div class="hp-drawer-head">
+        <div>
+            <h2><i class="fa-solid fa-coins"></i>积分中心</h2>
+            <p>查看可用/冷静积分、今日进度，以及各任务获取与消耗记录</p>
+        </div>
+        <button type="button" class="hp-drawer-close" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="hp-drawer-summary">
+        <div class="grid3">
+            <div class="cell avail"><div class="k">可用积分</div><div class="v" id="hpDrawerAvail">—</div></div>
+            <div class="cell frozen"><div class="k">冷静中</div><div class="v" id="hpDrawerFrozen">—</div></div>
+            <div class="cell today"><div class="k">今日已获</div><div class="v" id="hpDrawerToday">—</div></div>
+        </div>
+    </div>
+    <div class="hp-drawer-tabs">
+        <button type="button" class="active" data-tab="Tasks">赚积分任务</button>
+        <button type="button" data-tab="Ledger">获取明细</button>
+    </div>
+    <div class="hp-drawer-body">
+        <div class="hp-drawer-panel active" id="hpPanelTasks">
+            <div id="hpDrawerTasks"></div>
+            <p style="font-size:11px;color:var(--t-tertiary);margin-top:12px;line-height:1.5">
+                <i class="fa-solid fa-snowflake"></i> 邀请类奖励进入 7 天冷静期，期满转入可用积分方可兑换。
+            </p>
+            <h4 style="font-size:12px;font-weight:700;margin:16px 0 8px;color:var(--t-secondary)">商城热门兑换</h4>
+            <div class="hp-mall-preview" id="hpMallPreview"></div>
+        </div>
+        <div class="hp-drawer-panel" id="hpPanelLedger">
+            <div id="hpDrawerLedger"></div>
+        </div>
+    </div>
+    <div class="hp-drawer-foot">
+        <button type="button" class="btn btn-secondary" onclick="location.href='home.html'"><i class="fa-solid fa-house"></i> 返回首页</button>
+        <button type="button" class="btn btn-primary" id="hpDrawerGoMall"><i class="fa-solid fa-store"></i> 积分商城</button>
+    </div>
+</aside>
+
+<script src="../js-web/invite-reward-config.js"></script>
+<script src="../js-web/home-points-store.js"></script>
+<script src="../js-web/home-points.js"></script>
+</body>
+</html>

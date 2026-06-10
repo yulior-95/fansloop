@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>首页 Header 积分入口 · 原型切片</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/home-points.css">
+<style>
+body { min-height: 100vh; background: var(--bg-app); }
+.slice-wrap { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+.slice-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    margin-bottom: 24px;
+}
+.slice-header .brand { font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.slice-header .brand i { color: var(--brand-purple); }
+.slice-header .actions { display: flex; align-items: center; gap: 10px; }
+.note {
+    padding: 16px;
+    border-radius: var(--r-md);
+    background: var(--bg-card);
+    border: 1px dashed var(--border-strong);
+    font-size: 13px;
+    color: var(--t-secondary);
+    line-height: 1.65;
+}
+.note code { color: #C084FC; }
+</style>
+</head>
+<body>
+<div class="slice-wrap">
+    <h1 style="font-size:20px;font-weight:800;margin-bottom:20px">Header 积分入口（高保真切片）</h1>
+
+    <header class="slice-header">
+        <div class="brand"><i class="fa-solid fa-infinity"></i> FansLoop</div>
+        <div class="actions">
+            <button class="h-icon" title="通知"><i class="fa-regular fa-bell"></i></button>
+            <button class="h-icon" title="消息"><i class="fa-regular fa-comments"></i></button>
+            <button type="button" class="h-points" id="hPointsBtn"></button>
+            <button class="h-cta"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="width:36px;height:36px;border-radius:50%;background:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80') center/cover"></div>
+        </div>
+    </header>
+
+    <div class="note">
+        <strong>交互规则</strong><br>
+        1. Header 显示当前<strong>可用积分</strong>（金色数字），悬停展示冷静中余额。<br>
+        2. 点击 → 打开首页右侧 <code>hp-drawer</code> 积分明细（任务 + 流水）。<br>
+        3. 与主内容区 <code>home-points-strip</code> 数据同源 <code>FLHomePoints.fetchPointsData()</code>。
+    </div>
+</div>
+
+<script src="../js-web/invite-reward-config.js"></script>
+<script src="../js-web/home-points-store.js"></script>
+<script>
+window.FLHomePoints.fetchPointsData().then(function (data) {
+    var btn = document.getElementById('hPointsBtn');
+    var w = data.wallet;
+    btn.innerHTML = '<span class="ic"><i class="fa-solid fa-coins"></i></span><span class="val">' +
+        window.FLHomePoints.formatPoints(w.available) + '</span><span class="sub">积分</span>';
+    btn.title = '可用 ' + window.FLHomePoints.formatPoints(w.available) + ' · 冷静中 ' + window.FLHomePoints.formatPoints(w.frozen);
+    btn.onclick = function () { location.href = 'modal-home-points-detail.html'; };
+});
+</script>
+</body>
+</html>

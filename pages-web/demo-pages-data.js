@@ -24,6 +24,9 @@ window.DEMO_PAGE_GROUPS = [
         ["login-errors.html", "登录错误状态合集"]
     ]],
     ["积分中心", [
+        ["home.html", "首页 · 积分条"],
+        ["home.html?pointsDrawer=open", "首页 · 积分抽屉"],
+        ["home-points-ledger.html", "积分流水"],
         ["points-mall.html", "积分兑换商城"],
         ["modal-points-reward.html", "计时奖励弹窗"]
     ]],

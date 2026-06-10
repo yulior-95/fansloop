@@ -830,6 +830,7 @@
 
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <link rel="stylesheet" href="../css-web/home-feed-v2.css">
+<link rel="stylesheet" href="../css-web/home-points.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
 </head>
 <body>
@@ -893,6 +894,7 @@
         <div class="h-actions">
             <button class="h-icon" title="通知"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
             <button class="h-icon" title="消息" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i><span class="dot"></span></button>
+            <button type="button" class="h-points" id="hPointsBtn" title="我的积分"></button>
             <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
             <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
         </div>
@@ -925,6 +927,9 @@
                 </div>
                 <div id="liveReservationStrip" class="live-res-strip" aria-live="polite"></div>
 
+                <!-- 积分概览条 · 可用/冷静/今日进度 + 商城快捷入口 -->
+                <div id="homePointsStrip" class="home-points-strip" aria-label="我的积分"></div>
+
                 <!-- Feed Tabs · 推荐 / 关注 -->
                 <div class="feed-tabs" id="feedTabs">
                     <div class="tab active" data-feed="rec" role="button" tabindex="0"><i class="fa-solid fa-compass"></i>推荐</div>
@@ -956,6 +961,11 @@
                 </div>
                 </div>
             </div>
+
+            <!-- 积分右侧栏 · ?pointsAside=1 时与 feed-grid--with-points 联动展示 -->
+            <aside class="feed-aside feed-aside--points" id="feedAsidePoints" hidden>
+                <div id="hpAsideMount"></div>
+            </aside>
 
             <!-- [LEGACY] 右侧栏已迁移：热门话题保留搜索下拉；正在直播→Feed「直播」Tab；推荐关注→发现页；待审核与预约→创作内容页 -->
             <!--aside class="feed-aside" hidden>
@@ -1111,6 +1121,49 @@
 </aside>
 <div class="toast-host-f" id="toastHostF"></div>
 
+<!-- 积分明细抽屉 -->
+<div class="hp-drawer-mask" id="hpDrawerMask" aria-hidden="true"></div>
+<aside class="hp-drawer" id="hpDrawer" aria-label="积分明细">
+    <div class="hp-drawer-head">
+        <div>
+            <h2><i class="fa-solid fa-coins"></i>积分中心</h2>
+            <p>查看可用/冷静积分、今日进度，以及各任务获取与消耗记录</p>
+        </div>
+        <button type="button" class="hp-drawer-close" id="hpDrawerClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="hp-drawer-summary">
+        <div class="grid3">
+            <div class="cell avail"><div class="k">可用积分</div><div class="v" id="hpDrawerAvail">—</div></div>
+            <div class="cell frozen"><div class="k">冷静中</div><div class="v" id="hpDrawerFrozen">—</div></div>
+            <div class="cell today"><div class="k">今日已获</div><div class="v" id="hpDrawerToday">—</div></div>
+        </div>
+    </div>
+    <div class="hp-drawer-tabs">
+        <button type="button" class="active" data-tab="Tasks">赚积分任务</button>
+        <button type="button" data-tab="Ledger">获取明细</button>
+    </div>
+    <div class="hp-drawer-body">
+        <div class="hp-drawer-panel active" id="hpPanelTasks">
+            <div id="hpDrawerTasks"></div>
+            <p style="font-size:11px;color:var(--t-tertiary);margin-top:12px;line-height:1.5">
+                <i class="fa-solid fa-snowflake"></i> 邀请类奖励进入 7 天冷静期，期满转入可用积分方可兑换。
+            </p>
+            <h4 style="font-size:12px;font-weight:700;margin:16px 0 8px;color:var(--t-secondary)">商城热门兑换</h4>
+            <div class="hp-mall-preview" id="hpMallPreview"></div>
+        </div>
+        <div class="hp-drawer-panel" id="hpPanelLedger">
+            <div id="hpDrawerLedger"></div>
+            <button type="button" class="btn btn-secondary btn-sm btn-block" style="margin-top:14px" onclick="location.href='home-points-ledger.html'">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> 查看完整流水页
+            </button>
+        </div>
+    </div>
+    <div class="hp-drawer-foot">
+        <button type="button" class="btn btn-secondary" id="hpDrawerCloseFoot"><i class="fa-solid fa-xmark"></i> 关闭</button>
+        <button type="button" class="btn btn-primary" id="hpDrawerGoMall"><i class="fa-solid fa-store"></i> 积分商城</button>
+    </div>
+</aside>
+
 <div class="inline-overlay" id="ovlTroubleHome">
     <div class="iol-panel">
         <div class="iol-head">
@@ -1224,6 +1277,9 @@
 <script src="../js-web/fl-interaction-modal.js"></script>
 <script src="../js-web/live-wallet-store.js"></script>
 <script src="../js-web/subscribe-modal.js"></script>
+<script src="../js-web/invite-reward-config.js"></script>
+<script src="../js-web/home-points-store.js"></script>
+<script src="../js-web/home-points.js"></script>
 <script src="../js-web/home-feed.js"></script>
 <script src="../js-web/fl-live-reservation.js"></script>
 

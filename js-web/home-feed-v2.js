@@ -340,6 +340,13 @@
 
     activeStack = 'rec';
 
+    (function applyFeedFromUrl() {
+        var feed = new URLSearchParams(location.search).get('feed');
+        if (!feed) return;
+        var tab = document.querySelector('#feedTabs .tab[data-feed="' + feed + '"]');
+        if (tab) tab.click();
+    })();
+
     /* —— 创作 FAB —— */
     var fabWrap = document.getElementById('createFabWrap');
     var fabCloseTimer;

@@ -136,7 +136,7 @@ main.content { padding: 28px 24px 48px; }
         <div class="logo"><i class="fa-solid fa-infinity"></i></div>
         <div>
             <h1>FansLoop Web · 高保真原型</h1>
-            <p>主入口：<b style="color:#C084FC">index.html</b> 并列 iframe 预览（无整页跳转）；本页新增通知中心高保真原型，并保留原有资金与个人主页设计集。VaultX 移动合集：<a href="vaultx-mobile-index.html" style="color:var(--brand-purple)">vaultx-mobile-index.html</a>。</p>
+            <p>主入口：<b style="color:#C084FC">index.html</b> 并列 iframe 预览（无整页跳转）；本页新增<strong style="color:#FDE68A">首页积分模块</strong>与通知中心等高保真原型。VaultX 移动合集：<a href="vaultx-mobile-index.html" style="color:var(--brand-purple)">vaultx-mobile-index.html</a>。</p>
         </div>
     </div>
     <div class="actions">
@@ -163,6 +163,7 @@ main.content { padding: 28px 24px 48px; }
         <a href="#profile-works"><i class="fa-solid fa-table-cells"></i>作品 Tab（本页）</a>
         <a href="#profile-social"><i class="fa-solid fa-users"></i>社交列表</a>
         <a href="#profile-share"><i class="fa-solid fa-share-nodes"></i>分享海报</a>
+        <a href="#home-points"><i class="fa-solid fa-coins"></i>首页积分</a>
         <a href="#invite-referral"><i class="fa-solid fa-user-group"></i>邀请拉新</a>
         <a href="#admin-points-activities"><i class="fa-solid fa-sliders"></i>后台·积分活动</a>
         <a href="#profile-creator"><i class="fa-solid fa-certificate"></i>创作者认证</a>
@@ -673,6 +674,78 @@ main.content { padding: 28px 24px 48px; }
                     <div class="th">profile.html?share=open</div>
                     <div class="tb" style="height:720px"><iframe src="pages-web/profile.html?share=open" title="分享主页" loading="lazy"></iframe></div>
                     <div class="tf">海报 · 保存 · 复制链接</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="block" id="home-points">
+            <h2><i class="fa-solid fa-coins"></i>首页积分 · 概览 / 任务 / 商城快捷入口（本次优化）</h2>
+            <p class="lead">
+                <strong>1. 用户体验分析：</strong>用户在刷首页 Feed 时需<strong>零跳转</strong>感知积分余额与今日获取进度；明确「可用 vs 冷静中」双池，避免误以为邀请奖励立即可兑；任务来源可追溯到具体行为（观看直播、签到、邀请、计时浏览等），并一键进入积分商城消耗。<br>
+                <strong>2. 产品界面设计：</strong>三层信息架构——Header 金色积分胶囊（全局入口）→ 主内容区 <code>home-points-strip</code>（余额 + 进度 + 商城 CTA）→ 右侧抽屉（任务列表 + 获取明细 + 商城热门预览）；宽屏可选 <code>?pointsAside=1</code> 展示右侧积分大卡。<br>
+                <strong>3. 高保真 UI：</strong>Web Header + Sidebar + Main 标准布局；渐变积分条、毛玻璃抽屉、Unsplash/Pexels/Pixabay 真实配图；与 <code>invite-reward-config.js</code>、后台 <code>activities-points-store.js</code> 数据对齐。<br>
+                <strong>4. HTML 实现：</strong>个人主页紧凑行展示<strong>总积分</strong>与<strong>今日已领</strong>；积分任务抽屉按活动类型区分进度（签到无条、直播/邀请为今日已领/可领次数）；领取/去完成/去了解均有完整交互与 Toast。API：<code>GET /api/v1/wallet/points</code> · <code>POST /api/v1/points/tasks/:id/claim</code>。
+            </p>
+            <div class="grid">
+                <div class="tile">
+                    <div class="th">home.html（默认 · 积分条 + Header 入口） <a href="pages-web/home.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:760px"><iframe src="pages-web/home.html" title="首页积分条" loading="lazy"></iframe></div>
+                    <div class="tf">Feed 上方积分概览条：可用 12,580 · 冷静中 1,400 · 今日进度 · 「积分商城」「查看任务与明细」。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">home.html?pointsDrawer=open（抽屉 · 赚积分任务） <a href="pages-web/home.html?pointsDrawer=open" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:760px"><iframe src="pages-web/home.html?pointsDrawer=open" title="积分抽屉任务" loading="lazy"></iframe></div>
+                    <div class="tf">右侧滑出积分中心：三格摘要 · 任务卡片（进度/领取/去完成）· 商城热门预览。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">home.html?pointsDrawer=open&amp;pointsTab=ledger（抽屉 · 获取明细） <a href="pages-web/home.html?pointsDrawer=open&pointsTab=ledger" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:760px"><iframe src="pages-web/home.html?pointsDrawer=open&pointsTab=ledger" title="积分明细" loading="lazy"></iframe></div>
+                    <div class="tf">获取/消耗流水：签到、直播任务、邀请冷静期、商城兑换、转盘消耗等。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">home.html?pointsAside=1（宽屏 · 右侧积分栏） <a href="pages-web/home.html?pointsAside=1" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:760px"><iframe src="pages-web/home.html?pointsAside=1" title="积分右侧栏" loading="lazy"></iframe></div>
+                    <div class="tf">非沉浸双栏布局：Hero 余额卡 + 赚积分任务列表 + 去商城。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">home-points-header.html（Header 切片） <a href="pages-web/home-points-header.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:360px"><iframe src="pages-web/home-points-header.html" title="Header积分" loading="lazy"></iframe></div>
+                    <div class="tf">金色积分胶囊按钮 · 点击打开抽屉 · 悬停展示冷静中余额。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">modal-home-points-detail.html（抽屉 UI 走查） <a href="pages-web/modal-home-points-detail.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/modal-home-points-detail.html" title="积分抽屉切片" loading="lazy"></iframe></div>
+                    <div class="tf">独立切片：右侧抽屉预开态，便于 UI 评审与前端组件拆分。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">home-points-ledger.html（完整流水页） <a href="pages-web/home-points-ledger.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/home-points-ledger.html" title="积分流水" loading="lazy"></iframe></div>
+                    <div class="tf">App Shell 完整页：四格摘要 · 筛选（全部/获取/消耗/冷静中）· 表格流水。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">points-mall.html（积分消耗 · 商城） <a href="pages-web/points-mall.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/points-mall.html" title="积分商城" loading="lazy"></iframe></div>
+                    <div class="tf">首页条带/抽屉「积分商城」按钮跳转目标 · 双池余额与兑换商品。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">modal-points-reward.html（计时奖励弹窗） <a href="pages-web/modal-points-reward.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:480px"><iframe src="pages-web/modal-points-reward.html" title="计时奖励" loading="lazy"></iframe></div>
+                    <div class="tf">浏览赚积分任务完成后弹窗 · 与 yanshi-web 悬浮倒计时同一逻辑。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">profile.html（总积分 + 积分任务） <a href="pages-web/profile.html?pointsReset=1" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:760px"><iframe src="pages-web/profile.html?pointsReset=1" title="个人主页积分" loading="lazy"></iframe></div>
+                    <div class="tf">紧凑行：总积分 + 今日已领 · 「积分任务」→ 活动抽屉（签到无进度条；直播任务为今日已领/可领次数）。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">profile.html?pointsTasks=open（任务交互） <a href="pages-web/profile.html?pointsTasks=open&pointsReset=1" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:760px"><iframe src="pages-web/profile.html?pointsTasks=open&pointsReset=1" title="积分任务抽屉" loading="lazy"></iframe></div>
+                    <div class="tf">领取签到 → Toast「签到成功」+ 已领取；去完成直播 → home.html?feed=live；去了解 → 发现/邀请页。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">home.html?feed=live（直播 Tab · 任务跳转目标） <a href="pages-web/home.html?feed=live" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:760px"><iframe src="pages-web/home.html?feed=live" title="首页直播" loading="lazy"></iframe></div>
+                    <div class="tf">观看直播任务「去完成」深链目标页。</div>
                 </div>
             </div>
         </section>
