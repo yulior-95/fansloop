@@ -16,7 +16,7 @@
         setTimeout(function () { t.remove(); }, 2400);
     }
 
-    var FEED_BUILD_VERSION = '9';
+    var FEED_BUILD_VERSION = '11';
 
     function syncFeedStackVideos(viewport, slideIndex) {
         if (!viewport) return;
@@ -341,10 +341,20 @@
     activeStack = 'rec';
 
     (function applyFeedFromUrl() {
-        var feed = new URLSearchParams(location.search).get('feed');
-        if (!feed) return;
-        var tab = document.querySelector('#feedTabs .tab[data-feed="' + feed + '"]');
-        if (tab) tab.click();
+        var params = new URLSearchParams(location.search);
+        var feed = params.get('feed');
+        if (feed) {
+            var tab = document.querySelector('#feedTabs .tab[data-feed="' + feed + '"]');
+            if (tab) tab.click();
+        }
+        var slideN = parseInt(params.get('feedSlide'), 10);
+        if (slideN > 1) {
+            setTimeout(function () {
+                var st = stacks.find(function (s) { return s.id === (activeStack || 'rec'); });
+                if (!st) return;
+                for (var j = 1; j < slideN; j++) st.go(1);
+            }, 350);
+        }
     })();
 
     /* —— 创作 FAB —— */

@@ -164,6 +164,7 @@ main.content { padding: 28px 24px 48px; }
         <a href="#profile-social"><i class="fa-solid fa-users"></i>社交列表</a>
         <a href="#profile-share"><i class="fa-solid fa-share-nodes"></i>分享海报</a>
         <a href="#home-points"><i class="fa-solid fa-coins"></i>首页积分</a>
+        <a href="#create-ppv"><i class="fa-solid fa-tag"></i>创建 · 单篇付费</a>
         <a href="#invite-referral"><i class="fa-solid fa-user-group"></i>邀请拉新</a>
         <a href="#admin-points-activities"><i class="fa-solid fa-sliders"></i>后台·积分活动</a>
         <a href="#profile-creator"><i class="fa-solid fa-certificate"></i>创作者认证</a>
@@ -682,15 +683,15 @@ main.content { padding: 28px 24px 48px; }
             <h2><i class="fa-solid fa-coins"></i>首页积分 · 概览 / 任务 / 商城快捷入口（本次优化）</h2>
             <p class="lead">
                 <strong>1. 用户体验分析：</strong>用户在刷首页 Feed 时需<strong>零跳转</strong>感知积分余额与今日获取进度；明确「可用 vs 冷静中」双池，避免误以为邀请奖励立即可兑；任务来源可追溯到具体行为（观看直播、签到、邀请、计时浏览等），并一键进入积分商城消耗。<br>
-                <strong>2. 产品界面设计：</strong>三层信息架构——Header 金色积分胶囊（全局入口）→ 主内容区 <code>home-points-strip</code>（余额 + 进度 + 商城 CTA）→ 右侧抽屉（任务列表 + 获取明细 + 商城热门预览）；宽屏可选 <code>?pointsAside=1</code> 展示右侧积分大卡。<br>
+                <strong>2. 产品界面设计：</strong>积分主入口收敛至<strong>个人主页</strong>紧凑行 + 任务抽屉；首页 Feed 区不再重复积分条，仅保留 Header 胶囊（可选）与任务跳转深链 <code>?feed=live</code>。<br>
                 <strong>3. 高保真 UI：</strong>Web Header + Sidebar + Main 标准布局；渐变积分条、毛玻璃抽屉、Unsplash/Pexels/Pixabay 真实配图；与 <code>invite-reward-config.js</code>、后台 <code>activities-points-store.js</code> 数据对齐。<br>
                 <strong>4. HTML 实现：</strong>个人主页紧凑行展示<strong>总积分</strong>与<strong>今日已领</strong>；积分任务抽屉按活动类型区分进度（签到无条、直播/邀请为今日已领/可领次数）；领取/去完成/去了解均有完整交互与 Toast。API：<code>GET /api/v1/wallet/points</code> · <code>POST /api/v1/points/tasks/:id/claim</code>。
             </p>
             <div class="grid">
                 <div class="tile">
-                    <div class="th">home.html（默认 · 积分条 + Header 入口） <a href="pages-web/home.html" target="_blank">新窗口</a></div>
-                    <div class="tb" style="height:760px"><iframe src="pages-web/home.html" title="首页积分条" loading="lazy"></iframe></div>
-                    <div class="tf">Feed 上方积分概览条：可用 12,580 · 冷静中 1,400 · 今日进度 · 「积分商城」「查看任务与明细」。</div>
+                    <div class="th">home.html（Feed · 无积分条） <a href="pages-web/home.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:760px"><iframe src="pages-web/home.html" title="首页" loading="lazy"></iframe></div>
+                    <div class="tf">主内容区已移除积分条；积分查看与任务入口见个人主页 <code>profile.html</code>。</div>
                 </div>
                 <div class="tile">
                     <div class="th">home.html?pointsDrawer=open（抽屉 · 赚积分任务） <a href="pages-web/home.html?pointsDrawer=open" target="_blank">新窗口</a></div>
@@ -746,6 +747,37 @@ main.content { padding: 28px 24px 48px; }
                     <div class="th">home.html?feed=live（直播 Tab · 任务跳转目标） <a href="pages-web/home.html?feed=live" target="_blank">新窗口</a></div>
                     <div class="tb" style="height:760px"><iframe src="pages-web/home.html?feed=live" title="首页直播" loading="lazy"></iframe></div>
                     <div class="tf">观看直播任务「去完成」深链目标页。</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="block" id="create-ppv">
+            <h2><i class="fa-solid fa-tag"></i>创建内容 · 单篇付费（PPV）</h2>
+            <p class="lead">
+                <strong>问题修复：</strong><code>create-studio.js</code> 已有定价逻辑，但 <code>create.html</code> 缺少 <code>#priceGrid</code> DOM，导致单篇付费 UI 从未渲染。<br>
+                <strong>本次补齐：</strong>编辑器内「变现设置」三格（免费 / 订阅专属 / 单篇付费）+ 解锁价输入；直播类型自动隐藏；发布成功文案与「发布前预览」解锁墙随定价变化。<br>
+                <strong>深链：</strong><code>?type=image&amp;pricing=ppv</code> · <code>?pricing=sub+ppv&amp;ppvPrice=9.9</code>
+            </p>
+            <div class="grid">
+                <div class="tile">
+                    <div class="th">create.html?type=image（默认 · 订阅专属） <a href="pages-web/create.html?type=image" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:820px"><iframe src="pages-web/create.html?type=image" title="创建图文" loading="lazy"></iframe></div>
+                    <div class="tf">打开编辑器并展示变现设置卡片；默认勾选订阅专属。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">create.html?type=image&amp;pricing=ppv（单篇付费） <a href="pages-web/create.html?type=image&pricing=ppv" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:820px"><iframe src="pages-web/create.html?type=image&pricing=ppv" title="单篇付费图文" loading="lazy"></iframe></div>
+                    <div class="tf">仅勾选单篇付费 · 解锁价 5 USDT · 预览显示非订阅者解锁墙。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">create.html?type=image&amp;pricing=sub+ppv&amp;ppvPrice=9.9 <a href="pages-web/create.html?type=image&pricing=sub+ppv&ppvPrice=9.9" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:820px"><iframe src="pages-web/create.html?type=image&pricing=sub+ppv&ppvPrice=9.9" title="订阅+单篇" loading="lazy"></iframe></div>
+                    <div class="tf">订阅者优先 + 非订阅者 9.9 USDT 解锁组合模式。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">create.html?type=video&amp;pricing=ppv（视频单篇） <a href="pages-web/create.html?type=video&pricing=ppv" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:820px"><iframe src="pages-web/create.html?type=video&pricing=ppv" title="单篇付费视频" loading="lazy"></iframe></div>
+                    <div class="tf">视频类型同样支持 PPV；直播类型隐藏变现区。</div>
                 </div>
             </div>
         </section>

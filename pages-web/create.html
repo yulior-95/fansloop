@@ -596,6 +596,44 @@
     font-weight: 600;
     flex-shrink: 0;
 }
+.monetize-hint {
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--t-tertiary);
+    line-height: 1.55;
+}
+.monetize-hint strong { color: var(--t-secondary); }
+.preview-mock .pm-paywall {
+    display: none;
+    margin-top: 12px;
+    padding: 16px;
+    border-radius: var(--r-md);
+    background: linear-gradient(135deg, rgba(168,85,247,0.12), rgba(236,72,153,0.06));
+    border: 1px dashed rgba(168,85,247,0.35);
+    text-align: center;
+}
+.preview-mock .pm-paywall.show { display: block; }
+.preview-mock .pm-paywall .pw-blur {
+    height: 72px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    background: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=600&q=80') center/cover;
+    filter: blur(6px) brightness(0.55);
+    opacity: 0.85;
+}
+.preview-mock .pm-paywall .pw-ti { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.preview-mock .pm-paywall .pw-sub { font-size: 11px; color: var(--t-tertiary); margin-bottom: 10px; }
+.preview-mock .pm-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.preview-mock .pm-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+}
+.preview-mock .pm-badge.sub { background: rgba(168,85,247,0.2); color: #E9D5FF; }
+.preview-mock .pm-badge.ppv { background: rgba(245,158,11,0.18); color: #FDE68A; }
+.preview-mock .pm-badge.free { background: rgba(16,185,129,0.15); color: #6EE7B7; }
+#createMonetizeCard.is-hidden { display: none; }
 
 .preview-mock .pm-video {
     margin-top: 12px;
@@ -712,23 +750,11 @@
 .action-bar .left-info .li-ti { font-size: 12px; color: var(--t-tertiary); }
 .action-bar .left-info .li-sub { font-size: 11px; color: var(--t-quaternary); margin-top: 2px; }
 
-/* 草稿列表 */
+/* 侧栏卡片 */
 .aside-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg); margin-bottom: 14px; overflow: hidden; }
 .aside-card .ah { padding: 14px 16px 8px; display: flex; justify-content: space-between; align-items: center; }
 .aside-card .ah h4 { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
 .aside-card .ab { padding: 6px 14px 14px; }
-
-.draft-row {
-    display: flex; gap: 10px; padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-}
-.draft-row:hover { background: var(--bg-hover); margin: 0 -8px; padding: 10px 8px; border-radius: 8px; border-bottom-color: transparent; }
-.draft-row:last-child { border-bottom: none; }
-.draft-row .thumb { width: 50px; height: 50px; border-radius: 8px; background-size: cover; background-position: center; flex-shrink: 0; }
-.draft-row .info { flex: 1; min-width: 0; }
-.draft-row .info .t { font-size: 12.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.draft-row .info .s { font-size: 10.5px; color: var(--t-tertiary); margin-top: 4px; display: flex; gap: 8px; }
 
 /* 提示 */
 .tip-card {
@@ -1276,6 +1302,63 @@
                 </div>
                 </div>
 
+                <!-- 变现设置 · 免费 / 订阅专属 / 单篇付费（PPV） -->
+                <div class="setting-card" id="createMonetizeCard" style="margin-top: 16px">
+                    <div class="editor-head">
+                        <h3><span class="ic" style="background: linear-gradient(135deg,#F59E0B,#EC4899)"><i class="fa-solid fa-coins"></i></span> 变现设置</h3>
+                        <span class="dev-glass-wrap dev-glass-wrap--pop-below">
+                            <span class="dev-glass-sphere" tabindex="0" aria-describedby="devPpvTip">
+                                <span class="dev-glass-sphere-shine"></span>
+                                <span class="dev-glass-sphere-txt">To 研发</span>
+                            </span>
+                            <span class="dev-glass-pop dev-glass-pop--wide" id="devPpvTip" role="tooltip">
+                                <strong>单篇付费（PPV）</strong><br>
+                                · <code>pricing.ppv</code> + <code>ppvPriceUsdt</code> → 发现页 Teaser + 解锁墙<br>
+                                · 可与「订阅专属」叠加：订阅者直接看，非订阅者付解锁价<br>
+                                · 仅免费：公域完整可见（游客策略见 discover-access.js）<br>
+                                · API：<code>POST /api/v1/posts</code> body <code>monetization: free|sub|ppv|sub+ppv</code>
+                            </span>
+                        </span>
+                    </div>
+                    <div class="editor-body" style="padding: 16px 18px 18px">
+                        <p style="font-size:12px;color:var(--t-secondary);line-height:1.55;margin-bottom:12px">
+                            选择内容的可见与付费方式。<strong style="color:#fff">单篇付费</strong>：非订阅者支付解锁价后可查看完整内容；可与订阅专属组合。
+                        </p>
+                        <div class="price-grid" id="priceGrid">
+                            <div class="price-cell" data-mode="free" role="button" tabindex="0">
+                                <span class="price-check"><i class="fa-solid fa-check"></i></span>
+                                <div class="ti"><i class="fa-solid fa-unlock"></i> 免费公开</div>
+                                <div class="sub">所有人可见完整内容</div>
+                            </div>
+                            <div class="price-cell checked" data-mode="sub" role="button" tabindex="0">
+                                <span class="price-check"><i class="fa-solid fa-check"></i></span>
+                                <div class="ti"><i class="fa-solid fa-crown"></i> 订阅专属</div>
+                                <div class="sub">仅订阅者可见</div>
+                                <div class="price-amt"><span id="priceSubDisplay">28</span><span class="u"> USDT/月</span></div>
+                            </div>
+                            <div class="price-cell" data-mode="ppv" role="button" tabindex="0">
+                                <span class="price-check"><i class="fa-solid fa-check"></i></span>
+                                <div class="ti"><i class="fa-solid fa-tag"></i> 单篇付费</div>
+                                <div class="sub">非订阅者需单独解锁</div>
+                                <div class="price-amt"><span id="pricePpvDisplay">5</span><span class="u"> USDT</span></div>
+                            </div>
+                        </div>
+                        <div class="price-amount-rows">
+                            <div class="price-amount-field" id="rowSubPrice">
+                                <label>订阅价参考</label>
+                                <input type="number" id="inputSubPrice" value="28" min="1" step="1" aria-label="订阅价">
+                                <span class="unit">USDT/月</span>
+                            </div>
+                            <div class="price-amount-field" id="rowPpvPrice">
+                                <label>单篇解锁价</label>
+                                <input type="number" id="inputPpvPrice" value="5" min="0.5" step="0.01" aria-label="单篇解锁价">
+                                <span class="unit">USDT</span>
+                            </div>
+                        </div>
+                        <p class="monetize-hint"><i class="fa-solid fa-circle-info"></i> <strong>单篇付费</strong> 发布后将在发现页展示 Teaser，用户支付解锁价或使用试看券后观看完整内容。</p>
+                    </div>
+                </div>
+
                 <!-- 高级设置 -->
                 <div class="setting-card" style="margin-top: 16px">
                     <div class="editor-head"><h3><span class="ic" style="background: linear-gradient(135deg,#3B82F6,#06B6D4)"><i class="fa-solid fa-sliders"></i></span> 高级设置</h3></div>
@@ -1325,6 +1408,7 @@
                         <button type="button" class="btn btn-secondary btn-create-only" id="btnClearDraft" style="display:none"><i class="fa-solid fa-trash-can"></i> 取消草稿</button>
                         <button type="button" class="btn btn-secondary btn-pending-only" id="btnPendingSaveEdit"><i class="fa-solid fa-check"></i> 保存编辑</button>
                         <button type="button" class="btn btn-secondary btn-pending-only" id="btnPendingCancelEdit"><i class="fa-solid fa-xmark"></i> 取消编辑</button>
+                        <button type="button" class="btn btn-secondary btn-create-only" id="btnPreviewPublish" style="display:none"><i class="fa-solid fa-eye"></i> 发布前预览</button>
                         <button type="button" class="btn btn-primary btn-lg" id="btnPublishMain"><i class="fa-solid fa-paper-plane"></i> 立即发布</button>
                     </div>
                 </div>
@@ -1367,33 +1451,6 @@
                     <div class="txt">
                         <b>发布建议</b><br>
                         添加封面 + 标签可使曝光率提升 <b>3.5×</b>。视频建议 9:16 竖版以获得更佳推荐。
-                    </div>
-                </div>
-
-                <div class="aside-card">
-                    <div class="ah"><h4><i class="fa-regular fa-floppy-disk" style="color:#C084FC"></i>草稿箱 (3)</h4><a style="font-size: 11px; color: var(--brand-purple)" href="#">全部</a></div>
-                    <div class="ab" style="padding-top: 0">
-                        <div class="draft-row">
-                            <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=200')"></div>
-                            <div class="info">
-                                <div class="t">雨夜小提琴 · 现场</div>
-                                <div class="s"><span><i class="fa-regular fa-clock"></i> 2 小时前</span><span><i class="fa-solid fa-image"></i> 4</span></div>
-                            </div>
-                        </div>
-                        <div class="draft-row">
-                            <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1493612276216-ee3925520721?w=200')"></div>
-                            <div class="info">
-                                <div class="t">咖啡馆问答 · 第 4 期</div>
-                                <div class="s"><span><i class="fa-regular fa-clock"></i> 昨天</span><span><i class="fa-solid fa-video"></i> 1</span></div>
-                            </div>
-                        </div>
-                        <div class="draft-row">
-                            <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1542435503-956c469947f6?w=200')"></div>
-                            <div class="info">
-                                <div class="t">银盐时代 · 长卷</div>
-                                <div class="s"><span><i class="fa-regular fa-clock"></i> 3 天前</span><span><i class="fa-solid fa-image"></i> 9</span></div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -1454,8 +1511,15 @@
             <div class="preview-mock">
                 <div class="pm-head"><i class="fa-solid fa-mobile-screen" style="color:var(--t-tertiary)"></i> <span id="pvHeadLabel">订阅者视角</span></div>
                 <div class="pm-body">
+                    <div class="pm-badges" id="pvBadges"></div>
                     <h2 id="pvBodyTitle">富士山五合目 · 零下 4℃ 的清晨</h2>
                     <p id="pvBodyText">清晨 5:40，云海被风轻轻吹散，每一帧都是冻出来的浪漫。35mm 定焦，三个小时，三张可用——分享给所有在等日出的你。</p>
+                    <div class="pm-paywall" id="pvPaywall" aria-hidden="true">
+                        <div class="pw-blur" aria-hidden="true"></div>
+                        <div class="pw-ti"><i class="fa-solid fa-lock"></i> 订阅或付费解锁</div>
+                        <div class="pw-sub" id="pvPaywallSub">非订阅者支付 5 USDT 解锁完整内容</div>
+                        <button type="button" class="btn btn-primary btn-sm" disabled><i class="fa-solid fa-unlock"></i> <span id="pvPaywallCta">解锁 5 USDT</span></button>
+                    </div>
                     <div class="pm-video" id="pvVideo" aria-hidden="true">
                         <div class="play"><span><i class="fa-solid fa-play"></i></span></div>
                     </div>

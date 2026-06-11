@@ -5,6 +5,7 @@
     var PAY_PWD_DEMO = '123456';
     var pwdBuffer = '';
     var pendingRechargeAmt = 100;
+    var selectedVoucherId = null;
     var state = { creator: '创作者', price: 16, mode: 'subscribe' };
 
     function toast(msg) {
@@ -25,9 +26,172 @@
         return window.LiveWalletStore || null;
     }
 
-    function getSelectedPrice() {
-        var active = document.querySelector('.sub-plan.active');
+    function vouchers() {
+        return window.MallVouchersStore || null;
+    }
+
+    function formatUsdt(n) {
+        var num = Math.round(Number(n) * 100) / 100;
+        return num % 1 === 0 ? String(num) : num.toFixed(2);
+    }
+
+    function getActivePlanEl() {
+        return document.querySelector('.sub-plan.active');
+    }
+
+    function getBasePrice() {
+        var active = getActivePlanEl();
         return parseFloat((active && active.getAttribute('data-price')) || state.price || 16);
+    }
+
+    function getSelectedPlanType() {
+        var store = vouchers();
+        return store ? store.getPlanType(getActivePlanEl()) : 'monthly';
+    }
+
+    function getSelectedVoucher() {
+        if (!selectedVoucherId) return null;
+        var store = vouchers();
+        return store ? store.getById(selectedVoucherId) : null;
+    }
+
+    function getEligibleVouchers() {
+        var store = vouchers();
+        if (!store) return [];
+        return store.getEligibleForSubscription(getSelectedPlanType(), getBasePrice());
+    }
+
+    function getFinalPrice() {
+        var base = getBasePrice();
+        var store = vouchers();
+        var voucher = getSelectedVoucher();
+        if (!store || !voucher) return base;
+        return store.calcDiscountedPrice(base, voucher);
+    }
+
+    function getSelectedPrice() {
+        return getFinalPrice();
+    }
+
+    function ensureCouponUI() {
+        var step1 = document.getElementById('subStep1');
+        var planList = step1 && step1.querySelector('.sub-plan-list');
+        if (!planList || document.getElementById('subCouponSection')) return;
+
+        var section = document.createElement('div');
+        section.className = 'sub-coupon-section';
+        section.id = 'subCouponSection';
+        section.hidden = true;
+        section.innerHTML =
+            '<div class="sub-coupon-head">' +
+                '<span><i class="fa-solid fa-ticket" style="color:#C084FC"></i> 可用兑换券</span>' +
+                '<a href="points-mall.html">去商城兑换</a>' +
+            '</div>' +
+            '<div class="sub-coupon-list" id="subCouponList" role="radiogroup" aria-label="选择订阅兑换券"></div>';
+
+        var summary = document.createElement('div');
+        summary.className = 'sub-price-summary';
+        summary.id = 'subPriceSummary';
+        summary.hidden = true;
+
+        var hint = planList.nextElementSibling;
+        if (hint && hint.tagName === 'P') {
+            planList.parentNode.insertBefore(section, hint);
+            planList.parentNode.insertBefore(summary, hint);
+        } else {
+            planList.insertAdjacentElement('afterend', section);
+            section.insertAdjacentElement('afterend', summary);
+        }
+    }
+
+    function updatePriceSummary() {
+        var summary = document.getElementById('subPriceSummary');
+        if (!summary) return;
+        var base = getBasePrice();
+        var final = getFinalPrice();
+        if (selectedVoucherId && final < base) {
+            summary.hidden = false;
+            summary.innerHTML = '应付 <b>' + formatUsdt(final) + ' USDT</b>（原价 ' + formatUsdt(base) +
+                ' USDT，券抵扣 ' + formatUsdt(base - final) + ' USDT）';
+        } else {
+            summary.hidden = true;
+            summary.innerHTML = '';
+        }
+    }
+
+    function renderSubCoupons() {
+        ensureCouponUI();
+        var section = document.getElementById('subCouponSection');
+        var list = document.getElementById('subCouponList');
+        if (!section || !list) return;
+
+        var store = vouchers();
+        var eligible = getEligibleVouchers();
+
+        if (!store || !eligible.length) {
+            section.hidden = true;
+            selectedVoucherId = null;
+            updatePriceSummary();
+            refreshBalanceBar();
+            return;
+        }
+
+        if (selectedVoucherId && !eligible.some(function (v) { return v.id === selectedVoucherId; })) {
+            selectedVoucherId = null;
+        }
+
+        section.hidden = false;
+        var base = getBasePrice();
+        var html = '';
+
+        html += '<label class="sub-coupon-opt' + (!selectedVoucherId ? ' is-selected' : '') + '" data-voucher="">' +
+            '<input type="radio" name="subCouponPick" value=""' + (!selectedVoucherId ? ' checked' : '') + '>' +
+            '<span class="sub-coupon-body"><span class="n">不使用兑换券</span><span class="d">按原价 ' + formatUsdt(base) + ' USDT 支付</span></span>' +
+            '</label>';
+
+        eligible.forEach(function (v) {
+            var sel = selectedVoucherId === v.id;
+            var final = store.calcDiscountedPrice(base, v);
+            var save = base - final;
+            html += '<label class="sub-coupon-opt' + (sel ? ' is-selected' : '') + '" data-voucher="' + v.id + '">' +
+                '<input type="radio" name="subCouponPick" value="' + v.id + '"' + (sel ? ' checked' : '') + '>' +
+                '<span class="sub-coupon-body">' +
+                    '<span class="n">' + v.name + '</span>' +
+                    '<span class="d">券后 ' + formatUsdt(final) + ' USDT · 省 ' + formatUsdt(save) + ' · ' + store.formatExpiry(v) + '</span>' +
+                '</span>' +
+                '<span class="sub-coupon-tag">' + store.formatDiscountTag(v) + '</span>' +
+                '</label>';
+        });
+
+        list.innerHTML = html;
+        updatePriceSummary();
+        refreshBalanceBar();
+    }
+
+    function ensurePayCouponRows() {
+        var summary = document.querySelector('#subStepPayPwd .sub-pay-summary');
+        if (!summary || document.getElementById('subPayOrigRow')) return;
+
+        var origRow = document.createElement('div');
+        origRow.className = 'row';
+        origRow.id = 'subPayOrigRow';
+        origRow.style.display = 'none';
+        origRow.innerHTML = '<span>订阅原价</span><span class="v" id="subPayOrigVal">—</span>';
+
+        var couponRow = document.createElement('div');
+        couponRow.className = 'row is-discount';
+        couponRow.id = 'subPayCouponRow';
+        couponRow.style.display = 'none';
+        couponRow.innerHTML = '<span>兑换券抵扣</span><span class="v" id="subPayCouponVal">—</span>';
+
+        var amtRow = summary.querySelectorAll('.row')[1];
+        if (amtRow) {
+            summary.insertBefore(couponRow, amtRow.nextSibling);
+            summary.insertBefore(origRow, couponRow);
+        } else {
+            summary.appendChild(origRow);
+            summary.appendChild(couponRow);
+        }
     }
 
     function showSubStep(stepId) {
@@ -106,7 +270,10 @@
                 if (priceEl) priceEl.textContent = state.price + ' USDT';
             }
         }
+        selectedVoucherId = null;
         resetPwdInput();
+        ensureCouponUI();
+        renderSubCoupons();
         refreshBalanceBar();
         showSubStep('subStep1');
         ovl.classList.add('show');
@@ -115,6 +282,7 @@
     function closeSubscribeModal() {
         var ovl = document.getElementById('ovlSubscribe');
         if (ovl) ovl.classList.remove('show');
+        selectedVoucherId = null;
         resetPwdInput();
         showSubStep('subStep1');
         try {
@@ -145,12 +313,28 @@
 
     function openPayPwdStep(price) {
         var w = wallet();
+        var base = getBasePrice();
+        var voucher = getSelectedVoucher();
         var creatorEl = document.getElementById('subPayCreator');
         var amtEl = document.getElementById('subPayAmount');
         var afterEl = document.getElementById('subPayAfterBal');
+        ensurePayCouponRows();
+        var origRow = document.getElementById('subPayOrigRow');
+        var couponRow = document.getElementById('subPayCouponRow');
+        var origVal = document.getElementById('subPayOrigVal');
+        var couponVal = document.getElementById('subPayCouponVal');
         if (creatorEl) creatorEl.textContent = state.creator;
-        if (amtEl) amtEl.textContent = (w ? w.format(price) : price) + ' USDT';
+        if (amtEl) amtEl.textContent = (w ? w.format(price) : formatUsdt(price)) + ' USDT';
         if (afterEl && w) afterEl.textContent = w.format(w.getBalance() - price) + ' USDT';
+        if (voucher && price < base) {
+            if (origRow) origRow.style.display = '';
+            if (couponRow) couponRow.style.display = '';
+            if (origVal) origVal.textContent = (w ? w.format(base) : formatUsdt(base)) + ' USDT';
+            if (couponVal) couponVal.textContent = '−' + (w ? w.format(base - price) : formatUsdt(base - price)) + ' USDT（' + voucher.name + '）';
+        } else {
+            if (origRow) origRow.style.display = 'none';
+            if (couponRow) couponRow.style.display = 'none';
+        }
         resetPwdInput();
         showSubStep('subStepPayPwd');
     }
@@ -185,19 +369,29 @@
             }, 500);
             return;
         }
-        var price = getSelectedPrice();
+        var price = getFinalPrice();
+        var base = getBasePrice();
+        var voucher = getSelectedVoucher();
         var w = wallet();
         if (w && !w.deduct(price)) {
             toast('余额不足，请先充值');
             openRechargeStep(price);
             return;
         }
+        if (voucher && window.MallVouchersStore) {
+            window.MallVouchersStore.markUsed(voucher.id);
+            selectedVoucherId = null;
+        }
         refreshBalanceBar();
         var subResultText = document.getElementById('subResultText');
+        var payLine = formatUsdt(price) + ' USDT';
+        if (voucher && price < base) {
+            payLine += '（已用 ' + voucher.name + '，省 ' + formatUsdt(base - price) + ' USDT）';
+        }
         if (subResultText) {
             subResultText.textContent = state.mode === 'renew'
-                ? '你已成功为「' + state.creator + '」续费，扣款 ' + price + ' USDT，订阅已延长。'
-                : '你已成功订阅「' + state.creator + '」，扣款 ' + price + ' USDT。';
+                ? '你已成功为「' + state.creator + '」续费，扣款 ' + payLine + '，订阅已延长。'
+                : '你已成功订阅「' + state.creator + '」，扣款 ' + payLine + '。';
         }
         showSubStep('subStep2');
         toast(state.mode === 'renew' ? '支付成功，续费已生效' : '支付成功，订阅已生效');
@@ -234,8 +428,16 @@
                     p.classList.remove('active');
                 });
                 plan.classList.add('active');
-                refreshBalanceBar();
+                renderSubCoupons();
             });
+        });
+
+        document.addEventListener('change', function (e) {
+            if (!e.target || e.target.name !== 'subCouponPick') return;
+            var ovl = document.getElementById('ovlSubscribe');
+            if (!ovl || !ovl.classList.contains('show')) return;
+            selectedVoucherId = e.target.value || null;
+            renderSubCoupons();
         });
 
         var btnConfirm = document.getElementById('btnConfirmSubscribe');
@@ -347,6 +549,7 @@
     }
 
     if (document.getElementById('ovlSubscribe')) {
+        ensureCouponUI();
         bindSubscribeUI();
     }
     window.FL_bindSubscribeUI = bindSubscribeUI;

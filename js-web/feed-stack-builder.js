@@ -80,6 +80,8 @@
             return '直播预告（纯文字）：无封面图，仅文案 + 时间';
         }
         if (type === 'live-preview') return '直播预告（图文）：含封面图、计划开播时间、提醒按钮';
+        if (type === 'subscribe-locked') return '订阅专属：未订阅展示 Teaser + 解锁墙；点击「立即订阅」打开订阅弹层（可选用积分兑换券）';
+        if (type === 'ppv-locked') return '单篇付费：Teaser + 解锁墙；点击「支付解锁」打开单篇弹层（可选用试看券 / 单篇折扣券）';
         return '展示内容含：在线状态、创作者等级、兴趣标签';
     }
 
@@ -99,6 +101,8 @@
             ? '<span class="tag-quality-wrap"><span class="tag tag-warning">优质</span>' + qualityGlass + '</span>'
             : '';
         var previewTag = type === 'live-preview' ? ' <span class="tag-preview">直播预告</span>' : '';
+        var subOnlyTag = type === 'subscribe-locked' ? ' <span class="tag-sub-only">订阅专属</span>' : '';
+        var ppvTag = type === 'ppv-locked' ? ' <span class="tag-ppv-only">单篇付费</span>' : '';
         var liveEndedTag = liveEnded ? ' <span class="tag tag-ended-head">已结束</span>' : '';
         var metaLive;
         if (liveEnded) {
@@ -117,14 +121,16 @@
             : '<button type="button" class="follow-btn follow-dynamic" data-following="' + (i % 3 === 0 ? 'true' : 'false') + '">' + (i % 3 === 0 ? '已关注' : '+ 关注') + '</button>';
         var subBtn = guest || isLive
             ? ''
-            : (i % 4 === 0 ? '<button type="button" class="sub-btn btn-open-subscribe" data-creator="' + esc(c.name) + '" data-plan="16">订阅</button>' : '');
+            : (type === 'subscribe-locked' || i % 4 === 0
+                ? '<button type="button" class="sub-btn btn-open-subscribe" data-creator="' + esc(c.name) + '" data-plan="16" data-av="https://images.unsplash.com/' + c.av + '?w=100">订阅</button>'
+                : '');
         var verified = c.verified ? ' <i class="fa-solid fa-circle-check verified"></i>' : '';
 
         return (
             '<div class="post-head">' +
             '<div class="av av-md' + (guest ? '' : ' av-link') + '" style="background-image:url(\'https://images.unsplash.com/' + c.av + '?w=100\')"' +
             (guest ? '' : ' onclick="location.href=\'creator-profile.html\'" title="查看创作者主页"') + '></div>' +
-            '<div class="pi-info"><div class="name">' + esc(c.name) + verified + quality + previewTag + liveEndedTag + '</div>' +
+            '<div class="pi-info"><div class="name">' + esc(c.name) + verified + quality + previewTag + subOnlyTag + ppvTag + liveEndedTag + '</div>' +
             '<div class="pi-meta-row"><div class="meta">' + metaLive + tagHtml + '</div>' + metaGlass + '</div></div>' +
             '<div class="pi-actions">' + followBtn + subBtn + '</div></div>'
         );
@@ -140,6 +146,12 @@
         }
         if (stackKind === 'follow') {
             return { type: i % 3 === 1 ? 'video' : 'image' };
+        }
+        if (stackKind === 'rec' && i === 3) {
+            return { type: 'subscribe-locked' };
+        }
+        if (stackKind === 'rec' && i === 7) {
+            return { type: 'ppv-locked', ppvPrice: 5 };
         }
         var m = i % 10;
         if (m === 2) return { type: 'live', liveStatus: 'live' };
@@ -173,8 +185,64 @@
         );
     }
 
-    function buildMediaCenter(type, coverId, i, guest, previewVariant, liveStatus) {
+    function buildPpvLockedMedia(c, coverId, i, guest, ppvPrice) {
+        ppvPrice = ppvPrice || 5;
+        var postId = 'feed-ppv-' + i;
+        var postTitle = '京都樱花季隐秘机位 · 完整图集与 GPS';
+        var url = 'https://images.unsplash.com/' + coverId + '?w=1200&q=80';
+        var av = 'https://images.unsplash.com/' + c.av + '?w=100';
+        var unlockBtn = guest
+            ? '<button type="button" class="pc-buy" onclick="location.href=\'modal-login-main.html\'"><i class="fa-solid fa-bolt"></i> 登录后解锁</button>'
+            : '<button type="button" class="pc-buy btn-open-ppv-unlock" data-creator="' + esc(c.name) + '" data-ppv-price="' + ppvPrice + '" data-post-id="' + postId + '" data-title="' + esc(postTitle) + '" data-av="' + av + '"><i class="fa-solid fa-bolt"></i> ' + ppvPrice + ' USDT 解锁</button>';
+        var subBtn = guest
+            ? ''
+            : '<button type="button" class="pc-sub btn-open-subscribe" data-creator="' + esc(c.name) + '" data-plan="16" data-av="' + av + '"><i class="fa-solid fa-crown"></i> 订阅查看全部</button>';
+        return (
+            '<div class="paid-cover feed-paid-cover feed-paid-cover--ppv" style="background-image:url(\'' + url + '\')">' +
+            '<span class="pc-tag pc-tag--ppv"><i class="fa-solid fa-tag"></i> 单篇 ' + ppvPrice + ' USDT</span>' +
+            '<div class="pc-blur-mask" aria-hidden="true"></div>' +
+            '<div class="pc-content">' +
+            '<div class="pc-lock pc-lock--ppv"><i class="fa-solid fa-lock"></i></div>' +
+            '<h4>单篇解锁后可永久查看</h4>' +
+            '<p>@' + esc(c.name) + ' · 非订阅者需支付 <b>' + ppvPrice + ' USDT</b> 解锁本篇</p>' +
+            '<div class="pc-ctas">' + unlockBtn + subBtn + '</div>' +
+            '</div></div>'
+        );
+    }
+
+    function buildSubscribeLockedMedia(c, coverId, i, guest) {
+        var url = 'https://images.unsplash.com/' + coverId + '?w=1200&q=80';
+        var t2 = 'https://images.unsplash.com/' + pick(COVERS, i + 2) + '?w=200&q=80';
+        var t3 = 'https://images.unsplash.com/' + pick(COVERS, i + 4) + '?w=200&q=80';
+        var subBtn = guest
+            ? '<button type="button" class="pc-sub" onclick="location.href=\'modal-login-main.html\'"><i class="fa-solid fa-crown"></i> 登录后订阅</button>'
+            : '<button type="button" class="pc-sub btn-open-subscribe" data-creator="' + esc(c.name) + '" data-plan="16" data-av="https://images.unsplash.com/' + c.av + '?w=100"><i class="fa-solid fa-crown"></i> 立即订阅</button>';
+        return (
+            '<div class="paid-cover feed-paid-cover" style="background-image:url(\'' + url + '\')">' +
+            '<span class="pc-tag"><i class="fa-solid fa-crown"></i> 订阅专属</span>' +
+            '<div class="pc-blur-mask" aria-hidden="true"></div>' +
+            '<div class="pc-content">' +
+            '<div class="pc-lock"><i class="fa-solid fa-lock"></i></div>' +
+            '<h4>订阅后解锁全部内容</h4>' +
+            '<p>@' + esc(c.name) + ' 本月另有 <b>62</b> 条会员专享 · 16 USDT/月起</p>' +
+            '<div class="pc-ctas">' + subBtn + '</div>' +
+            '</div>' +
+            '<div class="pc-blurred-thumbs" aria-hidden="true">' +
+            '<span class="ti" style="background-image:url(\'' + t2 + '\')"></span>' +
+            '<span class="ti" style="background-image:url(\'' + t3 + '\')"></span>' +
+            '<span class="more-cnt">+60</span>' +
+            '</div></div>'
+        );
+    }
+
+    function buildMediaCenter(type, coverId, i, guest, previewVariant, liveStatus, creator, ppvPrice) {
         liveStatus = liveStatus || 'live';
+        if (type === 'subscribe-locked') {
+            return buildSubscribeLockedMedia(creator || pick(CREATORS, i), coverId, i, guest);
+        }
+        if (type === 'ppv-locked') {
+            return buildPpvLockedMedia(creator || pick(CREATORS, i), coverId, i, guest, ppvPrice);
+        }
         var url = 'https://images.unsplash.com/' + coverId + '?w=1200&q=80';
         if (type === 'live-preview') {
             if (previewVariant !== 'text') {
@@ -260,12 +328,13 @@
     function buildSlide(i, stackKind, opts) {
         opts = opts || {};
         var guest = !!opts.guest;
-        var c = pick(CREATORS, i);
-        var cover = pick(COVERS, i);
-        var text = pick(TEXTS, i);
-        var tags = '<span class="hashtag">' + pick(HASHTAGS, i) + '</span> <span class="hashtag">' + pick(HASHTAGS, i + 1) + '</span>';
         var resolved = resolveSlideType(i, stackKind);
         var type = resolved.type;
+        var ppvPrice = resolved.ppvPrice || 5;
+        var c = type === 'subscribe-locked' ? CREATORS[2] : (type === 'ppv-locked' ? CREATORS[1] : pick(CREATORS, i));
+        var cover = type === 'subscribe-locked' ? COVERS[2] : (type === 'ppv-locked' ? COVERS[4] : pick(COVERS, i));
+        var text = pick(TEXTS, i);
+        var tags = '<span class="hashtag">' + pick(HASHTAGS, i) + '</span> <span class="hashtag">' + pick(HASHTAGS, i + 1) + '</span>';
         var previewVariant = resolved.previewVariant;
         var liveStatus = resolved.liveStatus || 'live';
 
@@ -275,10 +344,20 @@
         } else if (type === 'live-preview') {
             bodyInner += '<div class="post-text">' + esc(text) + '<br>' + tags + '</div>';
             bodyInner += buildLivePreviewSchedule(i, c, previewVariant, guest);
+        } else if (type === 'subscribe-locked') {
+            bodyInner += '<div class="post-text post-text--teaser">' +
+                '<span class="teaser-label"><i class="fa-solid fa-eye-slash"></i> 未订阅仅可见摘要</span><br>' +
+                esc('雨夜小提琴排练室幕后 · 完整 4K 花絮、分轨试听与曲谱注释仅对订阅者开放。') + '<br>' + tags +
+                '</div>';
+        } else if (type === 'ppv-locked') {
+            bodyInner += '<div class="post-text post-text--teaser">' +
+                '<span class="teaser-label teaser-label--ppv"><i class="fa-solid fa-tag"></i> 单篇付费 · 未解锁仅可见摘要</span><br>' +
+                esc('京都樱花季隐秘机位整理 · 含 GPS 坐标、最佳时段与 12 张 RAW 原图——完整图集需单篇解锁或订阅创作者。') + '<br>' + tags +
+                '</div>';
         } else {
             bodyInner += '<div class="post-text">' + esc(text) + '<br>' + tags + '</div>';
         }
-        bodyInner += buildMediaCenter(type, cover, i, guest, previewVariant, liveStatus);
+        bodyInner += buildMediaCenter(type, cover, i, guest, previewVariant, liveStatus, c, ppvPrice);
 
         return (
             '<div class="feed-stack-slide">' +

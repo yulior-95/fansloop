@@ -96,6 +96,7 @@
 
     var balance = 12580;
     var pendingPoints = 0;
+    var pendingRedeemTitle = '';
     var isSpinning = false;
     var currentRotation = 0;
 
@@ -147,6 +148,7 @@
 
     function openRedeem(title, points, imgUrl) {
         pendingPoints = points;
+        pendingRedeemTitle = title || '';
         redeemName.textContent = title;
         redeemImg.style.backgroundImage = 'url(\'' + imgUrl + '\')';
         redeemCost.textContent = fmt(points) + ' 积分';
@@ -185,8 +187,18 @@
             if (av) av.textContent = fmt(balance);
             var dup = document.getElementById('pmAvailDup');
             if (dup) dup.textContent = fmt(balance);
+            if (window.MallVouchersStore && pendingRedeemTitle) {
+                var added = window.MallVouchersStore.addFromRedeem(pendingRedeemTitle);
+                if (added) {
+                    showToast('兑换成功 · ' + added.name + ' 已放入券包，订阅时可选用');
+                } else {
+                    showToast('兑换成功 · 权益已下发（原型演示）');
+                }
+            } else {
+                showToast('兑换成功 · 权益已下发（原型演示）');
+            }
+            pendingRedeemTitle = '';
             closeRedeem();
-            showToast('兑换成功 · 权益已下发（原型演示）');
             updateWheelBalance();
         });
     }

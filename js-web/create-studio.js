@@ -64,6 +64,16 @@
 
     var pricePpvDisplay = document.getElementById('pricePpvDisplay');
 
+    var createMonetizeCard = document.getElementById('createMonetizeCard');
+
+    var pvBadges = document.getElementById('pvBadges');
+
+    var pvPaywall = document.getElementById('pvPaywall');
+
+    var pvPaywallSub = document.getElementById('pvPaywallSub');
+
+    var pvPaywallCta = document.getElementById('pvPaywallCta');
+
 
 
     var DEMO_POOL = [
@@ -204,9 +214,125 @@
 
 
 
+        if (!opts.skipMonetize) applyPreviewMonetization(opts);
+
         drawer.classList.add('show');
 
         drawer.setAttribute('aria-hidden', 'false');
+
+    }
+
+
+
+    function getSubPrice() {
+
+        return inputSubPrice?.value || '28';
+
+    }
+
+
+
+    function getPpvPrice() {
+
+        return inputPpvPrice?.value || '5';
+
+    }
+
+
+
+    function getPublishPricingMessage(kind) {
+
+        var ppv = getPpvPrice();
+
+        var label = kind === 'video' ? '视频' : '图文';
+
+        if (pricing.free) return label + '已公开发布，所有人可在发现页查看完整内容。';
+
+        if (pricing.sub && pricing.ppv) {
+
+            return label + '已发布：订阅者优先观看，非订阅者支付 ' + ppv + ' USDT 可单篇解锁。';
+
+        }
+
+        if (pricing.ppv) return '单篇付费' + label + '已发布，非订阅者支付 ' + ppv + ' USDT 解锁后可查看。';
+
+        return label + '已发布，订阅者将在 Feed 中看到你的内容。';
+
+    }
+
+
+
+    function applyPreviewMonetization(opts) {
+
+        opts = opts || {};
+
+        var badges = [];
+
+        if (opts.pricingFree || pricing.free) badges.push({ cls: 'free', text: '免费公开' });
+
+        if (opts.pricingSub || pricing.sub) badges.push({ cls: 'sub', text: '订阅专属' });
+
+        if (opts.pricingPpv || pricing.ppv) badges.push({ cls: 'ppv', text: '单篇 ' + (opts.ppvPrice || getPpvPrice()) + ' USDT' });
+
+
+
+        if (pvBadges) {
+
+            pvBadges.innerHTML = badges.map(function (b) {
+
+                return '<span class="pm-badge ' + b.cls + '">' + b.text + '</span>';
+
+            }).join('');
+
+            pvBadges.style.display = badges.length ? 'flex' : 'none';
+
+        }
+
+
+
+        var showPaywall = opts.showPaywall != null ? opts.showPaywall : (!pricing.free && pricing.ppv);
+
+        var head = opts.head;
+
+        if (!head) {
+
+            if (pricing.free) head = '公域访客视角';
+
+            else if (pricing.ppv && !pricing.sub) head = '非订阅者视角';
+
+            else head = '订阅者视角';
+
+        }
+
+        if (pvHead) pvHead.textContent = head;
+
+
+
+        if (pvPaywall) {
+
+            pvPaywall.classList.toggle('show', showPaywall);
+
+            pvPaywall.setAttribute('aria-hidden', showPaywall ? 'false' : 'true');
+
+        }
+
+        if (showPaywall) {
+
+            var ppv = opts.ppvPrice || getPpvPrice();
+
+            if (pvPaywallSub) {
+
+                pvPaywallSub.textContent = pricing.sub
+
+                    ? '你已订阅可直接观看；未订阅需支付 ' + ppv + ' USDT 解锁完整内容'
+
+                    : '支付 ' + ppv + ' USDT 解锁完整内容';
+
+            }
+
+            if (pvPaywallCta) pvPaywallCta.textContent = '解锁 ' + ppv + ' USDT';
+
+        }
 
     }
 
@@ -272,7 +398,43 @@
 
     }
 
+    function getDraftPayload(type) {
+
+        try {
+
+            var raw = localStorage.getItem(LS_DRAFT_PREFIX + type);
+
+            return raw ? JSON.parse(raw) : null;
+
+        } catch (e) { return null; }
+
+    }
+
+    function loadDraftForType(type) {
+
+        if (type === 'live') return;
+
+        var payload = getDraftPayload(type);
+
+        if (!payload) return;
+
+        var panel = document.getElementById('panel' + type.charAt(0).toUpperCase() + type.slice(1));
+
+        if (!panel) return;
+
+        var titleEl = panel.querySelector('.title-input');
+
+        var textEl = panel.querySelector('.editor-text');
+
+        if (titleEl && payload.title != null) titleEl.value = payload.title;
+
+        if (textEl && payload.text != null) textEl.value = payload.text;
+
+    }
+
     function saveDraftForType(type) {
+
+        if (type === 'live') return;
 
         var panel = document.getElementById('panel' + type.charAt(0).toUpperCase() + type.slice(1));
 
@@ -328,13 +490,21 @@
 
         var isLive = currentType === 'live';
 
+        var editorOpen = editorZone?.classList.contains('is-open');
+
         var has = !isLive && hasDraft(currentType);
 
-        if (saveDraftBtn) saveDraftBtn.style.display = isLive ? 'none' : (has ? 'none' : '');
+        var showDraftActions = editorOpen && !isLive;
 
-        if (clearDraftBtn) clearDraftBtn.style.display = isLive ? 'none' : (has ? '' : 'none');
+        if (saveDraftBtn) saveDraftBtn.style.display = showDraftActions && !has ? '' : 'none';
 
-        if (draftGlass) draftGlass.style.display = isLive ? 'none' : ((has || editorZone?.classList.contains('is-open')) ? '' : 'none');
+        if (clearDraftBtn) clearDraftBtn.style.display = showDraftActions && has ? '' : 'none';
+
+        if (draftGlass) draftGlass.style.display = showDraftActions ? '' : 'none';
+
+        var previewBtn = document.getElementById('btnPreviewPublish');
+
+        if (previewBtn) previewBtn.style.display = (!isLive && editorOpen) ? '' : 'none';
 
         if (pubBtn) {
 
@@ -355,6 +525,18 @@
             }
 
         }
+
+    }
+
+
+
+    function syncMonetizeVisibility() {
+
+        if (!createMonetizeCard) return;
+
+        var hide = currentType === 'live' || pendingEditMode;
+
+        createMonetizeCard.classList.toggle('is-hidden', hide);
 
     }
 
@@ -856,6 +1038,10 @@
         });
         if (window.crToggleLiveOnlyUI) window.crToggleLiveOnlyUI(type === 'live');
 
+        if (editorZone?.classList.contains('is-open') && type !== 'live') loadDraftForType(type);
+
+        syncMonetizeVisibility();
+
         syncActionBarButtons();
 
     }
@@ -913,6 +1099,30 @@
                 images: kind === 'image' ? images : []
 
             });
+
+        });
+
+    });
+
+
+
+    document.getElementById('btnPreviewPublish')?.addEventListener('click', function () {
+
+        if (pendingEditMode || currentType === 'live') return;
+
+        openPreview({
+
+            kind: currentType === 'video' ? 'video' : 'image',
+
+            title: getEditorTitle(),
+
+            text: getEditorText(),
+
+            videoPoster: currentType === 'video'
+
+                ? (document.getElementById('videoUploadZone')?.style.backgroundImage || '').replace(/^url\(['"]?|['"]?\)$/g, '')
+
+                : ''
 
         });
 
@@ -981,13 +1191,13 @@
 
             }
 
-            openSuccess('视频已提交审核，发布成功后将在首页展示。');
+            openSuccess('视频已提交审核。' + getPublishPricingMessage('video'));
 
             return;
 
         }
 
-        openSuccess('图文动态已发布，订阅者将在 Feed 中看到你的内容。');
+        openSuccess(getPublishPricingMessage('image'));
 
     });
 
@@ -1183,6 +1393,20 @@
 
         clearDraftForType(currentType);
 
+        var panel = document.getElementById('panel' + currentType.charAt(0).toUpperCase() + currentType.slice(1));
+
+        if (panel) {
+
+            var titleEl = panel.querySelector('.title-input');
+
+            var textEl = panel.querySelector('.editor-text');
+
+            if (titleEl) titleEl.value = '';
+
+            if (textEl) textEl.value = '';
+
+        }
+
         syncActionBarButtons();
 
         showToast('已清除当前类型草稿');
@@ -1209,9 +1433,36 @@
 
     syncActionBarButtons();
 
+    function applyPricingFromQuery() {
+
+        var params = new URLSearchParams(window.location.search);
+
+        var p = (params.get('pricing') || '').toLowerCase();
+
+        if (!p || !priceGrid) return;
+
+        if (p === 'free') pricing = { free: true, sub: false, ppv: false };
+
+        else if (p === 'ppv') pricing = { free: false, sub: false, ppv: true };
+
+        else if (p === 'sub+ppv' || p === 'sub_ppv') pricing = { free: false, sub: true, ppv: true };
+
+        else if (p === 'sub') pricing = { free: false, sub: true, ppv: false };
+
+        var ppvVal = params.get('ppvPrice');
+
+        if (ppvVal && inputPpvPrice) inputPpvPrice.value = ppvVal;
+
+        syncPriceUI();
+
+    }
+
+
+
     (function applyCreateTypeFromQuery() {
         var params = new URLSearchParams(window.location.search);
         var t = params.get('type');
+        applyPricingFromQuery();
         if (t === 'image' || t === 'video' || t === 'live') {
             openCreateEditor(t);
         }
