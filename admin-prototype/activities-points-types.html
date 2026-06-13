@@ -15,8 +15,9 @@
   <aside class="admin-sider" id="adminSider"></aside>
   <div class="admin-main">
     <header class="admin-header">
-      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 活动管理 / 活动类型</span></div>
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 全局参数 / 活动类型</span></div>
       <div class="admin-header-right">
+        <a href="settings-global.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-sliders"></i> 参数总览</a>
         <a href="activities-points-crud.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-list"></i> 活动列表</a>
         <button type="button" class="ant-btn ant-btn-primary ant-btn-sm" id="btnNewType"><i class="fa-solid fa-plus"></i> 新增类型</button>
         <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>活动运营</span></div>
@@ -26,6 +27,7 @@
       <h1 class="admin-page-title">积分活动类型</h1>
       <p class="admin-page-desc">
         内置类型覆盖任务、邀请、签到、兑换等；运营可<strong>新增自定义类型</strong>并配置 schema 字段，创建活动时自动加载对应表单项。
+        <strong>获取类</strong>类型会同步出现在 <a href="risk-limits.html">积分风控 → 积分冷静期</a> 配置表；<strong>兑换商品</strong>等消耗类不参与冷静期。
         映射 <code>GET/POST /api/v1/admin/points-activity-types</code>。
       </p>
 
@@ -42,6 +44,21 @@
         </div>
       </div>
 
+      <div class="ant-card ant-card-bordered" style="margin-top:20px;max-width:960px">
+        <div class="ant-card-body">
+          <h3 style="font-size:14px;font-weight:600;margin:0 0 10px"><i class="fa-solid fa-code-branch" style="color:#1890ff"></i> 运营可配 vs 需研发接入</h3>
+          <table class="ant-table ant-table-small ant-table-bordered" style="width:100%">
+            <thead><tr><th>活动类型</th><th>运营能否独立创建</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td>计时任务 / 签到 / 邀请 / 互动 / 订阅</td><td>可以</td><td>触发条件为内置埋点或标准玩法，后台改参数即可生效</td></tr>
+              <tr><td><strong>研发活动 / 研发接入兑换</strong></td><td><span class="ant-tag ant-tag-green">参数可配</span></td><td>研发创建并绑定编码；运营<strong>可改时效与业务参数</strong>（如加速 24h→32h），不可新建玩法或改编码</td></tr>
+              <tr><td>兑换商品 / 转盘</td><td>可以</td><td>消耗类，规则固定；复杂抽奖逻辑仍可能需要研发</td></tr>
+              <tr><td>自定义类型</td><td>表单占位</td><td>Schema 仅生成表单项，C 端发奖逻辑默认未实现</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="ant-card ant-card-bordered" style="margin-top:20px;max-width:720px">
         <div class="ant-card-body">
           <h3 style="font-size:14px;font-weight:600;margin:0 0 10px"><i class="fa-solid fa-lightbulb" style="color:#faad14"></i> 与前台商城 Tab 对应关系</h3>
@@ -52,7 +69,7 @@
               <tr><td>付费权益</td><td>试看券、订阅折扣券</td><td>redeem_goods · mallCats=pay</td></tr>
               <tr><td>加速成长</td><td>计时任务、加速卡、签到</td><td>earn_task / redeem_goods</td></tr>
               <tr><td>会员&装扮</td><td>徽章、头像框、会员天数</td><td>redeem_goods · mallCats=vip</td></tr>
-              <tr><td>资产专区</td><td>SFL 资格、NFT 抽奖</td><td>campaign / custom 类型</td></tr>
+              <tr><td>资产专区</td><td>SFL 资格、NFT 抽奖</td><td>研发活动 / custom 类型 · 研发创建</td></tr>
             </tbody>
           </table>
         </div>
@@ -62,6 +79,7 @@
 </div>
 <script src="js/admin-nav.js"></script>
 <script src="js/admin-modal.js"></script>
+<script src="js/admin-session.js"></script>
 <script src="js/activities-points-store.js"></script>
 <script src="js/activities-points-types.js"></script>
 </body>

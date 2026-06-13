@@ -94,19 +94,42 @@
 
 
 
+    function mergeRiskConfig(base) {
+        try {
+            var raw = localStorage.getItem('fl_points_risk_config_v1');
+            if (!raw) return base;
+            var risk = JSON.parse(raw);
+            if (risk.coolingEnabled === false) {
+                base.coolingPeriodDays = 0;
+            } else if (risk.coolingPeriodDays != null) {
+                base.coolingPeriodDays = risk.coolingPeriodDays;
+            }
+            if (risk.caps) {
+                base.caps.dailyPointsCap = risk.caps.dailyPointsCap;
+                base.caps.inviteRewardDailyCap = risk.caps.inviteRewardDailyCap;
+                base.caps.inviteRewardTotalCap = risk.caps.inviteRewardTotalCap;
+            }
+        } catch (e) { /* ignore */ }
+        return base;
+    }
+
     function formatInviteRewardTip(cfg) {
 
         var inv = cfg.inviterPoints;
 
         var neu = cfg.inviteePoints;
 
+        var cool = cfg.coolingPeriodDays || 0;
+
+        var coolSuffix = cool > 0 ? '（' + cool + ' 天冷静期后可用）' : '';
+
         if (inv === neu) {
 
-            return '新用户注册填码 · 双方各得 ' + formatPoints(inv) + ' 积分（7 天冷静期后可用）';
+            return '新用户注册填码 · 双方各得 ' + formatPoints(inv) + ' 积分' + coolSuffix;
 
         }
 
-        return '新用户注册填码 · 你得 ' + formatPoints(inv) + ' / 好友得 ' + formatPoints(neu) + ' 积分';
+        return '新用户注册填码 · 你得 ' + formatPoints(inv) + ' / 好友得 ' + formatPoints(neu) + ' 积分' + coolSuffix;
 
     }
 
@@ -124,7 +147,7 @@
 
     function fetchConfig() {
 
-        return Promise.resolve(JSON.parse(JSON.stringify(DEFAULT)));
+        return Promise.resolve(mergeRiskConfig(JSON.parse(JSON.stringify(DEFAULT))));
 
     }
 

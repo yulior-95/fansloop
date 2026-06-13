@@ -32,7 +32,9 @@
         '<div><strong>' + esc(t.name) + '</strong></div></div></td>' +
         '<td><code>' + esc(t.id) + '</code></td>' +
         '<td><span class="ap-schema-code">' + esc(t.schema || '—') + '</span></td>' +
-        '<td>' + (t.builtin ? '<span class="ant-tag ant-tag-blue">内置</span>' : '<span class="ant-tag ant-tag-purple">自定义</span>') + '</td>' +
+        '<td>' + (t.devOnly || t.id === 'campaign'
+          ? '<span class="ant-tag ant-tag-orange">研发专用</span>'
+          : (t.builtin ? '<span class="ant-tag ant-tag-blue">内置</span>' : '<span class="ant-tag ant-tag-purple">自定义</span>')) + '</td>' +
         '<td>' +
         '<button type="button" class="ant-btn ant-btn-link ant-btn-sm js-edit">编辑</button>' +
         (t.builtin ? '' : '<button type="button" class="ant-btn ant-btn-link ant-btn-sm js-del" style="color:#ff4d4f">删除</button>') +
@@ -106,4 +108,7 @@
   });
 
   render();
+  if (window.FLAdminSession) {
+    FLAdminSession.mountRoleSwitcher(document.querySelector('.admin-header-user'));
+  }
 })();

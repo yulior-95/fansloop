@@ -1,73 +1,116 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>限额风控 · FansLoop 运营后台</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="css/admin-shell.css">
-  <link rel="stylesheet" href="css/admin-modals.css">
-</head>
-<body data-admin-page="risk-limits">
-<div class="admin-app">
-  <aside class="admin-sider" id="adminSider"></aside>
-  <div class="admin-main">
-    <header class="admin-header">
-      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 风控管理 / 限额风控</span></div>
-      <div class="admin-header-right"><div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>风控</span></div></div>
-    </header>
-    <main class="admin-content">
-      <h1 class="admin-page-title">限额风控</h1>
-      <p class="admin-page-desc">点击<strong>保存</strong>将弹出确认框，避免误触。</p>
-      <div class="ant-card ant-card-bordered">
-        <div class="ant-card-head"><div class="ant-card-head-title">充值 / 提现</div></div>
-        <div class="ant-card-body">
-          <div class="ant-row" style="max-width:900px">
-            <div class="ant-col ant-col-12" style="padding:8px">
-              <div class="ant-form-item"><label>单日单笔最高充值（法币 CNY）</label><input class="ant-input" type="number" value="50000" style="width:100%;margin-top:6px"></div>
-              <div class="ant-form-item"><label>单日累计最高充值（法币 CNY）</label><input class="ant-input" type="number" value="200000" style="width:100%;margin-top:6px"></div>
-            </div>
-            <div class="ant-col ant-col-12" style="padding:8px">
-              <div class="ant-form-item"><label>单日单笔最高提现（法币 CNY）</label><input class="ant-input" type="number" value="50000" style="width:100%;margin-top:6px"></div>
-              <div class="ant-form-item"><label>单日累计最高提现（法币 CNY）</label><input class="ant-input" type="number" value="100000" style="width:100%;margin-top:6px"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="ant-card ant-card-bordered" style="margin-top:16px">
-        <div class="ant-card-head"><div class="ant-card-head-title">积分</div></div>
-        <div class="ant-card-body">
-          <div class="ant-form-item" style="max-width:440px"><label>单日单用户最高可获得积分</label><input class="ant-input" type="number" value="5000" style="width:100%;margin-top:6px"></div>
-          <button type="button" class="ant-btn ant-btn-primary" id="btnLimSave">保存</button>
-        </div>
-      </div>
-    </main>
-  </div>
-</div>
-<script src="js/admin-nav.js"></script>
-<script src="js/admin-modal.js"></script>
-<script>
-(function () {
-  var M = window.AdminModal;
-  document.getElementById("btnLimSave").addEventListener("click", function () {
-    M.open({
-      title: "保存限额配置",
-      body: "<p style='margin:0'>将影响全站实时风控判定，是否继续？</p>",
-      footer: [
-        { text: "取消", onClick: M.close },
-        {
-          text: "确认保存",
-          primary: true,
-          onClick: function () {
-            M.close();
-            M.toast("限额配置已保存（原型）");
-          }
-        }
-      ]
-    });
-  });
-})();
-</script>
-</body>
-</html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>积分风控 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="risk-limits">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 风控安全 / 积分风控</span></div>
+      <div class="admin-header-right">
+        <a href="settings-global.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-sliders"></i> 参数总览</a>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>风控</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">积分风控</h1>
+      <p class="admin-page-desc">
+        仅管理<strong>平台积分</strong>：获取额度与冷静期规则。USDT 链上充提限额见
+        <a href="risk-usdt-limits.html">充提限额</a>。保存后同步 C 端 <code>points-risk-config.js</code>。
+      </p>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-head">
+          <div class="ant-card-head-title"><i class="fa-solid fa-coins" style="margin-right:8px;color:#faad14"></i>积分额度</div>
+        </div>
+        <div class="ant-card-body">
+          <p style="margin:0 0 12px;font-size:13px;color:rgba(0,0,0,.55)">三项额度维度不同：全渠道日上限 ⊇ 邀请日上限；累计邀请上限为终身维度，与当日额度不重复。</p>
+          <div class="ant-row" style="max-width:920px">
+            <div class="ant-col ant-col-12" style="padding:8px">
+              <div class="ant-form-item">
+                <label>今日全渠道积分获取上限</label>
+                <input class="ant-input" id="fldDailyPointsCap" type="number" style="width:100%;margin-top:6px">
+                <div class="hint" style="font-size:12px;color:rgba(0,0,0,.45);margin-top:4px">任务 + 邀请 + 签到等合计，C 端额度条展示</div>
+              </div>
+            </div>
+            <div class="ant-col ant-col-12" style="padding:8px">
+              <div class="ant-form-item">
+                <label>今日邀请奖励上限</label>
+                <input class="ant-input" id="fldInviteDailyCap" type="number" style="width:100%;margin-top:6px">
+                <div class="hint" style="font-size:12px;color:rgba(0,0,0,.45);margin-top:4px">仅约束邀请渠道，通常为 200×3=600</div>
+              </div>
+            </div>
+            <div class="ant-col ant-col-12" style="padding:8px">
+              <div class="ant-form-item">
+                <label>累计邀请奖励上限</label>
+                <input class="ant-input" id="fldInviteTotalCap" type="number" style="width:100%;margin-top:6px">
+                <div class="hint" style="font-size:12px;color:rgba(0,0,0,.45);margin-top:4px">终身邀请积分封顶，与当日额度无关</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ant-card ant-card-bordered" style="margin-top:16px">
+        <div class="ant-card-head">
+          <div class="ant-card-head-title"><i class="fa-solid fa-snowflake" style="margin-right:8px;color:#1890ff"></i>积分冷静期</div>
+        </div>
+        <div class="ant-card-body">
+          <p style="margin:0 0 16px;font-size:13px;color:rgba(0,0,0,.55)">
+            发放≠可兑换：获取类活动奖励先入「冷静池」，期满转入<strong>可用积分池</strong>方可于商城消耗。
+            下表<strong>活动类型</strong>与 <a href="activities-points-types.html">活动类型管理</a> 中获取类一致（不含「兑换商品」等消耗类）；
+            活动的「投放渠道」（任务中心 / 积分商城）仅决定展示位置，与冷静期规则无关。新增自定义获取类类型后，刷新本页即可出现对应行。
+          </p>
+          <div class="ant-row" style="max-width:520px;margin-bottom:16px">
+            <div class="ant-col ant-col-12" style="padding:8px">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                <input type="checkbox" id="fldCoolingEnabled"> 启用积分冷静期
+              </label>
+            </div>
+            <div class="ant-col ant-col-12" style="padding:8px">
+              <div class="ant-form-item" style="margin:0">
+                <label>全局默认冷静期（天）</label>
+                <input class="ant-input" id="fldCoolingDays" type="number" min="0" value="7" style="width:100%;margin-top:6px">
+              </div>
+            </div>
+          </div>
+          <div class="ant-table-wrapper">
+            <table class="ant-table" id="channelCoolingTable" style="width:100%">
+              <thead>
+                <tr>
+                  <th>活动类型</th>
+                  <th>策略</th>
+                  <th>天数</th>
+                  <th>生效预览</th>
+                </tr>
+              </thead>
+              <tbody id="channelCoolingBody"></tbody>
+            </table>
+          </div>
+          <p style="margin:12px 0 0;font-size:12px;color:rgba(0,0,0,.45)" id="pointsRiskMeta">—</p>
+          <div style="margin-top:16px;display:flex;gap:8px">
+            <button type="button" class="ant-btn ant-btn-primary" id="btnPointsRiskSave"><i class="fa-solid fa-floppy-disk"></i> 保存积分风控</button>
+            <button type="button" class="ant-btn" id="btnPointsRiskReset"><i class="fa-solid fa-rotate-left"></i> 恢复默认</button>
+            <a href="activities-points-types.html" class="ant-btn"><i class="fa-solid fa-layer-group"></i> 活动类型</a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/activities-points-store.js"></script>
+<script src="../js-web/points-risk-config.js"></script>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="js/points-risk-admin.js"></script>
+</body>
+</html>
+

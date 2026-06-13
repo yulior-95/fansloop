@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>充提限额 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="risk-usdt-limits">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 风控安全 / 充提限额</span></div>
+      <div class="admin-header-right">
+        <a href="settings-global.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-sliders"></i> 参数总览</a>
+        <a href="orders-recharge.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-arrow-down"></i> 充值订单</a>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>风控</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">USDT 充提限额</h1>
+      <p class="admin-page-desc">
+        链上资产充值 / 提现的单笔与单日累计上限，与<strong>积分风控</strong>（虚拟积分额度、冷静期）分域管理。
+        映射 <code>PUT /api/v1/admin/asset-limits</code>；订单侧见 <a href="orders-recharge.html">充值订单</a>、<a href="orders-withdraw.html">提现订单</a>。
+      </p>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-head"><div class="ant-card-head-title">充值 / 提现（USDT）</div></div>
+        <div class="ant-card-body">
+          <div class="ant-row" style="max-width:900px">
+            <div class="ant-col ant-col-12" style="padding:8px">
+              <div class="ant-form-item"><label>单日单笔最高充值（USDT）</label><input class="ant-input" type="number" value="10000" style="width:100%;margin-top:6px"></div>
+              <div class="ant-form-item"><label>单日累计最高充值（USDT）</label><input class="ant-input" type="number" value="50000" style="width:100%;margin-top:6px"></div>
+            </div>
+            <div class="ant-col ant-col-12" style="padding:8px">
+              <div class="ant-form-item"><label>单日单笔最高提现（USDT）</label><input class="ant-input" type="number" value="10000" style="width:100%;margin-top:6px"></div>
+              <div class="ant-form-item"><label>单日累计最高提现（USDT）</label><input class="ant-input" type="number" value="50000" style="width:100%;margin-top:6px"></div>
+            </div>
+          </div>
+          <button type="button" class="ant-btn ant-btn-primary" id="btnLimSave">保存充提限额</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script>
+(function () {
+  var M = window.AdminModal;
+  document.getElementById("btnLimSave").addEventListener("click", function () {
+    M.open({
+      title: "保存充提限额",
+      body: "<p style='margin:0'>将影响全站 USDT 充提风控判定，是否继续？</p>",
+      footer: [
+        { text: "取消", onClick: M.close },
+        {
+          text: "确认保存",
+          primary: true,
+          onClick: function () {
+            M.close();
+            M.toast("充提限额已保存（原型）");
+          }
+        }
+      ]
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -147,6 +147,17 @@
     function mergeInviteConfig(merged) {
         if (!global.FLInviteReward || !global.FLInviteReward.DEFAULT) return;
         var cfg = global.FLInviteReward.DEFAULT;
+        try {
+            var raw = localStorage.getItem('fl_points_risk_config_v1');
+            if (raw) {
+                var risk = JSON.parse(raw);
+                if (risk.coolingEnabled === false) merged.coolingPeriodDays = 0;
+                else if (risk.coolingPeriodDays != null) merged.coolingPeriodDays = risk.coolingPeriodDays;
+                if (risk.caps) {
+                    merged.wallet.todayCap = risk.caps.dailyPointsCap;
+                }
+            }
+        } catch (e) { /* ignore */ }
         if (cfg.pointsWallet) {
             merged.wallet.available = cfg.pointsWallet.available;
             merged.wallet.frozen = cfg.pointsWallet.frozen;
@@ -154,9 +165,11 @@
         }
         if (cfg.caps) {
             merged.wallet.todayEarned = cfg.caps.dailyPointsEarned;
-            merged.wallet.todayCap = cfg.caps.dailyPointsCap;
+            if (merged.wallet.todayCap == null) merged.wallet.todayCap = cfg.caps.dailyPointsCap;
         }
-        merged.coolingPeriodDays = cfg.coolingPeriodDays || 7;
+        if (merged.coolingPeriodDays == null) {
+            merged.coolingPeriodDays = cfg.coolingPeriodDays || 7;
+        }
     }
 
     function applyTaskPersistence(tasks) {

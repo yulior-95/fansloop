@@ -3,7 +3,7 @@
  * API 映射：GET/POST/PUT/DELETE /api/v1/admin/points-activities
  */
 (function (global) {
-  var LS_KEY = 'fl_admin_points_activities_v1';
+  var LS_KEY = 'fl_admin_points_activities_v2';
   var LS_TYPES = 'fl_admin_points_activity_types_v1';
 
   var MALL_CATS = [
@@ -21,7 +21,7 @@
     { id: 'earn_interaction', name: '互动行为', icon: 'fa-heart', schema: 'action_type,reward_points,daily_cap', builtin: true },
     { id: 'earn_subscription', name: '订阅行为', icon: 'fa-crown', schema: 'first_sub_bonus,renew_bonus', builtin: true },
     { id: 'redeem_goods', name: '兑换商品', icon: 'fa-store', schema: 'cost_points,stock,valid_days,mall_cats', builtin: true },
-    { id: 'campaign', name: '运营活动', icon: 'fa-bullhorn', schema: 'start_at,end_at,budget_cap', builtin: true },
+    { id: 'campaign', name: '研发活动', icon: 'fa-code', schema: 'start_at,end_at,budget_cap,code_binding', devOnly: true, builtin: true },
     { id: 'custom_wheel', name: '幸运转盘', icon: 'fa-dharmachakra', schema: 'cost_per_spin,prize_pool', builtin: false }
   ];
 
@@ -33,9 +33,14 @@
       typeId: 'earn_invite',
       mallCats: [],
       channel: 'task',
+      inviterPoints: 200,
+      inviteePoints: 200,
+      riskReview: true,
       rewardPoints: 200,
       rewardDesc: '邀请人 +200 / 被邀请人 +200',
-      freqDesc: '日邀请奖励上限 600',
+      freqDesc: '每日最多 3 次',
+      freqPeriod: 'daily',
+      freqMax: 3,
       coolingDays: 7,
       dailyCap: 600,
       totalCap: 12000,
@@ -54,6 +59,9 @@
       rewardPoints: 50,
       rewardDesc: '+50 积分 / 次',
       freqDesc: '每日 3 次',
+      freqPeriod: 'daily',
+      freqMax: 3,
+      triggerMinutes: 30,
       coolingDays: 0,
       dailyCap: 150,
       status: 'enabled',
@@ -82,11 +90,21 @@
       code: 'REDEEM_BOOST',
       name: '积分加速卡 · 24h',
       typeId: 'redeem_goods',
+      devBacked: true,
+      goodsTemplate: 'points_boost',
+      purpose: '兑换后在有效期内提升任务类积分获取倍率，用于促进活跃。',
+      usageGuide: '用户在积分商城消耗积分兑换；生效期内完成计时任务，积分按倍率结算。C 端读取活动编码 REDEEM_BOOST 及 effectDurationHours、effectMultiplier 参数。',
+      opsUsageNote: '默认每人每日可兑 1 次；调整时长不影响触发逻辑，仅改生效小时数。',
       mallCats: ['hot', 'grow'],
       channel: 'mall',
       rewardPoints: -1200,
       rewardDesc: '消耗 1,200 积分',
       freqDesc: '每人每日 1 次',
+      freqPeriod: 'daily',
+      freqMax: 1,
+      effectDurationHours: 24,
+      effectMultiplier: 1.2,
+      stock: -1,
       coolingDays: 0,
       status: 'enabled',
       sort: 21,
@@ -100,9 +118,14 @@
       typeId: 'earn_checkin',
       mallCats: ['grow'],
       channel: 'task',
+      streakDays: 7,
+      ladder: '10,20,30,50,70,85,100',
+      resetCycle: 'natural_week',
       rewardPoints: 100,
       rewardDesc: '阶梯 10→…→100',
-      freqDesc: '自然周重置',
+      freqDesc: '每日 1 次',
+      freqPeriod: 'daily',
+      freqMax: 1,
       coolingDays: 0,
       status: 'draft',
       sort: 30,
@@ -116,14 +139,97 @@
       typeId: 'custom_wheel',
       mallCats: ['hot', 'asset'],
       channel: 'mall',
+      spinCost: 500,
+      dailySpins: 10,
       rewardPoints: -500,
       rewardDesc: '500 积分 / 次',
       freqDesc: '每日 10 次',
+      freqPeriod: 'daily',
+      freqMax: 10,
       coolingDays: 0,
       status: 'enabled',
       sort: 40,
       image: 'https://images.pexels.com/photos/3945683/pexels-photo-3945683.jpeg?auto=compress&cs=tinysrgb&w=400',
       updatedAt: '2026-05-25 16:00'
+    },
+    {
+      id: 'act_campaign_demo',
+      code: 'SPRING_SHARE_2026',
+      name: '春节分享页 · 限时福利',
+      typeId: 'campaign',
+      devBacked: true,
+      purpose: '春节期间引导用户分享活动页，拉新与回流。',
+      usageGuide: '用户从活动 H5 完成分享动作后，C 端调用发奖 API 并传入本活动 code。分享判定逻辑由研发实现，运营不可修改。',
+      opsUsageNote: '2026 春节档；预算用完后自动停奖。',
+      mallCats: [],
+      channel: 'task',
+      campaignStart: '2026-02-01T00:00',
+      campaignEnd: '2026-02-07T23:59',
+      budgetCap: 50000,
+      rewardPoints: 100,
+      rewardDesc: '+100 积分 / 次',
+      freqDesc: '每日 1 次',
+      freqPeriod: 'daily',
+      freqMax: 1,
+      coolingDays: 7,
+      status: 'enabled',
+      sort: 5,
+      image: 'https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=400&q=80',
+      updatedAt: '2026-01-15 10:00'
+    },
+    {
+      id: 'act_sub_discount',
+      code: 'REDEEM_SUB_DISCOUNT',
+      name: '订阅折扣券 · 首月 85 折',
+      typeId: 'redeem_goods',
+      devBacked: true,
+      goodsTemplate: 'sub_discount',
+      purpose: '用户使用积分兑换订阅折扣券，在订阅下单时抵扣应付金额。',
+      usageGuide: '商城兑换后写入用户券包；订阅收银台选择该券并传入 code=REDEEM_SUB_DISCOUNT。C 端读取 discountPercent（减免比例）、couponValidDays（持券有效天）、applicablePlan（适用套餐范围）。',
+      opsUsageNote: '调整折扣比例或持券天数不改变发券逻辑，仅影响结算参数。',
+      mallCats: ['hot', 'pay'],
+      channel: 'mall',
+      rewardPoints: -2400,
+      rewardDesc: '消耗 2,400 积分 · 订阅减 15% · 30 天内有效',
+      freqDesc: '每人每日 1 次',
+      freqPeriod: 'daily',
+      freqMax: 1,
+      discountPercent: 15,
+      couponValidDays: 30,
+      applicablePlan: 'monthly',
+      stock: 500,
+      coolingDays: 0,
+      status: 'enabled',
+      sort: 22,
+      image: 'https://images.pexels.com/photos/7688336/pexels-photo-7688336.jpeg?auto=compress&cs=tinysrgb&w=400',
+      updatedAt: '2026-06-05 09:00'
+    },
+    {
+      id: 'act_sub_free',
+      code: 'REDEEM_SUB_FREE',
+      name: '免费订阅次数券 · 1 次',
+      typeId: 'redeem_goods',
+      devBacked: true,
+      goodsTemplate: 'sub_free_count',
+      purpose: '用户使用积分兑换一次（或多次）免费订阅资格，直接开通或续期指定档位。',
+      usageGuide: '兑换成功后增加 freeGrantCount 次可用次数；须在 grantValidDays 内于订阅页消耗。C 端读取 freeGrantCount、grantValidDays、grantPlanTier。',
+      opsUsageNote: '「次数」= 可免费开通/续订的次数；与持券有效天数分开配置。',
+      mallCats: ['pay', 'vip'],
+      channel: 'mall',
+      rewardPoints: -4800,
+      rewardDesc: '消耗 4,800 积分 · 1 次免费订阅 · 14 天内使用',
+      freqDesc: '终身 1 次',
+      freqPeriod: 'lifetime',
+      freqMax: 1,
+      freeGrantCount: 1,
+      grantValidDays: 14,
+      grantPlanTier: 'standard',
+      stock: 200,
+      coolingDays: 0,
+      status: 'enabled',
+      sort: 23,
+      image: 'https://images.pexels.com/photos/7688336/pexels-photo-7688336.jpeg?auto=compress&cs=tinysrgb&w=400',
+      updatedAt: '2026-06-05 09:30'
     }
   ];
 
@@ -152,7 +258,16 @@
   }
 
   function getActivities() {
-    return loadJson(LS_KEY, DEFAULT_ACTIVITIES);
+    var list = loadJson(LS_KEY, DEFAULT_ACTIVITIES);
+    var changed = false;
+    DEFAULT_ACTIVITIES.forEach(function (def) {
+      if (!list.some(function (a) { return a.id === def.id; })) {
+        list.push(JSON.parse(JSON.stringify(def)));
+        changed = true;
+      }
+    });
+    if (changed) saveActivities(list);
+    return list;
   }
 
   function saveActivities(list) {
@@ -181,6 +296,27 @@
     saveActivities(list);
   }
 
+  function isDevOnlyType(typeId) {
+    if (!typeId) return false;
+    if (typeId === 'campaign') return true;
+    var t = getTypes().filter(function (x) { return x.id === typeId; })[0];
+    return !!(t && t.devOnly);
+  }
+
+  /** 研发接入的活动实例（含 campaign 与 devBacked 兑换项） */
+  function isDevBackedActivity(act) {
+    if (!act) return false;
+    if (act.devBacked) return true;
+    return isDevOnlyType(act.typeId);
+  }
+
+  function getTypesForCreate(includeDevOnly) {
+    return getTypes().filter(function (t) {
+      if (!includeDevOnly && isDevOnlyType(t.id)) return false;
+      return true;
+    });
+  }
+
   function typeLabel(typeId) {
     var t = getTypes().filter(function (x) { return x.id === typeId; })[0];
     return t ? t.name : typeId;
@@ -201,6 +337,34 @@
     return '<span class="ant-tag">' + status + '</span>';
   }
 
+  /** 消耗类不参与积分冷静期（与积分风控页活动类型列表对齐） */
+  function isPointsEarnType(typeId) {
+    if (!typeId) return false;
+    if (typeId === 'redeem_goods') return false;
+    if (typeId.indexOf('redeem_') === 0) return false;
+    return true;
+  }
+
+  var COOLING_HINTS = {
+    earn_invite: '双方奖励发放后进入冷静池，期满转入可用积分',
+    earn_task: '观看、浏览等日常任务，通常即时可用',
+    earn_checkin: '每日 / 连续签到奖励',
+    earn_interaction: '点赞、评论等轻量互动',
+    earn_subscription: '首次订阅、续订等订阅行为奖励',
+    campaign: '研发绑定玩法 · 限时发奖',
+    custom_wheel: '转盘抽奖获得的积分奖励'
+  };
+
+  function getCoolingTypeRows() {
+    return getTypes().filter(function (t) { return isPointsEarnType(t.id); }).map(function (t) {
+      return {
+        id: t.id,
+        label: t.name,
+        hint: COOLING_HINTS[t.id] || '自定义获取类活动 · 积分发放后适用冷静期规则'
+      };
+    });
+  }
+
   global.FLPointsActivityStore = {
     MALL_CATS: MALL_CATS,
     DEFAULT_TYPES: DEFAULT_TYPES,
@@ -214,6 +378,11 @@
     typeLabel: typeLabel,
     catLabels: catLabels,
     statusTag: statusTag,
+    isPointsEarnType: isPointsEarnType,
+    isDevOnlyType: isDevOnlyType,
+    isDevBackedActivity: isDevBackedActivity,
+    getTypesForCreate: getTypesForCreate,
+    getCoolingTypeRows: getCoolingTypeRows,
     uid: uid
   };
 })(typeof window !== 'undefined' ? window : this);

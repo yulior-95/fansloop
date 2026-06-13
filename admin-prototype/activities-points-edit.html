@@ -15,7 +15,7 @@
   <aside class="admin-sider" id="adminSider"></aside>
   <div class="admin-main">
     <header class="admin-header">
-      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 活动管理 / <span id="hdrMode">新建</span>积分活动</span></div>
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 积分运营 / <span id="hdrMode">新建</span>积分活动</span></div>
       <div class="admin-header-right">
         <a href="activities-points-crud.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-arrow-left"></i> 返回列表</a>
         <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>活动运营</span></div>
@@ -23,7 +23,12 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title" id="pageTitle">新建积分活动</h1>
-      <p class="admin-page-desc">配置活动规则、奖励、频控、商城展示与冷静期；保存后写入 Mock Store，可映射 <code>POST/PUT /api/v1/admin/points-activities</code>。</p>
+      <p class="admin-page-desc" id="pageDesc">配置活动规则、奖励与频控；商城展示仅在「消耗积分」渠道出现；冷静期跟随 <a href="risk-limits.html">积分风控</a> 活动类型配置。映射 <code>POST/PUT /api/v1/admin/points-activities</code>。</p>
+
+      <div id="devActReadonlyBanner" hidden class="admin-alert-google" style="margin-bottom:16px;background:#e6f7ff;border-color:#91d5ff">
+        <i class="fa-solid fa-circle-info" style="margin-top:2px;color:#1890ff"></i>
+        <div><strong>研发接入活动</strong>：触发逻辑与活动编码由研发绑定；您可修改<strong>时效、库存、积分消耗/奖励、倍率时长</strong>等运营参数（如加速 24h 改为 32h）。</div>
+      </div>
 
       <form id="actForm" class="ant-card ant-card-bordered" style="max-width:960px">
         <div class="ant-card-body">
@@ -38,7 +43,7 @@
               <div class="ap-field">
                 <label>活动编码 <span class="req">*</span></label>
                 <input class="ant-input" name="code" required placeholder="WATCH_LIVE_30" style="font-family:monospace">
-                <div class="hint">全局唯一，用于 API / 埋点</div>
+                <div class="hint" id="fldCodeHint">全局唯一，用于 API / 埋点</div>
               </div>
               <div class="ap-field">
                 <label>活动类型 <span class="req">*</span></label>
@@ -47,7 +52,7 @@
               </div>
               <div class="ap-field">
                 <label>投放渠道</label>
-                <select class="ant-input" name="channel" style="width:100%;height:32px">
+                <select class="ant-input" name="channel" id="fldChannel" style="width:100%;height:32px">
                   <option value="task">任务中心（获取积分）</option>
                   <option value="mall">积分商城（消耗积分）</option>
                 </select>
@@ -67,8 +72,37 @@
             </div>
           </section>
 
-          <section class="ap-form-section">
+          <section class="ap-form-section" id="secActivityBrief" hidden>
+            <h3><i class="fa-solid fa-book-open"></i> 活动说明</h3>
+            <p class="hint" id="briefSectionHint" style="margin:0 0 12px;font-size:12px;color:rgba(0,0,0,.55);line-height:1.55"></p>
+            <div class="ap-form-grid">
+              <div class="ap-field ap-field-full">
+                <label>活动用途</label>
+                <textarea class="ant-input" name="purpose" id="fldPurpose" rows="2" placeholder="研发创建时填写：这个活动是干什么的"></textarea>
+                <div class="hint" id="purposeHint">面向运营：说明业务目标与用户感知</div>
+              </div>
+              <div class="ap-field ap-field-full">
+                <label>用法说明</label>
+                <textarea class="ant-input" name="usageGuide" id="fldUsageGuide" rows="3" placeholder="研发创建时填写：用户如何参与、C 端如何触发"></textarea>
+                <div class="hint" id="usageGuideHint">含触发入口、参与步骤；运营不可改触发逻辑</div>
+              </div>
+              <div class="ap-field ap-field-full">
+                <label>运营补充说明（可选）</label>
+                <textarea class="ant-input" name="opsUsageNote" rows="2" placeholder="运营可写：前台展示文案、活动页备注等"></textarea>
+                <div class="hint">可改；不影响 C 端发奖逻辑</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="ap-form-section" id="secTypeRules">
+            <h3><i class="fa-solid fa-sliders"></i> <span id="secTypeRulesTitle">触发规则</span> <span id="typeRulesBadge" class="ant-tag ant-tag-blue" style="margin-left:8px;font-weight:400;vertical-align:middle">按活动类型</span></h3>
+            <p class="hint" id="typeRulesIntro" style="margin:0 0 12px;font-size:12px;color:rgba(0,0,0,.55);line-height:1.55"></p>
+            <div class="ap-form-grid" id="typeExtraFields"></div>
+          </section>
+
+          <section class="ap-form-section" id="secMallDisplay" hidden>
             <h3><i class="fa-solid fa-store"></i> 商城展示（对齐前台 Tab）</h3>
+            <p class="hint" style="margin:0 0 12px;font-size:12px;color:rgba(0,0,0,.45)">仅<strong>投放渠道 = 积分商城（消耗积分）</strong>时需配置；获取类任务在任务中心展示，不出现此区块。</p>
             <div class="ap-form-grid">
               <div class="ap-field ap-field-full">
                 <label>商城分类（多选 · 对应 points-mall #mallTabs）</label>
@@ -86,42 +120,58 @@
             </div>
           </section>
 
-          <section class="ap-form-section">
+          <section class="ap-form-section" id="secReward">
             <h3><i class="fa-solid fa-coins"></i> 奖励与频控</h3>
+            <p class="hint" id="secRewardTypeHint" hidden style="margin:0 0 12px;font-size:12px;color:rgba(0,0,0,.55);line-height:1.55"></p>
             <div class="ap-form-grid">
-              <div class="ap-field">
+              <div class="ap-field" id="fldRewardPointsWrap">
                 <label>积分值</label>
                 <input class="ant-input" name="rewardPoints" type="number" value="0">
                 <div class="hint">获取为正数；兑换商品为负数（消耗）</div>
               </div>
-              <div class="ap-field">
-                <label>奖励文案</label>
+              <div class="ap-field" id="fldRewardDescWrap">
+                <label id="fldRewardDescLabel">奖励文案</label>
                 <input class="ant-input" name="rewardDesc" placeholder="+50 积分 / 次">
               </div>
-              <div class="ap-field">
-                <label>频控说明</label>
-                <input class="ant-input" name="freqDesc" placeholder="每日 3 次">
+              <div class="ap-field" id="fldCheckinFreqFixed" hidden>
+                <label>签到频控</label>
+                <div style="padding:8px 12px;background:#f5f5f5;border-radius:6px;font-size:14px">每日 1 次（固定）</div>
+                <div class="hint">签到类不可改次数；链重置规则在上方「触发规则 → 链重置周期」</div>
               </div>
-              <div class="ap-field">
+              <div class="ap-field" id="fldFreqPeriodWrap">
+                <label>频控周期</label>
+                <select class="ant-input" name="freqPeriod" id="fldFreqPeriod" style="width:100%;height:32px">
+                  <option value="daily">每日</option>
+                  <option value="weekly">每周</option>
+                  <option value="lifetime">终身</option>
+                  <option value="none">不限</option>
+                </select>
+              </div>
+              <div class="ap-field" id="fldFreqMaxWrap">
+                <label>次数上限</label>
+                <input class="ant-input" name="freqMax" id="fldFreqMax" type="number" min="1" placeholder="如 3">
+                <div class="hint" id="freqMaxHint">与周期组合后由系统执行频控</div>
+              </div>
+              <div class="ap-field ap-field-full" id="fldFreqDescWrap">
+                <label>频控展示文案</label>
+                <input class="ant-input" name="freqDesc" id="fldFreqDesc" placeholder="自动生成，可微调前台展示">
+                <div class="hint" id="freqDescFieldHint">根据周期 + 次数自动生成；C 端列表展示用，真正限次靠上方数字字段</div>
+              </div>
+              <div class="ap-field" id="fldDailyCapWrap">
                 <label>日积分上限（该活动）</label>
                 <input class="ant-input" name="dailyCap" type="number" placeholder="150">
+                <div class="hint" id="dailyCapHint">本活动单日最多发放的积分总量</div>
               </div>
-              <div class="ap-field">
+              <div class="ap-field" id="fldTotalCapWrap">
                 <label>累计上限（可选）</label>
                 <input class="ant-input" name="totalCap" type="number" placeholder="12000">
               </div>
-              <div class="ap-field">
-                <label>冷静期（天）</label>
-                <input class="ant-input" name="coolingDays" type="number" value="0" min="0">
-                <div class="hint">邀请类建议 7 天；计时任务可为 0</div>
+              <div class="ap-field" id="fldCoolingWrap" hidden>
+                <label>冷静期</label>
+                <div id="coolingInherited" style="padding:8px 12px;background:#f5f5f5;border-radius:6px;font-size:14px">—</div>
+                <div class="hint">跟随 <a href="risk-limits.html">积分风控</a> 中该<strong>活动类型</strong>的配置，单活动不可单独改，避免与类型规则冲突。</div>
               </div>
             </div>
-          </section>
-
-          <section class="ap-form-section">
-            <h3><i class="fa-solid fa-sliders"></i> 触发规则（按类型扩展）</h3>
-            <div class="ap-form-grid" id="typeExtraFields"></div>
-            <p class="hint" style="margin:8px 0 0;font-size:12px;color:rgba(0,0,0,.45)">不同活动类型展示不同字段；自定义类型在「活动类型」页配置 schema。</p>
           </section>
 
           <div style="display:flex;gap:10px;margin-top:8px">
@@ -136,7 +186,9 @@
 </div>
 <script src="js/admin-nav.js"></script>
 <script src="js/admin-modal.js"></script>
+<script src="js/admin-session.js"></script>
 <script src="js/activities-points-store.js"></script>
+<script src="../js-web/points-risk-config.js"></script>
 <script src="js/activities-points-edit.js"></script>
 </body>
 </html>
