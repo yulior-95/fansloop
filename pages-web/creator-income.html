@@ -78,20 +78,92 @@
 .dist-row .right { text-align: right; min-width: 110px; }
 .dist-row .am { font-size: 14px; font-weight: 700; }
 .dist-row .pcc { font-size: 11px; color: var(--t-tertiary); }
-.dist-bar { height: 6px; background: var(--bg-input); border-radius: 999px; overflow: hidden; margin-top: 6px; }
-.dist-bar .fill { height: 100%; border-radius: 999px; }
-.dist-row.sub .fill { background: linear-gradient(90deg, #A855F7, #7E22CE); width: 50%; }
-.dist-row.tip .fill { background: linear-gradient(90deg, #EC4899, #BE185D); width: 28%; }
-.dist-row.live .fill { background: linear-gradient(90deg, #10B981, #059669); width: 14%; }
-.dist-row.ppv .fill { background: linear-gradient(90deg, #3B82F6, #1E40AF); width: 6%; }
-.dist-row.gift .fill { background: linear-gradient(90deg, #F59E0B, #D97706); width: 2%; }
+.dist-body {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 22px 28px;
+    align-items: center;
+}
+@media (max-width: 640px) {
+    .dist-body { grid-template-columns: 1fr; }
+}
+.dist-pie-stage {
+    position: relative;
+    width: 200px; height: 200px;
+    margin: 4px auto 0;
+}
+.dist-pie-svg { width: 100%; height: 100%; display: block; }
+.dist-pie-svg path {
+    transition: opacity 0.18s, transform 0.18s;
+    transform-origin: 100px 100px;
+    cursor: pointer;
+}
+.dist-pie-svg path:hover { opacity: 0.88; filter: brightness(1.08); }
+.dist-pie-hub {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    pointer-events: none; text-align: center;
+}
+.dist-pie-hub .hub-lb { font-size: 10px; color: var(--t-tertiary); font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; }
+.dist-pie-hub .hub-val { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; margin-top: 2px; line-height: 1.1; }
+.dist-pie-hub .hub-unit { font-size: 11px; color: var(--t-tertiary); font-weight: 600; margin-top: 2px; }
+.dist-legend { display: flex; flex-direction: column; gap: 6px; }
+.dist-legend .dist-row { margin-bottom: 0 !important; margin-top: 0 !important; padding: 9px 10px; border: 1px solid transparent; }
+.dist-legend .dist-row.highlight { background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.22); }
+.dist-legend .dist-row.dimmed { opacity: 0.45; }
 
 .chart-card {
     background: var(--bg-card); border: 1px solid var(--border);
     border-radius: var(--r-lg); padding: 24px 26px; margin-bottom: 22px;
 }
-.chart-card .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-.chart-card .head h3 { font-size: 15px; font-weight: 700; }
+.chart-card .head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 10px; }
+.chart-card .head h3 {
+    font-size: 15px; font-weight: 700; margin: 0;
+    display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+}
+.chart-card .head .chart-period-tag {
+    font-size: 10px; font-weight: 700; padding: 3px 8px;
+    border-radius: 999px; background: rgba(168,85,247,0.15);
+    color: #C084FC; letter-spacing: 0.3px;
+}
+.chart-card .head .chart-sub {
+    font-size: 11.5px; color: var(--t-tertiary); font-weight: 500; margin: 6px 0 0;
+    line-height: 1.5;
+}
+.chart-tip-wrap {
+    position: relative; display: inline-flex; align-items: center;
+    color: var(--t-tertiary); cursor: help; outline: none;
+}
+.chart-tip-wrap > i { font-size: 14px; transition: color 0.15s; }
+.chart-tip-wrap:hover > i,
+.chart-tip-wrap:focus > i { color: var(--brand-purple); }
+.chart-tip-pop {
+    position: absolute; left: 50%; top: calc(100% + 10px);
+    transform: translateX(-50%) translateY(-4px);
+    width: max-content; max-width: min(280px, 72vw);
+    padding: 12px 14px;
+    background: rgba(22, 22, 34, 0.98);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    font-size: 11.5px; font-weight: 500; line-height: 1.65;
+    color: var(--t-secondary);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.55);
+    opacity: 0; visibility: hidden; pointer-events: none;
+    transition: opacity 0.18s, visibility 0.18s, transform 0.18s;
+    z-index: 200;
+}
+.chart-tip-pop::before {
+    content: ''; position: absolute; left: 50%; top: -6px;
+    transform: translateX(-50%);
+    border: 6px solid transparent; border-bottom-color: rgba(22, 22, 34, 0.98);
+}
+.chart-tip-wrap:hover .chart-tip-pop,
+.chart-tip-wrap:focus .chart-tip-pop,
+.chart-tip-wrap:focus-within .chart-tip-pop {
+    opacity: 1; visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+.chart-tip-pop strong { color: #fff; font-weight: 700; }
 .chart-tabs { display: flex; gap: 4px; padding: 3px; background: var(--bg-input); border-radius: 8px; }
 .chart-tabs .ct { padding: 6px 12px; font-size: 11.5px; color: var(--t-tertiary); border-radius: 5px; cursor: pointer; font-weight: 600; }
 .chart-tabs .ct.active { background: var(--brand-grad); color: #fff; }
@@ -136,8 +208,85 @@
 .note-card { background: linear-gradient(135deg, rgba(245,158,11,0.06), rgba(245,158,11,0.02)); border: 1px solid rgba(245,158,11,0.2); border-radius: var(--r-lg); padding: 20px 22px; }
 .note-card h4 { font-size: 13px; font-weight: 700; color: var(--warning-light); margin-bottom: 8px; }
 .note-card p { font-size: 12px; color: var(--t-secondary); line-height: 1.7; }
+
+.income-row { cursor: pointer; border-radius: var(--r-md); margin: 0 -8px; padding-left: 8px; padding-right: 8px; transition: background 0.15s; }
+.income-row:hover { background: rgba(168,85,247,0.06); }
+.dist-row { transition: background 0.15s; border-radius: var(--r-md); margin: 0 -6px; padding: 6px; }
+.dist-row:hover { background: rgba(255,255,255,0.03); }
+.total-card .delta.delta-action { cursor: pointer; border-radius: 8px; padding: 4px; transition: background 0.15s; }
+.total-card .delta.delta-action:hover { background: rgba(255,255,255,0.08); }
+.withdraw-card .pending { cursor: pointer; transition: opacity 0.15s; }
+.withdraw-card .pending:hover { opacity: 0.92; }
+#ciToast {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(12px);
+    background: rgba(20,20,32,0.96); border: 1px solid var(--border-strong);
+    color: #fff; font-size: 13px; font-weight: 600; padding: 12px 20px;
+    border-radius: 999px; z-index: 99990; opacity: 0; pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s; box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    max-width: min(92vw, 480px); text-align: center;
+}
+#ciToast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.ci-rules-overlay {
+    position: fixed; inset: 0; z-index: 99998;
+    background: rgba(0,0,0,0.62); backdrop-filter: blur(8px);
+    display: none; align-items: center; justify-content: center;
+    padding: clamp(16px, 3vw, 28px);
+}
+.ci-rules-overlay.show { display: flex; }
+.ci-rules-modal {
+    width: 100%; max-width: 640px; max-height: min(92vh, 720px);
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--r-xl); overflow: hidden;
+    box-shadow: 0 28px 80px rgba(0,0,0,0.55);
+    display: flex; flex-direction: column;
+}
+.ci-rules-modal .rm-head {
+    padding: 18px 22px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg-elevated); flex-shrink: 0;
+}
+.ci-rules-modal .rm-head h2 { font-size: 16px; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 8px; }
+.ci-rules-modal .rm-body { padding: 22px 24px 20px; overflow: auto; flex: 1; }
+.ci-rules-modal .rm-hero {
+    border-radius: var(--r-lg); overflow: hidden; margin-bottom: 18px;
+    border: 1px solid var(--border); height: 140px;
+    background: url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=900&q=80') center/cover;
+    position: relative;
+}
+.ci-rules-modal .rm-hero::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(109,40,217,0.55), rgba(190,24,93,0.35));
+}
+.ci-rules-modal .rm-hero .cap {
+    position: absolute; left: 18px; bottom: 14px; z-index: 1;
+    font-size: 13px; font-weight: 700; color: #fff;
+}
+.ci-rules-modal .rule-block {
+    padding: 14px 16px; margin-bottom: 10px;
+    background: var(--bg-input); border: 1px solid var(--border);
+    border-radius: var(--r-md);
+}
+.ci-rules-modal .rule-block h3 { font-size: 13px; font-weight: 700; margin: 0 0 6px; display: flex; align-items: center; gap: 8px; }
+.ci-rules-modal .rule-block h3 i { color: var(--brand-purple); font-size: 12px; }
+.ci-rules-modal .rule-block p { font-size: 12.5px; color: var(--t-secondary); line-height: 1.65; margin: 0; }
+.ci-rules-modal .split-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+.ci-rules-modal .split-table th, .ci-rules-modal .split-table td { padding: 8px 10px; text-align: left; border-bottom: 1px dashed var(--border); }
+.ci-rules-modal .split-table th { color: var(--t-tertiary); font-weight: 600; }
+.ci-rules-modal .rm-foot {
+    padding: 14px 22px; border-top: 1px solid var(--border);
+    display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0;
+}
+.ci-rules-modal .rule-block--fee { overflow: visible; }
+.ci-rules-modal .rule-block h3 .dev-glass-wrap { margin-left: 4px; vertical-align: middle; }
+.ci-rules-overlay .dev-glass-wrap--pop-right .dev-glass-pop--wide {
+    width: min(340px, calc(100vw - 120px));
+    max-width: none;
+    white-space: normal;
+}
 </style>
 
+<link rel="stylesheet" href="../css-web/dev-glass-note.css">
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
 </head>
@@ -156,7 +305,7 @@
         <div class="s-item" onclick="location.href='notifications.html?tab=unread'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
         <div class="s-section">资产</div>
         <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
-        <div class="s-item active" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span><span class="chip">+$28</span></div>
+        <div class="s-item active" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span><span class="chip">+28 USDT</span></div>
         <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
         <div class="s-section">个人</div>
         <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
@@ -182,7 +331,7 @@
             <div class="ph-l">
                 <div class="crumb"><a href="home.html">FansLoop</a><i class="fa-solid fa-chevron-right"></i><span class="curr">创作者收入</span></div>
                 <h1>创作者收入</h1>
-                <p>清晰展示收益结构，引导提现操作。所有收入以 USDT 结算，前端以美元展示。</p>
+                <p>清晰展示收益结构，引导提现操作。所有收入以 USDT 结算与展示。</p>
             </div>
             <div class="ph-r">
                 <button class="btn btn-secondary" onclick="location.href='transactions.html'"><i class="fa-solid fa-list-ul"></i>账变记录</button>
@@ -193,27 +342,27 @@
         <div class="income-grid">
             <div class="total-card">
                 <div class="lb"><i class="fa-solid fa-trophy"></i> 累计总收入</div>
-                <div class="num">$1,280.50<span>USD</span></div>
-                <div class="equiv">≈ 1,280.50 USDT · 平台累计结算 100%</div>
+                <div class="num">1,280.50<span>USDT</span></div>
+                <div class="equiv">平台累计结算 100%</div>
                 <div class="deltas">
-                    <div class="delta"><div class="l">今日收入</div><div class="v">$32.80<small>↑ 12.4%</small></div></div>
-                    <div class="delta"><div class="l">本月收入</div><div class="v">$298.40<small>↑ 8.2%</small></div></div>
-                    <div class="delta"><div class="l">订阅人数</div><div class="v">1,248<small>位粉丝</small></div></div>
+                    <div class="delta"><div class="l">今日收入</div><div class="v">32.80 USDT<small>↑ 12.4%</small></div></div>
+                    <div class="delta"><div class="l">本月收入</div><div class="v">298.40 USDT<small>↑ 8.2%</small></div></div>
+                    <div class="delta delta-action"><div class="l">订阅人数</div><div class="v">1,248<small>位粉丝</small></div></div>
                 </div>
             </div>
 
             <div class="withdraw-card">
                 <div class="top">
                     <div class="lb"><i class="fa-solid fa-vault"></i> 可提现余额</div>
-                    <div class="v">$520.00<small>USD</small></div>
-                    <div class="equiv">≈ 520.00 USDT · 仅结算完成可提现</div>
+                    <div class="v">520.00<small>USDT</small></div>
+                    <div class="equiv">仅结算完成可提现</div>
                 </div>
                 <div class="pending">
-                    <i class="fa-solid fa-clock"></i> <b>$148.20</b> 处于结算锁定期 · 通常 1-3 天后可提现
+                    <i class="fa-solid fa-clock"></i> <b>148.20 USDT</b> 处于结算锁定期 · 通常 1-3 天后可提现
                 </div>
                 <div class="actions">
                     <button class="btn btn-primary btn-lg" onclick="location.href='withdraw-fiat.html'"><i class="fa-solid fa-arrow-up-from-bracket"></i>提现</button>
-                    <button class="btn btn-secondary btn-lg"><i class="fa-solid fa-circle-question"></i>规则</button>
+                    <button type="button" class="btn btn-secondary btn-lg" id="btnIncomeRules"><i class="fa-solid fa-circle-question"></i>规则</button>
                 </div>
             </div>
         </div>
@@ -230,40 +379,59 @@
                     </div>
                 </div>
 
-                <div class="dist-row sub">
-                    <div class="left"><div class="ic-d"><i class="fa-solid fa-star"></i></div><div><div class="nm">付费订阅</div><div class="pc">月度订阅 / 包年订阅</div></div></div>
-                    <div class="right"><div class="am">$640.25</div><div class="pcc">50.0%</div></div>
+                <div class="dist-body">
+                    <div class="dist-pie-stage" aria-hidden="true">
+                        <svg class="dist-pie-svg" id="distPieSvg" viewBox="0 0 200 200" role="img" aria-label="收入来源扇形图"></svg>
+                        <div class="dist-pie-hub">
+                            <div class="hub-lb">收入合计</div>
+                            <div class="hub-val" id="distPieTotal">1,280.50</div>
+                            <div class="hub-unit">USDT</div>
+                        </div>
+                    </div>
+                    <div class="dist-legend" id="distLegend">
+                        <div class="dist-row sub" data-dist="sub">
+                            <div class="left"><div class="ic-d"><i class="fa-solid fa-star"></i></div><div><div class="nm">付费订阅</div><div class="pc">月度订阅 / 包年订阅</div></div></div>
+                            <div class="right"><div class="am">640.25 USDT</div><div class="pcc">50.0%</div></div>
+                        </div>
+                        <div class="dist-row tip" data-dist="tip">
+                            <div class="left"><div class="ic-d"><i class="fa-solid fa-heart"></i></div><div><div class="nm">粉丝打赏</div><div class="pc">单帖打赏 / 评论打赏</div></div></div>
+                            <div class="right"><div class="am">358.54 USDT</div><div class="pcc">28.0%</div></div>
+                        </div>
+                        <div class="dist-row live" data-dist="live">
+                            <div class="left"><div class="ic-d"><i class="fa-solid fa-video"></i></div><div><div class="nm">直播收入</div><div class="pc">直播打赏 / 礼物</div></div></div>
+                            <div class="right"><div class="am">179.27 USDT</div><div class="pcc">14.0%</div></div>
+                        </div>
+                        <div class="dist-row ppv" data-dist="ppv">
+                            <div class="left"><div class="ic-d"><i class="fa-solid fa-lock"></i></div><div><div class="nm">付费内容</div><div class="pc">单次解锁付费内容</div></div></div>
+                            <div class="right"><div class="am">76.83 USDT</div><div class="pcc">6.0%</div></div>
+                        </div>
+                        <div class="dist-row gift" data-dist="gift" hidden aria-hidden="true" style="display:none">
+                            <div class="left"><div class="ic-d"><i class="fa-solid fa-gift"></i></div><div><div class="nm">私信礼物</div><div class="pc">私信中收到的礼物</div></div></div>
+                            <div class="right"><div class="am">25.61 USDT</div><div class="pcc">2.0%</div></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="dist-bar"><div class="fill"></div></div>
-
-                <div class="dist-row tip" style="margin-top: 18px">
-                    <div class="left"><div class="ic-d"><i class="fa-solid fa-heart"></i></div><div><div class="nm">粉丝打赏</div><div class="pc">单帖打赏 / 评论打赏</div></div></div>
-                    <div class="right"><div class="am">$358.54</div><div class="pcc">28.0%</div></div>
-                </div>
-                <div class="dist-bar"><div class="fill"></div></div>
-
-                <div class="dist-row live" style="margin-top: 18px">
-                    <div class="left"><div class="ic-d"><i class="fa-solid fa-video"></i></div><div><div class="nm">直播收入</div><div class="pc">直播打赏 / 礼物</div></div></div>
-                    <div class="right"><div class="am">$179.27</div><div class="pcc">14.0%</div></div>
-                </div>
-                <div class="dist-bar"><div class="fill"></div></div>
-
-                <div class="dist-row ppv" style="margin-top: 18px">
-                    <div class="left"><div class="ic-d"><i class="fa-solid fa-lock"></i></div><div><div class="nm">付费内容</div><div class="pc">单次解锁付费内容</div></div></div>
-                    <div class="right"><div class="am">$76.83</div><div class="pcc">6.0%</div></div>
-                </div>
-                <div class="dist-bar"><div class="fill"></div></div>
-
-                <div class="dist-row gift" style="margin-top: 18px">
-                    <div class="left"><div class="ic-d"><i class="fa-solid fa-gift"></i></div><div><div class="nm">私信礼物</div><div class="pc">私信中收到的礼物</div></div></div>
-                    <div class="right"><div class="am">$25.61</div><div class="pcc">2.0%</div></div>
-                </div>
-                <div class="dist-bar"><div class="fill"></div></div>
             </div>
 
             <div>
                 <div class="chart-card" style="margin-bottom: 18px">
-                    <div class="head"><h3><i class="fa-solid fa-chart-line"></i> 趋势</h3></div>
+                    <div class="head">
+                        <div>
+                            <h3>
+                                <i class="fa-solid fa-chart-line"></i> 收入趋势
+                                <span class="chart-period-tag" id="chartPeriodLabel">近 30 天</span>
+                                <span class="chart-tip-wrap" tabindex="0" aria-describedby="chartTrendTip">
+                                    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                                    <span class="chart-tip-pop" id="chartTrendTip" role="tooltip">
+                                        <strong>图表说明</strong><br>
+                                        展示所选周期内<strong>每日创作者收入合计（USDT）</strong>走势，统计范围包含订阅、打赏、直播、付费内容等全部来源。<br>
+                                        金额为创作者<strong>实得</strong>（已扣平台分成）；横轴为日期，纵轴为当日收入。周期与左侧「收入来源分布」的 7 / 30 / 90 天选项联动。
+                                    </span>
+                                </span>
+                            </h3>
+                            <p class="chart-sub">每日实得收入（USDT）· 与左侧分布同周期</p>
+                        </div>
+                    </div>
                     <div class="chart-stage">
                         <svg class="chart-svg" viewBox="0 0 320 180" preserveAspectRatio="none">
                             <defs>
@@ -284,7 +452,7 @@
                 </div>
                 <div class="note-card">
                     <h4><i class="fa-solid fa-circle-info"></i> 结算与说明</h4>
-                    <p>所有收入以 USDT 结算，前端以美元展示。平台分成 15% + 链上手续费已包含。新订阅 / 打赏在 1-3 天结算锁定期后进入可提现余额。</p>
+                    <p>所有收入以 USDT 结算与展示。平台分成 15% + 链上手续费已包含。新订阅 / 打赏在 1-3 天结算锁定期后进入可提现余额。</p>
                 </div>
             </div>
         </div>
@@ -305,32 +473,32 @@
             <div class="income-row">
                 <div class="av" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></div>
                 <div class="info"><div class="nm">Alex Chen <span class="tag sub">订阅</span></div><div class="meta">订阅了你的「Pro 月度」 · 2 分钟前</div></div>
-                <div class="right"><div class="am">+$10.00</div><div class="stt">已结算</div></div>
+                <div class="right"><div class="am">+10.00 USDT</div><div class="stt">已结算</div></div>
             </div>
             <div class="income-row">
                 <div class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></div>
                 <div class="info"><div class="nm">Sophie 🌸 <span class="tag tip">打赏</span></div><div class="meta">打赏了你的帖子《今日穿搭》 · 12 分钟前</div></div>
-                <div class="right"><div class="am">+$5.00</div><div class="stt"><i class="fa-solid fa-clock"></i> 结算中</div></div>
+                <div class="right"><div class="am">+5.00 USDT</div><div class="stt"><i class="fa-solid fa-clock"></i> 结算中</div></div>
             </div>
             <div class="income-row">
                 <div class="av" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
                 <div class="info"><div class="nm">Marcus 🚀 <span class="tag live">直播</span></div><div class="meta">直播间送出 · 火箭礼物 ×3 · 1 小时前</div></div>
-                <div class="right"><div class="am">+$30.00</div><div class="stt">已结算</div></div>
+                <div class="right"><div class="am">+30.00 USDT</div><div class="stt">已结算</div></div>
             </div>
             <div class="income-row">
                 <div class="av" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80')"></div>
                 <div class="info"><div class="nm">Diana 💜 <span class="tag sub">订阅</span></div><div class="meta">订阅了你的「年度会员」 · 3 小时前</div></div>
-                <div class="right"><div class="am">+$96.00</div><div class="stt">已结算</div></div>
+                <div class="right"><div class="am">+96.00 USDT</div><div class="stt">已结算</div></div>
             </div>
             <div class="income-row">
                 <div class="av" style="background-image: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80')"></div>
                 <div class="info"><div class="nm">James 🎯 <span class="tag tip">打赏</span></div><div class="meta">私信打赏 · 6 小时前</div></div>
-                <div class="right"><div class="am">+$2.00</div><div class="stt">已结算</div></div>
+                <div class="right"><div class="am">+2.00 USDT</div><div class="stt">已结算</div></div>
             </div>
             <div class="income-row">
                 <div class="av" style="background-image: url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80')"></div>
                 <div class="info"><div class="nm">Emma 🌟 <span class="tag sub">订阅</span></div><div class="meta">续订了「Pro 月度」 · 昨天</div></div>
-                <div class="right"><div class="am">+$10.00</div><div class="stt">已结算</div></div>
+                <div class="right"><div class="am">+10.00 USDT</div><div class="stt">已结算</div></div>
             </div>
 
             <div style="text-align: center; margin-top: 18px">
@@ -339,9 +507,75 @@
         </div>
     </main>
 </div>
+
+<div id="ciToast" aria-live="polite"></div>
+
+<div class="ci-rules-overlay" id="ciRulesOverlay" aria-hidden="true" role="dialog" aria-labelledby="ciRulesTitle">
+    <div class="ci-rules-modal" onclick="event.stopPropagation()">
+        <div class="rm-head">
+            <h2 id="ciRulesTitle"><i class="fa-solid fa-circle-question" style="color:var(--brand-purple)"></i>结算与提现规则</h2>
+            <button type="button" class="btn btn-secondary btn-sm" id="ciRulesClose"><i class="fa-solid fa-xmark"></i> 关闭</button>
+        </div>
+        <div class="rm-body">
+            <div class="rm-hero"><div class="cap">所有收入以 USDT 结算与展示</div></div>
+            <div class="rule-block">
+                <h3><i class="fa-solid fa-hourglass-half"></i>结算锁定期</h3>
+                <p>新订阅、打赏、直播礼物等收入进入 <strong style="color:#fff">1–3 天</strong> 结算锁定期，用于风控与链上确认。锁定期结束后自动转入「可提现余额」。</p>
+            </div>
+            <div class="rule-block rule-block--fee">
+                <h3>
+                    <i class="fa-solid fa-percent"></i>平台分成
+                    <span class="dev-glass-wrap dev-glass-wrap--pop-right dev-glass-wrap--layer-top">
+                        <span class="dev-glass-sphere" tabindex="0" aria-describedby="devCiSplitTip">
+                            <span class="dev-glass-sphere-shine"></span>
+                            <span class="dev-glass-sphere-txt">To 研发</span>
+                        </span>
+                        <span class="dev-glass-pop dev-glass-pop--wide" id="devCiSplitTip" role="tooltip">
+                            <strong>平台分成 · 后台可配置</strong><br>
+                            · 平台服务费比例（原型默认 15%）由运营后台「创作者分成配置」维护，可按收入类型分别设置。<br>
+                            · 下表「创作者实得」各档位（订阅 / 打赏 / 直播 / 付费内容等）均读取后台配置，前端仅展示，不做写死。<br>
+                            · 链上 Gas 是否计入展示金额由后台开关控制；配置变更后对新订单生效，历史订单不回溯。<br>
+                            · 联调接口示意：<code style="font-size:10px;color:#C084FC">GET /api/creator/income-split-rules</code>
+                        </span>
+                    </span>
+                </h3>
+                <p>平台收取创作者收入 <strong style="color:#fff">15%</strong> 服务费，链上 Gas 已包含在展示金额内，不再额外扣减。</p>
+                <table class="split-table">
+                    <thead><tr><th>收入类型</th><th>创作者实得</th><th>说明</th></tr></thead>
+                    <tbody>
+                        <tr><td>付费订阅</td><td>85%</td><td>按月 / 按年结算</td></tr>
+                        <tr><td>粉丝打赏</td><td>85%</td><td>单帖 / 评论 / 私信</td></tr>
+                        <tr><td>直播礼物</td><td>85%</td><td>实时计入，T+1 可提</td></tr>
+                        <tr><td>付费内容</td><td>85%</td><td>单次解锁</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="rule-block">
+                <h3><i class="fa-solid fa-arrow-up-from-bracket"></i>提现说明</h3>
+                <p>可提现余额仅支持提现至<strong style="color:#fff">链上 USDT 地址</strong>（须选择与接收地址一致的网络，如 TRC20 / ERC20 等）。单笔最低 10 USDT，每日上限 50,000 USDT。提现前需完成 KYC 身份验证。</p>
+            </div>
+            <div class="rule-block">
+                <h3><i class="fa-solid fa-shield-halved"></i>风控与申诉</h3>
+                <p>异常交易可能延长结算或冻结提现。可在账变详情发起申诉，客服 24h 内响应（原型演示）。</p>
+            </div>
+        </div>
+        <div class="rm-foot">
+            <button type="button" class="btn btn-secondary" id="ciRulesTx">查看账变记录</button>
+            <button type="button" class="btn btn-primary" id="ciRulesWithdraw"><i class="fa-solid fa-arrow-up-from-bracket"></i> 去提现</button>
+        </div>
+    </div>
+</div>
+
+<div id="flStandaloneModalRoot" class="fl-modal--default" aria-hidden="true" style="display:none;position:fixed;inset:0;z-index:99999;align-items:center;justify-content:center;padding:clamp(12px,3vw,24px);background:rgba(0,0,0,0.58);backdrop-filter:blur(10px);">
+    <iframe title="FansLoop 弹窗" style="width:min(640px,calc(100vw - 32px));height:min(720px,calc(100vh - 32px));border:none;border-radius:var(--r-xl);background:transparent;box-shadow:0 28px 70px rgba(0,0,0,0.5);pointer-events:auto;"></iframe>
+</div>
+
 <link rel="stylesheet" href="../css-web/host-live-pip-global.css">
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/host-live-pip-global.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>
+<script src="../js-web/fl-interaction-modal.js"></script>
+<script src="../js-web/dev-glass-viewport.js"></script>
+<script src="../js-web/creator-income-page.js"></script>
 </body>
 </html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>积分加成规则 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/points-tier.css">
+<style>
+.pti-page { max-width: 640px; margin: 0 auto; padding: 24px 16px 48px; }
+.pti-hero {
+    text-align: center;
+    padding: 28px 20px;
+    border-radius: var(--r-xl);
+    background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(168,85,247,0.08));
+    border: 1px solid rgba(251,191,36,0.25);
+    margin-bottom: 22px;
+}
+.pti-hero .mul { font-size: 42px; font-weight: 900; color: #FDE68A; margin: 8px 0; }
+.pti-hero p { font-size: 13px; color: var(--t-secondary); line-height: 1.55; }
+.pti-rule {
+    display: flex;
+    gap: 14px;
+    padding: 16px;
+    border-radius: var(--r-lg);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    margin-bottom: 10px;
+}
+.pti-rule.matched { border-color: rgba(251,191,36,0.4); background: rgba(251,191,36,0.06); }
+.pti-rule .ic {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg-input); color: #FBBF24; flex-shrink: 0;
+}
+.pti-rule .body { flex: 1; min-width: 0; }
+.pti-rule .body h3 { font-size: 14px; font-weight: 800; margin-bottom: 4px; }
+.pti-rule .body p { font-size: 12px; color: var(--t-tertiary); }
+.pti-rule .status { font-size: 11px; font-weight: 700; white-space: nowrap; }
+.pti-rule .status.ok { color: #6EE7B7; }
+.pti-rule .status.no { color: var(--t-quaternary); }
+.pti-foot { margin-top: 20px; font-size: 11px; color: var(--t-quaternary); line-height: 1.6; }
+.pti-back {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--t-secondary); text-decoration: none; margin-bottom: 16px;
+}
+.pti-back:hover { color: #C084FC; }
+</style>
+</head>
+<body style="background:var(--bg-base)">
+<div class="pti-page">
+    <a class="pti-back" href="profile.html?pointsTasks=open"><i class="fa-solid fa-arrow-left"></i> 返回积分任务</a>
+
+    <div class="pti-hero">
+        <div style="font-size:12px;color:var(--t-tertiary)">我的当前积分加成</div>
+        <div class="mul" id="ptiMul">×1</div>
+        <p id="ptiHeroDesc">命中规则后，任务奖励按倍率连乘计算（有封顶）。</p>
+    </div>
+
+    <h2 style="font-size:15px;font-weight:800;margin-bottom:12px"><i class="fa-solid fa-layer-group" style="color:#C084FC;margin-right:8px"></i>分层规则</h2>
+    <div id="ptiRules"></div>
+
+    <div class="pti-foot">
+        <p>说明：加成在积分发放时自动计算，计入今日获取上限。未命中任何规则时与平时一致，不影响领取与兑换流程。</p>
+        <p>配置由运营后台「积分分层配置」维护，API <code>GET /api/v1/points/tier-status</code></p>
+    </div>
+</div>
+
+<script src="../js-web/points-tier-config.js"></script>
+<script src="../js-web/home-points-store.js"></script>
+<script>
+(function () {
+    var T = window.FLPointsTier;
+    var S = window.FLHomePoints;
+    T.fetchUserStatus().then(function (st) {
+        document.getElementById('ptiMul').textContent = T.formatMultiplier(st.effectiveMultiplier);
+        var matchedNames = st.matched.map(function (m) { return m.label; }).join('、') || '暂无';
+        document.getElementById('ptiHeroDesc').textContent =
+            '已命中：' + matchedNames + (st.capped ? '（已达组合封顶）' : '');
+
+        document.getElementById('ptiRules').innerHTML = st.rules.filter(function (r) { return r.enabled; }).map(function (r) {
+            var cls = r.matched ? ' matched' : '';
+            var status = r.matched
+                ? '<span class="status ok"><i class="fa-solid fa-circle-check"></i> 已生效</span>'
+                : '<span class="status no">未命中</span>';
+            return '<div class="pti-rule' + cls + '">' +
+                '<div class="ic"><i class="fa-solid ' + r.icon + '"></i></div>' +
+                '<div class="body"><h3>' + r.label + ' · ' + T.formatMultiplier(r.multiplier) + '</h3>' +
+                '<p>' + r.desc + '</p></div>' + status + '</div>';
+        }).join('');
+    });
+})();
+</script>
+</body>
+</html>

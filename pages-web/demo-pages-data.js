@@ -103,6 +103,7 @@ window.DEMO_PAGE_GROUPS = [
     ]],
     ["收入 / 账变", [
         ["creator-income.html", "创作者收入"],
+        ["modal-creator-income-rules.html", "结算与提现规则"],
         ["transactions.html", "账变记录"],
         ["transactions-search.html", "高级搜索"],
         ["transactions-export.html", "导出报表"],

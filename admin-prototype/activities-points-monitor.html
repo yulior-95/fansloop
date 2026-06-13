@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>积分发放监控 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/points-tier-admin.css">
+</head>
+<body data-admin-page="activities-points-monitor">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 活动管理 / 积分发放监控</span></div>
+      <div class="admin-header-right">
+        <a href="activities-points-tier.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-sliders"></i> 分层配置</a>
+        <a href="activities-points-reward.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-list"></i> 奖励流水</a>
+        <button type="button" class="ant-btn ant-btn-primary ant-btn-sm" id="btnRefreshMon"><i class="fa-solid fa-rotate"></i> 刷新</button>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>活动运营</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">积分发放监控</h1>
+      <p class="admin-page-desc">
+        聚合今日发放量、分层贡献占比与异常命中（倍率触顶等）。明细字段含 <code>basePoints</code> / <code>tierMultiplier</code> / <code>finalPoints</code>。
+        API：<code>GET /api/v1/admin/points-distribution-monitor</code>
+      </p>
+
+      <div class="pt-mon-stat-row" id="monStats"></div>
+
+      <div class="ant-row" style="margin:0 -8px 16px">
+        <div class="ant-col ant-col-12" style="padding:8px">
+          <div class="ant-card ant-card-bordered">
+            <div class="ant-card-head"><div class="ant-card-head-title">分层规则贡献（今日加成部分）</div></div>
+            <div class="ant-card-body" id="monPie"></div>
+          </div>
+        </div>
+        <div class="ant-col ant-col-12" style="padding:8px">
+          <div class="ant-card ant-card-bordered">
+            <div class="ant-card-head"><div class="ant-card-head-title">近 7 日发放趋势（基础 vs 加成）</div></div>
+            <div class="ant-card-body" id="monTrend"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-head"><div class="ant-card-head-title">最近发放明细（含分层字段）</div></div>
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-bordered ant-table-small">
+            <table style="width:100%">
+              <thead class="ant-table-thead">
+                <tr>
+                  <th>时间</th><th>UID</th><th>规则</th><th>基础</th><th>倍率</th><th>实发</th><th>状态</th><th>操作</th>
+                </tr>
+              </thead>
+              <tbody class="ant-table-tbody" id="monTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="../js-web/points-tier-config.js"></script>
+<script src="js/points-tier-store.js"></script>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="js/activities-points-monitor.js"></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>积分分层配置 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/points-tier-admin.css">
+</head>
+<body data-admin-page="activities-points-tier">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 活动管理 / 积分分层配置</span></div>
+      <div class="admin-header-right">
+        <a href="activities-points-monitor.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-chart-pie"></i> 发放监控</a>
+        <button type="button" class="ant-btn ant-btn-sm" id="btnResetTier"><i class="fa-solid fa-rotate-left"></i> 恢复默认</button>
+        <button type="button" class="ant-btn ant-btn-primary ant-btn-sm" id="btnSaveTier"><i class="fa-solid fa-floppy-disk"></i> 保存配置</button>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>活动运营</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">积分分层配置 <span class="ant-tag ant-tag-blue">MVP 轻量化</span></h1>
+      <p class="admin-page-desc">
+        全局积分加成规则：命中多条规则时<strong>连乘</strong>，并受「组合封顶倍率」约束。保存后 C 端 <code>points-tier-config.js</code> 通过 localStorage 同步（原型）。
+        API：<code>GET/PUT /api/v1/admin/points-tier-config</code>
+      </p>
+
+      <div class="ant-card ant-card-bordered" style="margin-bottom:16px">
+        <div class="ant-card-body">
+          <div class="pt-admin-fields" style="grid-template-columns:repeat(2,1fr);max-width:480px">
+            <div>
+              <label>组合封顶倍率</label>
+              <input class="ant-input" type="number" step="0.1" min="1" id="fldMaxMul" value="3">
+            </div>
+            <div>
+              <label>叠加模式</label>
+              <select class="ant-input" id="fldStack" style="width:100%;height:32px">
+                <option value="multiply">连乘（MVP）</option>
+              </select>
+            </div>
+          </div>
+          <p style="margin:12px 0 0;font-size:12px;color:rgba(0,0,0,.45)" id="tierMetaLine">—</p>
+        </div>
+      </div>
+
+      <div class="pt-admin-rules" id="tierRulesMount"></div>
+
+      <div class="ant-card ant-card-bordered pt-admin-sim">
+        <div class="ant-card-body" style="padding:16px">
+          <h3 style="margin:0 0 8px;font-size:15px"><i class="fa-solid fa-flask" style="color:#52c41a"></i> 模拟计算器</h3>
+          <p style="margin:0 0 12px;font-size:13px;color:rgba(0,0,0,.55)">选择用户画像，预览命中规则与预估倍率（不改变线上用户数据）。</p>
+          <div class="admin-toolbar" style="margin:0">
+            <select class="ant-input" id="simProfile" style="width:200px;height:32px">
+              <option value="demo">当前演示用户</option>
+              <option value="new">新注册用户</option>
+              <option value="vip">高活跃订阅用户</option>
+            </select>
+            <button type="button" class="ant-btn" id="btnSimRun">运行模拟</button>
+          </div>
+          <pre id="simOutput">点击「运行模拟」查看结果</pre>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="../js-web/points-tier-config.js"></script>
+<script src="js/points-tier-store.js"></script>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="js/activities-points-tier.js"></script>
+</body>
+</html>

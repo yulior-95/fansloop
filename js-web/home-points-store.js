@@ -183,11 +183,21 @@
         return wallet;
     }
 
+    function enrichLedgerWithTier(ledger) {
+        if (!global.FLPointsTier) return ledger;
+        var cfg = global.FLPointsTier.loadConfig();
+        var user = global.FLPointsTier.DEFAULT_USER;
+        return ledger.map(function (row) {
+            return global.FLPointsTier.enrichLedgerRow(row, cfg, user);
+        });
+    }
+
     function fetchPointsData() {
         var merged = JSON.parse(JSON.stringify(DEFAULT));
         mergeInviteConfig(merged);
         applyWalletPersistence(merged.wallet);
         merged.tasks = applyTaskPersistence(merged.tasks);
+        merged.ledger = enrichLedgerWithTier(merged.ledger);
         return Promise.resolve(merged);
     }
 
