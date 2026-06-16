@@ -1,0 +1,258 @@
+/* 积分商城权益 · 各场景生效态 */
+
+.mb-scene-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0 0 14px;
+    padding: 11px 14px;
+    border-radius: 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    border: 1px solid transparent;
+}
+.mb-scene-banner i {
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+.mb-scene-banner strong { font-weight: 700; }
+.mb-scene-banner--cap {
+    background: rgba(147, 197, 253, 0.1);
+    border-color: rgba(147, 197, 253, 0.28);
+    color: #BFDBFE;
+}
+.mb-scene-banner--checkin {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.28);
+    color: #6EE7B7;
+}
+.mb-scene-banner--invite {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: rgba(168, 85, 247, 0.28);
+    color: #E9D5FF;
+}
+
+.hp-task-card .mb-task-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 6px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    vertical-align: middle;
+    background: rgba(16, 185, 129, 0.18);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #6EE7B7;
+}
+
+/* 专属头像框 · 霓虹 — 外圈华丽边框，头像本体不变色 */
+.av-frame-neon {
+    position: relative;
+    z-index: 0;
+    overflow: visible !important;
+    box-shadow:
+        0 0 0 2px rgba(168, 85, 247, 0.75),
+        0 0 0 4px rgba(34, 211, 238, 0.35),
+        0 0 14px rgba(244, 114, 182, 0.35);
+}
+
+/* 旋转霓虹外环（mask 镂空，不覆盖头像区域） */
+.av-frame-neon::before {
+    content: '';
+    position: absolute;
+    inset: -7px;
+    border-radius: 50%;
+    padding: 3px;
+    background: conic-gradient(
+        from 0deg,
+        #22D3EE 0deg,
+        #A855F7 72deg,
+        #F472B6 144deg,
+        #FBBF24 216deg,
+        #22D3EE 288deg,
+        #A855F7 360deg
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    animation: mb-neon-spin 4s linear infinite;
+    pointer-events: none;
+    z-index: 3;
+    filter: drop-shadow(0 0 5px rgba(168, 85, 247, 0.65))
+            drop-shadow(0 0 10px rgba(34, 211, 238, 0.45));
+}
+
+/* 外环内侧金边点缀 */
+.av-frame-neon::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.65), rgba(168, 85, 247, 0.35), rgba(34, 211, 238, 0.5));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.85;
+}
+
+.app-header .h-avatar.av-frame-neon::before {
+    inset: -5px;
+    padding: 2.5px;
+}
+
+.app-header .h-avatar.av-frame-neon::after {
+    /* 保留 Header 在线状态绿点，不用遮罩覆盖头像 */
+    inset: auto;
+    bottom: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--success);
+    border: 2px solid var(--bg-app);
+    -webkit-mask: none;
+    mask: none;
+    opacity: 1;
+    filter: none;
+    animation: none;
+    z-index: 4;
+}
+
+.ph-row .av-xl.av-frame-neon::before {
+    inset: -12px;
+    padding: 5px;
+    filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.55))
+            drop-shadow(0 0 16px rgba(34, 211, 238, 0.4));
+}
+
+.ph-row .av-xl.av-frame-neon::after {
+    inset: -6px;
+    padding: 2px;
+}
+
+.app-sidebar .s-user .av.av-frame-neon::before {
+    inset: -4px;
+    padding: 2px;
+}
+
+.app-sidebar .s-user .av.av-frame-neon::after {
+    inset: -2px;
+    padding: 1px;
+}
+
+.ph-row .av-xl.av-frame-neon .role-badge {
+    z-index: 5;
+}
+
+/* 各尺寸头像外框（Feed / 评论 / 私信 / 输入框等） */
+.av-xs.av-frame-neon,
+.av.av-xs.av-frame-neon { box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.22), 0 0 8px rgba(34, 211, 238, 0.14); }
+.av-xs.av-frame-neon::before,
+.av.av-xs.av-frame-neon::before { inset: -3px; padding: 1.5px; }
+.av-xs.av-frame-neon::after,
+.av.av-xs.av-frame-neon::after { inset: -1.5px; padding: 1px; }
+
+.av-sm.av-frame-neon,
+.av.av-sm.av-frame-neon,
+div.av-sm.av-frame-neon { box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.24), 0 0 10px rgba(34, 211, 238, 0.16); }
+.av-sm.av-frame-neon::before,
+.av.av-sm.av-frame-neon::before,
+div.av-sm.av-frame-neon::before { inset: -4px; padding: 2px; }
+.av-sm.av-frame-neon::after,
+.av.av-sm.av-frame-neon::after,
+div.av-sm.av-frame-neon::after { inset: -2px; padding: 1px; }
+
+.av-md.av-frame-neon,
+.av.av-md.av-frame-neon { box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.26), 0 0 12px rgba(34, 211, 238, 0.18); }
+.av-md.av-frame-neon::before,
+.av.av-md.av-frame-neon::before { inset: -4px; padding: 2px; }
+.av-md.av-frame-neon::after,
+.av.av-md.av-frame-neon::after { inset: -2px; padding: 1px; }
+
+.av-lg.av-frame-neon,
+.av.av-lg.av-frame-neon { box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.28), 0 0 14px rgba(34, 211, 238, 0.2); }
+.av-lg.av-frame-neon::before,
+.av.av-lg.av-frame-neon::before { inset: -5px; padding: 2.5px; }
+.av-lg.av-frame-neon::after,
+.av.av-lg.av-frame-neon::after { inset: -2.5px; padding: 1.5px; }
+
+.av-mini.av-frame-neon::before { inset: -3px; padding: 1.5px; }
+.av-mini.av-frame-neon::after { inset: -1.5px; padding: 1px; }
+
+.cm-input-bar .av.av-frame-neon::before { inset: -4px; padding: 2px; }
+.cm-input-bar .av.av-frame-neon::after { inset: -2px; padding: 1px; }
+
+.av.av-frame-neon .online,
+.av-sm.av-frame-neon .online,
+.av-md.av-frame-neon .online,
+.av-lg.av-frame-neon .online {
+    z-index: 4;
+}
+
+@keyframes mb-neon-spin {
+    to { transform: rotate(360deg); }
+}
+
+.mb-avatar-equipped-row,
+.mb-member-equipped-row {
+    position: relative;
+    display: inline-block;
+    margin-top: 8px;
+    max-width: 100%;
+    vertical-align: top;
+}
+
+.mb-avatar-equipped-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 0;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(34, 211, 238, 0.12);
+    border: 1px solid rgba(34, 211, 238, 0.35);
+    color: #67E8F9;
+}
+
+.mb-member-equipped-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 0;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(251, 191, 36, 0.14);
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    color: #FCD34D;
+}
+
+/* 评论高亮 · 仅昵称与正文色值区分 */
+.comment.mb-comment-highlight .head .nm,
+.reply.mb-comment-highlight .head .nm {
+    color: #C084FC;
+    font-weight: 700;
+}
+.comment.mb-comment-highlight .text,
+.reply.mb-comment-highlight .text {
+    color: #E9D5FF;
+}
+
+.inv-code-banner .mb-invite-boost-line {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #C4B5FD;
+}

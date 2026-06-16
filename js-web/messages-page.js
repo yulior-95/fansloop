@@ -1200,8 +1200,17 @@
     }
 
     function openGift() {
+        var t = findThread(state.activeId);
+        var url = window.FL_buildGiftModalUrl
+            ? window.FL_buildGiftModalUrl({
+                ctx: 'message',
+                creator: t ? t.name : '',
+                avatar: t ? t.av : '',
+                sub: t ? ((t.sub || '') + ' · 私信会话') : '私信会话'
+            })
+            : 'gift-modal.html?ctx=message';
         if (window.FL_openInteractionModal) {
-            window.FL_openInteractionModal('gift-modal.html');
+            window.FL_openInteractionModal(url);
         } else {
             toast('已打开送礼（演示）');
             addMessage({ from: 'me', type: 'gift', text: '送出礼物 · 星月礼盒 × 1 · ≈ $12.00' });

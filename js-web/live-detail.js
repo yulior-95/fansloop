@@ -227,13 +227,67 @@
     }
 
     /* 打赏 */
+    var ldTipBoostCfg = null;
+
+    function syncLdTipBonusPanel() {
+        var ldBonus = document.getElementById("ldTipBonusPanel");
+        if (!ldBonus) return;
+        var p = new URLSearchParams(location.search);
+        var forceDemo = p.get("bonus") === "1" || p.get("bonus") === "active";
+        var forceNone = p.get("bonus") === "0" || p.get("bonus") === "none";
+        var store = window.MallVouchersStore;
+        var voucher = !forceNone && store && store.getActiveTipBoost ? store.getActiveTipBoost() : null;
+        ldTipBoostCfg = voucher && store.voucherToTipCfg ? store.voucherToTipCfg(voucher) : null;
+
+        if (!ldTipBoostCfg && forceDemo && window.FLTipBonus) {
+            var demo = window.FLTipBonus.resolveTipBoostState("?bonus=active");
+            ldTipBoostCfg = demo.cfg;
+        }
+
+        if (!ldTipBoostCfg) {
+            ldBonus.style.display = "none";
+            return;
+        }
+
+        ldBonus.style.display = "";
+        if (voucher) ldBonus.setAttribute("data-voucher-id", voucher.id);
+        else ldBonus.removeAttribute("data-voucher-id");
+
+        var usesLabel = ldBonus.querySelector(".left");
+        if (usesLabel) {
+            usesLabel.innerHTML = '<i class="fa-solid fa-heart"></i> 打赏加成卡 · 剩余 ' + ldTipBoostCfg.usesRemaining + '/' + ldTipBoostCfg.usesTotal + ' 次';
+        }
+        refreshLdBonus();
+    }
+
+    function refreshLdBonus() {
+        var ldToggle = document.getElementById("ldTipBonusToggle");
+        var sel = document.querySelector(".gift-pick.selected");
+        var price = sel ? parseFloat(sel.getAttribute("data-price") || "0") : 200;
+        var on = ldToggle ? ldToggle.checked : true;
+        var cfg = ldTipBoostCfg || {};
+        var subsidy = on && window.FLTipBonus ? window.FLTipBonus.calcSubsidy(price, cfg) : 0;
+        var pay = document.getElementById("ldTipPay");
+        var sub = document.getElementById("ldTipSubsidy");
+        var cre = document.getElementById("ldTipCreator");
+        if (pay) pay.textContent = price;
+        if (sub) sub.textContent = subsidy > 0 ? "+" + subsidy : "—";
+        if (cre) cre.textContent = price + subsidy;
+    }
+
     var btnTip = document.getElementById("btnTip");
     if (btnTip) {
-        btnTip.addEventListener("click", function () { openOverlay("ldGiftOverlay"); });
+        btnTip.addEventListener("click", function () {
+            syncLdTipBonusPanel();
+            openOverlay("ldGiftOverlay");
+        });
     }
     var chatGiftBtn = document.getElementById("chatGiftBtn");
     if (chatGiftBtn) {
-        chatGiftBtn.addEventListener("click", function () { openOverlay("ldGiftOverlay"); });
+        chatGiftBtn.addEventListener("click", function () {
+            syncLdTipBonusPanel();
+            openOverlay("ldGiftOverlay");
+        });
     }
     var selectedGift = null;
     document.querySelectorAll(".gift-pick").forEach(function (g) {
@@ -245,8 +299,11 @@
                 price: parseInt(g.getAttribute("data-price"), 10) || 0,
                 emoji: g.querySelector(".em").textContent
             };
+            refreshLdBonus();
         });
     });
+    var ldTipToggle = document.getElementById("ldTipBonusToggle");
+    if (ldTipToggle) ldTipToggle.addEventListener("change", refreshLdBonus);
     var btnGiftSend = document.getElementById("btnGiftSend");
     if (btnGiftSend) {
         btnGiftSend.addEventListener("click", function () {
@@ -255,6 +312,12 @@
                 return;
             }
             closeOverlay("ldGiftOverlay");
+            var ldBonus = document.getElementById("ldTipBonusPanel");
+            var vid = ldBonus && ldBonus.getAttribute("data-voucher-id");
+            var ldToggle = document.getElementById("ldTipBonusToggle");
+            if (vid && ldToggle && ldToggle.checked && window.MallVouchersStore) {
+                window.MallVouchersStore.consumeTipBoostUse(vid);
+            }
             toast("已送出 " + selectedGift.name + " · " + selectedGift.price + " USDT");
             spawnGiftFly("你", "送出 " + selectedGift.emoji + " " + selectedGift.name);
             appendChat("你", "送出 " + selectedGift.emoji + " " + selectedGift.name + " · " + selectedGift.price + " USDT", { filter: "gift", gift: true });
@@ -705,6 +768,10 @@
         if (p.get("source") === "cam") {
             var c = document.getElementById("camHintStrip");
             if (c) c.classList.add("show");
+        }
+        if (p.get("gift") === "open" || p.get("gift") === "1") {
+            syncLdTipBonusPanel();
+            openOverlay("ldGiftOverlay");
         }
     } catch (e) {}
 })();

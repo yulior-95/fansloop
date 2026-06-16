@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>积分业务说明 · 产品文档</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --card: #fff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --brand: #1890ff;
+      --code-bg: #f3f4f6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: 14px;
+    }
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 24px;
+      background: #001529;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    }
+    .toolbar h1 { margin: 0; font-size: 16px; font-weight: 600; }
+    .toolbar p { margin: 2px 0 0; font-size: 12px; opacity: .75; }
+    .toolbar-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .btn {
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-primary { background: var(--brand); color: #fff; }
+    .btn-ghost { background: rgba(255,255,255,.12); color: #fff; }
+    .btn:hover { opacity: .92; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px 20px 60px; }
+    .notice {
+      background: #e6f7ff;
+      border: 1px solid #91d5ff;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+    .doc { background: var(--card); border-radius: 10px; border: 1px solid var(--border); padding: 32px 36px; }
+    .doc h1 { font-size: 26px; margin: 0 0 8px; border-bottom: 2px solid var(--border); padding-bottom: 12px; }
+    .doc h2 { font-size: 18px; margin: 32px 0 12px; padding-left: 10px; border-left: 4px solid var(--brand); }
+    .doc h3 { font-size: 15px; margin: 20px 0 8px; color: #374151; }
+    .doc p, .doc li { color: #374151; }
+    .doc code, .doc pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      background: var(--code-bg);
+      border-radius: 4px;
+    }
+    .doc code { padding: 2px 6px; }
+    .doc pre {
+      padding: 14px 16px;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      line-height: 1.5;
+    }
+    .doc table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      margin: 12px 0 20px;
+    }
+    .doc th, .doc td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .doc th { background: #fafafa; font-weight: 600; white-space: nowrap; }
+    .doc tr:nth-child(even) td { background: #fafbfc; }
+    .tag {
+      display: inline-block;
+      padding: 1px 7px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      margin: 1px 2px 1px 0;
+    }
+    .tag-earn { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+    .tag-mall { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+    .tag-dev { background: #f9f0ff; color: #722ed1; border: 1px solid #d3adf7; }
+    .tag-on { background: #f6ffed; color: #389e0d; }
+    .tag-off { background: #fff1f0; color: #cf1322; }
+    .tag-draft { background: #f5f5f5; color: #8c8c8c; }
+    #mdSource {
+      position: fixed;
+      left: -9999px;
+      top: 0;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #111827;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      opacity: 0;
+      transition: .25s;
+      z-index: 99;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    @media (max-width: 768px) {
+      .doc { padding: 20px 16px; }
+      .doc table { font-size: 11px; }
+      .toolbar { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+<div class="toolbar">
+  <div>
+    <h1><i class="fa-solid fa-book"></i> FansLoop 积分业务说明</h1>
+    <p>产品视角 · 业务逻辑与运营配置 · 2026-06-16</p>
+  </div>
+  <div class="toolbar-actions">
+    <button type="button" class="btn btn-ghost" id="btnToggleMd"><i class="fa-solid fa-code"></i> 显示 Markdown 源码</button>
+    <button type="button" class="btn btn-primary" id="btnCopyMd"><i class="fa-solid fa-copy"></i> 复制 Markdown</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="notice">
+    <strong>使用说明：</strong>本文档面向产品与运营，说明积分获取、消耗与权益规则。点击「复制 Markdown」可粘贴至 Mindoc / 语雀 / GitBook。
+  </div>
+
+  <article class="doc" id="docRender"></article>
+
+  <pre id="mdPreview" style="display:none;margin-top:20px;background:#1e1e1e;color:#d4d4d4;padding:20px;border-radius:10px;overflow:auto;font-size:12px;line-height:1.55"></pre>
+</div>
+
+<textarea id="mdSource" readonly></textarea>
+<div class="toast" id="toast">已复制到剪贴板</div>
+
+<script id="mdContent" type="text/plain"># FansLoop 积分业务说明
+
+> 产品视角 · 2026-06-16  
+> 面向：产品、运营、业务评审
+
+---
+
+## 一、积分账户
+
+| 概念 | 业务说明 | 用户查看入口 |
+|------|----------|--------------|
+| 可用积分 | 可立即用于积分商城兑换的余额 | 首页/积分中心、积分商城/积分账户 |
+| 冻结积分 | 部分奖励（如邀请返利）需经冷静期后方可转为可用 | 首页/积分中心「冷静中」、个人主页/邀请拉新数据 |
+| 积分明细 | 用户可查看获取、消耗、冻结解冻等账变记录 | 首页/积分中心 → Tab「获取明细」→「查看完整流水页」 |
+| 每日获取上限 | 单日通过任务获得的积分总量有上限；可用「上限提升卡」临时提高 | 首页/积分中心「今日已获」进度 |
+
+**冷静期规则**：邀请拉新等高风险渠道，奖励先进入冻结池，期满（默认 7 天）自动解冻为可用积分。积分商城 Hero 区展示「积分冷静期说明」。
+
+---
+
+## 二、活动分类体系
+
+### 2.1 两大渠道
+
+| 渠道 | 方向 | 页面入口 | 典型场景 |
+|------|------|----------|----------|
+| 积分任务 | 获取积分 | 首页 → 顶栏「我的积分」→ 抽屉「积分中心」；个人主页 →「积分任务」 | 观看直播满 30 分钟、每日签到、邀请好友注册、首次订阅创作者、浏览赚积分（计时） |
+| 积分商城 | 消耗积分 | 侧栏「积分商城」；积分中心底部「积分商城」 | 试看券、订阅折扣、加速卡、会员装扮、幸运转盘等（见第五章） |
+
+### 2.2 活动类型（与后台「活动类型」选项一致）
+
+| 类型 | 投放渠道 | 玩法说明 | 运营可独立创建 |
+|------|----------|----------|----------------|
+| 计时任务 | 任务中心 | 观看/浏览达时长后发放积分 | 是 |
+| 邀请拉新 | 任务中心 | 邀请人与被邀请人双向奖励，含风控审核 | 是 |
+| 签到链 | 任务中心 | 连续签到按阶梯递增奖励 | 是 |
+| 互动行为 | 任务中心 | 点赞、评论等互动触发发奖 | 是 |
+| 订阅行为 | 任务中心 | 首订/续订创作者后奖励 | 是 |
+| 研发活动 | 任务中心 | 节日分享、专题 H5 等定制玩法（研发绑定触发） | 研发创建 |
+| 兑换商品 | 积分商城 | 消耗积分兑换券/权益，写入用户券包 | 是 |
+| 幸运转盘 | 积分商城 | 每次消耗积分参与抽奖 | 是 |
+
+### 2.3 商城 Tab 分类
+
+活动可同时归属多个 Tab；封面角标（会员、付费、空投等）与 Tab 独立，用于商品卡视觉强调。
+
+| Tab | 定位 | 典型商品 |
+|-----|------|----------|
+| 热门推荐 | 高频、高性价比 | 试看券、打赏加成、会员 7 天、SFL 资格 |
+| 付费权益 | 内容付费与订阅优惠 | 试看、折扣券、免费订阅、打赏加成 |
+| 加速成长 | 提升积分获取效率 | 加速卡、签到翻倍、每日上限、邀请加成 |
+| 会员&装扮 | 身份与个性化 | 会员时长、评论高亮、头像框 |
+| 资产专区 | Web3 / 链上相关 | 转盘、SFL 资格、空投券、NFT 折扣、质押加成 |
+
+---
+
+## 三、后台管理 · 积分活动配置
+
+对应后台入口：**积分活动列表 → 新建/编辑活动**。以下字段均指编辑页各区块，与后台表单一致。
+
+### 3.1 基础信息（所有类型）
+
+| 字段 | 业务说明 |
+|------|----------|
+| 活动名称 | 前台展示标题 |
+| 活动编码 | 全局唯一，用于发奖/埋点对接 |
+| 活动类型 | 决定下方「触发规则」「奖励与频控」展示哪些字段 |
+| 投放渠道 | 任务中心（获取积分）/ 积分商城（消耗积分） |
+| 状态 | 草稿 / 启用 / 停用 |
+| 排序权重 | 列表与前台展示顺序 |
+
+### 3.2 商城展示（仅投放渠道 = 积分商城）
+
+| 字段 | 业务说明 |
+|------|----------|
+| 商城分类 | 商品出现在哪些 Tab（可多选） |
+| 封面角标 | 商品卡角标，如「付费」「会员」「限量资格」 |
+| 封面图 | 商城商品卡头图 |
+| 前台描述 | 展示在商城卡片说明区 |
+
+### 3.3 奖励与频控（按活动类型）
+
+编辑页「奖励与频控」区块字段因类型而异；**未列出的字段表示该类型不出现或固定，无需填写**。
+
+**积分值填写规则**：获取类填**正数**（如 `50` → 展示「+50 积分」）；兑换类填**负数**（如 `-1600` → 保存后自动生成「消耗 1,600 积分」文案）。
+
+#### 计时任务
+
+| 区块 | 需填写字段 |
+|------|------------|
+| 触发规则 | 触发时长（分钟） |
+| 奖励与频控 | 积分值、奖励文案、频控周期、次数上限、频控展示文案、日积分上限 |
+
+#### 邀请拉新
+
+| 区块 | 需填写字段 |
+|------|------------|
+| 触发规则 | 邀请人积分、被邀请人积分、是否需风控审核 |
+| 奖励与频控 | 频控周期、次数上限、频控展示文案、日积分上限、累计上限（可选） |
+| 不出现 | 积分值（由双方分值决定）；冷静期跟随风控配置，单活动不可改 |
+
+#### 签到链
+
+| 区块 | 需填写字段 |
+|------|------------|
+| 触发规则 | 连续签到天数、阶梯奖励（逗号分隔每日积分）、链重置周期 |
+| 奖励与频控 | 奖励展示文案（可选，留空按阶梯自动生成） |
+| 固定/不出现 | 签到频控固定「每日 1 次」；无积分值、无频控周期、无日积分上限 |
+
+#### 互动行为
+
+| 区块 | 需填写字段 |
+|------|------------|
+| 触发规则 | 互动行为类型（点赞/评论等） |
+| 奖励与频控 | 积分值、频控周期、次数上限、频控展示文案、日积分上限 |
+
+#### 订阅行为
+
+| 区块 | 需填写字段 |
+|------|------------|
+| 触发规则 | 首订奖励积分、续订奖励积分 |
+| 奖励与频控 | 频控周期、次数上限、频控展示文案、累计上限（可选）、奖励展示文案（可选） |
+| 不出现 | 积分值；首订活动建议频控选「终身 1 次」 |
+
+#### 研发活动
+
+| 区块 | 需填写字段 |
+|------|------------|
+| 触发规则 | 开始时间、结束时间、活动积分总预算 |
+| 奖励与频控 | 积分值、频控周期、次数上限、频控展示文案 |
+| 不出现 | 日积分上限；触发逻辑由研发绑定活动编码，运营不可改 |
+
+#### 兑换商品
+
+| 区块 | 需填写字段 |
+|------|------------|
+| 触发规则 | 库存、商品模板对应权益参数（如持券天数、折扣比例、可用次数等） |
+| 奖励与频控 | 积分值（负数）、频控周期、次数上限、频控展示文案 |
+| 不出现 | 奖励文案（保存时按模板自动生成「消耗 X 积分 · …」）；日积分上限 |
+
+#### 幸运转盘
+
+| 区块 | 需填写字段 |
+|------|------------|
+| 触发规则 | 单次消耗积分、每日抽奖次数 |
+| 奖励与频控 | 频控展示文案（可选，留空按每日次数自动生成） |
+| 不出现 | 积分值、频控周期、次数上限、奖励文案（由上方消耗与次数推导） |
+
+---
+
+## 四、获取积分 · 任务清单
+
+| 活动 | 类型 | 上线默认奖励规则 | 频控 | 冷静期 | 状态 | 页面路径 | 触发按钮 |
+|------|------|----------|------|--------|------|----------|----------|
+| 邀请拉新 · 双方奖励 | 邀请拉新 | 邀请人 +200，被邀请人 +200 | 每日最多 3 次 | 7 天 | 启用 | 个人主页 → 邀请拉新数据 | 任务卡「去完成」→ 进入邀请拉新数据页后点击「分享邀请码」或「复制」 |
+| 观看直播满 30 分钟 | 计时任务 | +50 积分/次 | 每日 3 次 | 无 | 启用 | 首页 → Feed Tab「直播」→ 直播详情 | 任务卡「去完成」；进入直播间累计观看，达标自动发放 |
+| 每日签到 | 签到链 | +20 积分/日（原型） | 每日 1 次 | 无 | 启用 | 首页/个人主页 → 积分中心/积分活动 | 任务卡「领取」 |
+| 连续签到 7 天 | 签到链 | 阶梯 10→20→30→50→70→85→100 | 每日 1 次 | 无 | 草稿 | 同上 | 草稿期不对用户展示 |
+| 浏览赚积分（计时） | 计时任务 | 倒计时结束自动发放 | 按任务 | 无 | 启用 | 首页 Feed「推荐」 | 任务卡「去完成」；停留首页至倒计时结束 |
+| 首次订阅创作者 | 订阅行为 | 终身 1 次奖励 | 按任务 | 无 | 启用 | 发现页 | 任务初始「去了解」→ 发现页创作者卡片点击「立即订阅」→ 弹层「确认订阅并支付」→ 订阅成功后回积分任务点击「领取」 |
+| 春节分享 · 限时福利 | 限时活动 | +100 积分/次 | 每日 1 次 | 7 天 | 启用 | 活动 H5（待上线） | 完成分享动作后发放（待接） |
+
+**任务抽屉公共按钮**：Tab「赚积分任务」/「获取明细」；底部「积分商城」「关闭」。
+
+---
+
+## 五、消耗积分 · 积分商城
+
+**兑换通用动线**：积分商城 → 商品卡「立即兑换」→ 弹层「确认兑换」→ 权益入账（商城 Hero「当前兑换权益」展示）。
+
+### 5.1 付费权益
+
+| 商品 | 消耗积分 | 权益内容 | 频控 | 状态 | 兑换路径 | 使用路径 | 使用按钮 |
+|------|----------|----------|------|------|----------|----------|----------|
+| 付费内容试看券 | 1,600 | 解锁 1 篇试看，持券 7 天，观看窗口 24h | 每周 2 次 | 启用 | 积分商城 →「立即兑换」→「确认兑换」 | 首页付费帖解锁墙：按钮「{N} USDT 解锁」→ 弹层「解锁单篇内容」 | 选「可用单篇兑换券」中试看券 →「确认解锁并支付」 |
+| 单篇 5 折券 | 3,200 | 单篇 5 折，持券 14 天，1 次 | 每周 1 次 | 启用 | 同上 | 同上 | 选 5 折券 →「确认解锁并支付」（不可与试看券叠加） |
+| 订阅折扣券 · 首月 85 折 | 2,400 | 订阅首月 85 折，券有效 30 天 | 每日 1 次 | 启用 | 积分商城 →「立即兑换」→「确认兑换」 | 首页/发现 → 订阅弹层「订阅创作者」 | 选「可用兑换券」→「确认订阅并支付」 |
+| 订阅 9 折券 | 2,200 | 订阅 9 折，券有效 7 天 | 每日 1 次 | 启用 | 积分商城 →「立即兑换」→「确认兑换」 | 同上 | 选 9 折券 →「确认订阅并支付」 |
+| 订阅 8 折券 | 6,800 | 订阅 8 折，券有效 2 天 | 每周 1 次 | 启用 | 同上 | 同上 | 选 8 折券 →「确认订阅并支付」 |
+| 免费订阅次数券 · 1 次 | 4,800 | 免费开通 1 次订阅，持券 14 天 | 终身 1 次 | 启用 | 积分商城 →「立即兑换」→「确认兑换」 | 订阅弹层 | 选免费订阅券 →「确认订阅并支付」 |
+| 打赏加成卡 · 3 次 | 3,500 | 3 次打赏补贴，平台额外 +10%，单笔上限 50，持券 14 天 | 每周 2 次 | 启用 | 积分商城 →「立即兑换」→「确认兑换」 | 直播详情 / 送礼弹层 | 勾选「使用打赏加成卡」后点击「立即送出」 |
+
+### 5.2 加速成长
+
+| 商品 | 消耗积分 | 权益内容 | 频控 | 状态 | 兑换路径 | 生效说明 |
+|------|----------|----------|------|------|----------|----------|
+| 积分加速卡 · 24h | 1,200 | 24h 内任务积分 ×1.2 | 每日 1 次 | 启用 | 积分商城 →「立即兑换」→「确认兑换」 | 兑换即生效；后续任务「领取」时按倍率结算 |
+| 每日上限提升卡 | 2,800 | 当日获取上限 50→100 | 每日 1 次 | 启用 | 同上 | 兑换当日生效；首页/积分中心「今日已获」进度同步 |
+| 连续签到翻倍卡 | 450 | 下次签到奖励 ×2，消耗 1 次 | 每周 1 次 | 启用 | 同上 | 个人主页/首页 → 积分活动 → 签到任务「领取」时翻倍 |
+| 邀请加成卡 · 7 日 | 4,200 | 7 日内邀请返利额外 +10% | 每月 1 次 | 启用 | 同上 | 个人主页 → 邀请拉新数据页展示加成状态 |
+
+### 5.3 会员&装扮
+
+| 商品 | 消耗积分 | 权益内容 | 频控 | 状态 | 兑换路径 | 使用路径 | 使用按钮 |
+|------|----------|----------|------|------|----------|----------|----------|
+| 会员身份 · 7 天 | 5,500 | 激活后 7 天会员，须 30 天内激活 | 每季 1 次 | 启用 | 积分商城 →「立即兑换」→「确认兑换」 | 个人主页 Pro 区域 | 非会员点击「升级 Pro」激活；已是会员时按钮显示「会员至 {日期}」（到期后自动延长，不覆盖现有权益） |
+| 会员身份 · 30 天 | 18,000 | 激活后 30 天会员，须 45 天内激活 | 每年 2 次 | 启用 | 同上 | 同上 | 同上；生效后按钮变为「会员至 {日期}」 |
+| 评论高亮 · 7 日 | 900 | 7 日内本人评论紫色高亮 | 每周 1 次 | 启用 | 积分商城 →「立即兑换」→「确认兑换」 | 任意内容评论区 | 兑换后自动生效，发表评论即高亮 |
+| 专属头像框 · 霓虹 | 3,100 | 30 日霓虹头像外圈 | 每月 1 次 | 启用 | 同上 | 个人主页 / 顶栏 / 侧栏头像 | 兑换后自动佩戴，主页可见到期标签 |
+
+**会员兑换叠加规则**
+
+1. 非会员或会员剩余 ≤7 天：可直接兑换并激活。
+2. 完整会员期内：兑换后会在当前会员到期后自动延长，不覆盖现有权益。
+3. 持券有效期内须完成激活，过期未激活作废；激活后的会员时长与持券期独立计算。
+
+> 商城另有「昵称徽章 · VIP/OG」展示位，待运营补独立活动配置。
+
+### 5.4 资产专区
+
+| 商品 | 消耗积分 | 权益内容 | 频控 | 状态 | 兑换路径 | 使用路径 | 使用按钮 |
+|------|----------|----------|------|------|----------|----------|----------|
+| 幸运转盘 | 500/次 | 消耗积分抽奖 | 每日 10 次 | 启用 | 积分商城 Hero「去转盘」 | 转盘弹层 | 「开始转动」 |
+| SFL 兑换资格 | 9,900 | SFL 二期抽签资格 1 次，持券 90 天 | 终身 1 次 | 启用 | 积分商城 →「立即兑换」→「确认兑换」 | 资产活动页（待接） | 抽签消耗 1 次资格 |
+| 空投抽奖券 ×1 | 800 | 当期空投抽奖 1 次 | 每期 10 次 | 启用 | 同上 | 空投活动页（待接） | 参与当期抽奖 |
+| NFT 手续费折扣券 | 4,400 | 链上手续费 85 折，单笔封顶 | 每月 3 次 | 启用 | 同上 | Mint/交易页（待接） | 结算时选用折扣券 |
+| 质押加成券 · 30 日 | 12,000 | 30 日质押收益 +5% | 每月 1 次 | 启用 | 同上 | 质押池（待接） | 链上活动期内自动加成 |
+
+---
+
+## 六、核心业务规则
+
+| 规则 | 说明 |
+|------|------|
+| 兑换扣减 | 仅扣减「可用积分」；冻结积分不可用于兑换 |
+| 券包 | 兑换成功后权益进入用户券包，按次数或时长在业务场景消耗 |
+| 权益互斥 | 试看券与 5 折券不可叠加用于同一篇内容 |
+| 打赏加成成本 | 用户仍付礼物原价；平台按配置比例额外补贴创作者，须设单笔上限控成本 |
+| 每日上限 | 默认有日获取上限；「上限提升卡」仅影响兑换当日，次日恢复 |
+| 活动上下线 | 草稿/停用状态不对用户展示；启用后受频控与库存约束 |
+| 限量与售罄 | 库存耗尽后商品不可兑换，前台应提示售罄 |
+
+---
+
+## 七、页面入口与按钮速查
+
+### 7.1 全局积分入口
+
+| 页面 | 入口元素 | 按钮/文案 | 跳转或动作 |
+|------|----------|-----------|------------|
+| 首页 | 顶栏右侧 | 「我的积分」（金币图标 + 余额） | 打开抽屉「积分中心」 |
+| 首页 | 积分条带（部分布局） | 「积分商城」 | 进入积分商城 |
+| 首页 | 抽屉「积分中心」 | Tab「赚积分任务」「获取明细」 | 切换任务 / 流水 |
+| 首页 | 抽屉底部 | 「积分商城」「关闭」 | 进商城 / 关抽屉 |
+| 个人主页 | 积分行 | 「积分任务」 | 打开抽屉「积分活动」 |
+| 个人主页 | 操作区 | 「邀请数据」 | 进入「邀请拉新数据」 |
+| 个人主页 | 操作区 | 「升级 Pro」/「会员至 {日期}」 | 打开「升级 Pro」弹层 |
+| 侧栏（全局） | 导航项 | 「积分商城」 | 进入积分商城 |
+
+### 7.2 获取积分动线
+
+| 场景 | 页面路径 | 关键按钮（按操作顺序） |
+|------|----------|------------------------|
+| 邀请赚积分 | 个人主页 → 邀请拉新数据页 | 任务「去完成」→ 点击「分享邀请码」或「复制」 |
+| 看直播赚积分 | 首页 → Tab「直播」→ 直播详情 | 任务「去完成」→ 进入直播间观看至达标 |
+| 签到赚积分 | 首页/个人主页 → 积分中心/积分活动 | 任务「领取」 |
+| 浏览赚积分 | 首页 Feed「推荐」 | 任务「去完成」→ 停留至倒计时结束 |
+| 首次订阅奖励 | 发现页 → 订阅弹层 | 任务「去了解」→ 创作者卡片「立即订阅」→「确认订阅并支付」→ 回积分任务点击「领取」 |
+
+### 7.3 消耗积分动线
+
+| 场景 | 兑换路径 | 使用路径 | 关键按钮 |
+|------|----------|----------|----------|
+| 试看 / 5 折解锁 | 积分商城 →「立即兑换」→「确认兑换」 | 首页付费帖解锁墙 | 帖内「{N} USDT 解锁」→ 选券 →「确认解锁并支付」→「完成」 |
+| 订阅优惠 | 积分商城 →「立即兑换」→「确认兑换」 | 首页/发现订阅墙 | 「立即订阅」→ 选「可用兑换券」→「确认订阅并支付」 |
+| 打赏加成 | 积分商城 →「立即兑换」→「确认兑换」 | 直播详情 → 送礼 | 「打赏 / 送礼」→ 勾选「使用打赏加成卡」→ 点击「立即送出」→ 送礼结算 |
+| 加速 / 上限 / 翻倍 | 积分商城 →「立即兑换」→「确认兑换」 | 对应任务场景 | 加速/上限兑换即生效；签到翻倍在「领取」时触发 |
+| 会员时长 | 积分商城 →「立即兑换」→「确认兑换」 | 个人主页 Pro 区域 | 「升级 Pro」激活；会员中按钮显示「会员至 {日期}」（到期后自动延长） |
+| 评论高亮 / 头像框 | 积分商城 →「立即兑换」→「确认兑换」 | 评论 / 个人主页 | 兑换后自动生效，无需额外按钮 |
+| 幸运转盘 | 积分商城 Hero | 转盘弹层 | 「去转盘」→「开始转动」 |
+
+### 7.4 订阅 / 解锁弹层内券选择
+
+| 弹层 | 券区标题 | 选项文案 | 确认按钮 |
+|------|----------|----------|----------|
+| 解锁单篇内容 | 「可用单篇兑换券」 | 试看券 / 5 折券（单选）；无券时链「去商城兑换」 | 「确认解锁并支付」 |
+| 订阅创作者 | 「可用兑换券」 | 「不使用兑换券」/ 各折扣券（单选）；无券时链「去商城兑换」 | 「确认订阅并支付」 |
+| 打赏 / 送礼 | 加成区 | 「使用打赏加成卡」（开关）；无券提示链「去积分商城兑换」 | 正常送礼确认流程 |
+
+---
+
+*活动数值与上下线状态以运营后台当前配置为准。*
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+(function () {
+  var raw = document.getElementById('mdContent').textContent.trim();
+  var source = document.getElementById('mdSource');
+  var preview = document.getElementById('mdPreview');
+  var render = document.getElementById('docRender');
+  var toast = document.getElementById('toast');
+  var showMd = false;
+
+  source.value = raw;
+  if (window.marked) {
+    render.innerHTML = marked.parse(raw, { gfm: true, breaks: false });
+  } else {
+    render.innerHTML = '<pre>' + raw.replace(/</g, '&lt;') + '</pre>';
+  }
+
+  function showToast(msg) {
+    toast.textContent = msg || '已复制到剪贴板';
+    toast.classList.add('show');
+    setTimeout(function () { toast.classList.remove('show'); }, 2200);
+  }
+
+  document.getElementById('btnCopyMd').addEventListener('click', function () {
+    var text = source.value;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { showToast(); }).catch(fallback);
+    } else {
+      fallback();
+    }
+    function fallback() {
+      source.style.position = 'fixed';
+      source.style.left = '0';
+      source.style.top = '0';
+      source.style.width = '100%';
+      source.style.height = '120px';
+      source.style.opacity = '1';
+      source.style.zIndex = '9999';
+      source.select();
+      try {
+        document.execCommand('copy');
+        showToast();
+      } catch (e) {
+        showToast('复制失败，请手动全选 Markdown 源码');
+      }
+      source.style.cssText = 'position:fixed;left:-9999px;width:1px;height:1px;opacity:0';
+    }
+  });
+
+  document.getElementById('btnToggleMd').addEventListener('click', function () {
+    showMd = !showMd;
+    preview.style.display = showMd ? 'block' : 'none';
+    render.style.display = showMd ? 'none' : 'block';
+    this.innerHTML = showMd
+      ? '<i class="fa-solid fa-eye"></i> 显示渲染文档'
+      : '<i class="fa-solid fa-code"></i> 显示 Markdown 源码';
+    if (showMd) preview.textContent = raw;
+  });
+})();
+</script>
+</body>
+</html>

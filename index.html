@@ -127,6 +127,134 @@ main.content { padding: 28px 24px 48px; }
     background: var(--bg-elevated);
 }
 .site-footer a { color: var(--brand-purple); }
+
+/* 商城六项权益 · 可点选场景工作室 */
+.mb-studio {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+}
+.mb-studio-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 720px;
+}
+@media (max-width: 900px) {
+    .mb-studio-layout { grid-template-columns: 1fr; }
+}
+.mb-studio-nav {
+    border-right: 1px solid var(--border);
+    background: var(--bg-elevated);
+    padding: 12px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+@media (max-width: 900px) {
+    .mb-studio-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+}
+.mb-studio-nav button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--t-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.mb-studio-nav button i {
+    width: 16px;
+    text-align: center;
+    color: var(--brand-purple);
+    font-size: 11px;
+    flex-shrink: 0;
+}
+.mb-studio-nav button:hover {
+    background: var(--bg-input);
+    color: #fff;
+}
+.mb-studio-nav button.active {
+    background: rgba(168, 85, 247, 0.14);
+    border-color: rgba(168, 85, 247, 0.35);
+    color: #fff;
+}
+.mb-studio-main { display: flex; flex-direction: column; min-width: 0; }
+.mb-studio-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0,0,0,0.15);
+    font-size: 11px;
+}
+.mb-studio-toolbar code {
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    color: #C4B5FD;
+    flex: 1;
+    min-width: 200px;
+    word-break: break-all;
+}
+.mb-studio-toolbar a {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--brand-purple);
+    text-decoration: none;
+    white-space: nowrap;
+}
+.mb-studio-toolbar a:hover { text-decoration: underline; }
+.mb-studio-toolbar a.primary {
+    padding: 5px 11px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    color: #fff;
+}
+.mb-studio-toolbar a.primary:hover { text-decoration: none; opacity: 0.92; }
+.mb-studio-frame {
+    flex: 1;
+    min-height: 640px;
+    background: var(--bg-app);
+}
+.mb-studio-frame iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 640px;
+    border: none;
+    display: block;
+}
+.mb-studio-desc {
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--t-tertiary);
+    line-height: 1.55;
+    border-top: 1px solid var(--border);
+}
+.mb-studio-hint {
+    margin: 0 0 16px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    line-height: 1.55;
+    color: #BFDBFE;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+}
+.mb-studio-hint strong { color: #93C5FD; }
 </style>
 </head>
 <body>
@@ -167,6 +295,15 @@ main.content { padding: 28px 24px 48px; }
         <a href="#create-ppv"><i class="fa-solid fa-tag"></i>创建 · 单篇付费</a>
         <a href="#invite-referral"><i class="fa-solid fa-user-group"></i>邀请拉新</a>
         <a href="#admin-points-activities"><i class="fa-solid fa-sliders"></i>后台·积分活动</a>
+        <a href="#tip-bonus"><i class="fa-solid fa-heart"></i>打赏加成卡</a>
+        <a href="#mall-benefits"><i class="fa-solid fa-ticket"></i>商城六项权益</a>
+        <a href="#mall-benefits-mall" data-mb-scene="mall" style="padding-left:28px;font-size:12px"><i class="fa-solid fa-store"></i>商城 Hero</a>
+        <a href="#mall-benefits-daily-cap" data-mb-scene="daily-cap" style="padding-left:28px;font-size:12px"><i class="fa-solid fa-arrow-trend-up"></i>每日上限</a>
+        <a href="#mall-benefits-checkin-double" data-mb-scene="checkin-double" style="padding-left:28px;font-size:12px"><i class="fa-solid fa-calendar-check"></i>签到翻倍</a>
+        <a href="#mall-benefits-invite-boost" data-mb-scene="invite-boost" style="padding-left:28px;font-size:12px"><i class="fa-solid fa-user-group"></i>邀请加成</a>
+        <a href="#mall-benefits-avatar-neon" data-mb-scene="avatar-neon" style="padding-left:28px;font-size:12px"><i class="fa-solid fa-sparkles"></i>霓虹头像框</a>
+        <a href="#mall-benefits-comment-highlight" data-mb-scene="comment-highlight" style="padding-left:28px;font-size:12px"><i class="fa-solid fa-highlighter"></i>评论高亮</a>
+        <a href="#mall-benefits-ppv-trial" data-mb-scene="ppv-trial" style="padding-left:28px;font-size:12px"><i class="fa-solid fa-lock-open"></i>试看券解锁</a>
         <a href="#profile-creator"><i class="fa-solid fa-certificate"></i>创作者认证</a>
         <div class="sec">资产</div>
         <a href="#creator-income"><i class="fa-solid fa-coins"></i>创作者收入</a>
@@ -442,8 +579,8 @@ main.content { padding: 28px 24px 48px; }
             <div class="grid">
                 <div class="tile">
                     <div class="th">settings.html（含 KYC 行） <a href="pages-web/settings.html" target="_blank">新窗口</a></div>
-                    <div class="tb" style="height:520px"><iframe src="pages-web/settings.html" title="设置" loading="lazy"></iframe></div>
-                    <div class="tf">兴趣标签下方 · KYC 入口 · 通过后头像区标签</div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/settings.html" title="账户资料" loading="lazy"></iframe></div>
+                    <div class="tf">账户资料浏览 · KYC 入口 · 头像交互</div>
                 </div>
                 <div class="tile">
                     <div class="th">kyc-intro.html <a href="pages-web/kyc-intro.html" target="_blank">新窗口</a></div>
@@ -853,9 +990,40 @@ main.content { padding: 28px 24px 48px; }
                     <div class="tf">被邀请人视角 · 只读永久关联</div>
                 </div>
                 <div class="tile">
-                    <div class="th">settings.html · 入口</div>
-                    <div class="tb" style="height:720px"><iframe src="pages-web/settings.html" title="设置入口" loading="lazy"></iframe></div>
-                    <div class="tf">账户资料区 · 邀请数据 / 我的邀请人</div>
+                    <div class="th">settings.html · 账户资料 <a href="pages-web/settings.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/settings.html" title="账户资料" loading="lazy"></iframe></div>
+                    <div class="tf">只读资料行 · 头像灯箱/保存/更换 · 邀请人 UID 链主页 · 玻璃体批注</div>
+                </div>
+                <div class="tile">
+                    <div class="th">settings.html?invite=none</div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/settings.html?invite=none" title="无邀请人" loading="lazy"></iframe></div>
+                    <div class="tf">注册未填邀请码 · 隐藏「我的邀请人」行</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="block" id="settings-creator">
+            <h2><i class="fa-solid fa-crown"></i>设置中心 · 创作者模块</h2>
+            <p class="lead">
+                <strong>用户体验分析：</strong>认证创作者需在设置中心完成「订阅定价 → 收益提现 → 直播推流」三条核心链路，与内容创作、钱包资产形成闭环；左侧导航支持独立滚动，主内容区聚焦操作表单。<br>
+                <strong>产品界面设计：</strong>会员订阅（档位/试用/优惠码）· 收益与提现（余额/分成/收款方式）· 直播配置（OBS 推流/默认参数/弹幕规则）。<br>
+                <strong>高保真 UI：</strong>沿用 Web 端 Header + 设置侧栏 + 主内容卡片布局；Unsplash 真实封面图；Font Awesome 图标体系。
+            </p>
+            <div class="grid">
+                <div class="tile">
+                    <div class="th">settings-subscription.html <a href="pages-web/settings-subscription.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/settings-subscription.html" title="会员订阅设置" loading="lazy"></iframe></div>
+                    <div class="tf">三档订阅 · 7 天试用 · 欢迎语 · 优惠码表 · 默认 PPV</div>
+                </div>
+                <div class="tile">
+                    <div class="th">settings-creator-earnings.html <a href="pages-web/settings-creator-earnings.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/settings-creator-earnings.html" title="收益与提现" loading="lazy"></iframe></div>
+                    <div class="tf">可提现余额 · 待结算 · 平台分成 85% · KYC 门槛 · 提现记录</div>
+                </div>
+                <div class="tile">
+                    <div class="th">settings-live.html <a href="pages-web/settings-live.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/settings-live.html" title="直播配置" loading="lazy"></iframe></div>
+                    <div class="tf">OBS 推流地址/密钥复制 · 默认画质 · 弹幕过滤 · 礼物开关</div>
                 </div>
             </div>
         </section>
@@ -893,6 +1061,87 @@ main.content { padding: 28px 24px 48px; }
                     <div class="th">points-mall.html（用户端对照）</div>
                     <div class="tb" style="height:720px"><iframe src="pages-web/points-mall.html" title="积分商城" loading="lazy"></iframe></div>
                     <div class="tf">单行 4 列 · 滚轮横滑 · Hero 内权益/历史切换</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="block" id="mall-benefits">
+            <h2><i class="fa-solid fa-ticket"></i>积分商城 · 六项权益场景联动（本次优化）</h2>
+            <p class="lead">
+                <strong>1. 用户体验分析：</strong>用户在积分商城兑换权益后，需要在对应业务场景「看得见、用得上」——试看券在 PPV 解锁、上限卡在任务抽屉、签到翻倍在领取时、邀请加成在邀请页、头像框在个人主页、评论高亮在评论区。<br>
+                <strong>2. 产品界面设计：</strong>商城 Hero「当前兑换权益」与 <code>MallVouchersStore</code> 券包同源；各场景通过轻量横幅 / 徽章 / 样式类展示生效态，兑换成功即时刷新。<br>
+                <strong>3. 高保真 UI：</strong>沿用 Web Header + Sidebar + Main；霓虹头像框、评论专属字色、积分上限提示条；Unsplash/Pexels 真实配图。<br>
+                <strong>4. HTML 实现：</strong><code>js-web/mall-vouchers-store.js</code>（6 类权益 catalog）+ <code>mall-benefits-sync.js</code>（Hero 渲染）+ <code>mall-benefits-scenes.js</code>（场景 hook）+ <code>css-web/mall-benefits-scenes.css</code>。API：<code>GET /api/v1/wallet/vouchers</code> · <code>POST /api/v1/mall/redeem</code>
+            </p>
+            <p class="mb-studio-hint">
+                <strong>微调说明：</strong>下方左侧可<strong>点选切换</strong>场景预览。iframe 内元素在 Cursor 中无法直接选中 —— 请点击工具栏 <strong>「打开可编辑页面」</strong>，在独立页面中对具体 DOM 做微调（与打赏弹窗内联注入同理）。
+            </p>
+            <div class="mb-studio" id="mallBenefitsStudio">
+                <div class="mb-studio-layout">
+                    <nav class="mb-studio-nav" id="mbStudioNav" aria-label="权益场景切换"></nav>
+                    <div class="mb-studio-main">
+                        <div class="mb-studio-toolbar">
+                            <code id="mbStudioUrl">pages-web/points-mall.html</code>
+                            <a href="pages-web/points-mall.html" target="_blank" id="mbStudioOpenNew">新窗口</a>
+                            <a href="pages-web/points-mall.html" class="primary" id="mbStudioOpenEdit"><i class="fa-solid fa-pen-ruler"></i> 打开可编辑页面</a>
+                        </div>
+                        <div class="mb-studio-frame">
+                            <iframe id="mbStudioIframe" src="pages-web/points-mall.html" title="商城权益场景预览"></iframe>
+                        </div>
+                        <div class="mb-studio-desc" id="mbStudioDesc">动态渲染六项权益 Hero · 兑换后即时同步券包。</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="block" id="tip-bonus">
+            <h2><i class="fa-solid fa-heart"></i>打赏加成卡 · 按次数补贴（本次优化）</h2>
+            <p class="lead">
+                <strong>1. 用户体验分析：</strong>粉丝用积分兑换「打赏加成卡」后，在直播/内容打赏时可让创作者实收高于用户实付（平台补贴差额）。原「24h 时长制」会导致无限次打赏补贴、平台亏损；改为<strong>按次数消耗</strong>（如 3 次/张）+ 单笔补贴上限，用户打赏前需看清「你付 / 平台补 / 创作者收」拆分。<br>
+                <strong>2. 产品界面设计：</strong>积分商城展示次数权益 → 兑换确认说明 → 券包入账 → 送礼弹窗开关加成 → 成功页回显消耗次数；运营后台 <code>goodsTemplate: tip_boost</code> 独立配置次数、比例、上限、预算。<br>
+                <strong>3. 高保真 UI：</strong>金色加成面板、实时结算拆分、Font Awesome 图标；Pexels/Unsplash 商品封面；Web Header + Sidebar + Main 标准布局。<br>
+                <strong>4. HTML 实现：</strong>共用 <code>css-web/gift-tip-bonus.css</code> + <code>js-web/gift-tip-bonus.js</code>；后台 <code>act_tip_bonus</code> 与 C 端 <code>MallVouchersStore.tip_boost</code> 对齐。API：<code>POST /api/v1/tips</code> · <code>GET /api/v1/wallet/vouchers?type=tip_boost</code>
+            </p>
+            <div class="grid">
+                <div class="tile">
+                    <div class="th">points-mall.html（商城 · 次数制商品） <a href="pages-web/points-mall.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:760px"><iframe src="pages-web/points-mall.html" title="积分商城打赏加成卡" loading="lazy"></iframe></div>
+                    <div class="tf">商品卡「打赏加成卡 · 3 次」· Hero 权益「剩余 2/3 次」· 兑换说明面板。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">points-mall.html?redeem=tip-bonus（兑换确认）</div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/points-mall.html?redeem=tip-bonus" title="兑换打赏加成卡" loading="lazy"></iframe></div>
+                    <div class="tf">点击打赏加成卡「立即兑换」后展示权益说明：次数 / 比例 / 上限 / 有效期。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">gift-modal.html?bonus=active（送礼 · 加成开启）</div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/gift-modal.html?bonus=active" title="送礼加成" loading="lazy"></iframe></div>
+                    <div class="tf">加成开关 · 你付 200 / 补贴 +20 / 创作者收 220 · 剩余次数。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">gift-modal.html?bonus=none（无加成卡引导）</div>
+                    <div class="tb" style="height:680px"><iframe src="pages-web/gift-modal.html?bonus=none" title="无加成卡" loading="lazy"></iframe></div>
+                    <div class="tf">无可用券时展示「去积分商城兑换」引导条。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">modal-tip-bonus-success.html（打赏成功）</div>
+                    <div class="tb" style="height:620px"><iframe src="pages-web/modal-tip-bonus-success.html" title="打赏成功" loading="lazy"></iframe></div>
+                    <div class="tf">送出后回显补贴拆分 · 消耗 1 次 · 剩余次数与有效期。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">live-detail.html?gift=open&amp;bonus=1（直播打赏）</div>
+                    <div class="tb" style="height:760px"><iframe src="pages-web/live-detail.html?gift=open&bonus=1" title="直播打赏加成" loading="lazy"></iframe></div>
+                    <div class="tf">直播礼物弹窗内嵌加成条 · 选礼物实时更新补贴金额。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">activities-points-edit.html?id=act_tip_bonus（后台配置）</div>
+                    <div class="tb" style="height:820px"><iframe src="admin-prototype/activities-points-edit.html?id=act_tip_bonus" title="打赏加成卡后台" loading="lazy"></iframe></div>
+                    <div class="tf">tip_boost 模板：次数 / 持券天数 / 补贴% / 单笔上限 / 最低额 / 预算封顶。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">activities-points-crud.html（活动列表对照）</div>
+                    <div class="tb" style="height:720px"><iframe src="admin-prototype/activities-points-crud.html" title="积分活动列表" loading="lazy"></iframe></div>
+                    <div class="tf">列表含 REDEEM_TIP_BOOST · 与用户端商城商品联动。</div>
                 </div>
             </div>
         </section>
@@ -1112,6 +1361,88 @@ main.content { padding: 28px 24px 48px; }
     <div>FansLoop 原型仅供设计与前端对齐 · 图示汇率与费用为占位</div>
     <div style="margin-top:8px"><a href="index-web.html">返回完整分组目录 index-web.html</a></div>
 </footer>
+
+<script>
+(function () {
+    var SCENES = [
+        { id: 'mall', icon: 'fa-store', label: '商城 Hero', src: 'pages-web/points-mall.html',
+          desc: '动态渲染六项权益 + 打赏加成卡 · 兑换后 Hero 即时刷新。' },
+        { id: 'daily-cap', icon: 'fa-arrow-trend-up', label: '每日上限提升',
+          src: 'pages-web/home.html?pointsDrawer=open&benefitScene=daily-cap',
+          desc: '积分抽屉横幅 · 今日获取上限 50→100 · 进度条同步。' },
+        { id: 'checkin-double', icon: 'fa-calendar-check', label: '签到翻倍',
+          src: 'pages-web/profile.html?pointsTasks=open&benefitScene=checkin-double',
+          desc: '签到任务 ×2 徽章 · 领取时消耗翻倍卡并双倍积分。' },
+        { id: 'invite-boost', icon: 'fa-user-group', label: '邀请加成',
+          src: 'pages-web/profile.html?view=invite&benefitScene=invite-boost',
+          desc: '邀请页返利 +10% 横幅 · 与邀请码区联动。' },
+        { id: 'avatar-neon', icon: 'fa-sparkles', label: '霓虹头像框',
+          src: 'pages-web/profile.html?benefitScene=avatar-neon',
+          desc: '头像外围华丽霓虹边框 · 头像照片不变色 · Header / 主页大头像同步。' },
+        { id: 'comment-highlight', icon: 'fa-highlighter', label: '评论高亮',
+          src: 'pages-web/comment-modal.html?benefitScene=comment-highlight',
+          desc: '当前用户评论昵称/正文专属紫色字色 · 混排在评论区，不置顶。' },
+        { id: 'ppv-trial', icon: 'fa-lock-open', label: '试看券解锁',
+          src: 'pages-web/home.html?ppvUnlock=open&benefitScene=ppv-trial',
+          desc: 'Feed 单篇付费解锁弹层 · 自动展示试看券 · 免费解锁。' }
+    ];
+
+    var nav = document.getElementById('mbStudioNav');
+    var iframe = document.getElementById('mbStudioIframe');
+    var urlEl = document.getElementById('mbStudioUrl');
+    var openNew = document.getElementById('mbStudioOpenNew');
+    var openEdit = document.getElementById('mbStudioOpenEdit');
+    var descEl = document.getElementById('mbStudioDesc');
+    if (!nav || !iframe) return;
+
+    function sceneFromHash() {
+        var h = (location.hash || '').replace('#', '');
+        if (h.indexOf('mall-benefits-') === 0) return h.slice('mall-benefits-'.length);
+        var p = new URLSearchParams(location.search);
+        return p.get('scene') || 'mall';
+    }
+
+    function selectScene(id, pushHash) {
+        var scene = SCENES.find(function (s) { return s.id === id; }) || SCENES[0];
+        nav.querySelectorAll('button').forEach(function (btn) {
+            btn.classList.toggle('active', btn.getAttribute('data-scene') === scene.id);
+        });
+        iframe.src = scene.src;
+        iframe.title = scene.label;
+        if (urlEl) urlEl.textContent = scene.src;
+        if (openNew) openNew.href = scene.src;
+        if (openEdit) openEdit.href = scene.src;
+        if (descEl) descEl.textContent = scene.desc;
+        if (pushHash !== false) {
+            var next = '#mall-benefits-' + scene.id;
+            if (location.hash !== next) history.replaceState(null, '', next);
+        }
+    }
+
+    SCENES.forEach(function (scene) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('data-scene', scene.id);
+        btn.innerHTML = '<i class="fa-solid ' + scene.icon + '"></i>' + scene.label;
+        btn.addEventListener('click', function () { selectScene(scene.id); });
+        nav.appendChild(btn);
+    });
+
+    document.querySelectorAll('[data-mb-scene]').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+            var id = link.getAttribute('data-mb-scene');
+            if (!id) return;
+            selectScene(id);
+        });
+    });
+
+    window.addEventListener('hashchange', function () {
+        selectScene(sceneFromHash(), false);
+    });
+
+    selectScene(sceneFromHash(), false);
+})();
+</script>
 
 </body>
 </html>

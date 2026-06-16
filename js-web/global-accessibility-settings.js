@@ -106,7 +106,8 @@
 
     function bindSettingsDisplayNav() {
         var navGa = document.getElementById('navGaGlobal');
-        if (!navGa) return;
+        if (!navGa || navGa.dataset.gaBound === '1') return;
+        navGa.dataset.gaBound = '1';
 
         function goGa(e) {
             if (e) e.preventDefault();
@@ -148,16 +149,18 @@
         }
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () {
-            init();
-            bindSettingsDisplayNav();
-            scrollToHash();
-        });
-    } else {
+    function boot() {
         init();
         bindSettingsDisplayNav();
         scrollToHash();
     }
-    window.addEventListener('hashchange', scrollToHash);
+
+    document.addEventListener("settings-nav-mounted", bindSettingsDisplayNav);
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", boot);
+    } else {
+        boot();
+    }
+    window.addEventListener("hashchange", scrollToHash);
 })();

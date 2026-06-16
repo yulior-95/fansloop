@@ -28,6 +28,7 @@
     var redeemImg = document.getElementById('redeemImg');
     var redeemCost = document.getElementById('redeemCost');
     var redeemAfter = document.getElementById('redeemAfter');
+    var redeemTipBonusDetail = document.getElementById('redeemTipBonusDetail');
     var toast = document.getElementById('globalToast');
     var toastMsg = document.getElementById('toastMsg');
 
@@ -65,6 +66,15 @@
     var histPage = 1;
     var histFiltered = [];
 
+    function syncBenefitHero() {
+        if (window.MallBenefitsSync) {
+            window.MallBenefitsSync.renderHero('benefitViewCurrent');
+        }
+    }
+
+    document.addEventListener('fl-tip-boost-consumed', syncBenefitHero);
+    document.addEventListener('fl-mall-benefits-changed', syncBenefitHero);
+
     var HISTORY_RECORDS = [
         { id: 'RD-20260502-8841', time: '2026-05-02 19:40', product: '每日上限提升卡（50→100）', cat: 'grow', catLabel: '加速成长', points: 2800, status: 'used', statusLabel: '已使用', note: '当日已生效' },
         { id: 'RD-20260501-7720', time: '2026-05-01 11:06', product: '积分加速卡 24h', cat: 'grow', catLabel: '加速成长', points: 1200, status: 'using', statusLabel: '使用中', note: '至 05-04 14:32' },
@@ -73,7 +83,7 @@
         { id: 'RD-20260422-4488', time: '2026-04-22 16:33', product: '订阅 9 折券', cat: 'pay', catLabel: '付费权益', points: 2200, status: 'using', statusLabel: '使用中', note: '至 05-10 前使用' },
         { id: 'RD-20260420-3377', time: '2026-04-20 08:15', product: '付费内容试看券', cat: 'pay', catLabel: '付费权益', points: 1600, status: 'used', statusLabel: '已使用', note: '已解锁 1 篇' },
         { id: 'RD-20260418-2266', time: '2026-04-18 21:44', product: '会员身份 · 7 天', cat: 'vip', catLabel: '会员装扮', points: 5500, status: 'expired', statusLabel: '已过期', note: '04-25 到期' },
-        { id: 'RD-20260415-1155', time: '2026-04-15 13:20', product: '打赏加成卡 · 24h', cat: 'pay', catLabel: '付费权益', points: 3500, status: 'used', statusLabel: '已使用', note: '已用于 1 笔打赏' },
+        { id: 'RD-20260415-1155', time: '2026-04-15 13:20', product: '打赏加成卡 · 3 次', cat: 'pay', catLabel: '付费权益', points: 3500, status: 'used', statusLabel: '已使用', note: '已消耗 2/3 次 · 剩余 1 次' },
         { id: 'RD-20260412-0044', time: '2026-04-12 10:05', product: '连续签到翻倍卡', cat: 'grow', catLabel: '加速成长', points: 450, status: 'used', statusLabel: '已使用', note: '签到 ×2 已触发' },
         { id: 'RD-20260408-9933', time: '2026-04-08 18:52', product: 'NFT 手续费折扣券', cat: 'asset', catLabel: '资产专区', points: 4400, status: 'expired', statusLabel: '已过期', note: '未在期限内 Mint' },
         { id: 'RD-20260405-8822', time: '2026-04-05 07:30', product: '幸运转盘', cat: 'wheel', catLabel: '幸运转盘', points: 500, status: 'none', statusLabel: '谢谢参与', note: '—' },
@@ -146,13 +156,16 @@
         setTimeout(function () { toast.classList.remove('show'); }, 2600);
     }
 
-    function openRedeem(title, points, imgUrl) {
+    function openRedeem(title, points, imgUrl, isTipBonus) {
         pendingPoints = points;
         pendingRedeemTitle = title || '';
         redeemName.textContent = title;
         redeemImg.style.backgroundImage = 'url(\'' + imgUrl + '\')';
         redeemCost.textContent = fmt(points) + ' 积分';
         redeemAfter.textContent = fmt(balance - points);
+        if (redeemTipBonusDetail) {
+            redeemTipBonusDetail.style.display = isTipBonus ? '' : 'none';
+        }
         overlay.classList.add('show');
         overlay.setAttribute('aria-hidden', 'false');
     }
@@ -172,7 +185,7 @@
                 showToast('积分不足，去完成活跃任务或等待计时奖励吧');
                 return;
             }
-            openRedeem(title, points, img);
+            openRedeem(title, points, img, btn.dataset.tipBonus === '1');
         });
     });
 
@@ -190,7 +203,11 @@
             if (window.MallVouchersStore && pendingRedeemTitle) {
                 var added = window.MallVouchersStore.addFromRedeem(pendingRedeemTitle);
                 if (added) {
-                    showToast('兑换成功 · ' + added.name + ' 已放入券包，订阅时可选用');
+                    var msg = window.MallBenefitsSync
+                        ? window.MallBenefitsSync.redeemToastMessage(added)
+                        : ('兑换成功 · ' + added.name + ' 已下发');
+                    showToast(msg);
+                    syncBenefitHero();
                 } else {
                     showToast('兑换成功 · 权益已下发（原型演示）');
                 }
@@ -578,4 +595,12 @@
     if (new URLSearchParams(location.search).get('history') === 'open') {
         setTimeout(openHistoryModal, 400);
     }
+    if (new URLSearchParams(location.search).get('redeem') === 'tip-bonus') {
+        setTimeout(function () {
+            var btn = document.querySelector('.btn-redeem[data-tip-bonus="1"]');
+            if (btn) btn.click();
+        }, 500);
+    }
+
+    syncBenefitHero();
 })();

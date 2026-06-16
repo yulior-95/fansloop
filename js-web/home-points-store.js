@@ -208,6 +208,9 @@
     function fetchPointsData() {
         var merged = JSON.parse(JSON.stringify(DEFAULT));
         mergeInviteConfig(merged);
+        if (global.MallVouchersStore && global.MallVouchersStore.applyWalletDailyCap) {
+            global.MallVouchersStore.applyWalletDailyCap(merged.wallet);
+        }
         applyWalletPersistence(merged.wallet);
         merged.tasks = applyTaskPersistence(merged.tasks);
         merged.ledger = enrichLedgerWithTier(merged.ledger);
@@ -218,6 +221,16 @@
         return fetchPointsData().then(function (data) {
             var task = data.tasks.find(function (t) { return t.id === taskId; });
             if (!task || task.status !== 'claimable') return null;
+            var bonusMsg = '';
+            if (taskId === 'act_checkin' && global.MallVouchersStore) {
+                var dbl = global.MallVouchersStore.getActiveCheckinDouble();
+                if (dbl) {
+                    var mult = dbl.multiplier || 2;
+                    task.reward = task.reward * mult;
+                    global.MallVouchersStore.consumeCheckinDouble(dbl.id);
+                    bonusMsg = ' · 翻倍卡生效';
+                }
+            }
             task.status = 'claimed';
             data.wallet.available += task.reward;
             data.wallet.todayEarned += task.reward;
@@ -229,7 +242,7 @@
                 todayEarned: data.wallet.todayEarned
             };
             saveTaskState(patch);
-            return { data: data, task: task, toast: task.claimToast || '领取成功' };
+            return { data: data, task: task, toast: (task.claimToast || '领取成功') + bonusMsg };
         });
     }
 

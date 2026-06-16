@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>收益与提现 · 设置 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/settings-layout.css">
+<link rel="stylesheet" href="../css-web/settings-creator.css">
+<script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
+<style>
+.earn-hero {
+    display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; margin-bottom: 16px;
+}
+@media (max-width: 900px) { .earn-hero { grid-template-columns: 1fr; } }
+.earn-balance {
+    padding: 22px 24px; border-radius: var(--r-lg);
+    background: linear-gradient(135deg, rgba(109,40,217,0.35), rgba(190,24,93,0.2));
+    border: 1px solid rgba(168,85,247,0.35);
+    position: relative; overflow: hidden;
+}
+.earn-balance::after {
+    content: ''; position: absolute; right: -40px; top: -40px;
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, rgba(255,255,255,0.12), transparent 70%);
+    border-radius: 50%;
+}
+.earn-balance .lb { font-size: 11px; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.earn-balance .num { font-size: 36px; font-weight: 900; margin: 8px 0 4px; letter-spacing: -1px; }
+.earn-balance .num small { font-size: 16px; opacity: 0.85; margin-left: 6px; }
+.earn-balance .sub { font-size: 12px; color: rgba(255,255,255,0.7); }
+.earn-balance .acts { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; position: relative; z-index: 1; }
+.earn-pending {
+    padding: 22px 24px; border-radius: var(--r-lg);
+    background: var(--bg-card); border: 1px solid var(--border);
+    display: flex; flex-direction: column; justify-content: space-between;
+}
+.earn-pending .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.earn-pending .row:last-child { border-bottom: none; }
+.earn-pending .row .l { font-size: 12.5px; color: var(--t-secondary); }
+.earn-pending .row .v { font-size: 14px; font-weight: 700; }
+.split-bar { display: flex; height: 8px; border-radius: 999px; overflow: hidden; margin: 12px 0 8px; }
+.split-bar span { display: block; height: 100%; }
+</style>
+<link rel="stylesheet" href="../css-web/global-lang-switch.css">
+<script src="../js-web/global-lang-switch.js" defer></script>
+</head>
+<body class="page-settings">
+
+<div class="app-shell">
+
+    <aside class="app-sidebar">
+        <div class="s-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator</span></div>
+        </div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html?tab=unread'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span></div>
+        <div class="s-item" onclick="location.href='points-mall.html'"><span class="ic"><i class="fa-solid fa-store"></i></span><span class="lb">积分商城</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item active" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+        <div class="s-bottom">
+            <div class="s-user">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search h-search-live h-search-unified">
+            <div class="hs-inner">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" placeholder="搜索创作者、内容或话题…" autocomplete="off" />
+            </div>
+            <div class="gs-drop"></div>
+        </div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i></button>
+            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head page-head--detail">
+            <div class="ph-l">
+                <div class="crumb">
+                    <a href="settings.html"><i class="fa-solid fa-gear"></i> 设置</a>
+                    <span><i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
+                    <span class="curr">收益与提现</span>
+                </div>
+                <h1>收益与提现</h1>
+                <p>管理创作者收益、分成比例与提现方式，查看待结算金额。</p>
+            </div>
+            <div class="ph-r">
+                <button class="btn" onclick="location.href='creator-income.html'"><i class="fa-solid fa-chart-line"></i> 收入详情</button>
+                <button class="btn btn-primary" onclick="location.href='withdraw-fiat.html'"><i class="fa-solid fa-arrow-up-from-bracket"></i> 立即提现</button>
+            </div>
+        </div>
+
+        <div class="set-grid">
+                        <aside class="set-nav" data-settings-nav aria-label="设置导航"></aside>
+
+            <div>
+                <div class="earn-hero">
+                    <div class="earn-balance">
+                        <div class="lb">可提现余额</div>
+                        <div class="num">12,480.50 <small>USDT</small></div>
+                        <div class="sub">≈ $12,480.50 · 上次提现 2026-06-02</div>
+                        <div class="acts">
+                            <button class="btn btn-primary" onclick="location.href='withdraw-fiat.html'"><i class="fa-solid fa-arrow-up-from-bracket"></i> 链上提现</button>
+                            <button class="btn" onclick="location.href='transactions.html'"><i class="fa-solid fa-list-ul"></i> 账变记录</button>
+                        </div>
+                    </div>
+                    <div class="earn-pending">
+                        <div style="font-size:13px;font-weight:700;margin-bottom:4px"><i class="fa-solid fa-clock" style="color:#FBBF24"></i> 待结算</div>
+                        <div class="row"><span class="l">订阅收入（T+3）</span><span class="v" style="color:#C084FC">+ 2,140 USDT</span></div>
+                        <div class="row"><span class="l">直播打赏（T+1）</span><span class="v" style="color:#6EE7B7">+ 680 USDT</span></div>
+                        <div class="row"><span class="l">PPV 解锁（T+3）</span><span class="v">+ 320 USDT</span></div>
+                        <div class="row"><span class="l">处理中提现</span><span class="v" style="color:#FBBF24">− 500 USDT</span></div>
+                    </div>
+                </div>
+
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background:linear-gradient(135deg,#A855F7,#7E22CE)"><i class="fa-solid fa-percent"></i></div>
+                        <div><h3>平台分成</h3><p>你的创作者等级决定平台抽成比例，等级越高分成越优</p></div>
+                        <span class="tag tag-purple" style="margin-left:auto;font-size:10px">LV 7 · 认证创作者</span>
+                    </div>
+                    <div class="body">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                            <span style="font-size:13px;font-weight:600">创作者实得 85%</span>
+                            <span style="font-size:12px;color:var(--t-tertiary)">平台 15%</span>
+                        </div>
+                        <div class="split-bar">
+                            <span style="width:85%;background:linear-gradient(90deg,#A855F7,#EC4899)"></span>
+                            <span style="width:15%;background:rgba(255,255,255,0.12)"></span>
+                        </div>
+                        <div class="set-row" style="margin-top:12px">
+                            <div class="row-ic" style="color:#FBBF24"><i class="fa-solid fa-crown"></i></div>
+                            <div class="row-info"><div class="ti">订阅收入</div><div class="sub">粉丝月付订阅 · 你获得 85%</div></div>
+                            <div class="row-action">85% <i class="fa-solid fa-chevron-right arrow" style="font-size:10px;margin-left:6px"></i></div>
+                        </div>
+                        <div class="set-row">
+                            <div class="row-ic" style="color:#F472B6"><i class="fa-solid fa-gift"></i></div>
+                            <div class="row-info"><div class="ti">打赏与礼物</div><div class="sub">直播 / 动态打赏 · 你获得 80%</div></div>
+                            <div class="row-action">80%</div>
+                        </div>
+                        <div class="set-row">
+                            <div class="row-ic" style="color:#60A5FA"><i class="fa-solid fa-tag"></i></div>
+                            <div class="row-info"><div class="ti">单篇付费 PPV</div><div class="sub">非订阅者解锁价 · 你获得 85%</div></div>
+                            <div class="row-action">85%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background:linear-gradient(135deg,#F59E0B,#EF4444)"><i class="fa-solid fa-wallet"></i></div>
+                        <div><h3>提现方式</h3><p>配置默认收款地址与提现偏好</p></div>
+                    </div>
+                    <div class="body">
+                        <div class="set-row" onclick="location.href='withdraw-fiat.html'" role="button" tabindex="0" style="cursor:pointer">
+                            <div class="row-ic"><i class="fa-brands fa-ethereum"></i></div>
+                            <div class="row-info"><div class="ti">链上钱包（默认）</div><div class="sub">0x7Bf2…c3D9 · Polygon · 最低 20 USDT</div></div>
+                            <div class="row-action"><span class="tag tag-success" style="font-size:10px">已验证</span> <i class="fa-solid fa-chevron-right arrow" style="font-size:10px"></i></div>
+                        </div>
+                        <div class="set-row" onclick="location.href='settings-wallet.html'" role="button" tabindex="0" style="cursor:pointer">
+                            <div class="row-ic"><i class="fa-brands fa-cc-visa"></i></div>
+                            <div class="row-info"><div class="ti">法币银行卡</div><div class="sub">Visa **** 4321 · MoonPay 出金 · 需 KYC</div></div>
+                            <div class="row-action"><i class="fa-solid fa-chevron-right arrow" style="font-size:10px"></i></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="label">自动提现阈值<div class="desc">余额达到此金额时自动发起链上提现</div></div>
+                            <div class="control" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                                <input type="number" value="5000" min="100" step="100" style="max-width:120px">
+                                <span style="font-size:13px;color:var(--t-secondary)">USDT</span>
+                                <div class="switch"></div>
+                                <span style="font-size:11.5px;color:var(--t-tertiary)">已关闭</span>
+                            </div>
+                        </div>
+                        <div class="set-row" id="kycEarnRow" role="button" tabindex="0" style="cursor:pointer">
+                            <div class="row-ic" style="color:#6EE7B7"><i class="fa-solid fa-id-card-clip"></i></div>
+                            <div class="row-info"><div class="ti">KYC 身份验证</div><div class="sub" id="kycEarnSub">提现前需完成身份验证</div></div>
+                            <div class="row-action" id="kycEarnAction">未验证 <i class="fa-solid fa-chevron-right arrow" style="font-size:10px"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background:linear-gradient(135deg,#10B981,#06B6D4)"><i class="fa-solid fa-receipt"></i></div>
+                        <div><h3>近期提现记录</h3><p>最近 5 笔提现申请</p></div>
+                        <button class="btn btn-sm" style="margin-left:auto" onclick="location.href='transactions.html'">查看全部</button>
+                    </div>
+                    <div class="body" style="padding:0">
+                        <table class="promo-table">
+                            <thead>
+                                <tr><th>时间</th><th>金额</th><th>方式</th><th>状态</th><th>到账</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2026-06-02 14:32</td>
+                                    <td style="font-weight:700">2,000 USDT</td>
+                                    <td>Polygon 链上</td>
+                                    <td><span class="tag tag-success" style="font-size:10px">已到账</span></td>
+                                    <td style="font-family:ui-monospace,monospace;font-size:11px;color:var(--t-tertiary)">0x9a3…f21</td>
+                                </tr>
+                                <tr>
+                                    <td>2026-05-18 09:15</td>
+                                    <td style="font-weight:700">500 USDT</td>
+                                    <td>Polygon 链上</td>
+                                    <td><span class="tag tag-warning" style="font-size:10px">处理中</span></td>
+                                    <td style="font-size:11px;color:var(--t-tertiary)">预计 2h</td>
+                                </tr>
+                                <tr>
+                                    <td>2026-05-01 21:08</td>
+                                    <td style="font-weight:700">1,500 USDT</td>
+                                    <td>Polygon 链上</td>
+                                    <td><span class="tag tag-success" style="font-size:10px">已到账</span></td>
+                                    <td style="font-family:ui-monospace,monospace;font-size:11px;color:var(--t-tertiary)">0x4c1…8b7</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="save-bar">
+                        <button class="btn">取消</button>
+                        <button class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> 保存提现设置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="../js-web/kyc-store.js"></script>
+<script>
+(function () {
+    var KS = window.FansloopKycStore;
+    var row = document.getElementById('kycEarnRow');
+    var sub = document.getElementById('kycEarnSub');
+    var act = document.getElementById('kycEarnAction');
+    function paint() {
+        if (!KS) return;
+        var st = (KS.readKyc().status || 'none');
+        var map = { none: '提现前需完成身份验证', submitted: '审核处理中，通过后可提现', approved: '已通过，可正常提现', rejected: '审核未通过，请重新认证' };
+        var mapAct = { none: '未验证', submitted: '审核中', approved: '已通过', rejected: '未通过' };
+        if (sub) sub.textContent = map[st] || map.none;
+        if (act) act.innerHTML = (mapAct[st] || mapAct.none) + ' <i class="fa-solid fa-chevron-right arrow" style="font-size:10px"></i>';
+    }
+    function goKyc() {
+        if (!KS) return;
+        location.href = KS.routeForEntry() + '?return=' + encodeURIComponent('settings-creator-earnings.html');
+    }
+    if (row) row.addEventListener('click', goKyc);
+    paint();
+    document.querySelectorAll('.switch').forEach(function (sw) {
+        sw.addEventListener('click', function () { sw.classList.toggle('on'); });
+    });
+})();
+</script>
+<script src="../js-web/auth-session.js"></script>
+<script src="../js-web/settings-nav.js"></script>
+<script src="../js-web/settings-logout.js"></script>
+<script src="../js-web/global-search.js"></script>
+<script src="../js-web/app-sidebar-global.js"></script>
+</body>
+</html>

@@ -232,6 +232,7 @@
         }
         S.fetchPointsData().then(function (data) {
             renderAll(applyWalletFromStorage(data));
+            if (window.MallBenefitsScenes) window.MallBenefitsScenes.applyAll();
         });
 
         var params = new URLSearchParams(location.search);
@@ -240,6 +241,9 @@
         }
         if (params.get('pointsCheckin') === 'claimed') {
             S.saveTaskState({ act_checkin: { status: 'claimed' } });
+        }
+        if (window.MallBenefitsScenes) {
+            setTimeout(function () { window.MallBenefitsScenes.applyAll(); }, 80);
         }
     }
 

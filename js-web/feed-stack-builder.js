@@ -309,8 +309,8 @@
         var liveOngoing = type === 'live' && liveStatus !== 'ended';
         var liveExtra = liveOngoing
             ? '<span class="a-btn' + guestCls + '" onclick="' + (guest ? "location.href='modal-login-main.html'" : 'FL_openDanmakuModal()') + '"><i class="fa-regular fa-comment"></i>实时弹幕</span>' +
-              '<span class="a-btn tip-cta' + guestCls + '" onclick="' + (guest ? "location.href='modal-login-main.html'" : "FL_openInteractionModal('gift-modal.html')") + '"><i class="fa-solid fa-gift"></i>送礼</span>'
-            : '<span class="a-btn tip-cta' + guestCls + '" onclick="' + (guest ? "location.href='modal-login-main.html'" : "FL_openInteractionModal('gift-modal.html')") + '"><i class="fa-solid fa-gift"></i>打赏</span>' +
+              '<span class="a-btn tip-cta' + guestCls + '" onclick="' + (guest ? "location.href='modal-login-main.html'" : 'FL_openGiftModal(this)') + '"><i class="fa-solid fa-gift"></i>送礼</span>'
+            : '<span class="a-btn tip-cta' + guestCls + '" onclick="' + (guest ? "location.href='modal-login-main.html'" : 'FL_openGiftModal(this)') + '"><i class="fa-solid fa-gift"></i>打赏</span>' +
               '<span class="a-btn bookmark-act' + guestCls + '" role="button"><i class="fa-regular fa-bookmark"></i><span>收藏</span></span>';
         var commentClick = guest ? '' : ' onclick="FL_openInteractionModal(\'comment-modal.html\')"';
         var shareClick = guest ? " onclick=\"location.href='modal-login-main.html'\"" : ' onclick="FL_openInteractionModal(\'share-modal.html\')"';
@@ -364,7 +364,9 @@
             '<article class="post-card post-card--immersive" data-post-type="' + type + '"' +
             (type === 'live' ? ' data-live-status="' + liveStatus + '"' : '') +
             (previewVariant ? ' data-preview-variant="' + previewVariant + '"' : '') +
-            ' data-creator="' + esc(c.name) + '" data-detail-href="' + detailHref(type, i) + '">' +
+            ' data-creator="' + esc(c.name) + '" data-creator-av="https://images.unsplash.com/' + c.av + '?w=120"' +
+            ' data-creator-lv="' + c.lv + '" data-creator-tags="' + esc((c.tags || []).join(' · ')) + '"' +
+            ' data-detail-href="' + detailHref(type, i) + '">' +
             buildHead(c, i, { guest: guest, type: type, previewVariant: previewVariant, liveStatus: liveStatus, stackKind: stackKind }) +
             '<div class="post-card-body">' + bodyInner + '</div>' +
             buildActions(i, guest, type, liveStatus) +

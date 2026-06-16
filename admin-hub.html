@@ -3,13 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>运营后台原型 · 串联导航（admin-hub）</title>
+  <title>运营后台原型 · admin-hub</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     :root {
-      --sider: #001529;
-      --sider-text: rgba(255, 255, 255, 0.72);
-      --sider-dim: rgba(255, 255, 255, 0.38);
       --primary: #1677ff;
       --bg: #f0f2f5;
       --line: #f0f0f0;
@@ -17,42 +14,44 @@
       --muted: rgba(0, 0, 0, 0.45);
     }
     * { box-sizing: border-box; }
-    html, body { height: 100%; margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14px; color: var(--text); }
-    .hub-app { display: flex; height: 100vh; min-height: 480px; }
-    .hub-sider {
-      width: 280px;
-      flex-shrink: 0;
-      background: var(--sider);
-      color: var(--sider-text);
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .hub-app {
       display: flex;
       flex-direction: column;
-      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      height: 100vh;
+      min-height: 480px;
+      background: var(--bg);
     }
-    .hub-sider-head { padding: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
-    .hub-sider-head h1 { margin: 0; font-size: 15px; font-weight: 700; color: #fff; line-height: 1.35; }
-    .hub-sider-head p { margin: 8px 0 0; font-size: 12px; color: var(--sider-dim); line-height: 1.45; }
-    .hub-sider-head a { color: #69b1ff; text-decoration: none; font-weight: 600; }
-    .hub-sider-head a:hover { text-decoration: underline; }
-    .hub-nav { flex: 1; overflow: auto; padding: 8px 0 20px; }
-    .hub-group { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--sider-dim); padding: 14px 16px 6px; }
-    .hub-link {
-      display: block; width: 100%; text-align: left; border: none; background: transparent;
-      color: var(--sider-text); font-size: 13px; padding: 9px 16px 9px 20px; cursor: pointer;
-      border-left: 3px solid transparent;
-    }
-    .hub-link:hover { background: rgba(255, 255, 255, 0.06); color: #fff; }
-    .hub-link.active { background: var(--primary); color: #fff; border-left-color: #69b1ff; }
-    .hub-link small { display: block; font-size: 11px; opacity: 0.75; margin-top: 2px; font-family: ui-monospace, Menlo, monospace; }
-    .hub-main { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--bg); }
     .hub-toolbar {
-      flex-shrink: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
-      padding: 10px 14px; background: #fff; border-bottom: 1px solid var(--line);
+      flex-shrink: 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
     }
     .hub-toolbar .title { font-weight: 600; flex: 1; min-width: 160px; }
     .hub-toolbar .title code { font-size: 12px; color: var(--muted); font-weight: 500; }
     .hub-btn {
-      display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px;
-      border-radius: 6px; font-size: 13px; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      border: 1px solid #d9d9d9;
+      background: #fff;
+      color: var(--text);
     }
     .hub-btn:hover { border-color: var(--primary); color: var(--primary); }
     .hub-btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
@@ -60,30 +59,26 @@
     .hub-btn:disabled { opacity: 0.45; cursor: not-allowed; }
     .hub-frame-wrap { flex: 1; min-height: 0; padding: 12px; }
     .hub-frame-wrap iframe {
-      width: 100%; height: 100%; border: none; border-radius: 8px; background: #fff;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06); display: block;
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+      display: block;
     }
   </style>
 </head>
 <body>
 <div class="hub-app">
-  <aside class="hub-sider">
-    <div class="hub-sider-head">
-      <h1><i class="fa-solid fa-link" style="color:#69b1ff"></i> 原型串联导航</h1>
-      <p>右侧 iframe 加载 <code style="color:#bae0ff">admin-prototype/</code> 下页面。<a href="admin-prototype/index-HT.html">平铺总览 index-HT</a> · <a href="docs/Admin-AntDesign-Component-Library.md" target="_blank" rel="noopener">组件映射文档</a></p>
-    </div>
-    <nav class="hub-nav" id="hubNav" aria-label="后台原型页面"></nav>
-  </aside>
-  <div class="hub-main">
-    <div class="hub-toolbar">
-      <div class="title"><span id="hubPageName">首页仪表盘</span> <code id="hubFile">admin-prototype/dashboard.html</code></div>
-      <button type="button" class="hub-btn" id="btnPrev" title="上一页"><i class="fa-solid fa-chevron-left"></i> 上一个</button>
-      <button type="button" class="hub-btn" id="btnNext" title="下一页">下一个 <i class="fa-solid fa-chevron-right"></i></button>
-      <button type="button" class="hub-btn primary" id="btnOpenTab"><i class="fa-solid fa-arrow-up-right-from-square"></i> 新标签打开</button>
-    </div>
-    <div class="hub-frame-wrap">
-      <iframe id="hubFrame" title="当前原型页" src="admin-prototype/dashboard.html"></iframe>
-    </div>
+  <div class="hub-toolbar">
+    <div class="title"><span id="hubPageName">首页仪表盘</span> <code id="hubFile">admin-prototype/dashboard.html</code></div>
+    <button type="button" class="hub-btn" id="btnPrev" title="上一页"><i class="fa-solid fa-chevron-left"></i> 上一个</button>
+    <button type="button" class="hub-btn" id="btnNext" title="下一页">下一个 <i class="fa-solid fa-chevron-right"></i></button>
+    <button type="button" class="hub-btn primary" id="btnOpenTab"><i class="fa-solid fa-arrow-up-right-from-square"></i> 新标签打开</button>
+  </div>
+  <div class="hub-frame-wrap">
+    <iframe id="hubFrame" title="当前原型页" src="admin-prototype/dashboard.html"></iframe>
   </div>
 </div>
 <script src="admin-prototype/js/admin-nav.js"></script>
@@ -91,7 +86,6 @@
 (function () {
   var PAGES_PREFIX = "admin-prototype/";
   var PAGES = window.AdminNavConfig ? AdminNavConfig.flattenForHub() : [];
-  var nav = document.getElementById("hubNav");
   var frame = document.getElementById("hubFrame");
   var nameEl = document.getElementById("hubPageName");
   var fileEl = document.getElementById("hubFile");
@@ -99,9 +93,12 @@
   var btnNext = document.getElementById("btnNext");
   var btnOpenTab = document.getElementById("btnOpenTab");
   var idx = 0;
+
   function current() { return PAGES[idx]; }
   function srcFor(p) { return PAGES_PREFIX + p.file; }
+
   function setIndex(i) {
+    if (!PAGES.length) return;
     if (i < 0) i = 0;
     if (i >= PAGES.length) i = PAGES.length - 1;
     idx = i;
@@ -109,37 +106,16 @@
     frame.src = srcFor(p);
     nameEl.textContent = p.title;
     fileEl.textContent = srcFor(p);
-    Array.prototype.forEach.call(nav.querySelectorAll(".hub-link"), function (el) {
-      el.classList.toggle("active", el.getAttribute("data-file") === p.file);
-    });
     btnPrev.disabled = idx <= 0;
     btnNext.disabled = idx >= PAGES.length - 1;
   }
-  var lastGroup = "";
-  PAGES.forEach(function (p, i) {
-    if (p.group !== lastGroup) {
-      lastGroup = p.group;
-      var g = document.createElement("div");
-      g.className = "hub-group";
-      g.textContent = p.group;
-      nav.appendChild(g);
-    }
-    var b = document.createElement("button");
-    b.type = "button";
-    b.className = "hub-link" + (i === 0 ? " active" : "");
-    b.setAttribute("data-file", p.file);
-    b.setAttribute("data-index", String(i));
-    b.innerHTML = p.title + "<small>" + p.file + "</small>";
-    b.addEventListener("click", function () {
-      setIndex(parseInt(b.getAttribute("data-index"), 10));
-    });
-    nav.appendChild(b);
-  });
+
   btnPrev.addEventListener("click", function () { setIndex(idx - 1); });
   btnNext.addEventListener("click", function () { setIndex(idx + 1); });
   btnOpenTab.addEventListener("click", function () {
     window.open(srcFor(current()), "_blank", "noopener,noreferrer");
   });
+
   setIndex(0);
 })();
 </script>

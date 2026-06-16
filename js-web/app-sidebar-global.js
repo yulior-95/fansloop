@@ -4,6 +4,46 @@
  */
 (function (global) {
     var STORAGE_KEY = 'fl_sidebar_collapsed';
+    var NAV_CONTEXT_KEY = 'fl_sidebar_nav_context';
+
+    function isValidNavId(id) {
+        if (!id) return false;
+        for (var gi = 0; gi < SIDEBAR_NAV.length; gi++) {
+            var items = SIDEBAR_NAV[gi].items;
+            for (var ii = 0; ii < items.length; ii++) {
+                if (items[ii].id === id) return true;
+            }
+        }
+        return false;
+    }
+
+    function readNavContext() {
+        var p = new URLSearchParams(location.search);
+        var fromUrl = p.get('nav');
+        if (fromUrl && isValidNavId(fromUrl)) return fromUrl;
+        try {
+            var stored = sessionStorage.getItem(NAV_CONTEXT_KEY) || '';
+            return isValidNavId(stored) ? stored : '';
+        } catch (e) {
+            return '';
+        }
+    }
+
+    function persistNavContext(activeId) {
+        if (!isValidNavId(activeId)) return;
+        try {
+            sessionStorage.setItem(NAV_CONTEXT_KEY, activeId);
+        } catch (e) {}
+    }
+
+    /** 跳转他人主页时附带当前模块，侧栏保持来源高亮 */
+    function navContextProfileUrl(base, navId) {
+        var url = base || 'creator-profile.html';
+        var id = navId || readNavContext() || detectActiveNavId(currentPageName());
+        if (!isValidNavId(id)) return url;
+        var sep = url.indexOf('?') >= 0 ? '&' : '?';
+        return url + sep + 'nav=' + encodeURIComponent(id);
+    }
 
     /** 全站统一侧栏菜单（不含 badge/chip 等页面差异） */
     var SIDEBAR_NAV = [
@@ -61,6 +101,9 @@
     }
 
     function detectActiveNavId(page) {
+        if (page === 'creator-profile.html') {
+            return readNavContext();
+        }
         if (page === 'home.html' || page === 'guest-home.html' || page === 'yanshi-web.html') return 'home';
         if (page === 'subscriptions.html') return 'subscriptions';
         if (
@@ -78,7 +121,7 @@
             page.indexOf('withdraw') === 0 || page.indexOf('funds-') === 0 ||
             page.indexOf('kyc-') === 0
         ) return 'wallet';
-        if (page.indexOf('profile') === 0 || page === 'creator-profile.html') return 'profile';
+        if (page === 'profile.html' || page === 'profile-invite-center.html') return 'profile';
         if (page.indexOf('settings') === 0) return 'settings';
         return '';
     }
@@ -104,13 +147,24 @@
         var bottom = sidebar.querySelector('.s-bottom');
         var brandHtml = brand ? brand.outerHTML : '';
         var bottomHtml = bottom ? bottom.outerHTML : DEFAULT_BOTTOM;
-        var activeId = detectActiveNavId(currentPageName());
+        var page = currentPageName();
+        var activeId = detectActiveNavId(page);
+        if (page !== 'creator-profile.html' && activeId) {
+            persistNavContext(activeId);
+        }
         sidebar.innerHTML = brandHtml + buildSidebarNavHtml(activeId) + bottomHtml;
         sidebar.setAttribute('data-fl-nav-unified', '1');
+        setTimeout(function () {
+            if (global.MallBenefitsScenes && global.MallBenefitsScenes.applyAvatarFrameScene) {
+                global.MallBenefitsScenes.applyAvatarFrameScene();
+            }
+        }, 0);
     }
 
     global.FL_renderSidebarNav = renderUnifiedSidebarNav;
     global.FL_sidebarNavConfig = SIDEBAR_NAV;
+    global.FL_navContextProfileUrl = navContextProfileUrl;
+    global.FL_persistNavContext = persistNavContext;
 
     function isCollapsed() {
         try { return localStorage.getItem(STORAGE_KEY) === '1'; } catch (e) { return false; }
@@ -291,6 +345,51 @@
         document.addEventListener('DOMContentLoaded', loadDevGlassViewport);
     } else {
         loadDevGlassViewport();
+    }
+
+    /** 积分商城权益 · 全站头像框（依赖 app-shell 页面） */
+    function loadMallBenefitsScenes() {
+        if (!document.querySelector('.app-shell')) return;
+        if (document.querySelector('script[data-fl-mall-benefits], script[src*="mall-benefits-scenes"]')) return;
+        var base = getJsWebBase();
+        if (!base) return;
+        function loadScenes() {
+            var js = document.createElement('script');
+            js.src = base + '/js-web/mall-benefits-scenes.js';
+            js.onload = function () {
+                setTimeout(function () {
+                    if (global.MallBenefitsScenes && global.MallBenefitsScenes.applyAvatarFrameScene) {
+                        global.MallBenefitsScenes.applyAvatarFrameScene();
+                    }
+                }, 50);
+            };
+            js.setAttribute('data-fl-mall-benefits', '1');
+            document.body.appendChild(js);
+        }
+        if (global.MallVouchersStore) {
+            loadScenes();
+            return;
+        }
+        if (document.querySelector('script[src*="mall-vouchers-store"]')) {
+            var wait = setInterval(function () {
+                if (global.MallVouchersStore) {
+                    clearInterval(wait);
+                    loadScenes();
+                }
+            }, 50);
+            setTimeout(function () { clearInterval(wait); }, 5000);
+            return;
+        }
+        var storeJs = document.createElement('script');
+        storeJs.src = base + '/js-web/mall-vouchers-store.js';
+        storeJs.onload = loadScenes;
+        document.body.appendChild(storeJs);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadMallBenefitsScenes);
+    } else {
+        loadMallBenefitsScenes();
     }
 
     /** 全局直播悬浮窗（站内页面切换保持） */

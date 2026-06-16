@@ -102,7 +102,9 @@
         '<td><div class="ap-name-cell">' +
         '<div class="ap-thumb" style="background-image:url(\'' + esc(a.image) + '\')"></div>' +
         '<div><div><strong>' + esc(a.name) + '</strong>' + devTag + '</div>' +
-        '<div class="meta"><code>' + esc(a.code) + '</code> · ' + (a.channel === 'mall' ? '商城' : '任务') + '</div></div></div></td>' +
+        '<div class="meta"><code>' + esc(a.code) + '</code> · ' + (a.channel === 'mall' ? '商城' : '任务') +
+        (a.mallThumbTag ? ' · <span class="ant-tag" style="font-size:10px;margin:0">' + esc(a.mallThumbTag) + '</span>' : '') +
+        '</div></div></div></td>' +
         '<td>' + esc(S.typeLabel(a.typeId)) + '</td>' +
         '<td>' + esc(S.catLabels(a.mallCats)) + '</td>' +
         '<td>' + esc(a.rewardDesc || '') + '</td>' +

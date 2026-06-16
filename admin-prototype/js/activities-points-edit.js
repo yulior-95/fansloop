@@ -41,6 +41,37 @@
     { v: 'premium', l: '高级档' }
   ];
 
+  var STYLE_ID_OPTS = [
+    { v: 'purple', l: '紫色字色（purple）' },
+    { v: 'neon', l: '霓虹字色（neon）' }
+  ];
+
+  var FRAME_ID_OPTS = [
+    { v: 'neon', l: '霓虹外框（neon）' }
+  ];
+
+  var BENEFIT_USAGE_OPTS = [
+    { v: 'count_with_expiry', l: '次数制（须配有效天，过期作废剩余次数）' },
+    { v: 'duration_unlimited', l: '时长制（有效期内不限次数）' }
+  ];
+
+  var MEMBER_AUDIENCE_OPTS = [
+    { v: 'non_member_or_expiring', l: '非会员或剩余 ≤7 天可兑' },
+    { v: 'non_member_only', l: '仅非会员可兑（会员置灰）' },
+    { v: 'everyone', l: '不限（会员也可立即兑换）' }
+  ];
+
+  var MEMBER_STACK_OPTS = [
+    { v: 'queue_after_current', l: '排队叠加（当前会员结束后生效）' },
+    { v: 'reject_if_active', l: '会员期内不可兑（已是会员则禁用）' }
+  ];
+
+  var FEE_SCOPE_OPTS = [
+    { v: 'mint', l: '仅铸造 Mint' },
+    { v: 'trade', l: '仅二级市场交易' },
+    { v: 'both', l: '铸造 + 交易' }
+  ];
+
   var TYPE_RULES_INTRO = {
     earn_task: '配置<strong>完成条件</strong>（如观看时长）。单次奖励积分与可完成次数在下方「奖励与频控」。',
     earn_invite: '配置<strong>双方奖励分值</strong>及是否走风控。邀请次数与发放上限在下方「奖励与频控」。',
@@ -165,12 +196,14 @@
         form.typeId.disabled = true;
         if (form.elements.purpose) form.elements.purpose.disabled = true;
         if (form.elements.usageGuide) form.elements.usageGuide.disabled = true;
+        if (form.elements.devLogicNote) form.elements.devLogicNote.disabled = true;
       }
     } else if (banner) {
       banner.hidden = true;
     }
 
     updateActivityBriefHints(devBacked);
+    updateDevLogicPanel();
     updateFreqMaxState();
   }
 
@@ -198,10 +231,76 @@
     }).join('');
   }
 
+  function fillMallThumbTagDatalist() {
+    var dl = document.getElementById('mallThumbTagList');
+    if (!dl || !S.MALL_THUMB_TAGS) return;
+    dl.innerHTML = S.MALL_THUMB_TAGS.map(function (t) {
+      return '<option value="' + t + '">';
+    }).join('');
+  }
+
+  function escHtml(s) {
+    return String(s || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function resolveDevLogicNote() {
+    var el = document.getElementById('fldDevLogicNote');
+    if (el && el.value.trim()) return el.value.trim();
+    if (act && act.devLogicNote) return act.devLogicNote;
+    if (act && act.goodsTemplate === 'membership_pass' && S.MEMBERSHIP_DEV_LOGIC) {
+      return S.MEMBERSHIP_DEV_LOGIC;
+    }
+    return '';
+  }
+
+  function devLogicGlassPreview(note) {
+    return '<div class="ap-field ap-field-full ap-dev-glass-field">' +
+      '<div class="ap-dev-glass ap-dev-glass-prominent">' +
+      '<div class="ap-dev-glass-head">' +
+      '<i class="fa-solid fa-wand-magic-sparkles"></i> To 研发 · 业务逻辑说明' +
+      '<span class="ap-dev-glass-badge">运营只读</span></div>' +
+      '<div class="ap-dev-glass-content">' + escHtml(note).replace(/\n/g, '<br>') + '</div>' +
+      '<div class="ap-dev-glass-foot">说明 C 端按钮态、叠加与有效期冲突等业务规则，非字段参数释义。' +
+      (canDev && !readOnly ? ' 研发可在下方「活动说明」中修改本文。' : '') +
+      '</div></div></div>';
+  }
+
+  function syncDevLogicNoteField() {
+    var el = document.getElementById('fldDevLogicNote');
+    if (!el) return;
+    var note = resolveDevLogicNote();
+    if (note && !el.value.trim()) el.value = note;
+  }
+
+  function updateDevLogicPanel() {
+    var wrap = document.getElementById('devLogicGlassWrap');
+    var el = document.getElementById('fldDevLogicNote');
+    if (!wrap || !el) return;
+    var isMembership = act && act.goodsTemplate === 'membership_pass';
+    syncDevLogicNoteField();
+    if (isMembership) {
+      wrap.hidden = !canDev || readOnly;
+      el.disabled = readOnly || !canDev;
+      return;
+    }
+    var show = !!(act && act.devBacked && (act.devLogicNote || el.value.trim()));
+    wrap.hidden = !show;
+    if (!show) return;
+    el.disabled = readOnly || !canDev;
+  }
+
   function formatFreqDesc(period, max) {
     if (period === 'none' || !max) return '不限次数';
     if (period === 'daily') return '每日 ' + max + ' 次';
     if (period === 'weekly') return '每周 ' + max + ' 次';
+    if (period === 'monthly') return '每月 ' + max + ' 次';
+    if (period === 'quarterly') return '限购 ' + max + ' / 季';
+    if (period === 'yearly') return '限购 ' + max + ' / 年';
+    if (period === 'per_round') return '限购 ' + max + ' / 期';
     if (period === 'lifetime') return '终身 ' + max + ' 次';
     return '';
   }
@@ -444,6 +543,10 @@
       'stock', 'validDays', 'effectDurationHours', 'effectMultiplier', 'trialMinutes',
       'discountPercent', 'couponValidDays', 'applicablePlan',
       'freeGrantCount', 'grantValidDays', 'grantPlanTier',
+      'tipGrantUses', 'subsidyPercent', 'maxSubsidyPerTip', 'minTipAmount', 'maxTipAmount', 'subsidyBudgetCap',
+      'grantUses', 'ppvViewHours', 'capFrom', 'capTo', 'multiplier', 'bonusPercent', 'styleId', 'frameId',
+      'benefitUsageMode', 'membershipDays', 'memberAudience', 'memberStackPolicy',
+      'qualificationWindow', 'drawRoundId', 'maxDiscountPerTx', 'feeScope', 'requiresChainActivity',
       'spinCost', 'dailySpins', 'extraJson'
     ];
     names.forEach(function (n) {
@@ -482,6 +585,29 @@
       freeGrantCount: act.freeGrantCount,
       grantValidDays: act.grantValidDays,
       grantPlanTier: act.grantPlanTier,
+      tipGrantUses: act.tipGrantUses,
+      subsidyPercent: act.subsidyPercent,
+      maxSubsidyPerTip: act.maxSubsidyPerTip,
+      minTipAmount: act.minTipAmount,
+      maxTipAmount: act.maxTipAmount,
+      subsidyBudgetCap: act.subsidyBudgetCap,
+      grantUses: act.grantUses,
+      ppvViewHours: act.ppvViewHours,
+      capFrom: act.capFrom,
+      capTo: act.capTo,
+      multiplier: act.multiplier,
+      bonusPercent: act.bonusPercent,
+      styleId: act.styleId,
+      frameId: act.frameId,
+      benefitUsageMode: act.benefitUsageMode,
+      membershipDays: act.membershipDays,
+      memberAudience: act.memberAudience,
+      memberStackPolicy: act.memberStackPolicy,
+      qualificationWindow: act.qualificationWindow,
+      drawRoundId: act.drawRoundId,
+      maxDiscountPerTx: act.maxDiscountPerTx,
+      feeScope: act.feeScope,
+      requiresChainActivity: act.requiresChainActivity,
       spinCost: act.spinCost,
       dailySpins: act.dailySpins,
       extraJson: act.extraJson
@@ -510,10 +636,22 @@
 
   function goodsTemplateIntro(tpl) {
     var map = {
-      points_boost: '生效时长与倍率由运营配置；C 端按编码读取 effectDurationHours、effectMultiplier。',
-      trial_view: '试看时长与券有效期分开：前者为单次权益，后者为兑换后须使用的时间窗。',
-      sub_discount: '「减免比例」作用于订阅应付价；「持券有效天」为兑换后须去订阅页用券的期限（与商城兑换频控无关）。',
-      sub_free_count: '「免费次数」= 兑换到账的可开通/续订次数；「兑换后有效天」= 须在此期限内消耗次数（非单次订阅时长）。'
+      points_boost: '时长制：生效小时内完成任务积分按倍率结算；不限完成次数。',
+      ppv_trial: '次数制：每张券解锁 1 篇试看；「持券有效天」到期后未用次数作废。「解锁后观看小时」为单次权益时长。',
+      ppv_discount: '次数制：每张券 1 次 5 折下单；须配持券有效天，与试看券不可叠加。',
+      sub_discount: '次数制：每张券 1 次订阅可用；「持券有效天」为兑换后须去订阅页用券的期限（与商城兑换频控无关）。',
+      sub_free_count: '次数制：「免费次数」= 可开通/续订次数；「兑换后有效天」= 须在此期限内消耗（过期作废）。',
+      tip_boost: '次数制：每次打赏消耗 1 次；「持券有效天」到期后剩余次数作废。补贴比例与单笔上限分开配置。',
+      daily_cap_boost: '时长制：兑换当日（或配置天数内）提升积分上限，不限任务完成次数；次日 0 点恢复默认。',
+      checkin_double: '次数制：下一次签到消耗 1 次并按倍率结算；须在有效天内使用，过期作废。',
+      invite_boost: '时长制：有效天内邀请返利按加成比例上浮，不限邀请次数。',
+      comment_highlight: '时长制：有效天内评论均展示专属字色，不限评论条数。',
+      avatar_frame: '时长制：有效天内全站展示头像外框，不限展示场景。',
+      membership_pass: '次数制：兑换获得 1 次会员开通资格；须在持券有效天内激活。持券期 ≠ 会员期。会员叠加规则见「To 研发」说明。',
+      sfl_qualification: '次数制：1 次抽签资格；须在资格有效天 / 窗口期内使用，过期作废。非 Token 直发。',
+      airdrop_ticket: '次数制：每张券 1 次抽奖；须在当期开奖前使用（grantValidDays 对齐活动期）。',
+      nft_fee_discount: '次数制：每张券 1 次 Mint/交易手续费折扣；须在持券期内使用，过期作废。',
+      staking_boost: '时长制：有效天内质押收益按加成比例上浮，不限质押笔数；须链上活动期开启。'
     };
     return map[tpl] || '';
   }
@@ -574,6 +712,14 @@
           fieldHint('effectDurationHours', '加速时长（小时）', 'number', '24', '生效期内完成任务积分按倍率结算') +
           fieldHint('effectMultiplier', '积分倍率', 'number', '1.2', '如 1.2 = 120%') +
           field('stock', '库存（-1 不限）', 'number', '-1');
+      } else if (isDevBackedContext(typeId) && tpl === 'ppv_trial') {
+        if (!canDev) html += devBindingBox();
+        html += opsSectionTitle('运营可配 · 试看券（按次数）') +
+          selectField('benefitUsageMode', '权益消耗模式', BENEFIT_USAGE_OPTS, 'count_with_expiry') +
+          fieldHint('grantUses', '兑换获得试看次数', 'number', '1', '每 1 次 = 免费解锁 1 篇付费内容') +
+          fieldHint('grantValidDays', '兑换后有效天数', 'number', '7', '须在此期限内消耗次数，过期作废') +
+          fieldHint('ppvViewHours', '解锁后观看时长（小时）', 'number', '24', '单次解锁后可反复观看的时长') +
+          field('stock', '库存（-1 不限）', 'number', '-1');
       } else if (isDevBackedContext(typeId) && tpl === 'trial_view') {
         if (!canDev) html += devBindingBox();
         html += opsSectionTitle('运营可配 · 权益参数') +
@@ -583,17 +729,122 @@
       } else if (isDevBackedContext(typeId) && tpl === 'sub_discount') {
         if (!canDev) html += devBindingBox();
         html += opsSectionTitle('运营可配 · 折扣权益') +
-          fieldHint('discountPercent', '订阅价减免（%）', 'number', '15', '如 15 = 减 15%（85 折）；作用于订阅应付金额') +
-          fieldHint('couponValidDays', '持券有效天数', 'number', '30', '兑换后须在此期限内于订阅页用券') +
+          selectField('benefitUsageMode', '权益消耗模式', BENEFIT_USAGE_OPTS, 'count_with_expiry') +
+          fieldHint('discountPercent', '订阅价减免（%）', 'number', '15', '如 10 = 9 折（减 10%）；作用于订阅应付金额') +
+          fieldHint('couponValidDays', '持券有效天数', 'number', '30', '兑换后须在此期限内于订阅页用券，过期作废') +
           selectField('applicablePlan', '适用套餐', APPLICABLE_PLAN_OPTS, 'monthly') +
           field('stock', '库存（-1 不限）', 'number', '500');
       } else if (isDevBackedContext(typeId) && tpl === 'sub_free_count') {
         if (!canDev) html += devBindingBox();
         html += opsSectionTitle('运营可配 · 免费次数') +
+          selectField('benefitUsageMode', '权益消耗模式', BENEFIT_USAGE_OPTS, 'count_with_expiry') +
           fieldHint('freeGrantCount', '兑换获得免费次数', 'number', '1', '每 1 次 = 可开通/续订 1 次（档位见下方）') +
-          fieldHint('grantValidDays', '兑换后有效天数', 'number', '14', '须在此期限内消耗免费次数') +
+          fieldHint('grantValidDays', '兑换后有效天数', 'number', '14', '须在此期限内消耗免费次数，过期作废') +
           selectField('grantPlanTier', '适用订阅档位', GRANT_PLAN_TIER_OPTS, 'standard') +
           field('stock', '库存（-1 不限）', 'number', '200');
+      } else if (isDevBackedContext(typeId) && tpl === 'tip_boost') {
+        if (!canDev) html += devBindingBox();
+        html += opsSectionTitle('运营可配 · 打赏加成（按次数）') +
+          selectField('benefitUsageMode', '权益消耗模式', BENEFIT_USAGE_OPTS, 'count_with_expiry') +
+          fieldHint('tipGrantUses', '兑换获得打赏次数', 'number', '3', '每 1 次 = 可在 1 笔打赏中使用平台补贴（非时长制）') +
+          fieldHint('grantValidDays', '兑换后有效天数', 'number', '14', '须在此期限内消耗全部次数，过期作废') +
+          fieldHint('subsidyPercent', '平台补贴比例（%）', 'number', '10', '如 10 = 用户付 100，创作者实收 110') +
+          fieldHint('maxSubsidyPerTip', '单笔补贴上限（USDT）', 'number', '50', '防止大额打赏导致平台亏损') +
+          fieldHint('minTipAmount', '最低生效打赏额（USDT）', 'number', '10', '低于此金额不触发补贴') +
+          fieldHint('maxTipAmount', '单笔最高补贴基数（USDT）', 'number', '500', '超过部分不计入补贴计算') +
+          fieldHint('subsidyBudgetCap', '活动补贴总预算（USDT）', 'number', '100000', '平台补贴累计达上限后停发，-1 不限') +
+          field('stock', '库存（-1 不限）', 'number', '410');
+      } else if (isDevBackedContext(typeId) && tpl === 'ppv_discount') {
+        if (!canDev) html += devBindingBox();
+        html += opsSectionTitle('运营可配 · 单篇折扣（按次数）') +
+          selectField('benefitUsageMode', '权益消耗模式', BENEFIT_USAGE_OPTS, 'count_with_expiry') +
+          fieldHint('discountPercent', '折扣力度（% off）', 'number', '50', '如 50 = 5 折（减 50%）') +
+          fieldHint('grantUses', '兑换获得使用次数', 'number', '1', '每 1 次 = 1 篇付费内容下单可用') +
+          fieldHint('grantValidDays', '兑换后有效天数', 'number', '14', '须在此期限内消耗次数，过期作废') +
+          field('stock', '库存（-1 不限）', 'number', '-1');
+      } else if (isDevBackedContext(typeId) && tpl === 'daily_cap_boost') {
+        if (!canDev) html += devBindingBox();
+        html += opsSectionTitle('运营可配 · 每日上限（时长制）') +
+          selectField('benefitUsageMode', '权益消耗模式', BENEFIT_USAGE_OPTS, 'duration_unlimited') +
+          fieldHint('capFrom', '默认日上限（积分）', 'number', '50', '未兑换时的基准上限') +
+          fieldHint('capTo', '提升后日上限（积分）', 'number', '100', '兑换生效当日的上限') +
+          fieldHint('grantValidDays', '生效天数', 'number', '1', '通常为 1（仅当日）；多日则连续生效') +
+          field('stock', '库存（-1 不限）', 'number', '-1');
+      } else if (isDevBackedContext(typeId) && tpl === 'checkin_double') {
+        if (!canDev) html += devBindingBox();
+        html += opsSectionTitle('运营可配 · 签到翻倍（按次数）') +
+          selectField('benefitUsageMode', '权益消耗模式', BENEFIT_USAGE_OPTS, 'count_with_expiry') +
+          fieldHint('grantUses', '翻倍可用次数', 'number', '1', '每 1 次 = 下一次签到奖励翻倍') +
+          fieldHint('grantValidDays', '兑换后有效天数', 'number', '7', '须在此期限内消耗次数，过期作废') +
+          fieldHint('multiplier', '签到奖励倍率', 'number', '2', '如 2 = 奖励 ×2') +
+          field('stock', '库存（-1 不限）', 'number', '-1');
+      } else if (isDevBackedContext(typeId) && tpl === 'invite_boost') {
+        if (!canDev) html += devBindingBox();
+        html += opsSectionTitle('运营可配 · 邀请加成（时长制）') +
+          selectField('benefitUsageMode', '权益消耗模式', BENEFIT_USAGE_OPTS, 'duration_unlimited') +
+          fieldHint('grantValidDays', '生效天数', 'number', '7', '有效期内不限邀请次数') +
+          fieldHint('bonusPercent', '返利加成比例（%）', 'number', '10', '如 10 = 邀请返利 +10%') +
+          field('stock', '库存（-1 不限）', 'number', '-1');
+      } else if (isDevBackedContext(typeId) && tpl === 'comment_highlight') {
+        if (!canDev) html += devBindingBox();
+        html += opsSectionTitle('运营可配 · 评论高亮（时长制）') +
+          selectField('benefitUsageMode', '权益消耗模式', BENEFIT_USAGE_OPTS, 'duration_unlimited') +
+          fieldHint('grantValidDays', '生效天数', 'number', '7', '有效期内评论均高亮，不限条数') +
+          selectField('styleId', '字色样式', STYLE_ID_OPTS, 'purple') +
+          field('stock', '库存（-1 不限）', 'number', '-1');
+      } else if (isDevBackedContext(typeId) && tpl === 'avatar_frame') {
+        if (!canDev) html += devBindingBox();
+        html += opsSectionTitle('运营可配 · 头像框（时长制）') +
+          selectField('benefitUsageMode', '权益消耗模式', BENEFIT_USAGE_OPTS, 'duration_unlimited') +
+          fieldHint('grantValidDays', '生效天数', 'number', '30', '有效期内全站展示外框') +
+          selectField('frameId', '外框样式', FRAME_ID_OPTS, 'neon') +
+          field('stock', '库存（-1 不限）', 'number', '-1');
+      } else if (isDevBackedContext(typeId) && tpl === 'membership_pass') {
+        if (!canDev) html += devBindingBox();
+        syncDevLogicNoteField();
+        html += devLogicGlassPreview(resolveDevLogicNote());
+        html += opsSectionTitle('运营可配 · 会员身份（按次数激活）') +
+          selectField('benefitUsageMode', '权益消耗模式', BENEFIT_USAGE_OPTS, 'count_with_expiry') +
+          fieldHint('membershipDays', '会员时长（天）', 'number', '7', '激活后实际开通的会员天数') +
+          fieldHint('grantUses', '兑换获得开通次数', 'number', '1', '每 1 次 = 可激活 1 段会员时长') +
+          fieldHint('grantValidDays', '持券有效天（须激活）', 'number', '30', '兑换后须在此期限内激活，过期未激活作废') +
+          selectField('memberAudience', '兑换资格', MEMBER_AUDIENCE_OPTS, 'non_member_or_expiring') +
+          selectField('memberStackPolicy', '会员叠加策略', MEMBER_STACK_OPTS, 'queue_after_current') +
+          field('stock', '库存（-1 不限）', 'number', '320');
+      } else if (isDevBackedContext(typeId) && tpl === 'sfl_qualification') {
+        if (!canDev) html += devBindingBox();
+        html += opsSectionTitle('运营可配 · SFL 资格（按次数）') +
+          selectField('benefitUsageMode', '权益消耗模式', BENEFIT_USAGE_OPTS, 'count_with_expiry') +
+          fieldHint('grantUses', '抽签资格次数', 'number', '1', '每 1 次 = 1 次公募/兑换窗口抽签') +
+          fieldHint('grantValidDays', '资格有效天', 'number', '90', '须在此期限内参与抽签，过期作废') +
+          fieldHint('qualificationWindow', '窗口编码', 'text', 'SFL_PHASE_2', '研发绑定的公募/兑换窗口 ID') +
+          field('stock', '库存（-1 不限）', 'number', '42');
+      } else if (isDevBackedContext(typeId) && tpl === 'airdrop_ticket') {
+        if (!canDev) html += devBindingBox();
+        html += opsSectionTitle('运营可配 · 空投抽奖券（按次数）') +
+          selectField('benefitUsageMode', '权益消耗模式', BENEFIT_USAGE_OPTS, 'count_with_expiry') +
+          fieldHint('grantUses', '每张券抽奖次数', 'number', '1', '每 1 次 = 1 次空投抽奖机会') +
+          fieldHint('grantValidDays', '当期内有效天', 'number', '14', '须在当期开奖前使用，过期作废') +
+          fieldHint('drawRoundId', '当期编码', 'text', 'AIRDROP_2026_Q2', '研发绑定的空投期次 ID') +
+          field('stock', '库存（-1 不限）', 'number', '1800');
+      } else if (isDevBackedContext(typeId) && tpl === 'nft_fee_discount') {
+        if (!canDev) html += devBindingBox();
+        html += opsSectionTitle('运营可配 · NFT 手续费折扣（按次数）') +
+          selectField('benefitUsageMode', '权益消耗模式', BENEFIT_USAGE_OPTS, 'count_with_expiry') +
+          fieldHint('discountPercent', '手续费减免（%）', 'number', '15', '如 15 = 85 折') +
+          fieldHint('grantUses', '可用次数', 'number', '1', '每 1 次 = 1 笔 Mint 或交易') +
+          fieldHint('grantValidDays', '持券有效天', 'number', '30', '须在此期限内使用，过期作废') +
+          fieldHint('maxDiscountPerTx', '单笔补贴上限（USDT）', 'number', '50', '防止大额交易补贴过高') +
+          selectField('feeScope', '适用场景', FEE_SCOPE_OPTS, 'both') +
+          field('stock', '库存（-1 不限）', 'number', '210');
+      } else if (isDevBackedContext(typeId) && tpl === 'staking_boost') {
+        if (!canDev) html += devBindingBox();
+        html += opsSectionTitle('运营可配 · 质押加成（时长制）') +
+          selectField('benefitUsageMode', '权益消耗模式', BENEFIT_USAGE_OPTS, 'duration_unlimited') +
+          fieldHint('grantValidDays', '生效天数', 'number', '30', '有效期内质押收益加成，不限笔数') +
+          fieldHint('bonusPercent', '收益加成比例（%）', 'number', '5', '如 5 = 质押收益 +5%') +
+          field('requiresChainActivity', '须链上活动期', 'checkbox', true) +
+          field('stock', '库存（-1 不限）', 'number', '75');
       } else {
         html = field('stock', '库存（-1 不限）', 'number', '-1') +
           field('validDays', '兑换后有效天数', 'number', '1');
@@ -636,6 +887,10 @@
     var m = desc.match(/(\d+)/);
     var max = m ? parseInt(m[1], 10) : null;
     if (/每周|自然周/.test(desc)) return { period: 'weekly', max: max };
+    if (/每月/.test(desc)) return { period: 'monthly', max: max };
+    if (/每季|\/ 季/.test(desc)) return { period: 'quarterly', max: max };
+    if (/每年|\/ 年/.test(desc)) return { period: 'yearly', max: max };
+    if (/\/ 期/.test(desc)) return { period: 'per_round', max: max };
     if (/终身|累计|总共/.test(desc)) return { period: 'lifetime', max: max };
     return { period: 'daily', max: max };
   }
@@ -643,7 +898,8 @@
   function populateForm() {
     if (!act) return;
     var fields = ['name', 'code', 'typeId', 'channel', 'status', 'sort', 'image', 'description',
-      'rewardPoints', 'rewardDesc', 'dailyCap', 'totalCap', 'purpose', 'usageGuide', 'opsUsageNote'];
+      'rewardPoints', 'rewardDesc', 'dailyCap', 'totalCap', 'purpose', 'usageGuide', 'opsUsageNote',
+      'mallThumbTag', 'devLogicNote'];
     fields.forEach(function (k) {
       var el = form.elements[k];
       if (el && act[k] != null) el.value = act[k];
@@ -668,10 +924,17 @@
         cb.checked = act.mallCats.indexOf(cb.value) >= 0;
       });
     }
+    if (act.goodsTemplate === 'membership_pass') {
+      var noteEl = form.elements.devLogicNote;
+      if (noteEl && !noteEl.value.trim()) {
+        noteEl.value = act.devLogicNote || S.MEMBERSHIP_DEV_LOGIC || '';
+      }
+    }
     updateFreqMaxState();
     updatePreview();
     renderTypeExtras(act.typeId);
     updateChannelUI();
+    updateDevLogicPanel();
   }
 
   function collectForm(statusOverride) {
@@ -736,6 +999,56 @@
         var fc = extra.freeGrantCount != null ? parseInt(extra.freeGrantCount, 10) : 0;
         var gvd = extra.grantValidDays != null ? parseInt(extra.grantValidDays, 10) : 0;
         rewardDesc = '消耗 ' + cost.toLocaleString() + ' 积分 · ' + fc + ' 次免费订阅 · ' + gvd + ' 天内使用';
+      } else if (tpl === 'tip_boost') {
+        var tu = extra.tipGrantUses != null ? parseInt(extra.tipGrantUses, 10) : 0;
+        var tvd = extra.grantValidDays != null ? parseInt(extra.grantValidDays, 10) : 0;
+        var sp = extra.subsidyPercent != null ? parseInt(extra.subsidyPercent, 10) : 0;
+        rewardDesc = '消耗 ' + cost.toLocaleString() + ' 积分 · ' + tu + ' 次打赏补贴 · 补贴 ' + sp + '% · ' + tvd + ' 天内使用';
+      } else if (tpl === 'ppv_trial') {
+        var gu = extra.grantUses != null ? parseInt(extra.grantUses, 10) : 1;
+        var pvd = extra.grantValidDays != null ? parseInt(extra.grantValidDays, 10) : 0;
+        rewardDesc = '消耗 ' + cost.toLocaleString() + ' 积分 · ' + gu + ' 次试看 · ' + pvd + ' 天内使用';
+      } else if (tpl === 'ppv_discount') {
+        var pd = extra.discountPercent != null ? parseInt(extra.discountPercent, 10) : 0;
+        var pdu = extra.grantUses != null ? parseInt(extra.grantUses, 10) : 1;
+        var pdd = extra.grantValidDays != null ? parseInt(extra.grantValidDays, 10) : 0;
+        rewardDesc = '消耗 ' + cost.toLocaleString() + ' 积分 · ' + (100 - pd) / 10 + ' 折 · ' + pdu + ' 次 · ' + pdd + ' 天内使用';
+      } else if (tpl === 'daily_cap_boost') {
+        var cf = extra.capFrom != null ? parseInt(extra.capFrom, 10) : 0;
+        var ct = extra.capTo != null ? parseInt(extra.capTo, 10) : 0;
+        rewardDesc = '消耗 ' + cost.toLocaleString() + ' 积分 · 当日上限 ' + cf + '→' + ct;
+      } else if (tpl === 'checkin_double') {
+        var cdu = extra.grantUses != null ? parseInt(extra.grantUses, 10) : 1;
+        var cdd = extra.grantValidDays != null ? parseInt(extra.grantValidDays, 10) : 0;
+        var mul = extra.multiplier != null ? parseFloat(extra.multiplier) : 2;
+        rewardDesc = '消耗 ' + cost.toLocaleString() + ' 积分 · 下次签到 ×' + mul + ' · ' + cdd + ' 天内使用';
+      } else if (tpl === 'invite_boost') {
+        var ibd = extra.grantValidDays != null ? parseInt(extra.grantValidDays, 10) : 0;
+        var bp = extra.bonusPercent != null ? parseInt(extra.bonusPercent, 10) : 0;
+        rewardDesc = '消耗 ' + cost.toLocaleString() + ' 积分 · 邀请返利 +' + bp + '% · ' + ibd + ' 日';
+      } else if (tpl === 'comment_highlight') {
+        var chd = extra.grantValidDays != null ? parseInt(extra.grantValidDays, 10) : 0;
+        rewardDesc = '消耗 ' + cost.toLocaleString() + ' 积分 · 评论专属字色 · ' + chd + ' 日';
+      } else if (tpl === 'avatar_frame') {
+        var afd = extra.grantValidDays != null ? parseInt(extra.grantValidDays, 10) : 0;
+        rewardDesc = '消耗 ' + cost.toLocaleString() + ' 积分 · 霓虹外框 · ' + afd + ' 日';
+      } else if (tpl === 'membership_pass') {
+        var md = extra.membershipDays != null ? parseInt(extra.membershipDays, 10) : 0;
+        var mgvd = extra.grantValidDays != null ? parseInt(extra.grantValidDays, 10) : 0;
+        rewardDesc = '消耗 ' + cost.toLocaleString() + ' 积分 · ' + md + ' 天会员 · ' + mgvd + ' 天内激活';
+      } else if (tpl === 'sfl_qualification') {
+        var sqd = extra.grantValidDays != null ? parseInt(extra.grantValidDays, 10) : 0;
+        rewardDesc = '消耗 ' + cost.toLocaleString() + ' 积分 · 1 次抽签资格 · ' + sqd + ' 天内有效';
+      } else if (tpl === 'airdrop_ticket') {
+        rewardDesc = '消耗 ' + cost.toLocaleString() + ' 积分 · 1 次抽奖 · 当期内有效';
+      } else if (tpl === 'nft_fee_discount') {
+        var nfd = extra.discountPercent != null ? parseInt(extra.discountPercent, 10) : 0;
+        var nfvd = extra.grantValidDays != null ? parseInt(extra.grantValidDays, 10) : 0;
+        rewardDesc = '消耗 ' + cost.toLocaleString() + ' 积分 · 手续费 ' + (100 - nfd) + ' 折 · 1 次 · ' + nfvd + ' 天内使用';
+      } else if (tpl === 'staking_boost') {
+        var sbd = extra.grantValidDays != null ? parseInt(extra.grantValidDays, 10) : 0;
+        var sbp = extra.bonusPercent != null ? parseInt(extra.bonusPercent, 10) : 0;
+        rewardDesc = '消耗 ' + cost.toLocaleString() + ' 积分 · 质押收益 +' + sbp + '% · ' + sbd + ' 日';
       } else if (!rewardDesc && rewardPoints) {
         rewardDesc = '消耗 ' + cost.toLocaleString() + ' 积分';
       }
@@ -791,10 +1104,39 @@
     if (extra.freeGrantCount != null) row.freeGrantCount = parseInt(extra.freeGrantCount, 10);
     if (extra.grantValidDays != null) row.grantValidDays = parseInt(extra.grantValidDays, 10);
     if (extra.grantPlanTier != null) row.grantPlanTier = extra.grantPlanTier;
+    if (extra.tipGrantUses != null) row.tipGrantUses = parseInt(extra.tipGrantUses, 10);
+    if (extra.subsidyPercent != null) row.subsidyPercent = parseInt(extra.subsidyPercent, 10);
+    if (extra.maxSubsidyPerTip != null) row.maxSubsidyPerTip = parseInt(extra.maxSubsidyPerTip, 10);
+    if (extra.minTipAmount != null) row.minTipAmount = parseInt(extra.minTipAmount, 10);
+    if (extra.maxTipAmount != null) row.maxTipAmount = parseInt(extra.maxTipAmount, 10);
+    if (extra.subsidyBudgetCap != null) row.subsidyBudgetCap = parseInt(extra.subsidyBudgetCap, 10);
+    if (extra.grantUses != null) row.grantUses = parseInt(extra.grantUses, 10);
+    if (extra.ppvViewHours != null) row.ppvViewHours = parseInt(extra.ppvViewHours, 10);
+    if (extra.capFrom != null) row.capFrom = parseInt(extra.capFrom, 10);
+    if (extra.capTo != null) row.capTo = parseInt(extra.capTo, 10);
+    if (extra.multiplier != null) row.multiplier = parseFloat(extra.multiplier);
+    if (extra.bonusPercent != null) row.bonusPercent = parseInt(extra.bonusPercent, 10);
+    if (extra.styleId != null) row.styleId = extra.styleId;
+    if (extra.frameId != null) row.frameId = extra.frameId;
+    if (extra.benefitUsageMode != null) row.benefitUsageMode = extra.benefitUsageMode;
+    if (extra.membershipDays != null) row.membershipDays = parseInt(extra.membershipDays, 10);
+    if (extra.memberAudience != null) row.memberAudience = extra.memberAudience;
+    if (extra.memberStackPolicy != null) row.memberStackPolicy = extra.memberStackPolicy;
+    if (extra.qualificationWindow != null) row.qualificationWindow = extra.qualificationWindow;
+    if (extra.drawRoundId != null) row.drawRoundId = extra.drawRoundId;
+    if (extra.maxDiscountPerTx != null) row.maxDiscountPerTx = parseInt(extra.maxDiscountPerTx, 10);
+    if (extra.feeScope != null) row.feeScope = extra.feeScope;
+    if (extra.requiresChainActivity != null) row.requiresChainActivity = !!extra.requiresChainActivity;
     if (extra.spinCost != null) row.spinCost = parseInt(extra.spinCost, 10);
     if (extra.dailySpins != null) row.dailySpins = parseInt(extra.dailySpins, 10);
     if (extra.extraJson != null) row.extraJson = extra.extraJson;
 
+    if (isMallChannel() && form.elements.mallThumbTag) {
+      row.mallThumbTag = form.elements.mallThumbTag.value.trim();
+    }
+    if (form.elements.devLogicNote && form.elements.devLogicNote.value.trim()) {
+      row.devLogicNote = form.elements.devLogicNote.value.trim();
+    }
     if (act && act.goodsTemplate) row.goodsTemplate = act.goodsTemplate;
     if (isDevBackedContext(typeId) || (act && act.devBacked)) {
       row.devBacked = true;
@@ -810,6 +1152,24 @@
     }
     if (row.goodsTemplate === 'sub_free_count' && row.freeGrantCount != null && /免费订阅次数券/.test(row.name)) {
       row.name = '免费订阅次数券 · ' + row.freeGrantCount + ' 次';
+    }
+    if (row.goodsTemplate === 'tip_boost' && row.tipGrantUses != null && /打赏加成卡/.test(row.name)) {
+      row.name = '打赏加成卡 · ' + row.tipGrantUses + ' 次';
+    }
+    if (row.goodsTemplate === 'ppv_discount' && row.discountPercent != null && /单篇/.test(row.name)) {
+      row.name = '单篇 ' + ((100 - row.discountPercent) / 10) + ' 折券';
+    }
+    if (row.goodsTemplate === 'invite_boost' && row.grantValidDays != null && /邀请加成卡/.test(row.name)) {
+      row.name = '邀请加成卡 · ' + row.grantValidDays + ' 日';
+    }
+    if (row.goodsTemplate === 'comment_highlight' && row.grantValidDays != null && /评论高亮/.test(row.name)) {
+      row.name = '评论高亮 · ' + row.grantValidDays + ' 日';
+    }
+    if (row.goodsTemplate === 'membership_pass' && row.membershipDays != null && /会员身份/.test(row.name)) {
+      row.name = '会员身份 · ' + row.membershipDays + ' 天';
+    }
+    if (row.goodsTemplate === 'staking_boost' && row.grantValidDays != null && /质押加成券/.test(row.name)) {
+      row.name = '质押加成券 · ' + row.grantValidDays + ' 日';
     }
     return row;
   }
@@ -904,6 +1264,196 @@
         return false;
       }
     }
+    if (act && act.goodsTemplate === 'tip_boost') {
+      var tu = parseInt(extra.tipGrantUses, 10);
+      var tvd2 = parseInt(extra.grantValidDays, 10);
+      var sp2 = parseInt(extra.subsidyPercent, 10);
+      var cap = parseInt(extra.maxSubsidyPerTip, 10);
+      var minTip = parseInt(extra.minTipAmount, 10);
+      if (!tu || tu < 1) {
+        M.toast('打赏次数须 ≥ 1');
+        return false;
+      }
+      if (!tvd2 || tvd2 < 1) {
+        M.toast('请填写兑换后有效天数');
+        return false;
+      }
+      if (!sp2 || sp2 < 1 || sp2 > 100) {
+        M.toast('补贴比例须为 1–100 的整数');
+        return false;
+      }
+      if (!cap || cap < 1) {
+        M.toast('请填写单笔补贴上限');
+        return false;
+      }
+      if (!minTip || minTip < 1) {
+        M.toast('请填写最低生效打赏额');
+        return false;
+      }
+    }
+    if (act && act.goodsTemplate === 'ppv_trial') {
+      var gu = parseInt(extra.grantUses, 10);
+      var pvd = parseInt(extra.grantValidDays, 10);
+      if (!gu || gu < 1) {
+        M.toast('试看次数须 ≥ 1');
+        return false;
+      }
+      if (!pvd || pvd < 1) {
+        M.toast('请填写兑换后有效天数');
+        return false;
+      }
+    }
+    if (act && act.goodsTemplate === 'ppv_discount') {
+      var pdp = parseInt(extra.discountPercent, 10);
+      var pdu = parseInt(extra.grantUses, 10);
+      var pdd = parseInt(extra.grantValidDays, 10);
+      if (!pdp || pdp < 1 || pdp > 99) {
+        M.toast('折扣力度须为 1–99 的整数');
+        return false;
+      }
+      if (!pdu || pdu < 1) {
+        M.toast('使用次数须 ≥ 1');
+        return false;
+      }
+      if (!pdd || pdd < 1) {
+        M.toast('请填写兑换后有效天数');
+        return false;
+      }
+    }
+    if (act && act.goodsTemplate === 'daily_cap_boost') {
+      var cf = parseInt(extra.capFrom, 10);
+      var ct = parseInt(extra.capTo, 10);
+      var dcd = parseInt(extra.grantValidDays, 10);
+      if (!cf || cf < 1) {
+        M.toast('请填写默认日上限');
+        return false;
+      }
+      if (!ct || ct <= cf) {
+        M.toast('提升后上限须大于默认上限');
+        return false;
+      }
+      if (!dcd || dcd < 1) {
+        M.toast('请填写生效天数');
+        return false;
+      }
+    }
+    if (act && act.goodsTemplate === 'checkin_double') {
+      var cdu = parseInt(extra.grantUses, 10);
+      var cdd = parseInt(extra.grantValidDays, 10);
+      var mul = parseFloat(extra.multiplier);
+      if (!cdu || cdu < 1) {
+        M.toast('翻倍次数须 ≥ 1');
+        return false;
+      }
+      if (!cdd || cdd < 1) {
+        M.toast('请填写兑换后有效天数');
+        return false;
+      }
+      if (!mul || mul <= 1) {
+        M.toast('签到倍率须大于 1');
+        return false;
+      }
+    }
+    if (act && act.goodsTemplate === 'invite_boost') {
+      var ibd = parseInt(extra.grantValidDays, 10);
+      var ibp = parseInt(extra.bonusPercent, 10);
+      if (!ibd || ibd < 1) {
+        M.toast('请填写生效天数');
+        return false;
+      }
+      if (!ibp || ibp < 1 || ibp > 100) {
+        M.toast('加成比例须为 1–100 的整数');
+        return false;
+      }
+    }
+    if (act && act.goodsTemplate === 'comment_highlight') {
+      var chd = parseInt(extra.grantValidDays, 10);
+      if (!chd || chd < 1) {
+        M.toast('请填写生效天数');
+        return false;
+      }
+      if (!extra.styleId) {
+        M.toast('请选择字色样式');
+        return false;
+      }
+    }
+    if (act && act.goodsTemplate === 'avatar_frame') {
+      var afd = parseInt(extra.grantValidDays, 10);
+      if (!afd || afd < 1) {
+        M.toast('请填写生效天数');
+        return false;
+      }
+      if (!extra.frameId) {
+        M.toast('请选择外框样式');
+        return false;
+      }
+    }
+    if (act && act.goodsTemplate === 'membership_pass') {
+      var mdv = parseInt(extra.membershipDays, 10);
+      var mgu = parseInt(extra.grantUses, 10);
+      var mgvd2 = parseInt(extra.grantValidDays, 10);
+      if (!mdv || mdv < 1) {
+        M.toast('请填写会员时长');
+        return false;
+      }
+      if (!mgu || mgu < 1) {
+        M.toast('开通次数须 ≥ 1');
+        return false;
+      }
+      if (!mgvd2 || mgvd2 < 1) {
+        M.toast('请填写持券有效天');
+        return false;
+      }
+    }
+    if (act && act.goodsTemplate === 'sfl_qualification') {
+      if (!parseInt(extra.grantUses, 10) || !parseInt(extra.grantValidDays, 10)) {
+        M.toast('请填写资格次数与有效天');
+        return false;
+      }
+    }
+    if (act && act.goodsTemplate === 'airdrop_ticket') {
+      if (!parseInt(extra.grantUses, 10) || !parseInt(extra.grantValidDays, 10)) {
+        M.toast('请填写抽奖次数与当期内有效天');
+        return false;
+      }
+    }
+    if (act && act.goodsTemplate === 'nft_fee_discount') {
+      var nftd = parseInt(extra.discountPercent, 10);
+      var nftu = parseInt(extra.grantUses, 10);
+      var nftv = parseInt(extra.grantValidDays, 10);
+      var nftc = parseInt(extra.maxDiscountPerTx, 10);
+      if (!nftd || nftd < 1 || nftd > 99) {
+        M.toast('手续费减免须为 1–99');
+        return false;
+      }
+      if (!nftu || !nftv || !nftc) {
+        M.toast('请填写次数、有效天与单笔补贴上限');
+        return false;
+      }
+    }
+    if (act && act.goodsTemplate === 'staking_boost') {
+      if (!parseInt(extra.grantValidDays, 10) || !parseInt(extra.bonusPercent, 10)) {
+        M.toast('请填写生效天数与加成比例');
+        return false;
+      }
+    }
+    if (act && act.benefitUsageMode === 'count_with_expiry') {
+      var usesKey = act.goodsTemplate === 'tip_boost' ? 'tipGrantUses'
+        : (act.goodsTemplate === 'sub_free_count' ? 'freeGrantCount' : 'grantUses');
+      if (act.goodsTemplate === 'sub_discount') {
+        if (!parseInt(extra.couponValidDays, 10)) {
+          M.toast('次数制权益须配置持券有效天');
+          return false;
+        }
+      } else if (act.goodsTemplate !== 'sub_discount' && usesKey && form.elements[usesKey]) {
+        var u = parseInt(extra[usesKey], 10);
+        var d = parseInt(extra.grantValidDays, 10);
+        if (u && (!d || d < 1)) {
+          M.toast('次数制权益须同时配置有效天数，过期剩余次数作废');
+          return false;
+        }
+      }
+    }
     return true;
   }
 
@@ -954,6 +1504,7 @@
 
   fillTypeSelect();
   fillMallCats();
+  fillMallThumbTagDatalist();
   if (Session) Session.mountRoleSwitcher(document.querySelector('.admin-header-user'));
   if (act) populateForm();
   else {

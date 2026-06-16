@@ -255,6 +255,7 @@
             renderDrawerTasks(data);
             renderDrawerLedger(data);
             renderDrawerMall(data);
+            if (window.MallBenefitsScenes) window.MallBenefitsScenes.applyAll();
         });
 
         var hBtn = qs('#hPointsBtn');
@@ -278,6 +279,9 @@
             openDrawer();
             var ledgerBtn = qs('.hp-drawer-tabs button[data-tab="Ledger"]');
             if (ledgerBtn) ledgerBtn.click();
+        }
+        if (window.MallBenefitsScenes) {
+            setTimeout(function () { window.MallBenefitsScenes.applyAll(); }, 50);
         }
     }
 
