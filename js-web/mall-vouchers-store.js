@@ -41,6 +41,13 @@
             minTipAmount: 10,
             desc: '3 次打赏补贴机会 · 每次平台额外补贴 10%（上限 50 USDT）'
         },
+        '积分加速卡 · 24h': {
+            type: 'points_boost',
+            validDays: 1,
+            durationHours: 24,
+            multiplier: 1.2,
+            desc: '24 小时内任务积分 ×1.2 · 与分层加成叠加但受全局封顶约束'
+        },
         '每日上限提升卡': {
             type: 'daily_cap_boost',
             validDays: 1,
@@ -117,6 +124,7 @@
             { id: 'v_ppv_disc50_b', name: '单篇 5 折券', type: 'ppv_discount', discount: 0.5, status: 'active', expiresAt: addDays(8), redeemedAt: '2026-06-07', source: 'mall' },
             { id: 'v_ppv_trial_used', name: '付费内容试看券', type: 'ppv_trial', discount: 0, status: 'used', expiresAt: addDays(10), redeemedAt: '2026-04-01', usedAt: '2026-04-18', source: 'mall' },
             { id: 'v_tip_boost_a', name: '打赏加成卡 · 3 次', type: 'tip_boost', status: 'active', usesRemaining: 2, usesTotal: 3, subsidyPercent: 10, maxSubsidyPerTip: 50, minTipAmount: 10, expiresAt: addDays(14), redeemedAt: '2026-06-02', source: 'mall', desc: '每次打赏消耗 1 次' },
+            { id: 'v_demo_points_boost', name: '积分加速卡 · 24h', type: 'points_boost', status: 'active', multiplier: 1.2, durationHours: 24, activatedAt: '2026-06-11 09:00', expiresAt: '2026-06-12 09:00', redeemedAt: '2026-06-11', source: 'mall', desc: '任务积分 ×1.2' },
             { id: 'v_demo_daily_cap', name: '每日上限提升卡', type: 'daily_cap_boost', status: 'active', capFrom: 50, capTo: 100, activeDate: dateStr(new Date()), expiresAt: dateStr(new Date()), redeemedAt: '2026-06-10', source: 'mall' },
             { id: 'v_demo_checkin_double', name: '连续签到翻倍卡', type: 'checkin_double', status: 'active', multiplier: 2, usesRemaining: 1, usesTotal: 1, expiresAt: addDays(7), redeemedAt: '2026-06-09', source: 'mall' },
             { id: 'v_demo_invite_boost', name: '邀请加成卡 · 7 日', type: 'invite_boost', status: 'active', bonusPercent: 10, expiresAt: addDays(7), redeemedAt: '2026-06-08', source: 'mall' },
@@ -150,6 +158,7 @@
         return v && v.type === 'tip_boost';
     }
 
+    function isPointsBoost(v) { return v && v.type === 'points_boost'; }
     function isDailyCapBoost(v) { return v && v.type === 'daily_cap_boost'; }
     function isCheckinDouble(v) { return v && v.type === 'checkin_double'; }
     function isInviteBoost(v) { return v && v.type === 'invite_boost'; }
@@ -158,9 +167,24 @@
     function isMembershipPass(v) { return v && v.type === 'membership_pass'; }
 
     function isBenefitVoucher(v) {
-        return isDailyCapBoost(v) || isCheckinDouble(v) || isInviteBoost(v) ||
+        return isPointsBoost(v) || isDailyCapBoost(v) || isCheckinDouble(v) || isInviteBoost(v) ||
             isAvatarFrame(v) || isCommentHighlight(v) || isMembershipPass(v) ||
             isPpvVoucher(v) || isTipBoost(v);
+    }
+
+    function isPointsBoostActive(v) {
+        if (!isPointsBoost(v) || v.status !== 'active') return false;
+        if (!v.expiresAt) return !isExpired(v);
+        var end = new Date(String(v.expiresAt).replace(' ', 'T'));
+        if (!isNaN(end.getTime())) return Date.now() < end.getTime();
+        return !isExpired(v);
+    }
+
+    function getActivePointsBoost() {
+        return list().filter(isPointsBoostActive).sort(function (a, b) {
+            return new Date(String(a.expiresAt || 0).replace(' ', 'T')) -
+                new Date(String(b.expiresAt || 0).replace(' ', 'T'));
+        })[0] || null;
     }
 
     function isActiveToday(v) {
@@ -210,6 +234,13 @@
         return data;
     }
 
+    function ensurePointsBoostSeed(data) {
+        if (data.some(function (v) { return isPointsBoost(v); })) return data;
+        defaultVouchers().filter(isPointsBoost).forEach(function (v) { data.unshift(v); });
+        writeAll(data);
+        return data;
+    }
+
     function list() {
         var data = readAll();
         if (!data) {
@@ -219,6 +250,7 @@
         }
         data = ensurePpvSeed(data);
         data = ensureTipBoostSeed(data);
+        data = ensurePointsBoostSeed(data);
         data = ensureBenefitSeeds(data);
         return data;
     }
@@ -383,6 +415,14 @@
                 dot: 'var(--brand-purple)',
                 title: '付费内容试看券 · 剩余 ' + ppvCount + ' 次',
                 exp: '解锁后 24h 内有效 · 适用于标注「支持试看券」的创作者'
+            });
+        }
+        var pb = getActivePointsBoost();
+        if (pb) {
+            rows.push({
+                dot: '#FBBF24',
+                title: '积分加速卡 · +' + Math.round(((pb.multiplier || 1.2) - 1) * 100) + '% 收益',
+                exp: '至 ' + (pb.expiresAt || '—') + ' · 与分层加成叠加，受全局封顶约束'
             });
         }
         var dc = getActiveDailyCapBoost();
@@ -621,6 +661,15 @@
             voucher.maxSubsidyPerTip = cat.maxSubsidyPerTip || 50;
             voucher.minTipAmount = cat.minTipAmount || 10;
         }
+        if (cat.type === 'points_boost') {
+            var hours = cat.durationHours || 24;
+            var now = new Date();
+            voucher.multiplier = cat.multiplier || 1.2;
+            voucher.durationHours = hours;
+            voucher.activatedAt = now.toISOString().slice(0, 16).replace('T', ' ');
+            var end = new Date(now.getTime() + hours * 3600000);
+            voucher.expiresAt = end.toISOString().slice(0, 16).replace('T', ' ');
+        }
         if (cat.type === 'daily_cap_boost') {
             voucher.capFrom = cat.capFrom || 50;
             voucher.capTo = cat.capTo || 100;
@@ -687,6 +736,7 @@
         getEligibleForSubscription: getEligibleForSubscription,
         getEligibleForPpv: getEligibleForPpv,
         getActiveTipBoost: getActiveTipBoost,
+        getActivePointsBoost: getActivePointsBoost,
         getActivePpvTrialCount: getActivePpvTrialCount,
         getActiveDailyCapBoost: getActiveDailyCapBoost,
         applyWalletDailyCap: applyWalletDailyCap,
@@ -710,6 +760,7 @@
         formatPpvExpiry: formatPpvExpiry,
         isPpvVoucher: isPpvVoucher,
         isTipBoost: isTipBoost,
+        isPointsBoost: isPointsBoost,
         isDailyCapBoost: isDailyCapBoost,
         isCheckinDouble: isCheckinDouble,
         isInviteBoost: isInviteBoost,

@@ -56,18 +56,6 @@
 
         invitesUnlimited: true,
 
-        tierMultipliers: {
-
-            registerDaysLte: { days: 7, multiplier: 1.0 },
-
-            consecutiveLoginGte: { days: 3, multiplier: 1.2 },
-
-            hasEngagement: { multiplier: 1.15 },
-
-            hasSubscription: { multiplier: 1.5 }
-
-        },
-
         validInviteCodes: {
 
             'LUNA-8K3F': {

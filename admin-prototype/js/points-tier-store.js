@@ -1,10 +1,10 @@
 /**
- * 积分分层 · 后台 Mock（与 C 端共用 localStorage key）
+ * 积分分层 · 后台 Mock（草稿与已发布配置分离）
  */
 (function (global) {
     var T = global.FLPointsTier;
+    var RS = global.FLPointsRewardService;
     if (!T) return;
-
     var MOCK_MONITOR = {
         todayIssued: 48260,
         todayBudget: 80000,
@@ -35,6 +35,39 @@
         ]
     };
 
+    function baseUser(overrides) {
+        return Object.assign({
+            registerDays: 5,
+            newUserTierDaysAtRegister: 7,
+            newUserTierMultiplierAtRegister: 1.12,
+            consecutiveLoginDays: 2,
+            engagementActions: 0,
+            engagementDistinctPosts: 0,
+            hasActivePaidSubscription: false,
+            hasEngagement: false,
+            hasSubscription: false
+        }, overrides || {});
+    }
+
+    function registerPolicyNote(cfg, user) {
+        var rule = (cfg.rules || {}).registerDaysLte;
+        if (!rule) return null;
+        var snap = T.resolveNewUserTierSnapshot(rule, user);
+        var matched = user.registerDays <= snap.limitDays;
+        var cfgDays = rule.days || 0;
+        var lines = [
+            '后台当前配置：' + cfgDays + ' 天 · ×' + (rule.multiplier || 1),
+            '该用户锁定：' + snap.limitDays + ' 天 · ×' + snap.multiplier,
+            '注册第 ' + user.registerDays + ' 天 · ' + (matched ? '仍命中' : '已超出锁定窗口')
+        ];
+        if (user.registerDays === 7 && cfgDays === 6) {
+            lines.push('改短场景：已注册用户仍按锁定 ' + snap.limitDays + ' 天执行，第7天' + (matched ? '仍生效' : '失效'));
+        } else if (user.registerDays === 7 && cfgDays === 9) {
+            lines.push('改长场景：已注册用户不追溯延长，锁定窗口仍为 ' + snap.limitDays + ' 天');
+        }
+        return lines.join(' · ');
+    }
+
     function getConfig() {
         return T.loadConfig();
     }
@@ -43,19 +76,86 @@
         return T.saveConfig(cfg);
     }
 
+    function publishConfig(cfg) {
+        if (!RS || !RS.publishConfig) {
+            return { error: '发布服务不可用' };
+        }
+        return RS.publishConfig(cfg || getConfig(), { by: '活动运营' });
+    }
+
+    function getPublishedMeta() {
+        return RS && RS.getPublishedMeta ? RS.getPublishedMeta() : null;
+    }
+
+    function getPublishedConfig() {
+        return RS && RS.loadPublishedConfig ? RS.loadPublishedConfig() : getConfig();
+    }
+
     function simulateUser(uid, overrides) {
         var cfg = getConfig();
         var user = Object.assign({}, T.DEFAULT_USER, overrides || {});
-        if (uid === 'new') user = { registerDays: 2, consecutiveLoginDays: 2, hasEngagement: false, hasSubscription: false };
-        if (uid === 'vip') user = { registerDays: 120, consecutiveLoginDays: 14, hasEngagement: true, hasSubscription: true };
+        var regRule = cfg.rules && cfg.rules.registerDaysLte;
+        if (uid === 'new') {
+            user = baseUser({
+                registerDays: 2,
+                consecutiveLoginDays: 2,
+                newUserTierDaysAtRegister: (regRule && regRule.days) || 5,
+                newUserTierMultiplierAtRegister: (regRule && regRule.multiplier) || 1.08
+            });
+        }
+        if (uid === 'vip') {
+            user = {
+                registerDays: 120,
+                newUserTierDaysAtRegister: 7,
+                newUserTierMultiplierAtRegister: 1.12,
+                consecutiveLoginDays: 14,
+                engagementActions: 12,
+                engagementDistinctPosts: 8,
+                hasActivePaidSubscription: true,
+                subscriptionPaidAmount: 29.9,
+                hasEngagement: true,
+                hasSubscription: true
+            };
+        }
+        if (uid === 'abuse') {
+            user = baseUser({
+                registerDays: 2,
+                consecutiveLoginDays: 10,
+                engagementActions: 3,
+                engagementDistinctPosts: 2,
+                engagementDistinctAuthors: 1,
+                engagementSelfContentOnly: true,
+                hasEngagement: true
+            });
+        }
+        if (uid === 'day7_boundary') {
+            user = baseUser({
+                registerDays: 7,
+                newUserTierDaysAtRegister: 7,
+                newUserTierMultiplierAtRegister: 1.08,
+                consecutiveLoginDays: 7
+            });
+        }
+        if (uid === 'streak_exhausted') {
+            user = baseUser({
+                registerDays: 60,
+                consecutiveLoginDays: 30,
+                consecutiveLoginBonusDaysUsed: 21
+            });
+        }
         var matched = T.matchRules(cfg, user);
+        var tierMul = T.calcTierMultiplier(matched, cfg);
+        var combined = T.calcCombinedMultiplier(tierMul, cfg);
         return {
             uid: uid || 'demo',
             user: user,
             matched: matched,
-            effectiveMultiplier: T.calcEffectiveMultiplier(matched, cfg),
-            sample50: T.calcReward(50, user, cfg),
-            sample200: T.calcReward(200, user, cfg)
+            tierMultiplier: tierMul,
+            externalMultiplier: combined.externalMultiplier,
+            effectiveMultiplier: combined.effectiveMultiplier,
+            registerDaysPolicy: registerPolicyNote(cfg, user),
+            sample50: T.calcReward(50, user, cfg, { trackDailyBonus: false }),
+            sample200: T.calcReward(200, user, cfg, { trackDailyBonus: false })
         };
     }
 
@@ -66,6 +166,9 @@
     global.FLAdminPointsTier = {
         getConfig: getConfig,
         putConfig: putConfig,
+        publishConfig: publishConfig,
+        getPublishedMeta: getPublishedMeta,
+        getPublishedConfig: getPublishedConfig,
         resetConfig: T.resetConfig,
         simulateUser: simulateUser,
         fetchMonitor: fetchMonitor,

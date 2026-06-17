@@ -43,7 +43,7 @@
         if (!voucher) return '兑换成功 · 权益已下发（原型演示）';
         var map = {
             ppv_trial: '兑换成功 · 试看券已入账，解锁付费内容时可选用',
-            daily_cap_boost: '兑换成功 · 今日积分获取上限已提升',
+            points_boost: '兑换成功 · 积分加速卡已生效，24h 内任务积分按倍率结算',
             checkin_double: '兑换成功 · 下一次签到奖励将 ×2',
             invite_boost: '兑换成功 · 邀请返利 +' + (voucher.bonusPercent || 10) + '% 已生效',
             avatar_frame: '兑换成功 · 霓虹头像框已佩戴',

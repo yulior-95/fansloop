@@ -25,7 +25,8 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">成员账号</h1>
-      <p class="admin-page-desc">新建、编辑、分配角色、启用/禁用均在<strong>当前页弹窗</strong>完成。</p>
+      <p class="admin-page-desc">新建、编辑、分配角色、启用/禁用均在<strong>当前页弹窗</strong>完成。创建成员时分配<strong>谷歌验证密钥</strong>，用于登录与敏感保存操作。</p>
+      <div class="admin-alert-google"><i class="fa-brands fa-google" style="margin-top:2px"></i><div><strong>谷歌验证</strong>：新建成员自动生成 TOTP 密钥；编辑、分配角色、禁用及全局参数保存前须输入谷歌验证码（6 位）。</div></div>
       <div class="admin-toolbar">
         <span class="ant-input-affix-wrapper" style="width:220px"><input class="ant-input" type="text" placeholder="登录邮箱"></span>
         <select class="ant-select ant-select-single" style="width:160px;height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 8px"><option>全部角色</option><option>运营</option><option>风控</option></select>
@@ -86,21 +87,42 @@
   });
 
   document.getElementById("btnNewMember").addEventListener("click", function () {
+    var Auth = window.AdminGoogleAuth;
+    var secret = Auth ? Auth.generateSecret() : "JBSWY3DPEHPK3PXP";
+    var secretFmt = Auth ? Auth.formatSecretBlocks(secret) : secret;
     M.open({
       title: "新建成员",
       body:
         "<label style='display:block;margin-bottom:6px'>登录邮箱</label>" +
-        "<input class='ant-input' type='email' style='width:100%;max-width:400px;margin-bottom:12px' placeholder='member@fansloop.io'>" +
+        "<input class='ant-input' id='memNewEmail' type='email' style='width:100%;max-width:400px;margin-bottom:12px' placeholder='member@fansloop.io'>" +
+        "<label style='display:block;margin-bottom:6px'>显示名称</label>" +
+        "<input class='ant-input' id='memNewName' style='width:100%;max-width:400px;margin-bottom:12px' placeholder='成员姓名'>" +
         "<label style='display:block;margin-bottom:6px'>初始角色</label>" +
-        "<select class='ant-input' style='width:100%;max-width:400px'><option>运营</option><option>风控</option><option>超级管理员</option></select>",
+        "<select class='ant-input' id='memNewRole' style='width:100%;max-width:400px;margin-bottom:16px'><option>运营</option><option>风控</option><option>超级管理员</option></select>" +
+        "<div style='padding:12px;border-radius:8px;background:#f6ffed;border:1px solid #b7eb8f;font-size:12px;line-height:1.6'>" +
+        "<strong><i class='fa-brands fa-google'></i> 谷歌验证密钥</strong>（创建时自动分配，成员须绑定 Google Authenticator）<br>" +
+        "<code id='memNewSecret' style='font-size:13px;letter-spacing:.08em'>" + M.esc(secretFmt) + "</code>" +
+        "<div style='margin-top:6px;color:rgba(0,0,0,.45)'>请通过安全渠道将密钥交给成员；勿在公开渠道传播。</div></div>",
       footer: [
         { text: "取消", onClick: M.close },
         {
           text: "创建并发送邀请",
           primary: true,
           onClick: function () {
-            M.close();
-            M.toast("邀请邮件已排队发送（原型）");
+            var email = (document.getElementById("memNewEmail").value || "").trim();
+            var name = (document.getElementById("memNewName").value || "").trim();
+            if (!email) {
+              M.toast("请填写登录邮箱");
+              return;
+            }
+            M.confirmGoogle({
+              title: "确认创建成员",
+              message: "将为 " + email + " 分配谷歌密钥并发送邀请。请输入谷歌验证码确认。",
+              onVerified: function () {
+                if (Auth) Auth.assignMemberSecret(email, secret, name || email);
+                M.toast("成员已创建，邀请邮件已排队（原型）");
+              }
+            });
           }
         }
       ]
@@ -130,8 +152,12 @@
             text: "保存",
             primary: true,
             onClick: function () {
-              M.close();
-              M.toast("成员信息已保存（原型）");
+              M.confirmGoogle({
+                message: "保存成员信息需谷歌验证。",
+                onVerified: function () {
+                  M.toast("成员信息已保存（原型）");
+                }
+              });
             }
           }
         ]

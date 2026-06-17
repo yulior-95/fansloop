@@ -174,6 +174,10 @@
         if (task.actionType === 'claim' && task.status === 'claimable') {
             S.claimTask(task.id).then(function (res) {
                 if (!res) return;
+                if (res.rejected) {
+                    showToast(res.toast || '领取失败');
+                    return;
+                }
                 var data = applyWalletFromStorage(res.data);
                 showToast(res.toast);
                 markClaimedUI(card, res.task);

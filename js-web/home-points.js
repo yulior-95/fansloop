@@ -141,6 +141,10 @@
                 if (card.querySelector('.btn-go.claim') && id) {
                     S.claimTask(id).then(function (res) {
                         if (!res) return;
+                        if (res.rejected) {
+                            toast(res.toast || '领取失败');
+                            return;
+                        }
                         toast(res.toast || '领取成功');
                         card.querySelector('.btn-go').textContent = '已领取';
                         card.querySelector('.btn-go').disabled = true;

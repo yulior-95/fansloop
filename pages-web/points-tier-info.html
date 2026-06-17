@@ -55,18 +55,22 @@
         <div style="font-size:12px;color:var(--t-tertiary)">我的当前积分加成</div>
         <div class="mul" id="ptiMul">×1</div>
         <p id="ptiHeroDesc">命中规则后，任务奖励按倍率连乘计算（有封顶）。</p>
+        <p id="ptiExtBoost" style="font-size:12px;color:#FBBF24;margin-top:8px;display:none"></p>
     </div>
 
     <h2 style="font-size:15px;font-weight:800;margin-bottom:12px"><i class="fa-solid fa-layer-group" style="color:#C084FC;margin-right:8px"></i>分层规则</h2>
     <div id="ptiRules"></div>
 
     <div class="pti-foot">
-        <p>说明：加成在积分发放时自动计算，计入今日获取上限。未命中任何规则时与平时一致，不影响领取与兑换流程。</p>
-        <p>配置由运营后台「积分分层配置」维护，API <code>GET /api/v1/points/tier-status</code></p>
+        <p id="ptiServerNote" style="color:#6EE7B7;margin-bottom:8px">—</p>
+        <p>说明：加成倍率由<strong>服务端</strong>在领取时结算（读取已发布配置 + 你的账号画像），浏览器无法通过改本地配置提高倍率。</p>
+        <p>分层加成只累计「实发 − 基础」部分，另有<strong>每日分层加成积分上限</strong>；今日总获取量受风控「每日任务获取总上限」约束。</p>
+        <p>积分加速卡可与分层取较高者，受<strong>全局封顶倍率</strong>约束；与连续登录分层不同时生效，加速卡有效期内以加速卡为准。签到翻倍卡生效时只按翻倍结算，不与分层叠加。</p>
     </div>
 </div>
 
 <script src="../js-web/points-tier-config.js"></script>
+<script src="../js-web/points-reward-service.js"></script>
 <script src="../js-web/home-points-store.js"></script>
 <script>
 (function () {
@@ -76,13 +80,35 @@
         document.getElementById('ptiMul').textContent = T.formatMultiplier(st.effectiveMultiplier);
         var matchedNames = st.matched.map(function (m) { return m.label; }).join('、') || '暂无';
         document.getElementById('ptiHeroDesc').textContent =
-            '已命中：' + matchedNames + (st.capped ? '（已达组合封顶）' : '');
+            '已命中：' + matchedNames + (st.capped ? '（分层已达封顶）' : '') +
+            (st.globalCapped ? '（含加速卡全局封顶）' : '');
+        var ext = document.getElementById('ptiExtBoost');
+        if (st.externalMultiplier > 1) {
+            ext.style.display = 'block';
+            ext.textContent = '积分加速卡生效中 ' + T.formatMultiplier(st.externalMultiplier) + ' · 合计 ' + T.formatMultiplier(st.effectiveMultiplier);
+        }
+
+        var serverNote = document.getElementById('ptiServerNote');
+        if (serverNote) {
+            var bonusUsed = st.dailyTierBonusUsed != null ? st.dailyTierBonusUsed : 0;
+            var bonusCap = st.dailyTierBonusCap != null ? st.dailyTierBonusCap : '—';
+            var earned = st.dailyPointsEarned != null ? st.dailyPointsEarned : '—';
+            var dayCap = st.dailyPointsCap != null ? st.dailyPointsCap : '—';
+            serverNote.textContent = '服务端结算 · 今日已领 ' + earned + ' / ' + dayCap +
+                ' · 今日分层加成已用 ' + bonusUsed + ' / ' + bonusCap +
+                (st.publishedVersion ? ' · 配置 v' + st.publishedVersion : '');
+        }
 
         document.getElementById('ptiRules').innerHTML = st.rules.filter(function (r) { return r.enabled; }).map(function (r) {
             var cls = r.matched ? ' matched' : '';
-            var status = r.matched
-                ? '<span class="status ok"><i class="fa-solid fa-circle-check"></i> 已生效</span>'
-                : '<span class="status no">未命中</span>';
+            var status;
+            if (r.suppressedByBoost) {
+                status = '<span class="status no" style="color:#FBBF24">加速卡优先</span>';
+            } else if (r.matched) {
+                status = '<span class="status ok"><i class="fa-solid fa-circle-check"></i> 已生效</span>';
+            } else {
+                status = '<span class="status no">未命中</span>';
+            }
             return '<div class="pti-rule' + cls + '">' +
                 '<div class="ic"><i class="fa-solid ' + r.icon + '"></i></div>' +
                 '<div class="body"><h3>' + r.label + ' · ' + T.formatMultiplier(r.multiplier) + '</h3>' +

@@ -141,47 +141,30 @@
     }
 
     function savePointsRisk() {
-        M.open({
+        M.confirmGoogle({
             title: '保存积分风控配置',
-            body: '<p style="margin:0">将影响全站积分额度判定与冷静期规则，C 端邀请页、积分商城将同步读取。是否继续？</p>',
-            footer: [
-                { text: '取消', onClick: M.close },
-                {
-                    text: '确认保存',
-                    primary: true,
-                    onClick: function () {
-                        var cfg = collect();
-                        Risk.saveConfig(cfg);
-                        syncActivitiesCooling(cfg);
-                        state.cfg = cfg;
-                        render();
-                        M.close();
-                        M.toast('积分风控配置已保存，C 端已同步');
-                    }
-                }
-            ]
+            message: '将影响全站积分额度与冷静期规则，C 端将同步读取。请输入谷歌验证码确认保存。',
+            onVerified: function () {
+                var cfg = collect();
+                Risk.saveConfig(cfg);
+                syncActivitiesCooling(cfg);
+                state.cfg = cfg;
+                render();
+                M.toast('积分风控配置已保存，C 端已同步');
+            }
         });
     }
 
     document.getElementById('btnPointsRiskSave').addEventListener('click', savePointsRisk);
     document.getElementById('btnPointsRiskReset').addEventListener('click', function () {
-        M.open({
+        M.confirmGoogle({
             title: '恢复默认积分风控',
-            body: '<p style="margin:0">将清除本地自定义积分风控与冷静期配置。</p>',
-            footer: [
-                { text: '取消', onClick: M.close },
-                {
-                    text: '确认恢复',
-                    primary: true,
-                    danger: true,
-                    onClick: function () {
-                        Risk.resetConfig();
-                        M.close();
-                        render();
-                        M.toast('已恢复默认');
-                    }
-                }
-            ]
+            message: '将清除本地自定义积分风控与冷静期配置。请输入谷歌验证码确认。',
+            onVerified: function () {
+                Risk.resetConfig();
+                render();
+                M.toast('已恢复默认');
+            }
         });
     });
 

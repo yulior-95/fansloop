@@ -190,7 +190,9 @@
         var saved = loadTaskState()._wallet;
         if (saved) {
             if (typeof saved.available === 'number') wallet.available = saved.available;
-            if (typeof saved.todayEarned === 'number') wallet.todayEarned = saved.todayEarned;
+            if (typeof saved.todayEarned === 'number' && !global.FLPointsRewardService) {
+                wallet.todayEarned = saved.todayEarned;
+            }
         }
         wallet.total = getTotalPoints(wallet);
         return wallet;
@@ -198,8 +200,9 @@
 
     function enrichLedgerWithTier(ledger) {
         if (!global.FLPointsTier) return ledger;
-        var cfg = global.FLPointsTier.loadConfig();
-        var user = global.FLPointsTier.DEFAULT_USER;
+        var RS = global.FLPointsRewardService;
+        var cfg = RS && RS.loadPublishedConfig ? RS.loadPublishedConfig() : global.FLPointsTier.loadConfig();
+        var user = RS && RS.getUserProfile ? RS.getUserProfile() : global.FLPointsTier.DEFAULT_USER;
         return ledger.map(function (row) {
             return global.FLPointsTier.enrichLedgerRow(row, cfg, user);
         });
@@ -208,10 +211,11 @@
     function fetchPointsData() {
         var merged = JSON.parse(JSON.stringify(DEFAULT));
         mergeInviteConfig(merged);
-        if (global.MallVouchersStore && global.MallVouchersStore.applyWalletDailyCap) {
-            global.MallVouchersStore.applyWalletDailyCap(merged.wallet);
-        }
         applyWalletPersistence(merged.wallet);
+        if (global.FLPointsRewardService && global.FLPointsRewardService.syncWalletFromServer) {
+            global.FLPointsRewardService.syncWalletFromServer(merged.wallet);
+        }
+        if (global.MallVouchersStore && global.MallVouchersStore.applyWalletDailyCap) {
         merged.tasks = applyTaskPersistence(merged.tasks);
         merged.ledger = enrichLedgerWithTier(merged.ledger);
         return Promise.resolve(merged);
@@ -221,6 +225,36 @@
         return fetchPointsData().then(function (data) {
             var task = data.tasks.find(function (t) { return t.id === taskId; });
             if (!task || task.status !== 'claimable') return null;
+
+            var RS = global.FLPointsRewardService;
+            if (RS && RS.settleTaskClaim) {
+                return RS.settleTaskClaim({ taskId: taskId }).then(function (result) {
+                    if (result.rejected) {
+                        return {
+                            data: data,
+                            task: task,
+                            rejected: true,
+                            toast: result.reason || '领取失败'
+                        };
+                    }
+                    task.status = 'claimed';
+                    task.reward = result.finalPoints;
+                    data.wallet.available += result.finalPoints;
+                    data.wallet.todayEarned = result.dailyEarned;
+                    data.wallet.todayCap = result.dailyCap;
+                    var patch = {};
+                    patch[taskId] = { status: 'claimed' };
+                    patch._wallet = { available: data.wallet.available };
+                    saveTaskState(patch);
+                    return {
+                        data: data,
+                        task: task,
+                        tierDetail: result.tierDetail,
+                        toast: (task.claimToast || '领取成功') + (result.voucherNote || '')
+                    };
+                });
+            }
+
             var bonusMsg = '';
             if (taskId === 'act_checkin' && global.MallVouchersStore) {
                 var dbl = global.MallVouchersStore.getActiveCheckinDouble();

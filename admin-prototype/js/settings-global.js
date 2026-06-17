@@ -43,4 +43,13 @@
   renderCards(systemPages, "sgSystemMount");
   renderCards(assetPages, "sgAssetMount");
   renderCards(pointsPages, "sgPointsMount");
+
+  var NAV_FROM_KEY = "fl_admin_nav_from_v1";
+  document.addEventListener("click", function (e) {
+    var card = e.target.closest("a.sg-card");
+    if (!card) return;
+    try {
+      sessionStorage.setItem(NAV_FROM_KEY, "settings-global");
+    } catch (err) { /* ignore */ }
+  });
 })();

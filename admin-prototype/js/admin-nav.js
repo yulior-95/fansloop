@@ -166,12 +166,18 @@
     return out;
   }
 
+  function isGlobalParamPage(key) {
+    return key === "settings-global" || GLOBAL_PARAM_PAGES.some(function (p) { return p.key === key; });
+  }
+
   global.AdminNavConfig = {
     blocks: BLOCKS,
     globalParamPages: GLOBAL_PARAM_PAGES,
     orphanPages: ORPHAN_PAGES,
     resolveActiveKey: resolveActiveKey,
-    flattenForHub: flattenForHub
+    flattenForHub: flattenForHub,
+    isGlobalParamPage: isGlobalParamPage,
+    settingsGlobalHref: "settings-global.html"
   };
 })(typeof window !== "undefined" ? window : this);
 
@@ -255,4 +261,56 @@
     restoreSiderScroll();
     bindSiderScroll(menu);
   }
+})();
+
+(function () {
+  var CFG = window.AdminNavConfig;
+  if (!CFG || !CFG.isGlobalParamPage) return;
+
+  var NAV_FROM_KEY = "fl_admin_nav_from_v1";
+  var pageKey = document.body.getAttribute("data-admin-page") || "";
+  if (pageKey === "settings-global" || !CFG.isGlobalParamPage(pageKey)) return;
+
+  var headerLeft = document.querySelector(".admin-header-left");
+  if (!headerLeft || headerLeft.querySelector(".admin-header-back")) return;
+
+  function resolveBackHref() {
+    try {
+      if (sessionStorage.getItem(NAV_FROM_KEY) === "settings-global") {
+        return CFG.settingsGlobalHref;
+      }
+    } catch (e) { /* ignore */ }
+    if (document.referrer && document.referrer.indexOf("settings-global") >= 0) {
+      return CFG.settingsGlobalHref;
+    }
+    return null;
+  }
+
+  var back = document.createElement("a");
+  back.className = "admin-header-back";
+  back.href = resolveBackHref() || CFG.settingsGlobalHref;
+  back.setAttribute("aria-label", "返回参数总览");
+  back.innerHTML = '<i class="fa-solid fa-arrow-left"></i><span>返回参数总览</span>';
+  back.addEventListener("click", function (e) {
+    var href = resolveBackHref();
+    if (href) {
+      e.preventDefault();
+      location.href = href;
+      return;
+    }
+    if (window.history.length > 1) {
+      e.preventDefault();
+      history.back();
+    }
+  });
+  headerLeft.insertBefore(back, headerLeft.firstChild);
+
+  var sep = document.createElement("span");
+  sep.className = "admin-header-crumb-sep";
+  sep.textContent = "/";
+  headerLeft.insertBefore(sep, back.nextSibling);
+
+  document.querySelectorAll('.admin-header-right a[href="settings-global.html"]').forEach(function (el) {
+    if (/参数总览/.test(el.textContent)) el.remove();
+  });
 })();

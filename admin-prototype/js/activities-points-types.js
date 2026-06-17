@@ -42,6 +42,23 @@
     }).join('');
   }
 
+  function persistType(isEdit, existing, row) {
+    var list = S.getTypes();
+    if (!isEdit) list.push(row);
+    else {
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].id === existing.id) {
+          list[i] = row;
+          break;
+        }
+      }
+    }
+    S.saveTypes(list);
+    M.close();
+    M.toast('类型已保存');
+    render();
+  }
+
   function openEditor(existing) {
     var isEdit = !!existing;
     M.open({
@@ -61,19 +78,14 @@
             M.toast('ID 已存在'); return;
           }
           var row = { id: id, name: name, icon: icon, schema: schema, builtin: false };
-          if (isEdit) {
-            for (var i = 0; i < list.length; i++) {
-              if (list[i].id === existing.id) {
-                if (existing.builtin) row.builtin = true;
-                list[i] = row;
-                break;
-              }
+          if (isEdit && existing.builtin) row.builtin = true;
+          M.confirmGoogle({
+            title: isEdit ? '保存活动类型' : '新增活动类型',
+            message: '活动类型变更将影响创建活动表单与积分风控冷静期列表。请输入谷歌验证码确认保存。',
+            onVerified: function () {
+              persistType(isEdit, existing, row);
             }
-          } else list.push(row);
-          S.saveTypes(list);
-          M.close();
-          M.toast('类型已保存');
-          render();
+          });
         }}
       ]
     });
@@ -91,18 +103,14 @@
     if (!t) return;
     if (e.target.classList.contains('js-edit')) openEditor(t);
     if (e.target.classList.contains('js-del') && !t.builtin) {
-      M.open({
-        title: '删除类型',
-        body: '<p style="margin:0">删除后使用该类型的活动需先迁移类型。</p>',
-        footer: [
-          { text: '取消', onClick: M.close },
-          { text: '删除', danger: true, onClick: function () {
-            S.saveTypes(S.getTypes().filter(function (x) { return x.id !== id; }));
-            M.close();
-            M.toast('已删除');
-            render();
-          }}
-        ]
+      M.confirmGoogle({
+        title: '删除活动类型',
+        message: '删除后使用该类型的活动需先迁移。请输入谷歌验证码确认删除。',
+        onVerified: function () {
+          S.saveTypes(S.getTypes().filter(function (x) { return x.id !== id; }));
+          M.toast('类型已删除');
+          render();
+        }
       });
     }
   });

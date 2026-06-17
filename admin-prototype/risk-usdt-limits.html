@@ -53,20 +53,12 @@
 (function () {
   var M = window.AdminModal;
   document.getElementById("btnLimSave").addEventListener("click", function () {
-    M.open({
+    M.confirmGoogle({
       title: "保存充提限额",
-      body: "<p style='margin:0'>将影响全站 USDT 充提风控判定，是否继续？</p>",
-      footer: [
-        { text: "取消", onClick: M.close },
-        {
-          text: "确认保存",
-          primary: true,
-          onClick: function () {
-            M.close();
-            M.toast("充提限额已保存（原型）");
-          }
-        }
-      ]
+      message: "将影响全站 USDT 充提风控判定。请输入谷歌验证码确认保存。",
+      onVerified: function () {
+        M.toast("充提限额已保存（原型）");
+      }
     });
   });
 })();

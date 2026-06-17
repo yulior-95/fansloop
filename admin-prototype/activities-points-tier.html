@@ -20,29 +20,69 @@
         <a href="settings-global.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-sliders"></i> 参数总览</a>
         <a href="activities-points-monitor.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-chart-pie"></i> 发放监控</a>
         <button type="button" class="ant-btn ant-btn-sm" id="btnResetTier"><i class="fa-solid fa-rotate-left"></i> 恢复默认</button>
-        <button type="button" class="ant-btn ant-btn-primary ant-btn-sm" id="btnSaveTier"><i class="fa-solid fa-floppy-disk"></i> 保存配置</button>
+        <button type="button" class="ant-btn ant-btn-sm" id="btnSaveTier"><i class="fa-solid fa-floppy-disk"></i> 保存草稿</button>
+        <button type="button" class="ant-btn ant-btn-primary ant-btn-sm" id="btnPublishTier"><i class="fa-solid fa-cloud-arrow-up"></i> 发布上线</button>
         <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>活动运营</span></div>
       </div>
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">积分分层配置 <span class="ant-tag ant-tag-blue">MVP 轻量化</span></h1>
       <p class="admin-page-desc">
-        全局积分加成规则：命中多条规则时<strong>连乘</strong>，并受「组合封顶倍率」约束。保存后 C 端 <code>points-tier-config.js</code> 通过 localStorage 同步（原型）。
-        API：<code>GET/PUT /api/v1/admin/points-tier-config</code>
+        按用户画像配置积分加成倍率；多条规则<strong>连乘</strong>，受分层封顶与全局封顶约束。
       </p>
+
+      <div class="pt-module-top">
+        <div class="pt-module-tip">
+          <i class="fa-solid fa-circle-info pt-module-tip-icon" aria-hidden="true"></i>
+          <div class="pt-module-tip-body">
+            <p class="pt-module-tip-text">须<strong>发布上线</strong>后用户端才生效；保存草稿仅留在后台。连续登录与积分加速卡<strong>不同时生效</strong>，有加速卡时以加速卡为准；签到翻倍只走翻倍、不叠分层。</p>
+            <p id="tierPublishLine" class="pt-publish-meta">—</p>
+          </div>
+        </div>
+        <details class="pt-dev-glass">
+          <summary><span class="pt-dev-glass-badge">研发</span>服务端结算与 API</summary>
+          <div class="pt-dev-glass-inner">
+            <ul class="pt-arch-list">
+              <li>C 端只读<strong>已发布</strong>配置；发奖走 <code>POST /api/v1/points/tasks/:id/claim</code></li>
+              <li>基础分取自任务目录；用户画像、每日加成配额、连登加成天数由服务端账本维护</li>
+              <li>草稿 <code>PUT …/points-tier-config</code> · 发布 <code>PUT …/points-tier-config/publish</code></li>
+            </ul>
+          </div>
+        </details>
+      </div>
 
       <div class="ant-card ant-card-bordered" style="margin-bottom:16px">
         <div class="ant-card-body">
-          <div class="pt-admin-fields" style="grid-template-columns:repeat(2,1fr);max-width:480px">
+          <div class="pt-admin-fields" style="grid-template-columns:repeat(4,1fr);max-width:960px">
             <div>
-              <label>组合封顶倍率</label>
-              <input class="ant-input" type="number" step="0.1" min="1" id="fldMaxMul" value="3">
+              <div class="pt-field-label">分层封顶倍率<span class="pt-field-tip" tabindex="0" aria-label="规则说明"><i class="fa-solid fa-circle-exclamation"></i><span class="pt-field-tip-pop" data-tip-key="maxCombinedMultiplier"></span></span></div>
+              <input class="ant-input js-validate" type="number" step="0.1" min="1" max="2" id="fldMaxMul" value="1.5" data-validate="maxCombinedMultiplier">
+              <span style="font-size:11px;color:rgba(0,0,0,.45)">每笔发放 · 分层连乘上限</span>
             </div>
             <div>
-              <label>叠加模式</label>
-              <select class="ant-input" id="fldStack" style="width:100%;height:32px">
-                <option value="multiply">连乘（MVP）</option>
+              <div class="pt-field-label">全局封顶倍率<span class="pt-field-tip" tabindex="0" aria-label="规则说明"><i class="fa-solid fa-circle-exclamation"></i><span class="pt-field-tip-pop" data-tip-key="globalMaxMultiplier"></span></span></div>
+              <input class="ant-input js-validate" type="number" step="0.05" min="1" max="3" id="fldGlobalMax" value="1.65" data-validate="globalMaxMultiplier">
+              <span style="font-size:11px;color:rgba(0,0,0,.45)">每笔发放 · 含加速卡</span>
+            </div>
+            <div>
+              <div class="pt-field-label">单用户每日加成积分上限<span class="pt-field-tip" tabindex="0" aria-label="规则说明"><i class="fa-solid fa-circle-exclamation"></i><span class="pt-field-tip-pop" data-tip-key="dailyTierBonusCap"></span></span></div>
+              <input class="ant-input js-validate" type="number" step="10" min="0" max="5000" id="fldDailyBonusCap" value="80" data-validate="dailyTierBonusCap">
+              <span style="font-size:11px;color:rgba(0,0,0,.45);display:block;margin-top:4px;line-height:1.45">单位：积分。只累计「实发 − 基础」的加成部分；例：基础 50、实发 55 → 计 5。不含任务基础分。</span>
+            </div>
+            <div>
+              <div class="pt-field-label">与加速卡叠加<span class="pt-field-tip" tabindex="0" aria-label="规则说明"><i class="fa-solid fa-circle-exclamation"></i><span class="pt-field-tip-pop" data-tip-key="externalBoostStackMode"></span></span></div>
+              <select class="ant-input" id="fldExtStack" style="width:100%;height:32px">
+                <option value="max_only" selected>取分层与加速卡较高者（推荐）</option>
+                <option value="multiply_capped">连乘后受全局封顶</option>
+                <option value="tier_only">加速卡不叠加分层</option>
               </select>
+            </div>
+          </div>
+          <div class="pt-admin-fields" style="grid-template-columns:1fr;max-width:640px;margin-top:12px">
+            <div>
+              <div class="pt-field-label">不参与分层的活动<span class="pt-field-tip" tabindex="0" aria-label="规则说明"><i class="fa-solid fa-circle-exclamation"></i><span class="pt-field-tip-pop" data-tip-key="excludedActivityTypes"></span></span></div>
+              <p style="margin:0 0 8px;font-size:12px;color:rgba(0,0,0,.45)">勾选的活动发放积分时<strong>不叠加</strong>下方分层倍率，仍发基础积分。用于高风险、高面额渠道防薅羊毛。</p>
+              <div id="fldExcludedTypesMount" class="pt-excluded-checks"></div>
             </div>
           </div>
           <p style="margin:12px 0 0;font-size:12px;color:rgba(0,0,0,.45)" id="tierMetaLine">—</p>
@@ -56,10 +96,14 @@
           <h3 style="margin:0 0 8px;font-size:15px"><i class="fa-solid fa-flask" style="color:#52c41a"></i> 模拟计算器</h3>
           <p style="margin:0 0 12px;font-size:13px;color:rgba(0,0,0,.55)">选择用户画像，预览命中规则与预估倍率（不改变线上用户数据）。</p>
           <div class="admin-toolbar" style="margin:0">
+            <div class="pt-field-label" style="margin:0">用户画像<span class="pt-field-tip" tabindex="0" aria-label="规则说明"><i class="fa-solid fa-circle-exclamation"></i><span class="pt-field-tip-pop" data-tip-key="simProfile"></span></span></div>
             <select class="ant-input" id="simProfile" style="width:200px;height:32px">
               <option value="demo">当前演示用户</option>
               <option value="new">新注册用户</option>
               <option value="vip">高活跃订阅用户</option>
+              <option value="abuse">疑似薅羊毛（低质互动）</option>
+              <option value="day7_boundary">第7天边界用户（锁定7天）</option>
+              <option value="streak_exhausted">连登加成已用尽</option>
             </select>
             <button type="button" class="ant-btn" id="btnSimRun">运行模拟</button>
           </div>
@@ -70,6 +114,7 @@
   </div>
 </div>
 <script src="../js-web/points-tier-config.js"></script>
+<script src="../js-web/points-reward-service.js"></script>
 <script src="js/points-tier-store.js"></script>
 <script src="js/admin-nav.js"></script>
 <script src="js/admin-modal.js"></script>
