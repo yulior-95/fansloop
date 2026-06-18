@@ -124,7 +124,9 @@
             : (type === 'subscribe-locked' || i % 4 === 0
                 ? '<button type="button" class="sub-btn btn-open-subscribe" data-creator="' + esc(c.name) + '" data-plan="16" data-av="https://images.unsplash.com/' + c.av + '?w=100">订阅</button>'
                 : '');
-        var verified = c.verified ? ' <i class="fa-solid fa-circle-check verified"></i>' : '';
+        var verified = c.verified
+            ? ' <span class="fl-badge fl-badge--creator" title="认证创作者" aria-label="认证创作者"><i class="fa-solid fa-palette"></i></span>'
+            : '';
 
         return (
             '<div class="post-head">' +

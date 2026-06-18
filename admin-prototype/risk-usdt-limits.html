@@ -44,6 +44,29 @@
           <button type="button" class="ant-btn ant-btn-primary" id="btnLimSave">保存充提限额</button>
         </div>
       </div>
+
+      <div class="ant-card ant-card-bordered" style="margin-top:16px">
+        <div class="ant-card-head"><div class="ant-card-head-title"><i class="fa-solid fa-clock-rotate-left" style="margin-right:8px;color:#1890ff"></i>大额提现冷静期</div></div>
+        <div class="ant-card-body">
+          <p style="margin:0 0 16px;color:rgba(0,0,0,.55);font-size:13px;line-height:1.6">
+            平台级策略，由运营后台统一配置，<strong>用户端不可自行开关</strong>。单笔提现达到阈值后延迟到账，期间用户可在 C 端撤销。
+          </p>
+          <div class="ant-row" style="max-width:900px">
+            <div class="ant-col ant-col-8" style="padding:8px">
+              <div class="ant-form-item">
+                <label><input type="checkbox" checked style="margin-right:6px">启用大额提现冷静期</label>
+              </div>
+            </div>
+            <div class="ant-col ant-col-8" style="padding:8px">
+              <div class="ant-form-item"><label>触发阈值（USDT）</label><input class="ant-input" type="number" value="5000" style="width:100%;margin-top:6px"></div>
+            </div>
+            <div class="ant-col ant-col-8" style="padding:8px">
+              <div class="ant-form-item"><label>延迟到账（小时）</label><input class="ant-input" type="number" value="24" style="width:100%;margin-top:6px"></div>
+            </div>
+          </div>
+          <button type="button" class="ant-btn ant-btn-primary" id="btnCoolingSave">保存冷静期策略</button>
+        </div>
+      </div>
     </main>
   </div>
 </div>
@@ -58,6 +81,15 @@
       message: "将影响全站 USDT 充提风控判定。请输入谷歌验证码确认保存。",
       onVerified: function () {
         M.toast("充提限额已保存（原型）");
+      }
+    });
+  });
+  document.getElementById("btnCoolingSave").addEventListener("click", function () {
+    M.confirmGoogle({
+      title: "保存大额提现冷静期",
+      message: "将更新全站大额提现延迟到账规则，用户端不可自行修改。请输入谷歌验证码确认保存。",
+      onVerified: function () {
+        M.toast("大额提现冷静期已保存（原型）");
       }
     });
   });

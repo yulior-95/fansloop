@@ -1,0 +1,246 @@
+/* 登录 · 风险场景二次验证（仅模拟入口触发，不影响常规定义流） */
+.auth-wizard-modal {
+    position: relative;
+}
+
+.auth-login-2fa-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    background: rgba(0, 0, 0, 0.62);
+    border-radius: var(--r-xl);
+    align-items: flex-start;
+    justify-content: center;
+    padding: 16px 14px 18px;
+    overflow-y: auto;
+}
+
+.auth-login-2fa-overlay.show {
+    display: flex;
+}
+
+.auth-login-2fa-overlay .sheet {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-lg);
+    padding: 18px 16px 16px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: var(--shadow-lg);
+    margin: auto 0;
+}
+
+.auth-login-2fa-overlay .l2fa-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.auth-login-2fa-overlay .l2fa-head .ic {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.12));
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: var(--success-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 16px;
+}
+
+.auth-login-2fa-overlay .l2fa-head h3 {
+    font-size: 15px;
+    font-weight: 800;
+    margin: 0 0 4px;
+}
+
+.auth-login-2fa-overlay .l2fa-head p {
+    font-size: 11.5px;
+    color: var(--t-tertiary);
+    line-height: 1.45;
+    margin: 0;
+}
+
+.auth-login-2fa-overlay .l2fa-reason {
+    font-size: 12px;
+    color: var(--t-secondary);
+    line-height: 1.5;
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    border-radius: var(--r-md);
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.22);
+}
+
+.auth-login-2fa-overlay .l2fa-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 4px;
+    margin-bottom: 16px;
+}
+
+.auth-login-2fa-overlay .l2fa-tabs.is-single {
+    grid-template-columns: 1fr;
+}
+
+.auth-login-2fa-overlay .l2fa-tab {
+    padding: 9px 8px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--t-tertiary);
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.auth-login-2fa-overlay .l2fa-tab.active {
+    background: var(--brand-grad);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(168, 85, 247, 0.25);
+}
+
+.auth-login-2fa-overlay .l2fa-code {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 8px 0 12px;
+}
+
+.auth-login-2fa-overlay .l2fa-code input {
+    width: 42px;
+    height: 48px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 800;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: #fff;
+    outline: none;
+}
+
+.auth-login-2fa-overlay .l2fa-code input.filled {
+    border-color: var(--success);
+    background: rgba(16, 185, 129, 0.04);
+}
+
+.auth-login-2fa-overlay .l2fa-code input:focus {
+    border-color: var(--brand-purple);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.12);
+}
+
+.auth-login-2fa-overlay .l2fa-hint {
+    font-size: 11px;
+    color: var(--t-tertiary);
+    text-align: center;
+    line-height: 1.45;
+    margin-bottom: 12px;
+}
+
+.auth-login-2fa-overlay .l2fa-bio {
+    text-align: center;
+    padding: 8px 0 4px;
+}
+
+.auth-login-2fa-overlay .l2fa-bio .ring {
+    width: 108px;
+    height: 108px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(236, 72, 153, 0.08));
+    border: 3px dashed rgba(168, 85, 247, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #c084fc;
+    font-size: 40px;
+}
+
+.auth-login-2fa-overlay .l2fa-bio h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 4px;
+}
+
+.auth-login-2fa-overlay .l2fa-bio p {
+    font-size: 11.5px;
+    color: var(--t-tertiary);
+    line-height: 1.45;
+    margin: 0 0 12px;
+}
+
+.auth-login-2fa-overlay .l2fa-err {
+    display: none;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 11.5px;
+    color: var(--danger-light);
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: var(--r-md);
+    padding: 8px 10px;
+    margin-bottom: 12px;
+}
+
+.auth-login-2fa-overlay .l2fa-err.show {
+    display: flex;
+}
+
+.auth-login-2fa-overlay .dialog-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 4px;
+}
+
+.auth-login-2fa-overlay [hidden] {
+    display: none !important;
+}
+
+.auth-risk-sim-link {
+    display: inline;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--brand-purple);
+    font-size: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.auth-risk-sim-link:hover {
+    color: #e9d5ff;
+}
+
+.auth-risk-sim-on {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--warning-light);
+    margin-top: 8px;
+    padding: 8px 10px;
+    border-radius: var(--r-md);
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.auth-risk-sim-on.show {
+    display: flex;
+}

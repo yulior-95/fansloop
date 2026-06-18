@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="../css-web/common-web.css">
 <link rel="stylesheet" href="../css-web/prototype-guest-first.css">
 <link rel="stylesheet" href="../css-web/auth-wizard-modal.css">
+<link rel="stylesheet" href="../css-web/auth-login-2fa-step.css">
 <link rel="stylesheet" href="../css-web/invite-referral.css">
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
@@ -150,6 +151,11 @@
                     </div>
                     <button type="button" class="btn-gf-primary" id="btnEmailLogin" style="width:100%"><i class="fa-solid fa-right-to-bracket"></i> 登录</button>
                     <p style="margin-top:10px;font-size:11px;color:var(--t-quaternary);text-align:center;">试用未注册邮箱 <code style="color:#FBBF24">new-user@example.com</code> 将提示转入注册</p>
+                    <p style="margin-top:8px;font-size:11px;color:var(--t-quaternary);text-align:center;line-height:1.45;">
+                        体验二次验证：<button type="button" class="auth-risk-sim-link" id="btnSimRiskLogin">模拟风险环境登录</button>
+                        <span style="color:var(--t-quaternary);">（新设备 / 异地 / 超 30 天 / 改密）</span>
+                    </p>
+                    <div class="auth-risk-sim-on" id="authRiskSimOn"><i class="fa-solid fa-triangle-exclamation"></i> 风险模拟已开启 · 下次登录将要求动态码或生物识别</div>
                 </div>
 
                 <div id="emailRegisterPanel" style="display:none">
@@ -194,12 +200,54 @@
                 </div>
             </div>
         </div>
+
+        <div id="login2faOverlay" class="auth-login-2fa-overlay" aria-hidden="true">
+            <div class="sheet" role="dialog" aria-labelledby="login2faTitle" aria-modal="true">
+                <div class="l2fa-head">
+                    <div class="ic"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div>
+                        <h3 id="login2faTitle">二次验证</h3>
+                        <p id="login2faSub">常用设备免验证，当前为风险场景</p>
+                    </div>
+                </div>
+                <p class="l2fa-reason" id="login2faReason">检测到新设备登录，请完成二次验证。</p>
+                <div class="l2fa-tabs" id="login2faTabs">
+                    <button type="button" class="l2fa-tab active" id="login2faTabTotp"><i class="fa-solid fa-mobile-screen"></i> 认证器动态码</button>
+                    <button type="button" class="l2fa-tab" id="login2faTabBio"><i class="fa-solid fa-fingerprint"></i> 生物识别</button>
+                </div>
+                <div id="login2faTotpPanel">
+                    <div class="l2fa-code" id="login2faCode">
+                        <input type="text" class="l2fa-digit" maxlength="1" inputmode="numeric" autocomplete="one-time-code" aria-label="第 1 位">
+                        <input type="text" class="l2fa-digit" maxlength="1" inputmode="numeric" aria-label="第 2 位">
+                        <input type="text" class="l2fa-digit" maxlength="1" inputmode="numeric" aria-label="第 3 位">
+                        <input type="text" class="l2fa-digit" maxlength="1" inputmode="numeric" aria-label="第 4 位">
+                        <input type="text" class="l2fa-digit" maxlength="1" inputmode="numeric" aria-label="第 5 位">
+                        <input type="text" class="l2fa-digit" maxlength="1" inputmode="numeric" aria-label="第 6 位">
+                    </div>
+                    <p class="l2fa-hint" id="login2faTotpHint">打开认证器 APP，输入 6 位动态码</p>
+                </div>
+                <div id="login2faBioPanel" hidden>
+                    <div class="l2fa-bio">
+                        <div class="ring"><i class="fa-solid fa-fingerprint"></i></div>
+                        <h4>使用本机生物识别</h4>
+                        <p id="login2faBioHint">使用已注册设备完成快捷验证</p>
+                        <button type="button" class="btn-gf-primary" id="btnLogin2faBio" style="width:100%"><i class="fa-solid fa-fingerprint"></i> 模拟 · <span id="login2faBioDevice">本机设备</span> 验证</button>
+                    </div>
+                </div>
+                <div class="l2fa-err" id="login2faErr"></div>
+                <div class="dialog-actions">
+                    <button type="button" class="btn-gf-ghost" id="btnLogin2faCancel">返回</button>
+                    <button type="button" class="btn-gf-primary" id="btnLogin2faTotp"><i class="fa-solid fa-check"></i> 验证并登录</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <style>.d-block{display:block;}</style>
 <script src="../js-web/invite-reward-config.js"></script>
 <script src="../js-web/invite-register-flow.js"></script>
+<script src="../js-web/auth-login-2fa-step.js"></script>
 <script src="../js-web/auth-unified-flow.js"></script>
 <script>
 (function () {
@@ -268,9 +316,24 @@
     if (btnLoginOk) {
         btnLoginOk.addEventListener('click', function (e) {
             var isReg = document.body.getAttribute('data-wallet-auth-mode') === 'register';
-            if (window.FansloopAuth) {
-                window.FansloopAuth.login({ walletAddress: '0x7c5A8D93a1b2c3d4e5f6789012345678901234', isRegister: isReg });
+            var next = function () {
+                if (window.FansloopAuth) {
+                    window.FansloopAuth.login({ walletAddress: '0x7c5A8D93a1b2c3d4e5f6789012345678901234', isRegister: isReg });
+                }
+            };
+            if (window.FL_login2fa && window.FL_login2fa.isRiskSimEnabled && window.FL_login2fa.isRiskSimEnabled()) {
+                e.preventDefault();
+                window.FL_login2fa.maybeGate({
+                    email: '',
+                    method: 'wallet',
+                    next: function () {
+                        next();
+                        location.href = 'home.html';
+                    }
+                });
+                return;
             }
+            next();
         });
     }
 

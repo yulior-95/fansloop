@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="../css-web/recharge-flow.css">
 <link rel="stylesheet" href="../css-web/moonpay-guide-modals.css">
 <link rel="stylesheet" href="../css-web/kyc-modals.css">
+<link rel="stylesheet" href="../css-web/withdraw-email-verify.css">
 <style>
 body.page-withdraw-web .app-main {
     overflow-x: hidden;
@@ -383,8 +384,34 @@ body.page-withdraw-web .app-main {
     </div>
 </div>
 
+<div id="wdEmailVerifyModal" role="dialog" aria-modal="true" aria-labelledby="wdEmailVerifyTitle">
+    <div class="wd-ev-dialog" onclick="event.stopPropagation()">
+        <div class="wd-ev-head">
+            <h3 id="wdEmailVerifyTitle"><i class="fa-solid fa-envelope-circle-check" style="color:var(--brand-purple);margin-right:6px"></i>验证主邮箱</h3>
+            <button type="button" class="close-x" id="wdEmailVerifyClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="wd-ev-body">
+            <p class="wd-ev-lead" id="wdEmailVerifyLead">继续提现前，请验证主邮箱。</p>
+            <div class="wd-ev-code-row">
+                <input type="text" class="input" id="wdEmailVerifyCode" inputmode="numeric" maxlength="6" placeholder="6 位邮箱验证码" autocomplete="one-time-code">
+                <button type="button" class="btn btn-secondary wd-ev-send" id="btnWdEmailSendCode">发送验证码</button>
+            </div>
+            <p class="wd-ev-hint" id="wdEmailVerifyHint">点击「发送验证码」后查收邮件并填写 6 位验证码。</p>
+            <div class="wd-ev-err" id="wdEmailVerifyErr"></div>
+        </div>
+        <div class="wd-ev-foot">
+            <button type="button" class="btn btn-secondary" id="wdEmailVerifyDismiss">取消</button>
+            <button type="button" class="btn btn-primary" id="btnWdEmailVerifyOk"><i class="fa-solid fa-check"></i> 验证并继续</button>
+        </div>
+    </div>
+</div>
+
 <div id="wdGlobalToastUsdt" class="toast-mini" role="status" aria-live="polite"></div>
 
+<script src="../js-web/user-prototype-registry.js"></script>
+<script src="../js-web/auth-session.js"></script>
+<script src="../js-web/withdraw-email-confirm-store.js"></script>
+<script src="../js-web/withdraw-email-verify-gate.js"></script>
 <script src="../js-web/kyc-store.js"></script>
 <script src="../js-web/kyc-withdraw-gate.js"></script>
 <script>
@@ -393,7 +420,14 @@ body.page-withdraw-web .app-main {
     FansloopKycWithdrawBootstrap.wireKycWizard({ toastId: 'wdGlobalToastUsdt', channel: '钱包提现' });
     document.getElementById('btnWdSubmitUsdt').addEventListener('click', function () {
         if (!FansloopKycWithdrawGate.kycGate()) return;
-        location.href = 'modal-withdraw-chain-moonpay.html';
+        var go = function () {
+            location.href = 'modal-withdraw-chain-moonpay.html';
+        };
+        if (window.FLWithdrawEmailConfirm && window.FLWithdrawEmailConfirm.isEnabled() && window.FLWithdrawEmailVerify) {
+            window.FLWithdrawEmailVerify.open({ onVerified: go });
+            return;
+        }
+        go();
     });
 })();
 </script>

@@ -89,7 +89,18 @@
         return url + sep + 'nav=' + encodeURIComponent(id);
     }
 
-    /** 全站统一侧栏菜单（不含 badge/chip 等页面差异） */
+    /** 侧栏角标 / chip（与 profile、home 等主场景静态值一致，动态项见 applySidebarIndicators） */
+    var SIDEBAR_INDICATORS = {
+        create: { badge: 2, badgeVariant: 'warn' },
+        messages: { badgeKey: 'messages', defaultBadge: 8 },
+        notifications: { badgeKey: 'notifications', defaultBadge: 12 },
+        'creator-income': { chip: '+$28' }
+    };
+
+    var NF_UNREAD_LS = 'fl_nf_unread_count';
+    var MSG_UNREAD_LS = 'fl_msg_unread_count';
+
+    /** 全站统一侧栏菜单 */
     var SIDEBAR_NAV = [
         {
             section: '主导航',
@@ -170,6 +181,71 @@
         return '';
     }
 
+    function readStoredCount(key, fallback) {
+        try {
+            var raw = localStorage.getItem(key);
+            if (raw !== null && raw !== '') {
+                var n = parseInt(raw, 10);
+                if (!isNaN(n) && n >= 0) return n;
+            }
+        } catch (e) { /* ignore */ }
+        return typeof fallback === 'number' ? fallback : 0;
+    }
+
+    function getSidebarBadgeValue(ind) {
+        if (!ind || !ind.badgeKey) return 0;
+        if (ind.badgeKey === 'notifications') return readStoredCount(NF_UNREAD_LS, ind.defaultBadge);
+        if (ind.badgeKey === 'messages') return readStoredCount(MSG_UNREAD_LS, ind.defaultBadge);
+        return ind.defaultBadge || 0;
+    }
+
+    function badgeStyleAttr(variant) {
+        if (variant === 'warn') return ' style="background:rgba(245,158,11,0.25);color:#FBBF24"';
+        return '';
+    }
+
+    function buildIndicatorHtml(item) {
+        var ind = SIDEBAR_INDICATORS[item.id];
+        if (!ind) return '';
+        var html = '';
+        if (ind.badge != null) {
+            html += '<span class="badge" data-sidebar-badge="' + item.id + '"' + badgeStyleAttr(ind.badgeVariant) + '>' + ind.badge + '</span>';
+        } else if (ind.badgeKey) {
+            var val = getSidebarBadgeValue(ind);
+            if (val > 0) {
+                html += '<span class="badge" data-sidebar-badge="' + item.id + '">' + val + '</span>';
+            }
+        }
+        if (ind.chip) {
+            html += '<span class="chip" data-sidebar-chip="' + item.id + '">' + ind.chip + '</span>';
+        }
+        return html;
+    }
+
+    function applySidebarIndicators(sidebar) {
+        sidebar = sidebar || document.querySelector('.app-sidebar');
+        if (!sidebar) return;
+        Object.keys(SIDEBAR_INDICATORS).forEach(function (id) {
+            var ind = SIDEBAR_INDICATORS[id];
+            if (!ind.badgeKey) return;
+            var row = sidebar.querySelector('.s-item[data-nav-id="' + id + '"]');
+            if (!row) return;
+            var val = getSidebarBadgeValue(ind);
+            var badge = row.querySelector('[data-sidebar-badge="' + id + '"]');
+            if (val > 0) {
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'badge';
+                    badge.setAttribute('data-sidebar-badge', id);
+                    row.appendChild(badge);
+                }
+                badge.textContent = String(val);
+            } else if (badge) {
+                badge.remove();
+            }
+        });
+    }
+
     function buildSidebarNavHtml(activeId) {
         var html = '';
         SIDEBAR_NAV.forEach(function (group) {
@@ -179,6 +255,7 @@
                 html += '<div class="' + cls + '" data-nav-id="' + item.id + '" onclick="location.href=\'' + item.href + '\'">' +
                     '<span class="ic"><i class="' + item.icon + '"></i></span>' +
                     '<span class="lb">' + item.label + '</span>' +
+                    buildIndicatorHtml(item) +
                     '</div>';
             });
         });
@@ -198,6 +275,10 @@
         }
         sidebar.innerHTML = brandHtml + buildSidebarNavHtml(activeId) + bottomHtml;
         sidebar.setAttribute('data-fl-nav-unified', '1');
+        applySidebarIndicators(sidebar);
+        if (typeof bindSidebarNotificationItems === 'function') {
+            bindSidebarNotificationItems();
+        }
         if (global.FLAuthUiSync && global.FLAuthUiSync.apply) {
             global.FLAuthUiSync.apply();
         }
@@ -210,8 +291,25 @@
 
     global.FL_renderSidebarNav = renderUnifiedSidebarNav;
     global.FL_sidebarNavConfig = SIDEBAR_NAV;
+    global.FL_sidebarIndicators = SIDEBAR_INDICATORS;
+    global.FL_applySidebarIndicators = applySidebarIndicators;
+    global.FL_setSidebarUnread = function (key, count) {
+        var ls = key === 'messages' ? MSG_UNREAD_LS : NF_UNREAD_LS;
+        try {
+            if (count > 0) localStorage.setItem(ls, String(count));
+            else localStorage.removeItem(ls);
+        } catch (e) { /* ignore */ }
+        applySidebarIndicators();
+    };
     global.FL_navContextProfileUrl = navContextProfileUrl;
     global.FL_persistNavContext = persistNavContext;
+
+    window.addEventListener('fl-nf-unread-changed', function () {
+        applySidebarIndicators();
+    });
+    window.addEventListener('fl-sidebar-indicators-changed', function () {
+        applySidebarIndicators();
+    });
 
     function isCollapsed() {
         try { return localStorage.getItem(STORAGE_KEY) === '1'; } catch (e) { return false; }

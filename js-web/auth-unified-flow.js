@@ -138,6 +138,17 @@
         location.href = 'onboarding-profile-complete.html?source=email';
     });
 
+    function finishEmailLogin(email) {
+        var next = function () {
+            if (window.FansloopAuth) window.FansloopAuth.login({ email: email });
+            location.href = 'home.html';
+        };
+        if (window.FL_login2fa && window.FL_login2fa.maybeGate({ email: email, method: 'email', next: next })) {
+            return;
+        }
+        next();
+    }
+
     document.getElementById('btnEmailLogin').addEventListener('click', function () {
         var email = (document.getElementById('emailLoginInput').value || '').trim();
         if (!email) {
@@ -148,8 +159,7 @@
             document.getElementById('emailUnregOverlay').classList.add('show');
             return;
         }
-        if (window.FansloopAuth) window.FansloopAuth.login({ email: email });
-        location.href = 'home.html';
+        finishEmailLogin(email);
     });
 
     document.getElementById('btnUnregToRegister').addEventListener('click', function () {

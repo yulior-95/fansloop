@@ -936,7 +936,9 @@
                     return '<span class="tag-mini ' + (t.tagClass || 'tag-fan') + '">' + esc(tag) + '</span>';
                 }).join('');
                 if (t.kind === 'group') tags = '<span class="tag-mini tag-fan">' + (t.memberCount || 0) + ' 人</span>';
-                var vfy = t.verified ? ' <i class="fa-solid fa-circle-check vfy"></i>' : '';
+                var vfy = t.verified
+                    ? ' <span class="fl-badge fl-badge--creator" title="认证创作者" aria-label="认证创作者"><i class="fa-solid fa-palette"></i></span>'
+                    : '';
                 var badge = t.unread ? '<span class="badge">' + t.unread + '</span>' : '';
                 var avInner = t.official ? '<i class="fa-solid fa-infinity"></i>' : (t.kind === 'group' ? '<i class="fa-solid fa-users"></i>' : '');
                 html += '<div class="' + cls + '" data-id="' + t.id + '" role="button" tabindex="0">' +
@@ -950,7 +952,17 @@
 
         if (!html) html = '<div style="padding:24px;text-align:center;color:var(--t-tertiary);font-size:12px">暂无会话</div>';
         el.threadList.innerHTML = html;
-        if (el.unreadHead) el.unreadHead.textContent = totalUnread() + ' 未读';
+        var unreadTotal = totalUnread();
+        if (el.unreadHead) el.unreadHead.textContent = unreadTotal + ' 未读';
+        if (window.FL_setSidebarUnread) {
+            window.FL_setSidebarUnread('messages', unreadTotal);
+        } else {
+            try {
+                if (unreadTotal > 0) localStorage.setItem('fl_msg_unread_count', String(unreadTotal));
+                else localStorage.removeItem('fl_msg_unread_count');
+            } catch (e) { /* ignore */ }
+            window.dispatchEvent(new CustomEvent('fl-sidebar-indicators-changed'));
+        }
     }
 
     function renderMessage(m, thread) {
@@ -1041,7 +1053,9 @@
         if (el.headName) {
             var dn = displayThreadName(t);
             el.headName.innerHTML = esc(dn) + (t.remark ? ' <span style="font-size:11px;color:var(--t-tertiary);font-weight:400">(' + esc(t.name) + ')</span>' : '') +
-                (t.verified && t.kind !== 'group' ? ' <i class="fa-solid fa-circle-check" style="color:#3B82F6;font-size:11px"></i>' : '');
+                (t.verified && t.kind !== 'group'
+                    ? ' <span class="fl-badge fl-badge--creator" title="认证创作者" aria-label="认证创作者"><i class="fa-solid fa-palette"></i></span>'
+                    : '');
         }
         if (el.headStatus) el.headStatus.textContent = renderHeadStatus(t);
         applyThreadHeadChrome(t);
@@ -1083,7 +1097,9 @@
         var h3 = el.infoPanel.querySelector('.imi-head h3');
         if (h3) {
             var dn2 = displayThreadName(t);
-            h3.innerHTML = esc(dn2) + (t.verified ? ' <i class="fa-solid fa-circle-check vfy"></i>' : '');
+            h3.innerHTML = esc(dn2) + (t.verified
+                ? ' <span class="fl-badge fl-badge--creator" title="认证创作者" aria-label="认证创作者"><i class="fa-solid fa-palette"></i></span>'
+                : '');
         }
         var handle = el.infoPanel.querySelector('.imi-head .h');
         if (handle) {

@@ -69,15 +69,17 @@
 
         if (avEl) avEl.style.backgroundImage = "url('" + avatar.replace(/'/g, '%27') + "')";
         if (nmEl) {
-            var verified = nmEl.querySelector('.vfd');
+            var verified = nmEl.querySelector('.fl-badge--creator');
             nmEl.textContent = '';
             nmEl.appendChild(document.createTextNode(creator + ' '));
             if (verified) nmEl.appendChild(verified);
             else {
-                var vfd = document.createElement('span');
-                vfd.className = 'vfd';
-                vfd.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-                nmEl.appendChild(vfd);
+                var badge = document.createElement('span');
+                badge.className = 'fl-badge fl-badge--creator';
+                badge.title = '认证创作者';
+                badge.setAttribute('aria-label', '认证创作者');
+                badge.innerHTML = '<i class="fa-solid fa-palette"></i>';
+                nmEl.appendChild(badge);
             }
         }
         if (subEl) subEl.textContent = sub;

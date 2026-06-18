@@ -604,6 +604,15 @@
         var chip = document.getElementById("nfCntUnread");
         if (bulk) bulk.textContent = String(unread);
         if (chip) chip.textContent = String(unread);
+        if (window.FL_setSidebarUnread) {
+            window.FL_setSidebarUnread('notifications', unread);
+        } else {
+            try {
+                if (unread > 0) localStorage.setItem('fl_nf_unread_count', String(unread));
+                else localStorage.removeItem('fl_nf_unread_count');
+            } catch (e) { /* ignore */ }
+            window.dispatchEvent(new CustomEvent('fl-nf-unread-changed'));
+        }
     }
     function applyTab(tab) {
         filterHost.querySelectorAll(".ck").forEach(function (ck) {

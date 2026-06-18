@@ -119,6 +119,22 @@
             el.innerHTML = html;
         });
         document.dispatchEvent(new CustomEvent("settings-nav-mounted"));
+        if (!document.querySelector('script[src*="settings-app-header.js"]')) {
+            var s = document.createElement('script');
+            var base = '';
+            var scripts = document.getElementsByTagName('script');
+            for (var i = 0; i < scripts.length; i++) {
+                var src = scripts[i].src || '';
+                if (src.indexOf('settings-nav') >= 0) {
+                    base = src.replace(/\/js-web\/settings-nav\.js.*$/, '/js-web/');
+                    break;
+                }
+            }
+            s.src = (base || '../js-web/') + 'settings-app-header.js';
+            document.body.appendChild(s);
+        } else if (window.FL_applySettingsAppHeader) {
+            window.FL_applySettingsAppHeader();
+        }
     }
 
     mount();
