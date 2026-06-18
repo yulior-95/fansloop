@@ -10,6 +10,9 @@
     var DEMO_USER = "Luna \uD83C\uDF19";
 
     function readRaw() {
+        if (global.FLUserAssets && global.FansloopAuth && global.FansloopAuth.getUserId()) {
+            return global.FLUserAssets.getKycRaw() || {};
+        }
         try {
             return JSON.parse(localStorage.getItem(KYC_STORE) || "{}");
         } catch (e) {
@@ -58,6 +61,10 @@
     }
 
     function writeKyc(partial) {
+        if (global.FLUserAssets && global.FansloopAuth && global.FansloopAuth.getUserId()) {
+            global.FLUserAssets.updateKyc(partial);
+            return;
+        }
         var o = readRaw();
         if (partial.status && !partial.authStatus) {
             partial.authStatus = authFromLegacy(partial.status);
@@ -94,6 +101,10 @@
             status: row.status,
             note: row.note || row.reason || row.action || ""
         });
+        if (global.FLUserAssets && global.FansloopAuth && global.FansloopAuth.getUserId()) {
+            global.FLUserAssets.pushKycAudit(entry);
+            return;
+        }
         var a = readAuditLog();
         a.unshift(entry);
         localStorage.setItem(AUDIT_LOG, JSON.stringify(a.slice(0, 80)));
@@ -218,12 +229,21 @@
     }
 
     function resetKyc() {
+        if (global.FLUserAssets && global.FansloopAuth && global.FansloopAuth.getUserId()) {
+            global.FLUserAssets.updateKyc({ authStatus: 'unverified', status: 'none' });
+            global.FLUserAssets.persistAssets({ kycAudit: [] });
+            clearFaceDone();
+            return;
+        }
         localStorage.removeItem(KYC_STORE);
         localStorage.removeItem(AUDIT_LOG);
         clearFaceDone();
     }
 
     function readAuditLog() {
+        if (global.FLUserAssets && global.FansloopAuth && global.FansloopAuth.getUserId()) {
+            return global.FLUserAssets.readKycAudit();
+        }
         try {
             return JSON.parse(localStorage.getItem(AUDIT_LOG) || "[]");
         } catch (e) {

@@ -146,8 +146,14 @@
                             return;
                         }
                         toast(res.toast || '领取成功');
-                        card.querySelector('.btn-go').textContent = '已领取';
-                        card.querySelector('.btn-go').disabled = true;
+                        var btn = card.querySelector('.btn-go');
+                        if (btn) {
+                            btn.textContent = '已领取';
+                            btn.disabled = true;
+                            btn.classList.remove('claim');
+                        }
+                        card.classList.add('is-claimed');
+                        refreshAll(res.data);
                     });
                     return;
                 }
@@ -249,18 +255,20 @@
         }
     }
 
+    function refreshAll(data) {
+        renderStrip(data);
+        renderHeader(data);
+        renderAside(data);
+        renderDrawerSummary(data);
+        renderDrawerTasks(data);
+        renderDrawerLedger(data);
+        renderDrawerMall(data);
+        if (window.MallBenefitsScenes) window.MallBenefitsScenes.applyAll();
+    }
+
     function boot() {
         initLayout();
-        S.fetchPointsData().then(function (data) {
-            renderStrip(data);
-            renderHeader(data);
-            renderAside(data);
-            renderDrawerSummary(data);
-            renderDrawerTasks(data);
-            renderDrawerLedger(data);
-            renderDrawerMall(data);
-            if (window.MallBenefitsScenes) window.MallBenefitsScenes.applyAll();
-        });
+        S.fetchPointsData().then(refreshAll);
 
         var hBtn = qs('#hPointsBtn');
         if (hBtn) hBtn.addEventListener('click', openDrawer);
@@ -288,6 +296,13 @@
             setTimeout(function () { window.MallBenefitsScenes.applyAll(); }, 50);
         }
     }
+
+    window.addEventListener('fansloop-auth-change', function () {
+        S.fetchPointsData().then(refreshAll);
+    });
+    window.addEventListener('fl-points-data-change', function (e) {
+        if (e.detail) refreshAll(e.detail);
+    });
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', boot);

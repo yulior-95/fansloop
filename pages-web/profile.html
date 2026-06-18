@@ -41,10 +41,17 @@
     z-index: 2;
 }
 .ph-row {
-    display: flex; align-items: flex-end; gap: 22px;
+    display: grid;
+    grid-template-columns: 144px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: 22px;
+    row-gap: 10px;
+    align-items: end;
     margin-bottom: 18px;
 }
 .ph-row .av-xl {
+    grid-row: 1 / -1;
+    align-self: end;
     width: 144px; height: 144px;
     border-radius: 50%;
     background: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80') center/cover;
@@ -65,14 +72,53 @@
     border: 4px solid var(--bg-canvas);
     box-shadow: 0 4px 12px rgba(245,158,11,0.4);
 }
-.ph-row .info { flex: 1; padding-bottom: 14px; }
+.ph-row .info {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    padding-bottom: 0;
+}
 .ph-row .info .name-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
 .ph-row .info h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
 .ph-row .info h1 .vfy { color: #3B82F6; font-size: 18px; }
-.ph-row .info .tags-row { display: flex; gap: 6px; align-items: center; }
+.ph-row .info .tags-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.ph-row .info #creatorCertTagWrap { display: inline-flex; align-items: center; }
+.ph-row .info .tags-row .tag,
+.ph-row .info .tags-row button.tag {
+    line-height: 1.25;
+    white-space: nowrap;
+    vertical-align: middle;
+    box-sizing: border-box;
+}
+.ph-row .info .tags-row .tag i,
+.ph-row .info .tags-row button.tag i {
+    font-size: 9px;
+    width: 11px;
+    text-align: center;
+    flex-shrink: 0;
+    line-height: 1;
+}
+.ph-row .info .tags-row .tag-info i { color: var(--info-light); opacity: 0.92; }
+.ph-row .info .tags-row .tag-muted i { color: var(--t-quaternary); opacity: 0.9; }
 .ph-row .info .h { font-size: 13.5px; color: var(--t-secondary); font-family: ui-monospace, monospace; }
 .ph-row .info .bio { font-size: 13px; color: var(--t-secondary); line-height: 1.5; max-width: 580px; margin-top: 8px; }
-.ph-row .acts { padding-bottom: 14px; display: flex; gap: 8px; }
+.ph-row .acts {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 14px;
+    max-width: 100%;
+}
+.ph-row .acts .btn { flex-shrink: 0; }
 
 .ph-meta {
     display: flex; gap: 20px;
@@ -277,6 +323,52 @@
 }
 .about-card h3 { font-size: 16px; font-weight: 800; margin-bottom: 12px; }
 .about-card p { font-size: 13px; color: var(--t-secondary); line-height: 1.6; margin-bottom: 10px; }
+
+@media (max-width: 900px) {
+    .profile-stats { grid-template-columns: repeat(3, 1fr); }
+    .posts-grid,
+    .grid-paid, .grid-live, .grid-likes, .grid-bookmarks {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 640px) {
+    .cover { height: 200px; }
+    .profile-head {
+        padding: 0 16px;
+        margin-top: -64px;
+    }
+    .ph-row {
+        grid-template-columns: 96px minmax(0, 1fr);
+        column-gap: 14px;
+        row-gap: 8px;
+    }
+    .ph-row .av-xl {
+        width: 96px;
+        height: 96px;
+        border-width: 4px;
+    }
+    .ph-row .av-xl .role-badge {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+        border-width: 3px;
+    }
+    .ph-row .info h1 { font-size: 22px; }
+    .ph-row .acts { justify-content: flex-start; }
+    .ph-meta { gap: 12px; font-size: 12px; }
+    .profile-stats { grid-template-columns: repeat(2, 1fr); }
+    .profile-stats .pst { padding: 14px 10px; }
+    .profile-stats .pst .v { font-size: 18px; }
+    .profile-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .profile-tabs::-webkit-scrollbar { display: none; }
+    .profile-tabs .tb { flex-shrink: 0; padding: 12px 14px; font-size: 12.5px; }
+    .content-section,
+    .profile-pane { padding: 16px; }
+}
 
 </style>
 <link rel="stylesheet" href="../css-web/dev-glass-note.css">
@@ -954,16 +1046,20 @@
             <button type="button" class="btn btn-primary btn-block" id="btnConfirmSubscribe"><i class="fa-solid fa-bolt"></i> 确认订阅并支付</button>
         </div>
         <div class="sub-modal-step" id="subStepRecharge">
-            <div class="sub-recharge-hint"><i class="fa-solid fa-circle-exclamation"></i> 余额不足，需充值 <b id="subRechargeNeed">—</b> USDT</div>
+            <div class="sub-recharge-hint" id="subRechargeHint">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>余额不足，需充值 <b id="subRechargeNeed">—</b> USDT 后再完成订阅。</span>
+            </div>
             <div class="sub-pay-summary">
                 <div class="row"><span>当前余额</span><span class="v" id="subRechargeBalNow">—</span></div>
                 <div class="row"><span>应付</span><span class="v" id="subRechargePayDue">—</span></div>
             </div>
             <div class="sub-recharge-amt-grid">
-                <button type="button" class="sub-recharge-amt" data-amt="50">50</button>
-                <button type="button" class="sub-recharge-amt active" data-amt="100">100</button>
-                <button type="button" class="sub-recharge-amt" data-amt="200">200</button>
+                <button type="button" class="sub-recharge-amt" data-amt="50">50 USDT</button>
+                <button type="button" class="sub-recharge-amt active" data-amt="100">100 USDT</button>
+                <button type="button" class="sub-recharge-amt" data-amt="200">200 USDT</button>
             </div>
+            <p style="font-size:11px;color:var(--t-tertiary);line-height:1.45;margin-bottom:12px" id="subRechargeDemoNote"><i class="fa-solid fa-shield-halved"></i> 请前往充值页完成入账，到账后返回继续订阅。</p>
             <div class="sub-step-actions">
                 <button type="button" class="btn btn-secondary" id="btnSubRechargeBack">返回</button>
                 <button type="button" class="btn btn-primary" id="btnSubRechargeConfirm">确认充值</button>
@@ -1401,6 +1497,11 @@
 <script src="../js-web/profile-unread-viewer.js"></script>
 <script src="../js-web/dev-glass-viewport.js"></script>
 <script src="../js-web/invite-reward-config.js"></script>
+<script src="../js-web/user-prototype-registry.js"></script>
+<script src="../js-web/user-assets-store.js"></script>
+<script src="../js-web/pay-password-store.js"></script>
+<script src="../js-web/auth-session.js"></script>
+<script src="../js-web/auth-ui-sync.js"></script>
 <script src="../js-web/points-tier-config.js"></script>
 <script src="../js-web/points-reward-service.js"></script>
 <script src="../js-web/home-points-store.js"></script>

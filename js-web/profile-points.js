@@ -78,6 +78,10 @@
     function goMall() { location.href = 'points-mall.html'; }
 
     function applyWalletFromStorage(data) {
+        if (window.FLUserRegistry && window.FansloopAuth && window.FansloopAuth.getUserId()) {
+            var acc = window.FLUserRegistry.getByUserId(window.FansloopAuth.getUserId());
+            if (acc && acc.pointsWallet) return data;
+        }
         var saved = S.loadTaskState()._wallet;
         if (saved) {
             if (typeof saved.available === 'number') data.wallet.available = saved.available;
@@ -178,18 +182,13 @@
                     showToast(res.toast || '领取失败');
                     return;
                 }
-                var data = applyWalletFromStorage(res.data);
+                var data = res.data;
                 showToast(res.toast);
                 markClaimedUI(card, res.task);
-                renderInline(data);
-                renderHeader(data);
-                var summary = qs('#hpDrawerSummaryCompact');
-                if (summary) {
-                    summary.innerHTML =
-                        '<span>总积分 <strong>' + S.formatPoints(S.getTotalPoints(data.wallet)) + '</strong></span>' +
-                        '<span>今日已领 <strong>+' + S.formatPoints(data.wallet.todayEarned) + '</strong> / ' +
-                        S.formatPoints(data.wallet.todayCap) + '</span>';
-                }
+                renderAll(data);
+                try {
+                    window.dispatchEvent(new CustomEvent('fl-points-data-change', { detail: data }));
+                } catch (e) { /* ignore */ }
                 state.data = data;
             });
             return;
@@ -256,4 +255,9 @@
     } else {
         boot();
     }
+
+    window.addEventListener('fansloop-auth-change', boot);
+    window.addEventListener('fl-points-data-change', function (e) {
+        if (e.detail) renderAll(applyWalletFromStorage(e.detail));
+    });
 })();

@@ -112,7 +112,12 @@
     }
 
     document.getElementById('btnEmailRegDone').addEventListener('click', function () {
+        var email = (document.getElementById('regEmail').value || '').trim();
         var otp = (document.getElementById('regOtp').value || '').trim();
+        if (!email) {
+            showRegErr('请填写邮箱');
+            return;
+        }
         if (!otp || otp !== '123456') {
             showRegErr('请输入正确的验证码');
             return;
@@ -129,6 +134,7 @@
                 return;
             }
         }
+        if (window.FansloopAuth) window.FansloopAuth.register({ email: email });
         location.href = 'onboarding-profile-complete.html?source=email';
     });
 
@@ -142,7 +148,7 @@
             document.getElementById('emailUnregOverlay').classList.add('show');
             return;
         }
-        if (window.FansloopAuth) window.FansloopAuth.login();
+        if (window.FansloopAuth) window.FansloopAuth.login({ email: email });
         location.href = 'home.html';
     });
 
@@ -163,6 +169,90 @@
         el.style.display = 'flex';
         el.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i><div>' + msg + '</div>';
     }
+
+    function bindOtpCountdown(btn, getEmail, opts) {
+        if (!btn) return;
+        opts = opts || {};
+        var seconds = opts.seconds || 60;
+        var label = btn.getAttribute('data-otp-label') || btn.textContent.trim() || '获取验证码';
+        var timer = null;
+        var left = 0;
+
+        function resetBtn() {
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+            }
+            left = 0;
+            btn.disabled = false;
+            btn.classList.remove('is-otp-counting');
+            btn.textContent = label;
+        }
+
+        function tick() {
+            left -= 1;
+            if (left <= 0) {
+                resetBtn();
+                return;
+            }
+            btn.textContent = left + 's 后重发';
+        }
+
+        btn.addEventListener('click', function () {
+            if (left > 0) return;
+            var email = (getEmail() || '').trim();
+            if (!email) {
+                if (opts.onEmptyEmail) opts.onEmptyEmail();
+                return;
+            }
+            if (opts.beforeSend && opts.beforeSend(email) === false) return;
+            left = seconds;
+            btn.disabled = true;
+            btn.classList.add('is-otp-counting');
+            btn.textContent = left + 's 后重发';
+            timer = setInterval(tick, 1000);
+            if (opts.onSent) opts.onSent(email);
+        });
+    }
+
+    bindOtpCountdown(document.getElementById('btnLoginSendOtp'), function () {
+        return document.getElementById('emailLoginInput')?.value || '';
+    }, {
+        onEmptyEmail: function () { showLoginHint('请先填写邮箱'); },
+        beforeSend: function (email) {
+            if (email.indexOf('new-user') >= 0 || email === 'new-user@example.com') {
+                document.getElementById('emailUnregOverlay')?.classList.add('show');
+                return false;
+            }
+            return true;
+        },
+        onSent: function () {
+            var el = document.getElementById('loginErr');
+            if (el) {
+                el.style.display = 'flex';
+                el.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--success-light)"></i><div>验证码已发送（原型演示）</div>';
+            }
+        }
+    });
+
+    function showRegOk(msg) {
+        var err = document.getElementById('regErr');
+        if (!err) return;
+        err.style.display = 'flex';
+        err.style.background = '';
+        err.style.borderColor = '';
+        err.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--success-light)"></i><div>' + msg + '</div>';
+    }
+
+    bindOtpCountdown(document.getElementById('btnRegSendOtp'), function () {
+        return document.getElementById('regEmail')?.value || '';
+    }, {
+        onEmptyEmail: function () { showRegErr('请先填写邮箱'); },
+        onSent: function () {
+            hideRegErr();
+            showRegOk('验证码已发送（原型演示 · 123456）');
+        }
+    });
 
     document.getElementById('btnWalletRegBind')?.addEventListener('click', function () {
         try {

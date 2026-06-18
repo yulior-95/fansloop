@@ -14,6 +14,14 @@
 
     var DEMO_USER_ID = 'demo_uid_882910';
 
+    function getCurrentUserId() {
+        if (global.FansloopAuth && global.FansloopAuth.getUserId) {
+            var id = global.FansloopAuth.getUserId();
+            if (id) return id;
+        }
+        return DEMO_USER_ID;
+    }
+
     var TASK_CATALOG = {
         act_watch_30: { baseReward: 50, activityTypeId: 'earn_task', name: '观看直播满 30 分钟' },
         act_checkin: { baseReward: 20, activityTypeId: 'earn_checkin', name: '每日签到' },
@@ -91,10 +99,18 @@
     }
 
     function getUserProfile(userId) {
-        userId = userId || DEMO_USER_ID;
+        userId = userId || getCurrentUserId();
         var store = readJson(LS_PROFILE, null);
         if (!store || !store[userId]) {
             if (userId === DEMO_USER_ID) return ensureProfile();
+            if (global.FLUserRegistry) {
+                var acc = global.FLUserRegistry.getByUserId(userId);
+                if (acc && acc.tierProfile) {
+                    var p = JSON.parse(JSON.stringify(acc.tierProfile));
+                    saveProfile(p);
+                    return p;
+                }
+            }
             return null;
         }
         return store[userId];
@@ -236,7 +252,7 @@
             return Promise.resolve({ rejected: true, reason: '未知任务', code: 'UNKNOWN_TASK' });
         }
 
-        var userId = input.userId || DEMO_USER_ID;
+        var userId = input.userId || getCurrentUserId();
         var profile = getUserProfile(userId);
         if (!profile) {
             return Promise.resolve({ rejected: true, reason: '用户画像不可用', code: 'PROFILE_MISSING' });
@@ -339,7 +355,7 @@
     function fetchUserTierStatus(userId) {
         var T = getTierApi();
         if (!T) return Promise.resolve(null);
-        userId = userId || DEMO_USER_ID;
+        userId = userId || getCurrentUserId();
         var cfg = loadPublishedConfig();
         var profile = getUserProfile(userId);
         var rawMatched = T.matchRules(cfg, profile);
@@ -396,7 +412,7 @@
 
     function syncWalletFromServer(wallet, userId) {
         if (!wallet) return wallet;
-        userId = userId || DEMO_USER_ID;
+        userId = userId || getCurrentUserId();
         wallet.todayEarned = readDailyEarned(userId);
         wallet.todayCap = getRiskDailyCap();
         if (global.MallVouchersStore && global.MallVouchersStore.applyWalletDailyCap) {
@@ -418,6 +434,6 @@
         fetchUserTierStatus: fetchUserTierStatus,
         syncWalletFromServer: syncWalletFromServer,
         readDailyEarned: readDailyEarned,
-        readServerBonusUsed: readServerBonusUsed
+        getCurrentUserId: getCurrentUserId,
     };
 })(typeof window !== 'undefined' ? window : this);

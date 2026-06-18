@@ -2,10 +2,37 @@
  * 单篇付费（PPV）解锁弹层 · 余额 / 兑换券单选 / 支付密码
  */
 (function () {
-    var PAY_PWD_DEMO = '123456';
     var pwdBuffer = '';
     var selectedVoucherId = null;
     var state = { creator: '创作者', title: '付费内容', price: 5, postId: '' };
+    var PPV_STEPS = ['ppvStep1', 'ppvStepPayPwdMissing', 'ppvStepPayPwd', 'ppvStep2'];
+
+    function payPwdStore() {
+        return window.FLPayPasswordStore || null;
+    }
+
+    function hasPayPassword() {
+        var store = payPwdStore();
+        return store ? store.hasPassword() : false;
+    }
+
+    function payPwdSettingsUrl(returnPath) {
+        var store = payPwdStore();
+        if (store && store.getSettingsUrl) {
+            return store.getSettingsUrl(returnPath || '');
+        }
+        var url = 'settings-pay-password.html';
+        if (returnPath) url += '?return=' + encodeURIComponent(returnPath);
+        return url;
+    }
+
+    function goSetPayPassword() {
+        var returnPath = (location.pathname.split('/').pop() || 'home.html') + location.search;
+        try {
+            localStorage.setItem('fl_pay_pwd_return', returnPath);
+        } catch (e) { /* ignore */ }
+        window.location.href = payPwdSettingsUrl(returnPath);
+    }
 
     function toast(msg) {
         if (typeof window.toast === 'function') {
@@ -53,10 +80,35 @@
     }
 
     function showPpvStep(stepId) {
-        ['ppvStep1', 'ppvStepPayPwd', 'ppvStep2'].forEach(function (id) {
+        PPV_STEPS.forEach(function (id) {
             var el = document.getElementById(id);
             if (el) el.classList.toggle('active', id === stepId);
         });
+    }
+
+    function proceedToPayStep(price) {
+        var w = wallet();
+        if (w && !w.canAfford(price)) {
+            toast('余额不足，请先充值');
+            goRechargePage(price);
+            return;
+        }
+        if (!hasPayPassword()) {
+            showPpvStep('ppvStepPayPwdMissing');
+            return;
+        }
+        openPayPwdStep(price);
+    }
+
+    function goRechargePage(needAmt) {
+        var returnPath = (location.pathname.split('/').pop() || 'home.html') + location.search;
+        try {
+            localStorage.setItem('fl_recharge_return', returnPath);
+            if (needAmt > 0) localStorage.setItem('fl_recharge_suggest', String(Math.ceil(needAmt)));
+        } catch (e) { /* ignore */ }
+        var q = 'return=' + encodeURIComponent(returnPath);
+        if (needAmt > 0) q += '&need=' + encodeURIComponent(String(Math.ceil(needAmt)));
+        window.location.href = 'recharge.html?' + q;
     }
 
     function ensurePpvOverlay() {
@@ -85,6 +137,16 @@
             '<button type="button" class="btn btn-primary btn-block" id="btnConfirmPpvUnlock"><i class="fa-solid fa-bolt"></i> 确认解锁并支付</button>' +
             '<button type="button" class="btn btn-secondary btn-block btn-sm mt-8 btn-open-subscribe" id="ppvOrSubscribe" style="margin-top:8px"><i class="fa-solid fa-crown"></i> 或订阅查看全部</button>' +
             '</div>' +
+            '<div class="sub-modal-step" id="ppvStepPayPwdMissing">' +
+            '<div class="sub-pwd-missing">' +
+            '<div class="ic-wrap"><i class="fa-solid fa-lock-open"></i></div>' +
+            '<h4>尚未设置支付密码</h4>' +
+            '<p>单篇付费解锁需先设置 6 位支付密码（与登录密码不同）。设置完成后请返回继续支付。</p>' +
+            '</div>' +
+            '<div class="sub-step-actions">' +
+            '<button type="button" class="btn btn-secondary" id="btnPpvPwdMissingBack">返回</button>' +
+            '<button type="button" class="btn btn-primary" id="btnPpvGoSetPayPwd"><i class="fa-solid fa-shield-halved"></i> 前往设置</button>' +
+            '</div></div>' +
             '<div class="sub-modal-step" id="ppvStepPayPwd">' +
             '<div class="sub-pay-summary">' +
             '<div class="row"><span>解锁内容</span><span class="v" id="ppvPayTitle">—</span></div>' +
@@ -94,7 +156,7 @@
             '<div class="row"><span>扣款后余额</span><span class="v" id="ppvPayAfterBal">— USDT</span></div></div>' +
             '<div class="sub-pwd-stage"><div class="ic-wrap"><i class="fa-solid fa-lock"></i></div>' +
             '<h4 style="font-size:15px;font-weight:800;margin-bottom:4px">请输入支付密码</h4>' +
-            '<p style="font-size:11px;color:var(--t-tertiary)">6 位资金密码 · 演示密码 123456</p></div>' +
+            '<p style="font-size:11px;color:var(--t-tertiary)">6 位资金密码 · 与登录密码不同</p></div>' +
             '<div class="sub-pwd-input" id="ppvPwdDots"><span class="dot"></span><span class="dot"></span><span class="dot"></span>' +
             '<span class="dot"></span><span class="dot"></span><span class="dot"></span></div>' +
             '<div class="sub-pwd-pad" id="ppvPwdPad">' +
@@ -310,14 +372,21 @@
         }
         var w = wallet();
         if (w && !w.canAfford(price)) {
-            toast('余额不足，请先充值或选用试看券');
+            toast('余额不足，请先充值');
+            var gap = Math.max(0, price - w.getBalance());
+            goRechargePage(gap > 0 ? gap : price);
             return;
         }
-        openPayPwdStep(price);
+        proceedToPayStep(price);
     }
 
     function verifyPayPassword() {
-        if (pwdBuffer !== PAY_PWD_DEMO) {
+        if (!hasPayPassword()) {
+            showPpvStep('ppvStepPayPwdMissing');
+            return;
+        }
+        var pwdStore = payPwdStore();
+        if (!pwdStore || !pwdStore.verify(pwdBuffer)) {
             renderPwdDots(true);
             toast('支付密码错误，请重试');
             setTimeout(resetPwdInput, 500);
@@ -343,6 +412,8 @@
         document.getElementById('ovlPpvUnlock')?.addEventListener('click', function (e) {
             if (e.target.id === 'ovlPpvUnlock') closePpvUnlockModal();
             if (e.target.closest('#ppvOrSubscribe')) closePpvUnlockModal();
+            if (e.target.closest('#btnPpvPwdMissingBack')) showPpvStep('ppvStep1');
+            if (e.target.closest('#btnPpvGoSetPayPwd')) goSetPayPassword();
         });
 
         document.getElementById('ppvPwdPad')?.addEventListener('click', function (e) {

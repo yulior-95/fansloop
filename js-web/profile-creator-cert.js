@@ -3,6 +3,11 @@
  */
 (function () {
     const STORAGE_KEY = 'fl_creator_cert_v1';
+
+    function certStorageKey() {
+        var uid = window.FansloopAuth && window.FansloopAuth.getUserId ? window.FansloopAuth.getUserId() : 'default';
+        return STORAGE_KEY + '_' + uid;
+    }
     const tagWrap = document.getElementById('creatorCertTagWrap');
     const roleLine = document.getElementById('profileRoleLine');
     const roleBadge = document.querySelector('.ph-row .av-xl .role-badge');
@@ -34,12 +39,12 @@
         if (fromUrl === 'none' || fromUrl === 'pending' || fromUrl === 'approved') {
             const s = { status: fromUrl, type: params.get('type') || 'photo' };
             if (params.get('reset') === '1') {
-                try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
+                try { localStorage.removeItem(certStorageKey()); } catch (e) { /* ignore */ }
             }
             return s;
         }
         try {
-            const raw = localStorage.getItem(STORAGE_KEY);
+            const raw = localStorage.getItem(certStorageKey());
             if (raw) return JSON.parse(raw);
         } catch (e) { /* ignore */ }
         return { status: 'none', type: '' };
@@ -47,7 +52,7 @@
 
     function saveState() {
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            localStorage.setItem(certStorageKey(), JSON.stringify(state));
         } catch (e) { /* ignore */ }
     }
 
@@ -62,8 +67,14 @@
         const params = new URLSearchParams(window.location.search);
         const kycFail = params.get('kyc') === '0';
         const complianceFail = params.get('compliance') === '0';
+        var kycOk = !kycFail;
+        if (!kycFail && window.FLUserAssets) {
+            kycOk = window.FLUserAssets.isKycApproved();
+        } else if (!kycFail && window.FansLoopKycStore) {
+            kycOk = window.FansLoopKycStore.isApproved();
+        }
         return {
-            kyc: !kycFail,
+            kyc: kycOk,
             compliance: !complianceFail
         };
     }
@@ -104,15 +115,19 @@
 
         if (roleBadge) {
             roleBadge.classList.remove('role-badge--muted', 'role-badge--pending');
-            const icon = roleBadge.querySelector('i');
+            var icon = roleBadge.querySelector('i');
+            if (!icon) {
+                icon = document.createElement('i');
+                roleBadge.appendChild(icon);
+            }
             if (status === 'approved') {
-                if (icon) icon.className = 'fa-solid fa-crown';
+                icon.className = 'fa-solid fa-crown';
             } else if (status === 'pending') {
                 roleBadge.classList.add('role-badge--pending');
-                if (icon) icon.className = 'fa-solid fa-hourglass-half';
+                icon.className = 'fa-solid fa-hourglass-half';
             } else {
                 roleBadge.classList.add('role-badge--muted');
-                if (icon) icon.className = 'fa-regular fa-user';
+                icon.className = 'fa-solid fa-user';
             }
         }
     }

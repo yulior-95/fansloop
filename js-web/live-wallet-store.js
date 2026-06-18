@@ -1,23 +1,38 @@
 /**
- * 直播页 · 钱包余额原型（localStorage）
+ * 直播页 · 钱包余额原型（按用户隔离，存于 FLUserAssets）
  */
 (function (global) {
-    var KEY = "fansloop_wallet_usdt";
-    var DEFAULT = 12;
+    var LEGACY_KEY = 'fansloop_wallet_usdt';
+
+    function isLoggedIn() {
+        return global.FansloopAuth && global.FansloopAuth.isLoggedIn && global.FansloopAuth.isLoggedIn();
+    }
+
+    function useAssets() {
+        return isLoggedIn() && global.FLUserAssets && global.FansloopAuth.getUserId();
+    }
 
     function read() {
+        if (isLoggedIn()) {
+            if (global.FLUserAssets) return global.FLUserAssets.getLiveUsdt();
+            return 0;
+        }
         try {
-            var v = parseFloat(localStorage.getItem(KEY));
-            return isNaN(v) ? DEFAULT : v;
+            var v = parseFloat(localStorage.getItem(LEGACY_KEY));
+            return isNaN(v) ? 0 : v;
         } catch (e) {
-            return DEFAULT;
+            return 0;
         }
     }
 
     function write(n) {
+        if (isLoggedIn()) {
+            if (global.FLUserAssets) global.FLUserAssets.setLiveUsdt(n);
+            return;
+        }
         try {
-            localStorage.setItem(KEY, String(Math.max(0, Math.round(n * 100) / 100)));
-        } catch (e) {}
+            localStorage.setItem(LEGACY_KEY, String(Math.max(0, Math.round(n * 100) / 100)));
+        } catch (e) { /* ignore */ }
     }
 
     global.LiveWalletStore = {
@@ -41,4 +56,4 @@
             return (Math.round(n * 100) / 100).toFixed(2);
         }
     };
-})(typeof window !== "undefined" ? window : this);
+})(typeof window !== 'undefined' ? window : this);

@@ -3,7 +3,73 @@
  * API: GET /api/v1/wallet/points · GET /api/v1/points/tasks
  */
 (function (global) {
-    var LS_TASKS = 'fl_points_tasks_state_v1';
+    var LS_TASKS_BASE = 'fl_points_tasks_state_v1';
+
+    function getCurrentUserId() {
+        if (global.FansloopAuth && global.FansloopAuth.getUserId) {
+            var id = global.FansloopAuth.getUserId();
+            if (id) return id;
+        }
+        return 'default';
+    }
+
+    function getTasksStorageKey() {
+        return LS_TASKS_BASE + '_' + getCurrentUserId();
+    }
+
+    var LUNA_USER_ID = 'demo_uid_882910';
+
+    function getCurrentAccount() {
+        var uid = getCurrentUserId();
+        if (!uid || uid === 'default' || !global.FLUserRegistry) return null;
+        return global.FLUserRegistry.getByUserId(uid);
+    }
+
+    function isLunaDemoAccount(account) {
+        return account && account.userId === LUNA_USER_ID;
+    }
+
+    function freshTasksForNewUser() {
+        return DEFAULT_TASKS.map(function (t) {
+            var row = Object.assign({}, t);
+            if (t.id === 'act_checkin') {
+                row.status = 'claimable';
+            } else if (t.id === 'act_first_sub') {
+                row.status = 'locked';
+            } else {
+                row.status = 'in_progress';
+                if (row.progressType === 'daily_claim') row.dailyClaimed = 0;
+                if (row.progressType === 'timer') row.timerCurrent = 0;
+            }
+            return row;
+        });
+    }
+
+    function freshLedgerForNewUser() {
+        var now = new Date();
+        var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+        var ts = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) +
+            ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+        return [{
+            id: 'lg_welcome',
+            time: ts,
+            task: '注册欢迎奖励',
+            type: 'earn',
+            points: 200,
+            status: 'frozen',
+            unfreezeAt: '冷静期后可用'
+        }];
+    }
+
+    function applyAccountScopedContent(merged, account) {
+        if (!account || isLunaDemoAccount(account)) return merged;
+        if (account.isNewUser || (account.pointsWallet && account.pointsWallet.available === 0 && account.pointsWallet.todayEarned === 0)) {
+            merged.tasks = freshTasksForNewUser();
+            merged.ledger = freshLedgerForNewUser();
+            merged.wallet.frozenHint = account.pointsWallet.frozenHint || merged.wallet.frozenHint;
+        }
+        return merged;
+    }
 
     var DEFAULT_TASKS = [
         {
@@ -128,7 +194,7 @@
 
     function loadTaskState() {
         try {
-            return JSON.parse(localStorage.getItem(LS_TASKS) || '{}');
+            return JSON.parse(localStorage.getItem(getTasksStorageKey()) || '{}');
         } catch (e) {
             return {};
         }
@@ -140,35 +206,48 @@
             cur[k] = Object.assign({}, cur[k] || {}, patch[k]);
         });
         try {
-            localStorage.setItem(LS_TASKS, JSON.stringify(cur));
+            localStorage.setItem(getTasksStorageKey(), JSON.stringify(cur));
         } catch (e) { /* ignore */ }
+    }
+
+    function applyAccountWallet(wallet) {
+        var account = getCurrentAccount();
+        if (!account || !account.pointsWallet) return wallet;
+        wallet.available = account.pointsWallet.available;
+        wallet.frozen = account.pointsWallet.frozen;
+        if (account.pointsWallet.frozenHint != null) wallet.frozenHint = account.pointsWallet.frozenHint;
+        if (account.pointsWallet.todayEarned != null) wallet.todayEarned = account.pointsWallet.todayEarned;
+        if (account.pointsWallet.todayCap != null) wallet.todayCap = account.pointsWallet.todayCap;
+        wallet.total = getTotalPoints(wallet);
+        return wallet;
     }
 
     function mergeInviteConfig(merged) {
         if (!global.FLInviteReward || !global.FLInviteReward.DEFAULT) return;
         var cfg = global.FLInviteReward.DEFAULT;
+        var account = getCurrentAccount();
         try {
             var raw = localStorage.getItem('fl_points_risk_config_v1');
             if (raw) {
                 var risk = JSON.parse(raw);
                 if (risk.coolingEnabled === false) merged.coolingPeriodDays = 0;
                 else if (risk.coolingPeriodDays != null) merged.coolingPeriodDays = risk.coolingPeriodDays;
-                if (risk.caps) {
+                if (risk.caps && risk.caps.dailyPointsCap != null) {
                     merged.wallet.todayCap = risk.caps.dailyPointsCap;
                 }
             }
         } catch (e) { /* ignore */ }
-        if (cfg.pointsWallet) {
-            merged.wallet.available = cfg.pointsWallet.available;
-            merged.wallet.frozen = cfg.pointsWallet.frozen;
-            merged.wallet.frozenHint = cfg.pointsWallet.frozenHint;
-        }
-        if (cfg.caps) {
-            merged.wallet.todayEarned = cfg.caps.dailyPointsEarned;
-            if (merged.wallet.todayCap == null) merged.wallet.todayCap = cfg.caps.dailyPointsCap;
+        if (cfg.caps && cfg.caps.dailyPointsCap != null && merged.wallet.todayCap == null) {
+            merged.wallet.todayCap = cfg.caps.dailyPointsCap;
         }
         if (merged.coolingPeriodDays == null) {
             merged.coolingPeriodDays = cfg.coolingPeriodDays || 7;
+        }
+        if (!account && cfg.pointsWallet) {
+            merged.wallet.available = cfg.pointsWallet.available;
+            merged.wallet.frozen = cfg.pointsWallet.frozen;
+            merged.wallet.frozenHint = cfg.pointsWallet.frozenHint;
+            if (cfg.caps) merged.wallet.todayEarned = cfg.caps.dailyPointsEarned;
         }
     }
 
@@ -187,6 +266,7 @@
     }
 
     function applyWalletPersistence(wallet) {
+        if (getCurrentAccount()) return wallet;
         var saved = loadTaskState()._wallet;
         if (saved) {
             if (typeof saved.available === 'number') wallet.available = saved.available;
@@ -202,22 +282,44 @@
         if (!global.FLPointsTier) return ledger;
         var RS = global.FLPointsRewardService;
         var cfg = RS && RS.loadPublishedConfig ? RS.loadPublishedConfig() : global.FLPointsTier.loadConfig();
-        var user = RS && RS.getUserProfile ? RS.getUserProfile() : global.FLPointsTier.DEFAULT_USER;
+        var userId = getCurrentUserId();
+        var user = RS && RS.getUserProfile ? RS.getUserProfile(userId !== 'default' ? userId : undefined) : global.FLPointsTier.DEFAULT_USER;
         return ledger.map(function (row) {
             return global.FLPointsTier.enrichLedgerRow(row, cfg, user);
         });
     }
 
+    function emitPointsChange(data) {
+        try {
+            global.dispatchEvent(new CustomEvent('fl-points-data-change', { detail: data }));
+        } catch (e) { /* ignore */ }
+    }
+
+    function finalizeClaimResult(data, task, payload) {
+        data.wallet.total = getTotalPoints(data.wallet);
+        emitPointsChange(data);
+        return payload;
+    }
+
     function fetchPointsData() {
+        var account = getCurrentAccount();
         var merged = JSON.parse(JSON.stringify(DEFAULT));
         mergeInviteConfig(merged);
+        applyAccountScopedContent(merged, account);
         applyWalletPersistence(merged.wallet);
         if (global.FLPointsRewardService && global.FLPointsRewardService.syncWalletFromServer) {
             global.FLPointsRewardService.syncWalletFromServer(merged.wallet);
         }
         if (global.MallVouchersStore && global.MallVouchersStore.applyWalletDailyCap) {
+            global.MallVouchersStore.applyWalletDailyCap(merged.wallet);
+        }
+        applyAccountWallet(merged.wallet);
         merged.tasks = applyTaskPersistence(merged.tasks);
+        if (global.FLCheckin && global.FLCheckin.syncTasks) {
+            merged.tasks = global.FLCheckin.syncTasks(merged.tasks);
+        }
         merged.ledger = enrichLedgerWithTier(merged.ledger);
+        merged.wallet.total = getTotalPoints(merged.wallet);
         return Promise.resolve(merged);
     }
 
@@ -244,14 +346,29 @@
                     data.wallet.todayCap = result.dailyCap;
                     var patch = {};
                     patch[taskId] = { status: 'claimed' };
-                    patch._wallet = { available: data.wallet.available };
+                    patch._wallet = {
+                        available: data.wallet.available,
+                        todayEarned: data.wallet.todayEarned
+                    };
+                    if (global.FLUserRegistry && global.FansloopAuth) {
+                        var uid = global.FansloopAuth.getUserId();
+                        if (uid) {
+                            global.FLUserRegistry.updatePointsWallet(uid, {
+                                available: data.wallet.available,
+                                todayEarned: data.wallet.todayEarned
+                            });
+                        }
+                    }
+                    if (taskId === 'act_checkin' && global.FLCheckin && global.FLCheckin.recordClaim) {
+                        global.FLCheckin.recordClaim(global.FLCheckin.getStatus().nextStreakDay);
+                    }
                     saveTaskState(patch);
-                    return {
+                    return finalizeClaimResult(data, task, {
                         data: data,
                         task: task,
                         tierDetail: result.tierDetail,
                         toast: (task.claimToast || '领取成功') + (result.voucherNote || '')
-                    };
+                    });
                 });
             }
 
@@ -275,13 +392,29 @@
                 available: data.wallet.available,
                 todayEarned: data.wallet.todayEarned
             };
+            if (global.FLUserRegistry && global.FansloopAuth) {
+                var uid2 = global.FansloopAuth.getUserId();
+                if (uid2) {
+                    global.FLUserRegistry.updatePointsWallet(uid2, {
+                        available: data.wallet.available,
+                        todayEarned: data.wallet.todayEarned
+                    });
+                }
+            }
+            if (taskId === 'act_checkin' && global.FLCheckin && global.FLCheckin.recordClaim) {
+                global.FLCheckin.recordClaim(global.FLCheckin.getStatus().nextStreakDay);
+            }
             saveTaskState(patch);
-            return { data: data, task: task, toast: (task.claimToast || '领取成功') + bonusMsg };
+            return finalizeClaimResult(data, task, {
+                data: data,
+                task: task,
+                toast: (task.claimToast || '领取成功') + bonusMsg
+            });
         });
     }
 
     function resetTaskState() {
-        try { localStorage.removeItem(LS_TASKS); } catch (e) { /* ignore */ }
+        try { localStorage.removeItem(getTasksStorageKey()); } catch (e) { /* ignore */ }
     }
 
     global.FLHomePoints = {

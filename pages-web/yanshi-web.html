@@ -507,11 +507,14 @@ let DEMO_ROUTES = [];
 let history = ['guest-home.html'];
 let cursor = 0;
 
-function syncRewardDockForPage(page) {
-    const dock = document.getElementById('rewardDock');
-    if (!dock) return;
-    const file = ((page || '').split('/').pop() || '').toLowerCase();
-    const hideDock =
+function normalizePageFile(page) {
+    const raw = ((page || '').split('/').pop() || '').toLowerCase();
+    return raw.split('?')[0].split('#')[0];
+}
+
+function isRewardSuppressedPage(page) {
+    const file = normalizePageFile(page);
+    return (
         file.startsWith('guest-') ||
         file.startsWith('login-') ||
         file.startsWith('register-') ||
@@ -520,9 +523,43 @@ function syncRewardDockForPage(page) {
         file.startsWith('modal-wallet') ||
         file.startsWith('modal-wallet-auth') ||
         file.startsWith('modal-bind') ||
+        file.startsWith('modal-invite') ||
         file.startsWith('login-modal-home') ||
-        file.startsWith('onboarding-profile');
-    dock.style.display = hideDock ? 'none' : '';
+        file.startsWith('onboarding-profile')
+    );
+}
+
+let rewardSuppressed = false;
+let rewardDeferredPayout = false;
+
+function pauseRewardCountdown() {
+    if (rewardTimer) {
+        clearInterval(rewardTimer);
+        rewardTimer = null;
+    }
+}
+
+function syncRewardDockForPage(page) {
+    const dock = document.getElementById('rewardDock');
+    if (!dock) return;
+    const embedOpen = document.getElementById('embedModalRoot')?.classList.contains('show');
+    rewardSuppressed = isRewardSuppressedPage(page) || !!embedOpen;
+    dock.style.display = rewardSuppressed ? 'none' : '';
+    if (rewardSuppressed) {
+        pauseRewardCountdown();
+        if (rewardModalRoot) hideRewardModal();
+        return;
+    }
+    if (rewardDeferredPayout) {
+        rewardDeferredPayout = false;
+        onRewardPayout();
+        return;
+    }
+    if (!rewardTimer && rewardLeft > 0) {
+        resumeRewardCountdown();
+    } else if (!rewardTimer) {
+        startRewardCountdown();
+    }
 }
 
 function navigate(page, name, push=true) {
@@ -703,6 +740,10 @@ function pickReward() {
 }
 
 function showRewardModal(r) {
+    if (rewardSuppressed) {
+        rewardDeferredPayout = true;
+        return;
+    }
     rmPoints.textContent = '+' + r.total + ' 积分';
     rmDetail.textContent = r.bonus > 0
         ? '基础 ' + r.base + ' · 连续活跃加成 +' + r.bonus
@@ -733,6 +774,10 @@ function showRewardFloat(r) {
 }
 
 function onRewardPayout() {
+    if (rewardSuppressed) {
+        rewardDeferredPayout = true;
+        return;
+    }
     const r = pickReward();
     if (!hasClaimedRewardBefore()) {
         showRewardModal(r);
@@ -742,12 +787,8 @@ function onRewardPayout() {
     setTimeout(startRewardCountdown, 1200);
 }
 
-function startRewardCountdown() {
-    if (rewardTimer) clearInterval(rewardTimer);
-    rewardLeft = REWARD_TOTAL;
-    syncRewardRing();
-    rewardTime.textContent = formatTime(rewardLeft);
-    rewardDock.classList.remove('wait-payout', 'just-paid');
+function resumeRewardCountdown() {
+    if (rewardTimer || rewardSuppressed) return;
     rewardTimer = setInterval(() => {
         rewardLeft--;
         if (rewardLeft <= 0) {
@@ -756,12 +797,26 @@ function startRewardCountdown() {
             rewardLeft = 0;
             rewardTime.textContent = '00:00';
             syncRewardRing();
+            if (rewardSuppressed) {
+                rewardDeferredPayout = true;
+                return;
+            }
             onRewardPayout();
             return;
         }
         rewardTime.textContent = formatTime(rewardLeft);
         syncRewardRing();
     }, 1000);
+}
+
+function startRewardCountdown() {
+    if (rewardSuppressed) return;
+    if (rewardTimer) clearInterval(rewardTimer);
+    rewardLeft = REWARD_TOTAL;
+    syncRewardRing();
+    rewardTime.textContent = formatTime(rewardLeft);
+    rewardDock.classList.remove('wait-payout', 'just-paid');
+    resumeRewardCountdown();
 }
 
 rewardDock.addEventListener('click', () => {
@@ -792,8 +847,8 @@ rewardModalRoot.addEventListener('click', e => {
 if (hasClaimedRewardBefore() && rewardHint) {
     rewardHint.textContent = '点击进商城 · 倒计时结束上浮奖励';
 }
-startRewardCountdown();
 syncRewardDockForPage('guest-home.html');
+if (!rewardSuppressed) startRewardCountdown();
 
 /* ========== 评论 / 分享 / 送礼 · 顶层 iframe 弹窗 ========== */
 const embedModalRoot = document.getElementById('embedModalRoot');
@@ -804,6 +859,7 @@ function openEmbedModal(page) {
     embedModalFrame.src = page;
     embedModalRoot.classList.add('show');
     embedModalRoot.setAttribute('aria-hidden', 'false');
+    syncRewardDockForPage(history[cursor] || '');
 }
 
 function closeEmbedModal() {
@@ -811,6 +867,7 @@ function closeEmbedModal() {
     embedModalRoot.classList.remove('show');
     embedModalRoot.setAttribute('aria-hidden', 'true');
     embedModalFrame.src = 'about:blank';
+    syncRewardDockForPage(history[cursor] || '');
 }
 
 window.addEventListener('message', (ev) => {

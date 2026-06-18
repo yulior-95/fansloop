@@ -82,6 +82,7 @@ window.DEMO_PAGE_GROUPS = [
     ["设置中心", [
         ["settings-account.html", "账户资料"],
         ["settings-security.html", "账户安全"],
+        ["settings-pay-password.html", "支付密码设置"],
         ["settings-wallet.html", "钱包与支付"],
         ["settings-notification.html", "通知偏好"],
         ["settings-privacy.html", "隐私设置"],

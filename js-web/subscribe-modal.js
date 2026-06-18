@@ -2,11 +2,31 @@
  * 订阅创作者弹层 · 余额校验 / 充值引导 / 支付密码 / 扣款成功
  */
 (function () {
-    var PAY_PWD_DEMO = '123456';
+    var global = typeof window !== 'undefined' ? window : this;
     var pwdBuffer = '';
     var pendingRechargeAmt = 100;
     var selectedVoucherId = null;
     var state = { creator: '创作者', price: 16, mode: 'subscribe' };
+    var SUB_STEPS = ['subStep1', 'subStepRecharge', 'subStepPayPwdMissing', 'subStepPayPwd', 'subStep2'];
+
+    function payPwdStore() {
+        return window.FLPayPasswordStore || null;
+    }
+
+    function hasPayPassword() {
+        var store = payPwdStore();
+        return store ? store.hasPassword() : false;
+    }
+
+    function payPwdSettingsUrl(returnPath) {
+        var store = payPwdStore();
+        if (store && store.getSettingsUrl) {
+            return store.getSettingsUrl(returnPath || '');
+        }
+        var url = 'settings-pay-password.html';
+        if (returnPath) url += '?return=' + encodeURIComponent(returnPath);
+        return url;
+    }
 
     function toast(msg) {
         if (typeof window.toast === 'function') {
@@ -30,9 +50,24 @@
         return window.MallVouchersStore || null;
     }
 
-    function formatUsdt(n) {
-        var num = Math.round(Number(n) * 100) / 100;
-        return num % 1 === 0 ? String(num) : num.toFixed(2);
+    function getWalletBalance() {
+        var w = wallet();
+        if (w) return w.getBalance();
+        if (global.FLUserAssets && global.FLUserAssets.getLiveUsdt) {
+            return global.FLUserAssets.getLiveUsdt();
+        }
+        return 0;
+    }
+
+    function canAffordPrice(price) {
+        price = Number(price) || 0;
+        if (price <= 0) return true;
+        return getWalletBalance() >= price;
+    }
+
+    function formatBalance(n) {
+        var w = wallet();
+        return w ? w.format(n) : formatUsdt(n);
     }
 
     function getActivePlanEl() {
@@ -194,20 +229,88 @@
         }
     }
 
+    function ensurePayPwdMissingStep() {
+        var panel = document.querySelector('#ovlSubscribe .iol-panel');
+        if (!panel || document.getElementById('subStepPayPwdMissing')) return;
+
+        var step = document.createElement('div');
+        step.className = 'sub-modal-step';
+        step.id = 'subStepPayPwdMissing';
+        step.innerHTML =
+            '<div class="sub-pwd-missing">' +
+                '<div class="ic-wrap"><i class="fa-solid fa-lock-open"></i></div>' +
+                '<h4>尚未设置支付密码</h4>' +
+                '<p>订阅、单篇付费等资金操作需先设置 6 位支付密码（与登录密码不同）。设置完成后请返回继续支付。</p>' +
+            '</div>' +
+            '<div class="sub-step-actions">' +
+                '<button type="button" class="btn btn-secondary" id="btnSubPwdMissingBack">返回</button>' +
+                '<button type="button" class="btn btn-primary" id="btnSubGoSetPayPwd"><i class="fa-solid fa-shield-halved"></i> 前往设置</button>' +
+            '</div>';
+
+        var pwdStep = document.getElementById('subStepPayPwd');
+        if (pwdStep) panel.insertBefore(step, pwdStep);
+        else panel.appendChild(step);
+    }
+
+    function openPayPwdMissingStep() {
+        ensurePayPwdMissingStep();
+        showSubStep('subStepPayPwdMissing');
+    }
+
+    function isPrototypeQuickRechargeAllowed() {
+        return global.FLUserAssets && global.FLUserAssets.DEMO_UID &&
+            global.FansloopAuth && global.FansloopAuth.getUserId() === global.FLUserAssets.DEMO_UID;
+    }
+
+    function goSubRechargePage() {
+        var returnPath = (location.pathname.split('/').pop() || 'home.html') + location.search;
+        try {
+            localStorage.setItem('fl_subscribe_return', returnPath);
+            localStorage.setItem('fl_home_toast', '充值完成后请返回继续订阅');
+            var price = getSelectedPrice();
+            if (price > 0) localStorage.setItem('fl_recharge_suggest', String(Math.ceil(price)));
+        } catch (e) { /* ignore */ }
+        var q = 'return=' + encodeURIComponent(returnPath);
+        var need = getSelectedPrice();
+        if (need > 0) q += '&need=' + encodeURIComponent(String(Math.ceil(need)));
+        window.location.href = 'recharge.html?' + q;
+    }
+
+    function proceedToPayStep(price) {
+        if (!canAffordPrice(price)) {
+            toast('余额不足，请先充值');
+            openRechargeStep(price);
+            return;
+        }
+        if (!hasPayPassword()) {
+            openPayPwdMissingStep();
+            return;
+        }
+        openPayPwdStep(price);
+    }
+
+    function goSetPayPassword() {
+        var returnPath = (location.pathname.split('/').pop() || 'home.html') + location.search;
+        try {
+            localStorage.setItem('fl_pay_pwd_return', returnPath);
+        } catch (e) { /* ignore */ }
+        var url = payPwdSettingsUrl(returnPath);
+        window.location.href = url;
+    }
+
     function showSubStep(stepId) {
-        ['subStep1', 'subStepRecharge', 'subStepPayPwd', 'subStep2'].forEach(function (id) {
+        SUB_STEPS.forEach(function (id) {
             var el = document.getElementById(id);
             if (el) el.classList.toggle('active', id === stepId);
         });
     }
 
     function refreshBalanceBar() {
-        var w = wallet();
         var bar = document.getElementById('subBalanceBar');
         var val = document.getElementById('subBalanceVal');
-        if (!w || !val) return;
-        var bal = w.getBalance();
-        val.textContent = w.format(bal) + ' USDT';
+        if (!val) return;
+        var bal = getWalletBalance();
+        val.textContent = formatBalance(bal) + ' USDT';
         if (bar) bar.classList.toggle('is-low', bal < getSelectedPrice());
     }
 
@@ -291,23 +394,37 @@
     }
 
     function openRechargeStep(price) {
-        var w = wallet();
-        var gap = price;
-        if (w) {
-            gap = Math.max(0, price - w.getBalance());
-            var bal = w.getBalance();
-            var balEl = document.getElementById('subRechargeBalNow');
-            if (balEl) balEl.textContent = w.format(bal) + ' USDT';
-        }
+        var bal = getWalletBalance();
+        var gap = Math.max(0, price - bal);
+        var balEl = document.getElementById('subRechargeBalNow');
+        if (balEl) balEl.textContent = formatBalance(bal) + ' USDT';
         var needEl = document.getElementById('subRechargeNeed');
         var dueEl = document.getElementById('subRechargePayDue');
-        if (needEl) needEl.textContent = w ? w.format(gap) : String(price);
-        if (dueEl) dueEl.textContent = w ? w.format(price) + ' USDT' : price + ' USDT';
+        if (needEl) needEl.textContent = formatBalance(gap);
+        if (dueEl) dueEl.textContent = formatBalance(price) + ' USDT';
         pendingRechargeAmt = gap <= 50 ? 50 : gap <= 100 ? 100 : 200;
         document.querySelectorAll('.sub-recharge-amt').forEach(function (b) {
             var amt = parseInt(b.getAttribute('data-amt'), 10);
             b.classList.toggle('active', amt === pendingRechargeAmt);
         });
+        var quickAllowed = isPrototypeQuickRechargeAllowed();
+        document.querySelectorAll('.sub-recharge-amt').forEach(function (b) {
+            b.style.display = quickAllowed ? '' : 'none';
+        });
+        var btnConfirm = document.getElementById('btnSubRechargeConfirm');
+        if (btnConfirm) {
+            btnConfirm.innerHTML = quickAllowed
+                ? '<i class="fa-solid fa-bolt"></i> 确认充值'
+                : '<i class="fa-solid fa-arrow-up-right-from-square"></i> 前往充值页';
+        }
+        var demoNote = document.getElementById('subRechargeDemoNote');
+        if (demoNote) {
+            demoNote.innerHTML = quickAllowed
+                ? '<i class="fa-solid fa-shield-halved"></i> 原型演示：确认充值即入账，无需真实链上支付。'
+                : '<i class="fa-solid fa-shield-halved"></i> 请前往充值页完成入账，到账后返回继续订阅。';
+        }
+        var goRechargeBtn = document.getElementById('btnSubGoRecharge');
+        if (goRechargeBtn) goRechargeBtn.style.display = quickAllowed ? '' : 'none';
         showSubStep('subStepRecharge');
     }
 
@@ -342,13 +459,12 @@
     function onConfirmSubscribe() {
         var price = getSelectedPrice();
         state.price = price;
-        var w = wallet();
-        if (w && !w.canAfford(price)) {
+        if (!canAffordPrice(price)) {
             toast('余额不足，请先充值');
             openRechargeStep(price);
             return;
         }
-        openPayPwdStep(price);
+        proceedToPayStep(price);
     }
 
     function onPwdDigit(d) {
@@ -361,7 +477,12 @@
     }
 
     function verifyPayPassword() {
-        if (pwdBuffer !== PAY_PWD_DEMO) {
+        if (!hasPayPassword()) {
+            openPayPwdMissingStep();
+            return;
+        }
+        var pwdStore = payPwdStore();
+        if (!pwdStore || !pwdStore.verify(pwdBuffer)) {
             renderPwdDots(true);
             toast('支付密码错误，请重试');
             setTimeout(function () {
@@ -401,17 +522,26 @@
     }
 
     function onRechargeConfirm() {
+        if (!isPrototypeQuickRechargeAllowed()) {
+            goSubRechargePage();
+            return;
+        }
         var w = wallet();
         if (!w) {
             onConfirmSubscribe();
             return;
         }
-        var newBal = w.add(pendingRechargeAmt);
+        var newBal;
+        if (global.FLUserAssets && global.FLUserAssets.creditRecharge) {
+            newBal = global.FLUserAssets.creditRecharge(pendingRechargeAmt);
+        } else {
+            newBal = w.add(pendingRechargeAmt);
+        }
         refreshBalanceBar();
         toast('充值成功 +' + pendingRechargeAmt + ' USDT，当前余额 ' + w.format(newBal) + ' USDT');
         var price = getSelectedPrice();
         if (w.canAfford(price)) {
-            openPayPwdStep(price);
+            proceedToPayStep(price);
         } else {
             openRechargeStep(price);
         }
@@ -429,6 +559,7 @@
                 });
                 plan.classList.add('active');
                 renderSubCoupons();
+                refreshBalanceBar();
             });
         });
 
@@ -496,12 +627,7 @@
 
         var btnGoRecharge = document.getElementById('btnSubGoRecharge');
         if (btnGoRecharge) {
-            btnGoRecharge.addEventListener('click', function () {
-                try {
-                    localStorage.setItem('fl_home_toast', '充值完成后请返回继续续费/订阅');
-                } catch (e) {}
-                window.location.href = 'recharge.html?return=' + encodeURIComponent('subscriptions.html');
-            });
+            btnGoRecharge.addEventListener('click', goSubRechargePage);
         }
 
         var btnDone = document.getElementById('btnDoneSubscribe');
@@ -519,6 +645,12 @@
         if (ovl) {
             ovl.addEventListener('click', function (e) {
                 if (e.target === ovl) closeSubscribeModal();
+                if (e.target.closest('#btnSubPwdMissingBack')) {
+                    showSubStep('subStep1');
+                }
+                if (e.target.closest('#btnSubGoSetPayPwd')) {
+                    goSetPayPassword();
+                }
             });
         }
     }
@@ -550,6 +682,7 @@
 
     if (document.getElementById('ovlSubscribe')) {
         ensureCouponUI();
+        ensurePayPwdMissingStep();
         bindSubscribeUI();
     }
     window.FL_bindSubscribeUI = bindSubscribeUI;

@@ -3,7 +3,8 @@
  * API: GET /api/v1/wallet/vouchers · POST /api/v1/subscriptions { voucherId }
  */
 (function (global) {
-    var LS_KEY = 'fl_mall_vouchers_v1';
+    var LS_KEY_PREFIX = 'fl_mall_vouchers_v1';
+    var DEMO_UID = 'demo_uid_882910';
 
     var REDEEM_CATALOG = {
         '订阅 9 折券': {
@@ -134,13 +135,47 @@
         ];
     }
 
+    function currentUserId() {
+        if (global.FansloopAuth && global.FansloopAuth.getUserId) {
+            return global.FansloopAuth.getUserId() || null;
+        }
+        return null;
+    }
+
+    function storageKey() {
+        var uid = currentUserId();
+        return uid ? (LS_KEY_PREFIX + '_' + uid) : (LS_KEY_PREFIX + '_guest');
+    }
+
+    function isDemoUser() {
+        return currentUserId() === DEMO_UID;
+    }
+
+    function initialVouchers() {
+        if (isDemoUser()) return defaultVouchers();
+        return [];
+    }
+
+    function shouldAutoSeedBenefits() {
+        return isDemoUser();
+    }
+
     function isPpvVoucher(v) {
         return v && (v.type === 'ppv_trial' || v.type === 'ppv_discount');
     }
 
     function readAll() {
         try {
-            var raw = localStorage.getItem(LS_KEY);
+            var key = storageKey();
+            var raw = localStorage.getItem(key);
+            if (!raw && isDemoUser()) {
+                var legacy = localStorage.getItem(LS_KEY_PREFIX);
+                if (legacy) {
+                    var parsed = JSON.parse(legacy);
+                    writeAll(parsed);
+                    return parsed;
+                }
+            }
             if (!raw) return null;
             return JSON.parse(raw);
         } catch (e) {
@@ -150,7 +185,7 @@
 
     function writeAll(list) {
         try {
-            localStorage.setItem(LS_KEY, JSON.stringify(list));
+            localStorage.setItem(storageKey(), JSON.stringify(list));
         } catch (e) { /* noop */ }
     }
 
@@ -244,10 +279,11 @@
     function list() {
         var data = readAll();
         if (!data) {
-            data = defaultVouchers();
+            data = initialVouchers();
             writeAll(data);
             return data;
         }
+        if (!shouldAutoSeedBenefits()) return data;
         data = ensurePpvSeed(data);
         data = ensureTipBoostSeed(data);
         data = ensurePointsBoostSeed(data);
@@ -726,7 +762,13 @@
     }
 
     function resetDemo() {
+        if (!isDemoUser()) {
+            writeAll([]);
+            dispatchBenefitsChanged();
+            return;
+        }
         writeAll(defaultVouchers());
+        dispatchBenefitsChanged();
     }
 
     global.MallVouchersStore = {

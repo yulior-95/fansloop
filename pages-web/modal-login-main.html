@@ -11,6 +11,9 @@
 <link rel="stylesheet" href="../css-web/invite-referral.css">
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
+<script src="../js-web/user-prototype-registry.js"></script>
+<script src="../js-web/user-assets-store.js"></script>
+<script src="../js-web/pay-password-store.js"></script>
 <script src="../js-web/auth-session.js"></script>
 </head>
 <body data-auth-tab="wallet" data-wallet-auth-mode="login">
@@ -57,7 +60,7 @@
                     </div>
                 </div>
 
-                <button type="button" class="aw-wallet-card" data-go="1">
+                <button type="button" class="aw-wallet-card" data-go="3">
                     <span class="ic mm"><i class="fa-brands fa-ethereum"></i></span>
                     <span class="grow"><span>MetaMask</span><span class="sub d-block">浏览器插件签名</span></span>
                     <i class="fa-solid fa-chevron-right" style="opacity:.4;"></i>
@@ -67,7 +70,7 @@
                     <span class="grow"><span>WalletConnect</span><span class="sub d-block">移动端扫码</span></span>
                     <i class="fa-solid fa-chevron-right" style="opacity:.4;"></i>
                 </button>
-                <button type="button" class="aw-wallet-card" data-go="1">
+                <button type="button" class="aw-wallet-card" data-go="3">
                     <span class="ic more"><i class="fa-solid fa-wallet"></i></span>
                     <span class="grow"><span>更多钱包</span><span class="sub d-block">OKX / Coinbase 等</span></span>
                     <i class="fa-solid fa-chevron-right" style="opacity:.4;"></i>
@@ -75,20 +78,12 @@
                 <div class="aw-foot-note">继续即表示同意服务条款与隐私政策</div>
             </section>
 
-            <section class="wiz-step" data-step="1">
-                <p style="font-size:12px;color:var(--t-secondary);margin-bottom:10px;">选择钱包</p>
-                <button type="button" class="aw-wallet-card" data-go="3"><span class="ic mm"><i class="fa-brands fa-ethereum"></i></span><span class="grow"><span>MetaMask</span></span><i class="fa-solid fa-chevron-right" style="opacity:.4;"></i></button>
-                <button type="button" class="aw-wallet-card" data-go="2"><span class="ic wc"><i class="fa-solid fa-mobile-screen"></i></span><span class="grow"><span>WalletConnect</span></span><i class="fa-solid fa-chevron-right" style="opacity:.4;"></i></button>
-                <button type="button" class="aw-wallet-card" data-go="3"><span class="ic more"><i class="fa-solid fa-bolt"></i></span><span class="grow"><span>OKX Wallet</span></span><i class="fa-solid fa-chevron-right" style="opacity:.4;"></i></button>
-                <div class="aw-btn-row"><button type="button" class="aw-btn-ghost" data-back="0">返回</button></div>
-            </section>
-
             <section class="wiz-step" data-step="2">
                 <p style="font-size:13px;font-weight:700;margin-bottom:8px;text-align:center;">WalletConnect</p>
                 <p style="font-size:11px;color:var(--t-tertiary);text-align:center;line-height:1.45;">使用手机钱包扫码</p>
                 <div class="aw-qr-box"><i class="fa-solid fa-qrcode"></i><span>二维码区域</span></div>
                 <button type="button" class="btn-gf-primary" style="width:100%;" data-go="4">已扫码 · 继续</button>
-                <div class="aw-btn-row"><button type="button" class="aw-btn-ghost" data-back="1">返回</button></div>
+                <div class="aw-btn-row"><button type="button" class="aw-btn-ghost" data-back="0">返回</button></div>
             </section>
 
             <section class="wiz-step" data-step="3">
@@ -96,7 +91,7 @@
                 <p style="font-size:12px;color:var(--t-secondary);text-align:center;line-height:1.5;">请在浏览器插件中确认连接。</p>
                 <div class="aw-spinner"></div>
                 <button type="button" class="btn-gf-primary" style="width:100%;margin-top:8px;" data-go="4">模拟 · 已连接</button>
-                <div class="aw-btn-row"><button type="button" class="aw-btn-ghost" data-back="1">返回</button></div>
+                <div class="aw-btn-row"><button type="button" class="aw-btn-ghost" data-back="0">返回</button></div>
             </section>
 
             <section class="wiz-step" data-step="4">
@@ -149,7 +144,7 @@
                         <label>验证码</label>
                         <div class="gf-row2">
                             <input type="text" id="loginOtp" placeholder="6 位验证码" maxlength="6" />
-                            <button type="button" class="btn-gf-ghost" style="white-space:nowrap;">获取验证码</button>
+                            <button type="button" class="btn-gf-ghost" id="btnLoginSendOtp" style="white-space:nowrap;">获取验证码</button>
                         </div>
                         <div class="hint">已注册用户使用验证码或切换密码登录（原型：非 new-user 邮箱直接登录）</div>
                     </div>
@@ -167,7 +162,7 @@
                         <label>验证码 <span style="color:var(--danger-light)">*</span></label>
                         <div class="gf-row2">
                             <input type="text" id="regOtp" placeholder="6 位验证码" maxlength="6" autocomplete="one-time-code" />
-                            <button type="button" class="btn-gf-ghost" style="white-space:nowrap;">获取验证码</button>
+                            <button type="button" class="btn-gf-ghost" id="btnRegSendOtp" style="white-space:nowrap;">获取验证码</button>
                         </div>
                     </div>
                     <div class="gf-field">
@@ -183,7 +178,7 @@
                     </div>
                     <button type="button" class="btn-gf-primary" id="btnEmailRegDone" style="width:100%"><i class="fa-solid fa-user-plus"></i> 注册并登录</button>
                     <p style="margin-top:10px;font-size:11px;color:var(--t-quaternary);text-align:center;line-height:1.45;">
-                        原型：验证码填 <strong style="color:#FBBF24">123456</strong> 完成注册；填写有效邀请码需二次确认关联。
+                        原型：验证码填 <strong style="color:#FBBF24">123456</strong> 完成注册；不同邮箱会创建独立账号（头像 / 积分 / 资料互不影响）。
                     </p>
                 </div>
             </div>
@@ -271,8 +266,11 @@
 
     var btnLoginOk = document.getElementById('btnLoginSuccess');
     if (btnLoginOk) {
-        btnLoginOk.addEventListener('click', function () {
-            if (window.FansloopAuth) window.FansloopAuth.login();
+        btnLoginOk.addEventListener('click', function (e) {
+            var isReg = document.body.getAttribute('data-wallet-auth-mode') === 'register';
+            if (window.FansloopAuth) {
+                window.FansloopAuth.login({ walletAddress: '0x7c5A8D93a1b2c3d4e5f6789012345678901234', isRegister: isReg });
+            }
         });
     }
 

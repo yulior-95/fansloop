@@ -322,10 +322,10 @@
                     <div class="sec-row">
                         <div class="row-ic"><i class="fa-solid fa-key"></i></div>
                         <div class="row-info">
-                            <div class="ti">提现密码（6 位）</div>
-                            <div class="sub">区别于登录密码，仅用于提现 · 上次修改 12 天前</div>
+                            <div class="ti">支付密码（6 位）</div>
+                            <div class="sub" id="secPayPwdSub">用于订阅、单篇付费、打赏与提现 · <span id="secPayPwdStatus">未设置</span></div>
                         </div>
-                        <div class="row-action"><button class="btn btn-sm">修改</button></div>
+                        <div class="row-action"><button type="button" class="btn btn-sm btn-primary" id="btnSecPayPwd" onclick="location.href='settings-pay-password.html'">设置</button></div>
                     </div>
                     <div class="sec-row">
                         <div class="row-ic"><i class="fa-solid fa-clock-rotate-left"></i></div>
@@ -444,8 +444,38 @@
 </div>
 
 <script src="../js-web/global-search.js"></script>
+<script src="../js-web/user-prototype-registry.js"></script>
+<script src="../js-web/user-assets-store.js"></script>
+<script src="../js-web/pay-password-store.js"></script>
+<script src="../js-web/auth-session.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>
 <script src="../js-web/settings-nav.js"></script>
 <script src="../js-web/settings-logout.js"></script>
+<script>
+(function () {
+    function syncPayPwdRow() {
+        var status = document.getElementById('secPayPwdStatus');
+        var btn = document.getElementById('btnSecPayPwd');
+        var sub = document.getElementById('secPayPwdSub');
+        if (!status || !window.FLPayPasswordStore) return;
+        var has = window.FLPayPasswordStore.hasPassword();
+        status.textContent = has ? '已设置' : '未设置';
+        if (btn) {
+            btn.textContent = has ? '修改' : '设置';
+            btn.classList.toggle('btn-primary', !has);
+            btn.classList.toggle('btn-sm', true);
+        }
+        if (sub && has) {
+            sub.childNodes[0].textContent = '用于订阅、单篇付费、打赏与提现 · ';
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncPayPwdRow);
+    } else {
+        syncPayPwdRow();
+    }
+    document.addEventListener('fl-user-assets-change', syncPayPwdRow);
+})();
+</script>
 </body>
 </html>

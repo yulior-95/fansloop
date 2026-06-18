@@ -43,6 +43,7 @@
     var PAGE_ACTIVE = {
         "settings.html": "account",
         "settings-security.html": "security",
+        "settings-pay-password.html": "security",
         "settings-wallet.html": "wallet",
         "settings-invite-relation.html": "invite",
         "settings-notification.html": "notification",

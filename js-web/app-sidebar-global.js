@@ -6,6 +6,50 @@
     var STORAGE_KEY = 'fl_sidebar_collapsed';
     var NAV_CONTEXT_KEY = 'fl_sidebar_nav_context';
 
+    function detectScriptBase() {
+        var scripts = document.getElementsByTagName('script');
+        for (var i = 0; i < scripts.length; i++) {
+            var src = scripts[i].src || '';
+            if (src.indexOf('app-sidebar-global') >= 0) {
+                return src.replace(/\/js-web\/app-sidebar-global\.js.*$/, '/js-web/');
+            }
+        }
+        return '../js-web/';
+    }
+
+    function ensureAuthPrototype(cb) {
+        if (global.FansloopAuth && global.FLAuthUiSync) {
+            if (cb) cb();
+            return;
+        }
+        if (global.__flAuthProtoLoading) {
+            global.addEventListener('fl-auth-prototype-ready', function once() {
+                global.removeEventListener('fl-auth-prototype-ready', once);
+                if (cb) cb();
+            });
+            return;
+        }
+        global.__flAuthProtoLoading = true;
+        var base = detectScriptBase();
+        var queue = ['user-prototype-registry.js', 'user-assets-store.js', 'pay-password-store.js', 'auth-session.js', 'auth-ui-sync.js'];
+        function loadNext(idx) {
+            if (idx >= queue.length) {
+                global.__flAuthProtoLoading = false;
+                try {
+                    global.dispatchEvent(new CustomEvent('fl-auth-prototype-ready'));
+                } catch (e) { /* ignore */ }
+                if (cb) cb();
+                return;
+            }
+            var s = document.createElement('script');
+            s.src = base + queue[idx];
+            s.onload = function () { loadNext(idx + 1); };
+            s.onerror = function () { loadNext(idx + 1); };
+            document.head.appendChild(s);
+        }
+        loadNext(0);
+    }
+
     function isValidNavId(id) {
         if (!id) return false;
         for (var gi = 0; gi < SIDEBAR_NAV.length; gi++) {
@@ -154,6 +198,9 @@
         }
         sidebar.innerHTML = brandHtml + buildSidebarNavHtml(activeId) + bottomHtml;
         sidebar.setAttribute('data-fl-nav-unified', '1');
+        if (global.FLAuthUiSync && global.FLAuthUiSync.apply) {
+            global.FLAuthUiSync.apply();
+        }
         setTimeout(function () {
             if (global.MallBenefitsScenes && global.MallBenefitsScenes.applyAvatarFrameScene) {
                 global.MallBenefitsScenes.applyAvatarFrameScene();
@@ -208,12 +255,17 @@
     function init() {
         var shell = document.querySelector('.app-shell');
         if (!shell) return;
-        var sidebar = shell.querySelector('.app-sidebar');
-        if (!sidebar) return;
-        if (!sidebar.id) sidebar.id = 'app-sidebar';
-        renderUnifiedSidebarNav(sidebar);
-        ensureToggle(shell, sidebar);
-        applyState(shell, isCollapsed() || document.documentElement.classList.contains('sidebar-collapsed-pre'));
+        ensureAuthPrototype(function () {
+            var sidebar = shell.querySelector('.app-sidebar');
+            if (!sidebar) return;
+            if (!sidebar.id) sidebar.id = 'app-sidebar';
+            renderUnifiedSidebarNav(sidebar);
+            ensureToggle(shell, sidebar);
+            applyState(shell, isCollapsed() || document.documentElement.classList.contains('sidebar-collapsed-pre'));
+            if (global.FLAuthUiSync && global.FLAuthUiSync.apply) {
+                global.FLAuthUiSync.apply();
+            }
+        });
     }
 
     if (document.readyState === 'loading') {
