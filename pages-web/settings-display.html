@@ -106,6 +106,8 @@
 .lang-item.on .ck { opacity: 1; }
 </style>
 
+<script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
+<script src="../js-web/global-display-prefs.js"></script>
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <link rel="stylesheet" href="../css-web/global-accessibility.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
@@ -147,14 +149,14 @@
         <div class="h-search h-search-live h-search-unified">
             <div class="hs-inner">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="search" placeholder="搜索创作者、内容或话题…" autocomplete="off" />
+                <input type="search" placeholder="搜索创作者、内容或话题…" data-i18n-ph-global="search" autocomplete="off" />
             </div>
             <div class="gs-drop"></div>
         </div>
         <div class="h-actions">
             <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
             <button class="h-icon" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i></button>
-            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i><span data-i18n-global="recharge">充值</span></button>
             <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
         </div>
     </header>
@@ -171,7 +173,7 @@
                 <p>根据自己的喜好定制 FansLoop 的视觉效果与本地化体验。所有更改即刻生效。</p>
             </div>
             <div class="ph-r">
-                <button class="btn"><i class="fa-solid fa-rotate-left"></i> 恢复默认</button>
+                <button type="button" class="btn" id="btnDispReset"><i class="fa-solid fa-rotate-left"></i> 恢复默认</button>
             </div>
         </div>
 
@@ -189,7 +191,7 @@
                     </div>
                     <div class="body">
                         <div class="theme-grid">
-                            <div class="theme-card dark active">
+                            <div class="theme-card dark active" data-theme="dark" role="button" tabindex="0">
                                 <div class="theme-preview">
                                     <div class="tp-side"><div class="tp-l"></div><div class="tp-l" style="width:60%"></div><div class="tp-l" style="width:80%"></div></div>
                                     <div class="tp-main"><div class="tp-h"></div><div class="tp-card"></div></div>
@@ -197,7 +199,7 @@
                                 <div class="name">深色 Dark <span class="check"><i class="fa-solid fa-circle-check"></i></span></div>
                                 <div class="desc">护眼舒适，适合夜晚 · 当前主题</div>
                             </div>
-                            <div class="theme-card light">
+                            <div class="theme-card light" data-theme="light" role="button" tabindex="0">
                                 <div class="theme-preview">
                                     <div class="tp-side"><div class="tp-l"></div><div class="tp-l" style="width:60%"></div><div class="tp-l" style="width:80%"></div></div>
                                     <div class="tp-main"><div class="tp-h"></div><div class="tp-card"></div></div>
@@ -205,7 +207,7 @@
                                 <div class="name">浅色 Light <span class="check"><i class="fa-solid fa-circle-check"></i></span></div>
                                 <div class="desc">明亮清新，适合日间办公</div>
                             </div>
-                            <div class="theme-card auto">
+                            <div class="theme-card auto" data-theme="auto" role="button" tabindex="0">
                                 <div class="theme-preview">
                                     <div class="tp-side"><div class="tp-l"></div><div class="tp-l" style="width:60%"></div><div class="tp-l" style="width:80%"></div></div>
                                     <div class="tp-main"><div class="tp-h"></div><div class="tp-card"></div></div>
@@ -215,65 +217,47 @@
                             </div>
                         </div>
                     </div>
-                    <div class="accent-row">
-                        <div class="lb">强调色 Accent</div>
-                        <div class="colors">
-                            <div class="c-chip on" style="background: linear-gradient(135deg,#A855F7,#EC4899)"></div>
-                            <div class="c-chip" style="background: linear-gradient(135deg,#3B82F6,#06B6D4)"></div>
-                            <div class="c-chip" style="background: linear-gradient(135deg,#10B981,#059669)"></div>
-                            <div class="c-chip" style="background: linear-gradient(135deg,#F59E0B,#EF4444)"></div>
-                            <div class="c-chip" style="background: linear-gradient(135deg,#EC4899,#F472B6)"></div>
-                            <div class="c-chip" style="background: linear-gradient(135deg,#06B6D4,#10B981)"></div>
-                            <div class="c-chip" style="background: linear-gradient(135deg,#FBBF24,#F59E0B)"></div>
-                            <div class="c-chip" style="background: linear-gradient(135deg,#475569,#1F2937)"></div>
-                        </div>
-                    </div>
                     <div class="accent-row" style="border-bottom: none">
                         <div class="lb">高对比模式<div style="font-size:11.5px;color:var(--t-tertiary);margin-top:3px;font-weight:400">提升文字与背景的对比度，符合 WCAG AAA</div></div>
-                        <div style="margin-left: auto"><div class="switch"></div></div>
+                        <div style="margin-left: auto; display:flex; align-items:center">
+                            <span class="disp-hc-hint"><i class="fa-solid fa-check"></i> 全站已生效</span>
+                            <div class="switch" id="swHighContrast" role="switch" tabindex="0"></div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 字体与密度 -->
+                <!-- 字体 -->
                 <div class="set-card">
                     <div class="ssh">
                         <div class="ic-circle" style="background: linear-gradient(135deg,#06B6D4,#3B82F6)"><i class="fa-solid fa-text-height"></i></div>
-                        <div><h3>字体与显示密度</h3><p>影响文字大小、行间距与界面留白</p></div>
+                        <div><h3>字体</h3><p>调整全站文字基准大小，不影响布局结构</p></div>
                     </div>
                     <div class="range-row">
                         <div class="lb">
                             <div class="ti">字体大小</div>
-                            <div class="sub">影响所有界面文字的基准大小</div>
+                            <div class="sub">拖动滑块即时预览 · 全站同步生效</div>
                         </div>
                         <div class="ctrl">
-                            <input type="range" min="0" max="4" value="2">
+                            <input type="range" id="dispFontSlider" min="0" max="4" value="2" step="1" aria-label="字体大小">
                             <div class="scale">
                                 <span>极小</span><span>较小</span><span>标准</span><span>较大</span><span>极大</span>
                             </div>
                         </div>
-                        <div class="val">100%</div>
+                        <div class="val" id="dispFontVal">100%</div>
                     </div>
-                    <div class="range-row">
-                        <div class="lb">
-                            <div class="ti">显示密度</div>
-                            <div class="sub">紧凑可在一屏看到更多内容，宽松更易阅读</div>
-                        </div>
-                        <div class="ctrl">
-                            <input type="range" min="0" max="2" value="1">
-                            <div class="scale"><span>紧凑</span><span>标准</span><span>宽松</span></div>
-                        </div>
-                        <div class="val">标准</div>
-                    </div>
-                    <div class="range-row" style="display: block">
+                    <div class="range-row" style="display: block; border-bottom: none">
                         <div class="lb"><div class="ti">字体预览</div></div>
-                        <div class="font-preview" style="margin-top: 12px">
+                        <div class="font-preview" id="dispFontPreview" style="margin-top: 12px">
                             <div class="fp-h">这是一段标题示例 · Heading Sample</div>
-                            <div class="fp-b">FansLoop 是面向加密原生用户与创作者的内容订阅与打赏平台。在这里，你可以发现优质创作者、订阅他们的会员档位、打赏喜爱的作品，并通过 USDT / ETH 等加密资产完成所有支付与结算。Lorem ipsum dolor sit amet 1234567890.</div>
+                            <div class="fp-b">FansLoop 是面向加密原生用户与创作者的内容订阅与打赏平台。在这里，你可以发现优质创作者、订阅他们的会员档位、打赏喜爱的作品，并通过 USDT 完成所有支付与结算。</div>
                         </div>
                     </div>
                     <div class="accent-row" style="border-bottom: none; padding-top: 16px">
-                        <div class="lb">无衬线字体<div style="font-size:11.5px;color:var(--t-tertiary);margin-top:3px;font-weight:400">更现代的字体外观，关闭则使用系统默认</div></div>
-                        <div style="margin-left: auto"><div class="switch on"></div></div>
+                        <div class="lb">无衬线字体<div style="font-size:11.5px;color:var(--t-tertiary);margin-top:3px;font-weight:400">更现代的字体外观，关闭则使用 Inter 默认</div></div>
+                        <div style="margin-left: auto; display:flex; align-items:center">
+                            <span class="disp-sans-hint">系统字体</span>
+                            <div class="switch" id="swSansFont" role="switch" tabindex="0"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -285,19 +269,17 @@
                     </div>
                     <div class="accent-row">
                         <div class="lb">界面动画<div style="font-size:11.5px;color:var(--t-tertiary);margin-top:3px;font-weight:400">页面切换、按钮反馈、滚动等动效</div></div>
-                        <div style="margin-left: auto"><div class="switch on"></div></div>
-                    </div>
-                    <div class="accent-row">
-                        <div class="lb">背景毛玻璃<div style="font-size:11.5px;color:var(--t-tertiary);margin-top:3px;font-weight:400">半透明卡片背景效果，可能影响低端设备性能</div></div>
-                        <div style="margin-left: auto"><div class="switch on"></div></div>
-                    </div>
-                    <div class="accent-row">
-                        <div class="lb">送礼特效<div style="font-size:11.5px;color:var(--t-tertiary);margin-top:3px;font-weight:400">直播间送礼物时的飘屏特效</div></div>
-                        <div style="margin-left: auto"><div class="switch on"></div></div>
+                        <div style="margin-left: auto; display:flex; align-items:center">
+                            <span class="disp-motion-hint"><i class="fa-solid fa-ban"></i> 已减少动效</span>
+                            <div class="switch on" id="swUiMotion" role="switch" tabindex="0"></div>
+                        </div>
                     </div>
                     <div class="accent-row" style="border-bottom: none">
-                        <div class="lb">减少动效（无障碍）<div style="font-size:11.5px;color:var(--t-tertiary);margin-top:3px;font-weight:400">前庭功能障碍用户推荐启用</div></div>
-                        <div style="margin-left: auto"><div class="switch"></div></div>
+                        <div class="lb">背景毛玻璃<div style="font-size:11.5px;color:var(--t-tertiary);margin-top:3px;font-weight:400">半透明卡片背景效果，关闭后使用实色背景</div></div>
+                        <div style="margin-left: auto; display:flex; align-items:center">
+                            <span class="disp-glass-hint">实色背景</span>
+                            <div class="switch on" id="swGlass" role="switch" tabindex="0"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -310,24 +292,24 @@
                     <div class="body">
                         <div style="position: relative; margin-bottom: 14px">
                             <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--t-tertiary);font-size:12px"></i>
-                            <input type="text" placeholder="搜索语言…" style="padding-left: 38px; max-width: 340px">
+                            <input type="search" id="dispLangSearch" placeholder="搜索语言…" style="padding-left: 38px; max-width: 340px">
                         </div>
-                        <div class="lang-grid">
-                            <div class="lang-item on"><span class="flag">🇨🇳</span><span class="nm">简体中文</span><i class="fa-solid fa-check ck"></i></div>
-                            <div class="lang-item"><span class="flag">🇹🇼</span><span class="nm">繁體中文</span><i class="fa-solid fa-check ck"></i></div>
-                            <div class="lang-item"><span class="flag">🇺🇸</span><span class="nm">English</span><i class="fa-solid fa-check ck"></i></div>
-                            <div class="lang-item"><span class="flag">🇯🇵</span><span class="nm">日本語</span><i class="fa-solid fa-check ck"></i></div>
-                            <div class="lang-item"><span class="flag">🇰🇷</span><span class="nm">한국어</span><i class="fa-solid fa-check ck"></i></div>
-                            <div class="lang-item"><span class="flag">🇪🇸</span><span class="nm">Español</span><i class="fa-solid fa-check ck"></i></div>
-                            <div class="lang-item"><span class="flag">🇫🇷</span><span class="nm">Français</span><i class="fa-solid fa-check ck"></i></div>
-                            <div class="lang-item"><span class="flag">🇩🇪</span><span class="nm">Deutsch</span><i class="fa-solid fa-check ck"></i></div>
-                            <div class="lang-item"><span class="flag">🇵🇹</span><span class="nm">Português</span><i class="fa-solid fa-check ck"></i></div>
-                            <div class="lang-item"><span class="flag">🇷🇺</span><span class="nm">Русский</span><i class="fa-solid fa-check ck"></i></div>
-                            <div class="lang-item"><span class="flag">🇸🇦</span><span class="nm">العربية</span><i class="fa-solid fa-check ck"></i></div>
-                            <div class="lang-item"><span class="flag">🇹🇭</span><span class="nm">ไทย</span><i class="fa-solid fa-check ck"></i></div>
-                            <div class="lang-item"><span class="flag">🇻🇳</span><span class="nm">Tiếng Việt</span><i class="fa-solid fa-check ck"></i></div>
-                            <div class="lang-item"><span class="flag">🇮🇩</span><span class="nm">Indonesia</span><i class="fa-solid fa-check ck"></i></div>
-                            <div class="lang-item"><span class="flag">🇮🇹</span><span class="nm">Italiano</span><i class="fa-solid fa-check ck"></i></div>
+                        <div class="lang-grid" id="dispLangGrid">
+                            <div class="lang-item on" data-lang="zh-CN" role="button" tabindex="0"><span class="flag">🇨🇳</span><span class="nm">简体中文</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item" data-lang="zh-TW" role="button" tabindex="0"><span class="flag">🇹🇼</span><span class="nm">繁體中文</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item" data-lang="en" role="button" tabindex="0"><span class="flag">🇺🇸</span><span class="nm">English</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item" data-lang="ja" role="button" tabindex="0"><span class="flag">🇯🇵</span><span class="nm">日本語</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item" data-lang="ko" role="button" tabindex="0"><span class="flag">🇰🇷</span><span class="nm">한국어</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item" data-lang="es" role="button" tabindex="0"><span class="flag">🇪🇸</span><span class="nm">Español</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item" data-lang="fr" role="button" tabindex="0"><span class="flag">🇫🇷</span><span class="nm">Français</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item" data-lang="de" role="button" tabindex="0"><span class="flag">🇩🇪</span><span class="nm">Deutsch</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item" data-lang="pt-BR" role="button" tabindex="0"><span class="flag">🇵🇹</span><span class="nm">Português</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item" data-lang="ru" role="button" tabindex="0"><span class="flag">🇷🇺</span><span class="nm">Русский</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item" data-lang="ar" role="button" tabindex="0"><span class="flag">🇸🇦</span><span class="nm">العربية</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item" data-lang="th" role="button" tabindex="0"><span class="flag">🇹🇭</span><span class="nm">ไทย</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item" data-lang="vi" role="button" tabindex="0"><span class="flag">🇻🇳</span><span class="nm">Tiếng Việt</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item" data-lang="id" role="button" tabindex="0"><span class="flag">🇮🇩</span><span class="nm">Indonesia</span><i class="fa-solid fa-check ck"></i></div>
+                            <div class="lang-item" data-lang="it" role="button" tabindex="0"><span class="flag">🇮🇹</span><span class="nm">Italiano</span><i class="fa-solid fa-check ck"></i></div>
                         </div>
                     </div>
                 </div>
@@ -479,11 +461,13 @@
 </div>
 
 <div id="gaToast"></div>
+<div id="dispPageToast" class="disp-toast" role="status" aria-live="polite"></div>
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>
 <script src="../js-web/global-accessibility-store.js"></script>
 <script src="../js-web/settings-nav.js"></script>
 <script src="../js-web/settings-logout.js"></script>
 <script src="../js-web/global-accessibility-settings.js"></script>
+<script src="../js-web/settings-display-page.js"></script>
 </body>
 </html>

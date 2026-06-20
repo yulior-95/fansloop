@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>侧栏用户行 · 昵称溢出 & 会员标签 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/sidebar-bottom.css">
+<script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
+<style>
+.proto-banner {
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    border-radius: var(--r-lg);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+}
+.proto-banner h2 { font-size: 16px; font-weight: 800; margin: 0 0 6px; }
+.proto-banner p { font-size: 12px; color: var(--t-secondary); line-height: 1.55; margin: 0; }
+.proto-note {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: var(--r-md);
+    background: var(--bg-input);
+    border: 1px dashed var(--border-strong);
+    font-size: 12px;
+    color: var(--t-tertiary);
+    line-height: 1.55;
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator</span></div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search h-search-live h-search-unified">
+            <div class="hs-inner">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" placeholder="搜索创作者、内容或话题…" autocomplete="off" />
+            </div>
+            <div class="gs-drop"></div>
+        </div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-regular fa-bell"></i></button>
+            <button class="h-icon"><i class="fa-regular fa-comments"></i></button>
+            <button class="h-cta"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="proto-banner">
+            <h2><i class="fa-solid fa-user" style="color:var(--brand-purple)"></i> 侧栏用户行展示规则</h2>
+            <p>昵称最长 <strong style="color:#fff">20 字</strong>，超出侧栏以省略号截断（hover 显示完整昵称）；有效 Creator Pro 会员在昵称后显示 <strong style="color:#FDE68A">Pro</strong> 标签；已移除右侧 ⋮ 菜单，点击用户行跳转主页。</p>
+        </div>
+        <div class="proto-note">
+            本页演示：超长昵称 + 有效会员。切换 URL 参数可对比：<br>
+            · <code>?fl_creator_pro=none</code> 无会员标签<br>
+            · <code>?fl_creator_pro=active</code> 显示 Pro 标签（默认）
+        </div>
+    </main>
+</div>
+
+<script>
+(function () {
+    var p = new URLSearchParams(location.search);
+    if (!p.has('fl_creator_pro')) {
+        var q = location.search ? location.search + '&' : '?';
+        location.replace(location.pathname + q + 'fl_creator_pro=active&fl_demo_long_name=1');
+        return;
+    }
+    function ensureLogin() {
+        if (!globalThis.FansloopAuth) return;
+        if (!globalThis.FansloopAuth.isLoggedIn()) {
+            globalThis.FansloopAuth.login({ email: 'luna@fansloop.io' });
+        }
+        if (p.get('fl_demo_long_name') === '1' && globalThis.FansloopAuth.updateProfile) {
+            globalThis.FansloopAuth.updateProfile({
+                name: '超长昵称演示用户ABCDEFGHIJKLMNOP'
+            });
+        }
+    }
+    globalThis.addEventListener('fl-auth-prototype-ready', ensureLogin);
+    document.addEventListener('DOMContentLoaded', function () { setTimeout(ensureLogin, 600); });
+})();
+</script>
+<script src="../js-web/app-sidebar-global.js"></script>
+</body>
+</html>

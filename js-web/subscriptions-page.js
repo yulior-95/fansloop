@@ -9,9 +9,27 @@
     var manageOverlay = document.getElementById('subManageOverlay');
     var manageDetail = document.getElementById('subManageDetail');
     var manageList = document.getElementById('subManageList');
+    var manageRows = document.getElementById('subManageRows');
+    var manageScroll = document.getElementById('subManageScroll');
+    var manageSearch = document.getElementById('subManageSearch');
+    var manageSummary = document.getElementById('subManageSummary');
     var cancelOverlay = document.getElementById('subCancelOverlay');
     var currentTab = 'feed';
     var cancelTargetName = '';
+
+    var SUB_AUTO_RENEW_KEY = 'fl_sub_auto_renew_v1';
+    var manageState = { search: '', page: 1, pageSize: 6, loading: false, hasMore: true };
+    var subscribedCreators = [];
+
+    var SUB_MANAGE_EXTRA = [
+        { name: '东京夜跑团', av: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=200', plan: '月度订阅', price: 24, expire: '2026-07-15 到期', autoRenew: true, hint: '自动续费已开启', subscribedAt: 1738000000 },
+        { name: '胶片少女', av: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200', plan: '月度订阅', price: 32, expire: '2026-07-20 到期', autoRenew: true, hint: '自动续费已开启', subscribedAt: 1737000000 },
+        { name: '海风日记', av: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200', plan: '月度订阅', price: 18, expire: '2026-08-05 到期', autoRenew: true, hint: '自动续费已开启', subscribedAt: 1736000000 },
+        { name: '小鹿订阅', av: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200', plan: '月度订阅', price: 28, expire: '2026-08-12 到期', autoRenew: true, hint: '自动续费已开启', subscribedAt: 1735000000 },
+        { name: 'NovaFan', av: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200', plan: '月度订阅', price: 16, expire: '2026-08-18 到期', autoRenew: false, hint: '自动续费已关闭', subscribedAt: 1734000000 },
+        { name: '云端书客', av: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200', plan: '月度订阅', price: 42, expire: '2026-09-01 到期', autoRenew: true, hint: '自动续费已开启', subscribedAt: 1733000000 },
+        { name: '晨间咖啡', av: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200', plan: '月度订阅', price: 16, expire: '2026-09-10 到期', autoRenew: true, hint: '自动续费已开启', subscribedAt: 1732000000 }
+    ];
 
     var SUB_READ_SET_KEY = 'fl_sub_read_item_ids_v1';
     var SUB_UNREAD_COUNT_KEY = 'fl_sub_unread_counts_v1';
@@ -270,6 +288,11 @@
         manageOverlay?.classList.add('show');
         manageDetail?.classList.remove('show');
         manageList?.classList.remove('hide');
+        manageState.search = '';
+        manageState.page = 1;
+        if (manageSearch) manageSearch.value = '';
+        renderManageSubscriptions(true);
+        if (manageSearch) manageSearch.focus();
     }
     function closeManage() {
         manageOverlay?.classList.remove('show');
@@ -282,30 +305,234 @@
         if (e.target === manageOverlay) closeManage();
     });
 
-    document.querySelectorAll('.sub-manage-row').forEach(function (row) {
-        row.addEventListener('click', function (e) {
-            if (e.target.closest('button, .switch, a')) return;
-            var name = row.getAttribute('data-name');
-            var plan = row.getAttribute('data-plan');
-            var price = row.getAttribute('data-price');
-            var expire = row.getAttribute('data-expire');
-            document.getElementById('subDetailName').textContent = name;
-            document.getElementById('subDetailPlan').textContent = plan;
-            document.getElementById('subDetailPrice').textContent = price + ' USDT / 月';
-            document.getElementById('subDetailExpire').textContent = expire;
-            document.getElementById('subDetailAv').style.backgroundImage = row.getAttribute('data-av') || '';
-            var renewBtn = document.getElementById('btnDetailRenew');
-            if (renewBtn) {
-                renewBtn.setAttribute('data-creator', name || '');
-                renewBtn.setAttribute('data-plan', price || '28');
-                var avRaw = row.getAttribute('data-av') || '';
-                var avUrl = avRaw.replace(/^url\(['"]?|['"]?\)$/g, '');
-                if (avUrl) renewBtn.setAttribute('data-av', avUrl);
-            }
-            manageList?.classList.add('hide');
-            manageDetail?.classList.add('show');
+    document.getElementById('btnCloseManageFt')?.addEventListener('click', closeManage);
+
+    function loadAutoRenewMap() {
+        try {
+            var raw = localStorage.getItem(SUB_AUTO_RENEW_KEY);
+            return raw ? JSON.parse(raw) : {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function saveAutoRenewMap(map) {
+        try { localStorage.setItem(SUB_AUTO_RENEW_KEY, JSON.stringify(map || {})); } catch (e) {}
+    }
+
+    function isAutoRenewOn(name, fallback) {
+        var map = loadAutoRenewMap();
+        if (Object.prototype.hasOwnProperty.call(map, name)) return !!map[name];
+        return fallback !== false;
+    }
+
+    function setAutoRenewOn(name, on) {
+        var map = loadAutoRenewMap();
+        map[name] = !!on;
+        saveAutoRenewMap(map);
+    }
+
+    function parseAvFromCard(card) {
+        var img = card.querySelector('.av-wrap .img, .img');
+        if (!img) return '';
+        var raw = img.style.backgroundImage || getComputedStyle(img).backgroundImage || '';
+        var m = raw.match(/url\(["']?([^"')]+)["']?\)/);
+        return m ? m[1] : '';
+    }
+
+    function buildSubscribedCreators() {
+        var byName = {};
+        if (rail) {
+            rail.querySelectorAll('.creator-col-item[data-creator]').forEach(function (card) {
+                var name = card.getAttribute('data-creator');
+                if (!name) return;
+                var price = 28;
+                if (name === '山野食光' || name === '极简料理') price = 18;
+                if (name === '代码诗人') price = 38;
+                if (name === '夜间速写') price = 22;
+                var hint = '自动续费已开启';
+                var warn = false;
+                if (name === '夜雨听弦') {
+                    hint = '3 天后到期';
+                    warn = true;
+                }
+                byName[name] = {
+                    name: name,
+                    av: parseAvFromCard(card),
+                    plan: '月度订阅',
+                    price: price,
+                    expire: '2026-07-02 到期',
+                    autoRenew: name !== '代码诗人',
+                    hint: hint,
+                    warn: warn,
+                    subscribedAt: Number(card.getAttribute('data-subscribed-at') || 0)
+                };
+            });
+        }
+        SUB_MANAGE_EXTRA.forEach(function (item) {
+            if (!byName[item.name]) byName[item.name] = item;
         });
-    });
+        subscribedCreators = Object.keys(byName).map(function (k) { return byName[k]; });
+        subscribedCreators.sort(function (a, b) {
+            return (b.subscribedAt || 0) - (a.subscribedAt || 0);
+        });
+        subscribedCreators.forEach(function (item) {
+            item.autoRenew = isAutoRenewOn(item.name, item.autoRenew);
+            if (!item.warn) {
+                item.hint = item.autoRenew ? '自动续费已开启' : '自动续费已关闭';
+            }
+        });
+        return subscribedCreators;
+    }
+
+    function getFilteredSubscriptions() {
+        var q = (manageState.search || '').trim().toLowerCase();
+        return subscribedCreators.filter(function (item) {
+            if (!q) return true;
+            return item.name.toLowerCase().indexOf(q) >= 0;
+        });
+    }
+
+    function renderManageRow(item) {
+        var on = item.autoRenew;
+        var hintCls = item.warn ? ' warn' : '';
+        var hintHtml = item.warn
+            ? '<i class="fa-solid fa-triangle-exclamation"></i> ' + item.hint
+            : item.hint;
+        return (
+            '<div class="sub-manage-row" data-name="' + escHtml(item.name) + '" data-plan="' + escHtml(item.plan) + '" data-price="' + item.price + '" data-expire="' + escHtml(item.expire) + '" data-av="url(\'' + escHtml(item.av) + '\')">' +
+            '<div class="av av-sm" style="background-image:url(\'' + escHtml(item.av) + '\')"></div>' +
+            '<div class="info"><div class="n">' + escHtml(item.name) + '</div><div class="h' + hintCls + '">' + hintHtml + '</div></div>' +
+            '<div class="switch' + (on ? ' on' : '') + '" title="自动续订" data-auto-renew="' + (on ? '1' : '0') + '" aria-label="自动续订"></div>' +
+            '<span class="price">' + item.price + '/月</span>' +
+            '</div>'
+        );
+    }
+
+    function escHtml(s) {
+        return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+    }
+
+    function renderManageSubscriptions(reset) {
+        if (!manageRows) return;
+        if (!subscribedCreators.length) buildSubscribedCreators();
+
+        var all = getFilteredSubscriptions();
+        var end = manageState.page * manageState.pageSize;
+        var slice = all.slice(0, end);
+        manageState.hasMore = slice.length < all.length;
+
+        if (reset) {
+            manageRows.innerHTML = '';
+            if (manageScroll) manageScroll.scrollTop = 0;
+        }
+
+        var loader = manageRows.querySelector('.sub-manage-lazy-tip');
+        if (loader) loader.remove();
+
+        if (!all.length) {
+            manageRows.innerHTML = '<div class="sub-manage-empty"><i class="fa-regular fa-face-frown" style="font-size:22px;display:block;margin-bottom:8px;opacity:.5"></i>未找到匹配的订阅创作者</div>';
+        } else {
+            var current = manageRows.querySelectorAll('.sub-manage-row').length;
+            if (reset || slice.length <= current) {
+                manageRows.innerHTML = slice.map(renderManageRow).join('');
+            } else {
+                manageRows.insertAdjacentHTML('beforeend', slice.slice(current).map(renderManageRow).join(''));
+            }
+            if (manageState.hasMore) {
+                manageRows.insertAdjacentHTML('beforeend', '<div class="sub-manage-lazy-tip"><i class="fa-solid fa-arrow-down"></i> 向下滚动加载更多</div>');
+            }
+        }
+
+        if (manageSummary) {
+            manageSummary.textContent = '共 ' + subscribedCreators.length + ' 位订阅创作者 · 当前显示 ' + slice.length + ' / ' + all.length + ' 条';
+        }
+    }
+
+    function tryLoadMoreSubscriptions() {
+        if (!manageScroll || manageState.loading || !manageState.hasMore) return;
+        if (manageScroll.scrollTop + manageScroll.clientHeight < manageScroll.scrollHeight - 40) return;
+        manageState.loading = true;
+        manageState.page += 1;
+        renderManageSubscriptions(false);
+        manageState.loading = false;
+    }
+
+    function bindManageSubscriptions() {
+        buildSubscribedCreators();
+
+        if (manageSearch) {
+            manageSearch.addEventListener('input', function () {
+                manageState.search = manageSearch.value;
+                manageState.page = 1;
+                renderManageSubscriptions(true);
+            });
+        }
+
+        if (manageScroll) {
+            manageScroll.addEventListener('scroll', tryLoadMoreSubscriptions);
+        }
+
+        if (manageRows) {
+            manageRows.addEventListener('click', function (e) {
+                var sw = e.target.closest('.switch');
+                if (sw) {
+                    e.stopPropagation();
+                    sw.classList.toggle('on');
+                    var on = sw.classList.contains('on');
+                    sw.setAttribute('data-auto-renew', on ? '1' : '0');
+                    var row = sw.closest('.sub-manage-row');
+                    var name = row?.getAttribute('data-name');
+                    if (name) {
+                        setAutoRenewOn(name, on);
+                        subscribedCreators.forEach(function (item) {
+                            if (item.name === name) {
+                                item.autoRenew = on;
+                                if (!item.warn) item.hint = on ? '自动续费已开启' : '自动续费已关闭';
+                            }
+                        });
+                        var hint = row.querySelector('.info .h');
+                        if (hint && !hint.classList.contains('warn')) {
+                            hint.textContent = on ? '自动续费已开启' : '自动续费已关闭';
+                        }
+                    }
+                    toast(on ? '已开启用户的自动续订功能' : '已关闭用户的自动续订功能');
+                    return;
+                }
+
+                var row = e.target.closest('.sub-manage-row');
+                if (!row || e.target.closest('button, a')) return;
+                var name = row.getAttribute('data-name');
+                var plan = row.getAttribute('data-plan');
+                var price = row.getAttribute('data-price');
+                var expire = row.getAttribute('data-expire');
+                document.getElementById('subDetailName').textContent = name;
+                document.getElementById('subDetailPlan').textContent = plan;
+                document.getElementById('subDetailPrice').textContent = price + ' USDT / 月';
+                document.getElementById('subDetailExpire').textContent = expire;
+                document.getElementById('subDetailAv').style.backgroundImage = row.getAttribute('data-av') || '';
+                var renewBtn = document.getElementById('btnDetailRenew');
+                if (renewBtn) {
+                    renewBtn.setAttribute('data-creator', name || '');
+                    renewBtn.setAttribute('data-plan', price || '28');
+                    var avRaw = row.getAttribute('data-av') || '';
+                    var avUrl = avRaw.replace(/^url\(['"]?|['"]?\)$/g, '');
+                    if (avUrl) renewBtn.setAttribute('data-av', avUrl);
+                }
+                var detailAuto = document.getElementById('subDetailAutoRenew');
+                if (detailAuto) {
+                    var creator = subscribedCreators.filter(function (c) { return c.name === name; })[0];
+                    var on = creator && creator.autoRenew;
+                    detailAuto.textContent = on ? '已开启' : '已关闭';
+                    detailAuto.style.color = on ? '#86efac' : '#fca5a5';
+                }
+                manageList?.classList.add('hide');
+                manageDetail?.classList.add('show');
+            });
+        }
+    }
+
+    bindManageSubscriptions();
 
     document.getElementById('btnDetailRenew')?.addEventListener('click', function (e) {
         e.stopPropagation();
@@ -357,21 +584,6 @@
         toast('已取消对「' + cancelTargetName + '」的订阅（原型）');
         cancelOverlay?.classList.remove('show');
         closeManage();
-    });
-
-    document.querySelectorAll('.sub-manage-row .switch').forEach(function (sw) {
-        sw.addEventListener('click', function (e) {
-            e.stopPropagation();
-            sw.classList.toggle('on');
-            var on = sw.classList.contains('on');
-            sw.setAttribute('data-auto-renew', on ? '1' : '0');
-            var row = sw.closest('.sub-manage-row');
-            var hint = row?.querySelector('.info .h');
-            if (hint && !hint.classList.contains('warn')) {
-                hint.textContent = on ? '自动续费已开启' : '自动续费已关闭';
-            }
-            toast(on ? '已开启用户的自动续订功能' : '已关闭用户的自动续订功能');
-        });
     });
 
     document.querySelectorAll('.btn-sub-renew').forEach(function (btn) {

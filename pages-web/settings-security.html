@@ -29,6 +29,7 @@
 
 .set-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg); margin-bottom: 18px; overflow: hidden; }
 .set-card .ssh { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.set-card .ssh .ssh-main { flex: 1; min-width: 0; }
 .set-card .ssh .ic-circle { width: 36px; height: 36px; border-radius: 10px; background: var(--brand-grad); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: var(--shadow-glow); }
 .set-card .ssh h3 { font-size: 15px; font-weight: 700; }
 .set-card .ssh p { font-size: 12px; color: var(--t-tertiary); margin-top: 2px; }
@@ -393,7 +394,7 @@
                             </div>
                             <div class="dv-action"><button class="btn btn-sm btn-danger">下线</button></div>
                         </div>
-                        <div style="padding-top: 14px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); margin-top: 6px">
+                        <div style="padding-top: 14px; display: flex; justify-content: space-between; align-items: center; margin-top: 6px">
                             <span style="font-size: 12px; color: var(--t-tertiary)"><i class="fa-solid fa-circle-info"></i> 不在你信任范围内的设备请立即下线并修改密码</span>
                             <button class="btn btn-danger btn-sm"><i class="fa-solid fa-power-off"></i> 全部下线（除当前）</button>
                         </div>
@@ -401,49 +402,30 @@
                 </div>
 
                 <!-- 安全日志 -->
-                <div class="set-card">
+                <div class="set-card" id="secActivityCard">
                     <div class="ssh">
                         <div class="ic-circle" style="background: linear-gradient(135deg,#64748B,#475569)"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                        <div><h3>近期安全活动</h3><p>过去 30 天的关键安全事件，可帮助发现异常行为</p></div>
+                        <div class="ssh-main">
+                            <h3>近期安全活动</h3>
+                            <p>过去 30 天的关键安全事件，可帮助发现异常行为</p>
+                        </div>
+                        <span class="sec-info-tip-wrap">
+                            <button type="button" class="sec-info-tip" id="btnSecActivityTip" aria-label="安全活动类型说明" aria-describedby="secActivityTipPop">
+                                <i class="fa-solid fa-circle-info"></i>
+                            </button>
+                            <div class="sec-info-tip-pop" id="secActivityTipPop" role="tooltip">
+                                <strong>安全活动包含以下类型</strong>
+                                <ul>
+                                    <li><i class="fa-solid fa-arrow-right-to-bracket"></i><span><b>登录与会话</b> · 登录成功、登出、会话过期</span></li>
+                                    <li><i class="fa-solid fa-coins"></i><span><b>资金与提现</b> · USDT 提现、充值、支付密码校验</span></li>
+                                    <li><i class="fa-solid fa-user-shield"></i><span><b>账号与验证</b> · 修改密码、2FA 开关、邮箱/手机变更</span></li>
+                                    <li><i class="fa-solid fa-laptop"></i><span><b>设备管理</b> · 新设备绑定、强制下线、全部下线</span></li>
+                                    <li><i class="fa-solid fa-triangle-exclamation"></i><span><b>风险与安全</b> · 异地登录拦截、多次失败、邮件警报</span></li>
+                                </ul>
+                            </div>
+                        </span>
                     </div>
-                    <div class="body">
-                        <div class="log-row">
-                            <div class="l-ic success"><i class="fa-solid fa-arrow-right-to-bracket"></i></div>
-                            <div class="l-info">
-                                <div class="ti">从 MacBook Pro 登录</div>
-                                <div class="meta">日本 · 东京 · Chrome 138 · 1 分钟前</div>
-                            </div>
-                        </div>
-                        <div class="log-row">
-                            <div class="l-ic success"><i class="fa-solid fa-coins"></i></div>
-                            <div class="l-info">
-                                <div class="ti">完成 USDT 链上提现 · 218 USDT</div>
-                                <div class="meta">已通过 2FA · 2 小时前</div>
-                            </div>
-                        </div>
-                        <div class="log-row">
-                            <div class="l-ic warn"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                            <div class="l-info">
-                                <div class="ti">异地登录尝试 - 已阻止</div>
-                                <div class="meta">中国 · 上海 · 未通过 2FA · 已发送邮件警报 · 3 天前</div>
-                            </div>
-                        </div>
-                        <div class="log-row">
-                            <div class="l-ic success"><i class="fa-solid fa-key"></i></div>
-                            <div class="l-info">
-                                <div class="ti">修改提现密码</div>
-                                <div class="meta">从 MacBook Pro · 12 天前</div>
-                            </div>
-                        </div>
-                        <div class="log-row">
-                            <div class="l-ic"><i class="fa-solid fa-mobile-screen"></i></div>
-                            <div class="l-info">
-                                <div class="ti">添加新认证设备 · iPhone 17 Pro</div>
-                                <div class="meta">已通过邮件验证 · 18 天前</div>
-                            </div>
-                        </div>
-                        <div style="text-align: center; padding-top: 12px"><a href="#" style="font-size: 12px; color: var(--brand-purple)">查看全部安全日志 <i class="fa-solid fa-arrow-right" style="font-size: 10px"></i></a></div>
-                    </div>
+                    <div class="body" id="secActivityPreview"></div>
                 </div>
 
             </div>
@@ -564,6 +546,36 @@
             <span class="spacer"></span>
             <button type="button" class="btn btn-secondary" id="btnTotpSetupCancel">取消</button>
             <button type="button" class="btn btn-primary" id="btnTotpSetupDone"><i class="fa-solid fa-check"></i> 完成谷歌密钥添加</button>
+        </div>
+    </div>
+</div>
+
+<div class="inline-overlay" id="ovlSecActivityLog" aria-hidden="true">
+    <div class="iol-panel sec-log-modal">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-clock-rotate-left" style="color:var(--brand-purple)"></i> 全部安全日志</h3>
+            <button type="button" class="iol-close" id="closeSecActivityLog" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <p class="sec-log-intro">近 30 天内的账号安全事件，可按类型筛选或搜索关键词。点击单条可展开详情；列表滚动至底部自动加载更多。</p>
+            <div class="sec-log-toolbar">
+                <div class="sec-log-filters" id="secLogFilters" role="tablist" aria-label="日志类型筛选"></div>
+                <div class="sec-log-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="search" id="secLogSearch" placeholder="搜索设备、地点、操作…" autocomplete="off" />
+                </div>
+            </div>
+            <div class="sec-log-summary" id="secLogSummary"></div>
+            <div class="sec-log-list" id="secLogList"></div>
+            <div class="sec-log-empty" id="secLogEmpty" hidden>
+                <i class="fa-regular fa-folder-open"></i>
+                <p>没有匹配的安全日志</p>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button type="button" class="btn btn-secondary btn-sm" id="btnSecLogExport"><i class="fa-solid fa-download"></i> 导出 CSV</button>
+            <span class="spacer"></span>
+            <button type="button" class="btn btn-primary" id="btnSecActivityLogOk">关闭</button>
         </div>
     </div>
 </div>

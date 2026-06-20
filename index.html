@@ -277,6 +277,7 @@ main.content { padding: 28px 24px 48px; }
     <aside class="sidebar">
         <div class="sec">导览</div>
         <a href="#notification"><i class="fa-regular fa-bell"></i>通知中心</a>
+        <a href="#sidebar-bottom"><i class="fa-solid fa-crown"></i>侧栏 Pro / 用户菜单</a>
         <a href="#messages-im"><i class="fa-regular fa-comments"></i>私信 IM</a>
         <a href="#discover-detail"><i class="fa-solid fa-compass"></i>发现详情</a>
         <a href="#ux"><i class="fa-solid fa-lightbulb"></i>体验与 IA</a>
@@ -371,6 +372,48 @@ main.content { padding: 28px 24px 48px; }
                     <div class="th">notification-system-tab.html?announcement=growth-plan <a href="pages-web/notification-system-tab.html?announcement=growth-plan" target="_blank">新窗口</a></div>
                     <div class="tb" style="height:720px"><iframe src="pages-web/notification-system-tab.html?announcement=growth-plan" title="系统通知详情弹窗" loading="lazy"></iframe></div>
                     <div class="tf">独立系统通知原型页；进入即打开「创作者增长计划」图文详情弹窗，含头图与 CTA。</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="block" id="sidebar-bottom">
+            <h2><i class="fa-solid fa-crown"></i>侧栏 Creator Pro 卡片 & 用户菜单（本次优化）</h2>
+            <p class="lead">
+                <strong>用户体验分析：</strong>FansLoop 侧栏底部是全局常驻入口，需在「转化（Pro 升级）」与「账户快捷操作」之间平衡；创作者在未购 Pro 时需持续感知升级价值，已购用户则应减少干扰；
+                <strong>产品界面设计：</strong>Pro 卡片与会员状态强绑定——未购买/已过期始终展示，有效期内全站隐藏；用户行展示昵称（最长 20 字，超出省略）+ Pro 会员标签，点击跳转主页；
+                <strong>高保真 UI：</strong>延续紫色渐变 Pro 卡片与升级弹层；真实 Unsplash 配图；
+                <strong>HTML 原型：</strong>逻辑由 <code>creator-pro-store.js</code> + <code>sidebar-bottom-interactions.js</code> 全站注入，不影响其他页面交互。
+            </p>
+            <div class="grid">
+                <div class="tile">
+                    <div class="th">proto-sidebar-pro-non-member.html（未购 Pro · 卡片展示） <a href="pages-web/proto-sidebar-pro-non-member.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:640px"><iframe src="pages-web/proto-sidebar-pro-non-member.html" title="侧栏 Pro 未购买" loading="lazy"></iframe></div>
+                    <div class="tf">切换任意菜单均展示「升级 Creator Pro」卡片；点击「立即升级」打开结算弹层。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">proto-sidebar-pro-member.html（会员有效 · 卡片隐藏） <a href="pages-web/proto-sidebar-pro-member.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:640px"><iframe src="pages-web/proto-sidebar-pro-member.html" title="侧栏 Pro 会员" loading="lazy"></iframe></div>
+                    <div class="tf">已购且在有效期内：侧栏底部不展示 Pro 卡片，仅保留用户行。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">proto-sidebar-user-display.html（昵称溢出 + Pro 标签） <a href="pages-web/proto-sidebar-user-display.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:640px"><iframe src="pages-web/proto-sidebar-user-display.html" title="侧栏用户行展示" loading="lazy"></iframe></div>
+                    <div class="tf">昵称最长 20 字超出省略；有效会员显示 Pro 标签；已移除 ⋮ 菜单，点击用户行进主页。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">modal-creator-pro-upgrade.html（升级弹层组件） <a href="pages-web/modal-creator-pro-upgrade.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:520px"><iframe src="pages-web/modal-creator-pro-upgrade.html" title="Creator Pro 升级弹层" loading="lazy"></iframe></div>
+                    <div class="tf">月付 $19 / 年付 $190 双档选择；可独立嵌入 iframe 或由各页弹层调用。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">discover.html（全站联调 · 发现页） <a href="pages-web/discover.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:640px"><iframe src="pages-web/discover.html" title="发现页侧栏联调" loading="lazy"></iframe></div>
+                    <div class="tf">统一侧栏脚本自动注入 Pro 卡片与用户菜单，与现有发现页交互无冲突。</div>
+                </div>
+                <div class="tile">
+                    <div class="th">settings.html（全站联调 · 设置页） <a href="pages-web/settings.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:640px"><iframe src="pages-web/settings.html" title="设置页侧栏联调" loading="lazy"></iframe></div>
+                    <div class="tf">设置子页同样遵循 Pro 卡片显隐规则；静态侧栏由脚本规范化底部区域。</div>
                 </div>
             </div>
         </section>
@@ -998,6 +1041,53 @@ main.content { padding: 28px 24px 48px; }
                     <div class="th">settings.html?invite=none</div>
                     <div class="tb" style="height:720px"><iframe src="pages-web/settings.html?invite=none" title="无邀请人" loading="lazy"></iframe></div>
                     <div class="tf">注册未填邀请码 · 隐藏「我的邀请人」行</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="block" id="settings-wallet">
+            <h2><i class="fa-solid fa-wallet"></i>设置 · 钱包与支付（本次优化）</h2>
+            <p class="lead">
+                <strong>1. 用户体验分析：</strong>创作者/粉丝需在设置中心统一管理链上钱包绑定、主钱包切换与默认充提偏好；连接钱包需清晰的多步引导（选提供商 → 授权/扫码 → 签名 → 结果），解绑需二次确认 + 2FA。<br>
+                <strong>2. 产品界面设计：</strong>链上钱包卡片（QR / 编辑 / 解绑）· 连接新钱包 · 切换主钱包 · 默认 USDT 充提偏好（仅链网络可选）。<br>
+                <strong>3. 高保真 UI：</strong>Web Header + 设置侧栏 + 主内容卡片；弹层沿用 inline-overlay 体系；Unsplash / QR 真实素材。<br>
+                <strong>4. HTML 实现：</strong><code>settings-wallet.html</code> + <code>settings-wallet-page.css/js</code>；下方 iframe 深链 <code>?modal=</code> 平铺各交互态，可直接交付开发。
+            </p>
+            <div class="grid">
+                <div class="tile">
+                    <div class="th">settings-wallet.html（主页面） <a href="pages-web/settings-wallet.html" target="_blank">新窗口</a></div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/settings-wallet.html" title="钱包与支付" loading="lazy"></iframe></div>
+                    <div class="tf">链上钱包卡片 · USDT 充提偏好 · 链网络下拉 · 全部按钮可交互</div>
+                </div>
+                <div class="tile">
+                    <div class="th">settings-wallet.html?modal=connect</div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/settings-wallet.html?modal=connect" title="连接新钱包" loading="lazy"></iframe></div>
+                    <div class="tf">MetaMask/Rainbow → 插件授权；Coinbase/OKX/WalletConnect → 扫码 QR → 签名 → 成功</div>
+                </div>
+                <div class="tile">
+                    <div class="th">settings-wallet.html?modal=primary</div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/settings-wallet.html?modal=primary" title="切换主钱包" loading="lazy"></iframe></div>
+                    <div class="tf">列表选钱包 · 对比提示 · 确认后更新默认标签</div>
+                </div>
+                <div class="tile">
+                    <div class="th">settings-wallet.html?modal=qr</div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/settings-wallet.html?modal=qr" title="收款 QR" loading="lazy"></iframe></div>
+                    <div class="tf">展示收款 QR · 完整地址 · 复制 · 网络标签</div>
+                </div>
+                <div class="tile">
+                    <div class="th">settings-wallet.html?modal=edit</div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/settings-wallet.html?modal=edit" title="编辑备注" loading="lazy"></iframe></div>
+                    <div class="tf">编辑钱包备注名 · 32 字限制 · 保存同步卡片</div>
+                </div>
+                <div class="tile">
+                    <div class="th">settings-wallet.html?modal=unbind</div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/settings-wallet.html?modal=unbind" title="解绑钱包" loading="lazy"></iframe></div>
+                    <div class="tf">风险说明 · 勾选确认 · 2FA 验证码 · 解绑后移除卡片</div>
+                </div>
+                <div class="tile">
+                    <div class="th">settings-wallet.html?modal=prefs</div>
+                    <div class="tb" style="height:720px"><iframe src="pages-web/settings-wallet.html?modal=prefs" title="偏好下拉" loading="lazy"></iframe></div>
+                    <div class="tf">USDT 充值/提现固定展示 · 默认链网络下拉 · 选中 tick · 推荐标签</div>
                 </div>
             </div>
         </section>

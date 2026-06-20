@@ -46,28 +46,10 @@
 .w-card .w-actions { position: absolute; top: 16px; right: 16px; display: flex; gap: 6px; }
 .w-card .w-actions button { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.1); color: #fff; border: none; font-size: 12px; cursor: pointer; }
 .w-card .w-actions button:hover { background: rgba(255,255,255,0.18); }
-
-/* bank card */
-.bk-card { padding: 18px; border-radius: 14px; color: #fff; position: relative; overflow: hidden; min-height: 130px; }
-.bk-card.visa { background: linear-gradient(135deg, #1A1F71, #4F46E5); }
-.bk-card.master { background: linear-gradient(135deg, #EB001B, #F79E1B); }
-.bk-card .b-row { display: flex; justify-content: space-between; align-items: center; }
-.bk-card .b-brand { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
-.bk-card .b-default { padding: 3px 8px; background: rgba(255,255,255,0.18); border-radius: 5px; font-size: 10px; font-weight: 700; }
-.bk-card .b-num { margin-top: 22px; font-family: ui-monospace, monospace; font-size: 16px; letter-spacing: 1px; }
-.bk-card .b-foot { display: flex; justify-content: space-between; margin-top: 14px; font-size: 11px; opacity: 0.85; }
-
-/* sub list */
-.sub-row { display: flex; align-items: center; gap: 14px; padding: 14px 22px; border-bottom: 1px solid var(--border); }
-.sub-row:last-child { border-bottom: none; }
-.sub-row .av { width: 40px; height: 40px; border-radius: 50%; background-size: cover; background-position: center; flex-shrink: 0; border: 2px solid var(--border); }
-.sub-row .info { flex: 1; }
-.sub-row .info .n { font-size: 13.5px; font-weight: 600; }
-.sub-row .info .m { font-size: 11.5px; color: var(--t-tertiary); margin-top: 3px; }
-.sub-row .pr { font-size: 13px; font-weight: 700; color: var(--warning-light); }
-.sub-row .act { display: flex; align-items: center; gap: 8px; }
 </style>
 
+<link rel="stylesheet" href="../css-web/subscribe-modal.css">
+<link rel="stylesheet" href="../css-web/settings-wallet-page.css">
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
 </head>
@@ -129,7 +111,7 @@
                     <span class="curr">钱包与支付</span>
                 </div>
                 <h1>钱包与支付</h1>
-                <p>统一管理你的链上钱包、银行卡、订阅自动续费与默认充提偏好。</p>
+                <p>统一管理链上钱包与 USDT 充提偏好（平台仅支持 USDT）。</p>
             </div>
             <div class="ph-r">
                 <button class="btn btn-primary" onclick="location.href='wallet.html'"><i class="fa-solid fa-wallet"></i> 进入钱包</button>
@@ -146,221 +128,44 @@
                 <div class="set-card">
                     <div class="ssh">
                         <div class="ic-circle" style="background: linear-gradient(135deg,#A855F7,#3B82F6)"><i class="fa-brands fa-ethereum"></i></div>
-                        <div><h3>链上钱包</h3><p>当前已连接 2 个 Web3 钱包，可设置主钱包用于默认收款</p></div>
+                        <div><h3>链上钱包</h3><p>当前已连接 <span id="walConnectedCount">2</span> 个 Web3 钱包，可设置主钱包用于默认收款</p></div>
                     </div>
                     <div class="body">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px">
-                            <div class="w-card">
-                                <div class="w-actions">
-                                    <button title="QR"><i class="fa-solid fa-qrcode"></i></button>
-                                    <button title="编辑"><i class="fa-solid fa-pen"></i></button>
-                                </div>
-                                <div class="w-top">
-                                    <span class="chain-badge eth"><i class="fa-brands fa-ethereum"></i> Ethereum</span>
-                                </div>
-                                <div class="w-name">主钱包 · MetaMask <span class="tag tag-success" style="margin-left:6px; font-size:10px">默认</span></div>
-                                <div class="w-addr">0x7Bf2…c3D9 <span class="ic-cp"><i class="fa-regular fa-copy"></i></span></div>
-                                <div class="w-bal">
-                                    <div class="b"><span class="v">2,485.32</span> USDT</div>
-                                    <div class="b"><span class="v">0.42</span> ETH</div>
-                                </div>
-                            </div>
-                            <div class="w-card" style="background: linear-gradient(135deg, #0F1F3D, #1F3B7A)">
-                                <div class="w-actions">
-                                    <button title="QR"><i class="fa-solid fa-qrcode"></i></button>
-                                    <button title="解绑"><i class="fa-solid fa-link-slash"></i></button>
-                                </div>
-                                <div class="w-top">
-                                    <span class="chain-badge" style="background: rgba(31,184,232,0.25); color:#7DD3FC; border:1px solid rgba(31,184,232,0.4)"><i class="fa-solid fa-circle-nodes"></i> Polygon</span>
-                                </div>
-                                <div class="w-name">备用钱包 · WalletConnect</div>
-                                <div class="w-addr">0xA9c1…F7e2 <span class="ic-cp"><i class="fa-regular fa-copy"></i></span></div>
-                                <div class="w-bal">
-                                    <div class="b"><span class="v">126.40</span> USDC</div>
-                                    <div class="b"><span class="v">82.5</span> MATIC</div>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="wal-cards-grid" id="walCardsGrid"></div>
                         <div style="margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap">
-                            <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> 连接新钱包</button>
-                            <button class="btn"><i class="fa-solid fa-shuffle"></i> 切换主钱包</button>
+                            <button type="button" class="btn btn-primary" id="btnWalConnect"><i class="fa-solid fa-plus"></i> 连接新钱包</button>
+                            <button type="button" class="btn" id="btnWalPrimary"><i class="fa-solid fa-shuffle"></i> 切换主钱包</button>
                             <span style="margin-left: auto; font-size: 11.5px; color: var(--t-tertiary); align-self: center"><i class="fa-solid fa-circle-info"></i> 支持 350+ 钱包，包含 MetaMask、Rainbow、WalletConnect、OKX 等</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- 银行卡 -->
-                <div class="set-card">
-                    <div class="ssh">
-                        <div class="ic-circle" style="background: linear-gradient(135deg,#3B82F6,#06B6D4)"><i class="fa-solid fa-credit-card"></i></div>
-                        <div><h3>银行卡 / 信用卡</h3><p>用于法币充值与到账，需通过 KYC 验证</p></div>
-                    </div>
-                    <div class="body">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px">
-                            <div class="bk-card visa">
-                                <div class="b-row">
-                                    <div class="b-brand">VISA</div>
-                                    <span class="b-default">默认充值</span>
-                                </div>
-                                <div class="b-num">**** **** **** 4321</div>
-                                <div class="b-foot">
-                                    <div>持卡人 · LUNA Y.</div>
-                                    <div>有效期 · 09/28</div>
-                                </div>
-                            </div>
-                            <div class="bk-card master">
-                                <div class="b-row">
-                                    <div class="b-brand">Mastercard</div>
-                                    <span class="b-default" style="background:rgba(255,255,255,0.18)">备用</span>
-                                </div>
-                                <div class="b-num">**** **** **** 8866</div>
-                                <div class="b-foot">
-                                    <div>持卡人 · LUNA Y.</div>
-                                    <div>有效期 · 03/27</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap">
-                            <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> 添加新卡</button>
-                            <button class="btn"><i class="fa-solid fa-pen"></i> 修改默认</button>
-                            <button class="btn btn-ghost" style="color: var(--danger-light); margin-left: auto"><i class="fa-solid fa-trash"></i> 删除卡片</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 快捷支付（平台以 U 充提，暂不展示） -->
-                <div class="set-card" hidden>
-                    <div class="ssh">
-                        <div class="ic-circle" style="background: linear-gradient(135deg,#10B981,#06B6D4)"><i class="fa-solid fa-bolt"></i></div>
-                        <div><h3>快捷支付方式</h3><p>第三方一键支付，无需输入卡信息</p></div>
-                    </div>
-                    <div style="padding: 4px 22px 10px">
-                        <div style="display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border)">
-                            <div style="width: 44px; height: 44px; border-radius: 10px; background: #000; color: #fff; font-size: 18px; display: flex; align-items: center; justify-content: center"><i class="fa-brands fa-apple-pay"></i></div>
-                            <div style="flex: 1">
-                                <div style="font-size: 13.5px; font-weight: 600">Apple Pay</div>
-                                <div style="font-size: 11.5px; color: var(--t-tertiary); margin-top: 3px">已绑定 · 支持 Touch ID / Face ID 一键支付</div>
-                            </div>
-                            <div class="switch on"></div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border)">
-                            <div style="width: 44px; height: 44px; border-radius: 10px; background: #fff; color: #000; font-size: 18px; display: flex; align-items: center; justify-content: center"><i class="fa-brands fa-google-pay"></i></div>
-                            <div style="flex: 1">
-                                <div style="font-size: 13.5px; font-weight: 600">Google Pay</div>
-                                <div style="font-size: 11.5px; color: var(--t-tertiary); margin-top: 3px">未绑定 · 适用于 Android / Chrome 用户</div>
-                            </div>
-                            <button class="btn btn-sm">连接</button>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border)">
-                            <div style="width: 44px; height: 44px; border-radius: 10px; background: #00C800; color: #fff; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center">支付</div>
-                            <div style="flex: 1">
-                                <div style="font-size: 13.5px; font-weight: 600">支付宝</div>
-                                <div style="font-size: 11.5px; color: var(--t-tertiary); margin-top: 3px">未绑定 · 支持 CNY 充值</div>
-                            </div>
-                            <button class="btn btn-sm">连接</button>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 14px; padding: 14px 0">
-                            <div style="width: 44px; height: 44px; border-radius: 10px; background: #07C160; color: #fff; font-size: 18px; display: flex; align-items: center; justify-content: center"><i class="fa-brands fa-weixin"></i></div>
-                            <div style="flex: 1">
-                                <div style="font-size: 13.5px; font-weight: 600">微信支付</div>
-                                <div style="font-size: 11.5px; color: var(--t-tertiary); margin-top: 3px">未绑定 · 仅支持中国大陆地区</div>
-                            </div>
-                            <button class="btn btn-sm">连接</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 订阅自动续费 -->
-                <div class="set-card">
-                    <div class="ssh">
-                        <div class="ic-circle" style="background: linear-gradient(135deg,#F59E0B,#EC4899)"><i class="fa-solid fa-rotate"></i></div>
-                        <div><h3>订阅自动续费</h3><p>当前 4 个订阅开启了自动续费，可单独管理或一键关闭</p></div>
-                    </div>
-                    <div class="sub-row">
-                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></div>
-                        <div class="info"><div class="n">Lens 旅记</div><div class="m">Premium · 28 USDT/月 · 下次扣款 5 月 15 日</div></div>
-                        <div class="pr">28 USDT</div>
-                        <div class="act"><div class="switch on"></div></div>
-                    </div>
-                    <div class="sub-row">
-                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
-                        <div class="info"><div class="n">夜雨听弦</div><div class="m">VIP · 88 USDT/月 · 下次扣款 5 月 22 日</div></div>
-                        <div class="pr">88 USDT</div>
-                        <div class="act"><div class="switch on"></div></div>
-                    </div>
-                    <div class="sub-row">
-                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80')"></div>
-                        <div class="info"><div class="n">代码诗人</div><div class="m">Free → Premium 试用中 · 5 月 30 日转 18 USDT/月</div></div>
-                        <div class="pr">18 USDT</div>
-                        <div class="act"><div class="switch on"></div></div>
-                    </div>
-                    <div class="sub-row">
-                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=80')"></div>
-                        <div class="info"><div class="n">银盐时代</div><div class="m">Premium · 32 USDT/月 · 下次扣款 6 月 1 日</div></div>
-                        <div class="pr">32 USDT</div>
-                        <div class="act"><div class="switch on"></div></div>
-                    </div>
-                    <div style="display: flex; align-items: center; padding: 14px 22px; gap: 12px; background: var(--bg-elevated); border-top: 1px solid var(--border)">
-                        <span style="font-size: 12.5px; color: var(--t-tertiary)">本月预计扣款总额：<b style="color:#fff">166 USDT</b> · 下个续费日：<b style="color:#fff">5 月 15 日</b></span>
-                        <button class="btn btn-sm btn-ghost" style="color: var(--danger-light); margin-left: auto">全部关闭</button>
-                        <button class="btn btn-sm" onclick="location.href='subscriptions.html'">订阅管理</button>
-                    </div>
-                </div>
-
-                <!-- 默认充提偏好 -->
-                <div class="set-card">
+                <!-- 默认 USDT 充提偏好 -->
+                <div class="set-card set-card-prefs">
                     <div class="ssh">
                         <div class="ic-circle" style="background: linear-gradient(135deg,#A855F7,#EC4899)"><i class="fa-solid fa-sliders"></i></div>
-                        <div><h3>默认充提偏好</h3><p>每次操作时自动填入这些选项，可在使用时修改</p></div>
+                        <div><h3>默认 USDT 充提偏好</h3><p>充值与提现均仅支持 USDT 链上，可在操作时修改网络</p></div>
                     </div>
                     <div class="body">
                         <div style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; padding: 14px 0; border-bottom: 1px solid var(--border)">
-                            <div style="font-size: 13.5px; font-weight: 600">默认充值方式</div>
-                            <div>
-                                <select style="max-width: 360px">
-                                    <option>USDT 链上充值（推荐 · 0 手续费）</option>
-                                    <option>Visa **** 4321</option>
-                                    <option>Apple Pay</option>
-                                </select>
+                            <div style="font-size: 13.5px; font-weight: 600">充值资产</div>
+                            <div class="wal-pref-static">
+                                <span class="opt-ic chain">U</span>
+                                <span class="mid"><span class="n">USDT 链上充值</span><span class="d">平台唯一支持资产 · 0 手续费</span></span>
                             </div>
                         </div>
-                        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; padding: 14px 0; border-bottom: 1px solid var(--border)">
+                        <div class="set-pref-row" style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; padding: 14px 0; border-bottom: 1px solid var(--border)">
                             <div style="font-size: 13.5px; font-weight: 600">默认充值链网络</div>
-                            <div>
-                                <select style="max-width: 360px">
-                                    <option>Ethereum (ERC-20) · 高 Gas</option>
-                                    <option selected>Polygon (Matic) · 推荐</option>
-                                    <option>BNB Chain (BEP-20)</option>
-                                    <option>Arbitrum One</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; padding: 14px 0; border-bottom: 1px solid var(--border)">
-                            <div style="font-size: 13.5px; font-weight: 600">快捷充值金额</div>
-                            <div>
-                                <div style="display: flex; gap: 6px; flex-wrap: wrap; max-width: 460px">
-                                    <button class="btn btn-sm">10 USDT</button>
-                                    <button class="btn btn-sm" style="background: var(--brand-grad); color:#fff; border: none">50 USDT</button>
-                                    <button class="btn btn-sm">100 USDT</button>
-                                    <button class="btn btn-sm">500 USDT</button>
-                                    <button class="btn btn-sm">1000 USDT</button>
-                                    <button class="btn btn-sm">自定义</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; padding: 14px 0; border-bottom: 1px solid var(--border)">
-                            <div style="font-size: 13.5px; font-weight: 600">默认提现方式</div>
-                            <div>
-                                <select style="max-width: 360px">
-                                    <option>USDT 链上 · 主钱包</option>
-                                    <option>法币 · Visa **** 4321</option>
-                                </select>
+                            <div class="set-pref-dd" data-pref="rechargeNetwork">
+                                <button type="button" class="set-pref-dd-trigger" aria-haspopup="listbox" aria-expanded="false"></button>
+                                <div class="set-pref-dd-panel" role="listbox"></div>
                             </div>
                         </div>
                         <div style="display: grid; grid-template-columns: 220px 1fr; gap: 22px; padding: 14px 0">
-                            <div style="font-size: 13.5px; font-weight: 600">小额自动结算<div style="font-size: 11.5px; color: var(--t-tertiary); margin-top: 4px; font-weight: 400">可提现余额 ≥ 100 USDT 时自动提现到主钱包</div></div>
-                            <div>
-                                <div class="switch"></div>
+                            <div style="font-size: 13.5px; font-weight: 600">默认提现方式</div>
+                            <div class="wal-pref-static">
+                                <span class="opt-ic wallet"><i class="fa-solid fa-wallet"></i></span>
+                                <span class="mid"><span class="n">USDT 链上 · 主钱包</span><span class="d">提现至已绑定的主钱包地址</span></span>
                             </div>
                         </div>
                     </div>
@@ -372,9 +177,193 @@
     </main>
 </div>
 
+<div id="walPageToast" class="wal-toast" role="status" aria-live="polite"></div>
+
+<!-- 连接新钱包 -->
+<div class="inline-overlay" id="ovlWalletConnect" aria-hidden="true">
+    <div class="iol-panel wal-modal">
+        <div class="iol-head">
+            <div>
+                <h3><i class="fa-solid fa-plug" style="color:#C084FC"></i> 连接新钱包</h3>
+                <p id="walConnectSub">选择钱包提供商 · 签名验证后绑定至当前账号</p>
+            </div>
+            <button type="button" class="iol-close" data-wal-close="ovlWalletConnect" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="wal-step active" data-step="pick">
+                <div class="wal-provider-grid">
+                    <button type="button" class="wal-provider-btn" data-provider="metamask">
+                        <span class="ic mm"><i class="fa-brands fa-ethereum"></i></span>
+                        <span class="meta"><span class="n">MetaMask</span><span class="d">浏览器插件 · 最常用</span></span>
+                    </button>
+                    <button type="button" class="wal-provider-btn" data-provider="rainbow">
+                        <span class="ic rainbow"><i class="fa-solid fa-rainbow"></i></span>
+                        <span class="meta"><span class="n">Rainbow</span><span class="d">移动端 / 插件</span></span>
+                    </button>
+                    <button type="button" class="wal-provider-btn" data-provider="walletconnect">
+                        <span class="ic wc"><i class="fa-solid fa-qrcode"></i></span>
+                        <span class="meta"><span class="n">WalletConnect</span><span class="d">扫码 · 350+ 钱包</span></span>
+                    </button>
+                    <button type="button" class="wal-provider-btn" data-provider="okx">
+                        <span class="ic okx">OKX</span>
+                        <span class="meta"><span class="n">OKX Wallet</span><span class="d">扫码 · OKX App</span></span>
+                    </button>
+                    <button type="button" class="wal-provider-btn" data-provider="coinbase" style="grid-column:1/-1">
+                        <span class="ic cb"><i class="fa-brands fa-bitcoin"></i></span>
+                        <span class="meta"><span class="n">Coinbase Wallet</span><span class="d">扫码 · Coinbase App · 多链</span></span>
+                    </button>
+                </div>
+            </div>
+            <div class="wal-step" data-step="wc-qr">
+                <div class="wal-wc-qr">
+                    <div class="wal-qr-badge" id="walConnectQrBadge">WalletConnect</div>
+                    <div class="qr-box"><img id="walConnectQrImg" src="https://api.qrserver.com/v1/create-qr-code/?size=152x152&data=FansLoop_WC_Settings_V2" width="152" height="152" alt="连接二维码"></div>
+                    <p class="hint" id="walConnectQrHint">使用 MetaMask / OKX / Trust 等 App 扫描上方二维码，或在移动端点击下方 Deep Link 直接唤起钱包。</p>
+                    <div class="wal-deeplink" id="walConnectDeeplink"><span><i class="fa-solid fa-bolt" style="color:#fbbf24"></i> 使用 Deep Link 打开钱包</span><i class="fa-solid fa-chevron-right"></i></div>
+                </div>
+            </div>
+            <div class="wal-step" data-step="waiting">
+                <div class="wal-waiting">
+                    <div class="spin"></div>
+                    <div class="t">等待钱包确认…</div>
+                    <div class="s">请在浏览器插件或手机 App 中批准连接请求</div>
+                </div>
+            </div>
+            <div class="wal-step" data-step="sign">
+                <div class="wal-sign-addr"><span class="av"><i class="fa-solid fa-signature"></i></span><span>请签名以验证钱包所有权 · FansLoop 不会请求转账权限</span></div>
+                <div class="wal-sign-box">FansLoop wants you to sign in with your Ethereum account:
+
+0x7Bf2…c3D9
+
+URI: https://fansloop.io
+Version: 1
+Chain ID: 1
+Nonce: 8f3a2c1b
+Issued At: 2026-06-20T12:00:00Z</div>
+                <p style="font-size:11.5px;color:var(--t-tertiary);line-height:1.5;margin:0">签名仅用于身份验证，不会产生 Gas 费用或链上交易。</p>
+            </div>
+            <div class="wal-step" data-step="success">
+                <div class="wal-result">
+                    <div class="icon ok"><i class="fa-solid fa-circle-check"></i></div>
+                    <div class="t">钱包连接成功</div>
+                    <div class="s" id="walConnectSuccessDesc">新钱包已绑定至你的 FansLoop 账号</div>
+                </div>
+            </div>
+            <div class="wal-step" data-step="conflict">
+                <div class="wal-result">
+                    <div class="icon err"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div class="t">无法完成绑定</div>
+                    <div class="s">该钱包地址已绑定其他 FansLoop 账号。请更换钱包或登录对应账号后再试。</div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-foot" id="walConnectFoot">
+            <button type="button" class="btn btn-secondary" id="btnWalConnectBack" style="display:none"><i class="fa-solid fa-arrow-left"></i> 上一步</button>
+            <button type="button" class="btn btn-secondary" id="btnWalConnectNext">取消</button>
+        </div>
+    </div>
+</div>
+
+<!-- 切换主钱包 -->
+<div class="inline-overlay" id="ovlWalletPrimary" aria-hidden="true">
+    <div class="iol-panel wal-modal">
+        <div class="iol-head">
+            <div>
+                <h3><i class="fa-solid fa-shuffle" style="color:#C084FC"></i> 切换主钱包</h3>
+                <p>全平台仅一个主钱包 · 用于默认收款与提现</p>
+            </div>
+            <button type="button" class="iol-close" data-wal-close="ovlWalletPrimary" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="wal-primary-list" id="walPrimaryList"></div>
+            <div class="wal-primary-compare" id="walPrimaryCompare" style="display:none"></div>
+        </div>
+        <div class="modal-foot">
+            <button type="button" class="btn btn-secondary" data-wal-close="ovlWalletPrimary">取消</button>
+            <button type="button" class="btn btn-primary" id="btnWalPrimaryConfirm"><i class="fa-solid fa-check"></i> 确认切换</button>
+        </div>
+    </div>
+</div>
+
+<!-- 收款 QR -->
+<div class="inline-overlay" id="ovlWalletQr" aria-hidden="true">
+    <div class="iol-panel wal-modal wal-qr-panel">
+        <div class="iol-head">
+            <div>
+                <h3><i class="fa-solid fa-qrcode" style="color:#C084FC"></i> 收款地址</h3>
+                <p>向此地址转入对应网络的代币即可充值</p>
+            </div>
+            <button type="button" class="iol-close" data-wal-close="ovlWalletQr" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="wal-wc-qr">
+                <div class="qr-box"><img id="walQrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=152x152&data=0x7Bf2" width="152" height="152" alt="收款 QR"></div>
+                <div class="net-tag" id="walQrNetwork"></div>
+                <div class="addr-row"><span id="walQrAddr">0x7Bf2a8c91F3d4E5b6C7890D1e2F3a4B5c6D9</span><button type="button" class="btn btn-sm" id="btnWalQrCopy"><i class="fa-regular fa-copy"></i></button></div>
+                <p class="hint" style="margin-top:12px">请确认网络与 FansLoop 充值页所选链一致，跨链转入可能导致资产丢失。</p>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button type="button" class="btn btn-primary btn-block" data-wal-close="ovlWalletQr">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- 编辑钱包备注 -->
+<div class="inline-overlay" id="ovlWalletEdit" aria-hidden="true">
+    <div class="iol-panel wal-modal">
+        <div class="iol-head">
+            <div>
+                <h3><i class="fa-solid fa-pen" style="color:#C084FC"></i> 编辑钱包备注</h3>
+                <p>仅本地展示，便于区分多个钱包</p>
+            </div>
+            <button type="button" class="iol-close" data-wal-close="ovlWalletEdit" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <label class="field-label" for="walEditNickname">备注名称</label>
+            <input type="text" class="input" id="walEditNickname" maxlength="32" placeholder="例如：主钱包 · MetaMask" style="margin-top:6px">
+            <p style="font-size:11px;color:var(--t-tertiary);margin-top:8px;line-height:1.45">最多 32 字 · 不影响链上地址与资产归属</p>
+        </div>
+        <div class="modal-foot">
+            <button type="button" class="btn btn-secondary" data-wal-close="ovlWalletEdit">取消</button>
+            <button type="button" class="btn btn-primary" id="btnWalEditSave"><i class="fa-solid fa-check"></i> 保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- 解绑钱包 -->
+<div class="inline-overlay" id="ovlWalletUnbind" aria-hidden="true">
+    <div class="iol-panel wal-modal">
+        <div class="iol-head">
+            <div>
+                <h3><i class="fa-solid fa-link-slash" style="color:#fca5a5"></i> 解绑钱包</h3>
+                <p>解绑后该地址将无法用于本账号充提</p>
+            </div>
+            <button type="button" class="iol-close" data-wal-close="ovlWalletUnbind" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="wal-unbind-warn">
+                <strong id="walUnbindName">备用钱包 · 0xA9c1…F7e2</strong><br>
+                解绑不会转移链上资产，但 FansLoop 将不再识别此地址为你的收款账户。若有进行中的提现/充值，请先完成后再解绑。
+            </div>
+            <label class="wal-unbind-check"><input type="checkbox" id="walUnbindAgree"> 我已了解解绑后果，确认解除该钱包与账号的绑定关系</label>
+            <label class="field-label" for="walUnbindCode">2FA 验证码</label>
+            <div style="display:flex;gap:10px;margin-top:6px">
+                <input type="text" class="input" id="walUnbindCode" inputmode="numeric" maxlength="6" placeholder="6 位动态码" style="flex:1">
+                <button type="button" class="btn btn-secondary" id="btnWalSendUnbindCode" style="flex-shrink:0;white-space:nowrap">获取验证码</button>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button type="button" class="btn btn-secondary" data-wal-close="ovlWalletUnbind">取消</button>
+            <button type="button" class="btn btn-primary" id="btnWalUnbindConfirm" disabled style="background:linear-gradient(135deg,#ef4444,#dc2626);border:none"><i class="fa-solid fa-link-slash"></i> 确认解绑</button>
+        </div>
+    </div>
+</div>
+
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>
 <script src="../js-web/settings-nav.js"></script>
 <script src="../js-web/settings-logout.js"></script>
+<script src="../js-web/settings-wallet-page.js"></script>
 </body>
 </html>

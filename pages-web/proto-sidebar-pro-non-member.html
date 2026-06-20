@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>侧栏 Pro 卡片 · 未购买 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/sidebar-bottom.css">
+<script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
+<style>
+.proto-banner {
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    border-radius: var(--r-lg);
+    background: linear-gradient(135deg, rgba(168,85,247,0.14), rgba(236,72,153,0.08));
+    border: 1px solid rgba(168,85,247,0.35);
+}
+.proto-banner h2 { font-size: 16px; font-weight: 800; margin: 0 0 6px; }
+.proto-banner p { font-size: 12px; color: var(--t-secondary); line-height: 1.55; margin: 0; }
+.proto-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+@media (max-width: 900px) { .proto-grid { grid-template-columns: repeat(2, 1fr); } }
+.proto-card {
+    aspect-ratio: 4/3;
+    border-radius: var(--r-md);
+    background-size: cover;
+    background-position: center;
+    border: 1px solid var(--border);
+    position: relative;
+}
+.proto-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.55));
+    border-radius: inherit;
+}
+.proto-card span {
+    position: absolute;
+    left: 10px;
+    bottom: 8px;
+    z-index: 1;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand">
+            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
+            <div class="name">FansLoop<span>Web3 Creator</span></div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search h-search-live h-search-unified">
+            <div class="hs-inner">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" placeholder="搜索创作者、内容或话题…" autocomplete="off" />
+            </div>
+            <div class="gs-drop"></div>
+        </div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i></button>
+            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="proto-banner">
+            <h2><i class="fa-solid fa-crown" style="color:var(--warning-light)"></i> 侧栏状态：未购买 Creator Pro</h2>
+            <p>当前登录用户<strong style="color:#fff">从未购买</strong>或会员已过期时，切换任意菜单（首页 / 发现 / 设置等）侧栏底部<strong style="color:#C084FC">始终展示</strong>「升级 Creator Pro」卡片。点击「立即升级」打开结算弹层。</p>
+        </div>
+        <div class="proto-grid">
+            <div class="proto-card" style="background-image:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600')"><span>阿尔卑斯晨雾</span></div>
+            <div class="proto-card" style="background-image:url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600')"><span>森林光影</span></div>
+            <div class="proto-card" style="background-image:url('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600')"><span>山谷薄雾</span></div>
+            <div class="proto-card" style="background-image:url('https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=600')"><span>林间小径</span></div>
+            <div class="proto-card" style="background-image:url('https://images.unsplash.com/photo-1518837695002-20825f4e94f0?w=600')"><span>海岸日落</span></div>
+            <div class="proto-card" style="background-image:url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600')"><span>湖面倒影</span></div>
+        </div>
+    </main>
+</div>
+
+<script>
+(function () {
+    function ensureLogin() {
+        if (globalThis.FansloopAuth && !globalThis.FansloopAuth.isLoggedIn()) {
+            globalThis.FansloopAuth.login({ email: 'luna@fansloop.io' });
+        }
+    }
+    globalThis.addEventListener('fl-auth-prototype-ready', ensureLogin);
+    document.addEventListener('DOMContentLoaded', function () { setTimeout(ensureLogin, 600); });
+})();
+</script>
+<script src="../js-web/app-sidebar-global.js"></script>
+</body>
+</html>

@@ -3,6 +3,28 @@
  * · 统一侧栏导航：各子页面菜单结构一致
  */
 (function (global) {
+    /* 外观偏好首屏同步（与 global-display-prefs.js 一致） */
+    try {
+        var FONT_SCALES = [0.875, 0.9375, 1, 1.0625, 1.125];
+        var raw = localStorage.getItem('fl_display_prefs_v1');
+        var p = raw ? JSON.parse(raw) : {};
+        var theme = p.theme || 'dark';
+        var resolved = theme === 'auto'
+            ? (global.matchMedia && global.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+            : (theme === 'light' ? 'light' : 'dark');
+        var html = document.documentElement;
+        html.setAttribute('data-fl-theme', resolved);
+        html.setAttribute('data-fl-theme-mode', theme);
+        html.setAttribute('data-fl-high-contrast', p.highContrast ? '1' : '0');
+        html.setAttribute('data-fl-sans', p.sansFont ? '1' : '0');
+        html.setAttribute('data-fl-motion', p.uiMotion === false ? '0' : '1');
+        html.setAttribute('data-fl-glass', p.glass === false ? '0' : '1');
+        var idx = p.fontScaleIndex != null ? p.fontScaleIndex : 2;
+        if (idx < 0 || idx >= FONT_SCALES.length) idx = 2;
+        html.setAttribute('data-fl-font-scale', String(idx));
+        html.style.setProperty('--fl-font-scale', String(FONT_SCALES[idx]));
+    } catch (e) { /* ignore */ }
+
     var STORAGE_KEY = 'fl_sidebar_collapsed';
     var NAV_CONTEXT_KEY = 'fl_sidebar_nav_context';
 
@@ -31,7 +53,10 @@
         }
         global.__flAuthProtoLoading = true;
         var base = detectScriptBase();
-        var queue = ['user-prototype-registry.js', 'user-assets-store.js', 'pay-password-store.js', 'auth-session.js', 'auth-ui-sync.js'];
+        var queue = [
+            'user-prototype-registry.js', 'user-assets-store.js', 'pay-password-store.js',
+            'auth-session.js', 'auth-ui-sync.js', 'creator-pro-store.js', 'sidebar-bottom-interactions.js'
+        ];
         function loadNext(idx) {
             if (idx >= queue.length) {
                 global.__flAuthProtoLoading = false;
@@ -104,50 +129,59 @@
     var SIDEBAR_NAV = [
         {
             section: '主导航',
+            sectionKey: 'nav_section_main',
             items: [
-                { id: 'home', label: '首页', href: 'home.html', icon: 'fa-solid fa-house' },
-                { id: 'subscriptions', label: '订阅', href: 'subscriptions.html', icon: 'fa-solid fa-crown' },
-                { id: 'discover', label: '发现', href: 'discover.html', icon: 'fa-solid fa-compass' },
-                { id: 'create', label: '创建内容', href: 'create.html', icon: 'fa-solid fa-pen-to-square' }
+                { id: 'home', label: '首页', i18nKey: 'nav_home', href: 'home.html', icon: 'fa-solid fa-house' },
+                { id: 'subscriptions', label: '订阅', i18nKey: 'nav_subscriptions', href: 'subscriptions.html', icon: 'fa-solid fa-crown' },
+                { id: 'discover', label: '发现', i18nKey: 'nav_discover', href: 'discover.html', icon: 'fa-solid fa-compass' },
+                { id: 'create', label: '创建内容', i18nKey: 'nav_create', href: 'create.html', icon: 'fa-solid fa-pen-to-square' }
             ]
         },
         {
             section: '互动',
+            sectionKey: 'nav_section_interact',
             items: [
-                { id: 'messages', label: '消息', href: 'messages.html', icon: 'fa-regular fa-comments' },
-                { id: 'notifications', label: '通知', href: 'notifications.html?tab=unread', icon: 'fa-regular fa-bell' }
+                { id: 'messages', label: '消息', i18nKey: 'nav_messages', href: 'messages.html', icon: 'fa-regular fa-comments' },
+                { id: 'notifications', label: '通知', i18nKey: 'nav_notifications', href: 'notifications.html?tab=unread', icon: 'fa-regular fa-bell' }
             ]
         },
         {
             section: '资产',
+            sectionKey: 'nav_section_assets',
             items: [
-                { id: 'wallet', label: '钱包', href: 'wallet.html', icon: 'fa-solid fa-wallet' },
-                { id: 'creator-income', label: '创作者收入', href: 'creator-income.html', icon: 'fa-solid fa-coins' },
-                { id: 'points-mall', label: '积分商城', href: 'points-mall.html', icon: 'fa-solid fa-store' },
-                { id: 'transactions', label: '账变记录', href: 'transactions.html', icon: 'fa-solid fa-list-ul' }
+                { id: 'wallet', label: '钱包', i18nKey: 'nav_wallet', href: 'wallet.html', icon: 'fa-solid fa-wallet' },
+                { id: 'creator-income', label: '创作者收入', i18nKey: 'nav_creator_income', href: 'creator-income.html', icon: 'fa-solid fa-coins' },
+                { id: 'points-mall', label: '积分商城', i18nKey: 'nav_points_mall', href: 'points-mall.html', icon: 'fa-solid fa-store' },
+                { id: 'transactions', label: '账变记录', i18nKey: 'nav_transactions', href: 'transactions.html', icon: 'fa-solid fa-list-ul' }
             ]
         },
         {
             section: '个人',
+            sectionKey: 'nav_section_personal',
             items: [
-                { id: 'profile', label: '我的主页', href: 'profile.html', icon: 'fa-regular fa-user' },
-                { id: 'settings', label: '设置', href: 'settings.html', icon: 'fa-solid fa-gear' }
+                { id: 'profile', label: '我的主页', i18nKey: 'nav_profile', href: 'profile.html', icon: 'fa-regular fa-user' },
+                { id: 'settings', label: '设置', i18nKey: 'nav_settings', href: 'settings.html', icon: 'fa-solid fa-gear' }
             ]
         }
     ];
 
     var DEFAULT_BOTTOM =
         '<div class="s-bottom">' +
-        '  <div class="s-pro-card">' +
+        '  <div class="s-pro-card" data-fl-pro-card>' +
         '    <div class="crown"><i class="fa-solid fa-crown"></i></div>' +
         '    <h4>升级 Creator Pro</h4>' +
         '    <p>解锁高级数据 / 优先推流</p>' +
-        '    <button type="button">立即升级</button>' +
+        '    <button type="button" data-fl-pro-upgrade>立即升级</button>' +
         '  </div>' +
         '  <div class="s-user">' +
         '    <div class="av" style="background-image: url(\'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80\')"></div>' +
-        '    <div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div>' +
-        '    <i class="fa-solid fa-ellipsis-vertical more"></i>' +
+        '    <div class="info">' +
+        '      <div class="name-row">' +
+        '        <span class="n">Luna 🌙</span>' +
+        '        <span class="s-member-tag" data-fl-member-tag hidden><i class="fa-solid fa-crown"></i> Pro</span>' +
+        '      </div>' +
+        '      <div class="e">Creator</div>' +
+        '    </div>' +
         '  </div>' +
         '</div>';
 
@@ -246,15 +280,60 @@
         });
     }
 
+    function sidebarDict(code) {
+        code = code || (global.FansLoopLang ? global.FansLoopLang.getLang() : 'zh-CN');
+        var d = (global.FansLoopLang && global.FansLoopLang.DICT && global.FansLoopLang.DICT[code]) || {};
+        var en = (global.FansLoopLang && global.FansLoopLang.DICT && global.FansLoopLang.DICT.en) || {};
+        return function (key, fallback) {
+            return d[key] || en[key] || fallback;
+        };
+    }
+
+    function findSidebarRow(sidebar, item) {
+        var row = sidebar.querySelector('.s-item[data-nav-id="' + item.id + '"]');
+        if (row) return row;
+        var items = sidebar.querySelectorAll('.s-item');
+        for (var i = 0; i < items.length; i++) {
+            var onclick = items[i].getAttribute('onclick') || '';
+            if (onclick.indexOf(item.href) >= 0) return items[i];
+        }
+        return null;
+    }
+
+    function applySidebarI18n(code) {
+        var sidebar = document.querySelector('.app-sidebar');
+        if (!sidebar) return;
+        var t = sidebarDict(code);
+        SIDEBAR_NAV.forEach(function (group, gi) {
+            var sections = sidebar.querySelectorAll('.s-section');
+            if (sections[gi] && group.sectionKey) {
+                sections[gi].textContent = t(group.sectionKey, group.section);
+            }
+            group.items.forEach(function (item) {
+                var row = findSidebarRow(sidebar, item);
+                if (!row) return;
+                var lb = row.querySelector('.lb');
+                if (lb && item.i18nKey) lb.textContent = t(item.i18nKey, item.label);
+            });
+        });
+    }
+
+    global.FL_applySidebarI18n = applySidebarI18n;
+
+    document.addEventListener('fansloop-lang-change', function (e) {
+        applySidebarI18n(e.detail && e.detail.code);
+    });
+
     function buildSidebarNavHtml(activeId) {
+        var t = sidebarDict();
         var html = '';
         SIDEBAR_NAV.forEach(function (group) {
-            html += '<div class="s-section">' + group.section + '</div>';
+            html += '<div class="s-section">' + t(group.sectionKey, group.section) + '</div>';
             group.items.forEach(function (item) {
                 var cls = 's-item' + (item.id === activeId ? ' active' : '');
                 html += '<div class="' + cls + '" data-nav-id="' + item.id + '" onclick="location.href=\'' + item.href + '\'">' +
                     '<span class="ic"><i class="' + item.icon + '"></i></span>' +
-                    '<span class="lb">' + item.label + '</span>' +
+                    '<span class="lb">' + t(item.i18nKey, item.label) + '</span>' +
                     buildIndicatorHtml(item) +
                     '</div>';
             });
@@ -276,11 +355,15 @@
         sidebar.innerHTML = brandHtml + buildSidebarNavHtml(activeId) + bottomHtml;
         sidebar.setAttribute('data-fl-nav-unified', '1');
         applySidebarIndicators(sidebar);
+        applySidebarI18n();
         if (typeof bindSidebarNotificationItems === 'function') {
             bindSidebarNotificationItems();
         }
         if (global.FLAuthUiSync && global.FLAuthUiSync.apply) {
             global.FLAuthUiSync.apply();
+        }
+        if (global.FL_applySidebarBottom) {
+            global.FL_applySidebarBottom();
         }
         setTimeout(function () {
             if (global.MallBenefitsScenes && global.MallBenefitsScenes.applyAvatarFrameScene) {
@@ -350,9 +433,21 @@
         sidebar.appendChild(btn);
     }
 
+    function injectSidebarBottomAssets() {
+        var base = detectScriptBase().replace(/\/js-web\/$/, '');
+        if (!document.querySelector('link[data-fl-sidebar-bottom-css]')) {
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = base + '/css-web/sidebar-bottom.css';
+            link.setAttribute('data-fl-sidebar-bottom-css', '1');
+            document.head.appendChild(link);
+        }
+    }
+
     function init() {
         var shell = document.querySelector('.app-shell');
         if (!shell) return;
+        injectSidebarBottomAssets();
         ensureAuthPrototype(function () {
             var sidebar = shell.querySelector('.app-sidebar');
             if (!sidebar) return;

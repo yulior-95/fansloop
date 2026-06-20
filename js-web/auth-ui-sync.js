@@ -21,12 +21,9 @@
     }
 
     function applyNames(user) {
-        document.querySelectorAll('.s-user .info .n').forEach(function (el) {
-            el.textContent = user.name;
-        });
-        document.querySelectorAll('.s-user .info .e').forEach(function (el) {
-            el.textContent = user.role || 'Fan';
-        });
+        if (global.FL_applySidebarUserDisplay) {
+            global.FL_applySidebarUserDisplay(user);
+        }
         var h1 = document.querySelector('.profile-head .info h1');
         if (h1) h1.textContent = user.name;
         document.querySelectorAll('.psp-name').forEach(function (el) {
@@ -54,8 +51,11 @@
         if (joined && user.joinedAt) {
             joined.innerHTML = '<i class="fa-regular fa-calendar"></i> 加入于 ' + user.joinedAt;
         }
-        var nickInput = document.querySelector('#sheetEditProfile .field input[type="text"], .edit-profile-sheet input[type="text"]');
-        if (nickInput) nickInput.value = user.name;
+        var nickInput = document.querySelector('#sheetEditProfile .field input[type="text"], .edit-profile-sheet input[type="text"], #onboardNickname');
+        if (nickInput) {
+            nickInput.value = user.name;
+            nickInput.maxLength = global.FL_SIDEBAR_NAME_MAX || 20;
+        }
     }
 
     function refreshPointsFromData(data) {
@@ -104,6 +104,7 @@
         applyKycTag();
         refreshPointsUi();
         if (global.FLWalletPageSync) global.FLWalletPageSync.apply();
+        if (global.FL_applySidebarBottom) global.FL_applySidebarBottom();
     }
 
     global.FLAuthUiSync = { apply: apply, getUser: getUser };

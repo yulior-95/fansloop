@@ -9,6 +9,7 @@
    ======================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('global-display-prefs.css');
 @import url('global-search.css');
 @import url('scrollbar.css');
 @import url('gift-modal.css');
@@ -79,7 +80,7 @@ html, body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
     background: var(--bg-canvas);
     color: var(--t-primary);
-    font-size: 14px;
+    font-size: calc(14px * var(--fl-font-scale, 1));
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     height: 100%;
@@ -304,9 +305,7 @@ html.sidebar-collapsed-pre .app-sidebar .s-item .chip,
 html.sidebar-collapsed-pre .app-sidebar .s-pro-card,
 .app-shell.sidebar-collapsed .app-sidebar .s-pro-card,
 html.sidebar-collapsed-pre .app-sidebar .s-user .info,
-.app-shell.sidebar-collapsed .app-sidebar .s-user .info,
-html.sidebar-collapsed-pre .app-sidebar .s-user .more,
-.app-shell.sidebar-collapsed .app-sidebar .s-user .more {
+.app-shell.sidebar-collapsed .app-sidebar .s-user .info {
     opacity: 0;
     width: 0;
     max-width: 0;
@@ -505,9 +504,39 @@ html.sidebar-collapsed-pre .app-sidebar,
     background-size: cover; background-position: center;
 }
 .s-user .info { flex: 1; min-width: 0; }
-.s-user .info .n { font-size: 12px; font-weight: 600; }
+.s-user .info .name-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+}
+.s-user .info .name-row .n {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 600;
+}
 .s-user .info .e { font-size: 10px; color: var(--t-tertiary); }
-.s-user .more { color: var(--t-tertiary); font-size: 11px; }
+.s-user .s-member-tag {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.2px;
+    background: linear-gradient(135deg, rgba(251,191,36,0.22), rgba(245,158,11,0.12));
+    color: var(--warning-light);
+    border: 1px solid rgba(251,191,36,0.35);
+    line-height: 1.4;
+}
+.s-user .s-member-tag i { font-size: 8px; }
+.s-user .s-member-tag[hidden] { display: none !important; }
 
 /* ---------- Main ---------- */
 .app-main {

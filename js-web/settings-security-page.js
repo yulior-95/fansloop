@@ -37,6 +37,47 @@
 
     var SCORE_ARC = 314;
 
+    var SEC_ACTIVITY_FILTERS = [
+        { id: 'all', label: '全部' },
+        { id: 'login', label: '登录与会话' },
+        { id: 'fund', label: '资金与提现' },
+        { id: 'account', label: '账号与验证' },
+        { id: 'device', label: '设备管理' },
+        { id: 'risk', label: '风险与安全' }
+    ];
+
+    var SEC_ACTIVITY_TYPE_LABELS = {
+        login: '登录与会话',
+        fund: '资金与提现',
+        account: '账号与验证',
+        device: '设备管理',
+        risk: '风险与安全'
+    };
+
+    var SEC_ACTIVITY_LOGS = [
+        { id: 'a1', type: 'login', variant: 'success', icon: 'fa-arrow-right-to-bracket', title: '从 MacBook Pro 登录', meta: '日本 · 东京 · Chrome 138 · 192.168.*.*', time: '1 分钟前', daysAgo: 0, detail: '登录方式：邮箱 + 密码。本设备已标记为常用设备，未触发 2FA 二次验证。' },
+        { id: 'a2', type: 'fund', variant: 'success', icon: 'fa-coins', title: '完成 USDT 链上提现 · 218 USDT', meta: '已通过 2FA · 目标地址 0x7A3F…3F2C', time: '2 小时前', daysAgo: 0, detail: '提现流程：2FA 校验 → 支付密码 → 邮件确认。链上 TX 已广播，预计 3 分钟内到账。' },
+        { id: 'a3', type: 'risk', variant: 'warn', icon: 'fa-triangle-exclamation', title: '异地登录尝试 - 已阻止', meta: '中国 · 上海 · Edge 132 · 未通过 2FA', time: '3 天前', daysAgo: 3, detail: '系统检测到非常用地区登录，已要求 2FA 验证。验证失败后锁定该次会话，并向主邮箱发送安全警报。' },
+        { id: 'a4', type: 'account', variant: 'success', icon: 'fa-key', title: '修改提现密码', meta: '从 MacBook Pro · 已通过 2FA', time: '12 天前', daysAgo: 12, detail: '支付密码已更新。若非本人操作，请立即修改登录密码并强制下线所有设备。' },
+        { id: 'a5', type: 'device', variant: 'success', icon: 'fa-mobile-screen', title: '添加新认证设备 · iPhone 17 Pro', meta: '已通过邮件验证 · FansLoop App 2.4.0', time: '18 天前', daysAgo: 18, detail: '新设备已通过主邮箱验证码确认。可在「登录设备」中随时强制下线。' },
+        { id: 'a6', type: 'login', variant: 'success', icon: 'fa-arrow-right-to-bracket', title: '从 iPhone 17 Pro 登录', meta: '日本 · 横滨 · FansLoop App · 4G', time: '2 小时前', daysAgo: 0, detail: '移动端生物识别快捷登录。设备已在信任列表中。' },
+        { id: 'a7', type: 'fund', variant: 'success', icon: 'fa-wallet', title: '钱包充值 · 100 USDT', meta: '链上转入 · 已入账', time: '5 天前', daysAgo: 5, detail: '来自外部钱包的 USDT (TRC20) 充值已确认，可用余额已更新。' },
+        { id: 'a8', type: 'account', variant: 'success', icon: 'fa-shield-halved', title: '开启认证器 APP (2FA)', meta: 'Google Authenticator · 从 MacBook Pro', time: '20 天前', daysAgo: 20, detail: 'TOTP 二次验证已启用。新设备、异地或敏感操作将要求输入动态码。' },
+        { id: 'a9', type: 'device', variant: 'success', icon: 'fa-power-off', title: '强制下线 · Windows 11 · Edge 132', meta: '从 MacBook Pro 发起 · 中国 · 上海', time: '3 天前', daysAgo: 3, detail: '你已手动将该设备会话终止。如仍有异常，建议修改登录密码。' },
+        { id: 'a10', type: 'risk', variant: 'danger', icon: 'fa-ban', title: '连续 5 次登录密码错误 - 已临时锁定', meta: '中国 · 上海 · 15 分钟冷却', time: '4 天前', daysAgo: 4, detail: '同一 IP 在 10 分钟内多次密码错误，账号登录已临时锁定 15 分钟，并已发送邮件通知。' },
+        { id: 'a11', type: 'login', variant: 'success', icon: 'fa-right-from-bracket', title: '从 iPhone 17 Pro 登出', meta: '主动登出 · 会话已清除', time: '6 天前', daysAgo: 6, detail: '用户在 App 内主动退出登录，Refresh Token 已作废。' },
+        { id: 'a12', type: 'account', variant: 'success', icon: 'fa-envelope', title: '修改主邮箱验证方式', meta: 'l***@fansloop.io · 已通过旧邮箱确认', time: '25 天前', daysAgo: 25, detail: '主邮箱信息已更新。重要通知与提现确认将发送至新邮箱。' },
+        { id: 'a13', type: 'fund', variant: 'warn', icon: 'fa-clock', title: '提现请求待邮件确认', meta: '150 USDT · 30 分钟内有效', time: '28 天前', daysAgo: 28, detail: '你已发起提现，等待主邮箱验证码确认。超时未确认将自动取消。' },
+        { id: 'a14', type: 'device', variant: 'success', icon: 'fa-fingerprint', title: '注册生物识别 · MacBook Pro', meta: 'WebAuthn · Touch ID', time: '22 天前', daysAgo: 22, detail: '本机 Touch ID 已绑定，可用于 2FA 快捷验证。' },
+        { id: 'a15', type: 'risk', variant: 'warn', icon: 'fa-envelope-circle-check', title: '安全警报邮件已发送', meta: '异地登录尝试 · 主邮箱', time: '3 天前', daysAgo: 3, detail: '系统检测到可疑登录并向你的主邮箱发送了警报，内含「不是我」一键锁定链接。' },
+        { id: 'a16', type: 'login', variant: 'success', icon: 'fa-arrow-right-to-bracket', title: '从 MacBook Pro 登录', meta: '日本 · 东京 · Chrome 137', time: '35 天前', daysAgo: 35, detail: '常规登录，设备指纹与历史记录匹配。' },
+        { id: 'a17', type: 'account', variant: 'success', icon: 'fa-lock', title: '修改登录密码', meta: '从 MacBook Pro · 已通过 2FA', time: '38 天前', daysAgo: 38, detail: '登录密码已更新。所有非常用设备会话已要求重新验证。' },
+        { id: 'a18', type: 'fund', variant: 'success', icon: 'fa-coins', title: '完成 USDT 链上提现 · 86 USDT', meta: '已通过 2FA + 支付密码', time: '42 天前', daysAgo: 42, detail: '链上提现成功，TXID 可在账变记录中查看。' }
+    ];
+
+    var activityLogState = { filter: 'all', search: '', page: 1, pageSize: 8, openId: null, loading: false, hasMore: true };
+    var SEC_ACTIVITY_MONTH_DAYS = 30;
+
     function twoFaStorageKey() {
         return TWO_FA_KEY + '_' + uid();
     }
@@ -135,6 +176,220 @@
         if (!ovl) return;
         ovl.classList.remove('show');
         ovl.setAttribute('aria-hidden', 'true');
+    }
+
+    function renderActivityLogRow(item, expandable, isOpen) {
+        var typeLabel = SEC_ACTIVITY_TYPE_LABELS[item.type] || item.type;
+        var variant = item.variant || '';
+        var rowCls = expandable ? 'sec-log-item' + (isOpen ? ' open' : '') : 'log-row';
+        return (
+            '<div class="' + rowCls + '" data-log-id="' + esc(item.id) + '"' + (expandable ? ' role="button" tabindex="0"' : '') + '>' +
+            '<div class="l-ic ' + esc(variant) + '"><i class="fa-solid ' + esc(item.icon) + '"></i></div>' +
+            '<div class="' + (expandable ? 'l-main' : 'l-info') + '">' +
+            '<div class="ti">' + esc(item.title) +
+            (expandable ? ' <span class="type-tag">' + esc(typeLabel) + '</span>' : '') +
+            '</div>' +
+            '<div class="meta">' + esc(item.meta) + (expandable ? '' : ' · ' + esc(item.time)) + '</div>' +
+            (expandable ? '<div class="l-detail">' + esc(item.detail) + '</div>' : '') +
+            '</div>' +
+            (expandable ? '<span class="l-time">' + esc(item.time) + '</span>' : '') +
+            '</div>'
+        );
+    }
+
+    function renderActivityPreview() {
+        var host = $('secActivityPreview');
+        if (!host) return;
+        var preview = getFilteredActivityLogs().slice(0, 5);
+        host.innerHTML =
+            preview.map(function (item) { return renderActivityLogRow(item, false); }).join('') +
+            '<div class="sec-activity-foot"><a href="#" id="btnSecActivityViewAll" role="button">查看全部安全日志 <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></a></div>';
+        var btn = $('btnSecActivityViewAll');
+        if (btn) {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                openActivityLogModal();
+            });
+        }
+    }
+
+    function renderActivityFilters() {
+        var host = $('secLogFilters');
+        if (!host) return;
+        host.innerHTML = SEC_ACTIVITY_FILTERS.map(function (f) {
+            return '<button type="button" data-log-filter="' + esc(f.id) + '" class="' + (activityLogState.filter === f.id ? 'active' : '') + '" role="tab" aria-selected="' + (activityLogState.filter === f.id ? 'true' : 'false') + '">' + esc(f.label) + '</button>';
+        }).join('');
+    }
+
+    function getFilteredActivityLogs() {
+        var q = (activityLogState.search || '').trim().toLowerCase();
+        return SEC_ACTIVITY_LOGS.filter(function (item) {
+            if (item.daysAgo > SEC_ACTIVITY_MONTH_DAYS) return false;
+            if (activityLogState.filter !== 'all' && item.type !== activityLogState.filter) return false;
+            if (!q) return true;
+            var blob = [item.title, item.meta, item.detail, SEC_ACTIVITY_TYPE_LABELS[item.type]].join(' ').toLowerCase();
+            return blob.indexOf(q) >= 0;
+        }).sort(function (a, b) { return a.daysAgo - b.daysAgo; });
+    }
+
+    function updateActivityLogSummary(all, shown) {
+        var summary = $('secLogSummary');
+        if (!summary) return;
+        summary.innerHTML =
+            '<span class="hint-month">仅展示近一个月的数据</span>' +
+            ' · 共 ' + all.length + ' 条记录 · 已显示 ' + shown + ' 条';
+    }
+
+    function renderActivityLogList(reset) {
+        var list = $('secLogList');
+        var empty = $('secLogEmpty');
+        if (!list) return;
+
+        var all = getFilteredActivityLogs();
+        var end = activityLogState.page * activityLogState.pageSize;
+        var slice = all.slice(0, end);
+        activityLogState.hasMore = slice.length < all.length;
+
+        if (reset) {
+            list.innerHTML = '';
+            activityLogState.openId = null;
+            list.scrollTop = 0;
+        }
+
+        var currentCount = list.querySelectorAll('.sec-log-item').length;
+        var loaderEl = list.querySelector('.sec-log-loading');
+        if (loaderEl) loaderEl.remove();
+
+        if (reset || slice.length <= currentCount) {
+            list.innerHTML = slice.map(function (item) {
+                return renderActivityLogRow(item, true, activityLogState.openId === item.id);
+            }).join('');
+        } else if (slice.length > currentCount) {
+            var delta = slice.slice(currentCount);
+            list.insertAdjacentHTML('beforeend', delta.map(function (item) {
+                return renderActivityLogRow(item, true, false);
+            }).join(''));
+        }
+
+        updateActivityLogSummary(all, Math.min(slice.length, list.querySelectorAll('.sec-log-item').length));
+
+        if (activityLogState.hasMore) {
+            list.insertAdjacentHTML('beforeend', '<div class="sec-log-loading" aria-hidden="true"><i class="fa-solid fa-spinner fa-spin"></i>向下滚动加载更多</div>');
+        }
+
+        if (empty) {
+            var showEmpty = all.length === 0;
+            empty.hidden = !showEmpty;
+            list.style.display = showEmpty ? 'none' : '';
+        }
+    }
+
+    function tryLoadMoreActivityLogs() {
+        var list = $('secLogList');
+        if (!list || activityLogState.loading || !activityLogState.hasMore) return;
+        if (list.scrollTop + list.clientHeight < list.scrollHeight - 56) return;
+        activityLogState.loading = true;
+        activityLogState.page += 1;
+        renderActivityLogList(false);
+        activityLogState.loading = false;
+    }
+
+    function openActivityLogModal() {
+        activityLogState.filter = 'all';
+        activityLogState.search = '';
+        activityLogState.page = 1;
+        activityLogState.openId = null;
+        activityLogState.loading = false;
+        activityLogState.hasMore = true;
+        var search = $('secLogSearch');
+        if (search) search.value = '';
+        renderActivityFilters();
+        renderActivityLogList(true);
+        var ovl = $('ovlSecActivityLog');
+        if (!ovl) return;
+        ovl.classList.add('show');
+        ovl.setAttribute('aria-hidden', 'false');
+        if (search) search.focus();
+    }
+
+    function closeActivityLogModal() {
+        var ovl = $('ovlSecActivityLog');
+        if (!ovl) return;
+        ovl.classList.remove('show');
+        ovl.setAttribute('aria-hidden', 'true');
+        activityLogState.openId = null;
+    }
+
+    function exportActivityLogsCsv() {
+        var rows = getFilteredActivityLogs();
+        if (!rows.length) {
+            toast('当前筛选无数据可导出', 'err');
+            return;
+        }
+        toast('已导出 ' + rows.length + ' 条安全日志（原型演示）', 'ok');
+    }
+
+    function bindActivityLog() {
+        renderActivityPreview();
+
+        var filters = $('secLogFilters');
+        if (filters) {
+            filters.addEventListener('click', function (e) {
+                var btn = e.target.closest('[data-log-filter]');
+                if (!btn) return;
+                activityLogState.filter = btn.getAttribute('data-log-filter') || 'all';
+                activityLogState.page = 1;
+                renderActivityFilters();
+                renderActivityLogList(true);
+            });
+        }
+
+        var search = $('secLogSearch');
+        if (search) {
+            search.addEventListener('input', function () {
+                activityLogState.search = search.value;
+                activityLogState.page = 1;
+                renderActivityLogList(true);
+            });
+        }
+
+        var list = $('secLogList');
+        if (list) {
+            list.addEventListener('click', function (e) {
+                var row = e.target.closest('.sec-log-item');
+                if (!row) return;
+                var id = row.getAttribute('data-log-id');
+                if (activityLogState.openId === id) {
+                    activityLogState.openId = null;
+                    row.classList.remove('open');
+                } else {
+                    var prev = list.querySelector('.sec-log-item.open');
+                    if (prev) prev.classList.remove('open');
+                    activityLogState.openId = id;
+                    row.classList.add('open');
+                }
+            });
+            list.addEventListener('keydown', function (e) {
+                if (e.key !== 'Enter' && e.key !== ' ') return;
+                var row = e.target.closest('.sec-log-item');
+                if (!row) return;
+                e.preventDefault();
+                row.click();
+            });
+            list.addEventListener('scroll', tryLoadMoreActivityLogs);
+        }
+
+        $('btnSecLogExport') && $('btnSecLogExport').addEventListener('click', exportActivityLogsCsv);
+        $('closeSecActivityLog') && $('closeSecActivityLog').addEventListener('click', closeActivityLogModal);
+        $('btnSecActivityLogOk') && $('btnSecActivityLogOk').addEventListener('click', closeActivityLogModal);
+        $('ovlSecActivityLog') && $('ovlSecActivityLog').addEventListener('click', function (e) {
+            if (e.target === $('ovlSecActivityLog')) closeActivityLogModal();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            var ovl = $('ovlSecActivityLog');
+            if (e.key === 'Escape' && ovl && ovl.classList.contains('show')) closeActivityLogModal();
+        });
     }
 
     function render2faUi() {
@@ -969,6 +1224,8 @@
         $('ovlSecScoreRules') && $('ovlSecScoreRules').addEventListener('click', function (e) {
             if (e.target === $('ovlSecScoreRules')) closeScoreRules();
         });
+
+        bindActivityLog();
 
         document.addEventListener('fl-user-assets-change', syncPayPwdRow);
     }

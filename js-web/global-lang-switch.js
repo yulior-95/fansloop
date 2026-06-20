@@ -2,11 +2,12 @@
  * FansLoop · 全局语言切换（挂载到 .app-header 或悬浮）
  * 字典：仅翻译常见界面词；各页可用 data-i18n-global="key" 扩展。
  */
-(function () {
+(function (global) {
     var STORAGE = 'fansloop-ui-lang';
 
     var LANGS = [
         { code: 'zh-CN', label: '简体中文', native: '中文' },
+        { code: 'zh-TW', label: '繁體中文', native: '繁' },
         { code: 'en', label: 'English', native: 'English' },
         { code: 'ja', label: '日本語', native: 'JA' },
         { code: 'ko', label: '한국어', native: 'KO' },
@@ -27,11 +28,27 @@
     var DICT = {
         'zh-CN': {
             search: '搜索', login: '登录', signup: '注册', home: '首页', settings: '设置',
-            lang_title: '界面语言'
+            lang_title: '界面语言', recharge: '充值',
+            nav_section_main: '主导航', nav_section_interact: '互动', nav_section_assets: '资产', nav_section_personal: '个人',
+            nav_home: '首页', nav_subscriptions: '订阅', nav_discover: '发现', nav_create: '创建内容',
+            nav_messages: '消息', nav_notifications: '通知', nav_wallet: '钱包', nav_creator_income: '创作者收入',
+            nav_points_mall: '积分商城', nav_transactions: '账变记录', nav_profile: '我的主页', nav_settings: '设置'
+        },
+        'zh-TW': {
+            search: '搜尋', login: '登入', signup: '註冊', home: '首頁', settings: '設定',
+            lang_title: '介面語言', recharge: '充值',
+            nav_section_main: '主導航', nav_section_interact: '互動', nav_section_assets: '資產', nav_section_personal: '個人',
+            nav_home: '首頁', nav_subscriptions: '訂閱', nav_discover: '發現', nav_create: '創建內容',
+            nav_messages: '訊息', nav_notifications: '通知', nav_wallet: '錢包', nav_creator_income: '創作者收入',
+            nav_points_mall: '積分商城', nav_transactions: '帳變記錄', nav_profile: '我的主頁', nav_settings: '設定'
         },
         en: {
             search: 'Search', login: 'Sign in', signup: 'Sign up', home: 'Home', settings: 'Settings',
-            lang_title: 'Language'
+            lang_title: 'Language', recharge: 'Top up',
+            nav_section_main: 'Main', nav_section_interact: 'Social', nav_section_assets: 'Assets', nav_section_personal: 'Account',
+            nav_home: 'Home', nav_subscriptions: 'Subscriptions', nav_discover: 'Discover', nav_create: 'Create',
+            nav_messages: 'Messages', nav_notifications: 'Notifications', nav_wallet: 'Wallet', nav_creator_income: 'Creator income',
+            nav_points_mall: 'Points mall', nav_transactions: 'Transactions', nav_profile: 'My profile', nav_settings: 'Settings'
         },
         ja: {
             search: '検索', login: 'ログイン', signup: '登録', home: 'ホーム', settings: '設定',
@@ -92,10 +109,34 @@
     };
 
     function getLang() {
-        var c = localStorage.getItem(STORAGE) || (navigator.language || 'zh-CN').split('-')[0];
-        if (c === 'zh') c = 'zh-CN';
-        var hit = LANGS.find(function (l) { return l.code === c || l.code.split('-')[0] === c; });
+        var stored = localStorage.getItem(STORAGE);
+        if (stored) {
+            var exact = LANGS.find(function (l) { return l.code === stored; });
+            if (exact) return exact.code;
+        }
+        var nav = navigator.language || 'zh-CN';
+        var hit = LANGS.find(function (l) {
+            return l.code === nav || l.code.toLowerCase() === nav.toLowerCase();
+        });
+        if (!hit) {
+            var base = nav.split('-')[0].toLowerCase();
+            if (base === 'zh') return nav.toLowerCase().indexOf('tw') >= 0 || nav.toLowerCase().indexOf('hk') >= 0 ? 'zh-TW' : 'zh-CN';
+            hit = LANGS.find(function (l) { return l.code.split('-')[0].toLowerCase() === base; });
+        }
         return hit ? hit.code : 'zh-CN';
+    }
+
+    function applyDict(code) {
+        var d = DICT[code] || DICT.en || DICT['zh-CN'];
+        document.querySelectorAll('[data-i18n-global]').forEach(function (el) {
+            var k = el.getAttribute('data-i18n-global');
+            if (d[k]) el.textContent = d[k];
+        });
+        document.querySelectorAll('input[type="search"][data-i18n-ph-global]').forEach(function (inp) {
+            var k = inp.getAttribute('data-i18n-ph-global');
+            if (d[k]) inp.placeholder = d[k];
+        });
+        if (global.FL_applySidebarI18n) global.FL_applySidebarI18n(code);
     }
 
     function setLang(code) {
@@ -104,19 +145,6 @@
         document.documentElement.dir = (code === 'ar') ? 'rtl' : 'ltr';
         applyDict(code);
         document.dispatchEvent(new CustomEvent('fansloop-lang-change', { detail: { code: code } }));
-    }
-
-    function applyDict(code) {
-        var d = DICT[code] || DICT['zh-CN'];
-        document.querySelectorAll('[data-i18n-global]').forEach(function (el) {
-            var k = el.getAttribute('data-i18n-global');
-            if (d[k]) el.textContent = d[k];
-        });
-        var searchInputs = document.querySelectorAll('input[type="search"][data-i18n-ph-global]');
-        searchInputs.forEach(function (inp) {
-            var k = inp.getAttribute('data-i18n-ph-global');
-            if (d[k]) inp.placeholder = d[k];
-        });
     }
 
     function buildMount() {
@@ -189,4 +217,12 @@
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', buildMount);
     else buildMount();
-})();
+
+    global.FansLoopLang = {
+        LANGS: LANGS,
+        DICT: DICT,
+        getLang: getLang,
+        setLang: setLang,
+        applyDict: applyDict
+    };
+})(window);
