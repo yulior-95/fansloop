@@ -102,7 +102,7 @@
             : '';
         var previewTag = type === 'live-preview' ? ' <span class="tag-preview">直播预告</span>' : '';
         var subOnlyTag = type === 'subscribe-locked' ? ' <span class="tag-sub-only">订阅专属</span>' : '';
-        var ppvTag = type === 'ppv-locked' ? ' <span class="tag-ppv-only">单篇付费</span>' : '';
+        var ppvTag = type === 'ppv-locked' ? ' <span class="tag-ppv-only">按篇购买</span>' : '';
         var liveEndedTag = liveEnded ? ' <span class="tag tag-ended-head">已结束</span>' : '';
         var metaLive;
         if (liveEnded) {
@@ -195,7 +195,7 @@
         var av = 'https://images.unsplash.com/' + c.av + '?w=100';
         var unlockBtn = guest
             ? '<button type="button" class="pc-buy" onclick="location.href=\'modal-login-main.html\'"><i class="fa-solid fa-bolt"></i> 登录后解锁</button>'
-            : '<button type="button" class="pc-buy btn-open-ppv-unlock" data-creator="' + esc(c.name) + '" data-ppv-price="' + ppvPrice + '" data-post-id="' + postId + '" data-title="' + esc(postTitle) + '" data-av="' + av + '"><i class="fa-solid fa-bolt"></i> ' + ppvPrice + ' USDT 解锁</button>';
+            : '<button type="button" class="pc-buy btn-open-ppv-unlock" data-creator="' + esc(c.name) + '" data-ppv-price="' + ppvPrice + '" data-post-id="' + postId + '" data-title="' + esc(postTitle) + '" data-av="' + av + '"><i class="fa-solid fa-bolt"></i> ' + ppvPrice + ' USDT 购买</button>';
         var subBtn = guest
             ? ''
             : '<button type="button" class="pc-sub btn-open-subscribe" data-creator="' + esc(c.name) + '" data-plan="16" data-av="' + av + '"><i class="fa-solid fa-crown"></i> 订阅查看全部</button>';
@@ -205,8 +205,8 @@
             '<div class="pc-blur-mask" aria-hidden="true"></div>' +
             '<div class="pc-content">' +
             '<div class="pc-lock pc-lock--ppv"><i class="fa-solid fa-lock"></i></div>' +
-            '<h4>单篇解锁后可永久查看</h4>' +
-            '<p>@' + esc(c.name) + ' · 非订阅者需支付 <b>' + ppvPrice + ' USDT</b> 解锁本篇</p>' +
+            '<h4>按篇购买后可反复观看</h4>' +
+            '<p>@' + esc(c.name) + ' · 未订阅粉丝付 <b>' + ppvPrice + ' USDT</b> 即可看本篇</p>' +
             '<div class="pc-ctas">' + unlockBtn + subBtn + '</div>' +
             '</div></div>'
         );
@@ -353,8 +353,8 @@
                 '</div>';
         } else if (type === 'ppv-locked') {
             bodyInner += '<div class="post-text post-text--teaser">' +
-                '<span class="teaser-label teaser-label--ppv"><i class="fa-solid fa-tag"></i> 单篇付费 · 未解锁仅可见摘要</span><br>' +
-                esc('京都樱花季隐秘机位整理 · 含 GPS 坐标、最佳时段与 12 张 RAW 原图——完整图集需单篇解锁或订阅创作者。') + '<br>' + tags +
+                '<span class="teaser-label teaser-label--ppv"><i class="fa-solid fa-tag"></i> 按篇购买 · 付费前仅可见摘要</span><br>' +
+                esc('京都樱花季隐秘机位整理 · 含 GPS 坐标、最佳时段与 12 张 RAW 原图——完整图集需按篇购买或订阅创作者。') + '<br>' + tags +
                 '</div>';
         } else {
             bodyInner += '<div class="post-text">' + esc(text) + '<br>' + tags + '</div>';

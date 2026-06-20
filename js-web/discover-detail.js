@@ -162,7 +162,7 @@
         return (
             '<div class="dd-paywall" role="dialog" aria-label="解锁内容">' +
             '<div class="dd-paywall-icon"><i class="fa-solid fa-lock"></i></div>' +
-            '<p class="dd-paywall-tip">' + (ppv ? '单篇解锁后可永久查看' : '订阅后解锁全部专享内容') + '</p>' +
+            '<p class="dd-paywall-tip">' + (ppv ? '按篇购买后可反复观看' : '订阅后查看全部专享内容') + '</p>' +
             '<p class="dd-paywall-sub">@' + esc((p.handle || '').replace(/^@/, '')) + ' 另有 <b>' + count + '</b> 条专享内容</p>' +
             (ppv
                 ? '<div class="dd-paywall-price"><span class="amt">$' + esc(String(p.price)) + '</span><span class="unit">USDT · 单篇</span></div>' +

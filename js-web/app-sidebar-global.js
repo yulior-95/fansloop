@@ -23,6 +23,7 @@
         if (idx < 0 || idx >= FONT_SCALES.length) idx = 2;
         html.setAttribute('data-fl-font-scale', String(idx));
         html.style.setProperty('--fl-font-scale', String(FONT_SCALES[idx]));
+        html.setAttribute('data-fl-timezone', p.timezone || 'system');
     } catch (e) { /* ignore */ }
 
     var STORAGE_KEY = 'fl_sidebar_collapsed';
@@ -55,7 +56,8 @@
         var base = detectScriptBase();
         var queue = [
             'user-prototype-registry.js', 'user-assets-store.js', 'pay-password-store.js',
-            'auth-session.js', 'auth-ui-sync.js', 'creator-pro-store.js', 'sidebar-bottom-interactions.js'
+            'auth-session.js', 'auth-ui-sync.js', 'creator-income-store.js', 'creator-pro-store.js',
+            'sidebar-bottom-interactions.js'
         ];
         function loadNext(idx) {
             if (idx >= queue.length) {
@@ -114,12 +116,13 @@
         return url + sep + 'nav=' + encodeURIComponent(id);
     }
 
-    /** 侧栏角标 / chip（与 profile、home 等主场景静态值一致，动态项见 applySidebarIndicators） */
+    /** 侧栏角标 / chip（动态项见 applySidebarIndicators） */
     var SIDEBAR_INDICATORS = {
         create: { badge: 2, badgeVariant: 'warn' },
         messages: { badgeKey: 'messages', defaultBadge: 8 },
         notifications: { badgeKey: 'notifications', defaultBadge: 12 },
-        'creator-income': { chip: '+$28' }
+        'creator-income': { chipKey: 'creator-income' },
+        'points-mall': { chip: 'Hot', chipClass: 'chip--mall-hot' }
     };
 
     var NF_UNREAD_LS = 'fl_nf_unread_count';
@@ -178,9 +181,8 @@
         '    <div class="info">' +
         '      <div class="name-row">' +
         '        <span class="n">Luna 🌙</span>' +
-        '        <span class="s-member-tag" data-fl-member-tag hidden><i class="fa-solid fa-crown"></i> Pro</span>' +
+        '        <span class="s-member-tag" data-fl-member-tag hidden><i class="fa-solid fa-crown"></i> 会员</span>' +
         '      </div>' +
-        '      <div class="e">Creator</div>' +
         '    </div>' +
         '  </div>' +
         '</div>';
@@ -250,10 +252,40 @@
                 html += '<span class="badge" data-sidebar-badge="' + item.id + '">' + val + '</span>';
             }
         }
-        if (ind.chip) {
-            html += '<span class="chip" data-sidebar-chip="' + item.id + '">' + ind.chip + '</span>';
+        if (ind.chip && !ind.chipKey) {
+            html += '<span class="chip' + (ind.chipClass ? ' ' + ind.chipClass : '') +
+                '" data-sidebar-chip="' + item.id + '">' + ind.chip + '</span>';
         }
         return html;
+    }
+
+    function getCreatorIncomeChipData() {
+        if (global.FLCreatorIncomeStore && global.FLCreatorIncomeStore.getSidebarChip) {
+            return global.FLCreatorIncomeStore.getSidebarChip();
+        }
+        return null;
+    }
+
+    function applyCreatorIncomeChip(sidebar, row) {
+        row = row || sidebar.querySelector('.s-item[data-nav-id="creator-income"]');
+        if (!row) return;
+        var chip = row.querySelector('[data-sidebar-chip="creator-income"]');
+        var data = getCreatorIncomeChipData();
+        if (data) {
+            if (!chip) {
+                chip = document.createElement('span');
+                chip.className = 'chip chip--income-month';
+                chip.setAttribute('data-sidebar-chip', 'creator-income');
+                chip.setAttribute('tabindex', '0');
+                row.appendChild(chip);
+            }
+            chip.textContent = data.text;
+            chip.setAttribute('title', data.title);
+            chip.setAttribute('aria-label', data.title);
+            chip.setAttribute('data-fl-chip-tip', data.hint);
+        } else if (chip) {
+            chip.remove();
+        }
     }
 
     function applySidebarIndicators(sidebar) {
@@ -261,21 +293,27 @@
         if (!sidebar) return;
         Object.keys(SIDEBAR_INDICATORS).forEach(function (id) {
             var ind = SIDEBAR_INDICATORS[id];
-            if (!ind.badgeKey) return;
             var row = sidebar.querySelector('.s-item[data-nav-id="' + id + '"]');
             if (!row) return;
-            var val = getSidebarBadgeValue(ind);
-            var badge = row.querySelector('[data-sidebar-badge="' + id + '"]');
-            if (val > 0) {
-                if (!badge) {
-                    badge = document.createElement('span');
-                    badge.className = 'badge';
-                    badge.setAttribute('data-sidebar-badge', id);
-                    row.appendChild(badge);
+
+            if (ind.badgeKey) {
+                var val = getSidebarBadgeValue(ind);
+                var badge = row.querySelector('[data-sidebar-badge="' + id + '"]');
+                if (val > 0) {
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        badge.className = 'badge';
+                        badge.setAttribute('data-sidebar-badge', id);
+                        row.appendChild(badge);
+                    }
+                    badge.textContent = String(val);
+                } else if (badge) {
+                    badge.remove();
                 }
-                badge.textContent = String(val);
-            } else if (badge) {
-                badge.remove();
+            }
+
+            if (ind.chipKey === 'creator-income') {
+                applyCreatorIncomeChip(sidebar, row);
             }
         });
     }
@@ -322,6 +360,7 @@
 
     document.addEventListener('fansloop-lang-change', function (e) {
         applySidebarI18n(e.detail && e.detail.code);
+        applySidebarIndicators();
     });
 
     function buildSidebarNavHtml(activeId) {
@@ -344,9 +383,8 @@
     function renderUnifiedSidebarNav(sidebar) {
         if (!sidebar) return;
         var brand = sidebar.querySelector('.s-brand');
-        var bottom = sidebar.querySelector('.s-bottom');
         var brandHtml = brand ? brand.outerHTML : '';
-        var bottomHtml = bottom ? bottom.outerHTML : DEFAULT_BOTTOM;
+        var bottomHtml = DEFAULT_BOTTOM;
         var page = currentPageName();
         var activeId = detectActiveNavId(page);
         if (page !== 'creator-profile.html' && activeId) {
@@ -391,6 +429,12 @@
         applySidebarIndicators();
     });
     window.addEventListener('fl-sidebar-indicators-changed', function () {
+        applySidebarIndicators();
+    });
+    window.addEventListener('fl-creator-income-change', function () {
+        applySidebarIndicators();
+    });
+    global.addEventListener('fl-auth-prototype-ready', function () {
         applySidebarIndicators();
     });
 

@@ -14,7 +14,8 @@
         highContrast: false,
         sansFont: false,
         uiMotion: true,
-        glass: true
+        glass: true,
+        timezone: 'system'
     };
 
     function load() {
@@ -56,6 +57,7 @@
         if (idx == null || idx < 0 || idx >= FONT_SCALES.length) idx = DEFAULTS.fontScaleIndex;
         html.setAttribute('data-fl-font-scale', String(idx));
         html.style.setProperty('--fl-font-scale', String(FONT_SCALES[idx]));
+        html.setAttribute('data-fl-timezone', prefs.timezone || DEFAULTS.timezone);
     }
 
     function set(partial) {

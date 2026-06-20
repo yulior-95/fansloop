@@ -25,13 +25,13 @@
             type: 'ppv_trial',
             discount: 0,
             validDays: 7,
-            desc: '免费解锁 1 篇单篇付费内容，解锁后 24h 内可反复观看'
+            desc: '免费购买 1 篇按篇收费内容，购买后 24h 内可反复观看'
         },
         '单篇 5 折券': {
             type: 'ppv_discount',
             discount: 0.5,
             validDays: 14,
-            desc: '单篇付费内容享 5 折，不可与试看券叠加'
+            desc: '按篇购买的内容享 5 折，不可与试看券叠加'
         },
         '打赏加成卡 · 3 次': {
             type: 'tip_boost',
@@ -658,7 +658,7 @@
 
     function formatPpvExpiry(voucher) {
         if (!voucher || !voucher.expiresAt) return '长期有效';
-        var extra = voucher.type === 'ppv_trial' ? ' · 限 1 篇' : ' · 单篇付费';
+        var extra = voucher.type === 'ppv_trial' ? ' · 限 1 篇' : ' · 按篇购买';
         return voucher.expiresAt + ' 前有效' + extra;
     }
 

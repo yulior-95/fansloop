@@ -384,6 +384,81 @@
     font-weight: 600;
 }
 .cp-tabs .tt.active .cnt { background: rgba(168,85,247,0.18); color: #C084FC; }
+.cp-tabs .tt { cursor: pointer; user-select: none; }
+.cp-tab-panel { display: none; }
+.cp-tab-panel.active { display: block; }
+.cp-about-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 20px 22px;
+}
+.cp-about-card h4 { font-size: 14px; font-weight: 800; margin: 0 0 10px; }
+.cp-about-card p, .cp-about-card li { font-size: 12.5px; color: var(--t-secondary); line-height: 1.65; }
+.cp-about-card ul { margin: 0; padding-left: 18px; }
+.cp-about-card + .cp-about-card { margin-top: 14px; }
+.cp-tab-empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--t-tertiary);
+    font-size: 13px;
+    border: 1px dashed var(--border);
+    border-radius: var(--r-lg);
+}
+.cp-recent-sub-hint { font-size: 10.5px; color: var(--t-tertiary); margin: -6px 0 10px; line-height: 1.45; }
+.cp-tip-rank-modal { max-width: 420px; padding: 0; overflow: hidden; }
+.cp-tip-rank-modal .iol-head { padding: 18px 22px; margin: 0; border-bottom: 1px solid var(--border); }
+.cp-tip-rank-list { max-height: min(52vh, 420px); overflow-y: auto; padding: 8px 12px 12px; }
+.cp-tip-rank-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 10px; border-radius: 10px;
+}
+.cp-tip-rank-row:hover { background: var(--bg-hover); }
+.cp-tip-rank-row .rk {
+    width: 28px; text-align: center; font-size: 12px; font-weight: 800; color: var(--t-tertiary);
+}
+.cp-tip-rank-row .rk.gold { color: #FBBF24; }
+.cp-tip-rank-row .rk.silver { color: #94A3B8; }
+.cp-tip-rank-row .rk.bronze { color: #D97706; }
+.cp-tip-rank-row .av { width: 36px; height: 36px; border-radius: 50%; background-size: cover; flex-shrink: 0; }
+.cp-tip-rank-row .meta { flex: 1; min-width: 0; }
+.cp-tip-rank-row .meta .nm { font-size: 12.5px; font-weight: 700; }
+.cp-tip-rank-row .meta .sub { font-size: 10.5px; color: var(--t-tertiary); margin-top: 2px; }
+.cp-tip-rank-row .am { font-size: 13px; font-weight: 800; color: var(--warning-light); white-space: nowrap; }
+.cp-level-badge {
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 2px 4px;
+    margin: -2px -4px;
+    transition: background 0.15s;
+}
+.cp-level-badge:hover { background: rgba(251, 191, 36, 0.12); }
+.cp-level-modal { max-width: 480px; padding: 0; overflow: hidden; }
+.cp-level-modal .iol-head { padding: 18px 22px; margin: 0; border-bottom: 1px solid var(--border); }
+.cp-level-body { padding: 16px 22px 8px; max-height: min(58vh, 480px); overflow-y: auto; font-size: 12.5px; }
+.cp-level-body h4 { font-size: 13px; font-weight: 800; margin: 14px 0 8px; }
+.cp-level-body h4:first-child { margin-top: 0; }
+.cp-level-body p, .cp-level-body li { color: var(--t-secondary); line-height: 1.6; }
+.cp-level-body ul { margin: 0; padding-left: 18px; }
+.cp-level-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+.cp-level-stat {
+    padding: 10px 12px; border-radius: 10px;
+    background: var(--bg-input); border: 1px solid var(--border);
+}
+.cp-level-stat .k { font-size: 10px; color: var(--t-tertiary); }
+.cp-level-stat .v { font-size: 15px; font-weight: 800; margin-top: 4px; }
+.cp-level-progress {
+    height: 8px; border-radius: 999px; background: var(--bg-input);
+    border: 1px solid var(--border); overflow: hidden; margin: 8px 0 6px;
+}
+.cp-level-progress > span {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, #A855F7, #EC4899);
+    border-radius: 999px;
+}
+.cp-level-tier-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 8px; }
+.cp-level-tier-table th, .cp-level-tier-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; }
+.cp-level-tier-table tr.is-current td { color: #C084FC; font-weight: 700; }
 
 /* 作品 grid */
 .work-grid {
@@ -489,6 +564,7 @@
 .tip-supporters .sp.gold { background: linear-gradient(180deg, rgba(251,191,36,0.18), transparent); border-color: rgba(251,191,36,0.35); }
 </style>
 
+<link rel="stylesheet" href="../css-web/subscribe-modal.css">
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
 </head>
@@ -588,7 +664,7 @@
                     <span><i class="fa-solid fa-camera"></i> 摄影师</span>
                     <span><i class="fa-solid fa-globe"></i> 日本 · 东京</span>
                     <span><i class="fa-regular fa-calendar"></i> 加入于 2024.08</span>
-                    <span><i class="fa-solid fa-trophy" style="color: var(--warning-light)"></i> LV 7 · 周榜 TOP 12</span>
+                    <span class="cp-level-badge" id="cpCreatorLevelBadge" role="button" tabindex="0" title="点击查看等级与周榜规则"><i class="fa-solid fa-trophy" style="color: var(--warning-light)"></i> <span id="cpCreatorLevelText">LV 7 · 周榜 TOP 12</span></span>
                 </div>
                 <div class="bio">摄影 · 旅行 · 把云朵装进口袋。每周三 / 周六固定更新。和你分享凌晨 5 点的色彩与一杯还冒着热气的拿铁。</div>
                 <div class="links">
@@ -647,109 +723,63 @@
                 <!-- 订阅档 -->
                 <div class="sub-tier-row">
                     <div class="sub-tier t1">
-                        <div class="ic-tile"><i class="fa-regular fa-eye"></i></div>
-                        <h3>免费关注</h3>
-                        <div class="price">$0<span class="u"> USDT</span></div>
-                        <ul>
-                            <li><i class="fa-solid fa-check"></i> 公开图文、短视频</li>
-                            <li><i class="fa-solid fa-check"></i> 直播观看（无弹幕）</li>
-                            <li class="dim"><i class="fa-solid fa-xmark"></i> 高清原图</li>
-                            <li class="dim"><i class="fa-solid fa-xmark"></i> 月度专属合辑</li>
-                            <li class="dim"><i class="fa-solid fa-xmark"></i> 专属直播群聊</li>
-                        </ul>
-                        <button>当前等级</button>
-                    </div>
-                    <div class="sub-tier t2 recommended">
-                        <span class="pop-tag">最受欢迎</span>
-                        <div class="ic-tile"><i class="fa-solid fa-crown"></i></div>
-                        <h3>优质订阅</h3>
+                        <div class="ic-tile"><i class="fa-solid fa-calendar-day"></i></div>
+                        <h3>月付</h3>
                         <div class="price">28<span class="u"> USDT/月</span></div>
                         <ul>
-                            <li><i class="fa-solid fa-check"></i> 全部免费内容</li>
+                            <li><i class="fa-solid fa-check"></i> 灵活按月续订，随时取消</li>
                             <li><i class="fa-solid fa-check"></i> 4K 高清原图与 RAW</li>
                             <li><i class="fa-solid fa-check"></i> 月度专属合辑（24 张）</li>
                             <li><i class="fa-solid fa-check"></i> 直播弹幕 + 订阅徽章</li>
                             <li><i class="fa-solid fa-check"></i> 评论享受优先回复</li>
                         </ul>
-                        <button><i class="fa-solid fa-bolt"></i> 立即订阅</button>
+                        <button type="button" disabled>当前等级</button>
+                    </div>
+                    <div class="sub-tier t2 recommended">
+                        <span class="pop-tag">最受欢迎</span>
+                        <div class="ic-tile"><i class="fa-solid fa-crown"></i></div>
+                        <h3>季付</h3>
+                        <div class="price">75<span class="u"> USDT/季</span></div>
+                        <ul>
+                            <li><i class="fa-solid fa-check"></i> 权益与月付相同</li>
+                            <li><i class="fa-solid fa-check"></i> 一次付 3 个月，约省 11%</li>
+                            <li><i class="fa-solid fa-check"></i> 折合约 25 USDT/月</li>
+                            <li><i class="fa-solid fa-check"></i> 订阅专属内容与直播回放</li>
+                            <li><i class="fa-solid fa-check"></i> 适合稳定追更的粉丝</li>
+                        </ul>
+                        <button type="button" class="btn-open-subscribe"
+                            data-creator="Luna 🌙"
+                            data-plan="75"
+                            data-av="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400"><i class="fa-solid fa-bolt"></i> 立即订阅</button>
                     </div>
                     <div class="sub-tier t3">
-                        <div class="ic-tile"><i class="fa-solid fa-gem"></i></div>
-                        <h3>挚友订阅</h3>
-                        <div class="price">128<span class="u"> USDT/月</span></div>
+                        <div class="ic-tile"><i class="fa-solid fa-calendar"></i></div>
+                        <h3>年付</h3>
+                        <div class="price">268<span class="u"> USDT/年</span></div>
                         <ul>
-                            <li><i class="fa-solid fa-check"></i> 优质订阅全部权益</li>
-                            <li><i class="fa-solid fa-check"></i> 私信优先回复（24h 内）</li>
-                            <li><i class="fa-solid fa-check"></i> 季度面对面线下活动</li>
-                            <li><i class="fa-solid fa-check"></i> 1v1 摄影 1 次（30 min）</li>
-                            <li><i class="fa-solid fa-check"></i> 限定打印版作品 1 幅</li>
+                            <li><i class="fa-solid fa-check"></i> 权益与月付相同</li>
+                            <li><i class="fa-solid fa-check"></i> 一次付 12 个月，约省 20%</li>
+                            <li><i class="fa-solid fa-check"></i> 折合约 22.3 USDT/月</li>
+                            <li><i class="fa-solid fa-check"></i> 长期支持创作者最优选择</li>
+                            <li><i class="fa-solid fa-check"></i> 含全部订阅专属权益</li>
                         </ul>
-                        <button><i class="fa-solid fa-gem"></i> 升级挚友</button>
+                        <button type="button" class="btn-open-subscribe"
+                            data-creator="Luna 🌙"
+                            data-plan="268"
+                            data-av="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400"><i class="fa-solid fa-gem"></i> 升级挚友</button>
                     </div>
                 </div>
 
                 <!-- Tabs -->
-                <div class="cp-tabs">
-                    <div class="tt active"><i class="fa-solid fa-image"></i> 作品 <span class="cnt">186</span></div>
-                    <div class="tt"><i class="fa-solid fa-video"></i> 视频 <span class="cnt">42</span></div>
-                    <div class="tt"><i class="fa-solid fa-tower-broadcast"></i> 直播回放 <span class="cnt">18</span></div>
-                    <div class="tt"><i class="fa-solid fa-crown"></i> 订阅独享 <span class="cnt">36</span></div>
-                    <div class="tt"><i class="fa-solid fa-circle-info"></i> 关于</div>
+                <div class="cp-tabs" id="cpTabs" role="tablist">
+                    <div class="tt active" role="tab" tabindex="0" data-cp-tab="works" aria-selected="true"><i class="fa-solid fa-image"></i> 作品 <span class="cnt">186</span></div>
+                    <div class="tt" role="tab" tabindex="0" data-cp-tab="videos"><i class="fa-solid fa-video"></i> 视频 <span class="cnt">42</span></div>
+                    <div class="tt" role="tab" tabindex="0" data-cp-tab="exclusive"><i class="fa-solid fa-crown"></i> 订阅独享 <span class="cnt">36</span></div>
                 </div>
 
-                <!-- 作品 grid -->
-                <div class="work-grid">
-                    <div class="work">
-                        <div class="cv" style="background-image: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=600')">
-                            <div class="top"><i class="fa-solid fa-image"></i> 9 张</div>
-                            <div class="bot"><div class="ti">富士山五合目 · 零下 4℃ 的清晨</div><div class="met"><span><i class="fa-regular fa-heart"></i> 2.4K</span><span><i class="fa-regular fa-comment"></i> 186</span></div></div>
-                        </div>
-                    </div>
-                    <div class="work">
-                        <div class="cv" style="background-image: url('https://images.unsplash.com/photo-1497636577773-f1231844b336?w=600')">
-                            <div class="top"><i class="fa-solid fa-image"></i> 12 张</div>
-                            <div class="bot"><div class="ti">京都祇园 · 樱花季的清晨长卷</div><div class="met"><span><i class="fa-regular fa-heart"></i> 1.8K</span></div></div>
-                        </div>
-                    </div>
-                    <div class="work">
-                        <div class="cv" style="background-image: url('https://images.unsplash.com/photo-1542435503-956c469947f6?w=600')">
-                            <div class="paid-mask"><div class="lk"><i class="fa-solid fa-crown"></i></div><div class="tx">订阅可见</div></div>
-                            <div class="top paid"><i class="fa-solid fa-lock"></i> 优质</div>
-                            <div class="bot"><div class="ti">银盐时代 · 暗房工作流详解</div><div class="met"><span><i class="fa-solid fa-image"></i> 24 张</span></div></div>
-                        </div>
-                    </div>
-                    <div class="work">
-                        <div class="cv" style="background-image: url('https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=600')">
-                            <div class="top"><i class="fa-solid fa-video"></i> 4:32</div>
-                            <div class="bot"><div class="ti">凌晨登顶富士山 vlog 全记录</div><div class="met"><span><i class="fa-regular fa-eye"></i> 18.2K</span></div></div>
-                        </div>
-                    </div>
-                    <div class="work">
-                        <div class="cv" style="background-image: url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=600')">
-                            <div class="top"><i class="fa-solid fa-image"></i> 6 张</div>
-                            <div class="bot"><div class="ti">东京地铁里的色彩与故事</div><div class="met"><span><i class="fa-regular fa-heart"></i> 1.2K</span></div></div>
-                        </div>
-                    </div>
-                    <div class="work">
-                        <div class="cv" style="background-image: url('https://images.unsplash.com/photo-1551763150-a3b62f3c4b50?w=600')">
-                            <div class="paid-mask"><div class="lk"><i class="fa-solid fa-crown"></i></div><div class="tx">订阅可见</div></div>
-                            <div class="top paid"><i class="fa-solid fa-lock"></i> 优质</div>
-                            <div class="bot"><div class="ti">月度合辑 · 4 月精选 24 张</div></div>
-                        </div>
-                    </div>
-                    <div class="work">
-                        <div class="cv" style="background-image: url('https://images.unsplash.com/photo-1493612276216-ee3925520721?w=600')">
-                            <div class="top"><i class="fa-solid fa-image"></i> 4 张</div>
-                            <div class="bot"><div class="ti">五合目咖啡馆地图与心情</div></div>
-                        </div>
-                    </div>
-                    <div class="work">
-                        <div class="cv" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600')">
-                            <div class="top"><i class="fa-solid fa-image"></i> 8 张</div>
-                            <div class="bot"><div class="ti">河口湖晨雾与胶片质感</div></div>
-                        </div>
-                    </div>
-                </div>
+                <div class="cp-tab-panel active" id="cpPanelWorks" role="tabpanel" data-cp-panel="works"></div>
+                <div class="cp-tab-panel" id="cpPanelVideos" role="tabpanel" data-cp-panel="videos"></div>
+                <div class="cp-tab-panel" id="cpPanelExclusive" role="tabpanel" data-cp-panel="exclusive"></div>
             </div>
 
             <!-- 右侧 -->
@@ -780,22 +810,23 @@
                             <div class="am">188</div>
                         </div>
                     </div>
-                    <button class="btn" style="width: 100%; font-size: 11.5px"><i class="fa-solid fa-list"></i> 查看完整榜单</button>
+                    <button type="button" class="btn" id="btnCpTipRankFull" style="width: 100%; font-size: 11.5px"><i class="fa-solid fa-list"></i> 查看完整榜单</button>
                 </div>
 
                 <div class="aside-card">
-                    <h4><span class="dt"></span>最近订阅</h4>
+                    <h4><span class="dt"></span>最近订阅者</h4>
+                    <p class="cp-recent-sub-hint">最近成为本创作者会员的粉丝（非你的订阅列表）</p>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border)">
                         <div class="av av-sm" style="background-image: url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=80')"></div>
-                        <div style="flex: 1"><div style="font-size: 12px; font-weight: 600">NeoMaster</div><div style="font-size: 10.5px; color: var(--t-tertiary)">5 分钟前 · 优质</div></div>
+                        <div style="flex: 1"><div style="font-size: 12px; font-weight: 600">NeoMaster</div><div style="font-size: 10.5px; color: var(--t-tertiary)">5 分钟前 · 月付</div></div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border)">
                         <div class="av av-sm" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80')"></div>
-                        <div style="flex: 1"><div style="font-size: 12px; font-weight: 600">Maya</div><div style="font-size: 10.5px; color: var(--t-tertiary)">2 小时前 · 优质</div></div>
+                        <div style="flex: 1"><div style="font-size: 12px; font-weight: 600">Maya</div><div style="font-size: 10.5px; color: var(--t-tertiary)">2 小时前 · 季付</div></div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0">
                         <div class="av av-sm" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80')"></div>
-                        <div style="flex: 1"><div style="font-size: 12px; font-weight: 600">Echo</div><div style="font-size: 10.5px; color: var(--t-tertiary)">昨天 · 挚友</div></div>
+                        <div style="flex: 1"><div style="font-size: 12px; font-weight: 600">Echo</div><div style="font-size: 10.5px; color: var(--t-tertiary)">昨天 · 年付</div></div>
                     </div>
                 </div>
 
@@ -815,6 +846,33 @@
 
 </div>
 
+<div class="inline-overlay" id="ovlCpCreatorLevel" aria-hidden="true">
+    <div class="iol-panel cp-level-modal">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-trophy" style="color:var(--warning-light)"></i> 创作者等级 & 周榜</h3>
+            <button type="button" class="iol-close" id="closeCpCreatorLevel" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="cp-level-body" id="cpCreatorLevelBody"></div>
+        <div style="padding:12px 22px 18px;border-top:1px solid var(--border)">
+            <button type="button" class="btn btn-primary btn-block" id="btnCpCreatorLevelClose">知道了</button>
+        </div>
+    </div>
+</div>
+
+<div class="inline-overlay" id="ovlCpTipRank" aria-hidden="true">
+    <div class="iol-panel cp-tip-rank-modal">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-gift" style="color:var(--warning-light)"></i> 本月打赏榜 · Luna 🌙</h3>
+            <button type="button" class="iol-close" id="closeCpTipRank" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <p style="font-size:11px;color:var(--t-tertiary);padding:0 22px 8px;margin:0;line-height:1.45">统计本自然月向该创作者打赏 / 送礼的 USDT 总额</p>
+        <div class="cp-tip-rank-list" id="cpTipRankList"></div>
+        <div style="padding:12px 22px 18px;border-top:1px solid var(--border)">
+            <button type="button" class="btn btn-primary btn-block" id="btnCpTipRankClose">知道了</button>
+        </div>
+    </div>
+</div>
+
 <div class="inline-overlay" id="ovlSubscribe" aria-hidden="true">
     <div class="iol-panel">
         <div class="iol-head">
@@ -831,9 +889,9 @@
             </div>
             <div class="sub-balance-bar" id="subBalanceBar"><span><i class="fa-solid fa-wallet"></i> 钱包可用余额</span><b id="subBalanceVal">— USDT</b></div>
             <div class="sub-plan-list">
-                <button type="button" class="sub-plan active" data-price="28"><span><div class="p1">月度计划</div><div class="p2">可随时取消</div></span><span class="price">28 USDT</span></button>
-                <button type="button" class="sub-plan" data-price="42"><span><div class="p1">季度计划</div><div class="p2">节省 12%</div></span><span class="price">42 USDT</span></button>
-                <button type="button" class="sub-plan" data-price="150"><span><div class="p1">年度计划</div><div class="p2">含专属徽章</div></span><span class="price">150 USDT</span></button>
+                <button type="button" class="sub-plan active" data-price="28" data-plan-type="monthly"><span><div class="p1">月付</div><div class="p2">可随时取消</div></span><span class="price">28 USDT</span></button>
+                <button type="button" class="sub-plan" data-price="75" data-plan-type="quarterly"><span><div class="p1">季付</div><div class="p2">约省 11%</div></span><span class="price">75 USDT</span></button>
+                <button type="button" class="sub-plan" data-price="268" data-plan-type="annual"><span><div class="p1">年付</div><div class="p2">约省 20%</div></span><span class="price">268 USDT</span></button>
             </div>
             <p style="font-size:11px;color:var(--t-tertiary);margin:0 0 12px;line-height:1.45">支付将从钱包 USDT 余额扣除；余额不足将引导充值。</p>
             <button type="button" class="btn btn-primary btn-block" id="btnConfirmSubscribe"><i class="fa-solid fa-bolt"></i> 确认订阅并支付</button>
@@ -906,10 +964,13 @@
 <script src="../js-web/profile-cover-sync.js"></script>
 <script src="../js-web/live-wallet-store.js"></script>
 <script src="../js-web/mall-vouchers-store.js"></script>
+<script src="../js-web/creator-promo-codes-store.js"></script>
 <script src="../js-web/gift-modal-context.js"></script>
 <script src="../js-web/fl-interaction-modal.js"></script>
 <script src="../js-web/subscribe-modal.js"></script>
 <script src="../js-web/global-search.js"></script>
+<script src="../js-web/creator-income-store.js"></script>
+<script src="../js-web/creator-level-store.js"></script>
 <script src="../js-web/creator-profile-page.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>
 </body>

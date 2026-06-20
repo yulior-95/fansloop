@@ -118,7 +118,7 @@
             '<div class="inline-overlay" id="ovlPpvUnlock" aria-hidden="true">' +
             '<div class="iol-panel">' +
             '<div class="iol-head">' +
-            '<h3><i class="fa-solid fa-tag" style="color:#FBBF24"></i> <span id="ppvModalTitle">解锁单篇内容</span></h3>' +
+            '<h3><i class="fa-solid fa-tag" style="color:#FBBF24"></i> <span id="ppvModalTitle">购买本篇内容</span></h3>' +
             '<button type="button" class="iol-close" id="closePpvUnlock" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>' +
             '</div>' +
             '<div class="sub-modal-step active" id="ppvStep1">' +
@@ -127,21 +127,21 @@
             '<div><div style="font-size:13px;font-weight:700" id="ppvCreatorName">—</div>' +
             '<div style="font-size:11px;color:var(--t-tertiary)" id="ppvPostTitle">—</div></div></div>' +
             '<div class="sub-balance-bar" id="ppvBalanceBar"><span><i class="fa-solid fa-wallet"></i> 钱包可用余额</span><b id="ppvBalanceVal">— USDT</b></div>' +
-            '<div class="ppv-price-card" id="ppvPriceCard"><span class="ppv-price-label">单篇解锁价</span><span class="ppv-price-amt" id="ppvBasePrice">— USDT</span></div>' +
+            '<div class="ppv-price-card" id="ppvPriceCard"><span class="ppv-price-label">本篇价格</span><span class="ppv-price-amt" id="ppvBasePrice">— USDT</span></div>' +
             '<div class="sub-coupon-section" id="ppvCouponSection" hidden>' +
-            '<div class="sub-coupon-head"><span><i class="fa-solid fa-ticket" style="color:#FBBF24"></i> 可用单篇兑换券</span>' +
+            '<div class="sub-coupon-head"><span><i class="fa-solid fa-ticket" style="color:#FBBF24"></i> 可用兑换券</span>' +
             '<a href="points-mall.html">去商城兑换</a></div>' +
-            '<div class="sub-coupon-list" id="ppvCouponList" role="radiogroup" aria-label="选择单篇兑换券"></div></div>' +
+            '<div class="sub-coupon-list" id="ppvCouponList" role="radiogroup" aria-label="选择兑换券"></div></div>' +
             '<div class="sub-price-summary" id="ppvPriceSummary" hidden></div>' +
-            '<p style="font-size:11px;color:var(--t-tertiary);margin:0 0 12px;line-height:1.45">解锁后可永久查看该篇；订阅创作者可查看全部会员内容。</p>' +
-            '<button type="button" class="btn btn-primary btn-block" id="btnConfirmPpvUnlock"><i class="fa-solid fa-bolt"></i> 确认解锁并支付</button>' +
+            '<p style="font-size:11px;color:var(--t-tertiary);margin:0 0 12px;line-height:1.45">购买后可反复观看本篇；订阅创作者可查看全部会员内容。</p>' +
+            '<button type="button" class="btn btn-primary btn-block" id="btnConfirmPpvUnlock"><i class="fa-solid fa-bolt"></i> 确认购买</button>' +
             '<button type="button" class="btn btn-secondary btn-block btn-sm mt-8 btn-open-subscribe" id="ppvOrSubscribe" style="margin-top:8px"><i class="fa-solid fa-crown"></i> 或订阅查看全部</button>' +
             '</div>' +
             '<div class="sub-modal-step" id="ppvStepPayPwdMissing">' +
             '<div class="sub-pwd-missing">' +
             '<div class="ic-wrap"><i class="fa-solid fa-lock-open"></i></div>' +
             '<h4>尚未设置支付密码</h4>' +
-            '<p>单篇付费解锁需先设置 6 位支付密码（与登录密码不同）。设置完成后请返回继续支付。</p>' +
+            '<p>按篇购买需先设置 6 位支付密码（与登录密码不同）。设置完成后请返回继续支付。</p>' +
             '</div>' +
             '<div class="sub-step-actions">' +
             '<button type="button" class="btn btn-secondary" id="btnPpvPwdMissingBack">返回</button>' +
@@ -149,8 +149,8 @@
             '</div></div>' +
             '<div class="sub-modal-step" id="ppvStepPayPwd">' +
             '<div class="sub-pay-summary">' +
-            '<div class="row"><span>解锁内容</span><span class="v" id="ppvPayTitle">—</span></div>' +
-            '<div class="row" id="ppvPayOrigRow" style="display:none"><span>单篇原价</span><span class="v" id="ppvPayOrigVal">—</span></div>' +
+            '<div class="row"><span>购买内容</span><span class="v" id="ppvPayTitle">—</span></div>' +
+            '<div class="row" id="ppvPayOrigRow" style="display:none"><span>本篇原价</span><span class="v" id="ppvPayOrigVal">—</span></div>' +
             '<div class="row"><span>支付金额</span><span class="v" id="ppvPayAmount">— USDT</span></div>' +
             '<div class="row is-discount" id="ppvPayCouponRow" style="display:none"><span>兑换券抵扣</span><span class="v" id="ppvPayCouponVal">—</span></div>' +
             '<div class="row"><span>扣款后余额</span><span class="v" id="ppvPayAfterBal">— USDT</span></div></div>' +
@@ -168,7 +168,7 @@
             '<button type="button" data-action="submit"><i class="fa-solid fa-check"></i></button></div>' +
             '<div class="sub-step-actions"><button type="button" class="btn btn-secondary" id="btnPpvPwdBack">上一步</button></div></div>' +
             '<div class="sub-modal-step" id="ppvStep2">' +
-            '<div class="sub-result"><i class="fa-solid fa-circle-check"></i><h4>解锁成功</h4><p id="ppvResultText">该篇内容已解锁。</p></div>' +
+            '<div class="sub-result"><i class="fa-solid fa-circle-check"></i><h4>购买成功</h4><p id="ppvResultText">本篇内容已购买，可以观看了。</p></div>' +
             '<button type="button" class="btn btn-primary btn-block mt-16" id="btnDonePpvUnlock">完成</button></div>' +
             '</div></div>';
         while (wrap.firstChild) {
@@ -195,7 +195,7 @@
         if (voucher && final < base) {
             summary.hidden = false;
             if (final === 0) {
-                summary.innerHTML = '使用 <b>' + voucher.name + '</b> · 本次 <b>免费解锁</b>（原价 ' + formatUsdt(base) + ' USDT）';
+                summary.innerHTML = '使用 <b>' + voucher.name + '</b> · 本次 <b>免费领取</b>（原价 ' + formatUsdt(base) + ' USDT）';
             } else {
                 summary.innerHTML = '应付 <b>' + formatUsdt(final) + ' USDT</b>（原价 ' + formatUsdt(base) +
                     ' USDT，' + voucher.name + ' 抵扣 ' + formatUsdt(base - final) + ' USDT）';
@@ -227,14 +227,14 @@
         var html = '';
         html += '<label class="sub-coupon-opt' + (!selectedVoucherId ? ' is-selected' : '') + '" data-voucher="">' +
             '<input type="radio" name="ppvCouponPick" value=""' + (!selectedVoucherId ? ' checked' : '') + '>' +
-            '<span class="sub-coupon-body"><span class="n">不使用兑换券</span><span class="d">按单篇价 ' + formatUsdt(base) + ' USDT 支付</span></span></label>';
+            '<span class="sub-coupon-body"><span class="n">不使用兑换券</span><span class="d">按本篇价格 ' + formatUsdt(base) + ' USDT 支付</span></span></label>';
         eligible.forEach(function (v) {
             var sel = selectedVoucherId === v.id;
             var final = store.calcPpvPrice(base, v);
             html += '<label class="sub-coupon-opt' + (sel ? ' is-selected' : '') + '" data-voucher="' + v.id + '">' +
                 '<input type="radio" name="ppvCouponPick" value="' + v.id + '"' + (sel ? ' checked' : '') + '>' +
                 '<span class="sub-coupon-body"><span class="n">' + v.name + '</span><span class="d">' +
-                (final === 0 ? '本次免费解锁' : '券后 ' + formatUsdt(final) + ' USDT') +
+                (final === 0 ? '本次免费领取' : '券后 ' + formatUsdt(final) + ' USDT') +
                 ' · ' + store.formatPpvExpiry(v) + '</span></span>' +
                 '<span class="sub-coupon-tag ppv-tag">' + store.formatPpvVoucherTag(v) + '</span></label>';
         });
@@ -349,16 +349,16 @@
         refreshBalanceBar();
         var result = document.getElementById('ppvResultText');
         var payLine = price === 0
-            ? '已使用兑换券免费解锁'
+            ? '已使用兑换券免费领取'
             : '扣款 ' + formatUsdt(price) + ' USDT';
         if (voucher && price < state.price) {
             payLine += '（' + voucher.name + '）';
         }
         if (result) {
-            result.textContent = '「' + state.title + '」已解锁，' + payLine + '，可永久查看该篇内容。';
+            result.textContent = '「' + state.title + '」已购买，' + payLine + '，可反复观看本篇内容。';
         }
         showPpvStep('ppvStep2');
-        toast('解锁成功');
+        toast('购买成功');
         try {
             global.dispatchEvent(new CustomEvent('fl-ppv-unlocked', { detail: { postId: state.postId, creator: state.creator } }));
         } catch (e) { /* ignore */ }

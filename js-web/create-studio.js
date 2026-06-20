@@ -250,11 +250,11 @@
 
         if (pricing.sub && pricing.ppv) {
 
-            return label + '已发布：订阅者优先观看，非订阅者支付 ' + ppv + ' USDT 可单篇解锁。';
+            return label + '已发布：订阅者可优先观看，未订阅粉丝付 ' + ppv + ' USDT 可按篇购买。';
 
         }
 
-        if (pricing.ppv) return '单篇付费' + label + '已发布，非订阅者支付 ' + ppv + ' USDT 解锁后可查看。';
+        if (pricing.ppv) return '按篇购买' + label + '已发布，未订阅粉丝付 ' + ppv + ' USDT 即可查看。';
 
         return label + '已发布，订阅者将在 Feed 中看到你的内容。';
 
@@ -272,7 +272,7 @@
 
         if (opts.pricingSub || pricing.sub) badges.push({ cls: 'sub', text: '订阅专属' });
 
-        if (opts.pricingPpv || pricing.ppv) badges.push({ cls: 'ppv', text: '单篇 ' + (opts.ppvPrice || getPpvPrice()) + ' USDT' });
+        if (opts.pricingPpv || pricing.ppv) badges.push({ cls: 'ppv', text: '按篇 ' + (opts.ppvPrice || getPpvPrice()) + ' USDT' });
 
 
 
@@ -298,7 +298,7 @@
 
             if (pricing.free) head = '公域访客视角';
 
-            else if (pricing.ppv && !pricing.sub) head = '非订阅者视角';
+            else if (pricing.ppv && !pricing.sub) head = '未订阅粉丝视角';
 
             else head = '订阅者视角';
 
@@ -324,13 +324,13 @@
 
                 pvPaywallSub.textContent = pricing.sub
 
-                    ? '你已订阅可直接观看；未订阅需支付 ' + ppv + ' USDT 解锁完整内容'
+                    ? '你已订阅可直接观看；未订阅粉丝付 ' + ppv + ' USDT 即可看完整内容'
 
-                    : '支付 ' + ppv + ' USDT 解锁完整内容';
+                    : '付 ' + ppv + ' USDT 即可看完整内容';
 
             }
 
-            if (pvPaywallCta) pvPaywallCta.textContent = '解锁 ' + ppv + ' USDT';
+            if (pvPaywallCta) pvPaywallCta.textContent = '购买 ' + ppv + ' USDT';
 
         }
 

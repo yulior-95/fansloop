@@ -18,9 +18,8 @@
         '<div class="info">' +
         '  <div class="name-row">' +
         '    <span class="n"></span>' +
-        '    <span class="s-member-tag" data-fl-member-tag hidden><i class="fa-solid fa-crown"></i> Pro</span>' +
+        '    <span class="s-member-tag" data-fl-member-tag hidden><i class="fa-solid fa-crown"></i> 会员</span>' +
         '  </div>' +
-        '  <div class="e">Fan</div>' +
         '</div>';
 
     function getUser() {
@@ -85,13 +84,13 @@
         }
 
         userRow.querySelectorAll('.more, [data-fl-user-more]').forEach(function (el) { el.remove(); });
+        userRow.querySelectorAll('.info .e').forEach(function (el) { el.remove(); });
 
         var info = userRow.querySelector('.info');
         if (!info) {
             userRow.insertAdjacentHTML('beforeend', '<div class="info">' +
                 '<div class="name-row"><span class="n"></span>' +
-                '<span class="s-member-tag" data-fl-member-tag hidden><i class="fa-solid fa-crown"></i> Pro</span></div>' +
-                '<div class="e">Fan</div></div>');
+                '<span class="s-member-tag" data-fl-member-tag hidden><i class="fa-solid fa-crown"></i> 会员</span></div></div>');
             info = userRow.querySelector('.info');
         }
 
@@ -103,11 +102,10 @@
             nameRow.className = 'name-row';
             nameRow.innerHTML =
                 '<span class="n"></span>' +
-                '<span class="s-member-tag" data-fl-member-tag hidden><i class="fa-solid fa-crown"></i> Pro</span>';
+                '<span class="s-member-tag" data-fl-member-tag hidden><i class="fa-solid fa-crown"></i> 会员</span>';
             if (nameText) nameRow.querySelector('.n').textContent = nameText;
-            var roleEl = info.querySelector('.e');
-            if (roleEl) info.insertBefore(nameRow, roleEl);
-            else info.appendChild(nameRow);
+            info.querySelectorAll('.e').forEach(function (el) { el.remove(); });
+            info.appendChild(nameRow);
         }
 
         if (!userRow.querySelector('.av')) {
@@ -130,9 +128,10 @@
         normalizeSidebarUserRow();
 
         document.querySelectorAll('.app-sidebar .s-user').forEach(function (row) {
+            row.querySelectorAll('.more, [data-fl-user-more], .info .e').forEach(function (el) { el.remove(); });
+
             var nameEl = row.querySelector('.info .name-row .n');
             var tagEl = row.querySelector('[data-fl-member-tag]');
-            var roleEl = row.querySelector('.info .e');
             var avEl = row.querySelector('.av');
 
             var fullName = (user && user.name) ? user.name : (nameEl && nameEl.textContent) || '用户';
@@ -149,10 +148,6 @@
                 var showTag = isProMember();
                 tagEl.hidden = !showTag;
                 tagEl.style.display = showTag ? 'inline-flex' : 'none';
-            }
-
-            if (roleEl && user) {
-                roleEl.textContent = user.role || 'Fan';
             }
 
             if (avEl && user && user.avatar) {

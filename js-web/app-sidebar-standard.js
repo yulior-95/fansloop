@@ -16,7 +16,7 @@
         ]},
         { section: '资产', rows: [
             { key: 'wallet', href: 'wallet.html', icon: 'fa-solid fa-wallet', label: '钱包' },
-            { key: 'creator-income', href: 'creator-income.html', icon: 'fa-solid fa-coins', label: '创作者收入', chip: '+$28' },
+            { key: 'creator-income', href: 'creator-income.html', icon: 'fa-solid fa-coins', label: '创作者收入' },
             { key: 'points-mall', href: 'points-mall.html', icon: 'fa-solid fa-store', label: '积分商城' },
             { key: 'transactions', href: 'transactions.html', icon: 'fa-solid fa-list-ul', label: '账变记录' }
         ]},

@@ -25,9 +25,7 @@
         {
             title: "创作者",
             items: [
-                { id: "subscription", label: "会员订阅设置", href: "settings-subscription.html", icon: "fa-solid fa-crown" },
-                { id: "earnings", label: "收益与提现", href: "settings-creator-earnings.html", icon: "fa-solid fa-coins" },
-                { id: "live", label: "直播配置", href: "settings-live.html", icon: "fa-solid fa-tower-broadcast" }
+                { id: "subscription", label: "会员订阅设置", href: "settings-subscription.html", icon: "fa-solid fa-crown" }
             ]
         },
         {
@@ -49,9 +47,7 @@
         "settings-notification.html": "notification",
         "settings-privacy.html": "privacy",
         "settings-display.html": "display",
-        "settings-subscription.html": "subscription",
-        "settings-creator-earnings.html": "earnings",
-        "settings-live.html": "live"
+        "settings-subscription.html": "subscription"
     };
 
     function resolveActiveId() {

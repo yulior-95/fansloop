@@ -99,7 +99,7 @@
         var dotsWrap = document.querySelector('.pay-pwd-steps');
         if (title) title.textContent = has ? '修改支付密码' : '设置支付密码';
         if (lead) lead.textContent = has
-            ? '支付密码用于订阅、单篇付费、打赏与提现等资金操作。'
+            ? '支付密码用于订阅、按篇购买、打赏与提现等资金操作。'
             : '首次使用前须设置 6 位数字支付密码，与登录密码相互独立。';
         if (dotsWrap) {
             dotsWrap.innerHTML = mode === 'change'

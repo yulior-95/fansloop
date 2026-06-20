@@ -30,7 +30,9 @@
     }
 
     function closeDetail() {
-        location.href = 'discover.html';
+        var params = new URLSearchParams(location.search);
+        var from = params.get('from') || params.get('return');
+        location.href = from || 'discover.html';
     }
 
     document.getElementById('ddClose')?.addEventListener('click', closeDetail);

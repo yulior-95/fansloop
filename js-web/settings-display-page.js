@@ -87,7 +87,6 @@
         var map = {
             swHighContrast: p.highContrast,
             swSansFont: p.sansFont,
-            swUiMotion: p.uiMotion !== false,
             swGlass: p.glass !== false
         };
         Object.keys(map).forEach(function (id) {
@@ -189,6 +188,154 @@
         }
     }
 
+    var TZ = window.FLTimezoneCatalog;
+
+    function systemTimezone() {
+        return TZ ? TZ.systemTimezone() : 'UTC';
+    }
+
+    function resolveTimezone(id) {
+        return id === 'system' ? systemTimezone() : id;
+    }
+
+    function timezoneOption(id) {
+        if (TZ) return TZ.find(id || 'system');
+        return { id: 'system', label: '跟随系统', desc: '当前设备：' + systemTimezone(), icon: 'fa-solid fa-laptop' };
+    }
+
+    function formatSampleTime(tzId) {
+        var tz = resolveTimezone(tzId);
+        try {
+            return new Intl.DateTimeFormat('zh-CN', {
+                timeZone: tz,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            }).format(new Date());
+        } catch (e) {
+            return new Date().toLocaleString('zh-CN');
+        }
+    }
+
+    function closeAllGaDd(except) {
+        document.querySelectorAll('.ga-dd.open').forEach(function (el) {
+            if (el !== except) {
+                el.classList.remove('open');
+                var t = el.querySelector('.ga-dd-trigger');
+                if (t) t.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+
+    function renderGaDdTrigger(trigger, opt) {
+        if (!trigger || !opt) return;
+        trigger.innerHTML =
+            '<span class="flag icon"><i class="' + opt.icon + '"></i></span>' +
+            '<span class="mid"><span class="n">' + opt.label + '</span><span class="d">' + opt.desc + '</span></span>' +
+            '<i class="fa-solid fa-chevron-down chev" aria-hidden="true"></i>';
+    }
+
+    function renderTimezoneList(wrap, value, query) {
+        var list = wrap.querySelector('[data-tz-list]') || wrap.querySelector('.ga-dd-list');
+        if (!list || !TZ) return;
+        var items = TZ.filter(query);
+        var html = (function () {
+            var sys = timezoneOption('system');
+            var selSys = (value || 'system') === 'system' ? ' selected' : '';
+            var out = '<button type="button" class="ga-dd-item ga-dd-item--system' + selSys + '" data-value="system" role="option" aria-selected="' + (selSys ? 'true' : 'false') + '">' +
+                '<span class="flag icon"><i class="' + sys.icon + '"></i></span>' +
+                '<span class="mid"><span class="n">' + sys.label + '</span><span class="d">' + sys.desc + '</span></span>' +
+                '<i class="fa-solid fa-check tick" aria-hidden="true"></i></button>';
+            if (!query && items.length > 80) {
+                out += '<div class="ga-dd-group-label">全部时区 · ' + items.length + ' 个</div>';
+            } else if (query) {
+                out += '<div class="ga-dd-group-label">搜索结果 · ' + items.length + ' 个</div>';
+            }
+            out += items.map(function (t) {
+                if (t.id === 'system') return '';
+                var sel = t.id === value ? ' selected' : '';
+                return '<button type="button" class="ga-dd-item' + sel + '" data-value="' + t.id + '" role="option" aria-selected="' + (sel ? 'true' : 'false') + '">' +
+                    '<span class="flag icon"><i class="' + t.icon + '"></i></span>' +
+                    '<span class="mid"><span class="n">' + t.label + '</span><span class="d">' + t.desc + '</span></span>' +
+                    '<i class="fa-solid fa-check tick" aria-hidden="true"></i></button>';
+            }).join('');
+            if (query && !items.length) {
+                out += '<div class="ga-dd-empty">未找到匹配的时区</div>';
+            }
+            return out;
+        })();
+        list.innerHTML = html;
+    }
+
+    function renderTimezoneDd(value, query) {
+        var wrap = $('dispTimezoneDd');
+        if (!wrap) return;
+        var trigger = wrap.querySelector('.ga-dd-trigger');
+        var current = timezoneOption(value || 'system');
+        renderGaDdTrigger(trigger, current);
+        renderTimezoneList(wrap, value || 'system', query || '');
+    }
+
+    function updateTzPreview(tzId) {
+        var el = $('dispTzPreview');
+        if (!el) return;
+        var opt = timezoneOption(tzId || 'system');
+        var resolved = resolveTimezone(tzId || 'system');
+        el.innerHTML = '<i class="fa-solid fa-clock" style="color:var(--brand-purple);margin-right:6px"></i>' +
+            '预览：<strong>' + formatSampleTime(tzId || 'system') + '</strong> · ' +
+            (tzId === 'system' ? '跟随系统（' + resolved + '）' : opt.label);
+    }
+
+    function bindGaDd(wrap, onPick) {
+        if (!wrap || wrap.getAttribute('data-ga-dd-bound')) return;
+        wrap.setAttribute('data-ga-dd-bound', '1');
+        var trigger = wrap.querySelector('.ga-dd-trigger');
+        trigger.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var open = wrap.classList.contains('open');
+            closeAllGaDd(open ? null : wrap);
+            wrap.classList.toggle('open', !open);
+            trigger.setAttribute('aria-expanded', !open ? 'true' : 'false');
+        });
+        wrap.addEventListener('click', function (e) {
+            var item = e.target.closest('.ga-dd-item');
+            if (!item) return;
+            e.stopPropagation();
+            wrap.classList.remove('open');
+            trigger.setAttribute('aria-expanded', 'false');
+            onPick(item.getAttribute('data-value'));
+        });
+        var panel = wrap.querySelector('.ga-dd-panel');
+        if (panel) panel.addEventListener('click', function (e) { e.stopPropagation(); });
+    }
+
+    function bindTimezone() {
+        var p = prefs();
+        var current = p.timezone || 'system';
+        renderTimezoneDd(current);
+
+        bindGaDd($('dispTimezoneDd'), function (id) {
+            setPref({ timezone: id });
+            renderTimezoneDd(id);
+            updateTzPreview(id);
+            var search = $('dispTzSearch');
+            if (search) search.value = '';
+            toast('时区已设为「' + timezoneOption(id).label + '」· 全站时间展示已更新');
+        });
+
+        var search = $('dispTzSearch');
+        if (search && !search.getAttribute('data-bound')) {
+            search.setAttribute('data-bound', '1');
+            search.addEventListener('input', function () {
+                renderTimezoneList($('dispTimezoneDd'), prefs().timezone || 'system', search.value);
+            });
+            search.addEventListener('click', function (e) { e.stopPropagation(); });
+        }
+    }
+
     function bindReset() {
         $('btnDispReset')?.addEventListener('click', function () {
             if (!window.FLDisplayPrefs) return;
@@ -197,6 +344,10 @@
             syncFontSlider();
             syncSwitches();
             syncLangGrid();
+            renderTimezoneDd('system');
+            updateTzPreview('system');
+            var tzSearch = $('dispTzSearch');
+            if (tzSearch) tzSearch.value = '';
             if (window.FansLoopLang) window.FansLoopLang.setLang('zh-CN');
             toast('已恢复默认外观设置');
         });
@@ -211,10 +362,13 @@
         bindFontSlider();
         bindSwitch('swHighContrast', 'highContrast', '高对比模式已开启 · 全站文字对比度提升', '高对比模式已关闭');
         bindSwitch('swSansFont', 'sansFont', '已切换为系统无衬线字体 · 全站生效', '已恢复 Inter 默认字体');
-        bindSwitch('swUiMotion', 'uiMotion', '界面动画已开启', '界面动画已关闭 · 全站减少动效');
         bindSwitch('swGlass', 'glass', '背景毛玻璃已开启', '背景毛玻璃已关闭 · 全站使用实色背景');
         bindLang();
+        bindTimezone();
+        updateTzPreview(prefs().timezone || 'system');
         bindReset();
+
+        document.addEventListener('click', function () { closeAllGaDd(); });
 
         document.addEventListener('fansloop-lang-change', function () {
             syncLangGrid();
@@ -224,6 +378,9 @@
             syncThemeCards();
             syncFontSlider();
             syncSwitches();
+            var p = prefs();
+            renderTimezoneDd(p.timezone || 'system');
+            updateTzPreview(p.timezone || 'system');
         });
     }
 

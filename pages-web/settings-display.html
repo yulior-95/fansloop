@@ -25,6 +25,7 @@
 .set-nav .nav-item.active .ic { background: var(--brand-grad); color: #fff; }
 
 .set-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg); margin-bottom: 18px; overflow: hidden; }
+.set-card:has(.ga-dd.open) { overflow: visible; z-index: 25; position: relative; }
 .set-card .ssh { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
 .set-card .ssh .ic-circle { width: 36px; height: 36px; border-radius: 10px; background: var(--brand-grad); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; }
 .set-card .ssh h3 { font-size: 15px; font-weight: 700; }
@@ -104,6 +105,18 @@
 .lang-item .nm { flex: 1; font-weight: 600; }
 .lang-item .ck { color: var(--success-light); font-size: 11px; opacity: 0; }
 .lang-item.on .ck { opacity: 1; }
+
+.disp-tz-preview {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    font-size: 12.5px;
+    color: var(--t-secondary);
+    line-height: 1.55;
+}
+.disp-tz-preview strong { color: var(--t-primary); }
 </style>
 
 <script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
@@ -261,18 +274,11 @@
                     </div>
                 </div>
 
-                <!-- 动画与效果 -->
+                <!-- 视觉效果 -->
                 <div class="set-card">
                     <div class="ssh">
                         <div class="ic-circle" style="background: linear-gradient(135deg,#A855F7,#EC4899)"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-                        <div><h3>动画与视觉效果</h3><p>调整界面动画与特效，可降低视觉负担</p></div>
-                    </div>
-                    <div class="accent-row">
-                        <div class="lb">界面动画<div style="font-size:11.5px;color:var(--t-tertiary);margin-top:3px;font-weight:400">页面切换、按钮反馈、滚动等动效</div></div>
-                        <div style="margin-left: auto; display:flex; align-items:center">
-                            <span class="disp-motion-hint"><i class="fa-solid fa-ban"></i> 已减少动效</span>
-                            <div class="switch on" id="swUiMotion" role="switch" tabindex="0"></div>
-                        </div>
+                        <div><h3>视觉效果</h3><p>控制顶栏与浮层的半透明模糊，关闭后使用实色背景</p></div>
                     </div>
                     <div class="accent-row" style="border-bottom: none">
                         <div class="lb">背景毛玻璃<div style="font-size:11.5px;color:var(--t-tertiary);margin-top:3px;font-weight:400">半透明卡片背景效果，关闭后使用实色背景</div></div>
@@ -326,9 +332,12 @@
                         <div class="ic-circle" style="background: linear-gradient(135deg,#3B82F6,#2563EB)"><i class="fa-solid fa-earth-americas"></i></div>
                         <div><h3>跨国界无障碍</h3><p>跨国观看直播与无障碍聊天 · 与界面语言独立配置</p></div>
                     </div>
-                    <div class="ga-switch-row">
+                    <div class="ga-switch-row ga-switch-row--dd">
                         <div class="lb"><div class="ti">我的沟通语言</div><div class="sub">观看直播与阅读聊天时优先显示此语言的译文；可与界面语言不同</div></div>
-                        <select class="ga-select" id="gaCommLang" aria-label="沟通语言"></select>
+                        <div class="ga-dd" id="gaCommLangDd" data-ga-field="commLang">
+                            <button type="button" class="ga-dd-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="沟通语言"></button>
+                            <div class="ga-dd-panel" role="listbox" aria-label="沟通语言"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -359,13 +368,12 @@
                         <div class="lb"><div class="ti">发送前预览译文</div><div class="sub">发送前确认对方将看到的语言</div></div>
                         <div class="ga-switch" id="swChatPreview" role="switch" tabindex="0"></div>
                     </div>
-                    <div class="ga-switch-row">
+                    <div class="ga-switch-row ga-switch-row--dd">
                         <div class="lb"><div class="ti">显示偏好</div></div>
-                        <select class="ga-select" id="gaDisplayMode">
-                            <option value="dual">译文 + 原文对照</option>
-                            <option value="translated-only">仅显示译文</option>
-                            <option value="tap-original">默认译文，点击看原文</option>
-                        </select>
+                        <div class="ga-dd ga-dd--dropup" id="gaDisplayModeDd" data-ga-field="displayMode">
+                            <button type="button" class="ga-dd-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="显示偏好"></button>
+                            <div class="ga-dd-panel" role="listbox" aria-label="显示偏好"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -382,75 +390,35 @@
                         <button type="button" class="btn btn-secondary btn-sm" id="btnGaReset"><i class="fa-solid fa-rotate-left"></i> 恢复默认</button>
                     </div>
                     <div class="ga-demo-links">
-                        <button type="button" class="ga-demo-btn" data-ga-demo-open="live-translate-demo.html"><i class="fa-solid fa-tower-broadcast"></i> 直播翻译演示</button>
-                        <button type="button" class="ga-demo-btn" data-ga-demo-open="messages-translate-demo.html"><i class="fa-regular fa-message"></i> 私信翻译演示</button>
-                        <button type="button" class="ga-demo-btn" data-ga-demo-open="live-detail.html"><i class="fa-solid fa-play"></i> 正式直播页</button>
+                        <button type="button" class="ga-demo-btn" data-ga-demo-open="live-translate-demo.html" data-ga-demo-title="直播翻译演示"><i class="fa-solid fa-tower-broadcast"></i> 直播翻译演示</button>
+                        <button type="button" class="ga-demo-btn" data-ga-demo-open="messages-translate-demo.html" data-ga-demo-title="私信翻译演示"><i class="fa-regular fa-message"></i> 私信翻译演示</button>
+                        <button type="button" class="ga-demo-btn" data-ga-demo-open="live-detail.html" data-ga-demo-title="正式直播页"><i class="fa-solid fa-play"></i> 正式直播页</button>
                     </div>
                 </div>
 
-                <!-- 区域与货币 -->
+                <!-- 时区 -->
                 <div class="set-card">
                     <div class="ssh">
-                        <div class="ic-circle" style="background: linear-gradient(135deg,#F59E0B,#EC4899)"><i class="fa-solid fa-globe"></i></div>
-                        <div><h3>区域与货币</h3><p>影响价格、收益的展示单位与时间格式</p></div>
+                        <div class="ic-circle" style="background: linear-gradient(135deg,#F59E0B,#EC4899)"><i class="fa-solid fa-clock"></i></div>
+                        <div><h3>时区</h3><p>选择产品在全站展示时间时所使用的参考时区</p></div>
                     </div>
                     <div class="body">
                         <div class="form-row align-center">
-                            <div class="label">显示货币</div>
+                            <div class="label">显示时区<div class="desc">影响动态、直播、账变记录等时间戳的展示</div></div>
                             <div class="control">
-                                <select>
-                                    <option selected>USDT - Tether（推荐）</option>
-                                    <option>USDC - USD Coin</option>
-                                    <option>ETH - Ethereum</option>
-                                    <option>USD - 美元 ($)</option>
-                                    <option>CNY - 人民币 (¥)</option>
-                                    <option>JPY - 日元 (¥)</option>
-                                    <option>EUR - 欧元 (€)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-row align-center">
-                            <div class="label">时区</div>
-                            <div class="control">
-                                <select>
-                                    <option selected>UTC+9 · 日本 / 东京</option>
-                                    <option>UTC+8 · 中国 / 上海</option>
-                                    <option>UTC+0 · UTC</option>
-                                    <option>UTC-5 · 美国 / 纽约</option>
-                                    <option>UTC+2 · 欧洲 / 巴黎</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-row align-center">
-                            <div class="label">日期格式</div>
-                            <div class="control">
-                                <div style="display: flex; gap: 6px; flex-wrap: wrap">
-                                    <button class="btn btn-sm" style="background: var(--brand-grad); color:#fff; border: none">2026-04-27</button>
-                                    <button class="btn btn-sm">04/27/2026</button>
-                                    <button class="btn btn-sm">27/04/2026</button>
-                                    <button class="btn btn-sm">2026 年 4 月 27 日</button>
+                                <div class="ga-dd ga-dd--block ga-dd--tz" id="dispTimezoneDd" data-ga-field="timezone">
+                                    <button type="button" class="ga-dd-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="显示时区"></button>
+                                    <div class="ga-dd-panel" role="listbox" aria-label="显示时区">
+                                        <div class="ga-dd-search">
+                                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                                            <input type="search" id="dispTzSearch" placeholder="搜索城市或时区…" autocomplete="off" aria-label="搜索时区">
+                                        </div>
+                                        <div class="ga-dd-list" data-tz-list></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-row align-center">
-                            <div class="label">时间格式</div>
-                            <div class="control">
-                                <div style="display: flex; gap: 6px">
-                                    <button class="btn btn-sm" style="background: var(--brand-grad); color:#fff; border: none">24 小时制 · 14:30</button>
-                                    <button class="btn btn-sm">12 小时制 · 2:30 PM</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row align-center">
-                            <div class="label">每周第一天</div>
-                            <div class="control">
-                                <div style="display: flex; gap: 6px">
-                                    <button class="btn btn-sm" style="background: var(--brand-grad); color:#fff; border: none">周一</button>
-                                    <button class="btn btn-sm">周日</button>
-                                    <button class="btn btn-sm">周六</button>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="disp-tz-preview" id="dispTzPreview" aria-live="polite"></div>
                     </div>
                 </div>
 
@@ -462,12 +430,25 @@
 
 <div id="gaToast"></div>
 <div id="dispPageToast" class="disp-toast" role="status" aria-live="polite"></div>
+
+<div class="ga-demo-overlay" id="gaDemoOverlay" aria-hidden="true">
+    <div class="ga-demo-modal" role="dialog" aria-modal="true" aria-labelledby="gaDemoTitle">
+        <div class="ga-demo-modal-head">
+            <h3 id="gaDemoTitle">演示</h3>
+            <button type="button" class="ga-demo-close" id="gaDemoClose" aria-label="关闭演示"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="ga-demo-modal-body">
+            <iframe id="gaDemoFrame" title="翻译功能演示" loading="lazy"></iframe>
+        </div>
+    </div>
+</div>
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>
 <script src="../js-web/global-accessibility-store.js"></script>
 <script src="../js-web/settings-nav.js"></script>
 <script src="../js-web/settings-logout.js"></script>
 <script src="../js-web/global-accessibility-settings.js"></script>
+<script src="../js-web/fl-timezone-catalog.js"></script>
 <script src="../js-web/settings-display-page.js"></script>
 </body>
 </html>
