@@ -9,8 +9,6 @@
 
     var DEFAULT_CONTACT = {
         primaryEmail: 'luna@fansloop.io',
-        phoneCountry: '+81',
-        phoneNumber: '88862',
         backupEmail: ''
     };
 
@@ -18,7 +16,6 @@
     var DEFAULT_2FA = {
         totp: false,
         totpSecret: '',
-        sms: false,
         webauthn: false,
         hardware: false,
         webauthnDevice: '',
@@ -394,30 +391,21 @@
 
     function render2faUi() {
         var data = load2fa();
-        var contact = loadContact();
 
         function setSwitch(key, on) {
             var sw = document.querySelector('[data-2fa-switch="' + key + '"]');
             if (sw) sw.classList.toggle('on', !!on);
-            var row = document.getElementById(key === 'totp' ? 'faTotp' : key === 'sms' ? 'faSms' : '');
+            var row = document.getElementById(key === 'totp' ? 'faTotp' : '');
             if (row) row.classList.toggle('active', !!on);
         }
 
         setSwitch('totp', data.totp);
-        setSwitch('sms', data.sms);
 
         var totpDesc = $('faTotpDesc');
         if (totpDesc) {
             totpDesc.textContent = data.totp
                 ? '已开启 · 常用设备免验证；新设备 / 异地 / 超 30 天未登录或改密时须输入动态码'
                 : '开启后常用设备登录不变；新设备、异地或超 30 天未登录时需动态码 · 未开启';
-        }
-
-        var smsDesc = $('faSmsDesc');
-        if (smsDesc) {
-            smsDesc.textContent = data.sms
-                ? maskPhone(contact.phoneCountry, contact.phoneNumber) + ' · 已作为备用 2FA'
-                : '绑定手机号后可用 · 备用方式（建议保持关闭）';
         }
 
         var webDesc = $('faWebAuthnDesc');
@@ -588,13 +576,6 @@
             }
             return;
         }
-        if (key === 'sms' && !data.sms) {
-            var contact = loadContact();
-            if (!contact.phoneNumber) {
-                toast('请先绑定手机号', 'err');
-                return;
-            }
-        }
         data[key] = !data[key];
         persist2fa(data);
         render2faUi();
@@ -726,13 +707,6 @@
         return masked + '@' + parts[1];
     }
 
-    function maskPhone(country, num) {
-        var digits = String(num || '').replace(/\D/g, '');
-        if (digits.length < 4) return country + ' ***';
-        var tail = digits.slice(-4);
-        return country + ' *** **** ' + tail;
-    }
-
     function toast(msg, type) {
         if (!toastEl) return;
         toastEl.textContent = msg;
@@ -752,7 +726,6 @@
     function renderContactRows() {
         var data = loadContact();
         var primarySub = document.getElementById('secPrimaryEmailSub');
-        var phoneSub = document.getElementById('secPhoneSub');
         var backupRow = document.getElementById('secRowBackupEmail');
         var backupTag = document.getElementById('secBackupTag');
         var backupSub = document.getElementById('secBackupSub');
@@ -760,9 +733,6 @@
 
         if (primarySub) {
             primarySub.textContent = maskEmail(data.primaryEmail) + ' · 注册时绑定 · 用于密码找回与重要登录通知';
-        }
-        if (phoneSub) {
-            phoneSub.textContent = maskPhone(data.phoneCountry, data.phoneNumber) + ' · 用于 SMS 二次验证与异常登录警报';
         }
         if (data.backupEmail && backupRow) {
             if (backupTag) {
@@ -962,10 +932,8 @@
         var title = $('secContactTitle');
         var hint = $('secContactHint');
         var emailField = $('secContactEmailField');
-        var phoneField = $('secContactPhoneField');
         var codeField = $('secContactCodeField');
         var emailInput = $('secContactEmail');
-        var phoneInput = $('secContactPhone');
         var codeInput = $('secContactCode');
         var btnSend = $('btnSecSendCode');
         var btnSave = $('btnSecContactSave');
@@ -984,21 +952,11 @@
             if (title) title.textContent = '修改主邮箱';
             if (hint) hint.textContent = '新邮箱需完成验证码校验。修改后 24 小时内提现功能将暂时锁定。';
             if (emailField) emailField.style.display = '';
-            if (phoneField) phoneField.style.display = 'none';
             if (emailInput) emailInput.value = data.primaryEmail;
-        } else if (type === 'phone') {
-            if (title) title.textContent = '修改手机号';
-            if (hint) hint.textContent = '我们将向新手机号发送 6 位验证码，用于确认是你本人操作。';
-            if (emailField) emailField.style.display = 'none';
-            if (phoneField) phoneField.style.display = '';
-            if (phoneInput) phoneInput.value = data.phoneNumber;
-            var country = $('secContactCountry');
-            if (country) country.value = data.phoneCountry || '+81';
         } else {
             if (title) title.textContent = data.backupEmail ? '修改备用邮箱' : '添加备用邮箱';
             if (hint) hint.textContent = '备用邮箱需与主邮箱不同，用于账号恢复与安全通知。';
             if (emailField) emailField.style.display = '';
-            if (phoneField) phoneField.style.display = 'none';
             if (emailInput) emailInput.value = data.backupEmail || '';
         }
 
@@ -1043,22 +1001,14 @@
         var data = loadContact();
         setModalError('');
 
-        if (modalState.type === 'phone') {
-            var phone = ($('secContactPhone') || {}).value || '';
-            if (!/^\d{5,15}$/.test(phone.replace(/\s/g, ''))) {
-                setModalError('请输入有效的手机号码');
-                return;
-            }
-        } else {
-            var email = ($('secContactEmail') || {}).value || '';
-            if (!validEmail(email)) {
-                setModalError('请输入有效的邮箱地址');
-                return;
-            }
-            if (modalState.type === 'backup-email' && email.toLowerCase() === (data.primaryEmail || '').toLowerCase()) {
-                setModalError('备用邮箱不能与主邮箱相同');
-                return;
-            }
+        var email = ($('secContactEmail') || {}).value || '';
+        if (!validEmail(email)) {
+            setModalError('请输入有效的邮箱地址');
+            return;
+        }
+        if (modalState.type === 'backup-email' && email.toLowerCase() === (data.primaryEmail || '').toLowerCase()) {
+            setModalError('备用邮箱不能与主邮箱相同');
+            return;
         }
 
         modalState.sentCode = String(Math.floor(100000 + Math.random() * 900000));
@@ -1097,10 +1047,6 @@
             }
             data.primaryEmail = email;
             toast('主邮箱已更新', 'ok');
-        } else if (modalState.type === 'phone') {
-            data.phoneCountry = ($('secContactCountry') || {}).value || '+81';
-            data.phoneNumber = ($('secContactPhone') || {}).value.replace(/\s/g, '');
-            toast('手机号已更新', 'ok');
         } else {
             var backup = ($('secContactEmail') || {}).value.trim();
             if (!validEmail(backup)) {
@@ -1122,10 +1068,8 @@
 
     function bind() {
         var btnPrimary = $('btnEditPrimaryEmail');
-        var btnPhone = $('btnEditPhone');
         var btnBackup = $('btnAddBackupEmail');
         if (btnPrimary) btnPrimary.addEventListener('click', function () { openContactModal('primary-email'); });
-        if (btnPhone) btnPhone.addEventListener('click', function () { openContactModal('phone'); });
         if (btnBackup) btnBackup.addEventListener('click', function () { openContactModal('backup-email'); });
 
         $('btnSecSendCode') && $('btnSecSendCode').addEventListener('click', sendCode);

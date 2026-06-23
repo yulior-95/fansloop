@@ -13,7 +13,7 @@
 
   function getRole() {
     var r = sessionStorage.getItem(KEY);
-    return r && ROLES[r] ? r : 'ROLE_OPS';
+    return r && ROLES[r] ? r : 'ROLE_ROOT';
   }
 
   function setRole(code) {

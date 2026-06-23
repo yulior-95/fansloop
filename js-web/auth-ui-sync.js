@@ -35,6 +35,18 @@
         if (about && user.name) about.textContent = '关于 ' + user.name;
     }
 
+    function applySettingsUid(user) {
+        var uidEl = document.getElementById('settingsAccountUid') || document.querySelector('.acc-head .info .uid');
+        if (!uidEl || !user) return;
+        var publicUid = user.publicUid;
+        if (!publicUid && global.FLUserRegistry && user.userId) {
+            var acc = global.FLUserRegistry.getByUserId(user.userId);
+            if (acc) publicUid = global.FLUserRegistry.resolvePublicUid(acc);
+        }
+        var joined = user.joinedAt ? ' · 加入于 ' + user.joinedAt : '';
+        uidEl.textContent = 'UID: ' + (publicUid || '—') + joined;
+    }
+
     function applyProfileMeta(user) {
         var roleLine = document.getElementById('profileRoleLine');
         if (roleLine) {
@@ -51,6 +63,7 @@
         if (joined && user.joinedAt) {
             joined.innerHTML = '<i class="fa-regular fa-calendar"></i> 加入于 ' + user.joinedAt;
         }
+        applySettingsUid(user);
         var nickInput = document.querySelector('#sheetEditProfile .field input[type="text"], .edit-profile-sheet input[type="text"], #onboardNickname');
         if (nickInput) {
             nickInput.value = user.name;

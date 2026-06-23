@@ -37,12 +37,18 @@
         var uid = userId();
         if (!uid) return demoMonthlyUsdt();
 
+        if (uid === DEMO_UID) {
+            var storedDemo = readStored(uid);
+            if (storedDemo && typeof storedDemo.monthlyUsdt === 'number' && storedDemo.monthlyUsdt > 0) {
+                return storedDemo.monthlyUsdt;
+            }
+            return demoMonthlyUsdt();
+        }
+
         var stored = readStored(uid);
         if (stored && typeof stored.monthlyUsdt === 'number') {
             return stored.monthlyUsdt > 0 ? stored.monthlyUsdt : 0;
         }
-
-        if (uid === DEMO_UID) return demoMonthlyUsdt();
 
         var acc = global.FLUserRegistry && global.FLUserRegistry.getByUserId
             ? global.FLUserRegistry.getByUserId(uid)

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>系统设置 · RBAC 原型平铺 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root { --bg:#0b1020; --card:#121a2f; --line:#243047; --muted:#8b9bb4; --accent:#3b82f6; --ok:#34d399; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:linear-gradient(180deg,#070b14,#0b1020); color:#e8eefc; min-height:100vh; }
+    .rbac-top { position:sticky; top:0; z-index:20; padding:24px 28px; background:rgba(7,11,20,.92); backdrop-filter:blur(12px); border-bottom:1px solid var(--line); }
+    .rbac-top h1 { margin:0; font-size:22px; font-weight:800; display:flex; align-items:center; gap:10px; }
+    .rbac-top .sub { margin:10px 0 0; font-size:14px; color:var(--muted); max-width:960px; line-height:1.65; }
+    .rbac-doc { max-width:1200px; margin:0 auto; padding:28px 24px 0; }
+    .rbac-doc h2 { font-size:15px; font-weight:800; color:#93c5fd; margin:0 0 12px; display:flex; align-items:center; gap:8px; }
+    .rbac-doc-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; margin-bottom:28px; }
+    .rbac-doc-card { background:rgba(255,255,255,.03); border:1px solid var(--line); border-radius:10px; padding:16px 18px; }
+    .rbac-doc-card h3 { margin:0 0 8px; font-size:13px; font-weight:700; color:#cbd5e1; }
+    .rbac-doc-card p, .rbac-doc-card ul { margin:0; font-size:12.5px; color:var(--muted); line-height:1.65; }
+    .rbac-doc-card ul { padding-left:18px; }
+  </style>
+</head>
+<body>
+  <header class="rbac-top">
+    <h1><i class="fa-solid fa-user-shield" style="color:#60a5fa"></i> 系统设置 · RBAC 高保真原型</h1>
+    <p class="sub">角色管理、成员账号、操作日志三页独立 HTML，以 iframe 平铺展示，可直接用于前端开发对齐。技术栈：Ant Design 4 CSS + 自有壳层 <code style="color:#a5b4fc">admin-shell.css</code> + 共享模块 <code style="color:#a5b4fc">js/settings-rbac.js</code>。</p>
+  </header>
+
+  <section class="rbac-doc">
+    <h2><i class="fa-solid fa-lightbulb"></i> 1. 用户体验分析</h2>
+    <div class="rbac-doc-grid">
+      <div class="rbac-doc-card">
+        <h3>核心用户</h3>
+        <p>超级管理员、运营主管、风控专员——需在 Web 后台完成权限分配、成员生命周期管理与操作审计。</p>
+      </div>
+      <div class="rbac-doc-card">
+        <h3>核心诉求</h3>
+        <ul>
+          <li>角色权限粒度清晰，按菜单层级勾选</li>
+          <li>成员创建简单直接，IP 风控与角色一次配置</li>
+          <li>操作可追溯，模块/动作可检索</li>
+        </ul>
+      </div>
+      <div class="rbac-doc-card">
+        <h3>交互原则</h3>
+        <ul>
+          <li>列表页只做浏览与入口，复杂表单走弹窗</li>
+          <li>敏感写操作统一谷歌验证二次确认</li>
+          <li>创建成员无需邮件邀请，即创即用</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2><i class="fa-solid fa-sitemap"></i> 2. 信息架构</h2>
+    <div class="rbac-doc-grid">
+      <div class="rbac-doc-card">
+        <h3>角色管理</h3>
+        <p>列表：角色名称 · 创建时间 · 更新时间 · 操作。弹窗：权限树（一级菜单 → 二级菜单 → 功能操作）+ 备注 + 全选/全不选。</p>
+      </div>
+      <div class="rbac-doc-card">
+        <h3>成员账号</h3>
+        <p>列表含序号、账号、绑定 IP。新建/编辑弹窗合并角色分配：账号*、IP*、角色*、状态*、邮箱（选填）、显示名称（选填）。</p>
+      </div>
+      <div class="rbac-doc-card">
+        <h3>操作日志</h3>
+        <p>按一级/二级模块、功能操作、结果筛选；详情展示 Request ID、UA 与变更快照。</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="max-width:1920px;margin:0 auto;padding:8px 20px 48px">
+    <h2 style="font-size:13px;font-weight:800;color:#93c5fd;text-transform:uppercase;letter-spacing:.08em;margin:0 0 14px;display:flex;align-items:center;gap:8px">
+      <i class="fa-solid fa-table-columns"></i> 3. 界面平铺预览
+    </h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(1360px,1fr));gap:20px">
+      <div style="background:#121a2f;border:1px solid #243047;border-radius:12px;overflow:hidden">
+        <div style="padding:10px 14px;border-bottom:1px solid #243047;font:600 12px/1.4 ui-monospace,Menlo,monospace;color:#8b9bb4;background:rgba(0,0,0,.2)">
+          <span style="color:#cbd5e1">settings-roles.html</span> · 角色管理
+        </div>
+        <div style="height:860px;background:#f0f2f5"><iframe src="settings-roles.html" title="角色管理" style="width:100%;height:100%;border:none"></iframe></div>
+      </div>
+      <div style="background:#121a2f;border:1px solid #243047;border-radius:12px;overflow:hidden">
+        <div style="padding:10px 14px;border-bottom:1px solid #243047;font:600 12px/1.4 ui-monospace,Menlo,monospace;color:#8b9bb4;background:rgba(0,0,0,.2)">
+          <span style="color:#cbd5e1">settings-members.html</span> · 成员账号
+        </div>
+        <div style="height:860px;background:#f0f2f5"><iframe src="settings-members.html" title="成员账号" style="width:100%;height:100%;border:none"></iframe></div>
+      </div>
+      <div style="background:#121a2f;border:1px solid #243047;border-radius:12px;overflow:hidden">
+        <div style="padding:10px 14px;border-bottom:1px solid #243047;font:600 12px/1.4 ui-monospace,Menlo,monospace;color:#8b9bb4;background:rgba(0,0,0,.2)">
+          <span style="color:#cbd5e1">settings-operation-logs.html</span> · 操作日志
+        </div>
+        <div style="height:860px;background:#f0f2f5"><iframe src="settings-operation-logs.html" title="操作日志" style="width:100%;height:100%;border:none"></iframe></div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

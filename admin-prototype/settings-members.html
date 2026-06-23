@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin-shell.css">
   <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/settings-rbac.css">
 </head>
 <body data-admin-page="settings-members">
 <div class="admin-app">
@@ -25,12 +26,12 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">成员账号</h1>
-      <p class="admin-page-desc">新建、编辑、分配角色、启用/禁用均在<strong>当前页弹窗</strong>完成。创建成员时分配<strong>谷歌验证密钥</strong>，用于登录与敏感保存操作。</p>
-      <div class="admin-alert-google"><i class="fa-brands fa-google" style="margin-top:2px"></i><div><strong>谷歌验证</strong>：新建成员自动生成 TOTP 密钥；编辑、分配角色、禁用及全局参数保存前须输入谷歌验证码（6 位）。</div></div>
+      <div class="admin-alert-google"><i class="fa-brands fa-google" style="margin-top:2px"></i><div><strong>谷歌验证</strong>：新建成员自动分配 TOTP 密钥；编辑、禁用及敏感保存前须输入谷歌验证码（6 位）。创建成员无需邮件邀请，直接生效。</div></div>
       <div class="admin-toolbar">
-        <span class="ant-input-affix-wrapper" style="width:220px"><input class="ant-input" type="text" placeholder="登录邮箱"></span>
-        <select class="ant-select ant-select-single" style="width:160px;height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 8px"><option>全部角色</option><option>运营</option><option>风控</option></select>
-        <select class="ant-select ant-select-single" style="width:140px;height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 8px"><option>全部状态</option><option>启用</option><option>禁用</option></select>
+        <span class="ant-input-affix-wrapper" style="width:180px"><input class="ant-input" type="text" placeholder="账号 / 显示名称"></span>
+        <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" type="text" placeholder="邮箱（选填）"></span>
+        <select class="ant-input-like" style="width:160px;height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 8px"><option>全部角色</option><option>运营</option><option>风控</option><option>超级管理员</option></select>
+        <select class="ant-input-like" style="width:140px;height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 8px"><option>全部状态</option><option>启用</option><option>禁用</option></select>
         <button type="button" class="ant-btn ant-btn-primary" id="btnQueryMembers">查询</button>
         <div class="admin-toolbar-spacer"></div>
       </div>
@@ -39,36 +40,19 @@
           <div class="ant-table ant-table-bordered ant-table-middle">
             <table style="width:100%">
               <thead class="ant-table-thead">
-                <tr><th>成员</th><th>登录邮箱</th><th>角色</th><th>状态</th><th>最近登录</th><th>操作</th></tr>
+                <tr>
+                  <th class="admin-col-index">序号</th>
+                  <th>成员</th>
+                  <th>账号</th>
+                  <th>邮箱</th>
+                  <th>角色</th>
+                  <th>状态</th>
+                  <th>绑定 IP</th>
+                  <th>最近登录</th>
+                  <th style="width:220px">操作</th>
+                </tr>
               </thead>
-              <tbody class="ant-table-tbody">
-                <tr data-email="wangyi@fansloop.io" data-name="王一">
-                  <td><div style="display:flex;align-items:center;gap:10px"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face" width="36" height="36" style="border-radius:50%;object-fit:cover"> 王一</div></td>
-                  <td>wangyi@fansloop.io</td><td><span class="ant-tag">运营</span></td><td><span class="ant-badge ant-badge-status-text"><span class="admin-badge-dot" style="background:#52c41a"></span>启用</span></td><td>2026-05-11 09:12</td>
-                  <td>
-                    <button type="button" class="ant-btn ant-btn-link ant-btn-sm js-mem-edit">编辑</button>
-                    <button type="button" class="ant-btn ant-btn-link ant-btn-sm js-mem-role">分配角色</button>
-                    <button type="button" class="ant-btn ant-btn-link ant-btn-sm js-mem-disable">禁用</button>
-                  </td>
-                </tr>
-                <tr data-email="limin@fansloop.io" data-name="李敏">
-                  <td><div style="display:flex;align-items:center;gap:10px"><img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop&crop=face" width="36" height="36" style="border-radius:50%;object-fit:cover"> 李敏</div></td>
-                  <td>limin@fansloop.io</td><td><span class="ant-tag ant-tag-orange">风控</span></td><td><span class="ant-badge ant-badge-status-text"><span class="admin-badge-dot" style="background:#52c41a"></span>启用</span></td><td>2026-05-10 21:40</td>
-                  <td>
-                    <button type="button" class="ant-btn ant-btn-link ant-btn-sm js-mem-edit">编辑</button>
-                    <button type="button" class="ant-btn ant-btn-link ant-btn-sm js-mem-role">分配角色</button>
-                    <button type="button" class="ant-btn ant-btn-link ant-btn-sm js-mem-disable">禁用</button>
-                  </td>
-                </tr>
-                <tr data-email="chenchen@fansloop.io" data-name="陈晨">
-                  <td><div style="display:flex;align-items:center;gap:10px"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&h=80&fit=crop&crop=face" width="36" height="36" style="border-radius:50%;object-fit:cover"> 陈晨</div></td>
-                  <td>chenchen@fansloop.io</td><td><span class="ant-tag ant-tag-red">超级管理员</span></td><td><span class="ant-badge ant-badge-status-text"><span class="admin-badge-dot" style="background:#d9d9d9"></span>禁用</span></td><td>2026-04-02 08:01</td>
-                  <td>
-                    <button type="button" class="ant-btn ant-btn-link ant-btn-sm js-mem-edit">编辑</button>
-                    <button type="button" class="ant-btn ant-btn-link ant-btn-sm js-mem-enable">启用</button>
-                  </td>
-                </tr>
-              </tbody>
+              <tbody class="ant-table-tbody" id="membersTableBody"></tbody>
             </table>
           </div>
         </div>
@@ -77,144 +61,9 @@
   </div>
 </div>
 <script src="js/admin-nav.js"></script>
+<script src="js/admin-session.js"></script>
 <script src="js/admin-modal.js"></script>
-<script>
-(function () {
-  var M = window.AdminModal;
-
-  document.getElementById("btnQueryMembers").addEventListener("click", function () {
-    M.toast("已查询（原型）");
-  });
-
-  document.getElementById("btnNewMember").addEventListener("click", function () {
-    var Auth = window.AdminGoogleAuth;
-    var secret = Auth ? Auth.generateSecret() : "JBSWY3DPEHPK3PXP";
-    var secretFmt = Auth ? Auth.formatSecretBlocks(secret) : secret;
-    M.open({
-      title: "新建成员",
-      body:
-        "<label style='display:block;margin-bottom:6px'>登录邮箱</label>" +
-        "<input class='ant-input' id='memNewEmail' type='email' style='width:100%;max-width:400px;margin-bottom:12px' placeholder='member@fansloop.io'>" +
-        "<label style='display:block;margin-bottom:6px'>显示名称</label>" +
-        "<input class='ant-input' id='memNewName' style='width:100%;max-width:400px;margin-bottom:12px' placeholder='成员姓名'>" +
-        "<label style='display:block;margin-bottom:6px'>初始角色</label>" +
-        "<select class='ant-input' id='memNewRole' style='width:100%;max-width:400px;margin-bottom:16px'><option>运营</option><option>风控</option><option>超级管理员</option></select>" +
-        "<div style='padding:12px;border-radius:8px;background:#f6ffed;border:1px solid #b7eb8f;font-size:12px;line-height:1.6'>" +
-        "<strong><i class='fa-brands fa-google'></i> 谷歌验证密钥</strong>（创建时自动分配，成员须绑定 Google Authenticator）<br>" +
-        "<code id='memNewSecret' style='font-size:13px;letter-spacing:.08em'>" + M.esc(secretFmt) + "</code>" +
-        "<div style='margin-top:6px;color:rgba(0,0,0,.45)'>请通过安全渠道将密钥交给成员；勿在公开渠道传播。</div></div>",
-      footer: [
-        { text: "取消", onClick: M.close },
-        {
-          text: "创建并发送邀请",
-          primary: true,
-          onClick: function () {
-            var email = (document.getElementById("memNewEmail").value || "").trim();
-            var name = (document.getElementById("memNewName").value || "").trim();
-            if (!email) {
-              M.toast("请填写登录邮箱");
-              return;
-            }
-            M.confirmGoogle({
-              title: "确认创建成员",
-              message: "将为 " + email + " 分配谷歌密钥并发送邀请。请输入谷歌验证码确认。",
-              onVerified: function () {
-                if (Auth) Auth.assignMemberSecret(email, secret, name || email);
-                M.toast("成员已创建，邀请邮件已排队（原型）");
-              }
-            });
-          }
-        }
-      ]
-    });
-  });
-
-  document.querySelector("main.admin-content").addEventListener("click", function (e) {
-    var t = e.target;
-    var tr = t.closest("tr");
-    if (!tr || !tr.getAttribute("data-email")) return;
-    var email = tr.getAttribute("data-email");
-    var name = tr.getAttribute("data-name");
-    if (t.classList.contains("js-mem-edit")) {
-      M.open({
-        title: "编辑成员 · " + name,
-        body:
-          "<p style='margin:0 0 12px'><code>" +
-          M.esc(email) +
-          "</code></p>" +
-          "<label style='display:block;margin-bottom:6px'>显示名称</label>" +
-          "<input class='ant-input' style='width:100%;max-width:400px' value='" +
-          M.esc(name) +
-          "'>",
-        footer: [
-          { text: "取消", onClick: M.close },
-          {
-            text: "保存",
-            primary: true,
-            onClick: function () {
-              M.confirmGoogle({
-                message: "保存成员信息需谷歌验证。",
-                onVerified: function () {
-                  M.toast("成员信息已保存（原型）");
-                }
-              });
-            }
-          }
-        ]
-      });
-    } else if (t.classList.contains("js-mem-role")) {
-      M.open({
-        title: "分配角色 · " + name,
-        body:
-          "<p style='margin:0 0 12px'>" +
-          M.esc(email) +
-          "</p>" +
-          "<label style='display:block;margin:8px 0'><input type='checkbox' checked> 运营</label>" +
-          "<label style='display:block;margin:8px 0'><input type='checkbox'> 风控</label>" +
-          "<label style='display:block;margin:8px 0'><input type='checkbox'> 超级管理员</label>",
-        footer: [
-          { text: "取消", onClick: M.close },
-          {
-            text: "保存",
-            primary: true,
-            onClick: function () {
-              M.confirmGoogle({
-                message: "变更角色将影响权限，需谷歌验证。",
-                onVerified: function () {
-                  M.toast("角色已更新（原型）");
-                }
-              });
-            }
-          }
-        ]
-      });
-    } else if (t.classList.contains("js-mem-disable")) {
-      M.confirmGoogle({
-        title: "禁用成员",
-        message: "禁用后该邮箱无法登录后台：" + email,
-        onVerified: function () {
-          M.toast("成员已禁用（原型）");
-        }
-      });
-    } else if (t.classList.contains("js-mem-enable")) {
-      M.open({
-        title: "启用成员",
-        body: "<p style='margin:0'>确认恢复 <strong>" + M.esc(email) + "</strong> 的登录权限？</p>",
-        footer: [
-          { text: "取消", onClick: M.close },
-          {
-            text: "确认启用",
-            primary: true,
-            onClick: function () {
-              M.close();
-              M.toast("成员已启用（原型）");
-            }
-          }
-        ]
-      });
-    }
-  });
-})();
-</script>
+<script src="js/settings-rbac.js"></script>
+<script src="js/settings-members-page.js"></script>
 </body>
 </html>

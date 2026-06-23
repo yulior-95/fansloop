@@ -9,9 +9,9 @@
   var DEMO_CODE = "123456";
 
   var DEFAULT_MEMBERS = {
-    "limin@fansloop.io": { name: "李敏", secret: "JBSWY3DPEHPK3PXP" },
-    "wangyi@fansloop.io": { name: "王一", secret: "KRSXG5BAONSWGCTK" },
-    "chenchen@fansloop.io": { name: "陈晨", secret: "MFRGGZDFMZTWQ2LK" }
+    wangyi: { name: "王一", email: "wangyi@fansloop.io", secret: "KRSXG5BAONSWGCTK", password: "123456a" },
+    limin: { name: "李敏", email: "limin@fansloop.io", secret: "JBSWY3DPEHPK3PXP", password: "123456a" },
+    chenchen: { name: "陈晨", email: "chenchen@fansloop.io", secret: "MFRGGZDFMZTWQ2LK", password: "123456a" }
   };
 
   function loadMembers() {
@@ -28,23 +28,48 @@
     return out;
   }
 
-  function saveMembersPatch(email, row) {
+  function saveMembersPatch(key, row) {
     var patch = {};
     try {
       patch = JSON.parse(localStorage.getItem(LS_MEMBERS) || "{}");
     } catch (e) { /* ignore */ }
-    patch[email] = Object.assign({}, patch[email] || {}, row);
+    patch[key] = Object.assign({}, patch[key] || {}, row);
     try {
       localStorage.setItem(LS_MEMBERS, JSON.stringify(patch));
     } catch (e) { /* ignore */ }
+  }
+
+  function getMemberAuth(emailOrAccount) {
+    if (!emailOrAccount) return null;
+    var members = loadMembers();
+    var key = String(emailOrAccount).trim();
+    if (members[key] && members[key].secret) return members[key];
+    var lower = key.toLowerCase();
+    var accountPart = lower.indexOf("@") >= 0 ? lower.split("@")[0] : lower;
+    var found = null;
+    Object.keys(members).forEach(function (k) {
+      var m = members[k];
+      if (!m || !m.secret) return;
+      if (k.toLowerCase() === lower || k.toLowerCase() === accountPart) {
+        found = m;
+        return;
+      }
+      if (m.email && String(m.email).toLowerCase() === lower) found = m;
+    });
+    return found;
   }
 
   function getCurrentAdminEmail() {
     try {
       var s = JSON.parse(localStorage.getItem(LS_SESSION) || "{}");
       if (s.email) return s.email;
+      if (s.account) {
+        var byAccount = getMemberAuth(s.account);
+        if (byAccount && byAccount.email) return byAccount.email;
+        return s.account.indexOf("@") >= 0 ? s.account : s.account + "@fansloop.io";
+      }
     } catch (e) { /* ignore */ }
-    return "limin@fansloop.io";
+    return "wangyi@fansloop.io";
   }
 
   function generateSecret() {
@@ -71,30 +96,39 @@
     if (String(code).trim() === DEMO_CODE) {
       return { ok: true };
     }
-    email = email || getCurrentAdminEmail();
-    var members = loadMembers();
-    if (!members[email] || !members[email].secret) {
-      return { ok: false, msg: "当前账号未绑定谷歌密钥，请联系管理员" };
+    var auth = getMemberAuth(email || getCurrentAdminEmail());
+    if (!auth || !auth.secret) {
+      return { ok: false, msg: "验证码错误，请重试" };
     }
     return { ok: true, msg: "验证通过（原型：已绑定密钥即放行，生产需验 TOTP）" };
   }
 
+  function assignMemberAuth(account, row) {
+    saveMembersPatch(account, row || {});
+  }
+
   function assignMemberSecret(email, secret, name) {
-    saveMembersPatch(email, { secret: secret, name: name || email });
+    assignMemberAuth(email, { secret: secret, name: name || email });
   }
 
   global.AdminGoogleAuth = {
     DEMO_CODE: DEMO_CODE,
+    DEFAULT_PASSWORD: "123456a",
     loadMembers: loadMembers,
     getCurrentAdminEmail: getCurrentAdminEmail,
     generateSecret: generateSecret,
     formatSecretBlocks: formatSecretBlocks,
     verify: verify,
+    assignMemberAuth: assignMemberAuth,
     assignMemberSecret: assignMemberSecret,
+    getAuthForAccount: function (account) {
+      return getMemberAuth(account);
+    },
     getSecretForEmail: function (email) {
-      var m = loadMembers()[email];
+      var m = getMemberAuth(email);
       return m ? m.secret : null;
-    }
+    },
+    getMemberAuth: getMemberAuth
   };
 })(typeof window !== "undefined" ? window : this);
 
@@ -192,6 +226,25 @@
     });
   }
 
+  function notify(msg, type) {
+    var el = document.getElementById("admin-global-notify");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "admin-global-notify";
+      el.className = "admin-global-notify";
+      el.setAttribute("role", "status");
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.className =
+      "admin-global-notify is-show" +
+      (type === "error" ? " is-error" : type === "success" ? " is-success" : "");
+    clearTimeout(el._notifyTimer);
+    el._notifyTimer = setTimeout(function () {
+      el.classList.remove("is-show");
+    }, 2800);
+  }
+
   function confirmGoogle(opts) {
     opts = opts || {};
     open({
@@ -254,6 +307,7 @@
     open: open,
     close: close,
     toast: toast,
+    notify: notify,
     confirmGoogle: confirmGoogle,
     wireModalTabs: wireModalTabs,
     esc: esc

@@ -7,11 +7,108 @@
     var KYC_STORE = "fansloop_kyc";
     var AUDIT_LOG = "fansloop_kyc_audit_log";
     var FACE_DONE_KEY = "fansloop_kyc_face_done";
+    var AUTH_KEY = "fansloop_auth";
+    var REGISTRY_KEY = "fl_user_registry_v1";
     var DEMO_USER = "Luna \uD83C\uDF19";
 
+    function getActiveUserId() {
+        if (global.FansloopAuth && global.FansloopAuth.getUserId) {
+            var viaApi = global.FansloopAuth.getUserId();
+            if (viaApi) return viaApi;
+        }
+        try {
+            var auth = JSON.parse(localStorage.getItem(AUTH_KEY) || "{}");
+            if (auth.loggedIn && auth.user && auth.user.userId) return auth.user.userId;
+        } catch (e) { /* ignore */ }
+        return null;
+    }
+
+    function readRegistryAccount(uid) {
+        if (global.FLUserRegistry && global.FLUserRegistry.getByUserId) {
+            return global.FLUserRegistry.getByUserId(uid);
+        }
+        try {
+            var store = JSON.parse(localStorage.getItem(REGISTRY_KEY) || "{}");
+            var emailKey = store.byUserId && store.byUserId[uid];
+            if (emailKey && store.accounts && store.accounts[emailKey]) {
+                return store.accounts[emailKey];
+            }
+        } catch (e) { /* ignore */ }
+        return null;
+    }
+
+    function persistRegistryAccount(account) {
+        if (!account) return;
+        if (global.FLUserRegistry && global.FLUserRegistry.persistAccount) {
+            global.FLUserRegistry.persistAccount(account);
+            return;
+        }
+        try {
+            var store = JSON.parse(localStorage.getItem(REGISTRY_KEY) || "{}");
+            var emailKey = account.email && store.accounts
+                ? Object.keys(store.accounts).filter(function (k) {
+                    return store.accounts[k] && store.accounts[k].userId === account.userId;
+                })[0]
+                : null;
+            if (!emailKey && account.email) emailKey = String(account.email).trim().toLowerCase();
+            if (emailKey) {
+                if (!store.accounts) store.accounts = {};
+                if (!store.byUserId) store.byUserId = {};
+                store.accounts[emailKey] = account;
+                store.byUserId[account.userId] = emailKey;
+                localStorage.setItem(REGISTRY_KEY, JSON.stringify(store));
+            }
+        } catch (e) { /* ignore */ }
+    }
+
+    function defaultAccountKyc() {
+        return { authStatus: "unverified", status: "none", zkpStatus: "unknown" };
+    }
+
+    function ensureAccountAssets(account) {
+        if (!account) return null;
+        if (global.FLUserAssets && global.FLUserAssets.ensureAssets) {
+            return global.FLUserAssets.ensureAssets(account);
+        }
+        if (!account.assets) {
+            account.assets = {
+                kyc: defaultAccountKyc(),
+                kycAudit: []
+            };
+            persistRegistryAccount(account);
+        } else {
+            if (!account.assets.kyc) account.assets.kyc = defaultAccountKyc();
+            if (!account.assets.kycAudit) account.assets.kycAudit = [];
+        }
+        return account.assets;
+    }
+
+    function purgeLegacyKycStore() {
+        try {
+            localStorage.removeItem(KYC_STORE);
+            localStorage.removeItem(AUDIT_LOG);
+        } catch (e) { /* ignore */ }
+    }
+
+    function emitAssetsChange(assets) {
+        try {
+            global.dispatchEvent(new CustomEvent("fl-user-assets-change", { detail: assets }));
+        } catch (e) { /* ignore */ }
+    }
+
     function readRaw() {
-        if (global.FLUserAssets && global.FansloopAuth && global.FansloopAuth.getUserId()) {
-            return global.FLUserAssets.getKycRaw() || {};
+        var uid = getActiveUserId();
+        if (uid) {
+            if (global.FLUserAssets && global.FLUserAssets.getKycRaw) {
+                purgeLegacyKycStore();
+                return global.FLUserAssets.getKycRaw() || {};
+            }
+            var account = readRegistryAccount(uid);
+            if (account) {
+                var assets = ensureAccountAssets(account);
+                purgeLegacyKycStore();
+                return Object.assign({}, assets.kyc || {});
+            }
         }
         try {
             return JSON.parse(localStorage.getItem(KYC_STORE) || "{}");
@@ -61,9 +158,32 @@
     }
 
     function writeKyc(partial) {
-        if (global.FLUserAssets && global.FansloopAuth && global.FansloopAuth.getUserId()) {
-            global.FLUserAssets.updateKyc(partial);
-            return;
+        partial = partial || {};
+        var uid = getActiveUserId();
+        if (uid) {
+            if (global.FLUserAssets && global.FLUserAssets.updateKyc) {
+                global.FLUserAssets.updateKyc(partial);
+                purgeLegacyKycStore();
+                return;
+            }
+            var account = readRegistryAccount(uid);
+            if (account) {
+                var assets = ensureAccountAssets(account);
+                var next = Object.assign({}, assets.kyc || {}, partial);
+                if (partial.status && !partial.authStatus) {
+                    next.authStatus = authFromLegacy(partial.status);
+                }
+                if (partial.authStatus && !partial.status) {
+                    next.status = legacyFromAuth(partial.authStatus);
+                }
+                if (!next.authStatus) next.authStatus = authFromLegacy(next.status);
+                next.status = legacyFromAuth(next.authStatus);
+                account.assets = Object.assign({}, assets, { kyc: next });
+                persistRegistryAccount(account);
+                purgeLegacyKycStore();
+                emitAssetsChange(account.assets);
+                return;
+            }
         }
         var o = readRaw();
         if (partial.status && !partial.authStatus) {
@@ -101,9 +221,24 @@
             status: row.status,
             note: row.note || row.reason || row.action || ""
         });
-        if (global.FLUserAssets && global.FansloopAuth && global.FansloopAuth.getUserId()) {
+        if (global.FLUserAssets && global.FLUserAssets.pushKycAudit) {
             global.FLUserAssets.pushKycAudit(entry);
+            purgeLegacyKycStore();
             return;
+        }
+        var uid = getActiveUserId();
+        if (uid) {
+            var account = readRegistryAccount(uid);
+            if (account) {
+                var assets = ensureAccountAssets(account);
+                var list = (assets.kycAudit || []).slice();
+                list.unshift(entry);
+                account.assets = Object.assign({}, assets, { kycAudit: list.slice(0, 80) });
+                persistRegistryAccount(account);
+                purgeLegacyKycStore();
+                emitAssetsChange(account.assets);
+                return;
+            }
         }
         var a = readAuditLog();
         a.unshift(entry);
@@ -229,9 +364,24 @@
     }
 
     function resetKyc() {
-        if (global.FLUserAssets && global.FansloopAuth && global.FansloopAuth.getUserId()) {
-            global.FLUserAssets.updateKyc({ authStatus: 'unverified', status: 'none' });
-            global.FLUserAssets.persistAssets({ kycAudit: [] });
+        var uid = getActiveUserId();
+        if (uid) {
+            if (global.FLUserAssets && global.FLUserAssets.updateKyc) {
+                global.FLUserAssets.updateKyc({ authStatus: "unverified", status: "none" });
+                global.FLUserAssets.persistAssets({ kycAudit: [] });
+            } else {
+                var account = readRegistryAccount(uid);
+                if (account) {
+                    var assets = ensureAccountAssets(account);
+                    account.assets = Object.assign({}, assets, {
+                        kyc: defaultAccountKyc(),
+                        kycAudit: []
+                    });
+                    persistRegistryAccount(account);
+                    emitAssetsChange(account.assets);
+                }
+            }
+            purgeLegacyKycStore();
             clearFaceDone();
             return;
         }
@@ -241,8 +391,16 @@
     }
 
     function readAuditLog() {
-        if (global.FLUserAssets && global.FansloopAuth && global.FansloopAuth.getUserId()) {
+        if (global.FLUserAssets && global.FLUserAssets.readKycAudit) {
             return global.FLUserAssets.readKycAudit();
+        }
+        var uid = getActiveUserId();
+        if (uid) {
+            var account = readRegistryAccount(uid);
+            if (account) {
+                var assets = ensureAccountAssets(account);
+                return (assets.kycAudit || []).slice();
+            }
         }
         try {
             return JSON.parse(localStorage.getItem(AUDIT_LOG) || "[]");
@@ -256,13 +414,13 @@
         var k = readKyc();
         if (k.authStatus === "approved") return "kyc-complete.html";
         if (k.authStatus === "reviewing") return "kyc-doc-pending.html";
-        if (k.authStatus === "rejected") return "kyc-intro.html";
         return "kyc-intro.html";
     }
 
     global.FansloopKycStore = {
         KYC_STORE: KYC_STORE,
         AUDIT_LOG: AUDIT_LOG,
+        getActiveUserId: getActiveUserId,
         readKyc: readKyc,
         writeKyc: writeKyc,
         writeAuditLog: writeAuditLog,

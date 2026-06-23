@@ -1,0 +1,350 @@
+/* 角色权限树 · 成员表单 · 操作日志详情 */
+.admin-perm-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.admin-perm-toolbar .ant-btn.is-active {
+  border-color: #1677ff;
+  color: #1677ff;
+  background: #e6f4ff;
+  font-weight: 600;
+}
+
+.admin-perm-toolbar .perm-select-stat {
+  margin-left: auto;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+}
+
+.admin-perm-toolbar .perm-select-stat strong {
+  color: #1677ff;
+  font-weight: 700;
+}
+
+.admin-perm-toolbar .sep {
+  width: 1px;
+  height: 18px;
+  background: #f0f0f0;
+  margin: 0 4px;
+}
+
+.admin-perm-role-hd {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.admin-perm-role-hd strong {
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.admin-perm-tree {
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  overflow: hidden;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.admin-perm-l1 {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.admin-perm-l1:last-child {
+  border-bottom: none;
+}
+
+.admin-perm-l1-hd {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #fafafa;
+  font-weight: 600;
+  font-size: 13px;
+  border-bottom: 1px solid #f0f0f0;
+  border-left: 3px solid transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.admin-perm-l1.is-checked .admin-perm-l1-hd {
+  background: #e6f4ff;
+  border-left-color: #1677ff;
+  color: #0958d9;
+}
+
+.admin-perm-l1.is-partial .admin-perm-l1-hd {
+  background: #f0f7ff;
+  border-left-color: #91caff;
+  color: rgba(0, 0, 0, 0.75);
+}
+
+.admin-perm-l1.is-unchecked .admin-perm-l1-hd {
+  background: #fafafa;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.admin-perm-l1-hd label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin: 0;
+}
+
+.admin-perm-l2 {
+  padding: 10px 14px 12px 28px;
+  border-bottom: 1px solid #f5f5f5;
+  border-left: 3px solid transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.admin-perm-l2.is-checked {
+  background: rgba(230, 244, 255, 0.35);
+  border-left-color: #1677ff;
+}
+
+.admin-perm-l2.is-partial {
+  background: rgba(240, 247, 255, 0.5);
+  border-left-color: #91caff;
+}
+
+.admin-perm-l2.is-unchecked {
+  background: transparent;
+  opacity: 0.92;
+}
+
+.admin-perm-l2:last-child {
+  border-bottom: none;
+}
+
+.admin-perm-l2-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.65);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.15s;
+}
+
+.admin-perm-l2.is-checked .admin-perm-l2-title {
+  color: #0958d9;
+}
+
+.admin-perm-l2.is-unchecked .admin-perm-l2-title {
+  color: rgba(0, 0, 0, 0.35);
+}
+
+.admin-perm-l2-title label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  margin: 0;
+}
+
+.admin-perm-ops {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  padding-left: 22px;
+}
+
+.admin-perm-ops label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  background: #fafafa;
+  color: rgba(0, 0, 0, 0.45);
+  margin: 0;
+  transition: border-color 0.15s, background 0.15s, color 0.15s, box-shadow 0.15s;
+  user-select: none;
+}
+
+.admin-perm-ops label:hover {
+  border-color: #91caff;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.admin-perm-ops label.is-checked,
+.admin-perm-ops label:has(input:checked) {
+  border-color: #1677ff;
+  background: #e6f4ff;
+  color: #1677ff;
+  font-weight: 600;
+  box-shadow: 0 0 0 1px rgba(22, 119, 255, 0.12);
+}
+
+.admin-perm-ops label.is-unchecked {
+  border-color: #e8e8e8;
+  background: #fafafa;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.admin-perm-tree input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: #1677ff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.admin-perm-tree input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.admin-perm-remark {
+  margin-top: 14px;
+}
+
+.admin-perm-remark label {
+  display: block;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  margin-bottom: 6px;
+}
+
+.admin-perm-remark textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 8px 11px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.admin-perm-remark textarea:focus {
+  outline: none;
+  border-color: #1677ff;
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+}
+
+/* 成员表单 */
+.admin-mem-form {
+  max-width: 480px;
+}
+
+.admin-mem-form .field {
+  margin-bottom: 14px;
+}
+
+.admin-mem-form .field label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.admin-mem-form .field label .req {
+  color: #ff4d4f;
+  margin-left: 2px;
+}
+
+.admin-mem-form .field label .opt {
+  color: rgba(0, 0, 0, 0.35);
+  font-weight: 400;
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+.admin-mem-form .field .ant-input,
+.admin-mem-form .field select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-mem-form .field-hint {
+  margin-top: 4px;
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.45);
+  line-height: 1.45;
+}
+
+.admin-mem-secret-box {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.admin-mem-secret-box code {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+
+.admin-col-index {
+  width: 56px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+/* 操作日志详情 */
+.admin-log-detail {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 8px 16px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.admin-log-detail dt {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.admin-log-detail dd {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.88);
+  word-break: break-all;
+}
+
+.admin-log-diff {
+  margin: 0;
+  font-size: 12px;
+  background: #fafafa;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #f0f0f0;
+  max-height: 200px;
+  overflow: auto;
+  font-family: ui-monospace, Menlo, monospace;
+  line-height: 1.55;
+}
+
+.admin-log-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.admin-log-filter-row select.ant-input-like {
+  height: 32px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  padding: 0 8px;
+  background: #fff;
+  font-size: 14px;
+}

@@ -180,8 +180,26 @@
         }
     }
 
+    function paintAccountUid() {
+        var uidEl = document.getElementById("settingsAccountUid");
+        if (!uidEl) return;
+        var user = window.FansloopAuth && window.FansloopAuth.getUser ? window.FansloopAuth.getUser() : null;
+        if (!user) {
+            uidEl.textContent = "UID: —";
+            return;
+        }
+        var publicUid = user.publicUid;
+        if (!publicUid && window.FLUserRegistry && user.userId) {
+            var acc = window.FLUserRegistry.getByUserId(user.userId);
+            if (acc) publicUid = window.FLUserRegistry.resolvePublicUid(acc);
+        }
+        var joined = user.joinedAt ? " · 加入于 " + user.joinedAt : "";
+        uidEl.textContent = "UID: " + (publicUid || "—") + joined;
+    }
+
     function init() {
         paintInviterRow();
+        paintAccountUid();
         bindAvatar();
     }
 
@@ -190,4 +208,6 @@
     } else {
         init();
     }
+
+    window.addEventListener("fansloop-auth-change", paintAccountUid);
 })();

@@ -40,8 +40,34 @@
         return '../js-web/';
     }
 
+    var AUTH_PROTO_QUEUE = [
+        { file: 'user-prototype-registry.js', ready: function () { return !!global.FLUserRegistry; } },
+        { file: 'user-assets-store.js', ready: function () { return !!global.FLUserAssets; } },
+        { file: 'pay-password-store.js', ready: function () { return !!global.FLPayPasswordStore; } },
+        { file: 'auth-session.js', ready: function () { return !!global.FansloopAuth; } },
+        { file: 'auth-ui-sync.js', ready: function () { return !!global.FLAuthUiSync; } },
+        { file: 'creator-income-store.js', ready: function () { return !!global.FLCreatorIncomeStore; } },
+        { file: 'creator-pro-store.js', ready: function () { return !!global.FLCreatorPro; } },
+        { file: 'sidebar-bottom-interactions.js', ready: function () { return !!global.FL_applySidebarBottom; } }
+    ];
+
+    function authPrototypeReady() {
+        for (var i = 0; i < AUTH_PROTO_QUEUE.length; i++) {
+            if (!AUTH_PROTO_QUEUE[i].ready()) return false;
+        }
+        return true;
+    }
+
+    function finishAuthPrototype(cb) {
+        global.__flAuthProtoLoading = false;
+        try {
+            global.dispatchEvent(new CustomEvent('fl-auth-prototype-ready'));
+        } catch (e) { /* ignore */ }
+        if (cb) cb();
+    }
+
     function ensureAuthPrototype(cb) {
-        if (global.FansloopAuth && global.FLAuthUiSync) {
+        if (authPrototypeReady()) {
             if (cb) cb();
             return;
         }
@@ -54,22 +80,14 @@
         }
         global.__flAuthProtoLoading = true;
         var base = detectScriptBase();
-        var queue = [
-            'user-prototype-registry.js', 'user-assets-store.js', 'pay-password-store.js',
-            'auth-session.js', 'auth-ui-sync.js', 'creator-income-store.js', 'creator-pro-store.js',
-            'sidebar-bottom-interactions.js'
-        ];
+        var pending = AUTH_PROTO_QUEUE.filter(function (item) { return !item.ready(); });
         function loadNext(idx) {
-            if (idx >= queue.length) {
-                global.__flAuthProtoLoading = false;
-                try {
-                    global.dispatchEvent(new CustomEvent('fl-auth-prototype-ready'));
-                } catch (e) { /* ignore */ }
-                if (cb) cb();
+            if (idx >= pending.length) {
+                finishAuthPrototype(cb);
                 return;
             }
             var s = document.createElement('script');
-            s.src = base + queue[idx];
+            s.src = base + pending[idx].file;
             s.onload = function () { loadNext(idx + 1); };
             s.onerror = function () { loadNext(idx + 1); };
             document.head.appendChild(s);

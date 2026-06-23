@@ -7,6 +7,7 @@
 
     var FALLBACK_USER = {
         userId: "demo_uid_882910",
+        publicUid: "882910",
         name: "Luna 🌙",
         email: "luna@fansloop.io",
         avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200",

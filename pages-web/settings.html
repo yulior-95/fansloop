@@ -164,7 +164,7 @@
                         <div class="info">
                             <h3>Luna 🌙 <span class="fl-badge fl-badge--creator" title="认证创作者" aria-label="认证创作者"><i class="fa-solid fa-palette"></i></span><span id="kycProfileBadge" style="display:none;margin-left:10px;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:800;letter-spacing:0.3px;background:rgba(16,185,129,0.18);color:#6EE7B7;border:1px solid rgba(16,185,129,0.45);vertical-align:middle">身份验证通过</span></h3>
                             <span class="role-pill"><i class="fa-solid fa-crown"></i> 认证创作者 · LV 7</span>
-                            <div class="uid">UID: 0x7Bf...c3D9 · 加入于 2024 年 8 月</div>
+                            <div class="uid" id="settingsAccountUid">UID: —</div>
                         </div>
                     </div>
                 </div>
@@ -254,6 +254,10 @@
 </div>
 <div class="settings-profile-toast" id="settingsProfileToast" role="status" aria-live="polite"></div>
 
+<script src="../js-web/user-prototype-registry.js"></script>
+<script src="../js-web/user-assets-store.js"></script>
+<script src="../js-web/auth-session.js"></script>
+<script src="../js-web/kyc-store.js"></script>
 <script>
 (function () {
     if (location.hash) {
@@ -262,7 +266,6 @@
     }
 })();
 </script>
-<script src="../js-web/kyc-store.js"></script>
 <script>
 (function () {
     var KS = window.FansloopKycStore;
@@ -305,13 +308,16 @@
     }
     paint();
     window.addEventListener("pageshow", paint);
+    window.addEventListener("fansloop-auth-change", paint);
+    window.addEventListener("fl-user-assets-change", paint);
     window.addEventListener("storage", function (e) {
-        if (e.key === KS.KYC_STORE || e.key === KS.AUDIT_LOG) paint();
+        if (e.key === KS.KYC_STORE || e.key === KS.AUDIT_LOG || e.key === "fansloop_auth" || e.key === "fl_user_registry_v1") {
+            paint();
+        }
     });
 })();
 </script>
 
-<script src="../js-web/auth-session.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>
 <script src="../js-web/settings-account-profile.js"></script>
 <script src="../js-web/dev-glass-viewport.js"></script>

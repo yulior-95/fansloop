@@ -8,6 +8,20 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin-shell.css">
   <link rel="stylesheet" href="css/admin-modals.css">
+  <style>
+    [data-admin-page="users-assets"] .admin-content { padding-left: 0; padding-right: 0; }
+    [data-admin-page="users-assets"] .admin-page-title,
+    [data-admin-page="users-assets"] .admin-toolbar { padding-left: 20px; padding-right: 20px; }
+    [data-admin-page="users-assets"] .users-assets-card { border-left: none; border-right: none; border-radius: 0; }
+    [data-admin-page="users-assets"] .users-assets-card > .ant-card-body { padding: 0; }
+    .admin-assets-table-scroll { overflow-x: auto; width: 100%; }
+    .admin-assets-table { font-size: 13px; }
+    .admin-assets-table table { width: 100%; min-width: 960px; border-collapse: separate; border-spacing: 0; }
+    .admin-assets-table th,
+    .admin-assets-table td { white-space: nowrap; padding: 12px 16px; background: #fff; border-bottom: 1px solid #f0f0f0; }
+    .admin-assets-table thead th { background: #fafafa; font-weight: 500; }
+    .admin-assets-table td[rowspan] { background: #fff; border-right: 1px solid #f0f0f0; }
+  </style>
 </head>
 <body data-admin-page="users-assets">
 <div class="admin-app">
@@ -19,31 +33,29 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">用户资产</h1>
-      <p class="admin-page-desc">账变、关联订单在<strong>弹窗</strong>中查看。</p>
       <div class="admin-toolbar">
-        <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" placeholder="UID"></span>
+        <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" id="filterAssetUid" placeholder="UID / 昵称"></span>
         <button type="button" class="ant-btn ant-btn-primary" id="btnAstQuery">查询</button>
       </div>
-      <div class="ant-card ant-card-bordered">
-        <div class="ant-card-body" style="padding-top:0">
-          <div class="ant-table ant-table-bordered ant-table-middle">
-            <table style="width:100%">
-              <thead class="ant-table-thead">
-                <tr><th>用户</th><th>UID</th><th>积分余额</th><th>冻结积分</th><th>主钱包</th><th>标签</th><th>操作</th></tr>
-              </thead>
-              <tbody class="ant-table-tbody">
-                <tr data-uid="882910">
-                  <td><img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=48&h=48&fit=crop&crop=face" width="32" height="32" style="border-radius:50%;vertical-align:middle;margin-right:8px">小岛日和</td>
-                  <td>882910</td><td>12,800</td><td>200</td><td><code>0x71C…9A2f</code></td><td><span class="ant-tag">TRON · USDT</span></td>
-                  <td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ast-ledger">账变</button><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ast-orders">订单</button></td>
-                </tr>
-                <tr data-uid="102938">
-                  <td><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=48&h=48&fit=crop&crop=face" width="32" height="32" style="border-radius:50%;vertical-align:middle;margin-right:8px">Alex Chen</td>
-                  <td>102938</td><td>402</td><td>0</td><td><code>0xB1d…04ee</code></td><td><span class="ant-tag ant-tag-blue">ETH</span></td>
-                  <td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-ast-ledger">账变</button></td>
-                </tr>
-              </tbody>
-            </table>
+      <div class="ant-card ant-card-bordered users-assets-card">
+        <div class="ant-card-body">
+          <div class="ant-table ant-table-bordered ant-table-middle admin-assets-table">
+            <div class="admin-assets-table-scroll">
+              <table>
+                <thead class="ant-table-thead">
+                  <tr>
+                    <th>UID</th>
+                    <th>用户昵称</th>
+                    <th>链名称</th>
+                    <th>钱包地址</th>
+                    <th>积分余额</th>
+                    <th>冻结积分</th>
+                    <th>更新时间</th>
+                  </tr>
+                </thead>
+                <tbody class="ant-table-tbody" id="assetsTableBody"></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -52,38 +64,8 @@
 </div>
 <script src="js/admin-nav.js"></script>
 <script src="js/admin-modal.js"></script>
-<script>
-(function () {
-  var M = window.AdminModal;
-  document.getElementById("btnAstQuery").addEventListener("click", function () {
-    M.toast("已查询（原型）");
-  });
-  document.querySelector("main.admin-content").addEventListener("click", function (e) {
-    var t = e.target;
-    var uid = t.closest("tr").getAttribute("data-uid");
-    if (t.classList.contains("js-ast-ledger")) {
-      M.open({
-        title: "账变摘要 · UID " + uid,
-        wide: true,
-        body:
-          "<div class='ant-table ant-table-small ant-table-bordered'><table style='width:100%'><thead><tr><th>时间</th><th>类型</th><th>变动</th></tr></thead><tbody>" +
-          "<tr><td>05-11</td><td>链上充值</td><td style='color:#52c41a'>+200</td></tr>" +
-          "<tr><td>05-10</td><td>积分消耗</td><td style='color:#ff4d4f'>-500</td></tr></tbody></table></div>",
-        footer: [{ text: "关闭", primary: true, onClick: M.close }]
-      });
-    }
-    if (t.classList.contains("js-ast-orders")) {
-      M.open({
-        title: "关联订单 · UID " + uid,
-        body:
-          "<div class='ant-table ant-table-small ant-table-bordered'><table style='width:100%'><thead><tr><th>单号</th><th>类型</th><th>状态</th></tr></thead><tbody>" +
-          "<tr><td><code>RCH…001</code></td><td>充值</td><td>成功</td></tr>" +
-          "<tr><td><code>FW…003</code></td><td>提现</td><td>打款中</td></tr></tbody></table></div>",
-        footer: [{ text: "关闭", primary: true, onClick: M.close }]
-      });
-    }
-  });
-})();
-</script>
+<script src="js/users-list-page.js"></script>
+<script src="js/admin-uid-link.js"></script>
+<script src="js/users-assets-page.js"></script>
 </body>
 </html>

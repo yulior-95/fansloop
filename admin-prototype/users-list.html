@@ -8,6 +8,26 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin-shell.css">
   <link rel="stylesheet" href="css/admin-modals.css">
+  <style>
+    [data-admin-page="users-list"] .admin-content { padding-left: 0; padding-right: 0; }
+    [data-admin-page="users-list"] .admin-page-title,
+    [data-admin-page="users-list"] .admin-toolbar { padding-left: 20px; padding-right: 20px; }
+    [data-admin-page="users-list"] .users-list-card { border-left: none; border-right: none; border-radius: 0; }
+    [data-admin-page="users-list"] .users-list-card > .ant-card-body { padding: 0; }
+    .admin-users-table-scroll { overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch; }
+    .admin-users-table { font-size: 13px; }
+    .admin-users-table table { width: 100%; min-width: 1280px; border-collapse: separate; border-spacing: 0; }
+    .admin-users-table th,
+    .admin-users-table td { white-space: nowrap; padding: 12px 16px; background: #fff; border-bottom: 1px solid #f0f0f0; }
+    .admin-users-table thead th { background: #fafafa; font-weight: 500; }
+    .admin-users-table .col-wrap { white-space: normal; max-width: 160px; }
+    .admin-users-table .col-sticky-left-1 { position: sticky; left: 0; z-index: 2; min-width: 92px; border-right: 1px solid #f0f0f0; }
+    .admin-users-table .col-sticky-left-2 { position: sticky; left: 92px; z-index: 2; min-width: 120px; border-right: 1px solid #f0f0f0; box-shadow: 4px 0 6px -2px rgba(0,0,0,.08); }
+    .admin-users-table .col-sticky-right { position: sticky; right: 0; z-index: 2; min-width: 148px; border-left: 1px solid #f0f0f0; box-shadow: -4px 0 6px -2px rgba(0,0,0,.08); }
+    .admin-users-table thead .col-sticky-left-1,
+    .admin-users-table thead .col-sticky-left-2,
+    .admin-users-table thead .col-sticky-right { z-index: 3; background: #fafafa; }
+  </style>
 </head>
 <body data-admin-page="users-list">
 <div class="admin-app">
@@ -16,7 +36,6 @@
     <header class="admin-header">
       <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 用户管理 / 用户列表</span></div>
       <div class="admin-header-right">
-        <button type="button" class="ant-btn ant-btn-sm ant-btn-primary" id="btnExportUsers"><i class="fa-solid fa-file-export"></i> 导出所选</button>
         <div class="admin-header-user">
           <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt="">
           <span>运营 · 王一</span>
@@ -25,43 +44,48 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">用户列表</h1>
-      <p class="admin-page-desc">查询与管理 C 端用户；详情、禁用、改邮箱等均在<strong>当前页弹窗</strong>内完成，不再与列表同屏混排。</p>
       <div class="admin-toolbar">
-        <span class="ant-input-affix-wrapper" style="width:180px"><input class="ant-input" placeholder="UID / 昵称"></span>
-        <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" placeholder="注册邮箱"></span>
-        <span class="ant-input-affix-wrapper" style="width:220px"><input class="ant-input" placeholder="钱包地址"></span>
-        <select class="ant-input" style="width:120px"><option>全部状态</option><option>正常</option><option>禁用</option></select>
+        <span class="ant-input-affix-wrapper" style="width:180px"><input class="ant-input" id="filterKeyword" placeholder="UID / 昵称"></span>
+        <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" id="filterEmail" placeholder="邮箱地址"></span>
+        <span class="ant-input-affix-wrapper" style="width:220px"><input class="ant-input" id="filterWallet" placeholder="钱包地址"></span>
+        <select class="ant-input" id="filterAccountStatus" style="width:130px">
+          <option value="">全部账号状态</option>
+          <option value="正常">正常</option>
+          <option value="禁用">禁用</option>
+        </select>
+        <select class="ant-input" id="filterKycStatus" style="width:130px">
+          <option value="">全部 KYC 状态</option>
+          <option value="已认证">已认证</option>
+          <option value="尚未认证">尚未认证</option>
+        </select>
         <button type="button" class="ant-btn ant-btn-primary" id="btnQueryUsers">查询</button>
         <div class="admin-toolbar-spacer"></div>
       </div>
-      <div class="ant-card ant-card-bordered">
-        <div class="ant-card-body" style="padding-top:0">
-          <div class="ant-table ant-table-bordered ant-table-middle">
-            <table style="width:100%">
-              <thead class="ant-table-thead">
-                <tr><th style="width:40px"><input type="checkbox"></th><th>用户</th><th>UID</th><th>注册</th><th>钱包</th><th>账号</th><th>操作</th></tr>
-              </thead>
-              <tbody class="ant-table-tbody">
-                <tr data-uid="882910" data-name="小岛日和">
-                  <td><input type="checkbox"></td>
-                  <td><div style="display:flex;align-items:center;gap:10px"><img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=80&h=80&fit=crop&crop=face" width="40" height="40" style="border-radius:50%;object-fit:cover"><div>小岛日和<br><span style="font-size:12px;color:rgba(0,0,0,.45)">创作者</span></div></div></td>
-                  <td>882910</td><td>2025-12-01</td><td><span class="ant-tag ant-tag-green">启用</span></td><td><span class="ant-tag ant-tag-green">正常</span></td>
-                  <td>
-                    <button type="button" class="ant-btn ant-btn-link ant-btn-sm js-user-detail">详情</button>
-                    <button type="button" class="ant-btn ant-btn-link ant-btn-sm js-user-ban">禁用</button>
-                  </td>
-                </tr>
-                <tr data-uid="102938" data-name="Alex Chen">
-                  <td><input type="checkbox"></td>
-                  <td><div style="display:flex;align-items:center;gap:10px"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=face" width="40" height="40" style="border-radius:50%;object-fit:cover"><div>Alex Chen</div></div></td>
-                  <td>102938</td><td>2026-03-18</td><td><span class="ant-tag ant-tag-red">禁用</span></td><td><span class="ant-tag ant-tag-green">正常</span></td>
-                  <td>
-                    <button type="button" class="ant-btn ant-btn-link ant-btn-sm js-user-detail">详情</button>
-                    <button type="button" class="ant-btn ant-btn-link ant-btn-sm js-wallet-enable">启用钱包</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+      <div class="ant-card ant-card-bordered users-list-card">
+        <div class="ant-card-body">
+          <div class="ant-table ant-table-bordered ant-table-middle admin-users-table">
+            <div class="admin-users-table-scroll">
+              <table>
+                <thead class="ant-table-thead">
+                  <tr>
+                    <th class="col-sticky-left-1">UID</th>
+                    <th class="col-sticky-left-2">用户昵称</th>
+                    <th>用户名</th>
+                    <th>邮箱地址</th>
+                    <th>KYC 审核状态</th>
+                    <th>邀请码</th>
+                    <th>更新时间</th>
+                    <th>注册时间</th>
+                    <th>注册地</th>
+                    <th>注册 IP</th>
+                    <th>账号状态</th>
+                    <th>钱包状态</th>
+                    <th class="col-sticky-right">操作</th>
+                  </tr>
+                </thead>
+                <tbody class="ant-table-tbody" id="usersTableBody"></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -70,168 +94,7 @@
 </div>
 <script src="js/admin-nav.js"></script>
 <script src="js/admin-modal.js"></script>
-<script>
-(function () {
-  var M = window.AdminModal;
-
-  function rowFrom(btn) {
-    return btn.closest("tr");
-  }
-
-  function bodyUserDetail(uid, name) {
-    return (
-      '<div class="fl-modal-tabs">' +
-      '<button type="button" class="is-active" data-fl-tab="t1">基础信息</button>' +
-      '<button type="button" data-fl-tab="t2">注册信息</button>' +
-      '<button type="button" data-fl-tab="t3">账变记录</button>' +
-      '<button type="button" data-fl-tab="t4">登录日志</button>' +
-      '<button type="button" data-fl-tab="t5">积分</button>' +
-      '<button type="button" data-fl-tab="t6">钱包</button>' +
-      '<button type="button" data-fl-tab="t7">发布内容</button>' +
-      "</div>" +
-      '<div class="fl-modal-tab-panel is-active" data-fl-tab-panel="t1">' +
-      "<p style='margin:0 0 8px'><span class='ant-tag'>UID " +
-      M.esc(uid) +
-      "</span> <strong>" +
-      M.esc(name) +
-      "</strong></p>" +
-      "<table style='width:100%;border-collapse:collapse;border:1px solid #f0f0f0;font-size:13px'>" +
-      "<tr><th style='width:32%;padding:8px 12px;background:#fafafa;border:1px solid #f0f0f0'>昵称</th><td style='padding:8px 12px;border:1px solid #f0f0f0'>" +
-      M.esc(name) +
-      "</td></tr>" +
-      "<tr><th style='padding:8px 12px;background:#fafafa;border:1px solid #f0f0f0'>注册邮箱</th><td style='padding:8px 12px;border:1px solid #f0f0f0'>user@example.com <button type='button' class='ant-btn ant-btn-link ant-btn-sm js-email-edit' style='padding:0'>修改</button></td></tr>" +
-      "<tr><th style='padding:8px 12px;background:#fafafa;border:1px solid #f0f0f0'>登录密码</th><td style='padding:8px 12px;border:1px solid #f0f0f0'>****** <button type='button' class='ant-btn ant-btn-link ant-btn-sm js-pwd-reset' style='padding:0'>重置</button></td></tr>" +
-      "</table>" +
-      "<div style='margin-top:12px;display:flex;flex-wrap:wrap;gap:8px'>" +
-      "<button type='button' class='ant-btn ant-btn-default ant-btn-sm js-acct-ban'><i class='fa-solid fa-ban'></i> 禁用账号</button>" +
-      "<button type='button' class='ant-btn ant-btn-default ant-btn-sm js-wallet-ban'><i class='fa-solid fa-wallet'></i> 禁用钱包</button>" +
-      "</div>" +
-      '<div style="margin-top:12px"><img src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=400&fit=crop" alt="" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;border:1px solid #f0f0f0"></div>' +
-      "</div>" +
-      '<div class="fl-modal-tab-panel" data-fl-tab-panel="t2"><p style="margin:0">注册渠道：<span class="ant-tag ant-tag-blue">Web</span> IP：203.0.113.2 设备：Chrome / Windows</p></div>' +
-      '<div class="fl-modal-tab-panel" data-fl-tab-panel="t3"><div class="ant-table ant-table-small ant-table-bordered"><table style="width:100%"><thead><tr><th>时间</th><th>类型</th><th>变动</th></tr></thead><tbody><tr><td>05-11 08:01</td><td>链上充值</td><td style="color:#52c41a">+200 USDT</td></tr></tbody></table></div></div>' +
-      '<div class="fl-modal-tab-panel" data-fl-tab-panel="t4"><div class="ant-table ant-table-small ant-table-bordered"><table style="width:100%"><thead><tr><th>时间</th><th>IP</th><th>结果</th></tr></thead><tbody><tr><td>05-11 09:10</td><td>203.0.113.2</td><td>成功</td></tr></tbody></table></div></div>' +
-      '<div class="fl-modal-tab-panel" data-fl-tab-panel="t5"><p>可用积分 <strong>12,800</strong>，冻结 <strong>200</strong></p></div>' +
-      '<div class="fl-modal-tab-panel" data-fl-tab-panel="t6"><p><code>0x71C…9A2f</code> <span class="ant-tag ant-tag-green">启用</span></p></div>' +
-      '<div class="fl-modal-tab-panel" data-fl-tab-panel="t7"><p>最近发布：图文 2、视频 1（原型数据）</p></div>'
-    );
-  }
-
-  document.getElementById("btnQueryUsers").addEventListener("click", function () {
-    M.toast("已按条件查询（原型，无真实请求）");
-  });
-
-  document.getElementById("btnExportUsers").addEventListener("click", function () {
-    M.open({
-      title: "导出所选用户",
-      body: "<p style='margin:0 0 8px'>将导出当前勾选用户的脱敏字段，任务进入后台队列。</p><label><input type='checkbox' checked> 包含注册邮箱（脱敏）</label>",
-      footer: [
-        { text: "取消", onClick: M.close },
-        {
-          text: "创建导出任务",
-          primary: true,
-          onClick: function () {
-            M.close();
-            M.toast("导出任务已创建，完成后将邮件通知（原型）");
-          }
-        }
-      ]
-    });
-  });
-
-  document.querySelector("main.admin-content").addEventListener("click", function (e) {
-    var t = e.target;
-    if (t.classList.contains("js-user-detail")) {
-      var tr = rowFrom(t);
-      var uid = tr.getAttribute("data-uid");
-      var name = tr.getAttribute("data-name");
-      M.open({
-        title: "用户详情 · UID " + uid,
-        wide: true,
-        body: bodyUserDetail(uid, name),
-        footer: [{ text: "关闭", primary: true, onClick: M.close }],
-        onMount: function (body) {
-          M.wireModalTabs(body);
-          body.addEventListener("click", function (ev) {
-            if (ev.target.classList.contains("js-email-edit")) {
-              M.open({
-                title: "修改登录邮箱 · UID " + uid,
-                body:
-                  "<p style='margin:0 0 12px;color:rgba(0,0,0,.55)'>将向新邮箱发送验证链接，原邮箱将收到提醒。</p>" +
-                  "<label style='display:block;margin-bottom:6px;font-size:13px'>新邮箱</label>" +
-                  "<input class='ant-input' type='email' placeholder='name@company.com' style='width:100%;max-width:360px'>",
-                footer: [
-                  { text: "取消", onClick: M.close },
-                  {
-                    text: "提交",
-                    primary: true,
-                    onClick: function () {
-                      M.close();
-                      M.toast("修改邮箱申请已提交（原型）");
-                    }
-                  }
-                ]
-              });
-            }
-            if (ev.target.classList.contains("js-pwd-reset")) {
-              M.confirmGoogle({
-                title: "重置登录密码",
-                message: "将向用户注册邮箱发送重置链接。需谷歌验证。UID：" + uid,
-                onVerified: function () {
-                  M.toast("重置邮件已加入发送队列（原型）");
-                }
-              });
-            }
-            if (ev.target.classList.contains("js-acct-ban")) {
-              M.confirmGoogle({
-                message: "确认禁用该用户账号？",
-                onVerified: function () {
-                  M.toast("账号已禁用（原型）");
-                }
-              });
-            }
-            if (ev.target.classList.contains("js-wallet-ban")) {
-              M.confirmGoogle({
-                message: "确认禁用该用户钱包？",
-                onVerified: function () {
-                  M.toast("钱包已禁用（原型）");
-                }
-              });
-            }
-          });
-        }
-      });
-      return;
-    }
-    if (t.classList.contains("js-user-ban")) {
-      M.confirmGoogle({
-        title: "禁用用户账号",
-        message: "将禁止用户登录与关键操作，是否继续？",
-        onVerified: function () {
-          M.toast("账号已禁用（原型）");
-        }
-      });
-      return;
-    }
-    if (t.classList.contains("js-wallet-enable")) {
-      M.open({
-        title: "启用钱包",
-        body: "<p style='margin:0'>确认恢复该用户链上钱包的提现与展示能力？</p>",
-        footer: [
-          { text: "取消", onClick: M.close },
-          {
-            text: "确认启用",
-            primary: true,
-            onClick: function () {
-              M.close();
-              M.toast("钱包已启用（原型）");
-            }
-          }
-        ]
-      });
-    }
-  });
-})();
-</script>
+<script src="js/users-list-page.js"></script>
+<script src="js/admin-uid-link.js"></script>
 </body>
 </html>

@@ -52,9 +52,21 @@
         return addr.slice(0, 6) + '...' + addr.slice(-4);
     }
 
+    /** 与运营后台用户列表一致的对客 UID（6 位数字） */
+    function resolvePublicUid(account) {
+        if (!account) return '';
+        if (account.publicUid) return String(account.publicUid);
+        var userId = String(account.userId || '');
+        var tail = userId.match(/(\d{6})$/);
+        if (tail) return tail[1];
+        var hash = hashStr(account.email || userId);
+        return String((parseInt(hash.slice(0, 8), 16) % 900000) + 100000);
+    }
+
     function lunaSeed() {
         return {
             userId: DEMO_USER_ID,
+            publicUid: '882910',
             email: 'luna@fansloop.io',
             name: 'Luna 🌙',
             avatar: AVATARS[0],
@@ -107,6 +119,7 @@
     function saveAccount(account) {
         var store = readStore();
         var email = normalizeEmail(account.email);
+        if (!account.publicUid) account.publicUid = resolvePublicUid(account);
         store.accounts[email] = account;
         store.byUserId[account.userId] = email;
         writeStore(store);
@@ -155,6 +168,7 @@
 
         return {
             userId: userId,
+            publicUid: resolvePublicUid({ userId: userId, email: email }),
             email: email,
             name: formatDisplayName(local, hash),
             avatar: AVATARS[parseInt(hash.slice(0, 2), 16) % AVATARS.length],
@@ -254,6 +268,7 @@
         if (!account) return null;
         return {
             userId: account.userId,
+            publicUid: resolvePublicUid(account),
             email: account.email,
             name: account.name,
             avatar: account.avatar,
@@ -293,6 +308,7 @@
         updatePointsWallet: updatePointsWallet,
         persistAccount: persistAccount,
         toSessionUser: toSessionUser,
+        resolvePublicUid: resolvePublicUid,
         ensureTierProfile: ensureTierProfile,
         walletShort: walletShort
     };

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FansLoop 原型调整记录 · 2026-06-23</title>
+<style>
+:root {
+    --bg: #0f0f17; --card: #1a1a28; --border: rgba(255,255,255,0.1);
+    --text: rgba(255,255,255,0.92); --muted: rgba(255,255,255,0.55); --accent: #a855f7;
+    --code-bg: rgba(255,255,255,0.06);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; padding: 32px 20px 80px; }
+.wrap { max-width: 960px; margin: 0 auto; }
+header { margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+header h1 { font-size: 28px; font-weight: 800; }
+header p { color: var(--muted); margin-top: 8px; font-size: 14px; }
+.badge { display: inline-block; margin-top: 12px; padding: 4px 10px; border-radius: 999px; background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.35); color: #c4b5fd; font-size: 12px; font-weight: 600; }
+article h2 { font-size: 20px; font-weight: 700; margin: 36px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+article h3 { font-size: 16px; font-weight: 700; margin: 22px 0 10px; color: #e9d5ff; }
+article p, article li { font-size: 14.5px; }
+article ul, article ol { margin: 10px 0 10px 22px; }
+article li { margin: 6px 0; }
+article table { width: 100%; border-collapse: collapse; margin: 14px 0 20px; font-size: 13px; }
+article th, article td { border: 1px solid var(--border); padding: 10px 12px; text-align: left; vertical-align: top; }
+article th { background: var(--card); font-weight: 600; }
+article tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+article code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; background: var(--code-bg); padding: 2px 6px; border-radius: 4px; color: #f0abfc; }
+article pre { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; overflow-x: auto; margin: 14px 0; font-size: 12px; }
+article pre code { background: none; padding: 0; color: #e2e8f0; }
+article blockquote { margin: 14px 0; padding: 12px 16px; border-left: 3px solid var(--accent); background: rgba(168,85,247,0.08); color: var(--muted); font-size: 13.5px; border-radius: 0 8px 8px 0; }
+article hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+article a { color: #93c5fd; }
+.toc { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 28px; }
+.toc h2 { font-size: 15px; margin: 0 0 10px; border: none; padding: 0; }
+.toc ol { margin: 0 0 0 18px; font-size: 13px; columns: 2; column-gap: 24px; }
+.toc li { break-inside: avoid; margin: 4px 0; }
+.toc a { color: var(--text); text-decoration: none; }
+.toc a:hover { color: #c4b5fd; }
+footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+    <h1>FansLoop Web 原型 · 今日调整记录</h1>
+    <p>日期：2026 年 6 月 23 日（周一） · 运营后台 RBAC / 用户列表与资产 / 全局 UID 详情弹窗 / C 端关于与条款 / KYC 按用户存储 / 安全评分 / 多用户注册表</p>
+    <span class="badge">完整版 · 含运营后台与 C 端跨端对齐</span>
+</header>
+
+<nav class="toc">
+    <h2>目录</h2>
+    <ol>
+        <li><a href="#rbac">运营后台 · RBAC</a></li>
+        <li><a href="#users-list">运营后台 · 用户列表</a></li>
+        <li><a href="#users-assets">运营后台 · 用户资产</a></li>
+        <li><a href="#admin-modal">运营后台 · 弹窗与 TOTP</a></li>
+        <li><a href="#admin-uid">运营后台 · 全局 UID 链接</a></li>
+        <li><a href="#about">C 端 · 关于 FansLoop</a></li>
+        <li><a href="#terms">C 端 · 条款与协议</a></li>
+        <li><a href="#settings-nav">C 端 · 设置导航</a></li>
+        <li><a href="#security">C 端 · 账户安全</a></li>
+        <li><a href="#kyc">C 端 · KYC 按用户存储</a></li>
+        <li><a href="#uid-display">C 端 · 对客 UID 展示</a></li>
+        <li><a href="#creator-income">C 端 · 创作者收入 Chip</a></li>
+        <li><a href="#registry">基础设施 · 多用户注册表</a></li>
+        <li><a href="#auth">基础设施 · 登录会话</a></li>
+        <li><a href="#align">跨端数据对齐</a></li>
+        <li><a href="#storage">localStorage 键</a></li>
+        <li><a href="#files">文件汇总</a></li>
+    </ol>
+</nav>
+
+<article>
+
+<h2 id="rbac">1. 运营后台 · 系统设置 RBAC</h2>
+<p><strong>页面：</strong> <code>admin-prototype/settings-roles.html</code> · <code>settings-members.html</code> · <code>settings-operation-logs.html</code></p>
+<p><strong>新增脚本/样式：</strong> <code>js/settings-rbac.js</code> · <code>settings-roles-page.js</code> · <code>settings-members-page.js</code> · <code>settings-operation-logs-page.js</code> · <code>css/settings-rbac.css</code></p>
+<p><strong>平铺预览：</strong> <code>admin-prototype/index.html</code>（三页 iframe + UX 说明文档）</p>
+
+<h3>角色管理</h3>
+<ul>
+    <li>列表：角色名称、创建时间、更新时间、操作</li>
+    <li>新建/编辑弹窗：三级权限树（一级菜单 → 二级菜单 → 功能操作）、备注、全选/全不选</li>
+    <li>内置「超级管理员」不可删改权限</li>
+    <li>保存权限需谷歌验证（TOTP）</li>
+</ul>
+
+<h3>成员账号</h3>
+<ul>
+    <li>列表：序号、头像、账号、邮箱、角色标签、状态、绑定 IP、最后登录</li>
+    <li>新建/编辑合并角色分配：账号*、IP*、角色*、状态*、邮箱/显示名选填</li>
+    <li>创建时自动分配 TOTP 密钥，无需邮件邀请；超级管理员可查看谷歌密钥</li>
+    <li>禁用/编辑等敏感操作需谷歌验证</li>
+</ul>
+
+<h3>操作日志</h3>
+<ul>
+    <li>按一级模块、结果筛选；详情展示 Request ID、UA、变更快照 JSON</li>
+</ul>
+
+<h3>原型会话</h3>
+<p><code>admin-session.js</code> 支持角色切换（活动运营 / 研发 / 超级管理员），Header 用户名随角色标签同步。</p>
+
+<hr>
+
+<h2 id="users-list">2. 运营后台 · 用户列表</h2>
+<p><strong>页面：</strong> <code>admin-prototype/users-list.html</code> · <strong>新增</strong> <code>js/users-list-page.js</code></p>
+
+<h3>列表</h3>
+<ul>
+    <li>筛选：UID/昵称、邮箱、钱包地址、账号状态、KYC 状态</li>
+    <li>列：UID、昵称、用户名、邮箱、KYC、邀请码、更新时间、注册时间、注册地、注册 IP、账号状态、钱包状态、操作</li>
+    <li>宽表横向滚动；UID + 昵称左固定、操作列右固定</li>
+    <li>移除页面描述、导出按钮、批量勾选列</li>
+    <li>UID 蓝色可点（<code>.js-uid-link</code>）</li>
+</ul>
+
+<h3>用户详情弹窗（宽屏 Modal）</h3>
+<ul>
+    <li>顶部快捷操作：禁用账号、禁用钱包、KYC 认证、强制下线、重置支付密码</li>
+    <li>Tab：<strong>基本信息</strong> / <strong>账变记录</strong> / <strong>登录日志</strong> / <strong>操作记录</strong></li>
+    <li>基本信息：昵称、用户名、邮箱（修改/绑定）、邀请码、支付密码、钱包状态、注册信息等表格展示</li>
+    <li>账变记录：全部/积分/充值/提现子 Tab；时间、类型、币种、变动（红绿）、余额快照、关联单号</li>
+    <li>强制下线改用全局轻提示 <code>AdminModal.notify("已强制下线")</code></li>
+    <li>重置支付密码：两步（输入+确认 6 位数字 → 谷歌验证）</li>
+</ul>
+
+<h3>代用户 KYC 认证</h3>
+<ul>
+    <li>与用户端流程字段一致：钱包 zkMe / 证件+上传+人脸</li>
+    <li>非简单备注框；含国家、证件类型、三格影像上传</li>
+</ul>
+
+<h3>行操作</h3>
+<ul>
+    <li>详情、禁用/启用账号、启用钱包；敏感操作需谷歌验证</li>
+</ul>
+
+<p>导出 API：<code>window.AdminUsersList = { openUserDetail, getUserByUid }</code>，供全局 UID 链接复用。</p>
+
+<hr>
+
+<h2 id="users-assets">3. 运营后台 · 用户资产</h2>
+<p><strong>页面：</strong> <code>admin-prototype/users-assets.html</code> · <strong>新增</strong> <code>js/users-assets-page.js</code></p>
+<ul>
+    <li>按 UID/昵称筛选</li>
+    <li>列：UID、用户昵称、链名称、钱包地址、积分余额、冻结积分、更新时间</li>
+    <li>一用户多钱包：<code>rowspan</code> 合并 UID、昵称、积分、更新时间</li>
+    <li>钱包地址缩略展示，hover 看完整地址</li>
+    <li>移除标签列、操作列（账变/订单）</li>
+    <li>UID 可点击，打开与用户列表相同的详情弹窗</li>
+    <li>引入 <code>users-list-page.js</code> 复用详情逻辑，不另写弹窗</li>
+</ul>
+
+<hr>
+
+<h2 id="admin-modal">4. 运营后台 · 弹窗与谷歌验证</h2>
+<p><strong>文件：</strong> <code>js/admin-modal.js</code> · <code>css/admin-modals.css</code></p>
+
+<h3>AdminModal 增强</h3>
+<ul>
+    <li>统一 Modal 壳层：遮罩、Esc 关闭、宽屏 <code>fl-modal-wide</code></li>
+    <li><code>wireModalTabs</code>：弹窗内 Tab 切换</li>
+    <li><code>notify()</code>：顶部居中轻提示（成功/错误样式），不打断操作</li>
+    <li><code>confirmGoogle()</code>：敏感操作 TOTP 二次验证；演示码 <code>123456</code> 始终通过</li>
+</ul>
+
+<h3>AdminGoogleAuth</h3>
+<ul>
+    <li>成员 TOTP 密钥生成与 localStorage 持久化</li>
+    <li>修复「未绑定谷歌密钥」误报：<code>getMemberAuth</code> 按账号/邮箱查找</li>
+</ul>
+
+<h3>用户详情弹窗样式全局化</h3>
+<p>将原仅写在 <code>users-list.html</code> 内联的样式迁入 <code>admin-modals.css</code>，确保从用户资产等任意页面点击 UID 时，详情弹窗格式与用户列表完全一致：</p>
+<ul>
+    <li><code>.fl-modal-actions</code> 顶部操作区</li>
+    <li><code>.fl-info-table</code> 基本信息表格</li>
+    <li><code>.fl-ledger-tabs</code> / <code>.fl-ledger-table</code> 账变子 Tab</li>
+    <li><code>.admin-kyc-*</code> KYC 代认证表单与上传格</li>
+    <li><code>.pay-pwd-err</code> 支付密码错误提示</li>
+</ul>
+
+<hr>
+
+<h2 id="admin-uid">5. 运营后台 · 全局 UID 链接</h2>
+<p><strong>新增：</strong> <code>js/admin-uid-link.js</code> · <code>css/admin-shell.css</code>（<code>.js-uid-link</code> 样式）</p>
+<ul>
+    <li>任意 <code>.js-uid-link[data-uid]</code> 在 <code>.admin-app</code> 内点击 → <code>AdminUsersList.openUserDetail(uid)</code></li>
+    <li>与用户列表「详情」按钮打开同一套弹窗，不新增第二套 UI</li>
+    <li>已接入：<code>users-list.html</code>、<code>users-assets.html</code></li>
+    <li>其他页面按需引入 <code>admin-modal.js</code> + <code>users-list-page.js</code> + <code>admin-uid-link.js</code></li>
+</ul>
+
+<hr>
+
+<h2 id="about">6. C 端 · 关于 FansLoop（新页）</h2>
+<p><strong>页面：</strong> <code>pages-web/settings-about.html</code> · <code>js-web/settings-about-page.js</code> · <code>css-web/settings-about-terms.css</code></p>
+<ul>
+    <li>版本 v2.4.1、Build 20260622、平台 KPI（语言/USDT/EVM）</li>
+    <li><strong>检查更新</strong>、<strong>复制版本信息</strong></li>
+    <li>可折叠<strong>更新日志</strong>；展开后标记已读隐藏「新」角标</li>
+    <li>相关链接：条款与协议、隐私政策、帮助支持、意见反馈</li>
+    <li>社交媒体入口（原型 toast 演示）</li>
+</ul>
+
+<hr>
+
+<h2 id="terms">7. C 端 · 条款与协议（新页）</h2>
+<p><strong>页面：</strong> <code>pages-web/settings-terms.html</code> · <code>js-web/settings-terms-page.js</code></p>
+<ul>
+    <li>左侧文档列表：用户服务协议、隐私政策、创作者协议、社区规范、Cookie 政策</li>
+    <li>URL hash 直达（如 <code>#privacy</code>）</li>
+    <li>全文<strong>搜索高亮</strong>、章节折叠展开</li>
+    <li><strong>导出当前文档</strong>（原型 toast）</li>
+</ul>
+
+<hr>
+
+<h2 id="settings-nav">8. C 端 · 设置导航重组</h2>
+<p><code>js-web/settings-nav.js</code></p>
+<ul>
+    <li>导航分组：账户 / 体验 / 创作者 / <strong>关于</strong></li>
+    <li>「关于」组新增：<strong>关于 FansLoop</strong>、<strong>条款与协议</strong>、退出登录</li>
+    <li>各子页 <code>data-settings-nav-active</code> 高亮当前项</li>
+    <li>自动加载 <code>settings-app-header.js</code> 统一顶栏</li>
+</ul>
+
+<hr>
+
+<h2 id="security">9. C 端 · 账户安全</h2>
+<p><code>pages-web/settings-security.html</code> · <code>js-web/settings-security-page.js</code></p>
+<ul>
+    <li><strong>安全评分</strong>环形图（强密码、备用邮箱、TOTP、WebAuthn、支付密码等维度）</li>
+    <li><strong>2FA 管理</strong>：认证器 APP（TOTP 绑定）、生物识别 WebAuthn、恢复码</li>
+    <li><strong>安全活动日志</strong>：按类型筛选、搜索、分页加载、详情展开</li>
+    <li>主/备用邮箱、登录密码修改流程保留并联动评分</li>
+</ul>
+
+<hr>
+
+<h2 id="kyc">10. C 端 · KYC 按用户持久化</h2>
+<p><code>js-web/kyc-store.js</code> · 各 <code>pages-web/kyc-*.html</code></p>
+
+<h3>数据模型迁移</h3>
+<ul>
+    <li>KYC 从独立 <code>fansloop_kyc</code> 迁入当前登录用户的 <code>FLUserRegistry</code> / <code>FLUserAssets</code> 账户资产</li>
+    <li>双状态字段：<code>authStatus</code>（unverified/reviewing/approved/rejected）与兼容 <code>status</code></li>
+    <li>支持钱包 zkMe 与证件+人脸两条路径；审核日志写入 <code>kycAudit</code></li>
+    <li>状态变更触发 <code>fl-user-assets-change</code>，全站 KYC 标签同步</li>
+</ul>
+
+<h3>依赖链补齐</h3>
+<p>所有 KYC 流程页新增：<code>user-prototype-registry.js</code>、<code>user-assets-store.js</code>、<code>auth-session.js</code></p>
+
+<hr>
+
+<h2 id="uid-display">11. C 端 · 对客 UID 展示</h2>
+<p><code>js-web/auth-ui-sync.js</code> · <code>pages-web/settings.html</code></p>
+<ul>
+    <li>设置页账户头展示 <code>UID: 882910 · 加入于 …</code>（<code>publicUid</code> 6 位数字，与运营后台对齐）</li>
+    <li>不再显示钱包地址缩写作为 UID</li>
+    <li>个人主页创作者标签根据 KYC 状态显示「身份认证」/「未认证」</li>
+</ul>
+
+<hr>
+
+<h2 id="creator-income">12. C 端 · 创作者收入 Chip</h2>
+<p><code>js-web/creator-income-store.js</code> · <code>js-web/app-sidebar-global.js</code></p>
+<ul>
+    <li>侧栏「创作者收入」导航项显示本月 USDT 收入 chip（如 <code>+298</code>）</li>
+    <li>hover 显示完整金额「本月创作者收入（USDT）」</li>
+    <li>按用户 ID + 自然月 localStorage 存储；非 Creator 或 0 收入时隐藏</li>
+    <li>收入变更触发 <code>fl-creator-income-change</code> 刷新侧栏</li>
+</ul>
+
+<hr>
+
+<h2 id="registry">13. 基础设施 · 多用户注册表</h2>
+<p><strong>新增/大改：</strong> <code>js-web/user-prototype-registry.js</code></p>
+<ul>
+    <li>按邮箱区分用户，<code>localStorage</code> 持久化（<code>fl_user_registry_v1</code>）</li>
+    <li>新增 <code>publicUid</code>（6 位数字；Luna 固定 <code>882910</code>）</li>
+    <li><code>registerEmail</code> / <code>loginEmail</code> / <code>loginWallet</code>、<code>toSessionUser</code>、<code>resolvePublicUid</code>、<code>persistAccount</code></li>
+    <li>种子数据含 Luna、Kira 等演示账号</li>
+</ul>
+
+<hr>
+
+<h2 id="auth">14. 基础设施 · 登录会话</h2>
+<p><code>js-web/auth-session.js</code></p>
+<ul>
+    <li>会话用户经 <code>FLUserRegistry.toSessionUser</code> 生成，含 <code>publicUid</code></li>
+    <li>注册/登录/钱包登录均走注册表；激活时初始化 tierProfile 与 assets</li>
+    <li>新增 <code>getUserId()</code> / <code>getEmail()</code> API</li>
+</ul>
+
+<hr>
+
+<h2 id="align">15. 跨端数据对齐</h2>
+<table>
+    <thead><tr><th>对齐项</th><th>C 端</th><th>运营后台</th></tr></thead>
+    <tbody>
+        <tr><td>对客 UID</td><td><code>publicUid</code> 882910（Luna）</td><td><code>MOCK_USERS</code> uid <code>882910</code></td></tr>
+        <tr><td>KYC 字段</td><td>钱包/证件/国家/证件类型</td><td>代认证表单字段一致</td></tr>
+        <tr><td>积分/冻结</td><td><code>pointsWallet</code></td><td>用户资产 <code>pointsBalance</code> / <code>pointsFrozen</code></td></tr>
+        <tr><td>多链钱包</td><td><code>walletAddress</code></td><td>用户资产多行 <code>wallets[]</code></td></tr>
+        <tr><td>详情弹窗</td><td>—</td><td>全局 UID 点击统一 <code>AdminUsersList.openUserDetail</code></td></tr>
+    </tbody>
+</table>
+
+<blockquote>说明：用户列表（<code>MOCK_USERS</code>）与用户资产（<code>MOCK_ASSETS</code>）为两套独立 Mock，UID 已手动对齐（882910 / 102938 / 556677）。后台代认证 KYC 目前仅更新后台 Mock，尚未同步写回 C 端 <code>FLUserAssets</code>。</blockquote>
+
+<hr>
+
+<h2 id="storage">16. localStorage / sessionStorage 键</h2>
+<pre><code>fl_user_registry_v1          // C 端多用户注册表（含 publicUid、KYC、资产）
+fl_admin_google_auth_v1      // 后台成员 TOTP 密钥（AdminGoogleAuth）
+fl_admin_session_role        // 后台原型角色切换（sessionStorage）
+fl_creator_income_v1         // 创作者当月收入（侧栏 chip）
+fl_settings_about_read_v1    // 关于页更新日志已读标记
+// KYC 旧键 fansloop_kyc 已弃用，登录用户统一读账号级 assets.kyc</code></pre>
+
+<hr>
+
+<h2 id="files">17. 涉及文件汇总</h2>
+
+<h3>运营后台 · 新增</h3>
+<table>
+    <thead><tr><th>文件</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td><code>admin-prototype/index.html</code></td><td>RBAC 三页 iframe 平铺预览 + UX 文档</td></tr>
+        <tr><td><code>js/settings-rbac.js</code></td><td>RBAC 共享：权限树、成员表单、TOTP 集成</td></tr>
+        <tr><td><code>js/settings-roles-page.js</code></td><td>角色管理页逻辑</td></tr>
+        <tr><td><code>js/settings-members-page.js</code></td><td>成员账号页逻辑</td></tr>
+        <tr><td><code>js/settings-operation-logs-page.js</code></td><td>操作日志页逻辑</td></tr>
+        <tr><td><code>js/users-list-page.js</code></td><td>用户列表 + 详情弹窗 + AdminUsersList API</td></tr>
+        <tr><td><code>js/users-assets-page.js</code></td><td>用户资产多钱包列表</td></tr>
+        <tr><td><code>js/admin-uid-link.js</code></td><td>全局 UID 点击委托</td></tr>
+        <tr><td><code>css/settings-rbac.css</code></td><td>RBAC 页专用样式</td></tr>
+    </tbody>
+</table>
+
+<h3>运营后台 · 修改</h3>
+<table>
+    <thead><tr><th>文件</th><th>变更</th></tr></thead>
+    <tbody>
+        <tr><td><code>users-list.html</code></td><td>列表重构；内联弹窗样式迁至 admin-modals.css</td></tr>
+        <tr><td><code>users-assets.html</code></td><td>多钱包合并表；接入 UID 详情弹窗</td></tr>
+        <tr><td><code>settings-roles.html</code></td><td>内联逻辑抽至 settings-roles-page.js</td></tr>
+        <tr><td><code>settings-members.html</code></td><td>内联逻辑抽至 settings-members-page.js</td></tr>
+        <tr><td><code>settings-operation-logs.html</code></td><td>内联逻辑抽至 settings-operation-logs-page.js</td></tr>
+        <tr><td><code>js/admin-modal.js</code></td><td>notify、confirmGoogle、AdminGoogleAuth、wireModalTabs</td></tr>
+        <tr><td><code>js/admin-session.js</code></td><td>原型角色切换</td></tr>
+        <tr><td><code>css/admin-modals.css</code></td><td>用户详情弹窗全局样式 + notify</td></tr>
+        <tr><td><code>css/admin-shell.css</code></td><td>UID 链接、谷歌验证提示条、滚动条</td></tr>
+    </tbody>
+</table>
+
+<h3>C 端 · 新增</h3>
+<table>
+    <thead><tr><th>文件</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td><code>pages-web/settings-about.html</code></td><td>关于 FansLoop</td></tr>
+        <tr><td><code>pages-web/settings-terms.html</code></td><td>条款与协议</td></tr>
+        <tr><td><code>js-web/settings-about-page.js</code></td><td>关于页交互</td></tr>
+        <tr><td><code>js-web/settings-terms-page.js</code></td><td>条款页搜索/折叠/导出</td></tr>
+        <tr><td><code>css-web/settings-about-terms.css</code></td><td>关于/条款共用样式</td></tr>
+        <tr><td><code>js-web/user-prototype-registry.js</code></td><td>多用户注册表 + publicUid</td></tr>
+    </tbody>
+</table>
+
+<h3>C 端 · 修改</h3>
+<table>
+    <thead><tr><th>文件</th><th>变更</th></tr></thead>
+    <tbody>
+        <tr><td><code>settings.html</code></td><td>展示 publicUid；导航挂载</td></tr>
+        <tr><td><code>settings-security.html</code> + <code>settings-security-page.js</code></td><td>安全评分、2FA、活动日志</td></tr>
+        <tr><td><code>settings-nav.js</code></td><td>「关于」分组与新页入口</td></tr>
+        <tr><td><code>kyc-store.js</code></td><td>KYC 迁入用户资产模型</td></tr>
+        <tr><td><code>kyc-*.html</code>（9 页）</td><td>补齐 registry/assets/auth 依赖</td></tr>
+        <tr><td><code>auth-session.js</code></td><td>对接 FLUserRegistry</td></tr>
+        <tr><td><code>auth-ui-sync.js</code></td><td>publicUid 展示、KYC 标签</td></tr>
+        <tr><td><code>app-sidebar-global.js</code></td><td>创作者收入 chip</td></tr>
+        <tr><td><code>creator-income-store.js</code></td><td>按用户+月份存储</td></tr>
+        <tr><td><code>settings-account-profile.js</code></td><td>账户资料配合 UID 展示</td></tr>
+        <tr><td><code>settings-creator-earnings.html</code></td><td>收入页小幅调整</td></tr>
+    </tbody>
+</table>
+
+<h3>文档</h3>
+<ul>
+    <li><code>docs/prototype-changelog-2026-06-23.html</code>（本页）</li>
+</ul>
+
+</article>
+
+<footer>FansLoop Web3 Creator · 原型调整记录 · 2026-06-23 完整版</footer>
+</div>
+</body>
+</html>

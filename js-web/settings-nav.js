@@ -31,8 +31,8 @@
         {
             title: "关于",
             items: [
-                { id: "about", label: "关于 FansLoop", href: "#", icon: "fa-solid fa-circle-info", static: true },
-                { id: "terms", label: "条款与协议", href: "#", icon: "fa-solid fa-file-lines", static: true },
+                { id: "about", label: "关于 FansLoop", href: "settings-about.html", icon: "fa-solid fa-circle-info" },
+                { id: "terms", label: "条款与协议", href: "settings-terms.html", icon: "fa-solid fa-file-lines" },
                 { id: "logout", label: "退出登录", href: "#", icon: "fa-solid fa-right-from-bracket", logout: true }
             ]
         }
@@ -47,7 +47,9 @@
         "settings-notification.html": "notification",
         "settings-privacy.html": "privacy",
         "settings-display.html": "display",
-        "settings-subscription.html": "subscription"
+        "settings-subscription.html": "subscription",
+        "settings-about.html": "about",
+        "settings-terms.html": "terms"
     };
 
     function resolveActiveId() {
