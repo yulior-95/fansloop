@@ -313,3 +313,11 @@
     esc: esc
   };
 })();
+
+(function () {
+  if (document.querySelector('script[src*="admin-uid-link.js"]')) return;
+  if (!document.querySelector('script[src*="users-list-page.js"]')) {
+    document.write('<script src="js/users-list-page.js"><\/script>');
+  }
+  document.write('<script src="js/admin-uid-link.js"><\/script>');
+})();

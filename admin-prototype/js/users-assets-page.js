@@ -6,6 +6,8 @@
   if (!M) return;
 
   var tbody = document.getElementById("assetsTableBody");
+  var pagerMount = document.getElementById("assetsPager");
+  var pager = null;
   var filterUid = document.getElementById("filterAssetUid");
 
   var MOCK_ASSETS = [
@@ -66,13 +68,16 @@
     if (!tbody) return;
     var users = getFilteredAssets();
     if (!users.length) {
+      if (pager) pager.setTotal(0);
       tbody.innerHTML =
         '<tr><td colspan="7" style="text-align:center;padding:32px;color:rgba(0,0,0,.45)">暂无匹配记录</td></tr>';
       return;
     }
+    if (pager) pager.setTotal(users.length);
+    var pageUsers = pager ? pager.getSlice(users) : users;
 
     var html = "";
-    users.forEach(function (u) {
+    pageUsers.forEach(function (u) {
       var wallets = u.wallets && u.wallets.length ? u.wallets : [{ network: "—", address: "" }];
       var span = wallets.length;
       var uidCell =
@@ -111,8 +116,19 @@
   var btnQuery = document.getElementById("btnAstQuery");
   if (btnQuery) {
     btnQuery.addEventListener("click", function () {
+      if (pager) pager.resetPage();
       renderTable();
       M.toast("已查询 " + getFilteredAssets().length + " 条用户（原型）");
+    });
+  }
+
+  if (pagerMount && window.AdminPager) {
+    pager = window.AdminPager.create({
+      mount: pagerMount,
+      pageSize: 10,
+      onChange: function () {
+        renderTable();
+      }
     });
   }
 

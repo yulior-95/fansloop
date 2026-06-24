@@ -7,10 +7,21 @@
   if (!M || !R) return;
 
   var tbody = document.getElementById("rolesTableBody");
+  var pagerMount = document.getElementById("rolesPager");
+  var pager = null;
 
   function renderTable() {
     if (!tbody) return;
-    tbody.innerHTML = R.ROLES.map(function (role) {
+    var roles = R.ROLES.slice();
+    if (!roles.length) {
+      if (pager) pager.setTotal(0);
+      tbody.innerHTML =
+        '<tr><td colspan="4" style="text-align:center;padding:32px;color:rgba(0,0,0,.45)">暂无角色</td></tr>';
+      return;
+    }
+    if (pager) pager.setTotal(roles.length);
+    var pageRoles = pager ? pager.getSlice(roles) : roles;
+    tbody.innerHTML = pageRoles.map(function (role) {
       var ops =
         '<button type="button" class="ant-btn ant-btn-link ant-btn-sm js-role-perm">权限</button>' +
         '<button type="button" class="ant-btn ant-btn-link ant-btn-sm js-role-edit">编辑</button>';
@@ -179,6 +190,16 @@
             M.toast("角色已删除（原型）");
           }
         });
+      }
+    });
+  }
+
+  if (pagerMount && window.AdminPager) {
+    pager = window.AdminPager.create({
+      mount: pagerMount,
+      pageSize: 10,
+      onChange: function () {
+        renderTable();
       }
     });
   }

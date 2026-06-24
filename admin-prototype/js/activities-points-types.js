@@ -23,10 +23,21 @@
     );
   }
 
+  var pager = null;
+  var pagerMount = document.getElementById('typePager');
+
   function render() {
     var tbody = document.getElementById('typeTbody');
+    if (!tbody) return;
     var list = S.getTypes();
-    tbody.innerHTML = list.map(function (t) {
+    if (!list.length) {
+      if (pager) pager.setTotal(0);
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:rgba(0,0,0,.45)">暂无类型</td></tr>';
+      return;
+    }
+    if (pager) pager.setTotal(list.length);
+    var pageList = pager ? pager.getSlice(list) : list;
+    tbody.innerHTML = pageList.map(function (t) {
       return '<tr data-id="' + esc(t.id) + '">' +
         '<td><div class="ap-type-card"><div class="ic"><i class="fa-solid ' + esc(t.icon || 'fa-star') + '"></i></div>' +
         '<div><strong>' + esc(t.name) + '</strong></div></div></td>' +
@@ -114,6 +125,16 @@
       });
     }
   });
+
+  if (pagerMount && window.AdminPager) {
+    pager = window.AdminPager.create({
+      mount: pagerMount,
+      pageSize: 10,
+      onChange: function () {
+        render();
+      }
+    });
+  }
 
   render();
   if (window.FLAdminSession) {

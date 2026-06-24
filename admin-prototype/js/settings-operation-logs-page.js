@@ -7,6 +7,8 @@
   if (!M || !R) return;
 
   var tbody = document.getElementById("logsTableBody");
+  var pagerMount = document.getElementById("logsPager");
+  var pager = null;
   var filterModule = document.getElementById("logFilterModule");
   var filterResult = document.getElementById("logFilterResult");
 
@@ -30,15 +32,19 @@
     if (!tbody) return;
     var logs = getFilteredLogs();
     if (!logs.length) {
+      if (pager) pager.setTotal(0);
       tbody.innerHTML =
         '<tr><td colspan="10" style="text-align:center;padding:32px;color:rgba(0,0,0,.45)">暂无匹配记录</td></tr>';
       return;
     }
-    tbody.innerHTML = logs
+    if (pager) pager.setTotal(logs.length);
+    var pageLogs = pager ? pager.getSlice(logs) : logs;
+    var startIdx = pager ? (pager.getPage() - 1) * pager.getPageSize() : 0;
+    tbody.innerHTML = pageLogs
       .map(function (log, i) {
         return (
-          "<tr data-log-index=\"" + i + "\">" +
-          "<td class=\"admin-col-index\">" + (i + 1) + "</td>" +
+          "<tr data-log-index=\"" + (startIdx + i) + "\">" +
+          "<td class=\"admin-col-index\">" + (startIdx + i + 1) + "</td>" +
           "<td>" + R.esc(log.time) + "</td>" +
           "<td><code>" + R.esc(log.operator) + "</code></td>" +
           "<td>" + R.esc(log.module) + "</td>" +
@@ -76,20 +82,36 @@
   });
 
   document.getElementById("btnLogQuery").addEventListener("click", function () {
+    if (pager) pager.resetPage();
     renderTable();
     M.toast("已查询 " + getFilteredLogs().length + " 条（原型）");
   });
 
-  if (filterModule) filterModule.addEventListener("change", renderTable);
-  if (filterResult) filterResult.addEventListener("change", renderTable);
+  if (filterModule) filterModule.addEventListener("change", function () {
+    if (pager) pager.resetPage();
+    renderTable();
+  });
+  if (filterResult) filterResult.addEventListener("change", function () {
+    if (pager) pager.resetPage();
+    renderTable();
+  });
+
+  if (pagerMount && window.AdminPager) {
+    pager = window.AdminPager.create({
+      mount: pagerMount,
+      pageSize: 10,
+      onChange: function () {
+        renderTable();
+      }
+    });
+  }
 
   if (tbody) {
     tbody.addEventListener("click", function (e) {
       if (!e.target.classList.contains("js-log-detail")) return;
       var tr = e.target.closest("tr");
       var idx = parseInt(tr.getAttribute("data-log-index"), 10);
-      var logs = getFilteredLogs();
-      var log = logs[idx];
+      var log = getFilteredLogs()[idx];
       if (!log) return;
       M.open({
         title: "操作日志详情",

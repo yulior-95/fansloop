@@ -39,10 +39,14 @@
   var pointsPages = CFG.globalParamPages.filter(function (p) {
     return p.key === "risk-limits" || p.key === "activities-points-tier" || p.key === "activities-points-types";
   });
+  var kycPages = CFG.globalParamPages.filter(function (p) {
+    return p.key === "risk-kyc-face";
+  });
 
   renderCards(systemPages, "sgSystemMount");
   renderCards(assetPages, "sgAssetMount");
   renderCards(pointsPages, "sgPointsMount");
+  renderCards(kycPages, "sgKycMount");
 
   var NAV_FROM_KEY = "fl_admin_nav_from_v1";
   document.addEventListener("click", function (e) {

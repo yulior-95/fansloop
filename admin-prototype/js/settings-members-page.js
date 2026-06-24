@@ -9,6 +9,8 @@
   if (!M || !R) return;
 
   var tbody = document.getElementById("membersTableBody");
+  var pagerMount = document.getElementById("membersPager");
+  var pager = null;
   var DEFAULT_PWD = (Auth && Auth.DEFAULT_PASSWORD) || "123456a";
 
   function isSuperAdmin() {
@@ -40,8 +42,18 @@
 
   function renderTable() {
     if (!tbody) return;
+    var members = R.MEMBERS.slice();
+    if (!members.length) {
+      if (pager) pager.setTotal(0);
+      tbody.innerHTML =
+        '<tr><td colspan="9" style="text-align:center;padding:32px;color:rgba(0,0,0,.45)">暂无成员</td></tr>';
+      return;
+    }
+    if (pager) pager.setTotal(members.length);
+    var pageMembers = pager ? pager.getSlice(members) : members;
+    var startIdx = pager ? (pager.getPage() - 1) * pager.getPageSize() : 0;
     var showSecret = isSuperAdmin();
-    tbody.innerHTML = R.MEMBERS.map(function (m, i) {
+    tbody.innerHTML = pageMembers.map(function (m, i) {
       var disableBtn =
         m.status === "disabled"
           ? '<button type="button" class="ant-btn ant-btn-link ant-btn-sm js-mem-enable">启用</button>'
@@ -51,7 +63,7 @@
         : "";
       return (
         "<tr data-account=\"" + R.esc(m.account) + "\">" +
-        "<td class=\"admin-col-index\">" + (i + 1) + "</td>" +
+        "<td class=\"admin-col-index\">" + (startIdx + i + 1) + "</td>" +
         "<td><div style=\"display:flex;align-items:center;gap:10px\">" +
         "<img src=\"" + R.esc(m.avatar) + "\" width=\"36\" height=\"36\" style=\"border-radius:50%;object-fit:cover\" alt=\"\"> " +
         R.esc(m.name || m.account) + "</div></td>" +
@@ -253,6 +265,16 @@
   if (Session && Session.mountRoleSwitcher) {
     var userNode = document.querySelector(".admin-header-user");
     if (userNode) Session.mountRoleSwitcher(userNode);
+  }
+
+  if (pagerMount && window.AdminPager) {
+    pager = window.AdminPager.create({
+      mount: pagerMount,
+      pageSize: 10,
+      onChange: function () {
+        renderTable();
+      }
+    });
   }
 
   renderTable();

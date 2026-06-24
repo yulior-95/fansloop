@@ -45,6 +45,14 @@
       api: "PUT /api/v1/admin/fee-config"
     },
     {
+      key: "risk-kyc-face",
+      href: "risk-kyc-face.html",
+      icon: "fa-id-card",
+      label: "KYC 人脸匹配",
+      desc: "身份证人脸匹配分值阈值：直接通过线 / 人工审核线",
+      api: "PUT /api/v1/admin/kyc-face-match-config"
+    },
+    {
       key: "activities-points-types",
       href: "activities-points-types.html",
       icon: "fa-layer-group",
@@ -87,8 +95,7 @@
         { key: "users-assets", href: "users-assets.html", icon: "fa-coins", label: "用户资产" },
         { key: "users-ledger", href: "users-ledger.html", icon: "fa-receipt", label: "账变记录" },
         { key: "users-address-book", href: "users-address-book.html", icon: "fa-wallet", label: "地址簿" },
-        { key: "users-bank-cards", href: "users-bank-cards.html", icon: "fa-credit-card", label: "银行卡" },
-        { key: "kyc-manage", href: "kyc-manage.html", icon: "fa-id-card", label: "KYC 管理" }
+        { key: "kyc-manage", href: "kyc-manage.html", icon: "fa-id-card", label: "KYC 审核记录" }
       ]
     },
     {
@@ -313,4 +320,10 @@
   document.querySelectorAll('.admin-header-right a[href="settings-global.html"]').forEach(function (el) {
     if (/参数总览/.test(el.textContent)) el.remove();
   });
+})();
+
+(function () {
+  if (window.AdminPager) return;
+  if (document.querySelector('script[src*="admin-pagination.js"]')) return;
+  document.write('<script src="js/admin-pagination.js"><\/script>');
 })();

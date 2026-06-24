@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KYC 人脸匹配 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+</head>
+<body data-admin-page="risk-kyc-face">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 全局参数 / KYC 人脸匹配</span></div>
+      <div class="admin-header-right">
+        <a href="settings-global.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-sliders"></i> 参数总览</a>
+        <a href="kyc-manage.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-id-card"></i> KYC 审核记录</a>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>合规</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">KYC 身份证人脸匹配分值</h1>
+      <p class="admin-page-desc">
+        机审 API 对人脸快照与证件照比对后返回 <strong>0–100</strong> 匹配分值，后台按以下阈值自动分流。
+        映射 <code>PUT /api/v1/admin/kyc-face-match-config</code>；审核流水见 <a href="kyc-manage.html">KYC 审核记录</a>。
+      </p>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-head"><div class="ant-card-head-title">分值阈值</div></div>
+        <div class="ant-card-body">
+          <div class="ant-row" style="max-width:720px">
+            <div class="ant-col ant-col-12" style="padding:8px">
+              <div class="ant-form-item">
+                <label>直接通过分数</label>
+                <input class="ant-input" type="number" id="kycAutoPassScore" min="0" max="100" step="0.1" style="width:100%;margin-top:6px">
+                <div style="margin-top:6px;font-size:12px;color:rgba(0,0,0,.45)">人脸分值 ≥ 此值时，机审直接通过，无需人工</div>
+              </div>
+            </div>
+            <div class="ant-col ant-col-12" style="padding:8px">
+              <div class="ant-form-item">
+                <label>人工审核分数（下限）</label>
+                <input class="ant-input" type="number" id="kycManualReviewScore" min="0" max="100" step="0.1" style="width:100%;margin-top:6px">
+                <div style="margin-top:6px;font-size:12px;color:rgba(0,0,0,.45)">分值处于 [人工审核分数, 直接通过分数) 区间时转人工队列</div>
+              </div>
+            </div>
+          </div>
+          <div id="kycFaceRulePreview" style="margin:8px 0 16px;padding:12px 14px;background:#f6ffed;border:1px solid #b7eb8f;border-radius:8px;font-size:13px;line-height:1.7;color:rgba(0,0,0,.75)"></div>
+          <p id="kycFaceErr" style="margin:0 0 12px;font-size:13px;color:#cf1322"></p>
+          <button type="button" class="ant-btn ant-btn-primary" id="kycFaceSave">保存 KYC 人脸匹配参数</button>
+        </div>
+      </div>
+
+      <div class="ant-card ant-card-bordered" style="margin-top:16px">
+        <div class="ant-card-head"><div class="ant-card-head-title">机审分流规则（原型）</div></div>
+        <div class="ant-card-body" style="font-size:13px;line-height:1.85;color:rgba(0,0,0,.72)">
+          <ol style="margin:0;padding-left:20px">
+            <li>用户提交证件 + 人脸后，Verify API 返回人脸匹配分值（如 <code>78.5</code>）。</li>
+            <li><strong>分值 ≥ 直接通过分数</strong> → 机审通过，用户端同步为已认证。</li>
+            <li><strong>人工审核分数 ≤ 分值 &lt; 直接通过分数</strong> → 记录状态为「待审核」，进入人工队列（非 API 异常）。</li>
+            <li><strong>分值 &lt; 人工审核分数</strong> → 机审自动驳回，回传拒绝原因。</li>
+            <li>若 API 超时/异常未返回分值，运营可在审核详情中人工介入通过或驳回。</li>
+          </ol>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="js/admin-kyc-config-store.js"></script>
+<script src="js/risk-kyc-face.js"></script>
+</body>
+</html>

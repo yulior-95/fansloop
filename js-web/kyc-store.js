@@ -277,6 +277,21 @@
             status: "\u9a8c\u8bc1\u901a\u8fc7",
             note: "\u94b1\u5305\u9690\u79c1\u8bc1\u660e\u9a8c\u8bc1\u6210\u529f" + (address ? " \u00b7 " + address.slice(0, 10) + "\u2026" : "")
         });
+        try {
+            if (global.AdminKycAuditStore && global.AdminKycAuditStore.pushFromUserSubmit) {
+                var wOpts = {
+                    applicationId: id,
+                    method: "wallet",
+                    walletAddress: address,
+                    deviceName: typeof navigator !== "undefined" ? String(navigator.userAgent).slice(0, 48) : "Web"
+                };
+                var wAcc = getActiveUserId() && global.FLUserRegistry && global.FLUserRegistry.getByUserId
+                  ? global.FLUserRegistry.getByUserId(getActiveUserId()) : null;
+                if (wAcc && wAcc.publicUid) wOpts.uid = wAcc.publicUid;
+                var wRec = global.AdminKycAuditStore.pushFromUserSubmit(wOpts);
+                global.AdminKycAuditStore.review(wRec.id, "approve", "zkMe 钱包隐私证明自动通过", "system");
+            }
+        } catch (e) { /* ignore */ }
         return id;
     }
 
@@ -307,6 +322,46 @@
             status: "\u5f85\u5ba1\u6838",
             note: "\u8bc1\u4ef6 + \u4eba\u8138\u5df2\u63d0\u4ea4\uff0c\u7b49\u5f85 Verify \u6df7\u5408\u5ba1\u6838"
         });
+        try {
+            var pushOpts = {
+                applicationId: id,
+                method: "document",
+                country: (payload && payload.country) || null,
+                idType: (payload && payload.idType) || null,
+                idCardFront: imgs.idCardFront,
+                idCardBack: imgs.idCardBack,
+                faceSnapshot: imgs.faceSnapshot
+            };
+            if (global.AdminKycAuditStore && global.AdminKycAuditStore.pushFromUserSubmit) {
+                global.AdminKycAuditStore.pushFromUserSubmit(pushOpts);
+            } else if (global.FLUserRegistry) {
+                var uid = getActiveUserId();
+                var acc = uid && global.FLUserRegistry.getByUserId ? global.FLUserRegistry.getByUserId(uid) : null;
+                if (acc && acc.publicUid) pushOpts.uid = acc.publicUid;
+                var raw = localStorage.getItem("fl_admin_kyc_audit_v1");
+                var list = raw ? JSON.parse(raw) : [];
+                if (!Array.isArray(list)) list = [];
+                list.unshift({
+                    id: id,
+                    uid: pushOpts.uid || "000000",
+                    realName: "—",
+                    status: "待审核",
+                    deviceName: typeof navigator !== "undefined" ? String(navigator.userAgent).slice(0, 48) : "Web",
+                    deviceId: "WEB-" + Date.now().toString(36).toUpperCase(),
+                    ip: "—",
+                    region: "—",
+                    registeredAt: null,
+                    submittedAt: new Date().toISOString().replace("T", " ").slice(0, 19),
+                    reviewedAt: null,
+                    source: "user",
+                    method: "document",
+                    country: pushOpts.country,
+                    idType: pushOpts.idType,
+                    remark: ""
+                });
+                localStorage.setItem("fl_admin_kyc_audit_v1", JSON.stringify(list.slice(0, 200)));
+            }
+        } catch (e) { /* ignore */ }
         return id;
     }
 

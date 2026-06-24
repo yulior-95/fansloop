@@ -9,8 +9,7 @@
             items: [
                 { id: "account", label: "账户资料", href: "settings.html", icon: "fa-regular fa-user" },
                 { id: "security", label: "账户安全", href: "settings-security.html", icon: "fa-solid fa-shield-halved" },
-                { id: "wallet", label: "钱包与支付", href: "settings-wallet.html", icon: "fa-solid fa-wallet" },
-                { id: "invite", label: "我的邀请人", href: "settings-invite-relation.html", icon: "fa-solid fa-link" }
+                { id: "wallet", label: "钱包与支付", href: "settings-wallet.html", icon: "fa-solid fa-wallet" }
             ]
         },
         {
@@ -43,7 +42,6 @@
         "settings-security.html": "security",
         "settings-pay-password.html": "security",
         "settings-wallet.html": "wallet",
-        "settings-invite-relation.html": "invite",
         "settings-notification.html": "notification",
         "settings-privacy.html": "privacy",
         "settings-display.html": "display",

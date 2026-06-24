@@ -1,0 +1,603 @@
+/* KYC 审核记录页 */
+[data-admin-page="kyc-manage"] .admin-content {
+  padding-left: 0;
+  padding-right: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 56px);
+}
+
+[data-admin-page="kyc-manage"] .kyc-page-head,
+[data-admin-page="kyc-manage"] .kyc-dev-glass-bar,
+[data-admin-page="kyc-manage"] .admin-toolbar {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.kyc-filter-toolbar {
+  align-items: flex-end;
+  gap: 12px 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.kyc-filter-item {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+}
+
+.kyc-filter-label {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  line-height: 1.2;
+}
+
+.kyc-filter-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.kyc-filter-range .ant-input[type="datetime-local"] {
+  width: 178px;
+  min-width: 178px;
+  font-size: 12px;
+}
+
+.kyc-filter-range-sep {
+  color: rgba(0, 0, 0, 0.25);
+  font-size: 12px;
+}
+
+.kyc-filter-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-bottom: 1px;
+}
+
+[data-admin-page="kyc-manage"] .kyc-page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin-bottom: 4px;
+}
+
+[data-admin-page="kyc-manage"] .kyc-list-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-left: none;
+  border-right: none;
+  border-radius: 0;
+  margin-bottom: 0;
+  min-height: 0;
+}
+
+[data-admin-page="kyc-manage"] .kyc-list-card > .ant-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  min-height: 0;
+}
+
+[data-admin-page="kyc-manage"] .kyc-dev-glass-bar {
+  position: relative;
+  z-index: 30;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(114, 46, 209, 0.06), rgba(24, 144, 255, 0.05));
+  border: 1px solid rgba(114, 46, 209, 0.16);
+  overflow: visible;
+}
+
+.kyc-dev-glass-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: visible;
+}
+
+.kyc-dev-glass-sphere {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  border: 1px solid rgba(114, 46, 209, 0.28);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(255, 255, 255, 0.5) 40%,
+    rgba(114, 46, 209, 0.18) 75%,
+    rgba(24, 144, 255, 0.12) 100%
+  );
+  box-shadow:
+    0 4px 14px rgba(114, 46, 209, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  outline: none;
+  flex-shrink: 0;
+}
+
+.kyc-dev-glass-shine {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  width: 12px;
+  height: 7px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), transparent);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.kyc-dev-glass-txt {
+  position: relative;
+  z-index: 1;
+  font-size: 8px;
+  font-weight: 800;
+  line-height: 1.1;
+  text-align: center;
+  color: #531dab;
+  max-width: 30px;
+}
+
+/* 气泡在玻璃球下方展开，避免被工具栏/列表遮挡 */
+.kyc-dev-glass-pop {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 10px);
+  transform: translateX(-50%) translateY(-4px);
+  width: max-content;
+  max-width: min(300px, 72vw);
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(114, 46, 209, 0.22);
+  border-radius: 10px;
+  box-shadow: 0 10px 32px rgba(114, 46, 209, 0.16);
+  font-size: 12px;
+  line-height: 1.65;
+  color: rgba(0, 0, 0, 0.78);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+  z-index: 100;
+}
+
+.kyc-dev-glass-pop strong {
+  display: block;
+  font-size: 11px;
+  color: #531dab;
+  margin-bottom: 4px;
+}
+
+.kyc-dev-glass-pop::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -6px;
+  transform: translateX(-50%) rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.98);
+  border-left: 1px solid rgba(114, 46, 209, 0.22);
+  border-top: 1px solid rgba(114, 46, 209, 0.22);
+}
+
+.kyc-dev-glass-wrap:hover .kyc-dev-glass-pop,
+.kyc-dev-glass-wrap:focus-within .kyc-dev-glass-pop {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.kyc-table-scroll {
+  flex: 1;
+  overflow: auto;
+  width: 100%;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.kyc-audit-table {
+  font-size: 13px;
+}
+
+.kyc-audit-table table {
+  width: 100%;
+  min-width: 1320px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.kyc-audit-table th,
+.kyc-audit-table td {
+  white-space: nowrap;
+  padding: 12px 16px;
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.kyc-audit-table thead th {
+  background: #fafafa;
+  font-weight: 500;
+}
+
+.kyc-audit-table .col-sticky-left-1 {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  min-width: 56px;
+  border-right: 1px solid #f0f0f0;
+}
+
+.kyc-audit-table .col-sticky-left-2 {
+  position: sticky;
+  left: 56px;
+  z-index: 2;
+  min-width: 96px;
+  border-right: 1px solid #f0f0f0;
+  box-shadow: 4px 0 6px -2px rgba(0, 0, 0, 0.08);
+}
+
+.kyc-audit-table .col-sticky-right {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  min-width: 72px;
+  border-left: 1px solid #f0f0f0;
+  box-shadow: -4px 0 6px -2px rgba(0, 0, 0, 0.08);
+}
+
+.kyc-audit-table thead .col-sticky-left-1,
+.kyc-audit-table thead .col-sticky-left-2,
+.kyc-audit-table thead .col-sticky-right {
+  z-index: 3;
+  background: #fafafa;
+}
+
+/* 分页：页码居右，每页条数不换行 */
+[data-admin-page="kyc-manage"] .admin-pager-bar {
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+  padding: 12px 16px;
+  margin-top: 0;
+  border-top: 1px solid #f0f0f0;
+  background: #fff;
+}
+
+[data-admin-page="kyc-manage"] .admin-pager-total {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+[data-admin-page="kyc-manage"] .admin-pager-pages {
+  margin-left: auto;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+[data-admin-page="kyc-manage"] .admin-pager-size {
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-left: 16px;
+}
+
+[data-admin-page="kyc-manage"] .admin-pager-size .ant-input {
+  width: 56px;
+  min-width: 56px;
+}
+
+/* 详情弹窗 · 审核处置 */
+.kyc-review-radios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 13px;
+}
+
+.kyc-review-radios label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.kyc-review-form {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* 详情弹窗 · 审核记录表 */
+.kyc-audit-records-section {
+  margin-bottom: 4px;
+}
+
+.kyc-audit-records-title {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.kyc-audit-records-scroll {
+  overflow-x: auto;
+  margin-bottom: 4px;
+}
+
+.kyc-audit-records-table table {
+  width: 100%;
+  min-width: 960px;
+  font-size: 13px;
+}
+
+.kyc-audit-records-table th,
+.kyc-audit-records-table td {
+  padding: 10px 12px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.kyc-audit-records-table th:last-child,
+.kyc-audit-records-table td:last-child {
+  white-space: normal;
+  min-width: 120px;
+  max-width: 200px;
+}
+
+.kyc-audit-records-table tr.kyc-audit-row-active td {
+  background: #e6f4ff;
+}
+
+.kyc-id-thumb {
+  position: relative;
+  display: inline-block;
+  padding: 0;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+  line-height: 0;
+  background: #fff;
+  cursor: zoom-in;
+}
+
+.kyc-id-thumb img {
+  width: 72px;
+  height: 48px;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.kyc-id-thumb-zoom {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.kyc-id-thumb:hover {
+  border-color: #1677ff;
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.15);
+}
+
+.kyc-id-preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.kyc-id-preview-overlay.is-open {
+  display: flex;
+}
+
+.kyc-id-preview-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.kyc-id-preview-panel {
+  position: relative;
+  z-index: 1;
+  width: min(720px, 92vw);
+  max-height: 90vh;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.kyc-id-preview-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 2;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.kyc-id-preview-close:hover {
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.kyc-id-preview-title {
+  padding: 14px 48px 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.kyc-id-preview-body {
+  padding: 16px;
+  overflow: auto;
+  text-align: center;
+  background: #fafafa;
+}
+
+.kyc-id-preview-img {
+  max-width: 100%;
+  max-height: calc(90vh - 120px);
+  border-radius: 6px;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* 详情弹窗 · 审核进度 */
+.kyc-audit-progress {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.kyc-audit-progress-title {
+  margin: 0 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.kyc-progress-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.kyc-progress-step {
+  display: flex;
+  gap: 12px;
+  min-height: 72px;
+}
+
+.kyc-progress-rail {
+  position: relative;
+  width: 14px;
+  flex-shrink: 0;
+}
+
+.kyc-progress-dot {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 10px;
+  height: 10px;
+  margin: 4px auto 0;
+  border-radius: 50%;
+  background: #d9d9d9;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #d9d9d9;
+}
+
+.kyc-progress-step:not(:last-child) .kyc-progress-rail::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  bottom: -8px;
+  width: 2px;
+  transform: translateX(-50%);
+  background: #f0f0f0;
+}
+
+.kyc-progress-step.is-warn .kyc-progress-dot {
+  background: #fa8c16;
+  box-shadow: 0 0 0 2px #fa8c16;
+}
+
+.kyc-progress-step.is-warn:not(:last-child) .kyc-progress-rail::after {
+  background: #ffd591;
+}
+
+.kyc-progress-step.is-done .kyc-progress-dot {
+  background: #52c41a;
+  box-shadow: 0 0 0 2px #52c41a;
+}
+
+.kyc-progress-step.is-done:not(:last-child) .kyc-progress-rail::after {
+  background: #b7eb8f;
+}
+
+.kyc-progress-step.is-active .kyc-progress-dot {
+  background: #1677ff;
+  box-shadow: 0 0 0 2px #1677ff;
+}
+
+.kyc-progress-step.is-reject .kyc-progress-dot {
+  background: #ff4d4f;
+  box-shadow: 0 0 0 2px #ff4d4f;
+}
+
+.kyc-progress-content {
+  flex: 1;
+  padding-bottom: 16px;
+}
+
+.kyc-progress-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.kyc-progress-meta {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  margin-bottom: 4px;
+}
+
+.kyc-progress-desc {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.65);
+  line-height: 1.6;
+}
+
+.kyc-progress-meta strong {
+  color: #1677ff;
+  font-weight: 600;
+}

@@ -43,7 +43,7 @@
     }
 
     var state = {
-        coin: null,
+        coin: COINS[0],
         network: null
     };
 
@@ -165,7 +165,7 @@
     }
 
     function syncCoinTrigger() {
-        if (!coinTrigger) return;
+        if (!coinTrigger || (ddCoin && ddCoin.classList.contains('fl-dd-static-coin'))) return;
         var mid = coinTrigger.querySelector('.mid');
         var ph = coinTrigger.querySelector('.ph');
         var ic = coinTrigger.querySelector('.coin-ic');
@@ -313,22 +313,11 @@
         });
     }
 
-    setupDd(ddCoin, coinTrigger, function () {
-        renderCoinList();
-        if (coinSearch) {
-            coinSearch.value = '';
-            updateSearchClear(coinSearch, coinSearch.closest('.fl-search-row'));
-            setTimeout(function () {
-                coinSearch.focus();
-            }, 50);
-        }
-    });
-
     if (netTrigger && ddNet) {
         netTrigger.addEventListener('click', function (e) {
             e.stopPropagation();
             if (!state.coin) {
-                showToast('请先选择币种');
+                showToast('请先选择网络');
                 return;
             }
             var open = ddNet.classList.contains('open');
@@ -396,10 +385,8 @@
         });
     }
 
-    syncCoinTrigger();
     syncNetTrigger();
     updateNetDdDisabled();
-    renderCoinList();
     refreshNetList();
     updateAll();
     syncDdAria();

@@ -3,6 +3,11 @@
     var M = window.AdminModal;
     if (!Store) return;
 
+    var tbody = document.getElementById('monTableBody');
+    var pagerMount = document.getElementById('monPager');
+    var pager = null;
+    var lastIssues = [];
+
     function fmt(n) { return Number(n).toLocaleString('zh-CN'); }
 
     function render(data) {
@@ -25,7 +30,15 @@
                 return '<tr><td>' + d.date + '</td><td>' + fmt(d.base) + '</td><td style="color:#52c41a">+' + fmt(d.bonus) + '</td></tr>';
             }).join('') + '</tbody></table>';
 
-        document.getElementById('monTableBody').innerHTML = data.recentIssues.map(function (r) {
+        lastIssues = data.recentIssues || [];
+        if (pager) pager.setTotal(lastIssues.length);
+        var pageIssues = pager ? pager.getSlice(lastIssues) : lastIssues;
+        if (!tbody) return;
+        if (!pageIssues.length) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:rgba(0,0,0,.45)">暂无发放记录</td></tr>';
+            return;
+        }
+        tbody.innerHTML = pageIssues.map(function (r) {
             var tag = r.status === 'capped'
                 ? '<span class="ant-tag ant-tag-orange">触顶</span>'
                 : '<span class="ant-tag ant-tag-green">正常</span>';
@@ -41,7 +54,30 @@
         Store.fetchMonitor().then(render);
     }
 
+    if (pagerMount && window.AdminPager) {
+        pager = window.AdminPager.create({
+            mount: pagerMount,
+            pageSize: 10,
+            onChange: function () {
+                if (lastIssues.length) {
+                    var pageIssues = pager.getSlice(lastIssues);
+                    tbody.innerHTML = pageIssues.map(function (r) {
+                        var tag = r.status === 'capped'
+                            ? '<span class="ant-tag ant-tag-orange">触顶</span>'
+                            : '<span class="ant-tag ant-tag-green">正常</span>';
+                        return '<tr data-id="' + r.uid + '-' + r.time + '">' +
+                            '<td>' + r.time + '</td><td>' + r.uid + '</td><td>' + r.rule + '</td>' +
+                            '<td>+' + r.base + '</td><td>×' + r.multiplier + '</td><td><strong>+' + r.final + '</strong></td>' +
+                            '<td>' + tag + '</td>' +
+                            '<td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-mon-detail">详情</button></td></tr>';
+                    }).join('');
+                }
+            }
+        });
+    }
+
     document.getElementById('btnRefreshMon').addEventListener('click', function () {
+        if (pager) pager.resetPage();
         load();
         M.toast('监控数据已刷新（原型 Mock）');
     });

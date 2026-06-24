@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin-shell.css">
   <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/users-address-book.css">
 </head>
 <body data-admin-page="users-address-book">
 <div class="admin-app">
@@ -19,25 +20,31 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">地址簿管理</h1>
-      <p class="admin-page-desc">链上地址详情在<strong>弹窗</strong>查看。</p>
       <div class="admin-toolbar">
-        <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" placeholder="UID"></span>
-        <span class="ant-input-affix-wrapper" style="width:280px"><input class="ant-input" placeholder="地址关键字"></span>
+        <span class="ant-input-affix-wrapper" style="width:140px"><input class="ant-input" id="addrFilterUid" placeholder="用户 UID"></span>
+        <span class="ant-input-affix-wrapper" style="width:280px"><input class="ant-input" id="addrFilterKw" placeholder="提现地址 / 网络 / 备注"></span>
         <button type="button" class="ant-btn ant-btn-primary" id="addrQ">查询</button>
       </div>
-      <div class="ant-card ant-card-bordered">
-        <div class="ant-card-body" style="padding-top:0">
-          <div class="ant-table ant-table-bordered ant-table-middle">
-            <table style="width:100%">
-              <thead class="ant-table-thead">
-                <tr><th>UID</th><th>网络</th><th>地址</th><th>备注</th><th>创建时间</th><th>最近使用</th><th>操作</th></tr>
-              </thead>
-              <tbody class="ant-table-tbody">
-                <tr><td>882910</td><td>TRON</td><td><code>TXYZexampleAddress1122334455</code></td><td>主地址</td><td>2026-01-02</td><td>2026-05-11</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-d">详情</button></td></tr>
-                <tr><td>102938</td><td>ETH</td><td><code>0x71C7656EC7ab88b098defB751B7401B5f6d8976F</code></td><td>冷钱包</td><td>2026-03-20</td><td>—</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-d">详情</button></td></tr>
-              </tbody>
-            </table>
+      <div class="ant-card ant-card-bordered addr-list-card">
+        <div class="ant-card-body">
+          <div class="addr-table-scroll">
+            <div class="ant-table ant-table-bordered ant-table-middle addr-audit-table">
+              <table>
+                <thead class="ant-table-thead">
+                  <tr>
+                    <th class="col-sticky-left">UID</th>
+                    <th>网络</th>
+                    <th>提现地址</th>
+                    <th>备注</th>
+                    <th>创建时间</th>
+                    <th>最近使用</th>
+                  </tr>
+                </thead>
+                <tbody class="ant-table-tbody" id="addrTbody" data-pager="js"></tbody>
+              </table>
+            </div>
           </div>
+          <div id="addrPager"></div>
         </div>
       </div>
     </main>
@@ -45,21 +52,6 @@
 </div>
 <script src="js/admin-nav.js"></script>
 <script src="js/admin-modal.js"></script>
-<script>
-(function () {
-  var M = window.AdminModal;
-  document.getElementById("addrQ").addEventListener("click", function () {
-    M.toast("已查询（原型）");
-  });
-  document.querySelector("main.admin-content").addEventListener("click", function (e) {
-    if (!e.target.classList.contains("js-d")) return;
-    M.open({
-      title: "提币地址详情",
-      body: "<p style='margin:0'>标签来源、风控扫描结果、与用户 KYC 等级关联（原型占位）。</p>",
-      footer: [{ text: "关闭", primary: true, onClick: M.close }]
-    });
-  });
-})();
-</script>
+<script src="js/users-address-book-page.js"></script>
 </body>
 </html>

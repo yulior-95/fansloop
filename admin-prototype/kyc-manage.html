@@ -3,111 +3,150 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>KYC 管理 · FansLoop 运营后台</title>
+  <title>KYC 审核记录 · FansLoop 运营后台</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin-shell.css">
   <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/admin-pagination.css">
+  <link rel="stylesheet" href="css/kyc-manage.css">
 </head>
 <body data-admin-page="kyc-manage">
 <div class="admin-app">
   <aside class="admin-sider" id="adminSider"></aside>
   <div class="admin-main">
     <header class="admin-header">
-      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 用户管理 / KYC 管理</span></div>
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 用户管理 / KYC 审核记录</span></div>
       <div class="admin-header-right"><div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>合规审核</span></div></div>
     </header>
     <main class="admin-content">
-      <h1 class="admin-page-title">KYC 管理</h1>
-      <p class="admin-page-desc">与前台 <code>localStorage</code> 共用数据：用户通过 <strong>zkMe 钱包验证</strong> 或 <strong>证件+人脸</strong> 提交后，Verify 混合审核（机审+人工）流水在此展示。处置结论将同步用户「设置」与认证状态页。</p>
-      <div class="ant-card ant-card-bordered" style="margin-bottom:16px">
-        <div class="ant-card-body" id="kycCurrentUser" style="font-size:13px;line-height:1.75"></div>
+      <div class="kyc-page-head">
+        <h1 class="admin-page-title" style="margin:0">KYC 审核记录</h1>
       </div>
-      <div class="admin-toolbar">
-        <span class="ant-input-affix-wrapper" style="width:220px"><input class="ant-input" id="kycQ" placeholder="UID / 单号 / 用户昵称"></span>
-        <button type="button" class="ant-btn ant-btn-primary" id="kycSearch">查询</button>
-        <button type="button" class="ant-btn" id="kycClearDemo">清空演示数据</button>
+
+      <div class="kyc-dev-glass-bar" aria-label="研发批注">
+        <span style="font-size:12px;font-weight:600;color:#531dab;white-space:nowrap"><i class="fa-solid fa-flask"></i> To 研发</span>
+        <span class="kyc-dev-glass-wrap">
+          <span class="kyc-dev-glass-sphere" tabindex="0" aria-describedby="kycDevTip2">
+            <span class="kyc-dev-glass-shine"></span>
+            <span class="kyc-dev-glass-txt">② 来源</span>
+          </span>
+          <span class="kyc-dev-glass-pop" id="kycDevTip2" role="tooltip">
+            <strong>② 数据来源</strong>
+            审核记录由两类入口写入：<b>用户端</b>发起 KYC 申请（证件+人脸 / 钱包 zkMe）后推送待审核流水；<b>运营后台</b>在用户详情中「KYC 认证」代客完成时，直接生成<b>已通过</b>记录（source=admin）。统一落库 <code>fl_admin_kyc_audit_v1</code>，与用户资产 <code>assets.kyc</code> 状态联动。
+          </span>
+        </span>
+        <span class="kyc-dev-glass-wrap">
+          <span class="kyc-dev-glass-sphere" tabindex="0" aria-describedby="kycDevTip3">
+            <span class="kyc-dev-glass-shine"></span>
+            <span class="kyc-dev-glass-txt">③ 列表</span>
+          </span>
+          <span class="kyc-dev-glass-pop" id="kycDevTip3" role="tooltip">
+            <strong>③ 列表字段与分页</strong>
+            列：序号、用户 UID（全局蓝色可点进用户详情）、真实姓名（证件 OCR，含中/英等多语言名）、状态（待审核/通过/驳回）、设备名称、设备号、IP、地区、注册/提交/审核时间（精确到秒）、操作（查看）。支持按 <b>UID、真实姓名、状态、提交时间、审核时间</b> 筛选；底部分页条复用 <code>AdminPager</code>，默认每页 10 条。
+          </span>
+        </span>
+        <span class="kyc-dev-glass-wrap">
+          <span class="kyc-dev-glass-sphere" tabindex="0" aria-describedby="kycDevTip4">
+            <span class="kyc-dev-glass-shine"></span>
+            <span class="kyc-dev-glass-txt">④ 详情</span>
+          </span>
+          <span class="kyc-dev-glass-pop" id="kycDevTip4" role="tooltip">
+            <strong>④ 查看 · 审核弹窗</strong>
+            弹窗主体为<b>审核记录表</b>：每次提交一行，列含 UID、身份证号、身份证头像面/国徽面缩略图、提交/审核时间、审核人、拒绝原因；同一用户驳回后重提会产生多行。待审核记录可在底部单选通过/驳回并填写拒绝原因，提交需谷歌验证。
+          </span>
+        </span>
+        <span class="kyc-dev-glass-wrap">
+          <span class="kyc-dev-glass-sphere" tabindex="0" aria-describedby="kycDevTip5">
+            <span class="kyc-dev-glass-shine"></span>
+            <span class="kyc-dev-glass-txt">⑤ 代认证</span>
+          </span>
+          <span class="kyc-dev-glass-pop" id="kycDevTip5" role="tooltip">
+            <strong>⑤ 后台便捷 KYC 认证</strong>
+            运营在用户列表详情中执行「KYC 认证」后，除更新用户 <code>kycStatus</code> 外，须向本模块写入一条 <code>source=admin</code>、<code>status=通过</code> 的审核记录，<b>提交时间 = 审核时间</b>，无需人工复核队列。设备/IP 字段可为「—」。
+          </span>
+        </span>
       </div>
-      <div class="ant-card ant-card-bordered">
-        <div class="ant-card-body" style="padding-top:0">
-          <div class="ant-table ant-table-bordered ant-table-middle">
-            <table style="width:100%">
-              <thead class="ant-table-thead">
-                <tr><th>单号</th><th>提交时间</th><th>用户</th><th>来源渠道</th><th>机审 / 人工</th><th>状态</th><th>操作</th></tr>
-              </thead>
-              <tbody class="ant-table-tbody" id="kycTbody"></tbody>
-            </table>
+
+      <div class="admin-toolbar kyc-filter-toolbar">
+        <label class="kyc-filter-item">
+          <span class="kyc-filter-label">用户 UID</span>
+          <input class="ant-input" id="kycFilterUid" type="text" inputmode="numeric" placeholder="如 882910" style="width:120px">
+        </label>
+        <label class="kyc-filter-item">
+          <span class="kyc-filter-label">真实姓名</span>
+          <input class="ant-input" id="kycFilterName" type="text" placeholder="证件 OCR 姓名" style="width:140px">
+        </label>
+        <label class="kyc-filter-item">
+          <span class="kyc-filter-label">状态</span>
+          <select class="ant-input" id="kycFilterStatus" style="width:120px">
+            <option value="">全部</option>
+            <option value="待审核">待审核</option>
+            <option value="通过">通过</option>
+            <option value="驳回">驳回</option>
+          </select>
+        </label>
+        <label class="kyc-filter-item kyc-filter-item-range">
+          <span class="kyc-filter-label">提交时间</span>
+          <span class="kyc-filter-range">
+            <input class="ant-input" id="kycFilterSubmitStart" type="datetime-local" aria-label="提交开始时间">
+            <span class="kyc-filter-range-sep">—</span>
+            <input class="ant-input" id="kycFilterSubmitEnd" type="datetime-local" aria-label="提交结束时间">
+          </span>
+        </label>
+        <label class="kyc-filter-item kyc-filter-item-range">
+          <span class="kyc-filter-label">审核时间</span>
+          <span class="kyc-filter-range">
+            <input class="ant-input" id="kycFilterReviewStart" type="datetime-local" aria-label="审核开始时间">
+            <span class="kyc-filter-range-sep">—</span>
+            <input class="ant-input" id="kycFilterReviewEnd" type="datetime-local" aria-label="审核结束时间">
+          </span>
+        </label>
+        <span class="kyc-filter-actions">
+          <button type="button" class="ant-btn ant-btn-primary" id="kycSearch">查询</button>
+          <button type="button" class="ant-btn" id="kycFilterReset">重置</button>
+          <button type="button" class="ant-btn" id="kycResetDemo">重置演示数据</button>
+        </span>
+      </div>
+
+      <div class="ant-card ant-card-bordered kyc-list-card">
+        <div class="ant-card-body">
+          <div class="kyc-table-scroll">
+            <div class="ant-table ant-table-bordered ant-table-middle kyc-audit-table">
+              <table>
+                <thead class="ant-table-thead">
+                  <tr>
+                    <th class="col-sticky-left-1">序号</th>
+                    <th class="col-sticky-left-2">用户 UID</th>
+                    <th>真实姓名</th>
+                    <th>状态</th>
+                    <th>设备名称</th>
+                    <th>设备号</th>
+                    <th>IP 地址</th>
+                    <th>地区</th>
+                    <th>注册时间</th>
+                    <th>提交时间</th>
+                    <th>审核时间</th>
+                    <th class="col-sticky-right">操作</th>
+                  </tr>
+                </thead>
+                <tbody class="ant-table-tbody" id="kycTbody" data-pager="js"></tbody>
+              </table>
+            </div>
           </div>
-          <div id="kycEmpty" style="display:none;padding:40px;text-align:center;color:#999">暂无 KYC 流水。请在前台完成钱包验证或证件认证后刷新本页。</div>
+          <div id="kycPager"></div>
         </div>
       </div>
     </main>
   </div>
 </div>
-<script src="../js-web/kyc-store.js"></script>
 <script src="js/admin-nav.js"></script>
 <script src="js/admin-modal.js"></script>
-<script>
-(function () {
-  var KS = window.FansloopKycStore;
-  var M = window.AdminModal;
-  function pill(st) {
-    if (!st) return "—";
-    if (st.indexOf("通过") !== -1) return '<span class="ant-tag ant-tag-green">' + st + "</span>";
-    if (st.indexOf("拒绝") !== -1 || st.indexOf("驳回") !== -1) return '<span class="ant-tag ant-tag-red">' + st + "</span>";
-    if (st.indexOf("人工") !== -1 || st === "转人工") return '<span class="ant-tag ant-tag-orange">' + st + "</span>";
-    return '<span class="ant-tag">' + st + "</span>";
-  }
-  function renderCurrent() {
-    var k = KS.readKyc();
-    var box = document.getElementById("kycCurrentUser");
-    if (!box) return;
-    var src = k.authSource === "wallet" ? "钱包 · zkMe" : k.authSource === "document" ? "证件认证" : "—";
-    box.innerHTML =
-      "<strong>当前演示用户</strong> · status: <code>" + (k.status || "none") + "</code> · auth: <code>" + (k.authStatus || "—") + "</code><br>" +
-      "认证方式：" + src + " · 单号：<code>" + (k.lastId || "—") + "</code> · ZKP：<code>" + (k.zkpStatus || "unknown") + "</code>" +
-      (k.walletAddress ? "<br>钱包：" + k.walletAddress : "");
-  }
-  function render() {
-    renderCurrent();
-    var rows = KS.readAuditLog().filter(function (r) {
-      var ch = (r.channel || "").toUpperCase();
-      var pip = r.pipeline || "";
-      return ch.indexOf("KYC") !== -1 || ch.indexOf("ZKME") !== -1 || pip === "机审" || pip === "人工" || pip === "Verify" || pip === "zkMe";
-    });
-    var tb = document.getElementById("kycTbody");
-    var empty = document.getElementById("kycEmpty");
-    tb.innerHTML = "";
-    if (!rows.length) {
-      empty.style.display = "block";
-      return;
-    }
-    empty.style.display = "none";
-    rows.forEach(function (r) {
-      var tr = document.createElement("tr");
-      var idEnc = encodeURIComponent(r.id || "");
-      tr.innerHTML =
-        "<td><code style='font-size:11px'>" + (r.id || "—") + "</code></td>" +
-        "<td>" + (r.time || "—") + "</td>" +
-        "<td>" + (r.user || "—") + "</td>" +
-        "<td>" + (r.channel || "—") + "</td>" +
-        "<td>" + (r.pipeline || "—") + "</td>" +
-        "<td>" + pill(r.status) + "</td>" +
-        "<td><a class='ant-btn ant-btn-link ant-btn-sm' href='kyc-detail.html?id=" + idEnc + "'>详情</a></td>";
-      tb.appendChild(tr);
-    });
-  }
-  document.getElementById("kycSearch").addEventListener("click", function () {
-    M.toast("已查询（原型）：列表来自本机 localStorage");
-  });
-  document.getElementById("kycClearDemo").addEventListener("click", function () {
-    if (!confirm("清空 fansloop_kyc 与审核流水？")) return;
-    KS.resetKyc();
-    M.toast("已清空");
-    render();
-  });
-  render();
-})();
-</script>
+<script src="js/admin-kyc-config-store.js?v=1"></script>
+<script src="js/admin-kyc-audit-store.js?v=3"></script>
+<script src="js/admin-pagination.js"></script>
+<script src="js/users-list-page.js"></script>
+<script src="js/admin-uid-link.js"></script>
+<script src="js/kyc-manage-page.js?v=10"></script>
 </body>
 </html>

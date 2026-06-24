@@ -6,6 +6,8 @@
   if (!M) return;
 
   var tbody = document.getElementById("usersTableBody");
+  var pagerMount = document.getElementById("usersPager");
+  var pager = null;
 
   var MOCK_USERS = [
     {
@@ -93,6 +95,56 @@
       ],
       opLogs: [
         { time: "2026-06-12 09:30:00", operator: "chenchen@fansloop.io", action: "禁用账号", detail: "违规内容", result: "成功" }
+      ]
+    },
+    {
+      uid: "771201",
+      nickname: "John Smith",
+      username: "john_smith",
+      email: "john.smith@example.com",
+      inviteCode: "",
+      kycStatus: "已认证",
+      updatedAt: "2026-06-15 09:13:02",
+      registeredAt: "2026-05-02 11:20:00",
+      regLocation: "California, US",
+      regIp: "192.0.2.88",
+      accountStatus: "正常",
+      walletStatus: "启用",
+      regChannel: "App",
+      regDevice: "Safari / iOS",
+      payPasswordSet: true,
+      ledger: [
+        { category: "recharge", time: "2026-06-15 09:12:44", type: "链上充值", currency: "USDT", change: "+500.00", balance: "500.00", orderId: "CH771201" }
+      ],
+      loginLogs: [
+        { time: "2026-06-15 09:10:00", ip: "192.0.2.88", location: "California", device: "Safari / iOS", result: "成功" }
+      ],
+      opLogs: [
+        { time: "2026-06-15 09:13:02", operator: "system", action: "KYC 钱包认证", detail: "zkMe 自动通过", result: "成功" }
+      ]
+    },
+    {
+      uid: "339011",
+      nickname: "李明辉",
+      username: "li_minghui",
+      email: "minghui.lee@example.com",
+      inviteCode: "SG2026",
+      kycStatus: "已认证",
+      updatedAt: "2026-06-23 10:00:00",
+      registeredAt: "2026-04-08 16:45:30",
+      regLocation: "新加坡",
+      regIp: "—",
+      accountStatus: "正常",
+      walletStatus: "启用",
+      regChannel: "Web",
+      regDevice: "Chrome / Windows",
+      payPasswordSet: true,
+      ledger: [],
+      loginLogs: [
+        { time: "2026-04-08 16:45:30", ip: "203.0.113.10", location: "新加坡", device: "Chrome / Windows", result: "成功" }
+      ],
+      opLogs: [
+        { time: "2026-06-23 10:00:00", operator: "当前运营", action: "KYC 认证", detail: "后台代认证", result: "成功" }
       ]
     }
   ];
@@ -336,6 +388,22 @@
                 user.kycStatus = "已认证";
                 user.updatedAt = "2026-06-23 10:00:00";
                 user.kycMeta = data;
+                if (window.AdminKycAuditStore && window.AdminKycAuditStore.pushFromAdminApprove) {
+                  window.AdminKycAuditStore.pushFromAdminApprove({
+                    uid: uid,
+                    method: data.method,
+                    country: data.country,
+                    idType: data.idType,
+                    walletAddress: data.walletAddress,
+                    registeredAt: user.registeredAt,
+                    region: user.regLocation,
+                    idCardFront: data.idCardFront,
+                    idCardBack: data.idCardBack,
+                    faceSnapshot: data.faceSnapshot,
+                    remark: data.note ? "后台代认证（" + data.note + "）" : "后台代认证",
+                    reviewer: "当前运营"
+                  });
+                }
                 user.opLogs.unshift({
                   time: "2026-06-23 10:00:00",
                   operator: "当前运营",
@@ -368,11 +436,42 @@
     });
   }
 
+  function buildUserFromKyc(uid) {
+    var Store = window.AdminKycAuditStore;
+    if (!Store || !Store.getHistoryByUid) return null;
+    var history = Store.getHistoryByUid(uid);
+    if (!history.length) return null;
+    var latest = history[0];
+    var kycStatus = "尚未认证";
+    if (latest.status === "通过") kycStatus = "已认证";
+    else if (latest.status === "待审核") kycStatus = "尚未认证";
+    return {
+      uid: uid,
+      nickname: latest.realName || "—",
+      username: "user_" + uid,
+      email: "",
+      inviteCode: "",
+      kycStatus: kycStatus,
+      updatedAt: latest.submittedAt || "—",
+      registeredAt: latest.registeredAt || "—",
+      regLocation: latest.region || "—",
+      regIp: latest.ip || "—",
+      accountStatus: "正常",
+      walletStatus: "启用",
+      regChannel: latest.source === "admin" ? "后台" : "App",
+      regDevice: latest.deviceName || "—",
+      payPasswordSet: false,
+      ledger: [],
+      loginLogs: [],
+      opLogs: []
+    };
+  }
+
   function getUserByUid(uid) {
     for (var i = 0; i < MOCK_USERS.length; i++) {
       if (MOCK_USERS[i].uid === uid) return MOCK_USERS[i];
     }
-    return null;
+    return buildUserFromKyc(uid);
   }
 
   function getFilteredUsers() {
@@ -405,11 +504,15 @@
     if (!tbody) return;
     var users = getFilteredUsers();
     if (!users.length) {
+      if (pager) pager.setTotal(0);
       tbody.innerHTML =
         '<tr><td colspan="13" style="text-align:center;padding:32px;color:rgba(0,0,0,.45)">暂无匹配用户</td></tr>';
       return;
     }
-    tbody.innerHTML = users
+    if (pager) pager.setTotal(users.length);
+    var pageUsers = pager ? pager.getSlice(users) : users;
+    var startIdx = pager ? (pager.getPage() - 1) * pager.getPageSize() : 0;
+    tbody.innerHTML = pageUsers
       .map(function (u) {
         return (
           '<tr data-uid="' +
@@ -780,7 +883,7 @@
   function openUserDetail(uid) {
     var user = getUserByUid(uid);
     if (!user) {
-      M.toast("未找到用户 UID：" + uid);
+      M.notify("未找到用户 UID：" + uid, "error");
       return;
     }
 
@@ -904,8 +1007,19 @@
   var btnQuery = document.getElementById("btnQueryUsers");
   if (btnQuery) {
     btnQuery.addEventListener("click", function () {
+      if (pager) pager.resetPage();
       renderTable();
       M.toast("已查询 " + getFilteredUsers().length + " 条（原型）");
+    });
+  }
+
+  if (pagerMount && window.AdminPager) {
+    pager = window.AdminPager.create({
+      mount: pagerMount,
+      pageSize: 10,
+      onChange: function () {
+        renderTable();
+      }
     });
   }
 
