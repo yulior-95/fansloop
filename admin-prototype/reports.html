@@ -76,20 +76,13 @@
 (function () {
   var M = window.AdminModal;
   document.getElementById("repCsv").addEventListener("click", function () {
-    M.open({
-      title: "导出报表 CSV",
-      body: "<p style='margin:0'>按当前时间范围导出聚合指标表。</p>",
-      footer: [
-        { text: "取消", onClick: M.close },
-        {
-          text: "创建任务",
-          primary: true,
-          onClick: function () {
-            M.close();
-            M.toast("导出任务已创建（原型）");
-          }
-        }
-      ]
+    if (!window.AdminExport) return;
+    AdminExport.confirm({
+      title: "导出报表",
+      body: "<p style='margin:0'>按当前时间范围导出聚合指标 Excel 表。</p>",
+      exportType: "报表统计",
+      sourcePage: "reports.html",
+      conditionsText: "时间范围：当前页选择范围"
     });
   });
   document.getElementById("repApply").addEventListener("click", function () {

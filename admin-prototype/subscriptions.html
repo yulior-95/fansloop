@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin-shell.css">
   <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/subscriptions.css">
 </head>
 <body data-admin-page="subscriptions">
 <div class="admin-app">
@@ -22,26 +23,64 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">订阅记录</h1>
-      <p class="admin-page-desc">有效期、支付单、续费开关在<strong>详情弹窗</strong>查看。</p>
-      <div class="admin-toolbar">
-        <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" placeholder="订阅用户 UID"></span>
-        <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" placeholder="创作者 ID"></span>
-        <select class="ant-input" style="width:160px"><option>全部状态</option><option>生效中</option><option>已过期</option><option>已取消</option></select>
-        <button type="button" class="ant-btn ant-btn-primary" id="subQ">查询</button>
+      <div class="admin-toolbar ord-filter-toolbar">
+        <label class="ord-filter-item">
+          <span class="ord-filter-label">用户 UID</span>
+          <input class="ant-input" id="subFilterUserUid" type="text" inputmode="numeric" placeholder="如 882910" style="width:120px">
+        </label>
+        <label class="ord-filter-item">
+          <span class="ord-filter-label">创作者 UID</span>
+          <input class="ant-input" id="subFilterCreatorUid" type="text" inputmode="numeric" placeholder="如 440012" style="width:120px">
+        </label>
+        <label class="ord-filter-item">
+          <span class="ord-filter-label">状态</span>
+          <select class="ant-input" id="subFilterStatus" style="width:120px">
+            <option value="">全部</option>
+            <option>生效中</option>
+            <option>已过期</option>
+            <option>已取消</option>
+          </select>
+        </label>
+        <label class="ord-filter-item">
+          <span class="ord-filter-label">剩余天数</span>
+          <span class="ord-filter-range">
+            <input class="ant-input" id="subFilterRemainMin" type="number" min="0" placeholder="最小" style="width:72px" aria-label="剩余天数最小值">
+            <span class="ord-filter-range-sep">—</span>
+            <input class="ant-input" id="subFilterRemainMax" type="number" min="0" placeholder="最大" style="width:72px" aria-label="剩余天数最大值">
+          </span>
+        </label>
+        <span class="ord-filter-actions">
+          <button type="button" class="ant-btn ant-btn-primary" id="subQ">查询</button>
+          <button type="button" class="ant-btn" id="subReset">重置</button>
+        </span>
       </div>
-      <div class="ant-card ant-card-bordered">
-        <div class="ant-card-body" style="padding-top:0">
-          <div class="ant-table ant-table-bordered ant-table-middle">
-            <table style="width:100%">
-              <thead class="ant-table-thead">
-                <tr><th>订阅 ID</th><th>用户</th><th>创作者</th><th>套餐</th><th>有效期起止</th><th>剩余天数</th><th>续费</th><th>操作</th></tr>
-              </thead>
-              <tbody class="ant-table-tbody">
-                <tr data-sid="SUB_00912"><td><code>SUB_00912</code></td><td>882910</td><td>@creator_hana</td><td>月度</td><td>2026-05-01 ~ 2026-06-01</td><td><span class="ant-tag ant-tag-green">21 天</span></td><td>开</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-sub-d">详情</button></td></tr>
-                <tr data-sid="SUB_00801"><td><code>SUB_00801</code></td><td>102938</td><td>@alex_studio</td><td>季度</td><td>2026-02-10 ~ 2026-05-10</td><td><span class="ant-tag ant-tag-red">已到期</span></td><td>关</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-sub-d">详情</button></td></tr>
-              </tbody>
-            </table>
+      <div class="ant-card ant-card-bordered sub-list-card">
+        <div class="ant-card-body">
+          <div class="ord-table-scroll">
+            <div class="ant-table ant-table-bordered ant-table-middle sub-audit-table">
+              <table>
+                <thead class="ant-table-thead">
+                  <tr>
+                    <th class="col-sticky-left">序号</th>
+                    <th>用户UID</th>
+                    <th>用户昵称</th>
+                    <th>创作者UID</th>
+                    <th>创作者昵称</th>
+                    <th>套餐</th>
+                    <th>订阅时间</th>
+                    <th>结束时间</th>
+                    <th>剩余天数</th>
+                    <th>是否开启自动续约</th>
+                    <th>订单号</th>
+                    <th class="col-remark">备注</th>
+                    <th class="col-actions">操作</th>
+                  </tr>
+                </thead>
+                <tbody class="ant-table-tbody" id="subTbody" data-pager="js"></tbody>
+              </table>
+            </div>
           </div>
+          <div id="subPager"></div>
         </div>
       </div>
     </main>
@@ -49,43 +88,6 @@
 </div>
 <script src="js/admin-nav.js"></script>
 <script src="js/admin-modal.js"></script>
-<script>
-(function () {
-  var M = window.AdminModal;
-  document.getElementById("subExp").addEventListener("click", function () {
-    M.open({
-      title: "导出订阅记录",
-      body: "<p style='margin:0'>含支付渠道、续费周期、到期时间。</p>",
-      footer: [
-        { text: "取消", onClick: M.close },
-        {
-          text: "创建任务",
-          primary: true,
-          onClick: function () {
-            M.close();
-            M.toast("导出任务已创建（原型）");
-          }
-        }
-      ]
-    });
-  });
-  document.getElementById("subQ").addEventListener("click", function () {
-    M.toast("已查询（原型）");
-  });
-  document.querySelector("main.admin-content").addEventListener("click", function (e) {
-    if (!e.target.classList.contains("js-sub-d")) return;
-    var sid = e.target.closest("tr").getAttribute("data-sid");
-    M.open({
-      title: "订阅详情 · " + sid,
-      wide: true,
-      body:
-        "<table style='width:100%;border-collapse:collapse;border:1px solid #f0f0f0;font-size:13px'><tr><th style='padding:8px;background:#fafafa;width:30%'>支付单号</th><td style='padding:8px'><code>pay_sub_009</code></td></tr>" +
-        "<tr><th style='padding:8px;background:#fafafa'>下次扣款</th><td style='padding:8px'>2026-06-01 10:00</td></tr>" +
-        "<tr><th style='padding:8px;background:#fafafa'>历史续费</th><td style='padding:8px'>共 3 笔（原型）</td></tr></table>",
-      footer: [{ text: "关闭", primary: true, onClick: M.close }]
-    });
-  });
-})();
-</script>
+<script src="js/subscriptions-page.js"></script>
 </body>
 </html>

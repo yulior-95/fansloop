@@ -295,20 +295,19 @@
     var expBtn = document.getElementById("ledExp");
     if (!expBtn) return;
     expBtn.addEventListener("click", function () {
-      M.open({
+      if (!window.AdminExport) return;
+      AdminExport.confirm({
         title: "导出账变记录",
-        body: "<p style='margin:0'>支持按当前筛选条件异步导出 CSV。</p>",
-        footer: [
-          { text: "取消", onClick: M.close },
-          {
-            text: "创建任务",
-            primary: true,
-            onClick: function () {
-              M.close();
-              M.toast("导出任务已创建（原型）");
-            }
-          }
-        ]
+        body: "<p style='margin:0'>支持按当前筛选条件异步导出 Excel，完成后在「导出任务列表」下载。</p>",
+        exportType: "账变记录",
+        sourcePage: "users-ledger.html",
+        getConditions: function () {
+          return AdminExport.conditions([
+            { label: "账变类型", value: (filterType && filterType.value) || "全部" },
+            { label: "用户 UID", el: filterUid },
+            { label: "日期", el: filterDate }
+          ]);
+        }
       });
     });
   }

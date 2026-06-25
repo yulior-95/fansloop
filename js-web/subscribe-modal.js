@@ -8,6 +8,14 @@
     var selectedVoucherId = null;
     var appliedPromo = null;
     var state = { creator: '创作者', creatorUserId: null, price: 16, mode: 'subscribe' };
+    var UPGRADE_DEMO = {
+        creatorUserId: '440012',
+        creatorNames: ['Luna 🌙', '花漾Hana'],
+        currentPlan: 'monthly',
+        remainDays: 21,
+        creditAmount: 19.6
+    };
+    var PLAN_RANK = { monthly: 1, quarterly: 2, annual: 3 };
     var SUB_STEPS = ['subStep1', 'subStepRecharge', 'subStepPayPwdMissing', 'subStepPayPwd', 'subStep2'];
 
     function payPwdStore() {
@@ -81,6 +89,16 @@
         return getWalletBalance() >= price;
     }
 
+    function formatUsdt(n) {
+        n = Number(n) || 0;
+        var w = wallet();
+        if (w && w.format) return w.format(n);
+        if (global.FLUserAssets && global.FLUserAssets.formatUsdt) {
+            return global.FLUserAssets.formatUsdt(n);
+        }
+        return (Math.round(n * 100) / 100).toFixed(2);
+    }
+
     function formatBalance(n) {
         var w = wallet();
         return w ? w.format(n) : formatUsdt(n);
@@ -122,8 +140,30 @@
         return store.calcDiscountedPrice(base, voucher);
     }
 
+    function isUpgradeCreator() {
+        if (state.creatorUserId && state.creatorUserId === UPGRADE_DEMO.creatorUserId) return true;
+        return UPGRADE_DEMO.creatorNames.indexOf(state.creator) >= 0;
+    }
+
+    function getUpgradeCredit() {
+        if (state.mode === 'renew') return null;
+        if (!isUpgradeCreator()) return null;
+        var planType = getSelectedPlanType();
+        var curRank = PLAN_RANK[UPGRADE_DEMO.currentPlan] || 0;
+        var nextRank = PLAN_RANK[planType] || 0;
+        if (nextRank <= curRank) return null;
+        return {
+            remainDays: UPGRADE_DEMO.remainDays,
+            creditAmount: UPGRADE_DEMO.creditAmount,
+            currentPlanLabel: UPGRADE_DEMO.currentPlan === 'monthly' ? '月付' : UPGRADE_DEMO.currentPlan
+        };
+    }
+
     function getSelectedPrice() {
-        return getFinalPrice();
+        var due = getFinalPrice();
+        var credit = getUpgradeCredit();
+        if (!credit) return due;
+        return Math.max(0, Math.round((due - credit.creditAmount) * 100) / 100);
     }
 
     function ensurePromoCodeUI() {
@@ -258,8 +298,17 @@
         if (!summary) return;
         var base = getBasePrice();
         var final = getFinalPrice();
+        var payable = getSelectedPrice();
         var promo = getAppliedPromo();
         var voucher = getSelectedVoucher();
+        var credit = getUpgradeCredit();
+        if (credit) {
+            summary.hidden = false;
+            summary.innerHTML =
+                '套餐原价 ' + formatUsdt(final) + ' USDT，升购抵扣剩余 ' + credit.remainDays +
+                ' 天（−' + formatUsdt(credit.creditAmount) + ' USDT），<b>应付 ' + formatUsdt(payable) + ' USDT</b>';
+            return;
+        }
         if (promo && final < base) {
             summary.hidden = false;
             summary.innerHTML = '应付 <b>' + formatUsdt(final) + ' USDT</b>（原价 ' + formatUsdt(base) +
@@ -321,6 +370,110 @@
         list.innerHTML = html;
         updatePriceSummary();
         refreshBalanceBar();
+    }
+
+    function ensureRechargeUpgradeRows() {
+        var summary = document.querySelector('#subStepRecharge .sub-pay-summary');
+        if (!summary || document.getElementById('subRechargeCreditRow')) return;
+
+        var listRow = document.createElement('div');
+        listRow.className = 'row';
+        listRow.id = 'subRechargeListRow';
+        listRow.style.display = 'none';
+        listRow.innerHTML = '<span>套餐原价</span><span class="v" id="subRechargeListPrice">—</span>';
+
+        var creditRow = document.createElement('div');
+        creditRow.className = 'row is-discount';
+        creditRow.id = 'subRechargeCreditRow';
+        creditRow.style.display = 'none';
+        creditRow.innerHTML =
+            '<span id="subRechargeCreditLabel">升购抵扣</span><span class="v" id="subRechargeCreditVal">—</span>';
+
+        var rows = summary.querySelectorAll('.row');
+        var dueRow = rows[rows.length - 1];
+        if (dueRow) {
+            summary.insertBefore(creditRow, dueRow);
+            summary.insertBefore(listRow, creditRow);
+        } else {
+            summary.appendChild(listRow);
+            summary.appendChild(creditRow);
+        }
+    }
+
+    function renderRechargeUpgradeSummary(price) {
+        ensureRechargeUpgradeRows();
+        var credit = getUpgradeCredit();
+        var listRow = document.getElementById('subRechargeListRow');
+        var creditRow = document.getElementById('subRechargeCreditRow');
+        var listEl = document.getElementById('subRechargeListPrice');
+        var creditLabel = document.getElementById('subRechargeCreditLabel');
+        var creditVal = document.getElementById('subRechargeCreditVal');
+        var dueEl = document.getElementById('subRechargePayDue');
+        var listPrice = getFinalPrice();
+        var payable = price != null ? price : getSelectedPrice();
+
+        if (!credit) {
+            if (listRow) listRow.style.display = 'none';
+            if (creditRow) creditRow.style.display = 'none';
+            if (dueEl) dueEl.textContent = formatBalance(listPrice) + ' USDT';
+            return;
+        }
+        if (listRow) listRow.style.display = '';
+        if (creditRow) creditRow.style.display = '';
+        if (listEl) listEl.textContent = formatBalance(listPrice) + ' USDT';
+        if (creditLabel) {
+            creditLabel.textContent = '升购抵扣（剩余 ' + credit.remainDays + ' 天折算）';
+        }
+        if (creditVal) creditVal.textContent = '−' + formatBalance(credit.creditAmount) + ' USDT';
+        if (dueEl) dueEl.textContent = formatBalance(payable) + ' USDT';
+    }
+
+    function ensurePayUpgradeRows() {
+        var summary = document.querySelector('#subStepPayPwd .sub-pay-summary');
+        if (!summary || document.getElementById('subPayUpgradeRow')) return;
+
+        var listRow = document.createElement('div');
+        listRow.className = 'row';
+        listRow.id = 'subPayListRow';
+        listRow.style.display = 'none';
+        listRow.innerHTML = '<span>套餐原价</span><span class="v" id="subPayListVal">—</span>';
+
+        var upgradeRow = document.createElement('div');
+        upgradeRow.className = 'row is-discount';
+        upgradeRow.id = 'subPayUpgradeRow';
+        upgradeRow.style.display = 'none';
+        upgradeRow.innerHTML =
+            '<span id="subPayUpgradeLabel">升购抵扣</span><span class="v" id="subPayUpgradeVal">—</span>';
+
+        var amtRow = summary.querySelectorAll('.row')[1];
+        if (amtRow) {
+            summary.insertBefore(upgradeRow, amtRow);
+            summary.insertBefore(listRow, upgradeRow);
+        }
+    }
+
+    function renderPayUpgradeSummary(price) {
+        ensurePayUpgradeRows();
+        var credit = getUpgradeCredit();
+        var listRow = document.getElementById('subPayListRow');
+        var upgradeRow = document.getElementById('subPayUpgradeRow');
+        var listVal = document.getElementById('subPayListVal');
+        var upgradeLabel = document.getElementById('subPayUpgradeLabel');
+        var upgradeVal = document.getElementById('subPayUpgradeVal');
+        var listPrice = getFinalPrice();
+
+        if (!credit) {
+            if (listRow) listRow.style.display = 'none';
+            if (upgradeRow) upgradeRow.style.display = 'none';
+            return;
+        }
+        if (listRow) listRow.style.display = '';
+        if (upgradeRow) upgradeRow.style.display = '';
+        if (listVal) listVal.textContent = formatBalance(listPrice) + ' USDT';
+        if (upgradeLabel) {
+            upgradeLabel.textContent = '升购抵扣（剩余 ' + credit.remainDays + ' 天折算）';
+        }
+        if (upgradeVal) upgradeVal.textContent = '−' + formatBalance(credit.creditAmount) + ' USDT';
     }
 
     function ensurePayCouponRows() {
@@ -477,6 +630,11 @@
                 ? '选择月 / 季 / 年计划完成续费'
                 : '订阅后可解锁专属内容与直播回放';
         }
+        if (!isRenew && isUpgradeCreator()) {
+            if (hintEl) {
+                hintEl.textContent = '当前为月付生效中；升级季付/年付可抵扣剩余天数';
+            }
+        }
         if (confirmBtn) {
             confirmBtn.innerHTML = isRenew
                 ? '<i class="fa-solid fa-bolt"></i> 确认支付并续费'
@@ -530,9 +688,8 @@
         var balEl = document.getElementById('subRechargeBalNow');
         if (balEl) balEl.textContent = formatBalance(bal) + ' USDT';
         var needEl = document.getElementById('subRechargeNeed');
-        var dueEl = document.getElementById('subRechargePayDue');
+        renderRechargeUpgradeSummary(price);
         if (needEl) needEl.textContent = formatBalance(gap);
-        if (dueEl) dueEl.textContent = formatBalance(price) + ' USDT';
         pendingRechargeAmt = gap <= 50 ? 50 : gap <= 100 ? 100 : 200;
         document.querySelectorAll('.sub-recharge-amt').forEach(function (b) {
             var amt = parseInt(b.getAttribute('data-amt'), 10);
@@ -575,6 +732,7 @@
         if (creatorEl) creatorEl.textContent = state.creator;
         if (amtEl) amtEl.textContent = (w ? w.format(price) : formatUsdt(price)) + ' USDT';
         if (afterEl && w) afterEl.textContent = w.format(w.getBalance() - price) + ' USDT';
+        renderPayUpgradeSummary(price);
         if ((promo || voucher) && price < base) {
             if (origRow) origRow.style.display = '';
             if (couponRow) couponRow.style.display = '';
@@ -704,6 +862,10 @@
                 revalidateAppliedPromo();
                 renderSubCoupons();
                 refreshBalanceBar();
+                var rechargeStep = document.getElementById('subStepRecharge');
+                if (rechargeStep && rechargeStep.classList.contains('active')) {
+                    openRechargeStep(getSelectedPrice());
+                }
             });
         });
 

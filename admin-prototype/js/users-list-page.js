@@ -146,6 +146,79 @@
       opLogs: [
         { time: "2026-06-23 10:00:00", operator: "当前运营", action: "KYC 认证", detail: "后台代认证", result: "成功" }
       ]
+    },
+    {
+      uid: "445201",
+      nickname: "王磊",
+      username: "wang_lei",
+      email: "wanglei@example.com",
+      inviteCode: "",
+      kycStatus: "尚未认证",
+      updatedAt: "2026-05-10 21:12:08",
+      registeredAt: "2026-02-14 08:30:00",
+      regLocation: "江苏省南京市",
+      regIp: "58.220.14.6",
+      accountStatus: "正常",
+      walletStatus: "启用",
+      regChannel: "Web",
+      regDevice: "Chrome / Windows",
+      payPasswordSet: true,
+      ledger: [
+        { category: "recharge", time: "2026-05-10 21:12:08", type: "链上充值", currency: "USDT", change: "+500.00", balance: "500.00", orderId: "RCH20260510221" }
+      ],
+      loginLogs: [
+        { time: "2026-05-10 21:10:00", ip: "58.220.14.6", location: "南京市", device: "Chrome / Windows", result: "成功" }
+      ],
+      opLogs: []
+    },
+    {
+      uid: "661204",
+      nickname: "陈静",
+      username: "chen_jing",
+      email: "chenjing@example.com",
+      inviteCode: "FL6612",
+      kycStatus: "已认证",
+      updatedAt: "2026-05-12 10:05:45",
+      registeredAt: "2025-11-20 16:08:22",
+      regLocation: "广东省深圳市",
+      regIp: "172.16.8.22",
+      accountStatus: "正常",
+      walletStatus: "启用",
+      regChannel: "App",
+      regDevice: "FansLoop App / Android",
+      payPasswordSet: true,
+      ledger: [
+        { category: "recharge", time: "2026-05-12 10:05:00", type: "链上充值", currency: "USDT", change: "+108.07", balance: "1,208.07", orderId: "RCH20260512080" },
+        { category: "withdraw", time: "2026-05-10 16:40:02", type: "链上提现", currency: "USDT", change: "-798.00", balance: "1,100.00", orderId: "WD20260510055" }
+      ],
+      loginLogs: [
+        { time: "2026-05-12 10:04:00", ip: "172.16.8.22", location: "深圳市", device: "FansLoop App / Android", result: "成功" }
+      ],
+      opLogs: []
+    },
+    {
+      uid: "771002",
+      nickname: "匿名用户",
+      username: "user_771002",
+      email: "",
+      inviteCode: "",
+      kycStatus: "尚未认证",
+      updatedAt: "2026-05-09 14:21:06",
+      registeredAt: "2026-05-01 12:00:00",
+      regLocation: "江苏省南京市",
+      regIp: "58.220.14.6",
+      accountStatus: "正常",
+      walletStatus: "启用",
+      regChannel: "H5",
+      regDevice: "Safari / iOS",
+      payPasswordSet: false,
+      ledger: [
+        { category: "recharge", time: "2026-05-09 14:20:00", type: "链上充值", currency: "USDT", change: "0", balance: "0.00", orderId: "RCH20260509188" }
+      ],
+      loginLogs: [
+        { time: "2026-05-09 14:18:00", ip: "58.220.14.6", location: "南京市", device: "Safari / iOS", result: "成功" }
+      ],
+      opLogs: []
     }
   ];
 

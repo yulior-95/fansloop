@@ -102,7 +102,8 @@
       title: "订单",
       items: [
         { key: "orders-recharge", href: "orders-recharge.html", icon: "fa-arrow-down", label: "充值订单" },
-        { key: "orders-withdraw", href: "orders-withdraw.html", icon: "fa-arrow-up", label: "提现订单" }
+        { key: "orders-withdraw", href: "orders-withdraw.html", icon: "fa-arrow-up", label: "提现订单" },
+        { key: "export-tasks", href: "export-tasks.html", icon: "fa-list-check", label: "导出任务列表" }
       ]
     },
     {
@@ -326,4 +327,10 @@
   if (window.AdminPager) return;
   if (document.querySelector('script[src*="admin-pagination.js"]')) return;
   document.write('<script src="js/admin-pagination.js"><\/script>');
+})();
+
+(function () {
+  if (window.AdminExport) return;
+  if (document.querySelector('script[src*="admin-export-tasks.js"]')) return;
+  document.write('<script src="js/admin-export-tasks.js"><\/script>');
 })();

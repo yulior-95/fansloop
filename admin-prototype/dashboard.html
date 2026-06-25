@@ -144,20 +144,19 @@
     });
   });
   document.getElementById("dashExport").addEventListener("click", function () {
-    M.open({
+    if (!window.AdminExport) return;
+    AdminExport.confirm({
       title: "导出今日概览",
-      body: "<p style='margin:0 0 8px'>将生成包含注册、DAU、订单、积分等指标的 PDF + CSV 压缩包。</p><label><input type='checkbox' checked> 含同比环比</label>",
-      footer: [
-        { text: "取消", onClick: M.close },
-        {
-          text: "开始导出",
-          primary: true,
-          onClick: function () {
-            M.close();
-            M.toast("导出任务已创建（原型）");
-          }
-        }
-      ]
+      body: "<p style='margin:0 0 8px'>将生成包含注册、DAU、订单、积分等指标的 Excel 报表。</p><label><input type='checkbox' id='dashExpYoY' checked> 含同比环比</label>",
+      exportType: "首页仪表盘",
+      sourcePage: "dashboard.html",
+      getConditions: function () {
+        var yo = document.getElementById("dashExpYoY");
+        return AdminExport.conditions([
+          { label: "时间范围", value: "今日" },
+          { label: "同比环比", value: yo && yo.checked ? "包含" : "不包含" }
+        ]);
+      }
     });
   });
   document.getElementById("dashRiskLink").addEventListener("click", function () {

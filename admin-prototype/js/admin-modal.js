@@ -247,6 +247,7 @@
 
   function confirmGoogle(opts) {
     opts = opts || {};
+    var inline = opts.inlineError !== false;
     open({
       title: opts.title || "谷歌验证",
       body:
@@ -254,6 +255,9 @@
         esc(opts.message || "敏感操作需输入谷歌验证器中的 6 位验证码以继续。") +
         "</p><label style='display:block;font-size:12px;color:rgba(0,0,0,.45);margin-bottom:6px'>谷歌验证码</label>" +
         "<input class='ant-input' id='fl-google-totp' maxlength='6' inputmode='numeric' autocomplete='one-time-code' placeholder='000000' style='max-width:220px'>" +
+        (inline
+          ? "<p id='fl-google-totp-err' style='margin:8px 0 0;font-size:12px;color:#ff4d4f;min-height:18px'></p>"
+          : "") +
         "<p style='margin:8px 0 0;font-size:11px;color:rgba(0,0,0,.4)'>请打开 Google Authenticator 等应用查看；成员创建时已分配密钥。</p>",
       footer: [
         { text: "取消", onClick: close },
@@ -266,7 +270,18 @@
             var Auth = window.AdminGoogleAuth;
             var res = Auth && Auth.verify ? Auth.verify(val) : null;
             if (!res || !res.ok) {
-              toast((res && res.msg) || "请输入 6 位数字谷歌验证码");
+              var msg = (res && res.msg) || "请输入 6 位数字谷歌验证码";
+              if (inline) {
+                var errEl = document.getElementById("fl-google-totp-err");
+                if (errEl) errEl.textContent = msg;
+                if (v) {
+                  v.value = "";
+                  v.focus();
+                  v.select();
+                }
+                return;
+              }
+              toast(msg);
               return;
             }
             close();
@@ -281,6 +296,7 @@
           i.focus();
           i.select();
         }
+        if (opts.onMount) opts.onMount();
       }
     });
   }

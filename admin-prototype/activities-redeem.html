@@ -49,20 +49,13 @@
 (function () {
   var M = window.AdminModal;
   document.getElementById("expRed").addEventListener("click", function () {
-    M.open({
+    if (!window.AdminExport) return;
+    AdminExport.confirm({
       title: "导出兑换订单",
-      body: "<p style='margin:0'>含物流单号、发券状态等字段。</p>",
-      footer: [
-        { text: "取消", onClick: M.close },
-        {
-          text: "创建任务",
-          primary: true,
-          onClick: function () {
-            M.close();
-            M.toast("导出任务已创建（原型）");
-          }
-        }
-      ]
+      body: "<p style='margin:0'>含物流单号、发券状态等字段，导出 Excel。</p>",
+      exportType: "兑换记录",
+      sourcePage: "activities-redeem.html",
+      conditionsText: "筛选条件：当前页筛选"
     });
   });
   document.getElementById("qRed").addEventListener("click", function () {

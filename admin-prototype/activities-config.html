@@ -78,20 +78,13 @@
     );
   }
   document.getElementById("btnExportActCfg").addEventListener("click", function () {
-    M.open({
+    if (!window.AdminExport) return;
+    AdminExport.confirm({
       title: "导出活动配置",
-      body: "<p style='margin:0'>将导出 JSON + CSV 双格式，便于版本对比与回滚。</p>",
-      footer: [
-        { text: "取消", onClick: M.close },
-        {
-          text: "开始导出",
-          primary: true,
-          onClick: function () {
-            M.close();
-            M.toast("导出任务已创建（原型）");
-          }
-        }
-      ]
+      body: "<p style='margin:0'>将导出 Excel，便于版本对比与回滚。</p>",
+      exportType: "活动配置",
+      sourcePage: "activities-config.html",
+      conditionsText: "范围：全部活动配置"
     });
   });
   document.getElementById("btnNewActivity").addEventListener("click", function () {

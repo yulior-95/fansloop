@@ -61,23 +61,23 @@
   }
 
   document.getElementById("btnLogExport").addEventListener("click", function () {
-    M.open({
+    if (!window.AdminExport) return;
+    AdminExport.confirm({
       title: "导出操作日志",
       body:
-        "<p style='margin:0 0 12px'>按当前筛选条件导出审计 CSV（含 request_id、一级/二级模块、功能操作）。</p>" +
+        "<p style='margin:0 0 12px'>按当前筛选条件导出审计 Excel（含 request_id、一级/二级模块、功能操作）。</p>" +
         "<label style='display:block;font-size:12px;color:rgba(0,0,0,.45);margin-bottom:6px'>导出范围</label>" +
-        "<select class='ant-input' style='width:100%;max-width:320px'><option>当前筛选结果</option><option>全部日志（近 90 天）</option></select>",
-      footer: [
-        { text: "取消", onClick: M.close },
-        {
-          text: "创建导出任务",
-          primary: true,
-          onClick: function () {
-            M.close();
-            M.toast("导出任务已创建，完成后可在通知中心下载（原型）");
-          }
-        }
-      ]
+        "<select class='ant-input' id='logExportScope' style='width:100%;max-width:320px'><option>当前筛选结果</option><option>全部日志（近 90 天）</option></select>",
+      exportType: "操作日志",
+      sourcePage: "settings-operation-logs.html",
+      getConditions: function () {
+        var scope = document.getElementById("logExportScope");
+        return AdminExport.conditions([
+          { label: "导出范围", value: scope ? scope.value : "当前筛选结果" },
+          { label: "一级模块", value: (filterModule && filterModule.value) || "全部" },
+          { label: "结果", value: (filterResult && filterResult.value) || "全部" }
+        ]);
+      }
     });
   });
 

@@ -52,20 +52,13 @@
 (function () {
   var M = window.AdminModal;
   document.getElementById("expRew").addEventListener("click", function () {
-    M.open({
+    if (!window.AdminExport) return;
+    AdminExport.confirm({
       title: "导出积分奖励流水",
-      body: "<p style='margin:0'>按筛选条件导出 CSV。</p>",
-      footer: [
-        { text: "取消", onClick: M.close },
-        {
-          text: "创建任务",
-          primary: true,
-          onClick: function () {
-            M.close();
-            M.toast("导出任务已创建（原型）");
-          }
-        }
-      ]
+      body: "<p style='margin:0'>按筛选条件导出 Excel，任务可在「导出任务列表」查看。</p>",
+      exportType: "奖励流水",
+      sourcePage: "activities-points-reward.html",
+      conditionsText: "筛选条件：当前页筛选"
     });
   });
   document.getElementById("qRew").addEventListener("click", function () {
