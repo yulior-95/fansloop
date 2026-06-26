@@ -80,6 +80,23 @@
             { id: "risk-limits-view", label: "查看" },
             { id: "risk-limits-edit", label: "编辑" }
           ]
+        },
+        {
+          id: "risk-whitelist",
+          label: "会员白名单",
+          ops: [
+            { id: "risk-wl-view", label: "查看" },
+            { id: "risk-wl-email-add", label: "添加邮箱后缀" },
+            { id: "risk-wl-email-edit", label: "编辑邮箱后缀" },
+            { id: "risk-wl-email-delete", label: "删除邮箱后缀" },
+            { id: "risk-wl-fee-add", label: "添加手续费白名单" },
+            { id: "risk-wl-fee-edit", label: "编辑手续费白名单" },
+            { id: "risk-wl-fee-delete", label: "删除手续费白名单" },
+            { id: "risk-wl-live-add", label: "添加直播白名单" },
+            { id: "risk-wl-live-delete", label: "删除直播白名单" },
+            { id: "risk-wl-content-add", label: "添加内容白名单" },
+            { id: "risk-wl-content-delete", label: "删除内容白名单" }
+          ]
         }
       ]
     },
@@ -129,7 +146,12 @@
     ROLE_RISK: [
       "user-list-view",
       "risk-speech-view", "risk-speech-mute", "risk-speech-export",
-      "risk-limits-view", "risk-limits-edit"
+      "risk-limits-view", "risk-limits-edit",
+      "risk-wl-view",
+      "risk-wl-email-add", "risk-wl-email-edit", "risk-wl-email-delete",
+      "risk-wl-fee-add", "risk-wl-fee-edit", "risk-wl-fee-delete",
+      "risk-wl-live-add", "risk-wl-live-delete",
+      "risk-wl-content-add", "risk-wl-content-delete"
     ]
   };
 

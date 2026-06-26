@@ -261,6 +261,17 @@
 
     function openPpvUnlockModal(btn) {
         ensurePpvOverlay();
+        var wl = window.FLRiskWhitelistStore;
+        if (wl && wl.isCurrentUserContentWhitelisted && wl.isCurrentUserContentWhitelisted()) {
+            state.creator = (btn && btn.getAttribute('data-creator')) || '创作者';
+            state.title = (btn && btn.getAttribute('data-title')) || '付费内容';
+            state.postId = (btn && btn.getAttribute('data-post-id')) || '';
+            toast('白名单用户 · 已直接解锁「' + state.title + '」');
+            try {
+                global.dispatchEvent(new CustomEvent('fl-ppv-unlocked', { detail: { postId: state.postId, creator: state.creator, whitelist: true } }));
+            } catch (e) { /* ignore */ }
+            return;
+        }
         var ovl = document.getElementById('ovlPpvUnlock');
         if (!ovl) return;
         state.creator = (btn && btn.getAttribute('data-creator')) || '创作者';

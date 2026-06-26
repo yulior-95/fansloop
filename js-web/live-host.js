@@ -20,25 +20,25 @@
         "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=80",
         "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80"
     ];
-    /** 原型：对接后台敏感词库 */
-    var SENSITIVE_WORDS = ["微信", "加微", "低价票", "诈骗", "赌博", "色情", "代理"];
-
-    if (!giftInner || !chatInner) return;
+    /** 原型：对接后台聊天敏感词库 */
+    var sensStore = function () { return window.FLChatSensitiveWordsStore; };
 
     function hitSensitive(text) {
-        var t = text || "";
-        for (var i = 0; i < SENSITIVE_WORDS.length; i++) {
-            if (t.indexOf(SENSITIVE_WORDS[i]) >= 0) return true;
-        }
+        var store = sensStore();
+        if (store && store.testMessage) return store.testMessage(text, 'live').hit;
         return false;
     }
 
     function maskLine(text) {
+        var store = sensStore();
+        if (store && store.maskMessage) return store.maskMessage(text);
         var len = Math.max(8, Math.min(24, (text || "").length));
         var blocks = "";
         for (var j = 0; j < len; j++) blocks += "\u2588";
         return blocks + "\uff08\u654f\u611f\u8bcd\u5df2\u8131\u654f\uff09";
     }
+
+    if (!giftInner || !chatInner) return;
 
     function toast(msg) {
         var el = document.getElementById("hostToast");

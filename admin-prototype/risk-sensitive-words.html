@@ -8,34 +8,66 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin-shell.css">
   <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/risk-sensitive-words.css">
 </head>
 <body data-admin-page="risk-sensitive-words">
 <div class="admin-app">
   <aside class="admin-sider" id="adminSider"></aside>
   <div class="admin-main">
     <header class="admin-header">
-      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 风控安全 / 敏感词</span></div>
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 风控安全 / 敏感词管理</span></div>
       <div class="admin-header-right">
-        <button type="button" class="ant-btn ant-btn-sm ant-btn-primary" id="btnSensImport"><i class="fa-solid fa-upload"></i> 批量导入</button>
         <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>风控</span></div>
       </div>
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">敏感词管理</h1>
-      <p class="admin-page-desc">导入、新增、编辑、删除均为<strong>弹窗</strong>操作。</p>
-      <div class="admin-toolbar">
-        <button type="button" class="ant-btn ant-btn-primary" id="btnSensNew"><i class="fa-solid fa-plus"></i> 新增敏感词</button>
-        <span class="ant-input-affix-wrapper" style="width:240px"><input class="ant-input" placeholder="搜索词 / 分组"></span>
+      <p class="sw-scope-hint"><i class="fa-solid fa-circle-info" style="color:#1677ff;margin-right:6px"></i>统一词库，按<b>适用范围</b>区分处置策略：即时聊天 / 直播互动为脱敏发送；内容发布 / 资料类为拦截或驳回。</p>
+
+      <div class="sw-dev-glass-bar" id="swDevGlass" aria-label="研发批注"></div>
+
+      <div class="admin-toolbar sw-filter-toolbar">
+        <label class="sw-filter-item">
+          <span class="sw-filter-label">敏感词</span>
+          <input class="ant-input" id="swFilterWord" type="text" placeholder="搜索敏感词" style="width:200px">
+        </label>
+        <button type="button" class="ant-btn ant-btn-primary" id="btnSwSearch"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
+        <button type="button" class="ant-btn" id="btnSwReset"><i class="fa-solid fa-rotate-left"></i> 重置</button>
+        <button type="button" class="ant-btn ant-btn-primary" id="btnSwNew" style="margin-left:auto"><i class="fa-solid fa-plus"></i> 新增敏感词</button>
       </div>
-      <div class="ant-card ant-card-bordered">
-        <div class="ant-card-body" style="padding-top:0">
+
+      <div class="ant-card ant-card-bordered sw-table-card">
+        <div class="ant-card-body">
           <div class="ant-table ant-table-bordered ant-table-small">
             <table style="width:100%">
-              <thead class="ant-table-thead"><tr><th>词</th><th>分组</th><th>动作</th><th>更新</th><th>操作</th></tr></thead>
-              <tbody class="ant-table-tbody">
-                <tr data-id="1"><td>***</td><td>涉诈</td><td><span class="ant-tag ant-tag-red">拦截</span></td><td>2026-05-09</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-sens-edit">编辑</button><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-sens-del" style="color:#ff4d4f">删除</button></td></tr>
-                <tr data-id="2"><td>***</td><td>辱骂</td><td><span class="ant-tag ant-tag-orange">拦截</span></td><td>2026-05-08</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-sens-edit">编辑</button></td></tr>
-              </tbody>
+              <thead class="ant-table-thead">
+                <tr>
+                  <th>敏感词</th>
+                  <th style="width:220px">
+                    <span class="sw-th-scope">
+                      适用范围
+                      <span class="sw-scope-tip-wrap" tabindex="0" aria-label="适用范围说明">
+                        <i class="fa-solid fa-circle-exclamation sw-scope-tip-icon"></i>
+                        <span class="sw-scope-tip-pop" role="tooltip">
+                          <strong>各场景处置逻辑</strong>
+                          <ul class="sw-scope-tip-list">
+                            <li><b>即时聊天</b>（IM / 群聊）：发送后触发敏感词仍可发出，整段发言脱敏展示。</li>
+                            <li><b>直播互动</b>（弹幕 / 直播间聊天）：同上，整段发言脱敏展示。</li>
+                            <li><b>内容发布</b>（帖子 / 评论）：审核时触发则驳回；评论触发则不可发送并弹出异常提示。</li>
+                            <li><b>资料类</b>（昵称 / 简介）：保存时触发则报错，不可保存成功。</li>
+                          </ul>
+                        </span>
+                      </span>
+                    </span>
+                  </th>
+                  <th style="width:72px">开启</th>
+                  <th style="width:168px">添加时间</th>
+                  <th style="width:168px">修改时间</th>
+                  <th style="width:100px">修改人</th>
+                  <th style="width:140px">操作</th>
+                </tr>
+              </thead>
+              <tbody class="ant-table-tbody" id="swTbody"></tbody>
             </table>
           </div>
         </div>
@@ -43,88 +75,9 @@
     </main>
   </div>
 </div>
+<script src="../js-web/chat-sensitive-words-store.js"></script>
 <script src="js/admin-nav.js"></script>
 <script src="js/admin-modal.js"></script>
-<script>
-(function () {
-  var M = window.AdminModal;
-  document.getElementById("btnSensImport").addEventListener("click", function () {
-    M.open({
-      title: "批量导入敏感词",
-      body: "<p style='margin:0 0 8px'>上传 UTF-8 CSV，列：<code>word,group,action</code></p><input type='file' class='ant-input' style='padding:4px'>",
-      footer: [
-        { text: "取消", onClick: M.close },
-        {
-          text: "开始导入",
-          primary: true,
-          onClick: function () {
-            M.close();
-            M.toast("导入任务已创建（原型）");
-          }
-        }
-      ]
-    });
-  });
-  document.getElementById("btnSensNew").addEventListener("click", function () {
-    M.open({
-      title: "新增敏感词",
-      body:
-        "<label style='display:block;margin-bottom:6px'>词条</label><input class='ant-input' style='width:100%;max-width:360px;margin-bottom:12px'>" +
-        "<label style='display:block;margin-bottom:6px'>分组</label><select class='ant-input' style='width:100%;max-width:360px'><option>涉诈</option><option>辱骂</option><option>广告</option></select>" +
-        "<label style='display:block;margin:12px 0 6px'>动作</label><select class='ant-input' style='width:100%;max-width:360px'><option>拦截</option><option>仅告警</option></select>",
-      footer: [
-        { text: "取消", onClick: M.close },
-        {
-          text: "保存",
-          primary: true,
-          onClick: function () {
-            M.close();
-            M.toast("敏感词已添加（原型）");
-          }
-        }
-      ]
-    });
-  });
-  document.querySelector("main.admin-content").addEventListener("click", function (e) {
-    var t = e.target;
-    if (t.classList.contains("js-sens-edit")) {
-      M.open({
-        title: "编辑敏感词",
-        body:
-          "<label style='display:block;margin-bottom:6px'>词条</label><input class='ant-input' style='width:100%;max-width:360px;margin-bottom:12px' value='***'>" +
-          "<label style='display:block;margin-bottom:6px'>动作</label><select class='ant-input' style='width:100%;max-width:360px'><option selected>拦截</option><option>仅告警</option></select>",
-        footer: [
-          { text: "取消", onClick: M.close },
-          {
-            text: "保存",
-            primary: true,
-            onClick: function () {
-              M.close();
-              M.toast("已保存（原型）");
-            }
-          }
-        ]
-      });
-    }
-    if (t.classList.contains("js-sens-del")) {
-      M.open({
-        title: "删除敏感词",
-        body: "<p style='margin:0'>删除后即时生效，是否继续？</p>",
-        footer: [
-          { text: "取消", onClick: M.close },
-          {
-            text: "删除",
-            danger: true,
-            onClick: function () {
-              M.close();
-              M.toast("已删除（原型）");
-            }
-          }
-        ]
-      });
-    }
-  });
-})();
-</script>
+<script src="js/risk-sensitive-words-page.js"></script>
 </body>
 </html>

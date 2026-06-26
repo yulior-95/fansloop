@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FansLoop 原型调整记录 · 2026-06-26</title>
+<style>
+:root {
+    --bg: #0f0f17; --card: #1a1a28; --border: rgba(255,255,255,0.1);
+    --text: rgba(255,255,255,0.92); --muted: rgba(255,255,255,0.55); --accent: #a855f7;
+    --code-bg: rgba(255,255,255,0.06);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; padding: 32px 20px 80px; }
+.wrap { max-width: 960px; margin: 0 auto; }
+header { margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+header h1 { font-size: 28px; font-weight: 800; }
+header p { color: var(--muted); margin-top: 8px; font-size: 14px; }
+.badge { display: inline-block; margin-top: 12px; padding: 4px 10px; border-radius: 999px; background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.35); color: #c4b5fd; font-size: 12px; font-weight: 600; }
+.badge-compare { margin-left: 8px; background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.35); color: #93c5fd; }
+article h2 { font-size: 20px; font-weight: 700; margin: 36px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+article h3 { font-size: 16px; font-weight: 700; margin: 22px 0 10px; color: #e9d5ff; }
+article h4 { font-size: 14px; font-weight: 600; margin: 16px 0 8px; color: #d8b4fe; }
+article p, article li { font-size: 14.5px; }
+article ul, article ol { margin: 10px 0 10px 22px; }
+article li { margin: 6px 0; }
+article table { width: 100%; border-collapse: collapse; margin: 14px 0 20px; font-size: 13px; }
+article th, article td { border: 1px solid var(--border); padding: 10px 12px; text-align: left; vertical-align: top; }
+article th { background: var(--card); font-weight: 600; }
+article tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+article code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; background: var(--code-bg); padding: 2px 6px; border-radius: 4px; color: #f0abfc; }
+article pre { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; overflow-x: auto; margin: 14px 0; font-size: 12px; }
+article pre code { background: none; padding: 0; color: #e2e8f0; white-space: pre; }
+article blockquote { margin: 14px 0; padding: 12px 16px; border-left: 3px solid var(--accent); background: rgba(168,85,247,0.08); color: var(--muted); font-size: 13.5px; border-radius: 0 8px 8px 0; }
+article hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+article a { color: #93c5fd; }
+.toc { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 28px; }
+.toc h2 { font-size: 15px; margin: 0 0 10px; border: none; padding: 0; }
+.toc ol { margin: 0 0 0 18px; font-size: 13px; columns: 2; column-gap: 24px; }
+.toc li { break-inside: avoid; margin: 4px 0; }
+.toc a { color: var(--text); text-decoration: none; }
+.toc a:hover { color: #c4b5fd; }
+footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+    <h1>FansLoop Web 原型 · 今日调整记录</h1>
+    <p>日期：2026 年 6 月 26 日（周五） · 对比基准：<a href="prototype-changelog-2026-06-25.html">2026-06-25</a> · 风控三模块重构 + C 端白名单/敏感词联动 + 通知偏好精简</p>
+    <span class="badge">完整版 · HTML 页面</span>
+    <span class="badge badge-compare">相对 6/25 增量</span>
+</header>
+
+<nav class="toc">
+    <h2>目录</h2>
+    <ol>
+        <li><a href="#whitelist">会员白名单</a></li>
+        <li><a href="#sensitive-words">敏感词管理</a></li>
+        <li><a href="#sensitive-risk">敏感词风控管理</a></li>
+        <li><a href="#nav">导航与 RBAC</a></li>
+        <li><a href="#c-link">C 端联动</a></li>
+        <li><a href="#notification">通知偏好</a></li>
+        <li><a href="#storage">localStorage</a></li>
+        <li><a href="#files">文件汇总</a></li>
+        <li><a href="#compare">与 6/25 对比</a></li>
+    </ol>
+</nav>
+
+<article>
+
+<h2 id="whitelist">1. 运营后台 · 会员白名单（重构）</h2>
+<p><strong>页面：</strong> <code>risk-whitelist.html</code><br>
+<strong>新增：</strong> <code>js/risk-whitelist-page.js</code> · <code>css/risk-whitelist.css</code> · <code>js-web/risk-whitelist-store.js</code></p>
+
+<blockquote>相对 6/25：原为静态双 Tab（订阅场景 / 付费直播观看）；今日重构为四 Tab + localStorage + RBAC + C 端联动。</blockquote>
+
+<h3>四个 Tab</h3>
+<table>
+    <thead><tr><th>Tab</th><th>能力</th></tr></thead>
+    <tbody>
+        <tr><td>邮箱白名单</td><td>邮箱后缀列表；系统预置 40+ 常见后缀；增删改查 + 分页</td></tr>
+        <tr><td>手续费白名单</td><td>UID + 适用范围（充值 / 提现）；备注、创建人、创建时间</td></tr>
+        <tr><td>付费直播观看白名单</td><td>UID 列表；创建人、创建时间</td></tr>
+        <tr><td>付费内容观看白名单</td><td>UID 列表；创建人、创建时间</td></tr>
+    </tbody>
+</table>
+
+<h3>筛选与操作</h3>
+<ul>
+    <li>各 Tab 独立筛选条：<strong>查询</strong> + <strong>重置</strong></li>
+    <li>邮箱 Tab：按后缀关键词；手续费 Tab：UID + 适用范围；直播/内容 Tab：UID</li>
+    <li>按钮带 <code>data-perm</code> 与 RBAC 联动（无权限时隐藏）</li>
+    <li>各 Tab 顶部 <strong>To 研发玻璃球</strong> 批注</li>
+</ul>
+
+<hr>
+
+<h2 id="sensitive-words">2. 运营后台 · 敏感词管理（重构）</h2>
+<p><strong>页面：</strong> <code>risk-sensitive-words.html</code><br>
+<strong>新增：</strong> <code>js/risk-sensitive-words-page.js</code> · <code>css/risk-sensitive-words.css</code> · <code>js-web/chat-sensitive-words-store.js</code></p>
+
+<blockquote>相对 6/25：原为静态表格（词 / 分组 / 动作）；今日改为统一词库 + 多场景适用范围 + 开关 + 弹窗 CRUD。</blockquote>
+
+<h3>列表字段</h3>
+<p>敏感词、<strong>适用范围</strong>（多选标签）、是否开启（<strong>开关直接切换</strong>）、添加时间、修改时间、操作（编辑 / 删除）</p>
+
+<h3>适用范围（表头 tooltip）</h3>
+<table>
+    <thead><tr><th>场景</th><th>处置</th></tr></thead>
+    <tbody>
+        <tr><td>即时聊天</td><td>脱敏发送</td></tr>
+        <tr><td>直播互动</td><td>脱敏发送</td></tr>
+        <tr><td>内容发布</td><td>拦截 / 驳回</td></tr>
+        <tr><td>资料类</td><td>保存报错</td></tr>
+    </tbody>
+</table>
+
+<h3>筛选</h3>
+<p>敏感词关键词；<strong>查询</strong> + <strong>重置</strong>；右上角 <strong>新增敏感词</strong></p>
+
+<h3>数据层</h3>
+<ul>
+    <li><code>processOutgoing(text, scene, meta)</code>：按场景返回脱敏/拦截结果</li>
+    <li>命中时联动 <code>FLSensitiveRiskStore.recordHit()</code></li>
+    <li>存储键：<code>fl_admin_chat_sensitive_words_v1</code></li>
+</ul>
+
+<hr>
+
+<h2 id="sensitive-risk">3. 运营后台 · 敏感词风控管理（新增）</h2>
+<p><strong>页面：</strong> <code>risk-sensitive-risk.html</code>（新页面）<br>
+<strong>新增：</strong> <code>js/risk-sensitive-risk-page.js</code> · <code>css/risk-sensitive-risk.css</code> · <code>js-web/sensitive-risk-store.js</code></p>
+
+<h3>Tab 1 · 异常敏感词数据</h3>
+<p><strong>列表（12 列 + 分页）</strong></p>
+<p>序号、同场景次数、用户 UID、触发场景、触发时间、触发事件、操作 IP、状态、禁言倒计时、操作人、最新操作时间、操作</p>
+<ul>
+    <li>仅展示 <strong>待处理 / 禁言中</strong></li>
+    <li><strong>同场景次数</strong>：UID 在当前场景历史累计（IM / 直播分开）</li>
+    <li>sticky 列：序号、同场景次数、UID（左）+ 操作（右）</li>
+    <li>操作：待处理 → 禁言/忽略；禁言中 → 解禁</li>
+    <li>倒计时仅自动禁言小时；永久/人工为 <code>--</code></li>
+</ul>
+<p><strong>筛选：</strong>用户 UID、状态、触发时间区间、最新操作时间区间；查询 + 重置</p>
+
+<h3>Tab 2 · 操作日志</h3>
+<p><strong>列表（10 列 + 分页）</strong></p>
+<p>序号、<strong>异常次数</strong>（tooltip：截至本次风控历史触发次数含当前）、用户 UID、触发场景、触发时间、触发事件、操作 IP、<strong>操作事件</strong>、操作人、<strong>最新操作时间</strong></p>
+<ul>
+    <li>sticky 列：序号、异常次数、UID（左）+ 最新操作时间（右）</li>
+</ul>
+<p><strong>筛选：</strong>用户 UID、操作时间、触发时间、最新操作时间（均为起止区间）；查询 + 重置</p>
+
+<h3>Tab 3 · 风控参数管理</h3>
+<h4>全局统计策略</h4>
+<table>
+    <thead><tr><th>配置项</th><th>选项</th></tr></thead>
+    <tbody>
+        <tr><td>统计窗口</td><td>近 7 / 30 / 90 天、终身累计</td></tr>
+        <tr><td>计数范围</td><td>仅有效命中 / 全部命中（含已忽略）</td></tr>
+        <tr><td>启用场景</td><td>即时聊天、直播互动（<strong>分场景独立计数</strong>）</td></tr>
+    </tbody>
+</table>
+
+<h4>阶梯规则</h4>
+<p>窗口内触发 ≥ N 次 → 结局（自动忽略 / 禁言小时 / 禁言永久 / 手动禁言）+ 禁言时长 + 启用</p>
+
+<h4>策略变更原则（保存弹窗）</h4>
+<ul>
+    <li><strong>禁言中</strong>：维持现状，不追溯改判</li>
+    <li><strong>待处理</strong>：维持状态，不自动处置</li>
+    <li><strong>后续新命中</strong>：按新策略计数匹配</li>
+    <li>可选同步待处理「触发事件」文案（不改变状态）</li>
+    <li><code>configVersion</code> + 命中快照：已产生记录不追溯</li>
+</ul>
+
+<p><strong>触发事件示例：</strong> <code>7天内·直播互动≥8次 · 禁言小时（1h）</code></p>
+
+<hr>
+
+<h2 id="nav">4. 导航与 RBAC</h2>
+
+<h3>侧栏（<code>admin-nav.js</code>）</h3>
+<p>风控安全分组：</p>
+<ul>
+    <li><strong>会员白名单</strong>（重构）</li>
+    <li><strong>敏感词管理</strong>（重构）</li>
+    <li><strong>敏感词风控管理</strong>（新菜单）</li>
+</ul>
+
+<h3>角色权限（<code>settings-rbac.js</code>）</h3>
+<p>会员白名单权限树：查看；邮箱增删改；手续费增删改；直播/内容白名单增删</p>
+
+<hr>
+
+<h2 id="c-link">5. C 端联动</h2>
+
+<h3>邮箱注册白名单</h3>
+<p><code>auth-unified-flow.js</code> + <code>modal-login-main.html</code>：注册校验邮箱后缀，不在白名单则拦截并提示</p>
+
+<h3>付费直播观看白名单</h3>
+<p><code>live-whitelist-access.js</code> + <code>live-detail.html</code>：<code>?paidLive=1</code> 门控；白名单 UID 自动解锁</p>
+
+<h3>付费内容（PPV）白名单</h3>
+<p><code>ppv-unlock-modal.js</code> + <code>feed-stack-builder.js</code>：白名单跳过支付弹层，直接解锁</p>
+
+<h3>敏感词脱敏（直播）</h3>
+<p><code>live-detail.js</code> / <code>live-host.js</code>：弹幕走 <code>processOutgoing(..., 'live')</code>，脱敏展示并写入风控记录</p>
+
+<hr>
+
+<h2 id="notification">6. C 端 · 通知偏好（已提交）</h2>
+<p><strong>页面：</strong> <code>settings-notification.html</code> · 提交 <code>964da14</code></p>
+<ul>
+    <li>移除 <strong>短信</strong> 通知渠道列</li>
+    <li>页头说明改为：站内 / 邮件 / 推送</li>
+</ul>
+
+<hr>
+
+<h2 id="storage">7. localStorage 键（今日涉及）</h2>
+<pre><code>fl_admin_risk_whitelist_v1          // 会员白名单
+fl_admin_chat_sensitive_words_v1  // 敏感词库
+fl_admin_sensitive_risk_v1        // 敏感词风控（seedVersion=8）</code></pre>
+
+<hr>
+
+<h2 id="files">8. 涉及文件汇总</h2>
+
+<h3>新增</h3>
+<table>
+    <thead><tr><th>文件</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td><code>risk-sensitive-risk.html</code></td><td>敏感词风控管理页</td></tr>
+        <tr><td><code>css/risk-sensitive-risk.css</code></td><td>风控页样式</td></tr>
+        <tr><td><code>css/risk-sensitive-words.css</code></td><td>敏感词管理样式</td></tr>
+        <tr><td><code>css/risk-whitelist.css</code></td><td>会员白名单样式</td></tr>
+        <tr><td><code>js/risk-sensitive-risk-page.js</code></td><td>风控页逻辑</td></tr>
+        <tr><td><code>js/risk-sensitive-words-page.js</code></td><td>敏感词管理逻辑</td></tr>
+        <tr><td><code>js/risk-whitelist-page.js</code></td><td>会员白名单逻辑</td></tr>
+        <tr><td><code>js-web/risk-whitelist-store.js</code></td><td>白名单 Store</td></tr>
+        <tr><td><code>js-web/chat-sensitive-words-store.js</code></td><td>敏感词 Store</td></tr>
+        <tr><td><code>js-web/sensitive-risk-store.js</code></td><td>风控 Store</td></tr>
+        <tr><td><code>js-web/live-whitelist-access.js</code></td><td>付费直播门控</td></tr>
+    </tbody>
+</table>
+
+<h3>主要修改</h3>
+<table>
+    <thead><tr><th>文件</th><th>变更摘要</th></tr></thead>
+    <tbody>
+        <tr><td><code>risk-whitelist.html</code></td><td>四 Tab 重构 + 筛选分页 + RBAC</td></tr>
+        <tr><td><code>risk-sensitive-words.html</code></td><td>适用范围 + 开关 + JS 驱动</td></tr>
+        <tr><td><code>js/admin-nav.js</code></td><td>敏感词风控菜单</td></tr>
+        <tr><td><code>js/settings-rbac.js</code></td><td>白名单权限树</td></tr>
+        <tr><td><code>js-web/auth-unified-flow.js</code></td><td>邮箱后缀校验</td></tr>
+        <tr><td><code>js-web/live-detail.js</code> / <code>live-host.js</code></td><td>直播脱敏</td></tr>
+        <tr><td><code>js-web/ppv-unlock-modal.js</code></td><td>内容白名单直通</td></tr>
+        <tr><td><code>js-web/feed-stack-builder.js</code></td><td>Feed PPV 白名单态</td></tr>
+        <tr><td><code>pages-web/live-detail.html</code> 等</td><td>引入 store 与样式</td></tr>
+        <tr><td><code>pages-web/settings-notification.html</code></td><td>移除短信渠道</td></tr>
+    </tbody>
+</table>
+
+<h3>文档</h3>
+<table>
+    <thead><tr><th>文件</th></tr></thead>
+    <tbody>
+        <tr><td><a href="prototype-changelog-2026-06-26.md">prototype-changelog-2026-06-26.md</a></td></tr>
+        <tr><td><code>prototype-changelog-2026-06-26.html</code>（本页）</td></tr>
+    </tbody>
+</table>
+
+<hr>
+
+<h2 id="compare">9. 与 6 月 25 日对比一览</h2>
+<table>
+    <thead><tr><th>维度</th><th>6/25</th><th>6/26（今日）</th></tr></thead>
+    <tbody>
+        <tr><td>订单 / 订阅</td><td>充提订单重构、订阅升购、导出任务</td><td>沿用，无结构性变更</td></tr>
+        <tr><td>风控白名单</td><td>静态 2 Tab 演示</td><td>四 Tab + Store + C 端联动</td></tr>
+        <tr><td>敏感词</td><td>静态词表</td><td>多场景词库 + 脱敏/拦截 + 风控写入</td></tr>
+        <tr><td>敏感词风控</td><td>无（仅有旧异常发言页）</td><td>新页面：异常数据 / 日志 / 阶梯参数</td></tr>
+        <tr><td>C 端</td><td>升购订阅、隐私设置</td><td>+ 邮箱/PPV/直播白名单、直播脱敏</td></tr>
+        <tr><td>通知</td><td>—</td><td>移除短信渠道</td></tr>
+    </tbody>
+</table>
+
+</article>
+
+<footer>FansLoop Web3 Creator · 原型调整记录 · 2026-06-26 · 上一版：<a href="prototype-changelog-2026-06-25.html">2026-06-25</a></footer>
+</div>
+</body>
+</html>

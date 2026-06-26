@@ -128,9 +128,9 @@
         { key: "risk-usdt-limits", href: "risk-usdt-limits.html", icon: "fa-wallet", label: "充提限额" },
         { key: "risk-limits", href: "risk-limits.html", icon: "fa-gauge-high", label: "积分风控" },
         { key: "risk-whitelist", href: "risk-whitelist.html", icon: "fa-shield-halved", label: "会员白名单" },
-        { key: "risk-sensitive-words", href: "risk-sensitive-words.html", icon: "fa-comment-slash", label: "敏感词" },
-        { key: "risk-captcha-records", href: "risk-captcha-records.html", icon: "fa-key", label: "验证码记录" },
-        { key: "risk-abnormal-speech", href: "risk-abnormal-speech.html", icon: "fa-triangle-exclamation", label: "异常发言" }
+        { key: "risk-sensitive-words", href: "risk-sensitive-words.html", icon: "fa-comment-slash", label: "敏感词管理" },
+        { key: "risk-sensitive-risk", href: "risk-sensitive-risk.html", icon: "fa-shield-virus", label: "敏感词风控管理" },
+        { key: "risk-captcha-records", href: "risk-captcha-records.html", icon: "fa-key", label: "验证码记录" }
       ]
     },
     {

@@ -118,6 +118,10 @@
             showRegErr('请填写邮箱');
             return;
         }
+        if (window.FLRiskWhitelistStore && !window.FLRiskWhitelistStore.isEmailSuffixAllowed(email)) {
+            showRegErr('该邮箱后缀不在白名单内，暂不支持注册。请使用常见邮箱服务（如 Gmail、QQ、163 等）或联系客服。');
+            return;
+        }
         if (!otp || otp !== '123456') {
             showRegErr('请输入正确的验证码');
             return;

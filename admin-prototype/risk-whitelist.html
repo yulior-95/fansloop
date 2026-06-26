@@ -8,6 +8,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin-shell.css">
   <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/admin-pagination.css">
+  <link rel="stylesheet" href="css/risk-whitelist.css">
 </head>
 <body data-admin-page="risk-whitelist">
 <div class="admin-app">
@@ -19,98 +21,141 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">会员白名单</h1>
-      <p class="admin-page-desc">添加、移除 UID 使用<strong>弹窗</strong>。</p>
+
       <div class="admin-tabs-bar" id="wlTabs">
-        <button type="button" class="active" data-tab="t1">订阅场景</button>
-        <button type="button" data-tab="t2">付费直播观看</button>
+        <button type="button" class="active" data-tab="tEmail">邮箱白名单</button>
+        <button type="button" data-tab="tFee">手续费白名单</button>
+        <button type="button" data-tab="tLive">付费直播观看白名单</button>
+        <button type="button" data-tab="tContent">付费内容观看白名单</button>
       </div>
-      <div id="t1" class="admin-tab-panel active">
-        <div class="admin-toolbar">
-          <button type="button" class="ant-btn ant-btn-primary" id="wlAdd1"><i class="fa-solid fa-plus"></i> 添加 UID</button>
-          <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" placeholder="搜索 UID"></span>
+
+      <!-- 邮箱白名单 -->
+      <div id="tEmail" class="admin-tab-panel active">
+        <div class="wl-dev-glass-bar" id="emailDevGlass" aria-label="研发批注"></div>
+        <div class="admin-toolbar wl-filter-toolbar">
+          <label class="wl-filter-item">
+            <span class="wl-filter-label">邮箱后缀</span>
+            <input class="ant-input" id="emailFilterSuffix" type="text" placeholder="如 @gmail.com" style="width:180px">
+          </label>
+          <button type="button" class="ant-btn ant-btn-primary" id="btnEmailSearch"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
+          <button type="button" class="ant-btn" id="btnEmailReset"><i class="fa-solid fa-rotate-left"></i> 重置</button>
+          <button type="button" class="ant-btn ant-btn-primary" id="btnEmailAdd" data-perm="risk-wl-email-add" style="margin-left:auto"><i class="fa-solid fa-plus"></i> 添加邮箱后缀</button>
         </div>
-        <div class="ant-card ant-card-bordered"><div class="ant-card-body" style="padding-top:0">
-          <div class="ant-table ant-table-bordered ant-table-small">
-            <table style="width:100%"><thead class="ant-table-thead"><tr><th>UID</th><th>备注</th><th>添加人</th><th>时间</th><th>操作</th></tr></thead>
-            <tbody class="ant-table-tbody">
-              <tr data-uid="882910"><td>882910</td><td>品牌合作账号</td><td>limin</td><td>2026-04-01</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-wl-remove" style="color:#ff4d4f">移除</button></td></tr>
-            </tbody>
-          </table>
-        </div></div>
+        <div class="ant-card ant-card-bordered wl-table-card">
+          <div class="ant-card-body">
+            <div class="ant-table ant-table-bordered ant-table-small">
+              <table style="width:100%">
+                <thead class="ant-table-thead">
+                  <tr><th style="width:64px">序号</th><th>邮箱后缀</th><th>创建时间</th><th>备注</th><th style="width:140px">操作</th></tr>
+                </thead>
+                <tbody class="ant-table-tbody" id="emailTbody"></tbody>
+              </table>
+            </div>
+            <div id="emailPager"></div>
+          </div>
+        </div>
       </div>
-      <div id="t2" class="admin-tab-panel">
-        <div class="ant-card ant-card-bordered"><div class="ant-card-body">
-          <p style="color:rgba(0,0,0,.45)">与「订阅」白名单数据隔离；可配置生效直播间 ID 范围（后续扩展）。</p>
-          <button type="button" class="ant-btn ant-btn-primary" id="wlAdd2"><i class="fa-solid fa-plus"></i> 添加 UID</button>
-        </div></div>
+
+      <!-- 手续费白名单 -->
+      <div id="tFee" class="admin-tab-panel">
+        <div class="wl-dev-glass-bar" id="feeDevGlass" aria-label="研发批注"></div>
+        <div class="admin-toolbar wl-filter-toolbar">
+          <label class="wl-filter-item">
+            <span class="wl-filter-label">用户 UID</span>
+            <input class="ant-input" id="feeFilterUid" type="text" inputmode="numeric" placeholder="如 882910" style="width:120px">
+          </label>
+          <label class="wl-filter-item">
+            <span class="wl-filter-label">适用范围</span>
+            <select class="ant-input" id="feeFilterScope" style="width:120px;height:32px">
+              <option value="">全部</option>
+              <option value="recharge">充值</option>
+              <option value="withdraw">提现</option>
+            </select>
+          </label>
+          <button type="button" class="ant-btn ant-btn-primary" id="btnFeeSearch"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
+          <button type="button" class="ant-btn" id="btnFeeReset"><i class="fa-solid fa-rotate-left"></i> 重置</button>
+          <button type="button" class="ant-btn ant-btn-primary" id="btnFeeAdd" data-perm="risk-wl-fee-add" style="margin-left:auto"><i class="fa-solid fa-plus"></i> 添加 UID</button>
+        </div>
+        <div class="ant-card ant-card-bordered wl-table-card">
+          <div class="ant-card-body">
+            <div class="ant-table ant-table-bordered ant-table-small">
+              <table style="width:100%">
+                <thead class="ant-table-thead">
+                  <tr>
+                    <th style="width:64px">序号</th><th>用户 UID</th><th>用户昵称</th><th>适用范围</th>
+                    <th>创建人</th><th>创建时间</th><th>备注</th><th style="width:140px">操作</th>
+                  </tr>
+                </thead>
+                <tbody class="ant-table-tbody" id="feeTbody"></tbody>
+              </table>
+            </div>
+            <div id="feePager"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 付费直播观看白名单 -->
+      <div id="tLive" class="admin-tab-panel">
+        <div class="wl-dev-glass-bar" id="liveDevGlass" aria-label="研发批注"></div>
+        <div class="admin-toolbar wl-filter-toolbar">
+          <label class="wl-filter-item">
+            <span class="wl-filter-label">用户 UID</span>
+            <input class="ant-input" id="liveFilterUid" type="text" inputmode="numeric" placeholder="如 882910" style="width:120px">
+          </label>
+          <button type="button" class="ant-btn ant-btn-primary" id="btnLiveSearch"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
+          <button type="button" class="ant-btn" id="btnLiveReset"><i class="fa-solid fa-rotate-left"></i> 重置</button>
+          <button type="button" class="ant-btn ant-btn-primary" id="btnLiveAdd" data-perm="risk-wl-live-add" style="margin-left:auto"><i class="fa-solid fa-plus"></i> 添加 UID</button>
+        </div>
+        <div class="ant-card ant-card-bordered wl-table-card">
+          <div class="ant-card-body">
+            <div class="ant-table ant-table-bordered ant-table-small">
+              <table style="width:100%">
+                <thead class="ant-table-thead">
+                  <tr><th style="width:64px">序号</th><th>用户 UID</th><th>创建人</th><th>创建时间</th><th style="width:100px">操作</th></tr>
+                </thead>
+                <tbody class="ant-table-tbody" id="liveTbody"></tbody>
+              </table>
+            </div>
+            <div id="livePager"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 付费内容观看白名单 -->
+      <div id="tContent" class="admin-tab-panel">
+        <div class="wl-dev-glass-bar" id="contentDevGlass" aria-label="研发批注"></div>
+        <div class="admin-toolbar wl-filter-toolbar">
+          <label class="wl-filter-item">
+            <span class="wl-filter-label">用户 UID</span>
+            <input class="ant-input" id="contentFilterUid" type="text" inputmode="numeric" placeholder="如 882910" style="width:120px">
+          </label>
+          <button type="button" class="ant-btn ant-btn-primary" id="btnContentSearch"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
+          <button type="button" class="ant-btn" id="btnContentReset"><i class="fa-solid fa-rotate-left"></i> 重置</button>
+          <button type="button" class="ant-btn ant-btn-primary" id="btnContentAdd" data-perm="risk-wl-content-add" style="margin-left:auto"><i class="fa-solid fa-plus"></i> 添加 UID</button>
+        </div>
+        <div class="ant-card ant-card-bordered wl-table-card">
+          <div class="ant-card-body">
+            <div class="ant-table ant-table-bordered ant-table-small">
+              <table style="width:100%">
+                <thead class="ant-table-thead">
+                  <tr><th style="width:64px">序号</th><th>用户 UID</th><th>创建人</th><th>创建时间</th><th style="width:100px">操作</th></tr>
+                </thead>
+                <tbody class="ant-table-tbody" id="contentTbody"></tbody>
+              </table>
+            </div>
+            <div id="contentPager"></div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
 </div>
+<script src="../js-web/risk-whitelist-store.js"></script>
+<script src="js/settings-rbac.js"></script>
+<script src="js/admin-session.js"></script>
 <script src="js/admin-nav.js"></script>
 <script src="js/admin-modal.js"></script>
-<script>
-(function () {
-  var M = window.AdminModal;
-  var bar = document.getElementById("wlTabs");
-  if (bar) {
-    bar.addEventListener("click", function (e) {
-      var b = e.target.closest("button[data-tab]");
-      if (!b) return;
-      var id = b.getAttribute("data-tab");
-      bar.querySelectorAll("button").forEach(function (x) {
-        x.classList.toggle("active", x === b);
-      });
-      document.querySelectorAll("#t1,#t2").forEach(function (p) {
-        p.classList.toggle("active", p.id === id);
-      });
-    });
-  }
-  function openAdd(scene) {
-    M.open({
-      title: "添加白名单 UID · " + scene,
-      body:
-        "<label style='display:block;margin-bottom:6px'>UID</label><input class='ant-input' style='width:100%;max-width:320px;margin-bottom:12px' placeholder='数字 UID'>" +
-        "<label style='display:block;margin-bottom:6px'>备注</label><input class='ant-input' style='width:100%;max-width:320px' placeholder='选填'>",
-      footer: [
-        { text: "取消", onClick: M.close },
-        {
-          text: "添加",
-          primary: true,
-          onClick: function () {
-            M.close();
-            M.toast("已加入白名单（原型）");
-          }
-        }
-      ]
-    });
-  }
-  document.getElementById("wlAdd1").addEventListener("click", function () {
-    openAdd("订阅");
-  });
-  document.getElementById("wlAdd2").addEventListener("click", function () {
-    openAdd("付费直播观看");
-  });
-  document.querySelector("main.admin-content").addEventListener("click", function (e) {
-    if (!e.target.classList.contains("js-wl-remove")) return;
-    var uid = e.target.closest("tr").getAttribute("data-uid");
-    M.open({
-      title: "移除白名单",
-      body: "<p style='margin:0'>确认将 UID <strong>" + M.esc(uid) + "</strong> 从当前场景白名单移除？</p>",
-      footer: [
-        { text: "取消", onClick: M.close },
-        {
-          text: "确认移除",
-          danger: true,
-          onClick: function () {
-            M.close();
-            M.toast("已移除（原型）");
-          }
-        }
-      ]
-    });
-  });
-})();
-</script>
+<script src="js/admin-pagination.js"></script>
+<script src="js/risk-whitelist-page.js"></script>
 </body>
 </html>

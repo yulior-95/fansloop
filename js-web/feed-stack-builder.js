@@ -189,6 +189,16 @@
 
     function buildPpvLockedMedia(c, coverId, i, guest, ppvPrice) {
         ppvPrice = ppvPrice || 5;
+        var wl = global.FLRiskWhitelistStore;
+        if (!guest && wl && wl.isCurrentUserContentWhitelisted && wl.isCurrentUserContentWhitelisted()) {
+            var freeUrl = 'https://images.unsplash.com/' + coverId + '?w=1200&q=80';
+            return (
+                '<div class="post-media-wrap"><div class="post-media post-media--center">' +
+                feedImg(freeUrl, '已解锁 · 白名单') +
+                '<span class="pc-tag pc-tag--ppv" style="background:rgba(16,185,129,.85)"><i class="fa-solid fa-unlock"></i> 白名单已解锁</span>' +
+                '</div></div>'
+            );
+        }
         var postId = 'feed-ppv-' + i;
         var postTitle = '京都樱花季隐秘机位 · 完整图集与 GPS';
         var url = 'https://images.unsplash.com/' + coverId + '?w=1200&q=80';

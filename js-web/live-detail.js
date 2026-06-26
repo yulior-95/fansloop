@@ -722,20 +722,35 @@
     }
 
     /* 发送聊天 */
+    var sensStore = function () { return window.FLChatSensitiveWordsStore; };
     function appendChat(user, text, opts) {
         opts = opts || {};
         if (!chatBody) return;
+        var displayText = text;
+        var sensitive = false;
+        if (!opts.system && !opts.gift && sensStore()) {
+            var processed = sensStore().processOutgoing(text, 'live', {
+                uid: '882910',
+                room: (window.LiveMetaStore && LiveMetaStore.get && LiveMetaStore.get().id) || 'live_room',
+                summary: text.slice(0, 80)
+            });
+            displayText = processed.display;
+            sensitive = processed.sensitive;
+        }
         var wrap = document.createElement("div");
-        wrap.className = "chat-msg" + (opts.gift ? " gift-msg" : "") + (opts.filter === "sub" ? " sub-msg" : "");
+        wrap.className = "chat-msg" + (opts.gift ? " gift-msg" : "") + (opts.filter === "sub" ? " sub-msg" : "") + (sensitive ? " is-sensitive" : "");
         if (opts.filter) wrap.setAttribute("data-filter", opts.filter);
         else if (user === "NovaPlay") wrap.setAttribute("data-filter", "host");
         if (opts.gift) wrap.setAttribute("data-filter", "gift");
+        if (sensitive) wrap.setAttribute("data-sensitive", "1");
         var av = opts.self
             ? "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80"
             : "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80";
+        var textClass = sensitive ? "text m-masked" : "text";
+        var textTitle = sensitive ? ' title="原文已脱敏"' : "";
         wrap.innerHTML =
             '<div class="av" style="background-image:url(\'' + av + '\')"></div>' +
-            '<div class="body"><span class="nm">' + user + '</span><span class="text">' + text + "</span></div>";
+            '<div class="body"><span class="nm">' + user + '</span><span class="' + textClass + '"' + textTitle + '>' + displayText + "</span></div>";
         chatBody.appendChild(wrap);
         chatBody.scrollTop = chatBody.scrollHeight;
     }

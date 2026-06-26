@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>敏感词风控管理 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/admin-pagination.css">
+  <link rel="stylesheet" href="css/risk-sensitive-risk.css">
+</head>
+<body data-admin-page="risk-sensitive-risk">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 风控安全 / 敏感词风控管理</span></div>
+      <div class="admin-header-right">
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>风控审核</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">敏感词风控管理</h1>
+
+      <div class="sr-dev-glass-bar" id="srDevGlass" aria-label="研发批注"></div>
+
+      <div class="admin-tabs-bar" id="srTabs">
+        <button type="button" class="active" data-tab="tHits">异常敏感词数据</button>
+        <button type="button" data-tab="tLogs">操作日志</button>
+        <button type="button" data-tab="tTier">风控参数管理</button>
+      </div>
+
+      <div id="tHits" class="admin-tab-panel active">
+        <div class="admin-toolbar sr-filter-toolbar">
+          <label class="sr-filter-item">
+            <span class="sr-filter-label">用户 UID</span>
+            <input class="ant-input" id="hitFilterUid" type="text" placeholder="如 882910" style="width:120px">
+          </label>
+          <label class="sr-filter-item">
+            <span class="sr-filter-label">状态</span>
+            <select class="ant-input" id="hitFilterStatus" style="width:120px;height:32px">
+              <option value="">全部（待处理 / 禁言中）</option>
+              <option value="pending">待处理</option>
+              <option value="muted">禁言中</option>
+            </select>
+          </label>
+          <label class="sr-filter-item sr-filter-item-range">
+            <span class="sr-filter-label">触发时间</span>
+            <span class="sr-filter-range">
+              <input class="ant-input" id="hitFilterTriggerStart" type="datetime-local" aria-label="触发开始时间">
+              <span class="sr-filter-range-sep">—</span>
+              <input class="ant-input" id="hitFilterTriggerEnd" type="datetime-local" aria-label="触发结束时间">
+            </span>
+          </label>
+          <label class="sr-filter-item sr-filter-item-range">
+            <span class="sr-filter-label">最新操作时间</span>
+            <span class="sr-filter-range">
+              <input class="ant-input" id="hitFilterOperatedStart" type="datetime-local" aria-label="最新操作开始时间">
+              <span class="sr-filter-range-sep">—</span>
+              <input class="ant-input" id="hitFilterOperatedEnd" type="datetime-local" aria-label="最新操作结束时间">
+            </span>
+          </label>
+          <span class="sr-filter-actions">
+            <button type="button" class="ant-btn ant-btn-primary" id="btnHitSearch"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
+            <button type="button" class="ant-btn" id="btnHitReset"><i class="fa-solid fa-rotate-left"></i> 重置</button>
+          </span>
+        </div>
+        <div class="ant-card ant-card-bordered sr-table-card">
+          <div class="ant-card-body">
+            <div class="sr-hits-scroll">
+              <div class="ant-table ant-table-bordered ant-table-small">
+                <table class="sr-hits-table">
+                  <thead class="ant-table-thead">
+                    <tr>
+                      <th class="col-sticky-left-1">序号</th>
+                      <th class="col-sticky-left-2">同场景次数</th>
+                      <th class="col-sticky-left-3">用户UID</th>
+                      <th>触发场景</th>
+                      <th>触发时间</th>
+                      <th>触发事件</th>
+                      <th>操作IP地址</th>
+                      <th>状态</th>
+                      <th>禁言倒计时</th>
+                      <th>操作人</th>
+                      <th>最新操作时间</th>
+                      <th class="col-sticky-right">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody class="ant-table-tbody" id="hitTbody"></tbody>
+                </table>
+              </div>
+            </div>
+            <div id="hitPager"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tLogs" class="admin-tab-panel">
+        <div class="admin-toolbar sr-filter-toolbar">
+          <label class="sr-filter-item">
+            <span class="sr-filter-label">用户 UID</span>
+            <input class="ant-input" id="logFilterUid" type="text" placeholder="如 882910" style="width:120px">
+          </label>
+          <label class="sr-filter-item sr-filter-item-range">
+            <span class="sr-filter-label">操作时间</span>
+            <span class="sr-filter-range">
+              <input class="ant-input" id="logFilterOpStart" type="datetime-local" aria-label="操作开始时间">
+              <span class="sr-filter-range-sep">—</span>
+              <input class="ant-input" id="logFilterOpEnd" type="datetime-local" aria-label="操作结束时间">
+            </span>
+          </label>
+          <label class="sr-filter-item sr-filter-item-range">
+            <span class="sr-filter-label">触发时间</span>
+            <span class="sr-filter-range">
+              <input class="ant-input" id="logFilterTriggerStart" type="datetime-local" aria-label="触发开始时间">
+              <span class="sr-filter-range-sep">—</span>
+              <input class="ant-input" id="logFilterTriggerEnd" type="datetime-local" aria-label="触发结束时间">
+            </span>
+          </label>
+          <label class="sr-filter-item sr-filter-item-range">
+            <span class="sr-filter-label">最新操作时间</span>
+            <span class="sr-filter-range">
+              <input class="ant-input" id="logFilterOperatedStart" type="datetime-local" aria-label="最新操作开始时间">
+              <span class="sr-filter-range-sep">—</span>
+              <input class="ant-input" id="logFilterOperatedEnd" type="datetime-local" aria-label="最新操作结束时间">
+            </span>
+          </label>
+          <span class="sr-filter-actions">
+            <button type="button" class="ant-btn ant-btn-primary" id="btnLogSearch"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
+            <button type="button" class="ant-btn" id="btnLogReset"><i class="fa-solid fa-rotate-left"></i> 重置</button>
+          </span>
+        </div>
+        <div class="ant-card ant-card-bordered sr-table-card">
+          <div class="ant-card-body">
+            <div class="sr-logs-scroll">
+              <div class="ant-table ant-table-bordered ant-table-small">
+                <table class="sr-logs-table">
+                  <thead class="ant-table-thead">
+                    <tr>
+                      <th class="col-sticky-left-1">序号</th>
+                      <th class="col-sticky-left-2">
+                        <span class="sr-th-tip">
+                          异常次数
+                          <span class="sr-tip-wrap" tabindex="0" aria-label="异常次数说明">
+                            <i class="fa-solid fa-circle-exclamation sr-tip-icon"></i>
+                            <span class="sr-tip-pop" role="tooltip">截至本次风控，用户历史触发次数（包含当前）</span>
+                          </span>
+                        </span>
+                      </th>
+                      <th class="col-sticky-left-3">用户UID</th>
+                      <th>触发场景</th>
+                      <th>触发时间</th>
+                      <th>触发事件</th>
+                      <th>操作IP地址</th>
+                      <th>操作事件</th>
+                      <th>操作人</th>
+                      <th class="col-sticky-right">最新操作时间</th>
+                    </tr>
+                  </thead>
+                  <tbody class="ant-table-tbody" id="logTbody"></tbody>
+                </table>
+              </div>
+            </div>
+            <div id="logPager"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tTier" class="admin-tab-panel">
+        <div class="sr-tier-intro">
+          <p>按用户在<b>统计窗口</b>内、<b>分场景独立</b>的有效命中次数匹配阶梯（即时聊天与直播互动不合并计数）。</p>
+          <p>结局类型：自动忽略 · 禁言小时 · 禁言永久 · 手动禁言（进入待处理，由审核员处置）。</p>
+          <p><b>策略变更</b>：调整统计窗口后，<b>进行中的禁言不追溯改判</b>；待处理维持原状态；仅<b>后续新命中</b>按新窗口计数。可选同步待处理记录的触发事件文案。</p>
+        </div>
+        <div class="ant-card ant-card-bordered sr-tier-config-card">
+          <div class="ant-card-body">
+            <div class="sr-tier-config-title"><i class="fa-solid fa-sliders"></i> 全局统计策略</div>
+            <div class="sr-tier-config-grid">
+              <label class="sr-tier-config-item">
+                <span class="sr-tier-config-label">统计窗口</span>
+                <select class="ant-input sr-tier-config-select" id="cfgStatWindow">
+                  <option value="7">近 7 天</option>
+                  <option value="30">近 30 天</option>
+                  <option value="90">近 90 天</option>
+                  <option value="0">终身累计</option>
+                </select>
+              </label>
+              <label class="sr-tier-config-item">
+                <span class="sr-tier-config-label">计数范围</span>
+                <select class="ant-input sr-tier-config-select" id="cfgCountScope">
+                  <option value="effective">仅有效命中（不含已忽略）</option>
+                  <option value="all">全部命中（含已忽略）</option>
+                </select>
+              </label>
+              <div class="sr-tier-config-item sr-tier-config-scenes">
+                <span class="sr-tier-config-label">启用风控场景（各场景独立计数）</span>
+                <div class="sr-tier-scene-checks" id="cfgScenes">
+                  <label><input type="checkbox" class="js-cfg-scene" value="im" checked> 即时聊天</label>
+                  <label><input type="checkbox" class="js-cfg-scene" value="live" checked> 直播互动</label>
+                </div>
+              </div>
+            </div>
+            <p class="sr-tier-config-hint" id="cfgSummary"></p>
+          </div>
+        </div>
+        <div class="ant-card ant-card-bordered sr-table-card">
+          <div class="ant-card-body">
+            <div class="admin-toolbar" style="margin-bottom:12px">
+              <span class="sr-tier-rules-title">阶梯规则</span>
+              <button type="button" class="ant-btn ant-btn-primary" id="btnTierAdd"><i class="fa-solid fa-plus"></i> 新增规则</button>
+              <button type="button" class="ant-btn ant-btn-primary" id="btnTierSave" style="margin-left:auto"><i class="fa-solid fa-floppy-disk"></i> 保存参数</button>
+            </div>
+            <div class="sr-tier-scroll">
+              <div class="ant-table ant-table-bordered ant-table-small">
+                <table style="width:100%;min-width:720px">
+                  <thead class="ant-table-thead">
+                    <tr>
+                      <th style="width:140px">窗口内触发 ≥ 次</th>
+                      <th style="width:180px">结局</th>
+                      <th style="width:140px">禁言时长（小时）</th>
+                      <th style="width:80px">启用</th>
+                      <th style="width:80px">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody class="ant-table-tbody" id="tierTbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="../js-web/sensitive-risk-store.js"></script>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="js/risk-sensitive-risk-page.js"></script>
+</body>
+</html>
