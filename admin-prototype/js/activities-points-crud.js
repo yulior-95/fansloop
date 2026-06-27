@@ -40,12 +40,23 @@
     var devActs = list.filter(function (a) { return isDevAct(a); }).length;
     var el = document.getElementById('apStats');
     if (!el) return;
+    var items = [
+      { label: '活动总数', value: list.length, tone: '' },
+      { label: '启用中', value: enabled, tone: 'ok' },
+      { label: '商城兑换类', value: mall, tone: 'mall' },
+      { label: '任务获取类', value: task, tone: 'task' }
+    ];
+    if (devActs) items.push({ label: '研发接入', value: devActs, tone: 'dev' });
     el.innerHTML =
-      '<div class="ant-card ant-card-bordered ap-stat-card"><div class="ant-card-body"><div class="k">活动总数</div><div class="v">' + list.length + '</div></div></div>' +
-      '<div class="ant-card ant-card-bordered ap-stat-card"><div class="ant-card-body"><div class="k">启用中</div><div class="v" style="color:#52c41a">' + enabled + '</div></div></div>' +
-      '<div class="ant-card ant-card-bordered ap-stat-card"><div class="ant-card-body"><div class="k">商城兑换类</div><div class="v" style="color:#722ed1">' + mall + '</div></div></div>' +
-      '<div class="ant-card ant-card-bordered ap-stat-card"><div class="ant-card-body"><div class="k">任务获取类</div><div class="v" style="color:#1890ff">' + task + '</div></div></div>' +
-      (devActs ? '<div class="ant-card ant-card-bordered ap-stat-card"><div class="ant-card-body"><div class="k">研发接入</div><div class="v" style="color:#fa8c16">' + devActs + '</div></div></div>' : '');
+      '<div class="ap-stat-bar">' +
+      items.map(function (it, i) {
+        return (i ? '<span class="ap-stat-sep" aria-hidden="true"></span>' : '') +
+          '<span class="ap-stat-item">' +
+          '<span class="ap-stat-label">' + it.label + '</span>' +
+          '<strong class="ap-stat-val' + (it.tone ? ' is-' + it.tone : '') + '">' + it.value + '</strong>' +
+          '</span>';
+      }).join('') +
+      '</div>';
   }
 
   function fillFilters() {
@@ -73,15 +84,9 @@
     var dev = isDevAct(a);
     var href = 'activities-points-edit.html?id=' + encodeURIComponent(a.id);
     var html = '<a class="ant-btn ant-btn-link ant-btn-sm" href="' + href + '">' + (dev && !canDev ? '配置' : '编辑') + '</a>';
-    if (canDev || !dev) {
-      html += '<button type="button" class="ant-btn ant-btn-link ant-btn-sm js-copy">复制</button>';
-    }
     html += (a.status === 'enabled'
       ? '<button type="button" class="ant-btn ant-btn-link ant-btn-sm js-disable">停用</button>'
       : '<button type="button" class="ant-btn ant-btn-link ant-btn-sm js-enable">启用</button>');
-    if (canDev || !dev) {
-      html += '<button type="button" class="ant-btn ant-btn-link ant-btn-sm js-del" style="color:#ff4d4f">删除</button>';
-    }
     return html;
   }
 
@@ -159,20 +164,6 @@
     var act = S.getActivity(id);
     if (!act) return;
 
-    if (btn.classList.contains('js-copy')) {
-      if (isDevAct(act) && !canDev) {
-        M.toast('无权复制研发接入活动');
-        return;
-      }
-      var copy = JSON.parse(JSON.stringify(act));
-      copy.id = S.uid();
-      copy.code = act.code + '_COPY';
-      copy.name = act.name + '（副本）';
-      copy.status = 'draft';
-      S.upsertActivity(copy);
-      M.toast('已复制为草稿');
-      refresh(false);
-    }
     if (btn.classList.contains('js-disable')) {
       M.open({
         title: '停用活动',
@@ -194,21 +185,6 @@
       S.upsertActivity(act);
       M.toast('已启用');
       refresh(false);
-    }
-    if (btn.classList.contains('js-del')) {
-      M.open({
-        title: '删除活动',
-        body: '<p style="margin:0;color:#ff4d4f">删除后不可恢复（原型 localStorage）。生产环境建议软删除。</p>',
-        footer: [
-          { text: '取消', onClick: M.close },
-          { text: '确认删除', danger: true, onClick: function () {
-            S.deleteActivity(id);
-            M.close();
-            M.toast('已删除');
-            refresh(true);
-          }}
-        ]
-      });
     }
   });
 

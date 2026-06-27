@@ -18,6 +18,29 @@
             { id: 'registerDaysLte', label: '新用户', points: 2600, pct: 9 }
         ],
         trend7d: [
+            { date: '05-13', base: 46800, bonus: 5200 },
+            { date: '05-14', base: 49100, bonus: 5600 },
+            { date: '05-15', base: 50200, bonus: 5800 },
+            { date: '05-16', base: 48800, bonus: 5400 },
+            { date: '05-17', base: 51500, bonus: 6100 },
+            { date: '05-18', base: 53200, bonus: 6400 },
+            { date: '05-19', base: 49800, bonus: 5900 },
+            { date: '05-20', base: 52100, bonus: 6200 },
+            { date: '05-21', base: 54600, bonus: 6600 },
+            { date: '05-22', base: 55900, bonus: 6900 },
+            { date: '05-23', base: 53400, bonus: 6500 },
+            { date: '05-24', base: 57200, bonus: 7100 },
+            { date: '05-25', base: 58100, bonus: 7300 },
+            { date: '05-26', base: 56800, bonus: 7000 },
+            { date: '05-27', base: 59400, bonus: 7600 },
+            { date: '05-28', base: 60100, bonus: 7800 },
+            { date: '05-29', base: 58700, bonus: 7400 },
+            { date: '05-30', base: 61200, bonus: 7900 },
+            { date: '05-31', base: 62800, bonus: 8200 },
+            { date: '06-01', base: 60500, bonus: 7700 },
+            { date: '06-02', base: 63800, bonus: 8500 },
+            { date: '06-03', base: 65200, bonus: 8800 },
+            { date: '06-04', base: 64100, bonus: 8600 },
             { date: '06-05', base: 52000, bonus: 6800 },
             { date: '06-06', base: 54800, bonus: 7200 },
             { date: '06-07', base: 50100, bonus: 6100 },
@@ -160,7 +183,15 @@
     }
 
     function fetchMonitor() {
-        return Promise.resolve(JSON.parse(JSON.stringify(MOCK_MONITOR)));
+        var data = JSON.parse(JSON.stringify(MOCK_MONITOR));
+        var Risk = global.FLPointsRisk;
+        if (Risk && Risk.loadConfig) {
+            var risk = Risk.loadConfig();
+            if (risk.caps && risk.caps.platformDailyBudget != null) {
+                data.todayBudget = risk.caps.platformDailyBudget;
+            }
+        }
+        return Promise.resolve(data);
     }
 
     global.FLAdminPointsTier = {

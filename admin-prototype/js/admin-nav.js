@@ -45,6 +45,14 @@
       api: "PUT /api/v1/admin/fee-config"
     },
     {
+      key: "creator-income-split",
+      href: "creator-income-split.html",
+      icon: "fa-hand-holding-dollar",
+      label: "创作者分成",
+      desc: "打赏 / 礼物 / 订阅 / 付费内容等平台抽成比例",
+      api: "PUT /api/v1/admin/creator-income-split-rules"
+    },
+    {
       key: "risk-kyc-face",
       href: "risk-kyc-face.html",
       icon: "fa-id-card",
@@ -95,7 +103,8 @@
         { key: "users-assets", href: "users-assets.html", icon: "fa-coins", label: "用户资产" },
         { key: "users-ledger", href: "users-ledger.html", icon: "fa-receipt", label: "账变记录" },
         { key: "users-address-book", href: "users-address-book.html", icon: "fa-wallet", label: "地址簿" },
-        { key: "kyc-manage", href: "kyc-manage.html", icon: "fa-id-card", label: "KYC 审核记录" }
+        { key: "kyc-manage", href: "kyc-manage.html", icon: "fa-id-card", label: "KYC 审核记录" },
+        { key: "invite-data", href: "invite-data.html", icon: "fa-user-group", label: "邀请数据" }
       ]
     },
     {
@@ -112,8 +121,7 @@
         { key: "activities-points-crud", href: "activities-points-crud.html", icon: "fa-table-list", label: "积分活动" },
         { key: "activities-points-monitor", href: "activities-points-monitor.html", icon: "fa-chart-pie", label: "发放监控" },
         { key: "activities-points-reward", href: "activities-points-reward.html", icon: "fa-gift", label: "奖励流水" },
-        { key: "activities-points-consume", href: "activities-points-consume.html", icon: "fa-fire", label: "消耗流水" },
-        { key: "activities-redeem", href: "activities-redeem.html", icon: "fa-arrow-right-arrow-left", label: "兑换记录" }
+        { key: "activities-points-consume", href: "activities-points-consume.html", icon: "fa-fire", label: "消耗流水" }
       ]
     },
     {

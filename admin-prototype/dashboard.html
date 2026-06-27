@@ -8,6 +8,22 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin-shell.css">
   <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/points-tier-admin.css">
+  <style>
+    .dash-stat-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .dash-stat-tip .pt-field-tip-pop { width: 260px; }
+    .dash-chart-note {
+      margin: 10px 0 0;
+      font-size: 12px;
+      color: rgba(0,0,0,.45);
+      line-height: 1.55;
+    }
+  </style>
 </head>
 <body data-admin-page="dashboard">
 <div class="admin-app">
@@ -44,7 +60,12 @@
         <div class="ant-card ant-card-bordered" style="margin:0">
           <div class="ant-card-body">
             <div class="ant-statistic">
-              <div class="ant-statistic-title">今日日活 DAU</div>
+              <div class="ant-statistic-title dash-stat-title">今日日活 DAU
+                <span class="pt-field-tip dash-stat-tip" tabindex="0" aria-label="DAU 统计说明">
+                  <i class="fa-regular fa-circle-question"></i>
+                  <span class="pt-field-tip-pop">自然日 00:00–24:00（UTC+8）内，至少有一次<strong>有效活跃</strong>的独立用户数。含 App/Web 打开、浏览 Feed、直播观看 ≥30s、发消息等；未登录访问与爬虫流量不计入。</span>
+                </span>
+              </div>
               <div class="ant-statistic-content"><span class="ant-statistic-content-value">48.2k</span></div>
               <div style="margin-top:8px;font-size:12px;color:rgba(0,0,0,.45)"><span class="ant-tag ant-tag-blue">+3.1%</span> 较昨日</div>
             </div>
@@ -53,8 +74,13 @@
         <div class="ant-card ant-card-bordered" style="margin:0">
           <div class="ant-card-body">
             <div class="ant-statistic">
-              <div class="ant-statistic-title">今日充值（法币+链上）</div>
-              <div class="ant-statistic-content"><span class="ant-statistic-content-value">¥ 620k</span></div>
+              <div class="ant-statistic-title dash-stat-title">今日链上充值
+                <span class="pt-field-tip dash-stat-tip" tabindex="0" aria-label="充值统计说明">
+                  <i class="fa-regular fa-circle-question"></i>
+                  <span class="pt-field-tip-pop">按订单<strong>创建时间</strong>（created_at）落在今日的 USDT 链上充值金额合计，统计待确认 + 已到账订单。<strong>不含</strong>今日链上确认但昨日创建的订单；亦不计今日发起、明日到账的滞后到账（到账时间 credited_at 不参与本指标）。</span>
+                </span>
+              </div>
+              <div class="ant-statistic-content"><span class="ant-statistic-content-value">620k USDT</span></div>
             </div>
           </div>
         </div>
@@ -76,9 +102,10 @@
           </div>
         </div>
         <div class="ant-card ant-card-bordered" style="margin:0">
-          <div class="ant-card-head"><div class="ant-card-head-title">收入结构（示例）</div></div>
+          <div class="ant-card-head"><div class="ant-card-head-title">平台收入结构</div></div>
           <div class="ant-card-body">
             <div class="admin-chart-box"><canvas id="chartPie"></canvas></div>
+            <p class="dash-chart-note">「打赏及其他」含直播打赏、礼物分成、会员装扮、积分商城未单列收入等平台杂项；已剔除法币通道。</p>
           </div>
         </div>
       </div>
@@ -86,7 +113,6 @@
       <div class="ant-card ant-card-bordered">
         <div class="ant-card-head">
           <div class="ant-card-head-title">实时告警 / 待办</div>
-          <div class="ant-card-extra"><button type="button" class="ant-btn ant-btn-link ant-btn-sm" id="dashRiskLink">查看风控中心</button></div>
         </div>
         <div class="ant-card-body" style="padding-top:0">
           <div class="ant-table ant-table-small ant-table-bordered">
@@ -97,7 +123,6 @@
               <tbody class="ant-table-tbody">
                 <tr><td><span class="ant-tag ant-tag-red">高</span></td><td>限额风控</td><td>用户 U8821 单日链上提现接近阈值</td><td>10:22</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-dash-handle">处理</button></td></tr>
                 <tr><td><span class="ant-tag ant-tag-orange">中</span></td><td>内容审核</td><td>机器置信度不足，已入人工队列 12 条</td><td>09:58</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-dash-review">去审核</button></td></tr>
-                <tr><td><span class="ant-tag ant-tag-blue">低</span></td><td>活动</td><td>「观看满 30 分钟积分」活动参与率异常偏低</td><td>昨天</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-dash-detail">详情</button></td></tr>
               </tbody>
             </table>
           </div>
@@ -124,10 +149,26 @@
   new Chart(document.getElementById('chartPie'), {
     type: 'doughnut',
     data: {
-      labels: ['订阅', '付费直播', '充值手续费', '其他'],
+      labels: ['创作者订阅', '付费直播 / PPV', '链上充值手续费', '打赏及其他'],
       datasets: [{ data: [38, 22, 28, 12], backgroundColor: ['#1677ff','#722ed1','#fa8c16','#13c2c2'] }]
     },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: {
+          callbacks: {
+            afterLabel: function (ctx) {
+              if (ctx.label === '打赏及其他') {
+                return '直播打赏、礼物、装扮等未单列收入';
+              }
+              return '';
+            }
+          }
+        }
+      }
+    }
   });
 })();
 </script>
@@ -159,13 +200,6 @@
       }
     });
   });
-  document.getElementById("dashRiskLink").addEventListener("click", function () {
-    M.open({
-      title: "快捷入口 · 风控",
-      body: "<p style='margin:0 0 12px'>以下为常用入口，点击名称可在新标签打开对应原型页（演示）。</p><ul style='margin:0;padding-left:18px;line-height:2'><li><a href='settings-global.html' target='_blank' rel='noopener'>全局参数总览</a></li><li><a href='risk-usdt-limits.html' target='_blank' rel='noopener'>USDT 充提限额</a></li><li><a href='risk-limits.html' target='_blank' rel='noopener'>积分风控</a></li><li><a href='risk-whitelist.html' target='_blank' rel='noopener'>会员白名单</a></li><li><a href='risk-abnormal-speech.html' target='_blank' rel='noopener'>异常发言</a></li></ul>",
-      footer: [{ text: "关闭", primary: true, onClick: M.close }]
-    });
-  });
   document.querySelector("main.admin-content").addEventListener("click", function (e) {
     var t = e.target;
     if (t.classList.contains("js-dash-handle")) {
@@ -188,12 +222,6 @@
       M.open({
         title: "跳转内容审核",
         body: "<p style='margin:0'>人工队列当前 <strong>37</strong> 条待办。可在新标签打开内容审核页。</p><p style='margin:12px 0 0'><a class='ant-btn ant-btn-primary' href='content-review.html' target='_blank' rel='noopener'>打开 content-review.html</a></p>",
-        footer: [{ text: "关闭", primary: true, onClick: M.close }]
-      });
-    } else if (t.classList.contains("js-dash-detail")) {
-      M.open({
-        title: "活动告警详情",
-        body: "<p style='margin:0'>活动 ID：<code>ACT_WATCH_30</code></p><p>近 7 日参与率较基准低 <strong>18%</strong>，建议检查入口曝光与奖励感知。</p>",
         footer: [{ text: "关闭", primary: true, onClick: M.close }]
       });
     }

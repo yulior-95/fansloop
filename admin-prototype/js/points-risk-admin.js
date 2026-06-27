@@ -85,6 +85,7 @@
     function render() {
         state.cfg = Risk.loadConfig();
         var c = state.cfg;
+        document.getElementById('fldPlatformDailyBudget').value = c.caps.platformDailyBudget;
         document.getElementById('fldDailyPointsCap').value = c.caps.dailyPointsCap;
         document.getElementById('fldInviteDailyCap').value = c.caps.inviteRewardDailyCap;
         document.getElementById('fldInviteTotalCap').value = c.caps.inviteRewardTotalCap;
@@ -117,6 +118,7 @@
         cfg.coolingPeriodDays = parseInt(document.getElementById('fldCoolingDays').value, 10) || 0;
         cfg.channelCooling = collectChannelCooling();
         cfg.caps = {
+            platformDailyBudget: parseInt(document.getElementById('fldPlatformDailyBudget').value, 10) || 0,
             dailyPointsCap: parseInt(document.getElementById('fldDailyPointsCap').value, 10) || 0,
             inviteRewardDailyCap: parseInt(document.getElementById('fldInviteDailyCap').value, 10) || 0,
             inviteRewardTotalCap: parseInt(document.getElementById('fldInviteTotalCap').value, 10) || 0

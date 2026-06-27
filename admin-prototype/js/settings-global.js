@@ -34,7 +34,7 @@
     return p.key === "risk-switches";
   });
   var assetPages = CFG.globalParamPages.filter(function (p) {
-    return p.key === "risk-usdt-limits" || p.key === "network-fees";
+    return p.key === "risk-usdt-limits" || p.key === "network-fees" || p.key === "creator-income-split";
   });
   var pointsPages = CFG.globalParamPages.filter(function (p) {
     return p.key === "risk-limits" || p.key === "activities-points-tier" || p.key === "activities-points-types";

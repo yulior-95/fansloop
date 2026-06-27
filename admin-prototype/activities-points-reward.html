@@ -8,6 +8,62 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin-shell.css">
   <link rel="stylesheet" href="css/admin-modals.css">
+  <style>
+    .rew-rule-filter { position: relative; display: inline-block; }
+    .rew-rule-filter-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-width: 220px;
+      height: 32px;
+      padding: 0 11px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      background: #fff;
+      font-size: 14px;
+      color: rgba(0,0,0,.85);
+      cursor: pointer;
+    }
+    .rew-rule-filter-btn:hover { border-color: #4096ff; }
+    .rew-rule-filter-btn i { font-size: 11px; color: rgba(0,0,0,.45); }
+    .rew-rule-filter-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      z-index: 30;
+      min-width: 320px;
+      max-height: 280px;
+      overflow: auto;
+      padding: 8px 0;
+      border: 1px solid #f0f0f0;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 6px 16px rgba(0,0,0,.08);
+    }
+    .rew-rule-filter-panel.is-open { display: block; }
+    .rew-rule-filter-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .rew-rule-filter-item:hover { background: #f5f5f5; }
+    .rew-rule-filter-item input { margin-top: 3px; flex-shrink: 0; }
+    .rew-rule-filter-item .meta {
+      display: block;
+      font-size: 11px;
+      color: rgba(0,0,0,.45);
+      margin-top: 2px;
+      font-family: monospace;
+    }
+    .rew-ctx-main { font-size: 13px; color: rgba(0,0,0,.85); }
+    .rew-ctx-sub { font-size: 12px; color: rgba(0,0,0,.45); margin-top: 2px; }
+  </style>
 </head>
 <body data-admin-page="activities-points-reward">
 <div class="admin-app">
@@ -22,10 +78,23 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">积分奖励流水</h1>
-      <p class="admin-page-desc">导出、行详情在<strong>弹窗</strong>。</p>
+      <p class="admin-page-desc">支持按 UID、活动规则多选筛选与导出。</p>
       <div class="admin-toolbar">
-        <span class="ant-input-affix-wrapper" style="width:160px"><input class="ant-input" placeholder="UID"></span>
-        <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" placeholder="活动 / 规则 ID"></span>
+        <span class="ant-input-affix-wrapper" style="width:160px"><input class="ant-input" id="rewUid" placeholder="UID"></span>
+        <div class="rew-rule-filter" id="rewRuleFilter">
+          <button type="button" class="rew-rule-filter-btn" id="rewRuleFilterBtn" aria-haspopup="listbox" aria-expanded="false">
+            <span id="rewRuleFilterLabel">全部活动 / 规则</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div class="rew-rule-filter-panel" id="rewRuleFilterPanel" role="listbox">
+            <label class="rew-rule-filter-item"><input type="checkbox" class="js-rew-rule" value="WATCH_LIVE_30" checked><span>观看直播满 30 分钟<span class="meta">WATCH_LIVE_30</span></span></label>
+            <label class="rew-rule-filter-item"><input type="checkbox" class="js-rew-rule" value="FIRST_SUB_CREATOR" checked><span>首次订阅创作者<span class="meta">FIRST_SUB_CREATOR</span></span></label>
+            <label class="rew-rule-filter-item"><input type="checkbox" class="js-rew-rule" value="INVITE_REFERRAL"><span>邀请好友注册<span class="meta">INVITE_REFERRAL</span></span></label>
+            <label class="rew-rule-filter-item"><input type="checkbox" class="js-rew-rule" value="CHECKIN_DAILY"><span>每日签到<span class="meta">CHECKIN_DAILY</span></span></label>
+            <label class="rew-rule-filter-item"><input type="checkbox" class="js-rew-rule" value="BROWSE_TIMER"><span>浏览赚积分（计时）<span class="meta">BROWSE_TIMER</span></span></label>
+            <label class="rew-rule-filter-item"><input type="checkbox" class="js-rew-rule" value="CHECKIN_STREAK_7"><span>连续签到 7 天<span class="meta">CHECKIN_STREAK_7</span></span></label>
+          </div>
+        </div>
         <button type="button" class="ant-btn ant-btn-primary" id="qRew">查询</button>
       </div>
       <div class="ant-card ant-card-bordered">
@@ -33,11 +102,29 @@
           <div class="ant-table ant-table-bordered ant-table-small">
             <table style="width:100%">
               <thead class="ant-table-thead">
-                <tr><th>时间</th><th>UID</th><th>规则</th><th>积分</th><th>说明</th><th>操作</th></tr>
+                <tr><th>时间</th><th>UID</th><th>规则</th><th>积分</th><th>说明</th></tr>
               </thead>
               <tbody class="ant-table-tbody">
-                <tr><td>2026-05-11 07:55</td><td>882910</td><td>观看满 30 分钟</td><td>+50</td><td>直播 room_882</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-row">详情</button></td></tr>
-                <tr><td>2026-05-10 22:10</td><td>102938</td><td>首次订阅创作者</td><td>+200</td><td>订阅 creator_12</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-row">详情</button></td></tr>
+                <tr data-rule="WATCH_LIVE_30">
+                  <td>2026-05-11 07:55</td>
+                  <td>882910</td>
+                  <td>观看满 30 分钟</td>
+                  <td>+50</td>
+                  <td>
+                    <div class="rew-ctx-main">直播</div>
+                    <div class="rew-ctx-sub">直播间 ID room_882 · Nova 深夜 LIVE</div>
+                  </td>
+                </tr>
+                <tr data-rule="FIRST_SUB_CREATOR">
+                  <td>2026-05-10 22:10</td>
+                  <td>102938</td>
+                  <td>首次订阅创作者</td>
+                  <td>+200</td>
+                  <td>
+                    <div class="rew-ctx-main">订阅</div>
+                    <div class="rew-ctx-sub">创作者 UID uid_120384 · Mio_摄影</div>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -51,27 +138,73 @@
 <script>
 (function () {
   var M = window.AdminModal;
-  document.getElementById("expRew").addEventListener("click", function () {
+  var filterBtn = document.getElementById('rewRuleFilterBtn');
+  var filterPanel = document.getElementById('rewRuleFilterPanel');
+  var filterLabel = document.getElementById('rewRuleFilterLabel');
+  var ruleChecks = document.querySelectorAll('.js-rew-rule');
+  var tableRows = document.querySelectorAll('tbody.ant-table-tbody tr[data-rule]');
+
+  function updateFilterLabel() {
+    var checked = Array.prototype.filter.call(ruleChecks, function (el) { return el.checked; });
+    if (!checked.length || checked.length === ruleChecks.length) {
+      filterLabel.textContent = '全部活动 / 规则';
+      return;
+    }
+    if (checked.length === 1) {
+      filterLabel.textContent = checked[0].closest('label').querySelector('span').childNodes[0].textContent;
+      return;
+    }
+    filterLabel.textContent = '已选 ' + checked.length + ' 项规则';
+  }
+
+  function setPanelOpen(open) {
+    filterPanel.classList.toggle('is-open', open);
+    filterBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  filterBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    setPanelOpen(!filterPanel.classList.contains('is-open'));
+  });
+
+  filterPanel.addEventListener('click', function (e) {
+    e.stopPropagation();
+  });
+
+  ruleChecks.forEach(function (el) {
+    el.addEventListener('change', updateFilterLabel);
+  });
+
+  document.addEventListener('click', function () {
+    setPanelOpen(false);
+  });
+
+  function applyFilter() {
+    var selected = Array.prototype.filter.call(ruleChecks, function (el) { return el.checked; })
+      .map(function (el) { return el.value; });
+    tableRows.forEach(function (tr) {
+      var rule = tr.getAttribute('data-rule');
+      tr.style.display = !selected.length || selected.indexOf(rule) !== -1 ? '' : 'none';
+    });
+  }
+
+  document.getElementById('expRew').addEventListener('click', function () {
     if (!window.AdminExport) return;
     AdminExport.confirm({
-      title: "导出积分奖励流水",
-      body: "<p style='margin:0'>按筛选条件导出 Excel，任务可在「导出任务列表」查看。</p>",
-      exportType: "奖励流水",
-      sourcePage: "activities-points-reward.html",
-      conditionsText: "筛选条件：当前页筛选"
+      title: '导出积分奖励流水',
+      body: '<p style=\'margin:0\'>按筛选条件导出 Excel，任务可在「导出任务列表」查看。</p>',
+      exportType: '奖励流水',
+      sourcePage: 'activities-points-reward.html',
+      conditionsText: '筛选条件：' + filterLabel.textContent
     });
   });
-  document.getElementById("qRew").addEventListener("click", function () {
-    M.toast("已查询（原型）");
+
+  document.getElementById('qRew').addEventListener('click', function () {
+    applyFilter();
+    M.toast('已按筛选条件查询（原型）');
   });
-  document.querySelector("main.admin-content").addEventListener("click", function (e) {
-    if (!e.target.classList.contains("js-row")) return;
-    M.open({
-      title: "奖励流水详情",
-      body: "<pre style='margin:0;font-size:12px;background:#fafafa;padding:12px;border-radius:6px'>id: pt_rwd_8821\nrule_id: ACT_WATCH_30\nidempotency_key: ik_00921</pre>",
-      footer: [{ text: "关闭", primary: true, onClick: M.close }]
-    });
-  });
+
+  updateFilterLabel();
 })();
 </script>
 </body>

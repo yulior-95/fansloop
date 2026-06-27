@@ -184,7 +184,7 @@
       freqPeriod: 'daily',
       freqMax: 1,
       coolingDays: 0,
-      status: 'draft',
+      status: 'disabled',
       sort: 30,
       image: 'https://cdn.pixabay.com/photo/2016/11/29/09/16/architecture-1868667_640.jpg',
       updatedAt: '2026-05-28 11:00'
@@ -829,7 +829,7 @@
   function statusTag(status) {
     if (status === 'enabled') return '<span class="ant-tag ant-tag-green">启用</span>';
     if (status === 'disabled') return '<span class="ant-tag ant-tag-red">停用</span>';
-    if (status === 'draft') return '<span class="ant-tag">草稿</span>';
+    if (status === 'draft') return '<span class="ant-tag ant-tag-red">停用</span>';
     return '<span class="ant-tag">' + status + '</span>';
   }
 

@@ -800,6 +800,43 @@
     });
   }
 
+  function renderInvitePanel(user) {
+    var Inv = window.FLInviteDataStore;
+    var data = Inv
+      ? Inv.getUserInviteData(user.uid)
+      : { totalInvites: 0, monthValid: 0, totalRewardPts: 0 };
+    var fmt = Inv ? Inv.fmt.bind(Inv) : function (n) { return Number(n).toLocaleString("zh-CN"); };
+    var base = "invite-data.html?inviterUid=" + encodeURIComponent(user.uid) +
+      "&inviterName=" + encodeURIComponent(user.nickname || "");
+
+    function statLink(href, label, value, color) {
+      return (
+        '<a href="' + href + '" class="fl-inv-stat-link" style="text-decoration:none;color:inherit">' +
+        '<div style="padding:12px 14px;border:1px solid #f0f0f0;border-radius:8px;background:#fafafa;transition:border-color .15s,box-shadow .15s">' +
+        '<div style="font-size:12px;color:rgba(0,0,0,.45)">' + label + ' <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px;opacity:.45"></i></div>' +
+        '<div style="font-size:20px;font-weight:700;margin-top:4px' + (color ? ";color:" + color : "") + '">' + value + "</div>" +
+        '<div style="font-size:11px;color:rgba(0,0,0,.35);margin-top:6px">点击查看邀请数据详情</div>' +
+        "</div></a>"
+      );
+    }
+
+    var stats =
+      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">' +
+      statLink(base, "累计邀请注册", fmt(data.totalInvites), "") +
+      statLink(base + "&monthOnly=1", "本月有效邀请", fmt(data.monthValid), "#1890ff") +
+      statLink(base, "累计邀请奖励积分", fmt(data.totalRewardPts), "#faad14") +
+      "</div>";
+
+    return (
+      '<div class="fl-modal-tab-panel" data-fl-tab-panel="t4">' +
+      '<p style="margin:0 0 12px;font-size:13px;color:rgba(0,0,0,.55)">邀请码：<code>' +
+      M.esc(dash(user.inviteCode)) +
+      "</code> · 点击下方指标跳转「邀请数据」查看该用户明细</p>" +
+      stats +
+      "</div>"
+    );
+  }
+
   function bodyUserDetail(user) {
     var uid = user.uid;
     var kycBtn =
@@ -821,7 +858,8 @@
       '<button type="button" class="is-active" data-fl-tab="t1">基本信息</button>' +
       '<button type="button" data-fl-tab="t2">账变记录</button>' +
       '<button type="button" data-fl-tab="t3">登录日志</button>' +
-      '<button type="button" data-fl-tab="t4">操作记录</button>' +
+      '<button type="button" data-fl-tab="t4">邀请数据</button>' +
+      '<button type="button" data-fl-tab="t5">操作记录</button>' +
       "</div>";
 
     var basic =
@@ -876,6 +914,8 @@
       miniTable(["时间", "IP", "归属地", "设备", "结果"], loginRows) +
       "</div>";
 
+    var invite = renderInvitePanel(user);
+
     var opRows = user.opLogs.map(function (r) {
       var res =
         r.result === "成功"
@@ -885,11 +925,11 @@
     });
 
     var ops =
-      '<div class="fl-modal-tab-panel" data-fl-tab-panel="t4">' +
+      '<div class="fl-modal-tab-panel" data-fl-tab-panel="t5">' +
       miniTable(["时间", "操作人", "操作", "详情", "结果"], opRows) +
       "</div>";
 
-    return actions + tabs + basic + ledger + login + ops;
+    return actions + tabs + basic + ledger + login + invite + ops;
   }
 
   function openPayPwdResetModal(user, onDone) {

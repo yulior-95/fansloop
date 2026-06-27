@@ -22,58 +22,33 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">手续费配置</h1>
-      <p class="admin-page-desc">编辑费率在<strong>弹窗</strong>中完成。</p>
       <div class="ant-card ant-card-bordered">
         <div class="ant-card-body" style="padding-top:0">
           <div class="ant-table ant-table-bordered ant-table-middle">
             <table style="width:100%">
-              <thead class="ant-table-thead"><tr><th>场景</th><th>计费方式</th><th>费率 / 固定费</th><th>最小手续费</th><th>状态</th><th>操作</th></tr></thead>
-              <tbody class="ant-table-tbody">
-                <tr data-scene="法币充值"><td>法币充值</td><td>百分比</td><td>1.2%</td><td>¥ 0.5</td><td><span class="ant-tag ant-tag-green">生效</span></td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-fee-edit">编辑</button></td></tr>
-                <tr data-scene="链上充值"><td>链上充值</td><td>固定 + Gas 补贴</td><td>1 USDT</td><td>—</td><td><span class="ant-tag ant-tag-green">生效</span></td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-fee-edit">编辑</button></td></tr>
-                <tr data-scene="法币提现"><td>法币提现</td><td>百分比</td><td>0.8%</td><td>¥ 2</td><td><span class="ant-tag ant-tag-green">生效</span></td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-fee-edit">编辑</button></td></tr>
-                <tr data-scene="链上提现"><td>链上提现</td><td>动态（链上 Gas）</td><td>自动</td><td>—</td><td><span class="ant-tag ant-tag-green">生效</span></td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-fee-edit">编辑</button></td></tr>
-              </tbody>
+              <thead class="ant-table-thead">
+                <tr>
+                  <th>场景</th>
+                  <th>计费方式</th>
+                  <th>费率</th>
+                  <th>最小手续费</th>
+                  <th>状态</th>
+                  <th style="width:100px">修改人</th>
+                  <th style="width:168px">修改时间</th>
+                  <th style="width:72px">操作</th>
+                </tr>
+              </thead>
+              <tbody class="ant-table-tbody" id="feeTbody"></tbody>
             </table>
           </div>
         </div>
       </div>
-      <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1200&h=400&fit=crop" alt="" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;margin-top:16px;border:1px solid #f0f0f0">
     </main>
   </div>
 </div>
+<script src="../js-web/fee-config.js"></script>
 <script src="js/admin-nav.js"></script>
 <script src="js/admin-modal.js"></script>
-<script>
-(function () {
-  var M = window.AdminModal;
-  document.querySelector("main.admin-content").addEventListener("click", function (e) {
-    if (!e.target.classList.contains("js-fee-edit")) return;
-    var scene = e.target.closest("tr").getAttribute("data-scene");
-    M.open({
-      title: "编辑手续费 · " + scene,
-      body:
-        "<label style='display:block;margin-bottom:6px'>计费方式</label><select class='ant-input' style='width:100%;max-width:360px;margin-bottom:12px'><option>百分比</option><option>固定费</option><option>混合</option></select>" +
-        "<label style='display:block;margin-bottom:6px'>费率值</label><input class='ant-input' style='width:100%;max-width:360px' value='1.2'>" +
-        "<label style='display:block;margin:12px 0 6px'>最小手续费</label><input class='ant-input' style='width:100%;max-width:360px' placeholder='可选'>",
-      footer: [
-        { text: "取消", onClick: M.close },
-        {
-          text: "保存",
-          primary: true,
-          onClick: function () {
-            M.confirmGoogle({
-              message: "变更手续费影响全站报价，需谷歌验证。场景：" + scene,
-              onVerified: function () {
-                M.toast("手续费已更新（原型）");
-              }
-            });
-          }
-        }
-      ]
-    });
-  });
-})();
-</script>
+<script src="js/network-fees-admin.js"></script>
 </body>
 </html>

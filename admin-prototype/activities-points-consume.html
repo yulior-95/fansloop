@@ -8,6 +8,59 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin-shell.css">
   <link rel="stylesheet" href="css/admin-modals.css">
+  <style>
+    .con-scene-filter { position: relative; display: inline-block; }
+    .con-scene-filter-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-width: 200px;
+      height: 32px;
+      padding: 0 11px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      background: #fff;
+      font-size: 14px;
+      color: rgba(0,0,0,.85);
+      cursor: pointer;
+    }
+    .con-scene-filter-btn:hover { border-color: #4096ff; }
+    .con-scene-filter-btn i { font-size: 11px; color: rgba(0,0,0,.45); }
+    .con-scene-filter-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      z-index: 30;
+      min-width: 300px;
+      padding: 8px 0;
+      border: 1px solid #f0f0f0;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 6px 16px rgba(0,0,0,.08);
+    }
+    .con-scene-filter-panel.is-open { display: block; }
+    .con-scene-filter-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .con-scene-filter-item:hover { background: #f5f5f5; }
+    .con-scene-filter-item input { margin-top: 3px; flex-shrink: 0; }
+    .con-scene-filter-item .meta {
+      display: block;
+      font-size: 11px;
+      color: rgba(0,0,0,.45);
+      margin-top: 2px;
+    }
+    .con-ctx-main { font-size: 13px; color: rgba(0,0,0,.85); }
+    .con-ctx-sub { font-size: 12px; color: rgba(0,0,0,.45); margin-top: 2px; font-family: monospace; }
+  </style>
 </head>
 <body data-admin-page="activities-points-consume">
 <div class="admin-app">
@@ -22,20 +75,39 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">积分消耗流水</h1>
-      <p class="admin-page-desc">导出、详情为<strong>弹窗</strong>。</p>
+      <p class="admin-page-desc">记录用户扣减可用积分的业务场景；活动编码与积分活动配置同源，关联对象含 ID 与可读名称。</p>
       <div class="admin-toolbar">
-        <select class="ant-input" style="width:160px"><option>全部场景</option><option>商城兑换</option><option>解锁内容</option><option>直播互动</option></select>
+        <span class="ant-input-affix-wrapper" style="width:160px"><input class="ant-input" id="conUid" placeholder="UID"></span>
+        <div class="con-scene-filter" id="conSceneFilter">
+          <button type="button" class="con-scene-filter-btn" id="conSceneFilterBtn" aria-haspopup="listbox" aria-expanded="false">
+            <span id="conSceneFilterLabel">全部消耗场景</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div class="con-scene-filter-panel" id="conSceneFilterPanel" role="listbox">
+            <label class="con-scene-filter-item"><input type="checkbox" class="js-con-scene" value="mall_redeem" checked><span>商城兑换<span class="meta">积分商城兑换商品 / 券包（redeem_goods）</span></span></label>
+            <label class="con-scene-filter-item"><input type="checkbox" class="js-con-scene" value="lucky_wheel" checked><span>幸运转盘<span class="meta">每次抽奖扣积分（custom_wheel）</span></span></label>
+            <label class="con-scene-filter-item"><input type="checkbox" class="js-con-scene" value="unlock_ppv" checked><span>解锁内容<span class="meta">积分直接解锁单篇付费帖</span></span></label>
+          </div>
+        </div>
         <button type="button" class="ant-btn ant-btn-primary" id="qCon">查询</button>
       </div>
       <div class="ant-card ant-card-bordered">
         <div class="ant-card-body" style="padding-top:0">
           <div class="ant-table ant-table-bordered ant-table-small">
             <table style="width:100%">
-              <thead class="ant-table-thead"><tr><th>时间</th><th>UID</th><th>场景</th><th>积分</th><th>关联对象</th><th>操作</th></tr></thead>
-              <tbody class="ant-table-tbody">
-                <tr><td>2026-05-10 22:15</td><td>882910</td><td>商城兑换</td><td>-500</td><td>商品 SKU_009</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-row">详情</button></td></tr>
-                <tr><td>2026-05-09 19:02</td><td>445201</td><td>解锁付费帖</td><td>-120</td><td>内容 post_7712</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-row">详情</button></td></tr>
-              </tbody>
+              <thead class="ant-table-thead">
+                <tr>
+                  <th>时间</th>
+                  <th>UID</th>
+                  <th>消耗规则</th>
+                  <th>积分</th>
+                  <th>剩余可用积分</th>
+                  <th>总积分</th>
+                  <th>消耗场景</th>
+                  <th>关联对象</th>
+                </tr>
+              </thead>
+              <tbody class="ant-table-tbody" id="conTableBody"></tbody>
             </table>
           </div>
         </div>
@@ -43,33 +115,9 @@
     </main>
   </div>
 </div>
+<script src="js/points-consume-store.js"></script>
 <script src="js/admin-nav.js"></script>
 <script src="js/admin-modal.js"></script>
-<script>
-(function () {
-  var M = window.AdminModal;
-  document.getElementById("expCon").addEventListener("click", function () {
-    if (!window.AdminExport) return;
-    AdminExport.confirm({
-      title: "导出积分消耗流水",
-      body: "<p style='margin:0'>含场景、订单号、余额快照字段，导出 Excel。</p>",
-      exportType: "消耗流水",
-      sourcePage: "activities-points-consume.html",
-      conditionsText: "筛选条件：当前页筛选"
-    });
-  });
-  document.getElementById("qCon").addEventListener("click", function () {
-    M.toast("已查询（原型）");
-  });
-  document.querySelector("main.admin-content").addEventListener("click", function (e) {
-    if (!e.target.classList.contains("js-row")) return;
-    M.open({
-      title: "消耗流水详情",
-      body: "<p style='margin:0'>幂等键、风控命中、回滚状态等（原型占位）。</p>",
-      footer: [{ text: "关闭", primary: true, onClick: M.close }]
-    });
-  });
-})();
-</script>
+<script src="js/activities-points-consume.js"></script>
 </body>
 </html>

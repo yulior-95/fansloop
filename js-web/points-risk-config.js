@@ -51,6 +51,7 @@
         coolingPeriodDays: 7,
         channelCooling: JSON.parse(JSON.stringify(DEFAULT_CHANNEL_COOLING)),
         caps: {
+            platformDailyBudget: 80000,
             dailyPointsCap: 480,
             inviteRewardDailyCap: 600,
             inviteRewardTotalCap: 12000
@@ -92,6 +93,15 @@
         return cfg;
     }
 
+    function migrateCaps(cfg) {
+        cfg.caps = cfg.caps || {};
+        var defaults = DEFAULT_CONFIG.caps;
+        Object.keys(defaults).forEach(function (key) {
+            if (cfg.caps[key] == null) cfg.caps[key] = defaults[key];
+        });
+        return cfg;
+    }
+
     function loadConfig() {
         var cfg;
         try {
@@ -99,7 +109,7 @@
             if (raw) cfg = JSON.parse(raw);
         } catch (e) { /* ignore */ }
         if (!cfg) cfg = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
-        return migrateChannelCooling(cfg);
+        return migrateCaps(migrateChannelCooling(cfg));
     }
 
     function saveConfig(cfg) {
