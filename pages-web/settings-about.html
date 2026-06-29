@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="../css-web/common-web.css">
 <link rel="stylesheet" href="../css-web/settings-layout.css">
 <link rel="stylesheet" href="../css-web/settings-about-terms.css">
+<link rel="stylesheet" href="../css-web/subscribe-modal.css">
 <script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/global-lang-switch.js" defer></script>
@@ -75,17 +76,7 @@
                 <div class="st-section-card">
                     <div class="ssh">
                         <div class="ic-circle"><i class="fa-solid fa-link"></i></div>
-                        <div><h3>相关链接</h3><p>法律文件、帮助与反馈</p></div>
-                    </div>
-                    <div class="about-link-row" data-about-action="terms" role="button" tabindex="0">
-                        <div class="row-ic"><i class="fa-solid fa-file-lines"></i></div>
-                        <div class="row-info"><div class="ti">条款与协议</div><div class="sub">用户服务协议、创作者协议与社区准则</div></div>
-                        <div class="row-action"><i class="fa-solid fa-chevron-right"></i></div>
-                    </div>
-                    <div class="about-link-row" data-about-action="privacy" role="button" tabindex="0">
-                        <div class="row-ic"><i class="fa-solid fa-user-shield"></i></div>
-                        <div class="row-info"><div class="ti">隐私政策</div><div class="sub">了解我们如何收集、使用与保护你的数据</div></div>
-                        <div class="row-action"><i class="fa-solid fa-chevron-right"></i></div>
+                        <div><h3>相关链接</h3><p>帮助与反馈</p></div>
                     </div>
                     <div class="about-link-row" data-about-action="support" role="button" tabindex="0">
                         <div class="row-ic"><i class="fa-solid fa-headset"></i></div>
@@ -96,19 +87,6 @@
                         <div class="row-ic"><i class="fa-regular fa-paper-plane"></i></div>
                         <div class="row-info"><div class="ti">提交产品反馈</div><div class="sub">功能建议、体验问题与 Bug 报告</div></div>
                         <div class="row-action"><i class="fa-solid fa-chevron-right"></i></div>
-                    </div>
-                </div>
-
-                <div class="st-section-card">
-                    <div class="ssh">
-                        <div class="ic-circle" style="background:linear-gradient(135deg,#06B6D4,#3B82F6)"><i class="fa-solid fa-users"></i></div>
-                        <div><h3>社区与开源</h3><p>关注动态、参与讨论</p></div>
-                    </div>
-                    <div class="about-social">
-                        <button type="button" class="soc-btn" data-about-social="X / Twitter"><i class="fa-brands fa-x-twitter"></i> X</button>
-                        <button type="button" class="soc-btn" data-about-social="Discord"><i class="fa-brands fa-discord"></i> Discord</button>
-                        <button type="button" class="soc-btn" data-about-social="Telegram"><i class="fa-brands fa-telegram"></i> Telegram</button>
-                        <button type="button" class="soc-btn" data-about-social="GitHub"><i class="fa-brands fa-github"></i> GitHub</button>
                     </div>
                 </div>
 
@@ -183,6 +161,61 @@
 </div>
 
 <div class="ab-toast" id="aboutToast" role="status" aria-live="polite"></div>
+
+<div class="inline-overlay" id="ovlAboutFeedback" aria-hidden="true">
+    <div class="iol-panel about-feedback-modal" role="dialog" aria-labelledby="aboutFbTitle">
+        <div class="iol-head">
+            <h3 id="aboutFbTitle"><i class="fa-regular fa-paper-plane" style="color:var(--brand-purple)"></i> 提交产品反馈</h3>
+            <button type="button" class="iol-close" id="aboutFeedbackClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="about-fb-body">
+            <div id="aboutFbStepForm">
+                <p class="about-fb-hint">感谢你帮助改进 FansLoop，我们会认真阅读每一条反馈。</p>
+                <div class="about-fb-field">
+                    <label>反馈类型</label>
+                    <div class="about-fb-types" role="group" aria-label="反馈类型">
+                        <button type="button" class="about-fb-type active" data-fb-type="feature">功能建议</button>
+                        <button type="button" class="about-fb-type" data-fb-type="experience">体验问题</button>
+                        <button type="button" class="about-fb-type" data-fb-type="bug">Bug 报告</button>
+                    </div>
+                </div>
+                <div class="about-fb-field">
+                    <label for="aboutFbContent">详细描述 <span class="req">*</span></label>
+                    <textarea id="aboutFbContent" class="input about-fb-textarea" rows="4" maxlength="1000" placeholder="请描述你的建议、遇到的问题或复现步骤…"></textarea>
+                    <span class="about-fb-count"><span id="aboutFbCharCount">0</span> / 1000</span>
+                </div>
+                <div class="about-fb-field">
+                    <label for="aboutFbContact">联系邮箱 <span class="opt">（选填，便于回复）</span></label>
+                    <input type="email" id="aboutFbContact" class="input" autocomplete="email" placeholder="name@example.com">
+                </div>
+                <div class="about-fb-field">
+                    <label>截图附件 <span class="opt">（选填）</span></label>
+                    <label class="about-fb-upload" id="aboutFbUpload" for="aboutFbFile">
+                        <i class="fa-solid fa-image"></i>
+                        <span>点击添加截图</span>
+                    </label>
+                    <input type="file" id="aboutFbFile" accept="image/*" hidden>
+                    <div class="about-fb-preview" id="aboutFbPreview" hidden>
+                        <img id="aboutFbPreviewImg" alt="截图预览">
+                        <button type="button" class="about-fb-preview-rm" id="aboutFbPreviewRm" aria-label="移除截图"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+                <div class="about-fb-error" id="aboutFbErr" role="alert"></div>
+            </div>
+            <div id="aboutFbStepDone" hidden>
+                <div class="about-fb-success">
+                    <div class="ic"><i class="fa-solid fa-circle-check"></i></div>
+                    <h4>反馈已提交</h4>
+                    <p>工单号 <strong id="aboutFbTicket">—</strong>。若留下邮箱，我们将在 24 小时内回复（原型演示）。</p>
+                </div>
+            </div>
+        </div>
+        <div class="about-fb-foot" id="aboutFbFoot">
+            <button type="button" class="btn btn-secondary" id="aboutFbCancel">取消</button>
+            <button type="button" class="btn btn-primary" id="aboutFbSubmit"><i class="fa-solid fa-paper-plane"></i> 提交反馈</button>
+        </div>
+    </div>
+</div>
 
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>
