@@ -278,10 +278,14 @@
   }
 
   function bindFilters() {
-    var qBtn = document.getElementById("ledgerQ");
-    if (qBtn) {
-      qBtn.addEventListener("click", function () {
-        if (pager) pager.setPage(1);
+    var FT = window.AdminFilterToolbar;
+    if (FT) {
+      FT.onQuery("ledgerQ", function () {
+        if (pager) pager.resetPage();
+        renderTable();
+      });
+      FT.onReset("ledgerReset", function () {
+        if (pager) pager.resetPage();
         renderTable();
       });
     }

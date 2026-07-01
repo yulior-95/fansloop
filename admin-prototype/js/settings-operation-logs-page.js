@@ -81,11 +81,18 @@
     });
   });
 
-  document.getElementById("btnLogQuery").addEventListener("click", function () {
-    if (pager) pager.resetPage();
-    renderTable();
-    M.toast("已查询 " + getFilteredLogs().length + " 条（原型）");
-  });
+  var FT = window.AdminFilterToolbar;
+  if (FT) {
+    FT.onQuery("btnLogQuery", function () {
+      if (pager) pager.resetPage();
+      renderTable();
+      M.toast("已查询 " + getFilteredLogs().length + " 条");
+    });
+    FT.onReset("btnLogReset", function () {
+      if (pager) pager.resetPage();
+      renderTable();
+    });
+  }
 
   if (filterModule) filterModule.addEventListener("change", function () {
     if (pager) pager.resetPage();

@@ -74,6 +74,72 @@
     var toastEl;
     var currentPeriod = '30';
     var currentFilter = 'all';
+    var DEMO_UID = 'demo_uid_882910';
+
+    function fmtUsdt(n) {
+        return Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function resolveIncomeUser() {
+        if (window.FLAuthUiSync && window.FLAuthUiSync.resolveUser) {
+            return window.FLAuthUiSync.resolveUser();
+        }
+        if (window.FansloopAuth && window.FansloopAuth.getUser) {
+            return window.FansloopAuth.getUser();
+        }
+        return null;
+    }
+
+    function applyCreatorIncomeForUser(user) {
+        user = user || resolveIncomeUser();
+        if (!user || user.userId === DEMO_UID) {
+            syncDistPeriod(currentPeriod);
+            return;
+        }
+
+        var monthly = window.FLCreatorIncomeStore && window.FLCreatorIncomeStore.getMonthlyUsdt
+            ? window.FLCreatorIncomeStore.getMonthlyUsdt()
+            : 0;
+        var isCreator = user.role === 'Creator';
+        var hasIncome = isCreator && monthly > 0;
+
+        var total = hasIncome ? monthly * 4.28 : 0;
+        var today = hasIncome ? monthly / 9 : 0;
+        var withdrawable = hasIncome ? monthly * 1.74 : 0;
+        var pending = hasIncome ? monthly * 0.5 : 0;
+
+        var totalNum = document.querySelector('.total-card .num');
+        if (totalNum) totalNum.innerHTML = fmtUsdt(total) + '<span>USDT</span>';
+
+        var deltas = document.querySelectorAll('.total-card .delta .v');
+        if (deltas[0]) deltas[0].innerHTML = fmtUsdt(today) + ' USDT' + (hasIncome ? '<small>↑ —</small>' : '');
+        if (deltas[1]) deltas[1].innerHTML = fmtUsdt(monthly) + ' USDT' + (hasIncome ? '<small>↑ —</small>' : '');
+        if (deltas[2]) deltas[2].innerHTML = hasIncome ? String(Math.round(monthly * 4)) + '<small>位粉丝</small>' : '0<small>位粉丝</small>';
+
+        var wd = document.querySelector('.withdraw-card .top .v');
+        if (wd) wd.innerHTML = fmtUsdt(withdrawable) + '<small>USDT</small>';
+
+        var pend = document.querySelector('.withdraw-card .pending b');
+        if (pend) pend.textContent = fmtUsdt(pending) + ' USDT';
+
+        var pieTotal = document.getElementById('distPieTotal');
+        if (pieTotal) pieTotal.textContent = fmtUsdt(hasIncome ? monthly : 0);
+
+        if (!hasIncome) {
+            document.querySelectorAll('.dist-legend .dist-row .am').forEach(function (el) {
+                el.textContent = '0.00 USDT';
+            });
+            document.querySelectorAll('.dist-legend .dist-row .pcc').forEach(function (el) {
+                el.textContent = '0%';
+            });
+            var svg = document.getElementById('distPieSvg');
+            if (svg) svg.innerHTML = '';
+        } else {
+            syncDistPeriod(currentPeriod);
+        }
+    }
+
+    window.FL_applyCreatorIncomeForUser = applyCreatorIncomeForUser;
 
     function showToast(msg) {
         if (!toastEl) toastEl = document.getElementById('ciToast');
@@ -401,9 +467,18 @@
         bindDeltaHints();
         bindDistRows();
         syncDistPeriod(currentPeriod);
+        applyCreatorIncomeForUser();
         applyDeepLinks();
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
     else init();
+
+    window.addEventListener('fansloop-auth-change', function () {
+        applyCreatorIncomeForUser();
+    });
+    window.addEventListener('fl-auth-prototype-ready', function () {
+        applyCreatorIncomeForUser();
+        if (window.FLAuthUiSync && window.FLAuthUiSync.apply) window.FLAuthUiSync.apply();
+    });
 })();

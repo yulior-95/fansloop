@@ -113,12 +113,16 @@
     tbody.innerHTML = html;
   }
 
-  var btnQuery = document.getElementById("btnAstQuery");
-  if (btnQuery) {
-    btnQuery.addEventListener("click", function () {
+  var FT = window.AdminFilterToolbar;
+  if (FT) {
+    FT.onQuery("btnAstQuery", function () {
       if (pager) pager.resetPage();
       renderTable();
-      M.toast("已查询 " + getFilteredAssets().length + " 条用户（原型）");
+      M.toast("已查询 " + getFilteredAssets().length + " 条用户");
+    });
+    FT.onReset("btnAstReset", function () {
+      if (pager) pager.resetPage();
+      renderTable();
     });
   }
 

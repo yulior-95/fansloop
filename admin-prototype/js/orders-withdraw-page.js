@@ -595,19 +595,15 @@
     });
   }
 
-  var qBtn = document.getElementById("ordWdrQuery");
-  if (qBtn) {
-    qBtn.addEventListener("click", function () {
-      if (pager) pager.setPage(1);
+  var FT = window.AdminFilterToolbar;
+  if (FT) {
+    FT.onQuery("ordWdrQuery", function () {
+      if (pager) pager.resetPage();
       renderTable();
     });
-  }
-
-  var resetBtn = document.getElementById("ordWdrReset");
-  if (resetBtn) {
-    resetBtn.addEventListener("click", function () {
+    FT.onReset("ordWdrReset", function () {
       applyDefaultFilters();
-      if (pager) pager.setPage(1);
+      if (pager) pager.resetPage();
       renderTable();
     });
   }

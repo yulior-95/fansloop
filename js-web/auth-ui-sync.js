@@ -2,8 +2,62 @@
  * 登录用户 · 全站 UI 同步（头像 / 昵称 / 角色 / 主页资料）
  */
 (function (global) {
+    var DEMO_UID = 'demo_uid_882910';
+
+    var LUNA_PROFILE_STATS = {
+        works: '142',
+        fans: '28.4k',
+        following: '368',
+        subscribers: '1,284',
+        income: '$18,420',
+        worksTab: '142',
+        paidTab: '26',
+        liveTab: '12'
+    };
+
     function getUser() {
         return global.FansloopAuth && global.FansloopAuth.getUser ? global.FansloopAuth.getUser() : null;
+    }
+
+    function resolveUser() {
+        var user = getUser();
+        if (!user || !user.userId) return user;
+        if (global.FLUserRegistry && global.FLUserRegistry.getByUserId) {
+            var acc = global.FLUserRegistry.getByUserId(user.userId);
+            if (acc && global.FLUserRegistry.toSessionUser) {
+                return global.FLUserRegistry.toSessionUser(acc);
+            }
+        }
+        return user;
+    }
+
+    function hashEmail(email) {
+        var h = 0;
+        var s = String(email || '');
+        for (var i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+        return Math.abs(h);
+    }
+
+    function profileStatsForUser(user) {
+        if (!user) return null;
+        if (user.userId === DEMO_UID) return LUNA_PROFILE_STATS;
+        var h = hashEmail(user.email);
+        if (user.role !== 'Creator') {
+            return {
+                works: '0', fans: '0', following: String(h % 12), subscribers: '0', income: '$0',
+                worksTab: '0', paidTab: '0', liveTab: '0'
+            };
+        }
+        return {
+            works: String(3 + (h % 18)),
+            fans: String(40 + (h % 420)),
+            following: String(8 + (h % 80)),
+            subscribers: String(h % 60),
+            income: '$' + (120 + (h % 900)).toLocaleString('en-US'),
+            worksTab: String(3 + (h % 18)),
+            paidTab: String(h % 5),
+            liveTab: String(h % 3)
+        };
     }
 
     function setAvatarEl(el, url) {
@@ -45,6 +99,27 @@
         }
         var joined = user.joinedAt ? ' · 加入于 ' + user.joinedAt : '';
         uidEl.textContent = 'UID: ' + (publicUid || '—') + joined;
+    }
+
+    function applyProfileStats(user) {
+        var stats = profileStatsForUser(user);
+        if (!stats) return;
+        var psts = document.querySelectorAll('.profile-stats .pst');
+        if (psts.length >= 5) {
+            var vals = psts[0].querySelector('.v'); if (vals) vals.textContent = stats.works;
+            vals = psts[1].querySelector('.v'); if (vals) vals.textContent = stats.fans;
+            vals = psts[2].querySelector('.v'); if (vals) vals.textContent = stats.following;
+            vals = psts[3].querySelector('.v'); if (vals) vals.textContent = stats.subscribers;
+            vals = psts[4].querySelector('.v'); if (vals) vals.textContent = stats.income;
+            var deltas = psts[1].querySelector('.delta');
+            if (deltas && user.userId !== DEMO_UID) deltas.style.display = 'none';
+            deltas = psts[3].querySelector('.delta');
+            if (deltas && user.userId !== DEMO_UID) deltas.style.display = 'none';
+        }
+        document.querySelectorAll('#profileTabs .tb .cnt').forEach(function (cnt, i) {
+            var keys = ['worksTab', 'paidTab', 'liveTab'];
+            if (keys[i] && stats[keys[i]] != null) cnt.textContent = stats[keys[i]];
+        });
     }
 
     function applyProfileMeta(user) {
@@ -109,18 +184,24 @@
     }
 
     function apply() {
-        var user = getUser();
+        var user = resolveUser();
         if (!user || !user.email) return;
+        if (document.body) {
+            document.body.setAttribute('data-current-user-id', user.userId || '');
+            document.body.setAttribute('data-current-user-email', user.email || '');
+        }
         applyAvatars(user);
         applyNames(user);
         applyProfileMeta(user);
+        applyProfileStats(user);
         applyKycTag();
         refreshPointsUi();
         if (global.FLWalletPageSync) global.FLWalletPageSync.apply();
         if (global.FL_applySidebarBottom) global.FL_applySidebarBottom();
+        if (global.FL_applyCreatorIncomeForUser) global.FL_applyCreatorIncomeForUser(user);
     }
 
-    global.FLAuthUiSync = { apply: apply, getUser: getUser };
+    global.FLAuthUiSync = { apply: apply, getUser: getUser, resolveUser: resolveUser };
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', apply);

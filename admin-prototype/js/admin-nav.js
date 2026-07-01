@@ -332,9 +332,39 @@
 })();
 
 (function () {
+  if (window.AdminAuth) return;
+  if (document.querySelector('script[src*="admin-auth.js"]')) return;
+  document.write('<script src="js/admin-auth.js"><\/script>');
+})();
+
+(function () {
+  if (window.AdminTodos) return;
+  if (document.querySelector('script[src*="admin-todos.js"]')) return;
+  document.write('<script src="js/admin-todos.js?v=3"><\/script>');
+})();
+
+(function () {
   if (window.AdminPager) return;
   if (document.querySelector('script[src*="admin-pagination.js"]')) return;
   document.write('<script src="js/admin-pagination.js"><\/script>');
+})();
+
+(function () {
+  if (window.AdminDatePicker) return;
+  if (document.querySelector('script[src*="admin-date-picker.js"]')) return;
+  document.write('<script src="js/admin-date-picker.js"><\/script>');
+})();
+
+(function () {
+  if (window.AdminFormControls) return;
+  if (document.querySelector('script[src*="admin-form-controls.js"]')) return;
+  document.write('<script src="js/admin-form-controls.js"><\/script>');
+})();
+
+(function () {
+  if (window.AdminFilterToolbar) return;
+  if (document.querySelector('script[src*="admin-filter-toolbar.js"]')) return;
+  document.write('<script src="js/admin-filter-toolbar.js"><\/script>');
 })();
 
 (function () {

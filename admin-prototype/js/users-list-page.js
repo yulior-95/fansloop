@@ -1117,12 +1117,16 @@
     getUserByUid: getUserByUid
   };
 
-  var btnQuery = document.getElementById("btnQueryUsers");
-  if (btnQuery) {
-    btnQuery.addEventListener("click", function () {
+  var FT = window.AdminFilterToolbar;
+  if (FT) {
+    FT.onQuery("btnQueryUsers", function () {
       if (pager) pager.resetPage();
       renderTable();
-      M.toast("已查询 " + getFilteredUsers().length + " 条（原型）");
+      M.toast("已查询 " + getFilteredUsers().length + " 条");
+    });
+    FT.onReset("btnResetUsers", function () {
+      if (pager) pager.resetPage();
+      renderTable();
     });
   }
 

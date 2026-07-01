@@ -393,50 +393,47 @@
   }
 
   function bindFilters() {
-    document.getElementById('btnEmailSearch').addEventListener('click', function () {
-      state.tEmail.filter = (document.getElementById('emailFilterSuffix').value || '').trim();
+    var FT = window.AdminFilterToolbar;
+    if (!FT) return;
+    FT.onQuery("btnEmailSearch", function () {
+      state.tEmail.filter = (document.getElementById("emailFilterSuffix").value || "").trim();
       state.tEmail.page = 1;
       renderEmailTable();
     });
-    document.getElementById('btnEmailReset').addEventListener('click', function () {
-      document.getElementById('emailFilterSuffix').value = '';
-      state.tEmail.filter = '';
+    FT.onReset("btnEmailReset", function () {
+      state.tEmail.filter = "";
       state.tEmail.page = 1;
       renderEmailTable();
     });
-    document.getElementById('btnFeeSearch').addEventListener('click', function () {
-      state.tFee.filterUid = (document.getElementById('feeFilterUid').value || '').trim();
-      state.tFee.filterScope = document.getElementById('feeFilterScope').value;
+    FT.onQuery("btnFeeSearch", function () {
+      state.tFee.filterUid = (document.getElementById("feeFilterUid").value || "").trim();
+      state.tFee.filterScope = document.getElementById("feeFilterScope").value;
       state.tFee.page = 1;
       renderFeeTable();
     });
-    document.getElementById('btnFeeReset').addEventListener('click', function () {
-      document.getElementById('feeFilterUid').value = '';
-      document.getElementById('feeFilterScope').value = '';
-      state.tFee.filterUid = '';
-      state.tFee.filterScope = '';
+    FT.onReset("btnFeeReset", function () {
+      state.tFee.filterUid = "";
+      state.tFee.filterScope = "";
       state.tFee.page = 1;
       renderFeeTable();
     });
-    document.getElementById('btnLiveSearch').addEventListener('click', function () {
-      state.tLive.filterUid = (document.getElementById('liveFilterUid').value || '').trim();
+    FT.onQuery("btnLiveSearch", function () {
+      state.tLive.filterUid = (document.getElementById("liveFilterUid").value || "").trim();
       state.tLive.page = 1;
       renderLiveTable();
     });
-    document.getElementById('btnLiveReset').addEventListener('click', function () {
-      document.getElementById('liveFilterUid').value = '';
-      state.tLive.filterUid = '';
+    FT.onReset("btnLiveReset", function () {
+      state.tLive.filterUid = "";
       state.tLive.page = 1;
       renderLiveTable();
     });
-    document.getElementById('btnContentSearch').addEventListener('click', function () {
-      state.tContent.filterUid = (document.getElementById('contentFilterUid').value || '').trim();
+    FT.onQuery("btnContentSearch", function () {
+      state.tContent.filterUid = (document.getElementById("contentFilterUid").value || "").trim();
       state.tContent.page = 1;
       renderContentTable();
     });
-    document.getElementById('btnContentReset').addEventListener('click', function () {
-      document.getElementById('contentFilterUid').value = '';
-      state.tContent.filterUid = '';
+    FT.onReset("btnContentReset", function () {
+      state.tContent.filterUid = "";
       state.tContent.page = 1;
       renderContentTable();
     });

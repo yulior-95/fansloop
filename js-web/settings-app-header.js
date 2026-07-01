@@ -3,7 +3,18 @@
  */
 (function () {
     var AVATAR_URL = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80';
-    var SEARCH_PLACEHOLDER = '搜索创作者、内容或话题…';
+
+    function tr(key, fallback) {
+        if (window.FLI18n && window.FLI18n.t) {
+            var code = window.FansLoopLang ? window.FansLoopLang.getLang() : 'zh-CN';
+            return window.FLI18n.t(code, key) || fallback;
+        }
+        return fallback;
+    }
+
+    function searchPlaceholder() {
+        return tr('search_ph', '搜索创作者、内容或话题…');
+    }
 
     function scriptBase() {
         var scripts = document.getElementsByTagName('script');
@@ -34,6 +45,7 @@
     }
 
     function ensureSearch(header) {
+        var ph = searchPlaceholder();
         var search = header.querySelector('.h-search-live.h-search-unified');
         if (!search) {
             var old = header.querySelector('.h-search');
@@ -42,7 +54,7 @@
                 'afterbegin',
                 '<div class="h-search h-search-live h-search-unified">' +
                 '<div class="hs-inner"><i class="fa-solid fa-magnifying-glass"></i>' +
-                '<input type="search" placeholder="' + SEARCH_PLACEHOLDER + '" autocomplete="off" />' +
+                '<input type="search" placeholder="' + ph + '" data-i18n-src-ph="搜索创作者、内容或话题…" autocomplete="off" />' +
                 '</div><div class="gs-drop"></div></div>'
             );
             return;
@@ -53,9 +65,10 @@
         var inp = search.querySelector('input[type="search"], input[type="text"]');
         if (inp) {
             inp.type = 'search';
-            if (!inp.placeholder || inp.placeholder === '搜索…') {
-                inp.placeholder = SEARCH_PLACEHOLDER;
+            if (!inp.getAttribute('data-i18n-src-ph')) {
+                inp.setAttribute('data-i18n-src-ph', inp.placeholder || '搜索创作者、内容或话题…');
             }
+            inp.placeholder = ph;
             if (!inp.hasAttribute('autocomplete')) inp.setAttribute('autocomplete', 'off');
         }
     }
@@ -90,13 +103,24 @@
             beforeAvatar(actions, msg);
         }
 
+        var rechargeLabel = tr('recharge', '充值');
         if (!actions.querySelector('.h-cta')) {
             var cta = document.createElement('button');
             cta.type = 'button';
             cta.className = 'h-cta';
             cta.setAttribute('onclick', "location.href='wallet.html'");
-            cta.innerHTML = '<i class="fa-solid fa-bolt"></i>充值';
+            cta.setAttribute('data-i18n-src', '充值');
+            cta.innerHTML = '<i class="fa-solid fa-bolt"></i>' + rechargeLabel;
             beforeAvatar(actions, cta);
+        } else {
+            var ctaBtn = actions.querySelector('.h-cta');
+            if (ctaBtn) {
+                ctaBtn.setAttribute('data-i18n-src', '充值');
+                var icon = ctaBtn.querySelector('i');
+                ctaBtn.textContent = '';
+                if (icon) ctaBtn.appendChild(icon);
+                ctaBtn.appendChild(document.createTextNode(rechargeLabel));
+            }
         }
 
         var av = actions.querySelector('.h-avatar');
@@ -125,6 +149,8 @@
     } else {
         apply();
     }
+
+    document.addEventListener('fansloop-lang-change', apply);
 
     window.FL_applySettingsAppHeader = apply;
 })();

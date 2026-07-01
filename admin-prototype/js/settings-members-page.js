@@ -40,9 +40,33 @@
     return "ant-tag";
   }
 
+  var filterKeyword = document.getElementById("memFilterKeyword");
+  var filterEmail = document.getElementById("memFilterEmail");
+  var filterRole = document.getElementById("memFilterRole");
+  var filterStatus = document.getElementById("memFilterStatus");
+
+  function getFilteredMembers() {
+    var kw = filterKeyword ? String(filterKeyword.value || "").trim().toLowerCase() : "";
+    var email = filterEmail ? String(filterEmail.value || "").trim().toLowerCase() : "";
+    var role = filterRole ? filterRole.value : "";
+    var status = filterStatus ? filterStatus.value : "";
+    return R.MEMBERS.filter(function (m) {
+      if (role && m.roleCode !== role) return false;
+      if (status && m.status !== status) return false;
+      if (email && String(m.email || "").toLowerCase().indexOf(email) < 0) return false;
+      if (kw) {
+        var hit =
+          String(m.account || "").toLowerCase().indexOf(kw) >= 0 ||
+          String(m.name || "").toLowerCase().indexOf(kw) >= 0;
+        if (!hit) return false;
+      }
+      return true;
+    });
+  }
+
   function renderTable() {
     if (!tbody) return;
-    var members = R.MEMBERS.slice();
+    var members = getFilteredMembers();
     if (!members.length) {
       if (pager) pager.setTotal(0);
       tbody.innerHTML =
@@ -208,10 +232,18 @@
     });
   }
 
-  document.getElementById("btnQueryMembers").addEventListener("click", function () {
-    renderTable();
-    M.toast("已查询（原型）");
-  });
+  var FT = window.AdminFilterToolbar;
+  if (FT) {
+    FT.onQuery("btnQueryMembers", function () {
+      if (pager) pager.resetPage();
+      renderTable();
+      M.toast("已查询 " + getFilteredMembers().length + " 条");
+    });
+    FT.onReset("btnResetMembers", function () {
+      if (pager) pager.resetPage();
+      renderTable();
+    });
+  }
 
   document.getElementById("btnNewMember").addEventListener("click", function () {
     openMemberModal({ edit: false });

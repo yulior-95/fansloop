@@ -475,19 +475,15 @@
     });
   }
 
-  var qBtn = document.getElementById("ordRchQuery");
-  if (qBtn) {
-    qBtn.addEventListener("click", function () {
-      if (pager) pager.setPage(1);
+  var FT = window.AdminFilterToolbar;
+  if (FT) {
+    FT.onQuery("ordRchQuery", function () {
+      if (pager) pager.resetPage();
       renderTable();
     });
-  }
-
-  var resetBtn = document.getElementById("ordRchReset");
-  if (resetBtn) {
-    resetBtn.addEventListener("click", function () {
+    FT.onReset("ordRchReset", function () {
       applyDefaultFilters();
-      if (pager) pager.setPage(1);
+      if (pager) pager.resetPage();
       renderTable();
     });
   }

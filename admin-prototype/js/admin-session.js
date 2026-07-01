@@ -12,8 +12,16 @@
   };
 
   function getRole() {
+    var Auth = global.AdminAuth;
+    if (Auth && Auth.getSession) {
+      var s = Auth.getSession();
+      if (s && s.account) {
+        var map = { wangyi: "ROLE_OPS", limin: "ROLE_RISK", chenchen: "ROLE_ROOT" };
+        if (map[s.account]) return map[s.account];
+      }
+    }
     var r = sessionStorage.getItem(KEY);
-    return r && ROLES[r] ? r : 'ROLE_ROOT';
+    return r && ROLES[r] ? r : "ROLE_ROOT";
   }
 
   function setRole(code) {

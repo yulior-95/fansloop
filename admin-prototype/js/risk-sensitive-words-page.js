@@ -164,16 +164,17 @@
 
   document.getElementById('btnSwNew').addEventListener('click', function () { openForm(null); });
 
-  document.getElementById('btnSwSearch').addEventListener('click', function () {
-    filterQ = (filterInput && filterInput.value || '').trim();
-    renderTable();
-  });
-
-  document.getElementById('btnSwReset').addEventListener('click', function () {
-    if (filterInput) filterInput.value = '';
-    filterQ = '';
-    renderTable();
-  });
+  var FT = window.AdminFilterToolbar;
+  if (FT) {
+    FT.onQuery("btnSwSearch", function () {
+      filterQ = ((filterInput && filterInput.value) || "").trim();
+      renderTable();
+    });
+    FT.onReset("btnSwReset", function () {
+      filterQ = "";
+      renderTable();
+    });
+  }
 
   if (tbody) {
     tbody.addEventListener('click', function (e) {

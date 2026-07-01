@@ -94,6 +94,10 @@
     if (filterStatus) filterStatus.value = "";
     applyDefaultSubmitRange();
     clearReviewTimeRange();
+    if (window.AdminFilterToolbar) {
+      var tb = document.querySelector(".kyc-filter-toolbar");
+      if (tb) window.AdminFilterToolbar.syncEnhanced(tb);
+    }
     if (pager) pager.resetPage();
     renderTable();
   }
@@ -731,21 +735,24 @@
     });
   }
 
-  var btnQuery = document.getElementById("kycSearch");
-  if (btnQuery) {
-    btnQuery.addEventListener("click", function () {
-      if (pager) pager.resetPage();
-      renderTable();
-      M.toast("已查询 " + getFiltered().length + " 条");
-    });
+  var FT = window.AdminFilterToolbar;
+  function runQuery() {
+    if (pager) pager.resetPage();
+    renderTable();
+    M.toast("已查询 " + getFiltered().length + " 条");
   }
 
-  var btnResetFilters = document.getElementById("kycFilterReset");
-  if (btnResetFilters) {
-    btnResetFilters.addEventListener("click", function () {
+  if (FT) {
+    FT.onQuery("kycSearch", function () {
+      runQuery();
+    });
+    var kycResetFn = function () {
       resetFilters();
       M.notify("已恢复默认筛选条件", "success");
-    });
+    };
+    kycResetFn._skipAutoReset = true;
+    FT.onReset("kycFilterReset", kycResetFn);
+    FT.boot(document);
   }
 
   var btnReset = document.getElementById("kycResetDemo");
@@ -763,21 +770,10 @@
     });
   }
 
-  if (filterStatus) {
-    filterStatus.addEventListener("change", function () {
-      if (pager) pager.resetPage();
-      renderTable();
-    });
-  }
-
   [filterUid, filterName, filterSubmitStart, filterSubmitEnd, filterReviewStart, filterReviewEnd].forEach(function (el) {
     if (!el) return;
     el.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        if (pager) pager.resetPage();
-        renderTable();
-        M.toast("已查询 " + getFiltered().length + " 条");
-      }
+      if (e.key === "Enter") runQuery();
     });
   });
 
@@ -788,7 +784,6 @@
     }
   });
 
-  applyDefaultSubmitRange();
   clearReviewTimeRange();
   reload();
 })();

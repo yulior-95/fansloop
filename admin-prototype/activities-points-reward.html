@@ -96,6 +96,7 @@
           </div>
         </div>
         <button type="button" class="ant-btn ant-btn-primary" id="qRew">查询</button>
+        <button type="button" class="ant-btn" id="btnRewReset">重置</button>
       </div>
       <div class="ant-card ant-card-bordered">
         <div class="ant-card-body" style="padding-top:0">
@@ -180,12 +181,23 @@
   });
 
   function applyFilter() {
+    var uid = (document.getElementById('rewUid').value || '').trim();
     var selected = Array.prototype.filter.call(ruleChecks, function (el) { return el.checked; })
       .map(function (el) { return el.value; });
     tableRows.forEach(function (tr) {
       var rule = tr.getAttribute('data-rule');
-      tr.style.display = !selected.length || selected.indexOf(rule) !== -1 ? '' : 'none';
+      var rowUid = (tr.children[1] && tr.children[1].textContent) || '';
+      var uidOk = !uid || String(rowUid).indexOf(uid) >= 0;
+      var ruleOk = !selected.length || selected.indexOf(rule) !== -1;
+      tr.style.display = uidOk && ruleOk ? '' : 'none';
     });
+  }
+
+  function resetRewardFilters() {
+    document.getElementById('rewUid').value = '';
+    ruleChecks.forEach(function (el) { el.checked = true; });
+    updateFilterLabel();
+    applyFilter();
   }
 
   document.getElementById('expRew').addEventListener('click', function () {
@@ -199,10 +211,17 @@
     });
   });
 
-  document.getElementById('qRew').addEventListener('click', function () {
-    applyFilter();
-    M.toast('已按筛选条件查询（原型）');
-  });
+  if (window.AdminFilterToolbar) {
+    AdminFilterToolbar.onQuery("qRew", function () {
+      applyFilter();
+      M.toast("已按筛选条件查询");
+    });
+    var rewResetFn = function () {
+      resetRewardFilters();
+    };
+    rewResetFn._skipAutoReset = true;
+    AdminFilterToolbar.onReset("btnRewReset", rewResetFn);
+  }
 
   updateFilterLabel();
 })();

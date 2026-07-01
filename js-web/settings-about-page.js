@@ -364,5 +364,9 @@
     if (updateBtn) updateBtn.addEventListener('click', checkUpdate);
     bindChangelog();
     bindLinkRows();
+    document.addEventListener('fansloop-lang-change', function () {
+        if (window.FLI18n) window.FLI18n.applyAll();
+    });
+
     bindFeedbackModal();
 })();

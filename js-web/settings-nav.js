@@ -6,33 +6,37 @@
     var GROUPS = [
         {
             title: "账户",
+            titleKey: "set_grp_account",
             items: [
-                { id: "account", label: "账户资料", href: "settings.html", icon: "fa-regular fa-user" },
-                { id: "security", label: "账户安全", href: "settings-security.html", icon: "fa-solid fa-shield-halved" },
-                { id: "wallet", label: "钱包与支付", href: "settings-wallet.html", icon: "fa-solid fa-wallet" }
+                { id: "account", label: "账户资料", i18nKey: "set_nav_account", href: "settings.html", icon: "fa-regular fa-user" },
+                { id: "security", label: "账户安全", i18nKey: "set_nav_security", href: "settings-security.html", icon: "fa-solid fa-shield-halved" },
+                { id: "wallet", label: "钱包与支付", i18nKey: "set_nav_wallet", href: "settings-wallet.html", icon: "fa-solid fa-wallet" }
             ]
         },
         {
             title: "体验",
+            titleKey: "set_grp_experience",
             items: [
-                { id: "notification", label: "通知偏好", href: "settings-notification.html", icon: "fa-regular fa-bell" },
-                { id: "privacy", label: "隐私设置", href: "settings-privacy.html", icon: "fa-solid fa-user-shield" },
-                { id: "display", label: "外观语言", href: "settings-display.html", icon: "fa-solid fa-palette", navId: "navDisplayLang" },
-                { id: "global-access", label: "跨国界无障碍", href: "settings-display.html#ga-global-access", icon: "fa-solid fa-earth-americas", navId: "navGaGlobal" }
+                { id: "notification", label: "通知偏好", i18nKey: "set_nav_notification", href: "settings-notification.html", icon: "fa-regular fa-bell" },
+                { id: "privacy", label: "隐私设置", i18nKey: "set_nav_privacy", href: "settings-privacy.html", icon: "fa-solid fa-user-shield" },
+                { id: "display", label: "外观语言", i18nKey: "set_nav_display", href: "settings-display.html", icon: "fa-solid fa-palette", navId: "navDisplayLang" },
+                { id: "global-access", label: "跨国界无障碍", i18nKey: "set_nav_global_access", href: "settings-display.html#ga-global-access", icon: "fa-solid fa-earth-americas", navId: "navGaGlobal" }
             ]
         },
         {
             title: "创作者",
+            titleKey: "set_grp_creator",
             items: [
-                { id: "subscription", label: "会员订阅设置", href: "settings-subscription.html", icon: "fa-solid fa-crown" }
+                { id: "subscription", label: "会员订阅设置", i18nKey: "set_nav_subscription", href: "settings-subscription.html", icon: "fa-solid fa-crown" }
             ]
         },
         {
             title: "关于",
+            titleKey: "set_grp_about",
             items: [
-                { id: "about", label: "关于 FansLoop", href: "settings-about.html", icon: "fa-solid fa-circle-info" },
-                { id: "terms", label: "条款与协议", href: "settings-terms.html", icon: "fa-solid fa-file-lines" },
-                { id: "logout", label: "退出登录", href: "#", icon: "fa-solid fa-right-from-bracket", logout: true }
+                { id: "about", label: "关于 FansLoop", i18nKey: "set_nav_about", href: "settings-about.html", icon: "fa-solid fa-circle-info" },
+                { id: "terms", label: "条款与协议", i18nKey: "set_nav_terms", href: "settings-terms.html", icon: "fa-solid fa-file-lines" },
+                { id: "logout", label: "退出登录", i18nKey: "set_nav_logout", href: "#", icon: "fa-solid fa-right-from-bracket", logout: true }
             ]
         }
     ];
@@ -49,6 +53,14 @@
         "settings-about.html": "about",
         "settings-terms.html": "terms"
     };
+
+    function tr(key, fallback) {
+        if (window.FLI18n && window.FLI18n.t) {
+            var code = window.FansLoopLang ? window.FansLoopLang.getLang() : "zh-CN";
+            return window.FLI18n.t(code, key) || fallback;
+        }
+        return fallback;
+    }
 
     function resolveActiveId() {
         if (document.body.dataset.settingsNavActive) {
@@ -76,6 +88,7 @@
         var arrow = isActive ? '<span class="arrow"><i class="fa-solid fa-chevron-right"></i></span>' : "";
         var href = item.href || "#";
         var onclick = "";
+        var label = tr(item.i18nKey, item.label);
 
         if (item.logout) {
             onclick = "";
@@ -91,7 +104,7 @@
         return (
             '<div class="' + cls + '"' + style + idAttr + roleAttr + onclick + ">" +
             '<span class="ic"' + icStyle + '><i class="' + item.icon + '"></i></span>' +
-            "<span>" + esc(item.label) + "</span>" +
+            "<span>" + esc(label) + "</span>" +
             arrow +
             "</div>"
         );
@@ -100,7 +113,7 @@
     function renderNav(activeId) {
         var html = "";
         GROUPS.forEach(function (group) {
-            html += '<div class="group-ti">' + esc(group.title) + "</div>";
+            html += '<div class="group-ti">' + esc(tr(group.titleKey, group.title)) + "</div>";
             group.items.forEach(function (item) {
                 html += renderItem(item, activeId);
             });
@@ -113,6 +126,7 @@
         var html = renderNav(activeId);
         document.querySelectorAll("[data-settings-nav]").forEach(function (el) {
             el.innerHTML = html;
+            el.setAttribute("aria-label", tr("set_nav_aria", "设置导航"));
         });
         document.dispatchEvent(new CustomEvent("settings-nav-mounted"));
         if (!document.querySelector('script[src*="settings-app-header.js"]')) {
@@ -132,6 +146,14 @@
             window.FL_applySettingsAppHeader();
         }
     }
+
+    window.FL_applySettingsNavI18n = function () {
+        mount();
+    };
+
+    document.addEventListener("fansloop-lang-change", function () {
+        mount();
+    });
 
     mount();
 })();

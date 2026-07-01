@@ -94,10 +94,20 @@
     });
     document.addEventListener('click', function () { setPanelOpen(false); });
 
-    document.getElementById('qCon').addEventListener('click', function () {
+    var FT = window.AdminFilterToolbar;
+    if (FT) {
+      FT.onQuery("qCon", function () {
         applyFilter();
-        M.toast('已按筛选条件查询（原型）');
-    });
+        M.toast("已按筛选条件查询");
+      });
+      FT.onReset("btnConReset", function () {
+        sceneChecks.forEach(function (el) {
+          el.checked = true;
+        });
+        updateFilterLabel();
+        applyFilter();
+      });
+    }
 
     document.getElementById('expCon').addEventListener('click', function () {
         if (!window.AdminExport) return;

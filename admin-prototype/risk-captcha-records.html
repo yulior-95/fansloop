@@ -19,20 +19,32 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">验证码记录</h1>
-      <p class="admin-page-desc">行级详情在<strong>弹窗</strong>（含投递状态、设备指纹摘要等原型字段）。</p>
       <div class="admin-toolbar">
-        <select class="ant-input" style="width:160px"><option>全部场景</option><option>注册</option><option>登录</option><option>安全验证</option></select>
-        <span class="ant-input-affix-wrapper" style="width:220px"><input class="ant-input" placeholder="邮箱前缀"></span>
+        <select class="ant-input" id="capFilterScene" style="width:160px"><option value="">全部场景</option><option>注册</option><option>登录</option><option>安全验证</option></select>
+        <span class="ant-input-affix-wrapper" style="width:220px"><input class="ant-input" id="capFilterEmail" placeholder="邮箱前缀"></span>
         <button type="button" class="ant-btn ant-btn-primary" id="capQ">查询</button>
+        <button type="button" class="ant-btn" id="capReset">重置</button>
       </div>
       <div class="ant-card ant-card-bordered">
         <div class="ant-card-body" style="padding-top:0">
           <div class="ant-table ant-table-small ant-table-bordered">
             <table style="width:100%">
               <thead class="ant-table-thead"><tr><th>时间</th><th>场景</th><th>邮箱</th><th>脱敏验证码</th><th>结果</th><th>IP</th><th>操作</th></tr></thead>
-              <tbody class="ant-table-tbody">
-                <tr><td>2026-05-11 09:40</td><td>登录</td><td>u***@domain.com</td><td>82****</td><td><span class="ant-tag ant-tag-green">已消费</span></td><td>203.0.113.2</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-cap">详情</button></td></tr>
-                <tr><td>2026-05-11 09:38</td><td>安全验证</td><td>u***@domain.com</td><td>61****</td><td><span class="ant-tag ant-tag-red">失败 3 次</span></td><td>198.51.100.9</td><td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-cap">详情</button></td></tr>
+              <tbody class="ant-table-tbody" id="capRecordsBody">
+                <tr data-id="cap-001" data-email-plain="user@domain.com" data-code-plain="823456" data-provider-id="sg_00921" data-latency="420" data-template="login_otp_v2">
+                  <td>2026-05-11 09:40</td><td>登录</td>
+                  <td class="js-cap-email">u***@domain.com</td>
+                  <td class="js-cap-code">82****</td>
+                  <td><span class="ant-tag ant-tag-green">已消费</span></td><td>203.0.113.2</td>
+                  <td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-cap-reveal">查看脱敏</button></td>
+                </tr>
+                <tr data-id="cap-002" data-email-plain="ops@fansloop.io" data-code-plain="612839" data-provider-id="sg_00918" data-latency="510" data-template="security_otp_v1">
+                  <td>2026-05-11 09:38</td><td>安全验证</td>
+                  <td class="js-cap-email">o***@fansloop.io</td>
+                  <td class="js-cap-code">61****</td>
+                  <td><span class="ant-tag ant-tag-red">失败 3 次</span></td><td>198.51.100.9</td>
+                  <td><button type="button" class="ant-btn ant-btn-link ant-btn-sm js-cap-reveal">查看脱敏</button></td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -46,18 +58,81 @@
 <script>
 (function () {
   var M = window.AdminModal;
-  document.getElementById("capQ").addEventListener("click", function () {
-    M.toast("已查询（原型）");
-  });
-  document.querySelector("main.admin-content").addEventListener("click", function (e) {
-    if (!e.target.classList.contains("js-cap")) return;
+
+  function revealRow(tr) {
+    var emailEl = tr.querySelector(".js-cap-email");
+    var codeEl = tr.querySelector(".js-cap-code");
+    var btn = tr.querySelector(".js-cap-reveal");
+    if (emailEl) emailEl.textContent = tr.getAttribute("data-email-plain") || "—";
+    if (codeEl) codeEl.textContent = tr.getAttribute("data-code-plain") || "—";
+    if (btn) {
+      btn.textContent = "已解密";
+      btn.disabled = true;
+      btn.classList.add("ant-btn-disabled");
+      btn.style.color = "rgba(0,0,0,.25)";
+      btn.style.cursor = "not-allowed";
+    }
+    tr.classList.add("cap-row-revealed");
+  }
+
+  function openPlainDetail(tr) {
+    var id = tr.getAttribute("data-id") || "—";
     M.open({
-      title: "验证码投递详情",
+      title: "验证码记录 · " + id + "（明文）",
       wide: true,
-      body: "<ul style='margin:0;padding-left:18px;line-height:1.8'><li>provider_message_id: sg_00921</li><li>latency_ms: 420</li><li>template: login_otp_v2</li></ul>",
+      body:
+        "<table style='width:100%;font-size:13px;border-collapse:collapse'>" +
+        "<tr><td style='padding:6px 0;color:rgba(0,0,0,.45);width:120px'>邮箱</td><td><strong>" + M.esc(tr.getAttribute("data-email-plain")) + "</strong></td></tr>" +
+        "<tr><td style='padding:6px 0;color:rgba(0,0,0,.45)'>验证码</td><td><strong style='font-family:ui-monospace,monospace'>" + M.esc(tr.getAttribute("data-code-plain")) + "</strong></td></tr>" +
+        "<tr><td style='padding:6px 0;color:rgba(0,0,0,.45)'>投递 ID</td><td>" + M.esc(tr.getAttribute("data-provider-id")) + "</td></tr>" +
+        "<tr><td style='padding:6px 0;color:rgba(0,0,0,.45)'>延迟</td><td>" + M.esc(tr.getAttribute("data-latency")) + " ms</td></tr>" +
+        "<tr><td style='padding:6px 0;color:rgba(0,0,0,.45)'>模板</td><td>" + M.esc(tr.getAttribute("data-template")) + "</td></tr>" +
+        "</table>",
       footer: [{ text: "关闭", primary: true, onClick: M.close }]
     });
+  }
+
+  document.getElementById("capRecordsBody").addEventListener("click", function (e) {
+    var btn = e.target.closest(".js-cap-reveal");
+    if (!btn || btn.disabled) return;
+    var tr = btn.closest("tr");
+    if (!tr) return;
+
+    M.confirmGoogle({
+      title: "查看脱敏数据",
+      message: "查看完整邮箱与验证码属于敏感操作，需输入当前登录成员绑定的谷歌验证器 6 位验证码。验证通过后本行将展示明文。",
+      onVerified: function () {
+        revealRow(tr);
+        openPlainDetail(tr);
+        M.toast("验证通过，已展示明文（原型）");
+      }
+    });
   });
+
+  function applyCapFilter() {
+    var scene = (document.getElementById("capFilterScene").value || "").trim();
+    var emailKw = (document.getElementById("capFilterEmail").value || "").trim().toLowerCase();
+    document.querySelectorAll("#capRecordsBody tr").forEach(function (tr) {
+      var cells = tr.querySelectorAll("td");
+      var rowScene = cells[1] ? cells[1].textContent.trim() : "";
+      var rowEmail = cells[2] ? cells[2].textContent.trim().toLowerCase() : "";
+      var plain = (tr.getAttribute("data-email-plain") || "").toLowerCase();
+      var sceneOk = !scene || rowScene === scene;
+      var emailOk = !emailKw || rowEmail.indexOf(emailKw) >= 0 || plain.indexOf(emailKw) >= 0;
+      tr.style.display = sceneOk && emailOk ? "" : "none";
+    });
+  }
+
+  var FT = window.AdminFilterToolbar;
+  if (FT) {
+    FT.onQuery("capQ", function () {
+      applyCapFilter();
+      M.toast("已查询");
+    });
+    FT.onReset("capReset", function () {
+      applyCapFilter();
+    });
+  }
 })();
 </script>
 </body>

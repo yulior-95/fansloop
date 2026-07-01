@@ -21,8 +21,9 @@
       <h1 class="admin-page-title">银行卡管理</h1>
       <p class="admin-page-desc">三方同步字段在<strong>详情弹窗</strong>查看。</p>
       <div class="admin-toolbar">
-        <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" placeholder="UID"></span>
+        <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" id="bkFilterUid" placeholder="UID"></span>
         <button type="button" class="ant-btn ant-btn-primary" id="bkQ">查询</button>
+        <button type="button" class="ant-btn" id="bkReset">重置</button>
       </div>
       <div class="ant-card ant-card-bordered">
         <div class="ant-card-body" style="padding-top:0">
@@ -47,9 +48,28 @@
 <script>
 (function () {
   var M = window.AdminModal;
-  document.getElementById("bkQ").addEventListener("click", function () {
-    M.toast("已查询（原型）");
-  });
+  var tableBody = document.querySelector("main.admin-content tbody.ant-table-tbody");
+
+  function applyBkFilter() {
+    var uid = (document.getElementById("bkFilterUid").value || "").trim();
+    if (!tableBody) return;
+    tableBody.querySelectorAll("tr").forEach(function (tr) {
+      var rowUid = tr.children[0] ? tr.children[0].textContent.trim() : "";
+      tr.style.display = !uid || rowUid.indexOf(uid) >= 0 ? "" : "none";
+    });
+  }
+
+  var FT = window.AdminFilterToolbar;
+  if (FT) {
+    FT.onQuery("bkQ", function () {
+      applyBkFilter();
+      M.toast("已查询");
+    });
+    FT.onReset("bkReset", function () {
+      applyBkFilter();
+    });
+  }
+
   document.querySelector("main.admin-content").addEventListener("click", function (e) {
     if (!e.target.classList.contains("js-d")) return;
     M.open({

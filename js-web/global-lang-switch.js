@@ -127,16 +127,22 @@
     }
 
     function applyDict(code) {
-        var d = DICT[code] || DICT.en || DICT['zh-CN'];
-        document.querySelectorAll('[data-i18n-global]').forEach(function (el) {
-            var k = el.getAttribute('data-i18n-global');
-            if (d[k]) el.textContent = d[k];
-        });
-        document.querySelectorAll('input[type="search"][data-i18n-ph-global]').forEach(function (inp) {
-            var k = inp.getAttribute('data-i18n-ph-global');
-            if (d[k]) inp.placeholder = d[k];
-        });
+        if (global.FLI18n && global.FLI18n.applyAll) {
+            global.FLI18n.applyAll(code);
+        } else {
+            var d = DICT[code] || DICT.en || DICT['zh-CN'];
+            document.querySelectorAll('[data-i18n-global]').forEach(function (el) {
+                var k = el.getAttribute('data-i18n-global');
+                if (d[k]) el.textContent = d[k];
+            });
+            document.querySelectorAll('input[type="search"][data-i18n-ph-global]').forEach(function (inp) {
+                var k = inp.getAttribute('data-i18n-ph-global');
+                if (d[k]) inp.placeholder = d[k];
+            });
+        }
         if (global.FL_applySidebarI18n) global.FL_applySidebarI18n(code);
+        if (global.FL_applySettingsNavI18n) global.FL_applySettingsNavI18n(code);
+        if (global.FL_applySettingsAppHeader) global.FL_applySettingsAppHeader(code);
     }
 
     function setLang(code) {

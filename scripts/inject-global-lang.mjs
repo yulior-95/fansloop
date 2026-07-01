@@ -6,6 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dir = path.join(__dirname, '..', 'pages-web');
 const SNIPPET = `
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
+<script src="../js-web/ui-i18n.js" defer></script>
 <script src="../js-web/global-lang-switch.js" defer></script>`;
 
 let count = 0;

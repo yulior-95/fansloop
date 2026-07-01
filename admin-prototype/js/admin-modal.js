@@ -218,14 +218,19 @@
       }, 0);
   }
 
-  function toast(msg, title) {
-    open({
-      title: title || "提示",
-      body: "<p style='margin:0'>" + esc(msg) + "</p>",
-      footer: [{ text: "确定", primary: true, onClick: close }]
-    });
+  var NOTIFY_TYPES = { success: 1, error: 1, warning: 1, info: 1 };
+
+  function inferToastType(msg) {
+    var s = String(msg || "");
+    if (/失败|错误/.test(s)) return "error";
+    if (/不存在|无效|须|必须|不能|请勿|^请/.test(s)) return "warning";
+    if (/已|成功|通过|完成|保存|发布|删除|复制|启用|禁用|刷新|开始|应用|重置/.test(s)) {
+      return "success";
+    }
+    return "info";
   }
 
+  /** Ant Design Message 风格轻提示（非 Modal，不打断操作） */
   function notify(msg, type) {
     var el = document.getElementById("admin-global-notify");
     if (!el) {
@@ -236,13 +241,27 @@
       document.body.appendChild(el);
     }
     el.textContent = msg;
-    el.className =
-      "admin-global-notify is-show" +
-      (type === "error" ? " is-error" : type === "success" ? " is-success" : "");
+    var cls = "admin-global-notify is-show";
+    if (type === "error") cls += " is-error";
+    else if (type === "success") cls += " is-success";
+    else if (type === "warning") cls += " is-warning";
+    else if (type === "info") cls += " is-info";
+    el.className = cls;
     clearTimeout(el._notifyTimer);
     el._notifyTimer = setTimeout(function () {
       el.classList.remove("is-show");
     }, 2800);
+  }
+
+  function toast(msg, typeOrTitle) {
+    var type = inferToastType(msg);
+    if (typeOrTitle && NOTIFY_TYPES[typeOrTitle]) {
+      type = typeOrTitle;
+    } else if (typeOrTitle && typeOrTitle !== "提示") {
+      type = "warning";
+      msg = typeOrTitle + "：" + msg;
+    }
+    notify(msg, type);
   }
 
   function confirmGoogle(opts) {
@@ -281,12 +300,12 @@
                 }
                 return;
               }
-              toast(msg);
+              notify(msg, "warning");
               return;
             }
             close();
             if (opts.onVerified) opts.onVerified(val);
-            else toast("验证通过");
+            else notify("验证通过", "success");
           }
         }
       ],
@@ -324,6 +343,7 @@
     close: close,
     toast: toast,
     notify: notify,
+    message: notify,
     confirmGoogle: confirmGoogle,
     wireModalTabs: wireModalTabs,
     esc: esc

@@ -48,9 +48,6 @@
     state.cfg = Split.loadConfig();
     document.getElementById('fldLevelAdjust').checked = !!state.cfg.levelAdjustEnabled;
     document.getElementById('splitRulesBody').innerHTML = renderRows();
-    document.getElementById('splitMeta').textContent =
-      '最近更新：' + (state.cfg.updatedAt || '—') + ' · ' + (state.cfg.updatedBy || '—') +
-      ' · 打赏默认：粉丝 ' + state.cfg.rules.tip_feed.creatorPercent + '% / 直播 ' + state.cfg.rules.tip_live.creatorPercent + '%';
     bindInputs();
   }
 

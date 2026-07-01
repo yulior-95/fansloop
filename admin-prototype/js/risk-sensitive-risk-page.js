@@ -467,68 +467,55 @@
     });
   }
 
-  document.getElementById('btnHitSearch').addEventListener('click', function () {
-    hitFilter.uid = filterVal('hitFilterUid');
-    hitFilter.status = filterVal('hitFilterStatus');
-    hitFilter.triggerStart = filterVal('hitFilterTriggerStart');
-    hitFilter.triggerEnd = filterVal('hitFilterTriggerEnd');
-    hitFilter.operatedStart = filterVal('hitFilterOperatedStart');
-    hitFilter.operatedEnd = filterVal('hitFilterOperatedEnd');
-    hitPage.page = 1;
-    renderHits();
-  });
-
-  document.getElementById('btnHitReset').addEventListener('click', function () {
-    document.getElementById('hitFilterUid').value = '';
-    document.getElementById('hitFilterStatus').value = '';
-    document.getElementById('hitFilterTriggerStart').value = '';
-    document.getElementById('hitFilterTriggerEnd').value = '';
-    document.getElementById('hitFilterOperatedStart').value = '';
-    document.getElementById('hitFilterOperatedEnd').value = '';
-    hitFilter = {
-      uid: '',
-      status: '',
-      triggerStart: '',
-      triggerEnd: '',
-      operatedStart: '',
-      operatedEnd: ''
-    };
-    hitPage.page = 1;
-    renderHits();
-  });
-
-  document.getElementById('btnLogSearch').addEventListener('click', function () {
-    logFilter.uid = filterVal('logFilterUid');
-    logFilter.opStart = filterVal('logFilterOpStart');
-    logFilter.opEnd = filterVal('logFilterOpEnd');
-    logFilter.triggerStart = filterVal('logFilterTriggerStart');
-    logFilter.triggerEnd = filterVal('logFilterTriggerEnd');
-    logFilter.operatedStart = filterVal('logFilterOperatedStart');
-    logFilter.operatedEnd = filterVal('logFilterOperatedEnd');
-    logPage.page = 1;
-    renderLogs();
-  });
-
-  document.getElementById('btnLogReset').addEventListener('click', function () {
-    document.getElementById('logFilterUid').value = '';
-    document.getElementById('logFilterOpStart').value = '';
-    document.getElementById('logFilterOpEnd').value = '';
-    document.getElementById('logFilterTriggerStart').value = '';
-    document.getElementById('logFilterTriggerEnd').value = '';
-    document.getElementById('logFilterOperatedStart').value = '';
-    document.getElementById('logFilterOperatedEnd').value = '';
-    logFilter = {
-      uid: '',
-      opStart: '',
-      opEnd: '',
-      triggerStart: '',
-      triggerEnd: '',
-      operatedStart: '',
-      operatedEnd: ''
-    };
-    logPage.page = 1;
-    renderLogs();
-  });
+  var FT = window.AdminFilterToolbar;
+  if (FT) {
+    FT.onQuery("btnHitSearch", function () {
+      hitFilter.uid = filterVal("hitFilterUid");
+      hitFilter.status = filterVal("hitFilterStatus");
+      hitFilter.triggerStart = filterVal("hitFilterTriggerStart");
+      hitFilter.triggerEnd = filterVal("hitFilterTriggerEnd");
+      hitFilter.operatedStart = filterVal("hitFilterOperatedStart");
+      hitFilter.operatedEnd = filterVal("hitFilterOperatedEnd");
+      hitPage.page = 1;
+      renderHits();
+    });
+    FT.onReset("btnHitReset", function () {
+      hitFilter = {
+        uid: "",
+        status: "",
+        triggerStart: "",
+        triggerEnd: "",
+        operatedStart: "",
+        operatedEnd: ""
+      };
+      hitPage.page = 1;
+      renderHits();
+    });
+    FT.onQuery("btnLogSearch", function () {
+      logFilter.uid = filterVal("logFilterUid");
+      logFilter.opStart = filterVal("logFilterOpStart");
+      logFilter.opEnd = filterVal("logFilterOpEnd");
+      logFilter.triggerStart = filterVal("logFilterTriggerStart");
+      logFilter.triggerEnd = filterVal("logFilterTriggerEnd");
+      logFilter.operatedStart = filterVal("logFilterOperatedStart");
+      logFilter.operatedEnd = filterVal("logFilterOperatedEnd");
+      logPage.page = 1;
+      renderLogs();
+    });
+    FT.onReset("btnLogReset", function () {
+      logFilter = {
+        uid: "",
+        opStart: "",
+        opEnd: "",
+        triggerStart: "",
+        triggerEnd: "",
+        operatedStart: "",
+        operatedEnd: ""
+      };
+      logPage.page = 1;
+      renderLogs();
+    });
+  }
 
   var hitTbody = document.getElementById('hitTbody');
   if (hitTbody) {

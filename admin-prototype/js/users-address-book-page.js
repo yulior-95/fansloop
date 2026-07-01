@@ -134,12 +134,16 @@
     });
   }
 
-  var btnQuery = document.getElementById("addrQ");
-  if (btnQuery) {
-    btnQuery.addEventListener("click", function () {
+  var FT = window.AdminFilterToolbar;
+  if (FT) {
+    FT.onQuery("addrQ", function () {
       if (pager) pager.resetPage();
       renderTable();
       M.toast("已查询 " + getFiltered().length + " 条");
+    });
+    FT.onReset("addrReset", function () {
+      if (pager) pager.resetPage();
+      renderTable();
     });
   }
 

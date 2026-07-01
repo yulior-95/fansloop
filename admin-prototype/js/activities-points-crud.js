@@ -140,17 +140,15 @@
 
   if (Session) Session.mountRoleSwitcher(document.querySelector('.admin-header-user'));
 
-  document.getElementById('btnSearch').addEventListener('click', function () {
-    refresh(true);
-  });
-  document.getElementById('btnReset').addEventListener('click', function () {
-    document.getElementById('fQ').value = '';
-    document.getElementById('fType').value = '';
-    document.getElementById('fCat').value = '';
-    document.getElementById('fStatus').value = '';
-    document.getElementById('fChannel').value = '';
-    refresh(true);
-  });
+  var FT = window.AdminFilterToolbar;
+  if (FT) {
+    FT.onQuery("btnSearch", function () {
+      refresh(true);
+    });
+    FT.onReset("btnReset", function () {
+      refresh(true);
+    });
+  }
   document.getElementById('fQ').addEventListener('keydown', function (e) {
     if (e.key === 'Enter') refresh(true);
   });

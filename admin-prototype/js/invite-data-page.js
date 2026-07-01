@@ -87,10 +87,19 @@
         }
     }
 
-    document.getElementById('btnInvQuery').addEventListener('click', function () {
+    var FT = window.AdminFilterToolbar;
+    if (FT) {
+      FT.onQuery("btnInvQuery", function () {
         applyFilter();
-        M.toast('已查询（原型）');
-    });
+        M.toast("已查询");
+      });
+      FT.onReset("btnInvReset", function () {
+        urlMonthOnly = false;
+        var banner = document.getElementById("invFilterBanner");
+        if (banner) banner.style.display = "none";
+        applyFilter();
+      });
+    }
 
     document.getElementById('btnInvExport').addEventListener('click', function () {
         if (!window.AdminExport) return;

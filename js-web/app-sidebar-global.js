@@ -338,6 +338,11 @@
 
     function sidebarDict(code) {
         code = code || (global.FansLoopLang ? global.FansLoopLang.getLang() : 'zh-CN');
+        if (global.FLI18n && global.FLI18n.t) {
+            return function (key, fallback) {
+                return global.FLI18n.t(code, key) || fallback;
+            };
+        }
         var d = (global.FansLoopLang && global.FansLoopLang.DICT && global.FansLoopLang.DICT[code]) || {};
         var en = (global.FansLoopLang && global.FansLoopLang.DICT && global.FansLoopLang.DICT.en) || {};
         return function (key, fallback) {
@@ -372,6 +377,29 @@
                 if (lb && item.i18nKey) lb.textContent = t(item.i18nKey, item.label);
             });
         });
+        var proH4 = sidebar.querySelector('.s-pro-card h4');
+        var proP = sidebar.querySelector('.s-pro-card p');
+        var proBtn = sidebar.querySelector('.s-pro-card button[data-fl-pro-upgrade]');
+        var memberTag = sidebar.querySelector('[data-fl-member-tag]');
+        if (proH4) proH4.textContent = t('pro_title', '升级 Creator Pro');
+        if (proP) proP.textContent = t('pro_desc', '解锁高级数据 / 优先推流');
+        if (proBtn) proBtn.textContent = t('pro_upgrade', '立即升级');
+        if (memberTag) {
+            var icon = memberTag.querySelector('i');
+            memberTag.textContent = '';
+            if (icon) memberTag.appendChild(icon);
+            memberTag.appendChild(document.createTextNode(' ' + t('member_tag', '会员')));
+        }
+        var toggle = sidebar.querySelector('.s-toggle');
+        if (toggle) {
+            var collapsed = document.documentElement.classList.contains('sidebar-collapsed-pre') ||
+                sidebar.classList.contains('collapsed');
+            toggle.title = t(collapsed ? 'sidebar_expand' : 'sidebar_collapse',
+                collapsed ? '展开侧栏' : '收起侧栏');
+        }
+        if (!sidebar.getAttribute('aria-label')) {
+            sidebar.setAttribute('aria-label', t('nav_aria', '主导航'));
+        }
     }
 
     global.FL_applySidebarI18n = applySidebarI18n;

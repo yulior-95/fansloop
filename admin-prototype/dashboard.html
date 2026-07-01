@@ -35,7 +35,10 @@
         <span>/ 首页仪表盘</span>
       </div>
       <div class="admin-header-right">
-        <button type="button" class="ant-btn ant-btn-text ant-btn-sm" id="dashBell" title="通知"><i class="fa-regular fa-bell"></i></button>
+        <button type="button" class="ant-btn ant-btn-text ant-btn-sm admin-bell-btn" id="adminBell" title="系统通知" aria-label="系统通知">
+          <i class="fa-regular fa-bell"></i>
+          <span class="admin-bell-badge" hidden>0</span>
+        </button>
         <button type="button" class="ant-btn ant-btn-primary ant-btn-sm" id="dashExport"><i class="fa-solid fa-download"></i> 导出今日概览</button>
         <div class="admin-header-user">
           <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt="">
@@ -177,13 +180,6 @@
 <script>
 (function () {
   var M = window.AdminModal;
-  document.getElementById("dashBell").addEventListener("click", function () {
-    M.open({
-      title: "通知中心",
-      body: "<p style='margin:0'>当前无未读系统通知（原型）。</p>",
-      footer: [{ text: "关闭", primary: true, onClick: M.close }]
-    });
-  });
   document.getElementById("dashExport").addEventListener("click", function () {
     if (!window.AdminExport) return;
     AdminExport.confirm({
@@ -219,11 +215,7 @@
         ]
       });
     } else if (t.classList.contains("js-dash-review")) {
-      M.open({
-        title: "跳转内容审核",
-        body: "<p style='margin:0'>人工队列当前 <strong>37</strong> 条待办。可在新标签打开内容审核页。</p><p style='margin:12px 0 0'><a class='ant-btn ant-btn-primary' href='content-review.html' target='_blank' rel='noopener'>打开 content-review.html</a></p>",
-        footer: [{ text: "关闭", primary: true, onClick: M.close }]
-      });
+      location.href = "content-review.html";
     }
   });
 })();

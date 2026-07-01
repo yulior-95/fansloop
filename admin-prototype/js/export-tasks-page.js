@@ -165,19 +165,15 @@
     });
   }
 
-  var qBtn = document.getElementById("expQuery");
-  if (qBtn) {
-    qBtn.addEventListener("click", function () {
-      if (pager) pager.setPage(1);
+  var FT = window.AdminFilterToolbar;
+  if (FT) {
+    FT.onQuery("expQuery", function () {
+      if (pager) pager.resetPage();
       renderTable();
     });
-  }
-
-  var resetBtn = document.getElementById("expReset");
-  if (resetBtn) {
-    resetBtn.addEventListener("click", function () {
+    FT.onReset("expReset", function () {
       resetFilters();
-      if (pager) pager.setPage(1);
+      if (pager) pager.resetPage();
       renderTable();
     });
   }
