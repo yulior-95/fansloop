@@ -28,6 +28,7 @@
 
     var STORAGE_KEY = 'fl_sidebar_collapsed';
     var NAV_CONTEXT_KEY = 'fl_sidebar_nav_context';
+    var SIDEBAR_SHELL_CACHE_KEY = 'fl_sidebar_shell_v1';
 
     function detectScriptBase() {
         var scripts = document.getElementsByTagName('script');
@@ -279,14 +280,37 @@
 
     function getCreatorIncomeChipData() {
         if (global.FLCreatorIncomeStore && global.FLCreatorIncomeStore.getSidebarChip) {
-            return global.FLCreatorIncomeStore.getSidebarChip();
+            var data = global.FLCreatorIncomeStore.getSidebarChip();
+            if (data) return data;
         }
-        return null;
+        return {
+            text: '+298.4 USDT',
+            title: '本月创作者收入 · 298.40 USDT',
+            hint: '本月创作者收入（USDT）',
+            amount: 298.4
+        };
+    }
+
+    function stripStaleIncomeChips(row) {
+        if (!row) return;
+        row.querySelectorAll('.chip').forEach(function (chip) {
+            if (chip.getAttribute('data-sidebar-chip') !== 'creator-income') {
+                chip.remove();
+            }
+        });
+    }
+
+    function syncSidebarActiveState(sidebar, activeId) {
+        if (!sidebar) return;
+        sidebar.querySelectorAll('.s-item[data-nav-id]').forEach(function (row) {
+            row.classList.toggle('active', row.getAttribute('data-nav-id') === activeId);
+        });
     }
 
     function applyCreatorIncomeChip(sidebar, row) {
         row = row || sidebar.querySelector('.s-item[data-nav-id="creator-income"]');
         if (!row) return;
+        stripStaleIncomeChips(row);
         var chip = row.querySelector('[data-sidebar-chip="creator-income"]');
         var data = getCreatorIncomeChipData();
         if (data) {
@@ -361,6 +385,93 @@
         return null;
     }
 
+    function applySidebarNavTips(sidebar) {
+        sidebar = sidebar || document.querySelector('.app-sidebar');
+        if (!sidebar) return;
+        sidebar.querySelectorAll('.s-item').forEach(function (row) {
+            var lb = row.querySelector('.lb');
+            if (lb && lb.textContent) {
+                row.setAttribute('data-fl-nav-tip', lb.textContent.trim());
+            }
+        });
+    }
+
+    function isSidebarCollapsed() {
+        var shell = document.querySelector('.app-shell');
+        return !!(shell && shell.classList.contains('sidebar-collapsed')) ||
+            document.documentElement.classList.contains('sidebar-collapsed-pre');
+    }
+
+    function ensureSidebarNavTipPortal() {
+        var el = document.getElementById('flSidebarNavTipPortal');
+        if (el) return el;
+        el = document.createElement('div');
+        el.id = 'flSidebarNavTipPortal';
+        el.setAttribute('role', 'tooltip');
+        el.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(el);
+        return el;
+    }
+
+    function hideSidebarNavTip() {
+        var tip = document.getElementById('flSidebarNavTipPortal');
+        if (!tip) return;
+        tip.classList.remove('show');
+        tip.setAttribute('aria-hidden', 'true');
+    }
+
+    function showSidebarNavTip(row) {
+        if (!row || !isSidebarCollapsed()) {
+            hideSidebarNavTip();
+            return;
+        }
+        var text = row.getAttribute('data-fl-nav-tip') || '';
+        if (!text) {
+            var lb = row.querySelector('.lb');
+            text = lb ? lb.textContent.trim() : '';
+        }
+        if (!text) {
+            hideSidebarNavTip();
+            return;
+        }
+        var tip = ensureSidebarNavTipPortal();
+        tip.textContent = text;
+        var rect = row.getBoundingClientRect();
+        tip.style.left = Math.round(rect.right + 10) + 'px';
+        tip.style.top = Math.round(rect.top + rect.height / 2) + 'px';
+        tip.classList.add('show');
+        tip.setAttribute('aria-hidden', 'false');
+    }
+
+    function bindSidebarNavTipPortal() {
+        if (global.__flSidebarNavTipBound) return;
+        global.__flSidebarNavTipBound = true;
+        ensureSidebarNavTipPortal();
+
+        document.addEventListener('mouseover', function (e) {
+            if (!isSidebarCollapsed()) {
+                hideSidebarNavTip();
+                return;
+            }
+            var row = e.target.closest('.app-sidebar .s-item');
+            if (!row) {
+                hideSidebarNavTip();
+                return;
+            }
+            showSidebarNavTip(row);
+        });
+
+        document.addEventListener('scroll', function (e) {
+            if (e.target && e.target.closest && e.target.closest('.app-sidebar')) {
+                hideSidebarNavTip();
+            }
+        }, true);
+
+        document.addEventListener('fansloop-lang-change', function () {
+            applySidebarNavTips();
+        });
+    }
+
     function applySidebarI18n(code) {
         var sidebar = document.querySelector('.app-sidebar');
         if (!sidebar) return;
@@ -400,6 +511,7 @@
         if (!sidebar.getAttribute('aria-label')) {
             sidebar.setAttribute('aria-label', t('nav_aria', '主导航'));
         }
+        applySidebarNavTips(sidebar);
     }
 
     global.FL_applySidebarI18n = applySidebarI18n;
@@ -426,28 +538,70 @@
         return html;
     }
 
+    function cacheSidebarShell(sidebar) {
+        if (!sidebar || sidebar.getAttribute('data-fl-nav-unified') !== '1') return;
+        try {
+            var clone = sidebar.cloneNode(true);
+            var toggle = clone.querySelector('.s-sidebar-toggle');
+            if (toggle) toggle.remove();
+            sessionStorage.setItem(SIDEBAR_SHELL_CACHE_KEY, clone.innerHTML);
+        } catch (e) { /* ignore */ }
+    }
+
+    function tryHydrateSidebarFromCache(sidebar, activeId) {
+        try {
+            var raw = sessionStorage.getItem(SIDEBAR_SHELL_CACHE_KEY);
+            if (!raw) return false;
+            sidebar.innerHTML = raw;
+            syncSidebarActiveState(sidebar, activeId);
+            sidebar.setAttribute('data-fl-nav-unified', '1');
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function bindSidebarNavInteractions() {
+        if (typeof bindSidebarNotificationItems === 'function') {
+            bindSidebarNotificationItems();
+        }
+    }
+
+    function applyAuthSidebarBottom() {
+        if (global.FLAuthUiSync && global.FLAuthUiSync.apply) {
+            global.FLAuthUiSync.apply();
+        } else if (global.FL_applySidebarBottom) {
+            global.FL_applySidebarBottom();
+        }
+    }
+
     function renderUnifiedSidebarNav(sidebar) {
         if (!sidebar) return;
-        var brand = sidebar.querySelector('.s-brand');
-        var brandHtml = brand ? brand.outerHTML : '';
-        var bottomHtml = DEFAULT_BOTTOM;
         var page = currentPageName();
         var activeId = detectActiveNavId(page);
         if (page !== 'creator-profile.html' && activeId) {
             persistNavContext(activeId);
         }
-        sidebar.innerHTML = brandHtml + buildSidebarNavHtml(activeId) + bottomHtml;
-        sidebar.setAttribute('data-fl-nav-unified', '1');
+        if (sidebar.getAttribute('data-fl-nav-unified') === '1') {
+            syncSidebarActiveState(sidebar, activeId);
+            applySidebarIndicators(sidebar);
+            applySidebarI18n();
+            return;
+        }
+        var hydrated = tryHydrateSidebarFromCache(sidebar, activeId);
+        if (!hydrated) {
+            var brand = sidebar.querySelector('.s-brand');
+            var brandHtml = brand ? brand.outerHTML : '';
+            sidebar.innerHTML = brandHtml + buildSidebarNavHtml(activeId) + DEFAULT_BOTTOM;
+            sidebar.setAttribute('data-fl-nav-unified', '1');
+        }
         applySidebarIndicators(sidebar);
         applySidebarI18n();
-        if (typeof bindSidebarNotificationItems === 'function') {
-            bindSidebarNotificationItems();
-        }
-        if (global.FLAuthUiSync && global.FLAuthUiSync.apply) {
-            global.FLAuthUiSync.apply();
-        }
-        if (global.FL_applySidebarBottom) {
-            global.FL_applySidebarBottom();
+        applySidebarNavTips(sidebar);
+        bindSidebarNavInteractions();
+        if (authPrototypeReady()) {
+            applyAuthSidebarBottom();
+            cacheSidebarShell(sidebar);
         }
         setTimeout(function () {
             if (global.MallBenefitsScenes && global.MallBenefitsScenes.applyAvatarFrameScene) {
@@ -499,6 +653,7 @@
         if (!shell) return;
         shell.classList.toggle('sidebar-collapsed', collapsed);
         document.documentElement.classList.remove('sidebar-collapsed-pre');
+        if (!collapsed) hideSidebarNavTip();
         var btn = shell.querySelector('.s-sidebar-toggle');
         if (btn) {
             btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
@@ -534,20 +689,37 @@
         }
     }
 
+    function ensureCreatorIncomeStore(cb) {
+        if (global.FLCreatorIncomeStore) {
+            if (cb) cb();
+            return;
+        }
+        var base = detectScriptBase();
+        var s = document.createElement('script');
+        s.src = base + 'creator-income-store.js';
+        s.onload = function () { if (cb) cb(); };
+        s.onerror = function () { if (cb) cb(); };
+        document.head.appendChild(s);
+    }
+
     function init() {
         var shell = document.querySelector('.app-shell');
         if (!shell) return;
         injectSidebarBottomAssets();
+        var sidebar = shell.querySelector('.app-sidebar');
+        if (!sidebar) return;
+        if (!sidebar.id) sidebar.id = 'app-sidebar';
+        bindSidebarNavTipPortal();
+        renderUnifiedSidebarNav(sidebar);
+        ensureToggle(shell, sidebar);
+        applyState(shell, isCollapsed() || document.documentElement.classList.contains('sidebar-collapsed-pre'));
+        ensureCreatorIncomeStore(function () {
+            applySidebarIndicators(sidebar);
+        });
         ensureAuthPrototype(function () {
-            var sidebar = shell.querySelector('.app-sidebar');
-            if (!sidebar) return;
-            if (!sidebar.id) sidebar.id = 'app-sidebar';
-            renderUnifiedSidebarNav(sidebar);
-            ensureToggle(shell, sidebar);
-            applyState(shell, isCollapsed() || document.documentElement.classList.contains('sidebar-collapsed-pre'));
-            if (global.FLAuthUiSync && global.FLAuthUiSync.apply) {
-                global.FLAuthUiSync.apply();
-            }
+            applySidebarIndicators(sidebar);
+            applyAuthSidebarBottom();
+            cacheSidebarShell(sidebar);
         });
     }
 

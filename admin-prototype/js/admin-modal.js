@@ -279,7 +279,13 @@
           : "") +
         "<p style='margin:8px 0 0;font-size:11px;color:rgba(0,0,0,.4)'>请打开 Google Authenticator 等应用查看；成员创建时已分配密钥。</p>",
       footer: [
-        { text: "取消", onClick: close },
+        {
+          text: "取消",
+          onClick: function () {
+            close();
+            if (opts.onCancel) opts.onCancel();
+          }
+        },
         {
           text: "确认",
           primary: true,

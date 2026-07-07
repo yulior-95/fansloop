@@ -16,7 +16,7 @@
         setTimeout(function () { t.remove(); }, 2400);
     }
 
-    var FEED_BUILD_VERSION = '11';
+    var FEED_BUILD_VERSION = '12';
 
     function syncFeedStackVideos(viewport, slideIndex) {
         if (!viewport) return;
@@ -71,6 +71,9 @@
         });
         if (typeof window.FL_buildFeedStacks === 'function') {
             window.FL_buildFeedStacks({ guest: document.body.classList.contains('is-guest-home') });
+        }
+        if (typeof window.FL_applyPostTextClamp === 'function') {
+            window.FL_applyPostTextClamp();
         }
     }
     function ensureImageLightbox() {
@@ -269,6 +272,9 @@
             track.style.transform = 'translateY(-' + index * h + 'px)';
             if (indicator) indicator.textContent = (index + 1) + ' / ' + slides.length;
             syncFeedStackVideos(viewport, index);
+            if (typeof window.FL_applyPostTextClamp === 'function') {
+                window.FL_applyPostTextClamp(viewport);
+            }
         }
 
         function go(dir) {

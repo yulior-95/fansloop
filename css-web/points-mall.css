@@ -560,6 +560,8 @@
     transition: 0.2s;
 }
 .goods-card.hidden { display: none; }
+/* MVP 暂不上线：移除 data-mvp-hidden 即可恢复展示 */
+.goods-card[data-mvp-hidden="1"] { display: none !important; }
 .goods-card:hover {
     border-color: rgba(168,85,247,0.35);
     box-shadow: var(--shadow-glow);
@@ -583,8 +585,44 @@
     backdrop-filter: blur(6px);
 }
 .goods-card .bd { padding: 14px 16px 16px; }
-.goods-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; line-height: 1.35; }
-.goods-card .desc { font-size: 11.5px; color: var(--t-tertiary); line-height: 1.45; margin-bottom: 10px; min-height: 34px; }
+.goods-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 8px; line-height: 1.35; }
+.goods-card .desc { font-size: 11.5px; color: var(--t-tertiary); line-height: 1.45; margin-bottom: 10px; }
+.goods-rules {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 8px;
+}
+.goods-rules .gr-row {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 6px;
+    align-items: start;
+    font-size: 11px;
+    line-height: 1.42;
+}
+.goods-rules .gr-k {
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: rgba(192, 132, 252, 0.9);
+    padding-top: 1px;
+}
+.goods-rules .gr-v {
+    color: var(--t-tertiary);
+    word-break: break-word;
+}
+.goods-card .gr-note {
+    margin: 0 0 10px;
+    padding: 5px 8px;
+    font-size: 10px;
+    line-height: 1.38;
+    color: rgba(251, 191, 36, 0.88);
+    background: rgba(251, 191, 36, 0.07);
+    border-radius: 5px;
+    border: 1px solid rgba(251, 191, 36, 0.12);
+}
 .goods-card .meta-row {
     font-size: 11px;
     color: var(--t-tertiary);
@@ -646,7 +684,7 @@
 .pm-overlay.show { display: flex; }
 .pm-modal {
     width: 100%;
-    max-width: 440px;
+    max-width: 460px;
     background: var(--bg-elevated);
     border: 1px solid var(--border-strong);
     border-radius: var(--r-xl);
@@ -674,31 +712,163 @@
     font-size: 18px;
     padding: 4px;
 }
-.pm-modal .mb { padding: 20px; }
+.pm-modal .mb { padding: 18px 20px 20px; }
 .pm-modal .preview {
     display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+.pm-modal .preview-hero {
+    display: flex;
     gap: 14px;
-    margin-bottom: 16px;
+    align-items: center;
+    padding: 14px;
+    border-radius: var(--r-lg);
+    background: linear-gradient(135deg, rgba(88, 28, 135, 0.22), rgba(168, 85, 247, 0.08));
+    border: 1px solid rgba(168, 85, 247, 0.18);
 }
 .pm-modal .preview .img {
-    width: 72px; height: 72px;
+    width: 64px;
+    height: 64px;
     border-radius: var(--r-md);
     background-size: cover;
     background-position: center;
     flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
 }
-.pm-modal .preview .txt h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
-.pm-modal .preview .txt p { font-size: 12px; color: var(--t-tertiary); line-height: 1.45; }
-.pm-modal .cost {
-    padding: 14px;
+.pm-modal .preview-meta {
+    flex: 1;
+    min-width: 0;
+}
+.pm-modal .preview-meta h4 {
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.35;
+    margin-bottom: 6px;
+    color: var(--t-primary);
+}
+.pm-modal .preview-delivery {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin: 0;
+    font-size: 11.5px;
+    color: var(--t-tertiary);
+    line-height: 1.5;
+}
+.pm-modal .preview-delivery i {
+    flex-shrink: 0;
+    margin-top: 2px;
+    font-size: 10px;
+    color: #FBBF24;
+}
+.pm-modal .preview-rules:not([hidden]) {
+    display: block;
+}
+.pm-modal .redeem-rules-panel {
     border-radius: var(--r-md);
-    border: 1px dashed rgba(251,191,36,0.35);
-    background: rgba(168,85,247,0.06);
-    text-align: center;
-    margin-bottom: 16px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.02);
+    overflow: hidden;
 }
-.pm-modal .cost .big { font-size: 28px; font-weight: 900; color: #FBBF24; }
-.pm-modal .cost .sub { font-size: 12px; color: var(--t-secondary); margin-top: 4px; }
+.pm-modal .redeem-rules-panel .rr-hd {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: rgba(192, 132, 252, 0.95);
+    background: rgba(168, 85, 247, 0.08);
+    border-bottom: 1px solid var(--border);
+}
+.pm-modal .redeem-rules-panel .rr-hd i {
+    font-size: 11px;
+    opacity: 0.9;
+}
+.pm-modal .redeem-rules-body {
+    padding: 10px 12px 11px;
+}
+.pm-modal .goods-rules.redeem-rules {
+    gap: 7px;
+    margin-bottom: 0;
+}
+.pm-modal .goods-rules.redeem-rules .gr-row {
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 8px;
+    font-size: 12px;
+    line-height: 1.48;
+    padding: 4px 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+}
+.pm-modal .goods-rules.redeem-rules .gr-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+.pm-modal .goods-rules.redeem-rules .gr-k {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: rgba(192, 132, 252, 0.88);
+}
+.pm-modal .goods-rules.redeem-rules .gr-v {
+    color: var(--t-secondary);
+}
+.pm-modal .redeem-rules-fallback {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--t-secondary);
+}
+.pm-modal .gr-note.redeem-note {
+    margin: 8px 0 0;
+    padding: 7px 10px;
+    font-size: 11px;
+    line-height: 1.45;
+    border-radius: 6px;
+}
+.pm-modal .cost {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 14px;
+    border-radius: var(--r-md);
+    border: 1px solid rgba(251, 191, 36, 0.22);
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.07), rgba(168, 85, 247, 0.05));
+    margin-bottom: 14px;
+}
+.pm-modal .cost-main {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+.pm-modal .cost-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--t-secondary);
+}
+.pm-modal .cost-val {
+    font-size: 22px;
+    font-weight: 900;
+    color: #FBBF24;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+}
+.pm-modal .cost-foot {
+    font-size: 11px;
+    color: var(--t-tertiary);
+    text-align: right;
+}
+.pm-modal .cost-foot strong {
+    color: var(--t-secondary);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
 .pm-modal .mf-btns { display: flex; gap: 10px; }
 .pm-modal .mf-btns button {
     flex: 1;

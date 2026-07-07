@@ -55,6 +55,29 @@
         return n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : String(n);
     }
 
+    function pickText(i) {
+        var base = pick(TEXTS, i);
+        if (i % 8 === 0) {
+            return base + ' 凌晨从东京包车出发，三点半到五合目停车场；零下 4℃ 里手指几乎握不住快门。云海从深谷翻涌上来，金色光线只持续不到八分钟。附上拍摄参数、机位示意与后期思路，希望对同样在路上的你有帮助。';
+        }
+        if (i % 11 === 3) {
+            return base + ' 完整版包含分轨试听、排练花絮与幕后采访，订阅者可下载 4K 母带与曲谱注释 PDF。';
+        }
+        return base;
+    }
+
+    function wrapPostText(innerHtml, extraClass) {
+        extraClass = extraClass || '';
+        return (
+            '<div class="post-text post-text--clampable' + extraClass + '">' +
+            '<div class="post-text-inner">' + innerHtml + '</div>' +
+            '<button type="button" class="post-text-toggle" hidden aria-expanded="false">' +
+            '<span class="post-text-toggle-more">更多</span>' +
+            '<span class="post-text-toggle-less">收起</span>' +
+            '</button></div>'
+        );
+    }
+
     function detailHref(type, i) {
         if (type === 'live') return 'live-detail.html';
         if (type === 'video' && i % 5 === 1) return 'flow-unlock-paid.html';
@@ -345,29 +368,31 @@
         var ppvPrice = resolved.ppvPrice || 5;
         var c = type === 'subscribe-locked' ? CREATORS[2] : (type === 'ppv-locked' ? CREATORS[1] : pick(CREATORS, i));
         var cover = type === 'subscribe-locked' ? COVERS[2] : (type === 'ppv-locked' ? COVERS[4] : pick(COVERS, i));
-        var text = pick(TEXTS, i);
+        var text = pickText(i);
         var tags = '<span class="hashtag">' + pick(HASHTAGS, i) + '</span> <span class="hashtag">' + pick(HASHTAGS, i + 1) + '</span>';
         var previewVariant = resolved.previewVariant;
         var liveStatus = resolved.liveStatus || 'live';
 
         var bodyInner = '';
         if (type === 'live') {
-            bodyInner += '<div class="post-text">' + (liveStatus === 'ended' ? '📺 ' : '🎻 ') + esc(text) + '</div>';
+            bodyInner += wrapPostText((liveStatus === 'ended' ? '📺 ' : '🎻 ') + esc(text));
         } else if (type === 'live-preview') {
-            bodyInner += '<div class="post-text">' + esc(text) + '<br>' + tags + '</div>';
+            bodyInner += wrapPostText(esc(text) + '<br>' + tags);
             bodyInner += buildLivePreviewSchedule(i, c, previewVariant, guest);
         } else if (type === 'subscribe-locked') {
-            bodyInner += '<div class="post-text post-text--teaser">' +
+            bodyInner += wrapPostText(
                 '<span class="teaser-label"><i class="fa-solid fa-eye-slash"></i> 未订阅仅可见摘要</span><br>' +
-                esc('雨夜小提琴排练室幕后 · 完整 4K 花絮、分轨试听与曲谱注释仅对订阅者开放。') + '<br>' + tags +
-                '</div>';
+                esc('雨夜小提琴排练室幕后 · 完整 4K 花絮、分轨试听与曲谱注释仅对订阅者开放。') + '<br>' + tags,
+                ' post-text--teaser'
+            );
         } else if (type === 'ppv-locked') {
-            bodyInner += '<div class="post-text post-text--teaser">' +
+            bodyInner += wrapPostText(
                 '<span class="teaser-label teaser-label--ppv"><i class="fa-solid fa-tag"></i> 按篇购买 · 付费前仅可见摘要</span><br>' +
-                esc('京都樱花季隐秘机位整理 · 含 GPS 坐标、最佳时段与 12 张 RAW 原图——完整图集需按篇购买或订阅创作者。') + '<br>' + tags +
-                '</div>';
+                esc('京都樱花季隐秘机位整理 · 含 GPS 坐标、最佳时段与 12 张 RAW 原图——完整图集需按篇购买或订阅创作者。') + '<br>' + tags,
+                ' post-text--teaser'
+            );
         } else {
-            bodyInner += '<div class="post-text">' + esc(text) + '<br>' + tags + '</div>';
+            bodyInner += wrapPostText(esc(text) + '<br>' + tags);
         }
         bodyInner += buildMediaCenter(type, cover, i, guest, previewVariant, liveStatus, c, ppvPrice);
 
@@ -395,6 +420,9 @@
             html += buildSlide(i, stackKind, opts);
         }
         track.innerHTML = html;
+        if (global.FL_applyPostTextClamp) {
+            global.FL_applyPostTextClamp(track);
+        }
         return n;
     }
 

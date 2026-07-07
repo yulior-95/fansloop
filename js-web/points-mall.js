@@ -28,7 +28,7 @@
     var redeemImg = document.getElementById('redeemImg');
     var redeemCost = document.getElementById('redeemCost');
     var redeemAfter = document.getElementById('redeemAfter');
-    var redeemTipBonusDetail = document.getElementById('redeemTipBonusDetail');
+    var redeemRules = document.getElementById('redeemRules');
     var toast = document.getElementById('globalToast');
     var toastMsg = document.getElementById('toastMsg');
 
@@ -137,6 +137,10 @@
 
     function filterTab(key) {
         cards.forEach(function (card) {
+            if (card.getAttribute('data-mvp-hidden') === '1') {
+                card.classList.add('hidden');
+                return;
+            }
             var cats = (card.dataset.cats || '').split(',');
             card.classList.toggle('hidden', key !== 'hot' && !cats.includes(key));
         });
@@ -156,16 +160,53 @@
         setTimeout(function () { toast.classList.remove('show'); }, 2600);
     }
 
-    function openRedeem(title, points, imgUrl, isTipBonus) {
+    function fillRedeemRules(card) {
+        if (!redeemRules) return;
+        redeemRules.innerHTML = '';
+        if (!card) {
+            redeemRules.hidden = true;
+            return;
+        }
+        var goodsRules = card.querySelector('.goods-rules');
+        var note = card.querySelector('.gr-note');
+        var desc = card.querySelector('.desc');
+        if (!goodsRules && !note && !desc) {
+            redeemRules.hidden = true;
+            return;
+        }
+        var panel = document.createElement('div');
+        panel.className = 'redeem-rules-panel';
+        panel.innerHTML = '<div class="rr-hd"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span>权益说明</span></div>';
+        var body = document.createElement('div');
+        body.className = 'redeem-rules-body';
+        if (goodsRules) {
+            var rulesClone = goodsRules.cloneNode(true);
+            rulesClone.classList.add('redeem-rules');
+            body.appendChild(rulesClone);
+        } else if (desc) {
+            var fallback = document.createElement('p');
+            fallback.className = 'redeem-rules-fallback';
+            fallback.textContent = desc.textContent.trim();
+            body.appendChild(fallback);
+        }
+        if (note) {
+            var noteClone = note.cloneNode(true);
+            noteClone.classList.add('redeem-note');
+            body.appendChild(noteClone);
+        }
+        panel.appendChild(body);
+        redeemRules.appendChild(panel);
+        redeemRules.hidden = false;
+    }
+
+    function openRedeem(title, points, imgUrl, card) {
         pendingPoints = points;
         pendingRedeemTitle = title || '';
         redeemName.textContent = title;
-        redeemImg.style.backgroundImage = 'url(\'' + imgUrl + '\')';
+        redeemImg.style.backgroundImage = imgUrl ? 'url(\'' + imgUrl + '\')' : 'none';
         redeemCost.textContent = fmt(points) + ' 积分';
         redeemAfter.textContent = fmt(balance - points);
-        if (redeemTipBonusDetail) {
-            redeemTipBonusDetail.style.display = isTipBonus ? '' : 'none';
-        }
+        fillRedeemRules(card);
         overlay.classList.add('show');
         overlay.setAttribute('aria-hidden', 'false');
     }
@@ -185,7 +226,7 @@
                 showToast('积分不足，去完成活跃任务或等待计时奖励吧');
                 return;
             }
-            openRedeem(title, points, img, btn.dataset.tipBonus === '1');
+            openRedeem(title, points, img, btn.closest('.goods-card'));
         });
     });
 
@@ -597,7 +638,7 @@
     }
     if (new URLSearchParams(location.search).get('redeem') === 'tip-bonus') {
         setTimeout(function () {
-            var btn = document.querySelector('.btn-redeem[data-tip-bonus="1"]');
+            var btn = document.querySelector('.btn-redeem[data-title="打赏加成卡 · 3 次"]');
             if (btn) btn.click();
         }, 500);
     }

@@ -72,6 +72,83 @@
       .then(function () { return loadScriptOnce(base + 'gift-modal-inline.js'); });
   }
 
+  function ensureCommentModalCss() {
+    if (document.querySelector('link[data-fl-comment-modal-css]')) return;
+    var base = scriptBase().replace(/\/js-web\/$/, '');
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = base + '/css-web/comment-modal.css';
+    link.setAttribute('data-fl-comment-modal-css', '1');
+    document.head.appendChild(link);
+  }
+
+  function ensureCommentBenefitCss() {
+    if (document.querySelector('link[data-fl-mall-benefits-css]')) return;
+    var base = scriptBase().replace(/\/js-web\/$/, '');
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = base + '/css-web/mall-benefits-scenes.css';
+    link.setAttribute('data-fl-mall-benefits-css', '1');
+    document.head.appendChild(link);
+  }
+
+  function ensureCommentDeps(page) {
+    var base = scriptBase();
+    var qs = page.indexOf('?') >= 0 ? page.split('?')[1] : '';
+    var scene = new URLSearchParams(qs).get('benefitScene');
+    var chain = Promise.resolve();
+    if (scene) {
+      ensureCommentBenefitCss();
+      chain = chain
+        .then(function () { return loadScriptOnce(base + 'mall-vouchers-store.js'); })
+        .then(function () { return loadScriptOnce(base + 'mall-benefits-scenes.js'); });
+    }
+    return chain.then(function () { return loadScriptOnce(base + 'comment-modal-inline.js'); });
+  }
+
+  function openCommentInline(page) {
+    bindElements();
+    if (!root || !inlineHost) {
+      window.location.href = page;
+      return;
+    }
+    ensureCommentModalCss();
+    fetch(page)
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        return ensureCommentDeps(page).then(function () { return html; });
+      })
+      .then(function (html) {
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var modal = doc.querySelector('.cm-modal');
+        if (!modal) {
+          if (iframeEl) {
+            iframeEl.src = page;
+            root.style.display = 'flex';
+            root.setAttribute('aria-hidden', 'false');
+          }
+          return;
+        }
+        clearInline();
+        inlineHost.appendChild(document.importNode(modal, true));
+        inlineHost.removeAttribute('hidden');
+        if (iframeEl) iframeEl.style.display = 'none';
+        root.classList.remove('fl-modal--danmaku', 'fl-modal--share', 'fl-modal--gift', 'fl-modal--default', 'fl-modal--inline');
+        root.classList.add('fl-modal--comment', 'fl-modal--inline');
+        root.style.display = 'flex';
+        root.setAttribute('aria-hidden', 'false');
+        if (window.FLCommentModalInline) {
+          window.FLCommentModalInline.init(inlineHost, page);
+        }
+      })
+      .catch(function () {
+        if (iframeEl) iframeEl.src = page;
+        root.classList.add('fl-modal--comment');
+        root.style.display = 'flex';
+        root.setAttribute('aria-hidden', 'false');
+      });
+  }
+
   function openGiftInline(page) {
     bindElements();
     if (!root || !inlineHost) {
@@ -130,6 +207,11 @@
       return;
     }
 
+    if (page.indexOf('comment-modal') >= 0) {
+      openCommentInline(page);
+      return;
+    }
+
     clearInline();
     if (!iframeEl) {
       window.location.href = page;
@@ -142,10 +224,6 @@
       root.classList.add('fl-modal--danmaku');
       iframeEl.style.width = 'min(500px, calc(100vw - 32px))';
       iframeEl.style.height = 'min(420px, calc(100vh - 32px))';
-    } else if (page.indexOf('comment-modal') >= 0) {
-      root.classList.add('fl-modal--comment');
-      iframeEl.style.width = 'min(940px, calc(100vw - 32px))';
-      iframeEl.style.height = 'min(920px, calc(100vh - 32px))';
     } else if (page.indexOf('share-modal') >= 0) {
       root.classList.add('fl-modal--share');
       iframeEl.style.width = '';

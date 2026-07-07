@@ -1,0 +1,330 @@
+/* 评论弹窗 · 独立页与 #flStandaloneModalRoot 内联共用 */
+
+body.cm-standalone-page {
+    background: linear-gradient(135deg, #1B0B3A, #2D1B69 50%, #4A1063);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.cm-modal {
+    width: 100%;
+    max-width: 720px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xl);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.cm-head {
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-shrink: 0;
+}
+.cm-head h2 {
+    font-size: 16px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+}
+.cm-head h2 .ic {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+.cm-head h2 .cnt {
+    font-size: 11px;
+    padding: 2px 8px;
+    background: rgba(168, 85, 247, 0.18);
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    color: #C084FC;
+    border-radius: 999px;
+    margin-left: 4px;
+}
+.cm-head .actions { display: flex; gap: 6px; flex-shrink: 0; }
+.cm-head .actions .btn-sm {
+    padding: 6px 11px;
+    font-size: 11.5px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--bg-input);
+    color: var(--t-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    border: none;
+}
+.cm-head .actions .btn-sm.active {
+    background: var(--brand-grad);
+    color: #fff;
+    font-weight: 600;
+}
+.cm-head .close {
+    width: 30px;
+    height: 30px;
+    background: var(--bg-input);
+    color: var(--t-tertiary);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    flex-shrink: 0;
+}
+
+.post-mini {
+    margin: 14px 22px 0;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.post-mini .thumb {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    background: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=200') center/cover;
+    flex-shrink: 0;
+}
+.post-mini .info { flex: 1; min-width: 0; }
+.post-mini .info .ti { font-size: 12.5px; font-weight: 600; }
+.post-mini .info .sub { font-size: 11px; color: var(--t-tertiary); margin-top: 3px; }
+.post-mini .info .by { display: inline-flex; align-items: center; gap: 5px; }
+.post-mini .info .by .av-mini { width: 16px; height: 16px; border-radius: 50%; background-size: cover; }
+
+.cm-pin {
+    margin: 14px 22px 0;
+    padding: 12px 14px;
+    background: linear-gradient(90deg, rgba(168, 85, 247, 0.08), rgba(236, 72, 153, 0.04));
+    border: 1px solid rgba(168, 85, 247, 0.22);
+    border-radius: var(--r-md);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+.cm-pin i { color: #C084FC; font-size: 14px; margin-top: 2px; }
+.cm-pin .tx { font-size: 12.5px; line-height: 1.5; color: var(--t-secondary); }
+.cm-pin .tx b { color: #fff; font-weight: 700; }
+
+.cm-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 22px 16px;
+    min-height: 0;
+}
+
+.comment {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+.comment:last-of-type { border-bottom: none; }
+.comment .av { width: 38px; height: 38px; border-radius: 50%; background-size: cover; flex-shrink: 0; }
+.comment .body { flex: 1; min-width: 0; }
+.comment .head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+}
+.comment .head .nm { font-size: 13px; font-weight: 700; }
+.comment .head .nm.creator { color: #C084FC; }
+.comment .head .badge {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+.comment .head .badge.creator { background: linear-gradient(135deg, #A855F7, #EC4899); color: #fff; }
+.comment .head .badge.sub { background: rgba(251, 191, 36, 0.18); color: #FBBF24; }
+.comment .head .badge.lv { background: rgba(168, 85, 247, 0.16); color: #C084FC; }
+.comment .head .time { font-size: 11px; color: var(--t-tertiary); margin-left: auto; }
+
+.comment .text {
+    font-size: 13px;
+    color: var(--t-primary);
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+.comment .text .at { color: var(--brand-purple); font-weight: 600; }
+
+.comment .actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-size: 11.5px;
+    color: var(--t-tertiary);
+}
+.comment .actions span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: 0.15s;
+}
+.comment .actions span:hover { color: var(--t-primary); }
+.comment .actions .liked { color: var(--brand-pink); }
+
+.replies {
+    margin-top: 10px;
+    padding-left: 12px;
+    border-left: 2px solid var(--border);
+}
+.reply { padding: 8px 0; display: flex; gap: 8px; }
+.reply .av { width: 26px; height: 26px; border-radius: 50%; background-size: cover; flex-shrink: 0; }
+.reply .body { flex: 1; min-width: 0; }
+.reply .head { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+.reply .head .nm { font-size: 12px; font-weight: 700; }
+.reply .head .nm.creator { color: #C084FC; }
+.reply .head .time { font-size: 10.5px; color: var(--t-tertiary); margin-left: auto; }
+.reply .text { font-size: 12.5px; color: var(--t-secondary); line-height: 1.55; }
+.reply .text .at { color: var(--brand-purple); font-weight: 600; }
+.replies .more-replies {
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--brand-purple);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.cm-input-wrap {
+    border-top: 1px solid var(--border);
+    background: var(--bg-elevated);
+    padding: 12px 22px 14px;
+    flex-shrink: 0;
+}
+.cm-input-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.cm-input-bar .av {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120') center/cover;
+    flex-shrink: 0;
+}
+.cm-input-bar .ip-shell {
+    flex: 1;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 6px 6px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.cm-input-bar .ip-shell input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 13px;
+    height: 28px;
+    min-width: 0;
+}
+.cm-input-bar .ip-shell input::placeholder { color: var(--t-quaternary); }
+.cm-input-bar .ip-shell button {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    color: var(--t-tertiary);
+    font-size: 13px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+.cm-input-bar .send {
+    height: 36px;
+    padding: 0 18px;
+    background: var(--brand-grad);
+    color: #fff;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 6px 14px rgba(168, 85, 247, 0.35);
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.cm-emoji-bar {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+.cm-emoji-bar .em {
+    font-size: 18px;
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+}
+.cm-emoji-bar .em:hover { background: var(--bg-hover); }
+
+/* 父页内联：仅蒙层 + 评论面板，内部元素可选中微调 */
+#flStandaloneModalRoot.fl-modal--comment {
+    background: rgba(0, 0, 0, 0.58);
+    backdrop-filter: blur(10px);
+    pointer-events: auto;
+}
+#flStandaloneModalRoot.fl-modal--comment.fl-modal--inline {
+    overflow-y: auto;
+    align-items: flex-start;
+    padding-top: max(12px, env(safe-area-inset-top));
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+#flStandaloneModalRoot.fl-modal--comment.fl-modal--inline > iframe {
+    display: none !important;
+}
+#flStandaloneModalRoot.fl-modal--comment .fl-modal-inline-host {
+    width: min(720px, calc(100vw - 32px));
+    max-width: 100%;
+    margin: auto;
+    flex-shrink: 0;
+    pointer-events: auto;
+}
+#flStandaloneModalRoot.fl-modal--comment .fl-modal-inline-host .cm-modal {
+    max-height: min(85vh, 900px);
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.5);
+}

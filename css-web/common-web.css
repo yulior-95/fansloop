@@ -351,6 +351,43 @@ html.sidebar-collapsed-pre .app-sidebar,
     padding-left: 10px;
     padding-right: 10px;
 }
+
+/* 侧栏收起 · 菜单项悬停名称气泡（由 #flSidebarNavTipPortal 承载） */
+#flSidebarNavTipPortal {
+    position: fixed;
+    z-index: 10050;
+    padding: 6px 11px;
+    border-radius: 8px;
+    background: rgba(15, 15, 23, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.94);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.12s ease, visibility 0.12s ease, transform 0.12s ease;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42);
+    transform: translateY(-50%) translateX(-4px);
+}
+#flSidebarNavTipPortal.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) translateX(0);
+}
+#flSidebarNavTipPortal::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 5px solid transparent;
+    border-right-color: rgba(15, 15, 23, 0.96);
+    filter: drop-shadow(-1px 0 0 rgba(255, 255, 255, 0.08));
+}
+
 .app-sidebar .s-brand {
     display: flex; align-items: center; gap: 10px;
     padding: 4px 8px 18px;
@@ -483,13 +520,32 @@ html.sidebar-collapsed-pre .app-sidebar,
     background: rgba(251,191,36,0.2);
     color: #FBBF24;
 }
+/* 统一侧栏渲染完成前隐藏静态菜单，避免切换页面时菜单闪屏 */
+.app-sidebar:not([data-fl-nav-unified]) > .s-section,
+.app-sidebar:not([data-fl-nav-unified]) > .s-item,
+.app-sidebar:not([data-fl-nav-unified]) > .s-bottom {
+    opacity: 0;
+    pointer-events: none;
+}
+.app-sidebar[data-fl-nav-unified="1"] > .s-section,
+.app-sidebar[data-fl-nav-unified="1"] > .s-item,
+.app-sidebar[data-fl-nav-unified="1"] > .s-bottom {
+    opacity: 1;
+}
+/* 统一侧栏渲染前隐藏静态占位 chip，避免 +$28 闪屏 */
+.app-sidebar:not([data-fl-nav-unified]) .s-item[onclick*="creator-income"] > .chip {
+    display: none;
+}
 .s-item .chip.chip--income-month {
     cursor: help;
     position: relative;
-    max-width: 56px;
+    max-width: 96px;
+    font-size: 7.5px;
+    padding: 1px 5px;
+    letter-spacing: 0;
     overflow: visible;
-    text-overflow: ellipsis;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 .s-item .chip.chip--income-month::after {
     content: attr(data-fl-chip-tip);

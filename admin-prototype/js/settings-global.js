@@ -30,9 +30,6 @@
     }).join("");
   }
 
-  var systemPages = CFG.globalParamPages.filter(function (p) {
-    return p.key === "risk-switches";
-  });
   var assetPages = CFG.globalParamPages.filter(function (p) {
     return p.key === "risk-usdt-limits" || p.key === "network-fees" || p.key === "creator-income-split";
   });
@@ -43,7 +40,6 @@
     return p.key === "risk-kyc-face";
   });
 
-  renderCards(systemPages, "sgSystemMount");
   renderCards(assetPages, "sgAssetMount");
   renderCards(pointsPages, "sgPointsMount");
   renderCards(kycPages, "sgKycMount");

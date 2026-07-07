@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>直播连麦与PK · 完整PRD（含场景优化）</title>
+    <!-- 使用国内CDN提升加载稳定性 -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #f5f7fb;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            padding: 20px;
+            color: #1e293b;
+        }
+        .toolbar {
+            max-width: 1000px;
+            margin: 0 auto 24px auto;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e9edf4;
+        }
+        .toolbar .doc-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toolbar .doc-title span {
+            background: #3b82f6;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+        .toolbar .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .toolbar .actions button {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #f1f4f9;
+            color: #1e293b;
+        }
+        .toolbar .actions button:hover {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+        }
+        .toolbar .actions button.pdf-btn {
+            background: #3b82f6;
+            color: #fff;
+        }
+        .toolbar .actions button.pdf-btn:hover {
+            background: #2563eb;
+        }
+        .toolbar .actions button.md-btn {
+            background: #0f172a;
+            color: #fff;
+        }
+        .toolbar .actions button.md-btn:hover {
+            background: #1e293b;
+        }
+        .doc-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e9edf4;
+            padding: 48px 56px;
+        }
+        .markdown-body {
+            font-size: 15px;
+            line-height: 1.75;
+            color: #1e293b;
+        }
+        .markdown-body h1 {
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e9edf4;
+            color: #0f172a;
+        }
+        .markdown-body h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-top: 36px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e9edf4;
+            color: #0f172a;
+        }
+        .markdown-body h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: #0f172a;
+        }
+        .markdown-body h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 20px;
+            margin-bottom: 8px;
+            color: #1e293b;
+        }
+        .markdown-body p {
+            margin-bottom: 14px;
+        }
+        .markdown-body ul,
+        .markdown-body ol {
+            margin-bottom: 14px;
+            padding-left: 24px;
+        }
+        .markdown-body li {
+            margin-bottom: 4px;
+        }
+        .markdown-body blockquote {
+            border-left: 4px solid #3b82f6;
+            padding: 12px 20px;
+            margin: 16px 0;
+            background: #f8fafc;
+            border-radius: 0 8px 8px 0;
+            color: #334155;
+        }
+        .markdown-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0 20px 0;
+            font-size: 14px;
+        }
+        .markdown-body table th,
+        .markdown-body table td {
+            border: 1px solid #d1d9e6;
+            padding: 10px 14px;
+            text-align: left;
+        }
+        .markdown-body table th {
+            background: #f1f4f9;
+            font-weight: 600;
+            color: #0f172a;
+        }
+        .markdown-body table tr:nth-child(even) {
+            background: #fafbfc;
+        }
+        .markdown-body pre {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 16px 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 16px 0 20px 0;
+            font-family: "JetBrains Mono", "Fira Code", monospace;
+        }
+        .markdown-body pre code {
+            background: transparent;
+            padding: 0;
+            color: inherit;
+            font-size: 13px;
+        }
+        .markdown-body code {
+            background: #f1f4f9;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: "JetBrains Mono", "Fira Code", monospace;
+            color: #0f172a;
+        }
+        .markdown-body hr {
+            border: none;
+            border-top: 2px solid #e9edf4;
+            margin: 32px 0;
+        }
+        .markdown-body .mermaid {
+            background: #fafbfc;
+            padding: 16px;
+            border-radius: 12px;
+            margin: 16px 0;
+            text-align: center;
+        }
+        .markdown-body .mermaid svg {
+            max-width: 100%;
+            height: auto;
+        }
+        .loading {
+            text-align: center;
+            padding: 60px 0;
+            color: #64748b;
+        }
+        .error {
+            color: #b91c1c;
+            background: #fee2e2;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+            .doc-container {
+                padding: 24px 20px;
+            }
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                padding: 14px 18px;
+            }
+            .toolbar .actions {
+                justify-content: stretch;
+            }
+            .toolbar .actions button {
+                flex: 1;
+                justify-content: center;
+                font-size: 13px;
+                padding: 8px 12px;
+            }
+            .markdown-body h1 {
+                font-size: 24px;
+            }
+            .markdown-body h2 {
+                font-size: 19px;
+            }
+            .markdown-body h3 {
+                font-size: 16px;
+            }
+            .markdown-body table {
+                font-size: 13px;
+            }
+            .markdown-body table th,
+            .markdown-body table td {
+                padding: 6px 10px;
+            }
+            .markdown-body pre {
+                font-size: 12px;
+                padding: 12px 14px;
+            }
+        }
+        @media print {
+            .toolbar {
+                display: none !important;
+            }
+            .doc-container {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                border-radius: 0;
+            }
+            .markdown-body pre {
+                background: #f1f4f9 !important;
+                color: #1e293b !important;
+                border: 1px solid #d1d9e6;
+            }
+            .markdown-body pre code {
+                color: #1e293b !important;
+            }
+            .markdown-body code {
+                background: #f1f4f9 !important;
+            }
+            .markdown-body blockquote {
+                background: #f8fafc !important;
+            }
+            .markdown-body table th {
+                background: #f1f4f9 !important;
+            }
+            .markdown-body h1,
+            .markdown-body h2 {
+                border-bottom-color: #d1d9e6 !important;
+            }
+            .markdown-body .mermaid {
+                background: #f8fafc !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 工具栏 ===== -->
+    <div class="toolbar">
+        <div class="doc-title">
+            📄 直播连麦 &amp; PK · 完整PRD
+            <span>v2.0</span>
+        </div>
+        <div class="actions">
+            <button class="pdf-btn" onclick="exportPDF()">📄 导出 PDF</button>
+            <button class="md-btn" onclick="exportMarkdown()">📥 导出 Markdown</button>
+        </div>
+    </div>
+
+    <!-- ===== 文档容器 ===== -->
+    <div class="doc-container">
+        <div id="content" class="markdown-body">
+            <div class="loading">⏳ 加载中...</div>
+        </div>
+    </div>
+
+    <!-- 引入 marked 和 mermaid -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/marked/9.1.6/marked.min.js">
+    </script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/11.9.0/highlight.min.js">
+    </script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/mermaid/10.6.1/mermaid.min.js">
+    </script>
+
+    <script>
+        // ================================================================
+        //  1. PRD 完整内容（Markdown 格式），已补充“双主播场景优化”
+        // ================================================================
+        const PRD_MARKDOWN = `# 直播社交平台 · 连麦与 PK 功能 PRD（含场景优化）
+
+> **文档版本**：v2.0  
+> **编写日期**：2026-07-03  
+> **目标读者**：研发团队、产品经理、测试团队  
+> **本次更新**：明确了双主播连麦与主播-观众连麦的技术区分，优化画质与延迟策略。
+
+---
+
+## 1. 文档信息
+
+| 项目 | 内容 |
+|------|------|
+| **项目名称** | 直播社交平台（MVP 版本） |
+| **功能模块** | 连麦 + PK |
+| **优先级** | P0（核心功能） |
+| **预计工时** | 12 人日（后端 5 + 前端 4 + 测试 3） |
+| **依赖方** | SRS 流媒体、FFmpeg 混流、Socket.IO 信令 |
+
+---
+
+## 2. 产品背景与目标
+
+### 2.1 背景
+平台已支持主播通过 **OBS** 推流直播（RTMP 协议）。现需增加 **连麦** 与 **PK** 功能，**核心约束**：主播端不改变 OBS 推流方式，所有合流由服务端完成。
+
+### 2.2 目标
+- 连麦延迟 < 800ms（主播-观众场景），双主播场景可放宽至 2~3s。
+- PK 分屏清晰，比分实时更新。
+- 主播零感知（OBS 配置不变）。
+- 观众只拉一路流。
+- 混流服务 CPU < 70%，支持 100 路并发。
+
+---
+
+## 3. 功能需求
+
+### 3.1 连麦功能
+- **发起**：主播发起 → 连麦方收到邀请 → 接受/拒绝。
+- **进行**：服务端混流，观众看到合成画面（画中画或左右分屏）。
+- **挂断**：任意方挂断，恢复单主播画面。
+
+#### 3.1.1 连麦场景区分（重要！）
+系统根据**被连麦方的当前状态**自动选择最优技术路径：
+
+| 被连麦方状态 | 采用的媒体源 | 优点 | 延迟 | 画质 |
+| :--- | :--- | :--- | :--- | :--- |
+| **对方正在使用 OBS 推流**（双主播） | 直接复用其 RTMP 流 | 无需额外采集，画质无损，节省资源 | ~2~3s | 与独播一致（高清） |
+| **对方未开播 / 是普通观众** | 通过浏览器 WebRTC 临时采集 | 低延迟，抗弱网，适合实时对话 | < 800ms | 自适应（最高1080p） |
+
+> **决策逻辑**：后端在收到连麦请求时，先查询对方是否正在推流（通过 SRS 流状态）。若在推流，则使用 RTMP 地址；否则通知对方启动 WebRTC 推流。
+
+### 3.2 PK 功能
+- **发起**：主播 A 发起 → 主播 B 接受 → 开始 PK。
+- **进行**：左右分屏，实时比分 + 倒计时（默认 60 秒）。
+- **结束**：显示胜者。
+
+> **注意**：PK 双方均为主播，通常双方都在 OBS 推流，故直接采用 RTMP 复用方案，无需 WebRTC 介入。
+
+---
+
+## 4. 技术架构
+
+### 4.1 整体架构（含场景分支）
+\`\`\`
+                      ┌─────────────────┐
+                      │  主播 A (OBS)    │
+                      │  RTMP 推流       │
+                      └────────┬────────┘
+                               │
+                               ▼
+┌────────────────────────────────────────────────────┐
+│              流媒体服务器 (SRS)                    │
+│  ┌─────────────┐   ┌─────────────┐               │
+│  │ RTMP 接收器  │   │ WebRTC 接收器│              │
+│  └─────────────┘   └─────────────┘               │
+└────────┬──────────────────┬───────────────────────┘
+         │                  │
+         │ 方案A：双主播     │ 方案B：主播-观众
+         │ 复用RTMP流        │ 使用WebRTC流
+         ▼                  ▼
+┌────────────────────────────────────────────────────┐
+│                  混流服务 (FFmpeg)                 │
+│  将多路流合成一路（画中画 / 左右分屏）             │
+└────────────────────┬───────────────────────────────┘
+                     │ 合成流 (RTMP)
+                     ▼
+              ┌─────────────┐
+              │  CDN / 播放器│
+              │  观众观看    │
+              └─────────────┘
+
+┌────────────────────────────────────────────────────┐
+│               信令服务 (Socket.IO)                  │
+│  连麦/PK 发起、接受、挂断、比分同步                 │
+└────────────────────────────────────────────────────┘
+\`\`\`
+
+### 4.2 技术选型
+| 组件 | 技术 | 版本 |
+|------|------|------|
+| 流媒体 | SRS | ≥4.0 |
+| 混流 | FFmpeg | ≥5.0 |
+| 信令 | Socket.IO | ≥4.0 |
+| 前端 | Vue 3 + TS | ≥3.3 |
+| 后端 | Node.js + Express | ≥18 |
+| 数据库 | PostgreSQL | ≥14 |
+
+---
+
+## 5. 第三方工具对接
+
+### 5.1 SRS 流媒体服务器
+**部署（Docker）**：
+\`\`\`bash
+docker run -d --name srs -p 1935:1935 -p 1985:1985 -p 8080:8080 -p 8000:8000/udp ossrs/srs:4
+\`\`\`
+
+**关键配置**（srs.conf）：
+\`\`\`nginx
+listen 1935;
+vhost __defaultVhost__ {
+    rtmp { enabled on; }
+    rtc { enabled on; rtmp_to_rtc on; rtc_to_rtmp on; }
+    http_api { enabled on; listen 1985; }
+}
+\`\`\`
+
+### 5.2 FFmpeg 混流服务
+**画中画（连麦）**：
+\`\`\`bash
+# 输入为两路 RTMP（双主播场景）或 RTMP + WebRTC（通过 SRS 转 RTMP）
+ffmpeg -i rtmp://srs/live/stream_A -i rtmp://srs/live/stream_B_or_cohost \\
+  -filter_complex "[0:v]scale=1280:720[main];[1:v]scale=180:320[sub];[main][sub]overlay=W-w-20:H-h-20[outv];[0:a][1:a]amix=inputs=2[outa]" \\
+  -map "[outv]" -map "[outa]" -c:v libx264 -preset veryfast -f flv rtmp://srs/live/mix_room
+\`\`\`
+
+**左右分屏（PK）**：
+\`\`\`bash
+ffmpeg -i rtmp://srs/live/stream_A -i rtmp://srs/live/stream_B \\
+  -filter_complex "[0:v]scale=640:720[left];[1:v]scale=640:720[right];[left][right]hstack=inputs=2[outv];[0:a][1:a]amix=inputs=2[outa]" \\
+  -map "[outv]" -map "[outa]" -c:v libx264 -f flv rtmp://srs/live/mix_room
+\`\`\`
+
+**封装为微服务 API**：
+- \`POST /api/mix/start\` 启动混流（参数包含输入流列表、布局、输出地址）
+- \`POST /api/mix/stop\` 停止混流
+
+### 5.3 Socket.IO 信令服务
+**事件列表**：
+- \`cohost:invite\` / \`cohost:accept\` / \`cohost:hangup\`
+- \`pk:invite\` / \`pk:accept\` / \`pk:score\` / \`pk:end\`
+
+### 5.4 WebRTC 接入（仅用于主播-观众连麦）
+当被连麦方为观众或未开播主播时，通过浏览器 WebRTC 推流：
+
+\`\`\`javascript
+const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+stream.getTracks().forEach(t => pc.addTrack(t, stream));
+const offer = await pc.createOffer();
+await pc.setLocalDescription(offer);
+const res = await fetch('https://srs/whip/endpoint', { method: 'POST', body: offer.sdp });
+const answer = await res.text();
+await pc.setRemoteDescription({ type: 'answer', sdp: answer });
+\`\`\`
+
+---
+
+## 6. 数据模型（简化）
+
+### 6.1 连麦记录 \`cohost_records\`
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | BIGSERIAL | 主键 |
+| room_id | VARCHAR(64) | 直播间ID |
+| host_user_id | BIGINT | 主播 |
+| guest_user_id | BIGINT | 连麦方 |
+| status | SMALLINT | 0-发起 1-接受 2-进行中 3-已结束 |
+| start_at | TIMESTAMP | 开始时间 |
+| duration | INTEGER | 持续秒数 |
+
+### 6.2 PK 记录 \`pk_records\`
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | BIGSERIAL | 主键 |
+| room_id | VARCHAR(64) | 直播间ID |
+| host_a_user_id | BIGINT | 主播A |
+| host_b_user_id | BIGINT | 主播B |
+| score_a | INTEGER | 得分A |
+| score_b | INTEGER | 得分B |
+| winner_user_id | BIGINT | 胜者 |
+| duration | INTEGER | 总时长 |
+
+---
+
+## 7. 双主播连麦场景优化详解
+
+### 7.1 为什么双主播直接复用 RTMP 更好？
+- **画质无损**：OBS 推的码率较高（通常 4~6 Mbps），直接使用无需二次编码。
+- **节省资源**：不需要额外的 WebRTC 采集和转码。
+- **简化流程**：无需信令交换 SDP 和 ICE，降低复杂度。
+
+### 7.2 何时使用 WebRTC？
+- 连麦方为普通观众（无 OBS）。
+- 连麦方为另一主播，但该主播当前**未开播**（例如刚上线，还未启动 OBS）。
+- 此时，通过信令通知对方打开浏览器摄像头，使用 WebRTC 临时推流。
+
+### 7.3 研发实现决策代码
+\`\`\`javascript
+// 后端连麦邀请处理
+async function handleInvite(fromUserId, toUserId, roomId) {
+    // 查询对方是否正在推流（通过 SRS 的 on_publish 状态）
+    const isStreaming = await checkStreamStatus(toUserId);
+    let streamUrl;
+    if (isStreaming) {
+        // 方案A：复用 RTMP
+        streamUrl = \`rtmp://srs/live/stream_\${toUserId}\`;
+    } else {
+        // 方案B：触发 WebRTC 推流
+        await notifyUserToStartWebRTC(toUserId, roomId);
+        streamUrl = \`webrtc://srs/cohost_\${roomId}_\${toUserId}\`; // 等待对方推送
+    }
+    // 启动混流
+    await mixService.start(roomId, [\`rtmp://srs/live/stream_\${fromUserId}\`, streamUrl]);
+}
+\`\`\`
+
+### 7.4 常见问题
+**Q：双主播连麦时，如果一方网络不好，会不会影响另一方？**  
+A：不会。混流服务分别拉取两路流，互不影响。如果某路流中断，混流服务会持续重试，直到恢复或超时。
+
+**Q：主播-观众连麦时，观众端画质能保证吗？**  
+A：WebRTC 具备自适应码率，会根据网络状况动态调整清晰度，优先保证流畅。在良好网络下可达 720p~1080p。
+
+---
+
+## 8. 开发计划
+
+| 阶段 | 任务 | 工时 |
+|------|------|------|
+| 第1天 | 环境搭建（SRS + FFmpeg + Socket.IO） | 1d |
+| 第2-3天 | 连麦功能（信令 + 混流，含场景判断） | 2d |
+| 第4-5天 | PK 功能（信令 + 混流 + 比分） | 2d |
+| 第3-5天 | 前端开发（主播后台 + 观众端 + WebRTC接入） | 2.5d |
+| 第6-7天 | 联调测试（覆盖双主播与主播-观众场景） | 2d |
+| 第8天 | 压测 + 文档完善 | 1d |
+
+---
+
+## 9. 风险应对
+
+| 风险 | 应对 |
+|------|------|
+| FFmpeg CPU 过高 | 使用 GPU 加速或限制并发数 |
+| WebRTC NAT 穿透失败 | 部署 TURN 服务器，并提供备用 STUN |
+| 双主播流不同步 | FFmpeg 使用 \`setpts=PTS-STARTPTS\` 对齐时间戳 |
+| 延迟超标 | 调整 SRS \`gop_cache=false\`，启用低延迟模式 |
+
+---
+
+> **文档结束** · 如有疑问请联系产品经理或架构组
+`;
+
+        // ================================================================
+        //  2. 渲染逻辑
+        // ================================================================
+        let mermaidInitialized = false;
+
+        function renderDocument() {
+            const container = document.getElementById('content');
+            try {
+                // 配置 marked
+                marked.setOptions({
+                    highlight: function(code, lang) {
+                        if (lang && hljs && hljs.getLanguage(lang)) {
+                            try {
+                                return hljs.highlight(code, { language: lang }).value;
+                            } catch (_) { return code; }
+                        }
+                        return code;
+                    },
+                    breaks: true,
+                    gfm: true
+                });
+
+                const html = marked.parse(PRD_MARKDOWN);
+                container.innerHTML = html;
+
+                // 高亮代码块
+                if (typeof hljs !== 'undefined') {
+                    container.querySelectorAll('pre code').forEach(block => {
+                        hljs.highlightElement(block);
+                    });
+                }
+
+                // 渲染 Mermaid 图表（如果有）
+                if (typeof mermaid !== 'undefined') {
+                    const mermaidBlocks = container.querySelectorAll('pre code.language-mermaid');
+                    mermaidBlocks.forEach((codeBlock) => {
+                        const content = codeBlock.textContent;
+                        const pre = codeBlock.parentElement;
+                        const div = document.createElement('div');
+                        div.className = 'mermaid';
+                        div.textContent = content;
+                        pre.parentElement.replaceChild(div, pre);
+                    });
+                    if (!mermaidInitialized) {
+                        mermaid.initialize({ theme: 'default', startOnLoad: false });
+                        mermaidInitialized = true;
+                    }
+                    mermaid.run({ nodes: container.querySelectorAll('.mermaid') }).catch(err => {
+                        console.warn('Mermaid 渲染警告:', err);
+                    });
+                }
+            } catch (e) {
+                container.innerHTML = `<div class="error">❌ 渲染失败：${e.message}</div>`;
+                console.error(e);
+            }
+        }
+
+        // ================================================================
+        //  3. 导出功能
+        // ================================================================
+
+        // 导出 PDF（调用浏览器打印）
+        function exportPDF() {
+            window.print();
+        }
+
+        // 导出 Markdown（下载 .md 文件）
+        function exportMarkdown() {
+            const blob = new Blob([PRD_MARKDOWN], { type: 'text/markdown;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = '直播连麦与PK_PRD_v2.0.md';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // ================================================================
+        //  4. 页面加载
+        // ================================================================
+        window.onload = function() {
+            renderDocument();
+        };
+
+        // 暴露导出函数到全局
+        window.exportPDF = exportPDF;
+        window.exportMarkdown = exportMarkdown;
+
+        // CDN 加载失败时的备用提示
+        setTimeout(() => {
+            if (typeof marked === 'undefined') {
+                document.getElementById('content').innerHTML = `
+                    <div class="error">
+                        ⚠️ Markdown 库加载失败，请检查网络或刷新页面。<br>
+                        您可以 <a href="javascript:location.reload()">刷新</a> 重试。
+                    </div>
+                `;
+            }
+        }, 8000);
+    </script>
+</body>
+</html>

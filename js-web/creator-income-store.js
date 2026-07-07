@@ -63,14 +63,15 @@
     }
 
     function formatChipText(amount) {
+        var suffix = ' USDT';
         if (amount >= 10000) {
-            return '+' + (amount / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+            return '+' + (amount / 1000).toFixed(1).replace(/\.0$/, '') + 'k' + suffix;
         }
         if (amount >= 1000) {
-            return '+' + Math.round(amount);
+            return '+' + Math.round(amount).toLocaleString('en-US') + suffix;
         }
         var compact = Number(amount).toLocaleString('en-US', { maximumFractionDigits: 1 });
-        return '+' + compact;
+        return '+' + compact + suffix;
     }
 
     function chipTipLabel(amount) {

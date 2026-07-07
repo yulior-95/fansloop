@@ -8,6 +8,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin-shell.css">
   <link rel="stylesheet" href="css/admin-modals.css">
+  <style>
+    [data-admin-page="risk-switches"] .rsw-switch { vertical-align: middle; }
+    [data-admin-page="risk-switches"] td .rsw-switch { margin: 0; }
+  </style>
 </head>
 <body data-admin-page="risk-switches">
 <div class="admin-app">
@@ -22,20 +26,21 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">全局系统开关</h1>
-      <p class="admin-page-desc"><strong>保存变更</strong>使用弹窗二次确认。</p>
+      <div class="admin-toolbar">
+        <span class="ant-input-affix-wrapper" style="width:200px"><input class="ant-input" id="rswFilterName" placeholder="功能名称"></span>
+        <span class="ant-input-affix-wrapper" style="width:240px"><input class="ant-input" id="rswFilterKey" placeholder="参数名称"></span>
+        <button type="button" class="ant-btn ant-btn-primary" id="rswSearch"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
+        <button type="button" class="ant-btn" id="rswReset"><i class="fa-solid fa-rotate-left"></i> 重置</button>
+      </div>
       <div class="ant-card ant-card-bordered">
-        <div class="ant-card-body">
+        <div class="ant-card-body" style="padding-top:0">
           <div class="ant-table ant-table-bordered ant-table-middle">
             <table style="width:100%">
-              <thead class="ant-table-thead"><tr><th>开关键</th><th>说明</th><th>状态</th><th>最后修改</th></tr></thead>
-              <tbody class="ant-table-tbody">
-                <tr><td><code>feature.live.paid</code></td><td>付费直播总开关</td><td><label><input type="checkbox" checked> 开启</label></td><td>2026-05-01 运营主管</td></tr>
-                <tr><td><code>feature.points.mall</code></td><td>积分商城</td><td><label><input type="checkbox" checked> 开启</label></td><td>2026-04-20 系统</td></tr>
-                <tr><td><code>maintain.readonly</code></td><td>只读维护模式</td><td><label><input type="checkbox"> 关闭</label></td><td>—</td></tr>
-              </tbody>
+              <thead class="ant-table-thead"><tr><th>序号</th><th>功能名称</th><th>参数名称</th><th>描述</th><th>状态</th></tr></thead>
+              <tbody class="ant-table-tbody" id="rswTbody" data-pager="js"></tbody>
             </table>
           </div>
-          <div style="margin-top:16px"><button type="button" class="ant-btn ant-btn-primary" id="btnSwSave">保存变更</button></div>
+          <div id="rswPager"></div>
         </div>
       </div>
     </main>
@@ -43,19 +48,6 @@
 </div>
 <script src="js/admin-nav.js"></script>
 <script src="js/admin-modal.js"></script>
-<script>
-(function () {
-  var M = window.AdminModal;
-  document.getElementById("btnSwSave").addEventListener("click", function () {
-    M.confirmGoogle({
-      title: "保存全局开关",
-      message: "变更将即时影响线上能力，需谷歌验证。",
-      onVerified: function () {
-        M.toast("开关已保存（原型）");
-      }
-    });
-  });
-})();
-</script>
+<script src="js/risk-switches-page.js"></script>
 </body>
 </html>
