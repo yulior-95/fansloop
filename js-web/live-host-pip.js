@@ -9,15 +9,18 @@
 
     var stage = document.getElementById("hostStage");
     var btnPip = document.getElementById("btnHostPip");
-    var btnBack = document.getElementById("btnBackStudio");
 
     function syncPipBtn() {
         if (!btnPip) return;
         if (pip.isActive()) {
-            btnPip.innerHTML = '<i class="fa-solid fa-expand"></i> 还原画面';
+            btnPip.innerHTML = '<i class="fa-solid fa-expand"></i>';
+            btnPip.title = "还原画面";
+            btnPip.setAttribute("aria-label", "还原画面");
             btnPip.classList.add("is-on");
         } else {
-            btnPip.innerHTML = '<i class="fa-solid fa-clone"></i> 小窗悬浮';
+            btnPip.innerHTML = '<i class="fa-solid fa-clone"></i>';
+            btnPip.title = "小窗悬浮，可切换其他页面";
+            btnPip.setAttribute("aria-label", "小窗悬浮");
             btnPip.classList.remove("is-on");
         }
     }
@@ -72,13 +75,7 @@
                 syncStageHidden();
                 return;
             }
-            activateAndLeave("home.html");
-        });
-    }
-
-    if (btnBack) {
-        btnBack.addEventListener("click", function () {
-            activateAndLeave("create.html");
+            activateAndLeave();
         });
     }
 

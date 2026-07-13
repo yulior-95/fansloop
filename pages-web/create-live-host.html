@@ -60,21 +60,19 @@
             <div class="gs-drop"></div>
         </div>
         <div class="h-actions">
-            <button type="button" class="btn btn-secondary btn-sm" id="btnBackStudio"><i class="fa-solid fa-arrow-left"></i> 返回工作室</button>
-            <button type="button" class="btn btn-secondary btn-sm" id="btnHostPip" title="小窗悬浮，可切换其他页面"><i class="fa-solid fa-clone"></i> 小窗悬浮</button>
             <div class="h-avatar" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
         </div>
     </header>
 
     <main class="app-main">
-        <div class="page-head">
+        <div class="page-head page-head--compact">
             <div class="ph-l">
                 <h1>主播直播控制台</h1>
             </div>
         </div>
 
         <div class="live-host-grid">
-            <div>
+            <div class="host-main-col">
                 <div class="host-stage" id="hostStage">
                     <div class="host-pause-overlay" id="hostPauseOverlay">
                         <div class="ico"><i class="fa-solid fa-mug-hot"></i></div>
@@ -94,46 +92,105 @@
                             <div class="host-sub">TRC20 打赏已开启 · OBS 推流中</div>
                         </div>
                         <div class="host-controls">
+                            <button type="button" class="host-ctl" id="btnHostPip" title="小窗悬浮，可切换其他页面" aria-label="小窗悬浮"><i class="fa-solid fa-clone"></i></button>
                             <button type="button" class="host-ctl" id="btnHostPause" title="暂时离开"><i class="fa-solid fa-pause"></i></button>
                             <button type="button" class="host-ctl danger" id="btnHostEndLive" title="结束直播"><i class="fa-solid fa-power-off"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="host-metrics-row">
+                    <div class="card host-cohost-card" id="hostCohostCard">
+                        <div class="card-hd">
+                            <span class="hd-l"><i class="fa-solid fa-link" style="color:#C084FC"></i> 连麦 &amp; PK</span>
+                            <span class="hd-r-wrap">
+                                <span class="dev-glass-wrap dev-glass-wrap--align-end dev-glass-wrap--pop-below dev-glass-wrap--layer-top">
+                                    <span class="dev-glass-sphere" tabindex="0" aria-describedby="devObsCohostTip">
+                                        <span class="dev-glass-sphere-shine"></span>
+                                        <span class="dev-glass-sphere-txt">To 研发</span>
+                                    </span>
+                                    <span class="dev-glass-pop dev-glass-pop--wide" id="devObsCohostTip" role="tooltip">
+                                        <p style="margin:0 0 8px"><strong style="color:#f3e8ff">连麦 &amp; PK 规则（To 研发）</strong></p>
+                                        <ul style="margin:0;padding-left:1.15em;font-size:11px;line-height:1.55">
+                                            <li><strong>互斥</strong>：主播连麦（随机/指定）与观众上麦<strong>不可同时开启</strong>；一方进行中时另一方入口置灰</li>
+                                            <li><strong>主播连麦</strong>：OBS 推流地址不变，合流/PK 分屏由服务端完成；同屏最多 3 路主播</li>
+                                            <li><strong>观众上麦</strong>：默认 2 席，WebRTC 语音；仅单人直播时可开，连麦成功后需先退出连麦</li>
+                                            <li><strong>PK</strong>：须先完成主播连麦；礼物总金额/点赞总个数 + 后台配置时长；需所有在麦主播同意后开始</li>
+                                            <li><strong>退出</strong>：退出连麦后可再次匹配/邀请；关闭观众上麦后可重新发起主播连麦</li>
+                                        </ul>
+                                    </span>
+                                </span>
+                            </span>
+                        </div>
+                        <div class="card-bd host-cohost-bd">
+                            <div class="host-cohost-toolbar">
+                                <button type="button" class="btn btn-primary btn-sm" id="btnObsRandomMatch"><i class="fa-solid fa-shuffle"></i> 随机匹配</button>
+                                <button type="button" class="btn btn-secondary btn-sm" id="btnObsDirected"><i class="fa-solid fa-user-plus"></i> 指定连麦</button>
+                            </div>
+                            <div class="host-cohost-toolbar">
+                                <button type="button" class="btn btn-secondary btn-sm" id="btnObsAudienceMic"><i class="fa-solid fa-microphone-lines"></i> 观众上麦</button>
+                                <button type="button" class="btn btn-secondary btn-sm" id="btnObsPk" disabled title="需先完成主播连麦"><i class="fa-solid fa-hand-fist"></i> 发起 PK</button>
+                            </div>
+                            <div class="host-cohost-dynamic" id="hostCohostDynamic"></div>
+                        </div>
+                    </div>
+                    <div class="card host-gift-card">
+                        <div class="card-hd">
+                            <span class="hd-l"><i class="fa-solid fa-gift" style="color:#FBBF24"></i> 礼物动态</span>
+                            <span class="hd-r">新礼物自下而上</span>
+                        </div>
+                        <div class="feed-viewport host-gift-feed">
+                            <div class="feed-scroll" id="giftFeedScroll">
+                                <div class="feed-inner" id="giftFeedInner">
+                                    <div class="gift-toast"><i class="fa-solid fa-gift"></i> Alex 送出 <b>星光 ×5</b> · 12 USDT</div>
+                                    <div class="gift-toast"><i class="fa-solid fa-gift"></i> Mika 送出 <b>火箭</b> · 28 USDT</div>
+                                </div>
+                            </div>
+                            <button type="button" class="feed-new-hint" id="giftFeedHint"><i class="fa-solid fa-arrow-down"></i> 新礼物</button>
+                        </div>
+                        <div class="host-mod-bar">
+                            <button type="button" class="btn btn-secondary btn-sm" id="btnSimGift"><i class="fa-solid fa-plus"></i> 模拟礼物</button>
                         </div>
                     </div>
                 </div>
             </div>
 
             <aside class="host-side">
-                <div class="card host-cohost-card" id="hostCohostCard">
-                    <div class="card-hd">
-                        <span class="hd-l"><i class="fa-solid fa-link" style="color:#C084FC"></i> 连麦 &amp; PK</span>
-                        <span class="hd-r-wrap">
-                            <span class="dev-glass-wrap dev-glass-wrap--align-end dev-glass-wrap--pop-below dev-glass-wrap--layer-top">
-                                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devObsCohostTip">
+                <div class="card card-stat card-stat--compact host-side-stat">
+                    <div class="card-hd"><span class="hd-l"><i class="fa-solid fa-chart-simple" style="color:#6EE7B7"></i> 实时数据</span></div>
+                    <div class="card-bd card-bd-align">
+                        <div class="stat-row"><span>峰值在线</span><b>1,420</b></div>
+                        <div class="stat-row"><span>礼物收益</span><b id="giftTotalUsdt" style="color:#FBBF24">40.0 USDT</b></div>
+                        <div class="stat-row"><span>新增关注</span><b style="color:var(--success-light)">+52</b></div>
+                    </div>
+                </div>
+
+                <div class="card host-interact-card host-chat-fill">
+                    <div class="card-hd host-interact-hd">
+                        <div class="host-interact-tabs" role="tablist" aria-label="互动管理">
+                            <button type="button" role="tab" class="host-interact-tab is-active" data-interact-tab="chat" aria-selected="true" id="hostTabChat">
+                                <i class="fa-regular fa-comments"></i> 弹幕管理
+                            </button>
+                            <button type="button" role="tab" class="host-interact-tab" data-interact-tab="admin" aria-selected="false" id="hostTabAdmin">
+                                <i class="fa-solid fa-user-shield"></i> 房管设置
+                            </button>
+                        </div>
+                        <span class="hd-r-wrap host-interact-hd-meta">
+                            <span class="host-interact-hint is-show" data-interact-hint="chat">悬停 · 回复 / 删除 / 踢出</span>
+                            <span class="host-interact-hint" data-interact-hint="admin">从弹幕任命房管</span>
+                            <span class="dev-glass-wrap dev-glass-wrap--align-end dev-glass-wrap--pop-below host-interact-dev" data-interact-dev="chat">
+                                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devHostChatTip">
                                     <span class="dev-glass-sphere-shine"></span>
                                     <span class="dev-glass-sphere-txt">To 研发</span>
                                 </span>
-                                <span class="dev-glass-pop dev-glass-pop--wide" id="devObsCohostTip" role="tooltip">
-                                    OBS 推流不变；连麦合流/PK 分屏由服务端完成。主播-主播最多 3 人；观众上麦默认 2 席（WebRTC 语音）。PK 仅主播连麦时可用，需全员同意。
+                                <span class="dev-glass-pop" id="devHostChatTip" role="tooltip">
+                                    1. 触发后台管理敏感词库的敏感词发言，整条脱敏展示<br>
+                                    2. 动态效果从下往上，新的消息在下方<br>
+                                    3. 悬停弹幕可「引用回复」，房管发言将带上原消息引用<br>
+                                    4. 支持对单条发言进行删除，或者对异常发言用户踢出直播间
                                 </span>
                             </span>
-                        </span>
-                    </div>
-                    <div class="card-bd host-cohost-bd">
-                        <div class="host-cohost-toolbar">
-                            <button type="button" class="btn btn-primary btn-sm" id="btnObsRandomMatch"><i class="fa-solid fa-shuffle"></i> 随机匹配</button>
-                            <button type="button" class="btn btn-secondary btn-sm" id="btnObsDirected"><i class="fa-solid fa-user-plus"></i> 指定连麦</button>
-                        </div>
-                        <div class="host-cohost-toolbar">
-                            <button type="button" class="btn btn-secondary btn-sm" id="btnObsAudienceMic"><i class="fa-solid fa-microphone-lines"></i> 观众上麦</button>
-                            <button type="button" class="btn btn-secondary btn-sm" id="btnObsPk" disabled title="需先完成主播连麦"><i class="fa-solid fa-hand-fist"></i> 发起 PK</button>
-                        </div>
-                        <div class="host-cohost-dynamic" id="hostCohostDynamic"></div>
-                    </div>
-                </div>
-                <div class="card host-admin-card">
-                    <div class="card-hd">
-                        <span class="hd-l"><i class="fa-solid fa-user-shield" style="color:#6EE7B7"></i> 房管设置</span>
-                        <span class="hd-r-wrap">
-                            <span class="dev-glass-wrap dev-glass-wrap--align-end dev-glass-wrap--pop-below">
+                            <span class="dev-glass-wrap dev-glass-wrap--align-end dev-glass-wrap--pop-below host-interact-dev" data-interact-dev="admin" hidden>
                                 <span class="dev-glass-sphere" tabindex="0" aria-describedby="devHostAdminTip">
                                     <span class="dev-glass-sphere-shine"></span>
                                     <span class="dev-glass-sphere-txt">To 研发</span>
@@ -146,57 +203,8 @@
                             </span>
                         </span>
                     </div>
-                    <div class="card-bd host-admin-bd">
-                        <p class="host-admin-tip">点击弹幕区用户头像或「管理」，将粉丝设为房管。</p>
-                        <ul class="host-admin-list" id="hostAdminList">
-                            <li class="host-admin-empty" id="hostAdminEmpty">暂无房管 · 从弹幕中任命</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="card card-stat">
-                    <div class="card-hd"><span class="hd-l"><i class="fa-solid fa-chart-simple" style="color:#6EE7B7"></i> 实时数据</span></div>
-                    <div class="card-bd card-bd-align">
-                        <div class="stat-row"><span>峰值在线</span><b>1,420</b></div>
-                        <div class="stat-row"><span>礼物收益</span><b id="giftTotalUsdt" style="color:#FBBF24">40.0 USDT</b></div>
-                        <div class="stat-row"><span>新增关注</span><b style="color:var(--success-light)">+52</b></div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-hd">
-                        <span class="hd-l"><i class="fa-solid fa-gift" style="color:#FBBF24"></i> 礼物动态</span>
-                        <span class="hd-r">新礼物自下而上</span>
-                    </div>
-                    <div class="feed-viewport">
-                        <div class="feed-scroll" id="giftFeedScroll">
-                            <div class="feed-inner" id="giftFeedInner">
-                                <div class="gift-toast"><i class="fa-solid fa-gift"></i> Alex 送出 <b>星光 ×5</b> · 12 USDT</div>
-                                <div class="gift-toast"><i class="fa-solid fa-gift"></i> Mika 送出 <b>火箭</b> · 28 USDT</div>
-                            </div>
-                        </div>
-                        <button type="button" class="feed-new-hint" id="giftFeedHint"><i class="fa-solid fa-arrow-down"></i> 新礼物</button>
-                    </div>
-                    <div class="host-mod-bar">
-                        <button type="button" class="btn btn-secondary btn-sm" id="btnSimGift"><i class="fa-solid fa-plus"></i> 模拟礼物</button>
-                    </div>
-                </div>
-                <div class="card host-chat-card host-chat-fill">
-                    <div class="card-hd">
-                        <span class="hd-l"><i class="fa-regular fa-comments" style="color:#C084FC"></i> 弹幕管理</span>
-                        <span class="hd-r-wrap">
-                            <span class="hd-r">悬停 · 删除 / 踢出</span>
-                            <span class="dev-glass-wrap dev-glass-wrap--align-end dev-glass-wrap--pop-below">
-                                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devHostChatTip">
-                                    <span class="dev-glass-sphere-shine"></span>
-                                    <span class="dev-glass-sphere-txt">To 研发</span>
-                                </span>
-                                <span class="dev-glass-pop" id="devHostChatTip" role="tooltip">
-                                    1. 触发后台管理敏感词库的敏感词发言，整条脱敏展示<br>
-                                    2. 动态效果从下往上，新的消息在下方<br>
-                                    3. 支持对单条发言进行删除，或者对异常发言用户踢出直播间
-                                </span>
-                            </span>
-                        </span>
-                    </div>
+
+                    <div class="host-interact-panel is-active" data-interact-panel="chat" role="tabpanel" aria-labelledby="hostTabChat">
                     <div class="host-chat-body">
                     <div class="feed-viewport tall host-chat-feed">
                         <div class="feed-scroll" id="chatFeedScroll">
@@ -207,6 +215,7 @@
                                         <span class="u">Nova</span><span class="m">今晚音色太绝了！</span>
                                     </div>
                                     <div class="chat-ops">
+                                        <button type="button" class="chat-op" title="引用回复" data-act="reply"><i class="fa-solid fa-reply"></i></button>
                                         <button type="button" class="chat-op" title="管理" data-act="manage"><i class="fa-solid fa-user-gear"></i></button>
                                         <button type="button" class="chat-op" title="删除发言" data-act="del"><i class="fa-regular fa-trash-can"></i></button>
                                         <button type="button" class="chat-op danger" title="移出直播间" data-act="kick"><i class="fa-solid fa-user-slash"></i></button>
@@ -218,6 +227,7 @@
                                         <span class="u">Ken</span><span class="m">已订阅，求 Encore</span>
                                     </div>
                                     <div class="chat-ops">
+                                        <button type="button" class="chat-op" title="引用回复" data-act="reply"><i class="fa-solid fa-reply"></i></button>
                                         <button type="button" class="chat-op" data-act="manage"><i class="fa-solid fa-user-gear"></i></button>
                                         <button type="button" class="chat-op" data-act="del"><i class="fa-regular fa-trash-can"></i></button>
                                         <button type="button" class="chat-op danger" data-act="kick"><i class="fa-solid fa-user-slash"></i></button>
@@ -229,6 +239,7 @@
                                         <span class="u">Yuki</span><span class="m">可以点《Autumn Leaves》吗</span>
                                     </div>
                                     <div class="chat-ops">
+                                        <button type="button" class="chat-op" title="引用回复" data-act="reply"><i class="fa-solid fa-reply"></i></button>
                                         <button type="button" class="chat-op" data-act="manage"><i class="fa-solid fa-user-gear"></i></button>
                                         <button type="button" class="chat-op" data-act="del"><i class="fa-regular fa-trash-can"></i></button>
                                         <button type="button" class="chat-op danger" data-act="kick"><i class="fa-solid fa-user-slash"></i></button>
@@ -243,6 +254,7 @@
                                         <span class="u">spam_bot</span><span class="m m-masked" title="原文已脱敏">████████████████（敏感词已脱敏）</span>
                                     </div>
                                     <div class="chat-ops">
+                                        <button type="button" class="chat-op" title="引用回复" data-act="reply"><i class="fa-solid fa-reply"></i></button>
                                         <button type="button" class="chat-op" data-act="manage"><i class="fa-solid fa-user-gear"></i></button>
                                         <button type="button" class="chat-op" data-act="del"><i class="fa-regular fa-trash-can"></i></button>
                                         <button type="button" class="chat-op danger" data-act="kick"><i class="fa-solid fa-user-slash"></i></button>
@@ -256,12 +268,41 @@
                         <button type="button" class="btn btn-secondary btn-sm" id="btnSimChat"><i class="fa-solid fa-plus"></i> 模拟弹幕</button>
                         <button type="button" class="btn btn-secondary btn-sm" id="btnClearRisk"><i class="fa-solid fa-shield-halved"></i> 清除异常</button>
                     </div>
-                    <div class="host-compose">
-                        <div class="host-emoji-pop" id="hostEmojiPop"></div>
-                        <button type="button" id="btnHostEmoji" title="表情"><i class="fa-regular fa-face-smile"></i></button>
-                        <input type="text" id="hostChatInput" placeholder="以主播身份发言…" maxlength="120">
-                        <button type="button" class="host-send" id="btnHostSend" title="发送"><i class="fa-solid fa-paper-plane"></i></button>
+                    <div class="host-admin-compose" id="hostAdminCompose">
+                        <div class="host-admin-compose-head">
+                            <p class="host-admin-compose-empty" id="hostAdminComposeEmpty">暂无房管 · 请从弹幕中任命房管后使用文字发言</p>
+                            <span class="dev-glass-wrap dev-glass-wrap--align-end dev-glass-wrap--pop-left host-admin-compose-dev">
+                                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devHostAdminComposeTip">
+                                    <span class="dev-glass-sphere-shine"></span>
+                                    <span class="dev-glass-sphere-txt">To 研发</span>
+                                </span>
+                                <span class="dev-glass-pop" id="devHostAdminComposeTip" role="tooltip">这里只有房管有发言功能</span>
+                            </span>
+                        </div>
+                        <div class="host-admin-compose-row" id="hostAdminComposeRow" hidden>
+                            <div class="host-chat-quote-bar" id="hostChatQuoteBar" hidden>
+                                <i class="fa-solid fa-reply" aria-hidden="true"></i>
+                                <span class="txt" id="hostChatQuoteText"></span>
+                                <button type="button" id="hostChatQuoteClose" aria-label="取消引用"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                            <div class="host-admin-compose-input">
+                                <div class="host-emoji-pop" id="hostAdminEmojiPop"></div>
+                                <button type="button" id="btnAdminEmoji" title="表情"><i class="fa-regular fa-face-smile"></i></button>
+                                <input type="text" id="hostAdminChatInput" placeholder="以房管身份发言…" maxlength="120">
+                                <button type="button" class="host-send" id="btnAdminChatSend" title="发送"><i class="fa-solid fa-paper-plane"></i></button>
+                            </div>
+                        </div>
                     </div>
+                    </div>
+                    </div>
+
+                    <div class="host-interact-panel" data-interact-panel="admin" role="tabpanel" aria-labelledby="hostTabAdmin" hidden>
+                        <div class="host-admin-bd host-interact-admin-bd">
+                            <p class="host-admin-tip">点击弹幕区用户头像或「管理」，将粉丝设为房管。房管可文字发言、禁言/踢人、发布飘屏公告。</p>
+                            <ul class="host-admin-list host-admin-list--panel" id="hostAdminList">
+                                <li class="host-admin-empty" id="hostAdminEmpty">暂无房管 · 从弹幕中任命</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </aside>

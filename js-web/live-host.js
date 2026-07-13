@@ -15,6 +15,7 @@
     var giftTotal = 40;
     var idSeq = 5;
     var pendingManage = null;
+    var pendingReply = null;
     var AV_POOL = [
         "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80",
         "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=80",
@@ -112,6 +113,7 @@
         list.querySelectorAll("li:not(.host-admin-empty)").forEach(function (li) { li.remove(); });
         if (!admins.length) {
             if (empty) empty.style.display = "";
+            refreshAdminCompose(admins);
             return;
         }
         if (empty) empty.style.display = "none";
@@ -131,10 +133,116 @@
                 toast("已取消 " + n + " 的房管身份");
             });
         });
+        refreshAdminCompose(admins);
+    }
+
+    function getAdminAvatar(name) {
+        var av = null;
+        chatInner.querySelectorAll(".chat-line").forEach(function (line) {
+            if (line.dataset.user === name && line.dataset.av) av = line.dataset.av;
+        });
+        return av;
+    }
+
+    function getAdminChatSpeaker() {
+        var admins = metaStore ? metaStore.getAdmins() : [];
+        return admins.length ? admins[0] : null;
+    }
+
+    function refreshAdminCompose(admins) {
+        admins = admins || (metaStore ? metaStore.getAdmins() : []);
+        var composeEmpty = document.getElementById("hostAdminComposeEmpty");
+        var composeRow = document.getElementById("hostAdminComposeRow");
+        if (!composeEmpty || !composeRow) return;
+        var hasAdmins = admins.length > 0;
+        composeEmpty.hidden = hasAdmins;
+        composeRow.hidden = !hasAdmins;
     }
 
     function syncAllAdminStates() {
         chatInner.querySelectorAll(".chat-line").forEach(syncLineAdminState);
+    }
+
+    function escHtml(s) {
+        return String(s || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+    }
+
+    function truncateQuote(text, max) {
+        max = max || 40;
+        text = String(text || "").replace(/\s+/g, " ").trim();
+        if (text.length <= max) return text;
+        return text.slice(0, max) + "…";
+    }
+
+    function getLineMessage(line) {
+        if (!line) return "";
+        var m = line.querySelector(".m");
+        if (!m) return "";
+        if (m.classList.contains("m-masked")) {
+            return m.getAttribute("title") || m.textContent || "";
+        }
+        return m.textContent || "";
+    }
+
+    function buildQuoteRefHtml(quote) {
+        if (!quote || !quote.user) return "";
+        return (
+            '<div class="chat-quote-ref">' +
+            '<span class="q-u">' + escHtml(quote.user) + "</span>" +
+            '<span class="q-m">' + escHtml(truncateQuote(quote.text)) + "</span>" +
+            "</div>"
+        );
+    }
+
+    function updateQuoteBar() {
+        var bar = document.getElementById("hostChatQuoteBar");
+        var txt = document.getElementById("hostChatQuoteText");
+        if (!bar || !txt) return;
+        if (!pendingReply) {
+            bar.hidden = true;
+            txt.textContent = "";
+            return;
+        }
+        bar.hidden = false;
+        txt.textContent =
+            "回复 " + pendingReply.user + "：" + truncateQuote(pendingReply.text, 48);
+    }
+
+    function clearReply() {
+        pendingReply = null;
+        chatInner.querySelectorAll(".chat-line.is-reply-target").forEach(function (line) {
+            line.classList.remove("is-reply-target");
+        });
+        updateQuoteBar();
+    }
+
+    function openReply(line) {
+        if (!line || line.classList.contains("is-system")) return;
+        var user = line.dataset.user;
+        if (!user) return;
+        chatInner.querySelectorAll(".chat-line.is-reply-target").forEach(function (el) {
+            el.classList.remove("is-reply-target");
+        });
+        line.classList.add("is-reply-target");
+        pendingReply = {
+            user: user,
+            text: getLineMessage(line),
+            id: line.dataset.id || ""
+        };
+        updateQuoteBar();
+        var input = document.getElementById("hostAdminChatInput");
+        var composeRow = document.getElementById("hostAdminComposeRow");
+        if (input && composeRow && !composeRow.hidden) {
+            input.focus();
+        } else {
+            toast("已引用 " + user + " 的发言 · 请先任命房管后回复");
+            return;
+        }
+        toast("已引用 " + user + " 的发言");
     }
 
     function spawnHostGiftFly(text) {
@@ -167,11 +275,17 @@
         el.dataset.user = user;
         if (opts.av) el.dataset.av = opts.av;
         if (sensitive) el.dataset.sensitive = "1";
+        if (opts.quote) {
+            try {
+                el.dataset.quote = JSON.stringify(opts.quote);
+            } catch (e) {}
+        }
         var av = opts.av || AV_POOL[idSeq % AV_POOL.length];
         var ops = "";
         if (!opts.system) {
             ops =
                 '<div class="chat-ops">' +
+                '<button type="button" class="chat-op" title="引用回复" data-act="reply"><i class="fa-solid fa-reply"></i></button>' +
                 '<button type="button" class="chat-op" title="管理" data-act="manage"><i class="fa-solid fa-user-gear"></i></button>' +
                 '<button type="button" class="chat-op" title="删除发言" data-act="del"><i class="fa-regular fa-trash-can"></i></button>' +
                 '<button type="button" class="chat-op danger" title="移出直播间" data-act="kick"><i class="fa-solid fa-user-slash"></i></button>' +
@@ -179,12 +293,16 @@
         }
         var msgClass = sensitive ? "m m-masked" : "m";
         var msgTitle = sensitive ? ' title="原文已脱敏"' : "";
+        var quoteHtml = buildQuoteRefHtml(opts.quote);
         var main =
             opts.system
                 ? '<div class="chat-main"><span class="u">' + user + '</span><span class="' + msgClass + '">' + displayText + "</span></div>"
                 : '<div class="chat-main" data-act="manage" title="点击管理用户">' +
                   '<span class="chat-av" style="background-image:url(\'' + av + "')\"></span>" +
-                  '<span class="u">' + user + '</span><span class="' + msgClass + '"' + msgTitle + ">" + displayText + "</span></div>";
+                  '<div class="chat-stack">' +
+                  quoteHtml +
+                  '<div class="chat-msg"><span class="u">' + user + '</span><span class="' + msgClass + '"' + msgTitle + ">" + displayText + "</span></div>" +
+                  "</div></div>";
         el.innerHTML = main + ops;
         var atBottom = isNearBottom(chatScroll);
         chatInner.appendChild(el);
@@ -199,6 +317,9 @@
 
     function removeChatLine(line) {
         if (!line) return;
+        if (pendingReply && line.dataset.id && pendingReply.id === line.dataset.id) {
+            clearReply();
+        }
         line.classList.add("feed-item-exit");
         setTimeout(function () {
             if (line.parentNode) line.parentNode.removeChild(line);
@@ -338,6 +459,12 @@
             openManageModal(line);
             return;
         }
+        if (actBtn && actBtn.dataset.act === "reply") {
+            e.preventDefault();
+            e.stopPropagation();
+            openReply(line);
+            return;
+        }
         if (e.target.closest('.chat-main[data-act="manage"]') && !actBtn) {
             openManageModal(line);
             return;
@@ -446,47 +573,95 @@
         }
     }
 
-    /* 主播发言 + 表情 */
+    /* 房管文字发言（主播通过直播语音互动，不发文字弹幕） */
     var emojis = ["😀", "😂", "🔥", "❤️", "👏", "🎉", "🎵", "✨", "💜", "🙏", "😎", "🤩", "💯", "🎁", "🚀"];
-    var hostEmojiPop = document.getElementById("hostEmojiPop");
-    var btnHostEmoji = document.getElementById("btnHostEmoji");
-    var hostChatInput = document.getElementById("hostChatInput");
-    var btnHostSend = document.getElementById("btnHostSend");
-    if (hostEmojiPop) {
-        hostEmojiPop.innerHTML = emojis.map(function (e) {
+    var adminEmojiPop = document.getElementById("hostAdminEmojiPop");
+    var btnAdminEmoji = document.getElementById("btnAdminEmoji");
+    var adminChatInput = document.getElementById("hostAdminChatInput");
+    var btnAdminChatSend = document.getElementById("btnAdminChatSend");
+    if (adminEmojiPop) {
+        adminEmojiPop.innerHTML = emojis.map(function (e) {
             return '<button type="button">' + e + "</button>";
         }).join("");
     }
-    if (btnHostEmoji && hostEmojiPop) {
-        btnHostEmoji.addEventListener("click", function (e) {
+    if (btnAdminEmoji && adminEmojiPop) {
+        btnAdminEmoji.addEventListener("click", function (e) {
             e.stopPropagation();
-            hostEmojiPop.classList.toggle("open");
+            adminEmojiPop.classList.toggle("open");
         });
-        document.addEventListener("click", function () { hostEmojiPop.classList.remove("open"); });
-        hostEmojiPop.addEventListener("click", function (e) { e.stopPropagation(); });
-        hostEmojiPop.querySelectorAll("button").forEach(function (b) {
+        document.addEventListener("click", function () { adminEmojiPop.classList.remove("open"); });
+        adminEmojiPop.addEventListener("click", function (e) { e.stopPropagation(); });
+        adminEmojiPop.querySelectorAll("button").forEach(function (b) {
             b.addEventListener("click", function () {
-                if (hostChatInput) hostChatInput.value += b.textContent;
-                hostEmojiPop.classList.remove("open");
+                if (adminChatInput) adminChatInput.value += b.textContent;
+                adminEmojiPop.classList.remove("open");
             });
         });
     }
-    function hostSay(text) {
-        appendChat("Luna 🌙", text, { system: false });
-        toast("主播发言已展示在弹幕管理");
-    }
-    if (btnHostSend && hostChatInput) {
-        function sendHost() {
-            var t = (hostChatInput.value || "").trim();
-            if (!t) return;
-            hostChatInput.value = "";
-            hostSay(t);
+    function adminSay(name, text, quote) {
+        if (!name || !isAdmin(name)) {
+            toast("请先任命房管后再发送文字发言");
+            return;
         }
-        btnHostSend.addEventListener("click", sendHost);
-        hostChatInput.addEventListener("keydown", function (e) {
-            if (e.key === "Enter") sendHost();
+        appendChat(name, text, { av: getAdminAvatar(name), quote: quote || null });
+        toast(quote ? "房管 " + name + " 已回复 " + quote.user : "房管 " + name + " 发言已发送");
+    }
+    if (btnAdminChatSend && adminChatInput) {
+        function sendAdminChat() {
+            var t = (adminChatInput.value || "").trim();
+            if (!t) return;
+            var name = getAdminChatSpeaker();
+            if (!name) {
+                toast("请先任命房管");
+                return;
+            }
+            adminChatInput.value = "";
+            var quote = pendingReply
+                ? { user: pendingReply.user, text: pendingReply.text }
+                : null;
+            adminSay(name, t, quote);
+            clearReply();
+        }
+        btnAdminChatSend.addEventListener("click", sendAdminChat);
+        adminChatInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") sendAdminChat();
+            if (e.key === "Escape") clearReply();
         });
     }
+    var quoteClose = document.getElementById("hostChatQuoteClose");
+    if (quoteClose) quoteClose.addEventListener("click", clearReply);
+    updateQuoteBar();
+    refreshAdminCompose();
+
+    /* 弹幕 / 房管 Tab 切换 */
+    (function initInteractTabs() {
+        var tabs = document.querySelectorAll(".host-interact-tab");
+        if (!tabs.length) return;
+        function switchTab(key) {
+            tabs.forEach(function (tab) {
+                var active = tab.getAttribute("data-interact-tab") === key;
+                tab.classList.toggle("is-active", active);
+                tab.setAttribute("aria-selected", active ? "true" : "false");
+            });
+            document.querySelectorAll(".host-interact-panel").forEach(function (panel) {
+                var active = panel.getAttribute("data-interact-panel") === key;
+                panel.classList.toggle("is-active", active);
+                panel.hidden = !active;
+            });
+            document.querySelectorAll(".host-interact-hint").forEach(function (hint) {
+                hint.classList.toggle("is-show", hint.getAttribute("data-interact-hint") === key);
+            });
+            document.querySelectorAll(".host-interact-dev").forEach(function (dev) {
+                dev.hidden = dev.getAttribute("data-interact-dev") !== key;
+            });
+        }
+        tabs.forEach(function (tab) {
+            tab.addEventListener("click", function () {
+                switchTab(tab.getAttribute("data-interact-tab") || "chat");
+            });
+        });
+        switchTab("chat");
+    })();
 
     /* 结束直播 */
     var endModal = document.getElementById("hostEndLiveModal");

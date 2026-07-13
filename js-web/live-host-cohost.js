@@ -42,12 +42,27 @@
         dynamic.innerHTML = html || "";
     }
 
+    function isCohostMode() {
+        return !!(state.cohost || state.matching || state.pk);
+    }
+
     function setCohostToolbarDisabled(disabled) {
+        var block = !!disabled || state.audienceMic;
         [btnMatch, btnDirected].forEach(function (btn) {
             if (!btn) return;
-            btn.disabled = !!disabled;
-            btn.classList.toggle("is-disabled", !!disabled);
+            btn.disabled = block;
+            btn.classList.toggle("is-disabled", block);
         });
+        if (btnMatch && state.audienceMic) {
+            btnMatch.title = "观众上麦已开启，请先关闭后再发起主播连麦";
+        } else if (btnMatch) {
+            btnMatch.removeAttribute("title");
+        }
+        if (btnDirected && state.audienceMic) {
+            btnDirected.title = "观众上麦已开启，请先关闭后再发起主播连麦";
+        } else if (btnDirected) {
+            btnDirected.removeAttribute("title");
+        }
     }
 
     function updatePkBtn() {
@@ -62,10 +77,23 @@
     function updateAudienceBtn() {
         if (!btnAud) return;
         var icon = state.audienceMic ? "fa-toggle-on" : "fa-microphone-lines";
+        var cohostBlocked = isCohostMode();
         btnAud.innerHTML =
             '<i class="fa-solid ' + icon + '"></i> ' + (state.audienceMic ? "关闭上麦" : "观众上麦");
         btnAud.classList.toggle("btn-primary", state.audienceMic);
         btnAud.classList.toggle("btn-secondary", !state.audienceMic);
+        btnAud.disabled = cohostBlocked && !state.audienceMic;
+        btnAud.title = cohostBlocked && !state.audienceMic
+            ? "主播连麦进行中，不可与观众上麦同时开启"
+            : state.audienceMic
+                ? "关闭观众上麦"
+                : "开启观众上麦（与主播连麦互斥）";
+    }
+
+    function syncToolbarState() {
+        setCohostToolbarDisabled(isCohostMode());
+        updatePkBtn();
+        updateAudienceBtn();
     }
 
     function cohostExitBtnHtml(extraClass) {
@@ -77,19 +105,25 @@
         );
     }
 
+    function pkHudHtml() {
+        var unit = state.pkType === "like" ? "" : " USDT";
+        return (
+            '<div class="obs-pk-hud obs-pk-hud--dock">' +
+            '<div class="obs-pk-dock">' +
+            '<div class="obs-pk-dock-col obs-pk-dock-col--a">' +
+            '<div class="obs-pk-dock-head"><span class="obs-pk-dock-name">Luna 🌙</span><span class="obs-pk-dock-score">1,240' + unit + "</span></div>" +
+            '<div class="obs-pk-bar obs-pk-bar--a"><span style="width:58%"></span></div>' +
+            "</div>" +
+            '<div class="obs-pk-dock-mid"><span class="obs-pk-timer">02:47</span></div>' +
+            '<div class="obs-pk-dock-col obs-pk-dock-col--b">' +
+            '<div class="obs-pk-dock-head"><span class="obs-pk-dock-name">夜雨听弦</span><span class="obs-pk-dock-score">892' + unit + "</span></div>" +
+            '<div class="obs-pk-bar obs-pk-bar--b"><span style="width:42%"></span></div>' +
+            "</div></div></div>"
+        );
+    }
+
     function cohostStageHtml(withPk) {
-        var pk =
-            withPk || state.pk
-                ? '<div class="obs-pk-hud">' +
-                  '<div class="obs-pk-timer">02:47</div>' +
-                  '<div class="obs-pk-bars">' +
-                  '<div class="obs-pk-bar-wrap"><div class="obs-pk-bar-meta"><span>Luna 🌙</span><span>1,240 USDT</span></div>' +
-                  '<div class="obs-pk-bar obs-pk-bar--a"><span style="width:58%"></span></div></div>' +
-                  '<div class="obs-pk-vs">VS</div>' +
-                  '<div class="obs-pk-bar-wrap"><div class="obs-pk-bar-meta"><span>夜雨听弦</span><span>892 USDT</span></div>' +
-                  '<div class="obs-pk-bar obs-pk-bar--b"><span style="width:42%"></span></div></div>' +
-                  "</div></div>"
-                : "";
+        var pk = withPk || state.pk ? pkHudHtml() : "";
         return (
             '<div class="host-cohost-cell" style="background-image:url(\'' +
             I.jazz +
@@ -163,7 +197,7 @@
         setCohostToolbarDisabled(true);
         injectStage(cohostStageHtml(false));
         renderCohostMembers();
-        updatePkBtn();
+        syncToolbarState();
         closeModal();
         toast("已与 " + (partnerName || "夜雨听弦") + " 建立主播连麦");
     }
@@ -175,7 +209,7 @@
         clearStageInject();
         setCohostToolbarDisabled(false);
         setDynamic("");
-        updatePkBtn();
+        syncToolbarState();
         toast("已退出主播连麦");
     }
 
@@ -201,15 +235,44 @@
         );
     }
 
-    function mountAudienceSlots() {
-        if (!stage || stage.querySelector(".obs-audience-slots")) return;
+    function emptyAudienceSlotHtml(label) {
+        return (
+            '<div class="obs-audience-slot empty">' +
+            '<div class="av-wrap"><div class="av"><i class="fa-solid fa-plus"></i></div></div>' +
+            '<span class="nm">' + (label || "空席") + "</span></div>"
+        );
+    }
+
+    function filledAudienceSlotHtml(name, av, speaking) {
+        return (
+            '<div class="obs-audience-slot' + (speaking ? " is-speaking" : "") + '">' +
+            '<div class="av-wrap"><div class="av" style="background-image:url(\'' + av + "')\"></div></div>" +
+            '<span class="nm">' + name + "</span></div>"
+        );
+    }
+
+    function unmountAudienceSlots() {
+        if (!stage) return;
+        stage.querySelectorAll(".obs-audience-slots").forEach(function (el) {
+            el.remove();
+        });
+    }
+
+    function mountAudienceSlots(opts) {
+        opts = opts || {};
+        if (!stage || !state.audienceMic) return;
+        unmountAudienceSlots();
         var slots = document.createElement("div");
-        slots.className = "obs-audience-slots";
-        slots.innerHTML =
-            '<div class="obs-audience-slot is-speaking"><div class="av-wrap"><div class="av" style="background-image:url(\'' +
-            I.fan +
-            "')\"></div></div><span class=\"nm\">Fan_01</span></div>" +
-            '<div class="obs-audience-slot empty"><div class="av-wrap"><div class="av"><i class="fa-solid fa-plus"></i></div></div><span class="nm">空席</span></div>';
+        slots.className = "obs-audience-slots host-audience-slots";
+        slots.id = "hostAudienceSlots";
+        slots.setAttribute("aria-label", "观众连麦席位");
+        if (opts.filled) {
+            slots.innerHTML =
+                filledAudienceSlotHtml(opts.filled.name, opts.filled.av, opts.filled.speaking !== false) +
+                emptyAudienceSlotHtml();
+        } else {
+            slots.innerHTML = emptyAudienceSlotHtml() + emptyAudienceSlotHtml();
+        }
         var bottom = stage.querySelector(".host-bottom");
         if (bottom) stage.insertBefore(slots, bottom);
         else stage.appendChild(slots);
@@ -235,18 +298,22 @@
     }
 
     function showDirectedPicker() {
+        if (state.audienceMic) {
+            toast("观众上麦已开启，请先关闭后再发起主播连麦");
+            return;
+        }
         openModal(
             '<div class="obs-modal">' +
             '<div class="obs-modal-head"><h3><i class="fa-solid fa-user-plus" style="color:#c084fc"></i> 指定连麦</h3>' +
-            "<p>搜索正在直播的主播</p></div>" +
+            "<p>搜索正在直播且可连麦的主播</p></div>" +
             '<div class="obs-modal-body"><div class="obs-search"><i class="fa-solid fa-magnifying-glass"></i>' +
             '<input type="search" placeholder="搜索主播昵称…" value="夜" /></div>' +
             '<div class="obs-host-pick">' +
             '<div class="obs-host-pick-item selected" data-host="夜雨听弦" role="button" tabindex="0">' +
             '<div class="av" style="background-image:url(\'' +
             I.night +
-            "')\"></div><div class=\"info\"><div class=\"n\">夜雨听弦</div><div class=\"s\">爵士 · 1,204 在线</div></div>" +
-            '<i class="fa-solid fa-circle" style="color:#ef4444;font-size:8px"></i></div>' +
+            "')\"></div><div class=\"info\"><div class=\"n\">夜雨听弦</div><div class=\"s\">爵士 · 1,204 在线 · 可连麦</div></div>" +
+            '<span class="obs-host-live-dot" title="直播中" aria-label="直播中"><i class="fa-solid fa-circle" aria-hidden="true"></i></span></div>' +
             '<div class="obs-host-pick-item" data-host="EchoDJ" role="button" tabindex="0">' +
             '<div class="av" style="background-image:url(\'' +
             I.echo +
@@ -369,12 +436,16 @@
         closeModal();
         injectStage(cohostStageHtml(true));
         renderCohostMembers();
-        updatePkBtn();
+        syncToolbarState();
         toast("PK 已开始");
     }
 
     function startRandomMatch() {
         if (state.cohost || state.matching) return;
+        if (state.audienceMic) {
+            toast("观众上麦已开启，请先关闭后再发起主播连麦");
+            return;
+        }
         state.matching = true;
         setCohostToolbarDisabled(true);
         setDynamic(
@@ -392,22 +463,27 @@
         setTimeout(function () {
             connectCohost("夜雨听弦");
         }, 2200);
+        syncToolbarState();
     }
 
     function toggleAudienceMic() {
+        if (!state.audienceMic && isCohostMode()) {
+            toast("主播连麦进行中，不可与观众上麦同时开启");
+            return;
+        }
         state.audienceMic = !state.audienceMic;
         updateAudienceBtn();
         if (state.audienceMic) {
             renderAudienceQueue();
+            mountAudienceSlots();
             toast("观众上麦已开启 · 默认 2 席");
         } else {
             if (state.cohost) renderCohostMembers();
             else setDynamic("");
-            stage.querySelectorAll(".obs-audience-slots").forEach(function (el) {
-                el.remove();
-            });
+            unmountAudienceSlots();
             toast("已关闭观众上麦");
         }
+        syncToolbarState();
     }
 
     function onDynamicClick(e) {
@@ -419,9 +495,7 @@
         var approve = e.target.closest("[data-action='approve']");
         if (approve) {
             var row = approve.closest(".host-cohost-queue-item");
-            if (row) row.remove();
-            mountAudienceSlots();
-            toast("已同意观众上麦");
+            mountAudienceSlots({ filled: { name: "Fan_01", av: I.fan, speaking: true } });
             if (dynamic && !dynamic.querySelector(".host-cohost-queue-item") && state.audienceMic) {
                 setDynamic(
                     '<p class="host-cohost-hint">在麦观众 · 可强制踢下麦</p>' +
@@ -442,9 +516,7 @@
         }
         var kick = e.target.closest(".host-kick-aud");
         if (kick) {
-            stage.querySelectorAll(".obs-audience-slots").forEach(function (el) {
-                el.remove();
-            });
+            mountAudienceSlots();
             if (state.audienceMic) renderAudienceQueue();
             else if (state.cohost) renderCohostMembers();
             toast("已将观众踢下麦");
@@ -472,8 +544,7 @@
             });
         }
 
-        updatePkBtn();
-        updateAudienceBtn();
+        syncToolbarState();
     }
 
     if (document.readyState === "loading") {

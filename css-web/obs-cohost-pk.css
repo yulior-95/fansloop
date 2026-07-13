@@ -982,3 +982,99 @@ body.ld-host-cohost-active #ldMicBar {
 .host-stage.host-stage--cohost-3 .host-top {
     z-index: 7;
 }
+
+/* 连麦态：直播元信息一行，连麦状态 + 退出按钮另起一行，避免与 host-top 重叠 */
+.host-stage.host-stage--cohost-2 .host-cohost-top,
+.host-stage.host-stage--cohost-3 .host-cohost-top {
+    top: 52px;
+    z-index: 6;
+}
+
+.host-stage.host-stage--cohost-2 .obs-pk-hud,
+.host-stage.host-stage--cohost-3 .obs-pk-hud {
+    top: auto;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+}
+
+/* PK 底栏：贴底薄条，减少对画面的遮挡 */
+.obs-pk-hud--dock {
+    padding: 8px 10px 9px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.62));
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+.obs-pk-dock {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: end;
+    gap: 10px;
+}
+.obs-pk-dock-col {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.obs-pk-dock-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.9);
+}
+.obs-pk-dock-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.obs-pk-dock-score {
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    color: rgba(255, 255, 255, 0.78);
+}
+.obs-pk-dock-mid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 1px;
+}
+.obs-pk-hud--dock .obs-pk-timer {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1;
+    letter-spacing: 0.04em;
+}
+.obs-pk-hud--dock .obs-pk-bar {
+    height: 7px;
+}
+.obs-pk-hud--dock .obs-pk-bar--a > span {
+    box-shadow: 0 0 10px rgba(96, 165, 250, 0.35);
+}
+.obs-pk-hud--dock .obs-pk-bar--b > span {
+    box-shadow: 0 0 10px rgba(244, 63, 94, 0.28);
+}
+
+.host-stage.host-stage--cohost-2:has(.obs-pk-hud--dock) .host-cohost-label,
+.host-stage.host-stage--cohost-3:has(.obs-pk-hud--dock) .host-cohost-label {
+    bottom: 54px;
+    transition: bottom 0.2s ease;
+}
+
+.obs-host-live-dot {
+    flex-shrink: 0;
+    color: #ef4444;
+    font-size: 8px;
+    line-height: 1;
+    filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.65));
+    animation: obs-live-dot-pulse 1.8s ease-in-out infinite;
+}
+@keyframes obs-live-dot-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.72; transform: scale(0.92); }
+}
