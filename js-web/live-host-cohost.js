@@ -68,6 +68,15 @@
         btnAud.classList.toggle("btn-secondary", !state.audienceMic);
     }
 
+    function cohostExitBtnHtml(extraClass) {
+        return (
+            '<button type="button" class="host-cohost-exit' +
+            (extraClass ? " " + extraClass : "") +
+            '" title="退出连麦，恢复单人直播">' +
+            '<i class="fa-solid fa-phone-slash"></i> 退出连麦</button>'
+        );
+    }
+
     function cohostStageHtml(withPk) {
         var pk =
             withPk || state.pk
@@ -97,6 +106,7 @@
             (state.pk
                 ? '<span class="host-cohost-chip host-cohost-chip--pk"><i class="fa-solid fa-bolt"></i> PK 进行中</span>'
                 : '<span class="host-cohost-chip">合流延迟 ~2.1s</span>') +
+            cohostExitBtnHtml("host-cohost-exit-stage") +
             "</div>" +
             pk
         );
@@ -127,7 +137,13 @@
     }
 
     function renderCohostMembers() {
+        var pkHint = state.pk
+            ? '<p class="host-cohost-hint" style="color:#fde68a;margin-bottom:8px"><i class="fa-solid fa-bolt"></i> PK 进行中 · ' +
+              (state.pkType === "like" ? "点赞总个数" : "礼物总金额") +
+              "</p>"
+            : "";
         setDynamic(
+            pkHint +
             '<div class="host-cohost-members">' +
             '<div class="host-cohost-member"><div class="av" style="background-image:url(\'' +
             I.luna +
@@ -136,8 +152,7 @@
             I.night +
             "')\"></div><div class=\"meta\"><div class=\"n\">夜雨听弦</div><div class=\"s\">RTMP 复用</div></div></div>" +
             "</div>" +
-            '<button type="button" class="btn btn-secondary btn-sm btn-block host-cohost-exit" style="margin-top:8px;border-color:rgba(239,68,68,0.4);color:#fca5a5">' +
-            '<i class="fa-solid fa-phone-slash"></i> 退出连麦</button>'
+            cohostExitBtnHtml("btn btn-secondary btn-sm btn-block host-cohost-exit-side")
         );
     }
 
@@ -353,11 +368,7 @@
         state.pk = true;
         closeModal();
         injectStage(cohostStageHtml(true));
-        setDynamic(
-            '<p class="host-cohost-hint" style="color:#fde68a"><i class="fa-solid fa-bolt"></i> PK 进行中 · ' +
-            (state.pkType === "like" ? "点赞总个数" : "礼物总金额") +
-            "</p>"
-        );
+        renderCohostMembers();
         updatePkBtn();
         toast("PK 已开始");
     }
@@ -455,6 +466,11 @@
         if (btnAud) btnAud.addEventListener("click", toggleAudienceMic);
         if (btnPk) btnPk.addEventListener("click", showPkSetup);
         if (dynamic) dynamic.addEventListener("click", onDynamicClick);
+        if (stage) {
+            stage.addEventListener("click", function (e) {
+                if (e.target.closest(".host-cohost-exit")) exitCohost();
+            });
+        }
 
         updatePkBtn();
         updateAudienceBtn();
