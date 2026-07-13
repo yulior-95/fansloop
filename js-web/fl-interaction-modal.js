@@ -3,6 +3,7 @@
  * - 若在 yanshi-web.html 等父页的 iframe 中 → postMessage 由父页顶栏覆盖层承载 modal iframe
  * - 若单独打开 home.html → 使用本页的 #flStandaloneModalRoot
  * - 打赏弹窗（gift-modal）默认内联注入同源 DOM，便于选中内部元素微调（非 iframe）
+ * - 分享弹窗（share-modal）同上：模糊蒙层 + 面板内联，无 iframe 蓝底
  */
 (function () {
   var root = null;
@@ -90,6 +91,69 @@
     link.href = base + '/css-web/mall-benefits-scenes.css';
     link.setAttribute('data-fl-mall-benefits-css', '1');
     document.head.appendChild(link);
+  }
+
+  function ensureShareModalCss() {
+    if (document.querySelector('link[data-fl-share-modal-css]')) return;
+    var base = scriptBase().replace(/\/js-web\/$/, '');
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = base + '/css-web/share-modal.css';
+    link.setAttribute('data-fl-share-modal-css', '1');
+    document.head.appendChild(link);
+  }
+
+  function ensureShareDeps() {
+    var base = scriptBase();
+    return loadScriptOnce(base + 'share-modal-inline.js');
+  }
+
+  function openShareInline(page) {
+    bindElements();
+    if (!root || !inlineHost) {
+      window.location.href = page;
+      return;
+    }
+    ensureShareModalCss();
+    fetch(page)
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        return ensureShareDeps().then(function () { return html; });
+      })
+      .then(function (html) {
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var modal = doc.querySelector('.share-modal');
+        if (!modal) {
+          if (iframeEl) {
+            iframeEl.src = page;
+            root.classList.add('fl-modal--share');
+            root.style.display = 'flex';
+            root.setAttribute('aria-hidden', 'false');
+          }
+          return;
+        }
+        clearInline();
+        inlineHost.appendChild(document.importNode(modal, true));
+        var poster = doc.querySelector('.poster-inline-overlay');
+        if (poster) inlineHost.appendChild(document.importNode(poster, true));
+        inlineHost.removeAttribute('hidden');
+        if (iframeEl) iframeEl.style.display = 'none';
+        root.classList.remove('fl-modal--comment', 'fl-modal--danmaku', 'fl-modal--gift', 'fl-modal--default');
+        root.classList.add('fl-modal--share', 'fl-modal--inline');
+        root.style.display = 'flex';
+        root.setAttribute('aria-hidden', 'false');
+        if (window.FLShareModalInline) {
+          window.FLShareModalInline.init(inlineHost);
+        }
+      })
+      .catch(function () {
+        if (iframeEl) {
+          iframeEl.src = page;
+          root.classList.add('fl-modal--share');
+        }
+        root.style.display = 'flex';
+        root.setAttribute('aria-hidden', 'false');
+      });
   }
 
   function ensureCommentDeps(page) {
@@ -212,6 +276,11 @@
       return;
     }
 
+    if (page.indexOf('share-modal') >= 0) {
+      openShareInline(page);
+      return;
+    }
+
     clearInline();
     if (!iframeEl) {
       window.location.href = page;
@@ -224,10 +293,6 @@
       root.classList.add('fl-modal--danmaku');
       iframeEl.style.width = 'min(500px, calc(100vw - 32px))';
       iframeEl.style.height = 'min(420px, calc(100vh - 32px))';
-    } else if (page.indexOf('share-modal') >= 0) {
-      root.classList.add('fl-modal--share');
-      iframeEl.style.width = '';
-      iframeEl.style.height = '';
     } else {
       root.classList.add('fl-modal--default');
       iframeEl.style.width = root.classList.contains('fl-interaction-ovl') ? '' : 'min(940px, calc(100vw - 32px))';

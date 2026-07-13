@@ -1166,6 +1166,43 @@ html.sidebar-collapsed-pre .app-sidebar,
 .av-stack .av { border: 2px solid var(--bg-app); margin-left: -8px; }
 .av-stack .av:first-child { margin-left: 0; }
 
+/* 直播中头像边框 · 与订阅页 creatorRail .av-wrap.is-live 一致 */
+@keyframes fl-live-ring-pulse {
+    0% { opacity: 0.9; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.18); }
+}
+.fl-av-is-live {
+    position: relative;
+    border-radius: 50%;
+    padding: 2px;
+    background: linear-gradient(135deg, #ef4444, #f97316);
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25);
+    flex-shrink: 0;
+    display: inline-flex;
+}
+.fl-av-is-live::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 2px solid rgba(239, 68, 68, 0.55);
+    animation: fl-live-ring-pulse 1.4s ease-out infinite;
+    pointer-events: none;
+}
+.fl-av-is-live > .av,
+.fl-av-is-live > .av-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid var(--bg-card);
+    box-sizing: border-box;
+}
+.fl-av-is-live--sm { width: 44px; height: 44px; }
+.fl-av-is-live--lg { width: 56px; height: 56px; }
+.fl-av-is-live .av-link { cursor: pointer; }
+
 /* ----- Stat ----- */
 .stat {
     display: flex; flex-direction: column; gap: 4px;

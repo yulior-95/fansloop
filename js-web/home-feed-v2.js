@@ -16,7 +16,79 @@
         setTimeout(function () { t.remove(); }, 2400);
     }
 
-    var FEED_BUILD_VERSION = '12';
+    var FEED_BUILD_VERSION = '17';
+
+    var CREATOR_LIVE_HOST = {
+        '山野食光': 'shanye',
+        'Lens 旅记': 'lens',
+        '夜雨听弦': 'yeyu',
+        '代码诗人': 'codepoet',
+        '银盐时代': 'yinyan',
+        '咖啡店主': 'coffee',
+        '夜间速写': 'nightsketch'
+    };
+
+    function resolveLiveDetailHref(liveTap, article, status) {
+        if (window.LiveViewHost && window.LiveViewHost.hrefFromFeedArticle) {
+            return window.LiveViewHost.hrefFromFeedArticle(article, liveTap, status, 'home');
+        }
+        if (status === 'ended') return 'live-detail-ab.html';
+        var creator = (liveTap && liveTap.getAttribute('data-creator')) ||
+            (article && article.getAttribute('data-creator'));
+        var slug = (liveTap && liveTap.getAttribute('data-host-slug')) ||
+            (article && article.getAttribute('data-host-slug'));
+        if (!slug && creator && CREATOR_LIVE_HOST[creator]) {
+            slug = CREATOR_LIVE_HOST[creator];
+        }
+        if (slug) {
+            return 'live-detail-ab.html?host=' + encodeURIComponent(slug) +
+                (creator ? '&creator=' + encodeURIComponent(creator) : '') + '&nav=home';
+        }
+        return 'live-detail-ab.html?host=novaplay&nav=home';
+    }
+
+    function isLiveFeedClickBlocked(target) {
+        return !!target.closest(
+            '.dev-glass-wrap, .post-actions, .post-head, .follow-btn, .follow-dynamic, ' +
+            '.btn-open-subscribe, .btn-open-ppv, .lp-remind, button, a'
+        );
+    }
+
+    function goLiveFromFeed(article, liveTap, status) {
+        if (!article) return;
+        status = status || article.getAttribute('data-live-status') || 'live';
+        if (status === 'ended') {
+            if (liveTap) {
+                liveTap.classList.add('is-ended-flash');
+                setTimeout(function () { liveTap.classList.remove('is-ended-flash'); }, 600);
+            }
+            toast('直播已结束');
+            return;
+        }
+        if (document.body.classList.contains('is-guest-home')) {
+            location.href = 'modal-login-main.html';
+            return;
+        }
+        if (window.LiveViewHost && window.LiveViewHost.navigateFromFeed) {
+            window.LiveViewHost.navigateFromFeed(article, liveTap, status);
+            return;
+        }
+        location.href = resolveLiveDetailHref(liveTap, article, status);
+    }
+
+    function bindLiveFeedCapture() {
+        var root = document.querySelector('.feed-main-col');
+        if (!root || root.getAttribute('data-live-capture') === '1') return;
+        root.setAttribute('data-live-capture', '1');
+        root.addEventListener('click', function (e) {
+            if (isLiveFeedClickBlocked(e.target)) return;
+            var article = e.target.closest('article.post-card[data-post-type="live"]');
+            if (!article) return;
+            e.preventDefault();
+            e.stopPropagation();
+            goLiveFromFeed(article, article.querySelector('.feed-live-tap'));
+        }, true);
+    }
 
     function syncFeedStackVideos(viewport, slideIndex) {
         if (!viewport) return;
@@ -75,6 +147,10 @@
         if (typeof window.FL_applyPostTextClamp === 'function') {
             window.FL_applyPostTextClamp();
         }
+        tracks.forEach(function (t) {
+            t.removeAttribute('data-feed-interact');
+        });
+        bindFeedStackInteractions();
     }
     function ensureImageLightbox() {
         if (document.getElementById('feedImgLightbox')) return;
@@ -108,20 +184,16 @@
                 if (liveTap) {
                     e.preventDefault();
                     e.stopPropagation();
-                    var status = liveTap.getAttribute('data-live-status') || 'live';
-                    if (status === 'ended') {
-                        liveTap.classList.add('is-ended-flash');
-                        setTimeout(function () {
-                            liveTap.classList.remove('is-ended-flash');
-                        }, 600);
-                        toast('直播已结束');
-                        return;
-                    }
-                    if (document.body.classList.contains('is-guest-home')) {
-                        location.href = 'modal-login-main.html';
-                        return;
-                    }
-                    location.href = 'live-detail.html';
+                    var liveArticleTap = liveTap.closest('article[data-post-type="live"], article[data-creator]');
+                    goLiveFromFeed(liveArticleTap, liveTap, liveTap.getAttribute('data-live-status') || 'live');
+                    return;
+                }
+
+                var liveArticle = e.target.closest('article.post-card[data-post-type="live"]');
+                if (liveArticle && !e.target.closest('.post-actions, .post-head, .follow-btn, .follow-dynamic, .btn-open-subscribe, .btn-open-ppv, .dev-glass-wrap, button, a')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    goLiveFromFeed(liveArticle, liveArticle.querySelector('.feed-live-tap'), liveArticle.getAttribute('data-live-status') || 'live');
                     return;
                 }
 
@@ -194,10 +266,13 @@
     function initFeedStacks() {
         ensureFeedStacksBuilt();
         bindFeedStackInteractions();
+        bindLiveFeedCapture();
         if (typeof window.FL_applyLivePreviewReminds === 'function') {
             window.FL_applyLivePreviewReminds();
         }
     }
+
+    window.FL_goLiveFromFeed = goLiveFromFeed;
 
     initFeedStacks();
     if (document.readyState === 'loading') {

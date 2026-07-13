@@ -32,6 +32,36 @@
         });
     });
 
+    function getHostName() {
+        return window.LiveViewHost && window.LiveViewHost.getCurrent
+            ? window.LiveViewHost.getCurrent().name
+            : "NovaPlay";
+    }
+
+    function getLiveLink() {
+        if (window.LiveViewHost && window.LiveViewHost.getCurrent) {
+            var h = window.LiveViewHost.getCurrent();
+            return "https://fansloop.io/live/" + h.roomSlug;
+        }
+        return "https://fansloop.io/live/novaplay-apex-8842";
+    }
+
+    if (window.LiveViewHost && window.LiveViewHost.applyFromUrl) {
+        window.LiveViewHost.applyFromUrl();
+    } else if (window.LiveMetaStore && window.LiveMetaStore.applyToIntroPanel) {
+        window.LiveMetaStore.applyToIntroPanel();
+    }
+
+    function reapplyLiveHost() {
+        if (window.LiveViewHost && window.LiveViewHost.applyFromUrl) {
+            window.LiveViewHost.applyFromUrl();
+        }
+    }
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", reapplyLiveHost);
+    }
+    window.addEventListener("load", reapplyLiveHost);
+
     /* 关注 */
     var btnFollow = document.getElementById("btnFollow");
     if (btnFollow) {
@@ -39,7 +69,7 @@
             var on = btnFollow.classList.toggle("is-followed");
             if (on) {
                 btnFollow.innerHTML = '<i class="fa-solid fa-bell"></i> 已关注';
-                toast("已关注 NovaPlay，开播将通知你");
+                toast("已关注 " + getHostName() + "，开播将通知你");
             } else {
                 btnFollow.innerHTML = '<i class="fa-regular fa-bell"></i> 关注';
                 toast("已取消关注");
@@ -49,7 +79,7 @@
 
     var wallet = window.LiveWalletStore;
     var SUB_PRICE = wallet ? wallet.SUB_PRICE : 28;
-    var LIVE_LINK = "https://fansloop.io/live/novaplay-apex-8842";
+    var LIVE_LINK = getLiveLink();
 
     function refreshSubBalanceUI() {
         if (!wallet) return;
@@ -474,7 +504,51 @@
             if (!document.fullscreenElement) player.classList.remove("is-fullscreen");
         });
     }
-    if (btnPip && pipWin) {
+    if (btnPip && pipWin && window.FLLivePipPlaceholder) {
+        window.FLLivePipPlaceholder.bind({
+            player: player,
+            pipBtn: btnPip,
+            localPipWin: pipWin,
+            pipClose: document.getElementById("btnPipClose"),
+            pipRestore: document.getElementById("btnPipRestore"),
+            toast: toast,
+            getPayload: function () {
+                var role = (new URLSearchParams(window.location.search).get("liveRole") || "viewer").toLowerCase();
+                var titleEl = document.querySelector(".bottom-overlay h2");
+                var qs0 = location.search || "";
+                return {
+                    role: role === "host" ? "host" : "viewer",
+                    back: role === "host" ? "create-live-host.html" : "live-detail.html" + qs0,
+                    title: titleEl ? titleEl.textContent.trim() : getHostName() + " · 直播中",
+                    active: true
+                };
+            },
+            onLocalOpen: function (win) {
+                var pipBody = win.querySelector(".pip-body");
+                if (pipBody && player && player.style.backgroundImage) {
+                    pipBody.style.backgroundImage = player.style.backgroundImage;
+                }
+            },
+            onChange: function (active) {
+                if (active) {
+                    if (giftFlyTimer) {
+                        clearInterval(giftFlyTimer);
+                        giftFlyTimer = null;
+                    }
+                    if (danmakuLayer) {
+                        danmakuLayer.classList.add("is-hidden");
+                        danmakuLayer.innerHTML = "";
+                    }
+                } else if (!giftFlyTimer && !endedApplied) {
+                    giftFlyTimer = setInterval(function () {
+                        var d = giftFlyPool[Math.floor(Math.random() * giftFlyPool.length)];
+                        spawnGiftFly(d[0], d[1]);
+                    }, 3200);
+                    if (danmakuLayer) danmakuLayer.classList.remove("is-hidden");
+                }
+            }
+        });
+    } else if (btnPip && pipWin) {
         btnPip.addEventListener("click", function () {
             var role = (new URLSearchParams(window.location.search).get("liveRole") || "viewer").toLowerCase();
             var titleEl = document.querySelector(".bottom-overlay h2");
@@ -494,20 +568,22 @@
             toast("已开启悬浮窗");
         });
     }
-    var btnPipClose = document.getElementById("btnPipClose");
-    var btnPipRestore = document.getElementById("btnPipRestore");
-    if (btnPipClose && pipWin) {
-        btnPipClose.addEventListener("click", function () {
-            pipWin.classList.remove("open");
-            toast("已关闭悬浮窗");
-        });
-    }
-    if (btnPipRestore && pipWin) {
-        btnPipRestore.addEventListener("click", function () {
-            pipWin.classList.remove("open");
-            player.scrollIntoView({ behavior: "smooth", block: "center" });
-            toast("已回到直播页");
-        });
+    if (!window.FLLivePipPlaceholder) {
+        var btnPipClose = document.getElementById("btnPipClose");
+        var btnPipRestore = document.getElementById("btnPipRestore");
+        if (btnPipClose && pipWin) {
+            btnPipClose.addEventListener("click", function () {
+                pipWin.classList.remove("open");
+                toast("已关闭悬浮窗");
+            });
+        }
+        if (btnPipRestore && pipWin) {
+            btnPipRestore.addEventListener("click", function () {
+                pipWin.classList.remove("open");
+                player.scrollIntoView({ behavior: "smooth", block: "center" });
+                toast("已回到直播页");
+            });
+        }
     }
     /* 喝彩 · 抖音式上浮点赞 */
     var btnCheer = document.getElementById("btnCheer");
@@ -668,6 +744,7 @@
     }
 
     checkLiveEnded();
+    reapplyLiveHost();
     window.addEventListener("storage", function (e) {
         if (e.key !== "fansloop_live_session") return;
         if (shouldShowEndedFromUrl()) return;
@@ -740,7 +817,7 @@
         var wrap = document.createElement("div");
         wrap.className = "chat-msg" + (opts.gift ? " gift-msg" : "") + (opts.filter === "sub" ? " sub-msg" : "") + (sensitive ? " is-sensitive" : "");
         if (opts.filter) wrap.setAttribute("data-filter", opts.filter);
-        else if (user === "NovaPlay") wrap.setAttribute("data-filter", "host");
+        else if (window.LiveViewHost && user === window.LiveViewHost.getCurrent().name) wrap.setAttribute("data-filter", "host");
         if (opts.gift) wrap.setAttribute("data-filter", "gift");
         if (sensitive) wrap.setAttribute("data-sensitive", "1");
         var av = opts.self
@@ -769,9 +846,206 @@
         });
     }
 
-    if (window.LiveMetaStore && window.LiveMetaStore.applyToIntroPanel) {
-        window.LiveMetaStore.applyToIntroPanel();
-    }
+    /* 申请上麦 · 本页为允许上麦演示直播间（其他页面不改动） */
+    (function initApplyMic() {
+        var btn = document.getElementById("btnApplyMic");
+        if (!btn) return;
+
+        var slots = document.getElementById("ldAudienceSlots");
+        var micBar = document.getElementById("ldMicBar");
+        var rejectBanner = document.getElementById("ldMicRejectBanner");
+        var fanAv = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80";
+        var state = "idle";
+        var pendingTimer = null;
+
+        function micOutcome() {
+            try {
+                return new URLSearchParams(location.search).get("micOutcome") || "approve";
+            } catch (e) {
+                return "approve";
+            }
+        }
+
+        function emptySlotHtml() {
+            return (
+                '<div class="av-wrap"><div class="av"><i class="fa-solid fa-plus"></i></div></div>' +
+                '<span class="nm">空席</span>'
+            );
+        }
+
+        function resetSlot0() {
+            if (!slots) return;
+            var slot0 = slots.querySelector('[data-slot="0"]');
+            if (!slot0) return;
+            slot0.className = "obs-audience-slot empty";
+            slot0.innerHTML = emptySlotHtml();
+        }
+
+        function resetMuteBtn() {
+            var btnMute = document.getElementById("btnMicMute");
+            if (!btnMute) return;
+            btnMute.classList.remove("is-muted");
+            btnMute.textContent = "静音";
+        }
+
+        function hideMicBar() {
+            if (!micBar) return;
+            micBar.hidden = true;
+            micBar.setAttribute("hidden", "");
+        }
+
+        function showMicBar() {
+            if (!micBar) return;
+            micBar.hidden = false;
+            micBar.removeAttribute("hidden");
+        }
+
+        function leaveMicOn() {
+            clearTimeout(pendingTimer);
+            state = "idle";
+            hideMicBar();
+            resetMuteBtn();
+            if (slots) {
+                slots.querySelectorAll(".obs-audience-slot").forEach(function (slot) {
+                    var nm = slot.querySelector(".nm");
+                    if (nm && nm.textContent.trim() === "你") {
+                        slot.className = "obs-audience-slot empty";
+                        slot.innerHTML = emptySlotHtml();
+                    }
+                });
+            }
+            renderBtn();
+            toast("已下麦");
+        }
+
+        function renderBtn() {
+            if (state === "idle") {
+                btn.className = "ac";
+                btn.innerHTML = '<i class="fa-solid fa-microphone"></i> 申请上麦';
+            } else if (state === "pending") {
+                btn.className = "ac mic-pending";
+                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 等待主播同意…';
+            } else if (state === "on") {
+                btn.className = "ac mic-on";
+                btn.innerHTML = '<i class="fa-solid fa-microphone-lines"></i> 连麦中';
+            }
+        }
+
+        function showReject() {
+            toast("主播拒绝您的申请");
+            if (!rejectBanner) return;
+            rejectBanner.hidden = false;
+            requestAnimationFrame(function () {
+                rejectBanner.classList.add("show");
+            });
+            clearTimeout(rejectBanner._hideT);
+            rejectBanner._hideT = setTimeout(function () {
+                rejectBanner.classList.remove("show");
+                setTimeout(function () {
+                    rejectBanner.hidden = true;
+                }, 280);
+            }, 4200);
+        }
+
+        function firstEmptySlot() {
+            if (!slots) return null;
+            return slots.querySelector(".obs-audience-slot.empty");
+        }
+
+        function enterMicOn() {
+            var slot = firstEmptySlot();
+            if (!slot) {
+                toast("观众席位已满");
+                state = "idle";
+                renderBtn();
+                return;
+            }
+            state = "on";
+            showMicBar();
+            slot.className = "obs-audience-slot is-speaking";
+            slot.innerHTML =
+                '<div class="av-wrap"><div class="av" style="background-image:url(\'' + fanAv + '\')"></div></div>' +
+                '<span class="nm">你</span>';
+            appendChat("系统", "你已成功上麦，麦克风已开启", { system: true, filter: "all" });
+            renderBtn();
+            toast("主播已同意 · 连麦中");
+        }
+
+        btn.addEventListener("click", function () {
+            if (window.LiveDetailCohost && window.LiveDetailCohost.isHostCohostActive()) {
+                toast("主播连麦进行中，暂不可申请观众上麦");
+                return;
+            }
+            if (state === "pending" || state === "on") return;
+            state = "pending";
+            renderBtn();
+            clearTimeout(pendingTimer);
+            pendingTimer = setTimeout(function () {
+                if (micOutcome() === "reject") {
+                    state = "idle";
+                    renderBtn();
+                    showReject();
+                } else {
+                    enterMicOn();
+                }
+            }, 2800);
+        });
+
+        var btnLeave = document.getElementById("btnMicLeave");
+        if (btnLeave) {
+            btnLeave.addEventListener("click", function (e) {
+                e.stopPropagation();
+                openOverlay("ldMicLeaveOverlay");
+            });
+        }
+
+        var btnLeaveConfirm = document.getElementById("btnMicLeaveConfirm");
+        if (btnLeaveConfirm) {
+            btnLeaveConfirm.addEventListener("click", function () {
+                closeOverlay("ldMicLeaveOverlay");
+                leaveMicOn();
+            });
+        }
+
+        var btnMute = document.getElementById("btnMicMute");
+        if (btnMute) {
+            btnMute.addEventListener("click", function () {
+                var muted = btnMute.classList.toggle("is-muted");
+                btnMute.textContent = muted ? "取消静音" : "静音";
+                if (slots && state === "on") {
+                    slots.querySelectorAll(".obs-audience-slot").forEach(function (slot) {
+                        var nm = slot.querySelector(".nm");
+                        if (nm && nm.textContent.trim() === "你") {
+                            slot.classList.toggle("is-speaking", !muted);
+                        }
+                    });
+                }
+                toast(muted ? "麦克风已静音" : "麦克风已开启");
+            });
+        }
+
+        function forceResetMic() {
+            clearTimeout(pendingTimer);
+            state = "idle";
+            hideMicBar();
+            resetMuteBtn();
+            if (slots) {
+                slots.querySelectorAll(".obs-audience-slot").forEach(function (slot) {
+                    var nm = slot.querySelector(".nm");
+                    if (nm && nm.textContent.trim() === "你") {
+                        slot.className = "obs-audience-slot empty";
+                        slot.innerHTML = emptySlotHtml();
+                    }
+                });
+            }
+            renderBtn();
+        }
+
+        window.FL_resetAudienceMic = forceResetMic;
+        window.addEventListener("fl-host-cohost-change", function (e) {
+            if (e.detail && e.detail.active) forceResetMic();
+        });
+    })();
 
     /* OBS 等待条（保留） */
     try {

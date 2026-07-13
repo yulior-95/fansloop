@@ -166,18 +166,14 @@
     display: flex; align-items: center; gap: 14px;
 }
 .creator-strip .av-ring {
-    width: 56px; height: 56px;
-    border-radius: 50%;
-    padding: 2px;
-    background: var(--brand-grad);
     flex-shrink: 0;
+}
+.creator-strip .av-ring.fl-av-is-live {
     position: relative;
 }
 .creator-strip .av-ring .av-img {
-    width: 100%; height: 100%;
-    border-radius: 50%;
-    background-size: cover; background-position: center;
-    border: 2px solid var(--bg-card);
+    background-size: cover;
+    background-position: center;
 }
 .creator-strip .av-ring .live-tag {
     position: absolute;
@@ -415,7 +411,24 @@
 }
 .action-strip .stat-mini { display: flex; gap: 14px; margin-left: auto; font-size: 11.5px; color: var(--t-tertiary); align-items: center; }
 .action-strip .stat-mini b { color: #fff; font-weight: 700; }
+.action-strip .ac-mic-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.ld-mic-reject-banner {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+    transition: opacity 0.25s, transform 0.25s;
+    pointer-events: none;
+}
+.ld-mic-reject-banner.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
 </style>
+<link rel="stylesheet" href="../css-web/obs-cohost-pk.css">
+<link rel="stylesheet" href="../css-web/live-pip-placeholder.css">
 <link rel="stylesheet" href="../css-web/live-detail-extra.css">
 <link rel="stylesheet" href="../css-web/gift-tip-bonus.css">
 <link rel="stylesheet" href="../css-web/dev-glass-note.css">
@@ -502,6 +515,16 @@
                             <h3>直播已结束</h3>
                             <p>主播已结束本场直播，感谢观看</p>
                             <button type="button" class="btn btn-primary" onclick="location.href='home.html'"><i class="fa-solid fa-house"></i> 返回首页</button>
+                        </div>
+                    </div>
+                    <div class="obs-audience-slots" id="ldAudienceSlots" aria-label="观众连麦席位">
+                        <div class="obs-audience-slot empty" data-slot="0">
+                            <div class="av-wrap"><div class="av"><i class="fa-solid fa-plus"></i></div></div>
+                            <span class="nm">空席</span>
+                        </div>
+                        <div class="obs-audience-slot empty" data-slot="1">
+                            <div class="av-wrap"><div class="av"><i class="fa-solid fa-plus"></i></div></div>
+                            <span class="nm">空席</span>
                         </div>
                     </div>
                     <div class="wait-stream-strip" id="waitStreamStrip"><i class="fa-solid fa-circle-notch fa-spin"></i> 等待 OBS 推流信号… 连接成功后画面将自动播放</div>
@@ -617,7 +640,7 @@
 
                 <!-- 创作者条 -->
                 <div class="creator-strip">
-                    <div class="av-ring">
+                    <div class="av-ring fl-av-is-live fl-av-is-live--lg">
                         <div class="av-img" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200')"></div>
                         <span class="live-tag">直播中</span>
                     </div>
@@ -641,6 +664,18 @@
                     <div class="ac" id="btnBookmark"><i class="fa-regular fa-bookmark"></i> 收藏</div>
                     <div class="ac" id="btnShare"><i class="fa-solid fa-arrow-up-right-from-square"></i> 分享</div>
                     <div class="ac" id="btnReport"><i class="fa-solid fa-flag"></i> 举报</div>
+                    <span class="ac-mic-group">
+                        <div class="ac" id="btnApplyMic"><i class="fa-solid fa-microphone"></i> 申请上麦</div>
+                        <span class="dev-glass-wrap dev-glass-wrap--inline dev-glass-wrap--pop-left">
+                            <span class="dev-glass-sphere" tabindex="0" aria-describedby="devApplyMicTip">
+                                <span class="dev-glass-sphere-shine"></span>
+                                <span class="dev-glass-sphere-txt">To 研发</span>
+                            </span>
+                            <span class="dev-glass-pop dev-glass-pop--wide" id="devApplyMicTip" role="tooltip">
+                                主播开启「允许观众上麦」后展示此按钮。<strong>与主播连麦互斥</strong>：双/三主播连麦或 PK 期间不可邀请观众上麦，席位与按钮将隐藏。单独演示观众上麦请用底部「观众上麦」切换。点击申请 → 等待审批 → 同意上麦；<code>?micOutcome=reject</code> 模拟拒绝。
+                            </span>
+                        </span>
+                    </span>
                     <div class="ac tip" id="btnTip"><i class="fa-solid fa-gift"></i> 打赏 / 送礼</div>
                     <span class="dev-glass-wrap dev-glass-wrap--inline dev-glass-wrap--pop-left">
                         <span class="dev-glass-sphere" tabindex="0" aria-describedby="devGiftConfigTip">
@@ -797,6 +832,13 @@
                         </div>
                     </div>
 
+                    <div class="ld-mic-bar" id="ldMicBar" hidden>
+                        <i class="fa-solid fa-microphone" style="color:#6ee7b7"></i> 你已上麦 · 麦克风已开启
+                        <div class="actions">
+                            <button type="button" class="btn btn-secondary btn-sm" id="btnMicMute">静音</button>
+                            <button type="button" class="btn btn-secondary btn-sm" id="btnMicLeave" style="color:#fca5a5">下麦</button>
+                        </div>
+                    </div>
                     <div class="chat-input">
                         <div class="emoji-pop" id="chatEmojiPop"></div>
                         <button type="button" id="btnChatEmoji"><i class="fa-regular fa-face-smile"></i></button>
@@ -920,6 +962,17 @@
     </div>
 </div>
 
+<div class="ld-overlay" id="ldMicLeaveOverlay">
+    <div class="ld-modal" onclick="event.stopPropagation()">
+        <div class="ld-modal-hd"><h3><i class="fa-solid fa-microphone-slash" style="color:#fca5a5"></i> 确认下麦</h3><button type="button" class="ld-close" data-ld-close="ldMicLeaveOverlay"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="ld-modal-bd"><p style="margin:0;font-size:13px;color:var(--t-secondary);line-height:1.6">下麦后将断开连麦并释放观众席位，确定要下麦吗？</p></div>
+        <div class="ld-modal-ft">
+            <button type="button" class="btn btn-secondary" data-ld-close="ldMicLeaveOverlay">取消</button>
+            <button type="button" class="btn btn-primary" id="btnMicLeaveConfirm" style="background:linear-gradient(135deg,#DC2626,#EF4444)">确认下麦</button>
+        </div>
+    </div>
+</div>
+
 <div class="ld-overlay" id="ldReportOverlay">
     <div class="ld-modal" onclick="event.stopPropagation()">
         <div class="ld-modal-hd"><h3><i class="fa-solid fa-flag" style="color:#F87171"></i> 举报直播</h3><button type="button" class="ld-close" data-ld-close="ldReportOverlay"><i class="fa-solid fa-xmark"></i></button></div>
@@ -985,6 +1038,10 @@
 
 <div class="ld-toast" id="ldToast" role="status"></div>
 
+<div class="obs-toast-banner ld-mic-reject-banner" id="ldMicRejectBanner" hidden role="alert">
+    <i class="fa-solid fa-circle-xmark" style="color:#f87171"></i> 主播拒绝您的申请
+</div>
+
 <script>
 (function () {
     var emojis = ["😀", "😂", "🔥", "❤️", "👏", "🎉", "💯", "✨", "💜", "🙏", "😎", "🤩", "🎁", "🚀", "👍", "🥳"];
@@ -994,6 +1051,23 @@
 </script>
 <script src="../js-web/live-wallet-store.js"></script>
 <script src="../js-web/live-meta-store.js"></script>
+<script src="../js-web/live-view-host.js"></script>
+<script>
+(function () {
+    function bootLiveHost() {
+        if (window.LiveViewHost && window.LiveViewHost.applyFromUrl) {
+            window.LiveViewHost.applyFromUrl();
+        }
+    }
+    bootLiveHost();
+    window.addEventListener("load", function () {
+        bootLiveHost();
+        if (window.LiveDetailCohost && window.LiveDetailCohost.boot) {
+            window.LiveDetailCohost.boot();
+        }
+    });
+})();
+</script>
 <script src="../js-web/dev-glass-viewport.js" defer></script>
 <script src="../js-web/global-accessibility-store.js"></script>
 <script src="../js-web/mall-vouchers-store.js"></script>
@@ -1003,7 +1077,9 @@
 <script src="../js-web/live-whitelist-access.js"></script>
 <script src="../js-web/sensitive-risk-store.js"></script>
 <script src="../js-web/chat-sensitive-words-store.js"></script>
+<script src="../js-web/live-pip-placeholder.js"></script>
 <script src="../js-web/live-detail.js"></script>
+<script src="../js-web/live-detail-cohost.js"></script>
 <script src="../js-web/live-detail-accessibility.js"></script>
 
 <link rel="stylesheet" href="../css-web/host-live-pip-global.css">

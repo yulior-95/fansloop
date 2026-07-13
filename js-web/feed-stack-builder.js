@@ -78,8 +78,38 @@
         );
     }
 
-    function detailHref(type, i) {
-        if (type === 'live') return 'live-detail.html';
+    var CREATOR_LIVE_HOST = {
+        '山野食光': 'shanye',
+        'Lens 旅记': 'lens',
+        '夜雨听弦': 'yeyu',
+        '代码诗人': 'codepoet',
+        '银盐时代': 'yinyan',
+        '咖啡店主': 'coffee',
+        '夜间速写': 'nightsketch'
+    };
+
+    var LIVE_TAB_TEASER = {
+        '山野食光': '露营料理直播中 · 户外铁锅炖鸡与轻量化装备分享',
+        'Lens 旅记': '京都巷弄街拍实录 · 现场讲解构图与测光',
+        '夜雨听弦': '深夜爵士 · 即兴钢琴，欢迎弹幕点曲',
+        '代码诗人': 'Web3 创作者经济 AMA · 链上订阅与粉丝运营',
+        '银盐时代': '暗房冲洗实录 · 胶片人像后期思路',
+        '咖啡店主': '深夜咖啡馆 · 手冲问答与豆子推荐',
+        '夜间速写': '人像速写直播中 · 45 分钟全流程演示'
+    };
+
+    function liveDetailHref(creatorName, liveStatus) {
+        if (liveStatus === 'ended') return 'live-detail-ab.html';
+        var slug = CREATOR_LIVE_HOST[creatorName] || 'novaplay';
+        if (global.LiveViewHost && global.LiveViewHost.buildLiveDetailUrl) {
+            return global.LiveViewHost.buildLiveDetailUrl(slug, creatorName, 'home');
+        }
+        return 'live-detail-ab.html?host=' + encodeURIComponent(slug) +
+            '&creator=' + encodeURIComponent(creatorName) + '&nav=home';
+    }
+
+    function detailHref(type, i, creatorName, liveStatus) {
+        if (type === 'live') return liveDetailHref(creatorName, liveStatus);
         if (type === 'video' && i % 5 === 1) return 'flow-unlock-paid.html';
         return 'topic-detail.html';
     }
@@ -151,10 +181,16 @@
             ? ' <span class="fl-badge fl-badge--creator" title="认证创作者" aria-label="认证创作者"><i class="fa-solid fa-palette"></i></span>'
             : '';
 
+        var avInner =
+            '<div class="av av-md' + (guest ? '' : ' av-link') + '" style="background-image:url(\'https://images.unsplash.com/' + c.av + '?w=100\')"' +
+            (guest ? '' : ' onclick="location.href=\'creator-profile.html\'" title="查看创作者主页"') + '></div>';
+        var avHtml = isLive && !liveEnded
+            ? '<span class="fl-av-is-live fl-av-is-live--sm">' + avInner + '</span>'
+            : avInner;
+
         return (
             '<div class="post-head">' +
-            '<div class="av av-md' + (guest ? '' : ' av-link') + '" style="background-image:url(\'https://images.unsplash.com/' + c.av + '?w=100\')"' +
-            (guest ? '' : ' onclick="location.href=\'creator-profile.html\'" title="查看创作者主页"') + '></div>' +
+            avHtml +
             '<div class="pi-info"><div class="name">' + esc(c.name) + verified + quality + previewTag + subOnlyTag + ppvTag + liveEndedTag + '</div>' +
             '<div class="pi-meta-row"><div class="meta">' + metaLive + tagHtml + '</div>' + metaGlass + '</div></div>' +
             '<div class="pi-actions">' + followBtn + subBtn + '</div></div>'
@@ -298,9 +334,13 @@
                   '<span class="live-viewers"><i class="fa-solid fa-eye"></i> ' + formatNum(800 + i * 37) + '</span>' +
                   '<span class="feed-live-enter-hint"><i class="fa-solid fa-play"></i> 点击进入直播间</span>' +
                   '</div>';
+            var cName = creator ? creator.name : pick(CREATORS, i);
+            var hostSlug = CREATOR_LIVE_HOST[cName] || 'novaplay';
             return (
                 '<div class="post-media-wrap"><div class="post-media post-media--center post-media--live feed-live-tap' +
-                (ended ? ' is-ended' : '') + '" data-live-status="' + liveStatus + '" role="button" tabindex="0" title="' +
+                (ended ? ' is-ended' : '') + '" data-live-status="' + liveStatus + '" data-creator="' + esc(cName) + '"' +
+                (ended ? '' : ' data-host-slug="' + hostSlug + '"') +
+                ' role="button" tabindex="0" title="' +
                 (ended ? '直播已结束' : '进入直播间') + '">' +
                 '<img class="feed-live-cover" src="' + url + '" alt="">' +
                 overlay +
@@ -375,7 +415,8 @@
 
         var bodyInner = '';
         if (type === 'live') {
-            bodyInner += wrapPostText((liveStatus === 'ended' ? '📺 ' : '🎻 ') + esc(text));
+            var liveText = stackKind === 'live' && LIVE_TAB_TEASER[c.name] ? LIVE_TAB_TEASER[c.name] : text;
+            bodyInner += wrapPostText((liveStatus === 'ended' ? '📺 ' : '🔴 ') + esc(liveText));
         } else if (type === 'live-preview') {
             bodyInner += wrapPostText(esc(text) + '<br>' + tags);
             bodyInner += buildLivePreviewSchedule(i, c, previewVariant, guest);
@@ -396,14 +437,19 @@
         }
         bodyInner += buildMediaCenter(type, cover, i, guest, previewVariant, liveStatus, c, ppvPrice);
 
+        var liveHostSlug = type === 'live' && liveStatus !== 'ended'
+            ? (CREATOR_LIVE_HOST[c.name] || 'novaplay')
+            : '';
+
         return (
             '<div class="feed-stack-slide">' +
             '<article class="post-card post-card--immersive" data-post-type="' + type + '"' +
             (type === 'live' ? ' data-live-status="' + liveStatus + '"' : '') +
+            (liveHostSlug ? ' data-host-slug="' + liveHostSlug + '"' : '') +
             (previewVariant ? ' data-preview-variant="' + previewVariant + '"' : '') +
             ' data-creator="' + esc(c.name) + '" data-creator-av="https://images.unsplash.com/' + c.av + '?w=120"' +
             ' data-creator-lv="' + c.lv + '" data-creator-tags="' + esc((c.tags || []).join(' · ')) + '"' +
-            ' data-detail-href="' + detailHref(type, i) + '">' +
+            ' data-detail-href="' + (type === 'live' ? liveDetailHref(c.name, liveStatus) : detailHref(type, i, c.name, liveStatus)) + '">' +
             buildHead(c, i, { guest: guest, type: type, previewVariant: previewVariant, liveStatus: liveStatus, stackKind: stackKind }) +
             '<div class="post-card-body">' + bodyInner + '</div>' +
             buildActions(i, guest, type, liveStatus) +

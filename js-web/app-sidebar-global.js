@@ -214,11 +214,15 @@
         if (page === 'creator-profile.html') {
             return readNavContext();
         }
-        if (page === 'home.html' || page === 'guest-home.html' || page === 'yanshi-web.html') return 'home';
+        if (page === 'home.html' || page === 'home-ab-feed.html' || page === 'guest-home.html' || page === 'yanshi-web.html') return 'home';
         if (page === 'subscriptions.html') return 'subscriptions';
+        if (page === 'live-detail.html' || page === 'live-detail-ab.html' || page === 'live-all.html' || page === 'live-pip-global.html') {
+            var liveCtx = readNavContext();
+            return liveCtx || 'home';
+        }
         if (
             page === 'discover.html' || page === 'topics.html' || page === 'topic-detail.html' ||
-            page === 'bookmarks.html' || page.indexOf('live-') === 0 || page.indexOf('proto-discover') === 0
+            page === 'bookmarks.html' || page.indexOf('proto-discover') === 0
         ) return 'discover';
         if (page.indexOf('create') === 0) return 'create';
         if (page.indexOf('messages') === 0) return 'messages';
@@ -957,7 +961,13 @@
     }
 
     function resolveBackByRole(role) {
-        return role === 'host' ? 'create-live-host.html' : 'live-detail.html';
+        return role === 'host' ? 'create-live-host.html' : 'live-detail-ab.html';
+    }
+
+    function dispatchPipChange(state) {
+        try {
+            window.dispatchEvent(new CustomEvent('fl-live-pip-change', { detail: state || null }));
+        } catch (e) { /* noop */ }
     }
 
     function renderLivePip(state) {
@@ -965,6 +975,7 @@
         var node = ensureLivePipNode();
         if (!state || !state.active) {
             node.classList.remove('show');
+            dispatchPipChange(null);
             return;
         }
         node.classList.add('show');
@@ -991,8 +1002,10 @@
             btnClose.addEventListener('click', function () {
                 writeLivePipState(null);
                 node.classList.remove('show');
+                dispatchPipChange(null);
             });
         }
+        dispatchPipChange(state);
     }
 
     function initLivePip() {

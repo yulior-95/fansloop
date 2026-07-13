@@ -448,7 +448,15 @@
         var p = getPost(id);
         if (!p) return;
         if (p.live) {
-            location.href = 'live-detail.html';
+            if (global.LiveViewHost && global.LiveViewHost.navigateFromFeed) {
+                var fakeArticle = document.createElement('article');
+                fakeArticle.setAttribute('data-creator', p.author || '');
+                fakeArticle.setAttribute('data-live-status', 'live');
+                if (p.hostSlug) fakeArticle.setAttribute('data-host-slug', p.hostSlug);
+                global.LiveViewHost.navigateFromFeed(fakeArticle, null, 'live', 'discover');
+            } else {
+                location.href = 'live-detail-ab.html?host=yeyu&nav=discover';
+            }
             return;
         }
         if (!ensureDom()) return;

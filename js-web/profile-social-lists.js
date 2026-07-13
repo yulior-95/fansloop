@@ -30,7 +30,7 @@
             { id: 'f2', name: 'Mio_摄影', av: AV[1], followsMe: true, iFollow: true, profilePage: 'creator-profile.html', livePage: 'live-detail.html' },
             { id: 'f3', name: '东京夜跑团', av: AV[4], followsMe: true, iFollow: false, isLive: true, profilePage: 'creator-profile.html', livePage: 'live-detail.html?host=nightrun' },
             { id: 'f4', name: '胶片少女', av: AV[2], followsMe: true, iFollow: true, profilePage: 'creator-profile.html', livePage: 'live-detail.html' },
-            { id: 'f5', name: '山野食光', av: AV[6], followsMe: true, iFollow: false, profilePage: 'creator-profile.html', livePage: 'live-detail.html' },
+            { id: 'f5', name: '山野食光', av: AV[6], followsMe: true, iFollow: false, profilePage: 'creator-profile.html', livePage: 'live-detail.html?host=shanye' },
             { id: 'f6', name: '代码诗人', av: AV[7], followsMe: true, iFollow: false, profilePage: 'creator-profile.html', livePage: 'live-detail.html' }
         ],
         following: [

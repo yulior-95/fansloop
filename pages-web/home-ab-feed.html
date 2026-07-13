@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>首页 · 方案 B（沉浸 Feed）· FansLoop</title>
+<meta name="description" content="FansLoop 首页 A/B 测试方案 B：抖音 Web 风全屏竖滑 Feed，元信息叠加于内容四角。">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/subscribe-modal.css">
+<link rel="stylesheet" href="../css-web/home-feed.css">
+<link rel="stylesheet" href="../css-web/home-feed-v2.css">
+<link rel="stylesheet" href="../css-web/home-ab-feed.css">
+<script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
+</head>
+<body class="is-home-ab-feed">
+
+<!--
+  A/B 测试 · 方案 B（本页）
+  - 独立路由：home-ab-feed.html，不影响 home.html（方案 A）
+  - localStorage：fl_home_ab_variant=b，fl_home_ab_enter_at=首次进入时间戳
+  - 切换：右上角「方案 A」链至 home.html
+-->
+
+<div class="app-shell">
+    <aside class="app-sidebar"></aside>
+
+    <main class="app-main ab-feed-main">
+        <div class="ab-feed-chrome">
+            <div class="ab-feed-tabs" id="abFeedTabs" role="tablist">
+                <div class="tab active" data-feed="rec" role="tab" tabindex="0"><i class="fa-solid fa-compass"></i>推荐</div>
+                <div class="tab" data-feed="follow" role="tab" tabindex="0"><i class="fa-solid fa-user-group"></i>关注</div>
+                <div class="tab" data-feed="live" role="tab" tabindex="0"><i class="fa-solid fa-tower-broadcast"></i>直播</div>
+            </div>
+            <div class="ab-feed-chrome-right">
+                <button type="button" class="ab-feed-icon-btn" id="abFeedSearchBtn" title="搜索"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <a class="ab-variant-pill" href="home.html" title="切换至方案 A（当前首页）"><span class="dot"></span>方案 B · 切至 A</a>
+            </div>
+        </div>
+
+        <div class="ab-search-pop" id="abFeedSearchPop">
+            <div class="hs-inner h-search-live h-search-unified">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" id="globalSearchInp" placeholder="搜索创作者、内容或话题…" autocomplete="off" />
+            </div>
+            <div class="gs-drop" id="globalSearchDrop"></div>
+        </div>
+
+        <div class="ab-feed-panels">
+            <div class="ab-feed-panel active is-first-visit-hint" id="abFeedRec">
+                <div class="ab-feed-viewport" id="abFeedViewport">
+                    <div class="ab-feed-track" id="abFeedTrack" data-build="30"></div>
+                </div>
+                <div class="ab-feed-progress" id="abFeedProgress" aria-hidden="true"></div>
+                <div class="ab-feed-scroll-hint"><i class="fa-solid fa-chevron-down"></i><span>下滑观看更多</span></div>
+            </div>
+
+            <div class="ab-feed-panel" id="abFeedFollow">
+                <div class="ab-feed-viewport" id="abFeedFollowViewport">
+                    <div class="ab-feed-track" id="abFeedFollowTrack" data-build="30"></div>
+                </div>
+                <div class="ab-feed-progress" id="abFeedFollowProgress" aria-hidden="true"></div>
+            </div>
+
+            <div class="ab-feed-panel" id="abFeedLive">
+                <div class="ab-feed-viewport" id="abFeedLiveViewport">
+                    <div class="ab-feed-track" id="abFeedLiveTrack" data-build="30"></div>
+                </div>
+                <div class="ab-feed-progress" id="abFeedLiveProgress" aria-hidden="true"></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div class="create-fab-wrap" id="createFabWrap">
+    <div class="create-fab-menu">
+        <button type="button" class="create-fab-item live" data-create-type="live"><i class="fa-solid fa-tower-broadcast"></i> 开直播</button>
+        <button type="button" class="create-fab-item video" data-create-type="video"><i class="fa-solid fa-video"></i> 视频</button>
+        <button type="button" class="create-fab-item image" data-create-type="image"><i class="fa-regular fa-image"></i> 图文</button>
+    </div>
+    <button type="button" class="create-fab-main" id="createFabMain" title="发布图文"><i class="fa-solid fa-plus"></i></button>
+</div>
+
+<div class="toast-host-f" id="toastHostF"></div>
+
+<div id="flStandaloneModalRoot" class="fl-modal--default" aria-hidden="true" style="display:none;position:fixed;inset:0;z-index:99999;align-items:center;justify-content:center;padding:clamp(12px,3vw,24px);background:rgba(0,0,0,0.58);backdrop-filter:blur(10px);">
+    <iframe title="FansLoop 弹窗" style="width:min(940px,calc(100vw - 32px));height:min(920px,calc(100vh - 32px));border:none;border-radius:var(--r-xl);background:transparent;box-shadow:0 28px 70px rgba(0,0,0,0.5);pointer-events:auto;"></iframe>
+</div>
+
+<div class="inline-overlay" id="ovlSubscribe">
+    <div class="iol-panel">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-crown" style="color:var(--brand-purple)"></i> 订阅创作者</h3>
+            <button type="button" class="iol-close" id="closeSubscribe"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="sub-modal-step active" id="subStep1">
+            <div class="sub-creator">
+                <div class="av av-sm" style="background-image:url('https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100')"></div>
+                <div>
+                    <div style="font-size:13px;font-weight:700" id="subCreatorName">山野食光</div>
+                    <div style="font-size:11px;color:var(--t-tertiary)">订阅后可解锁专属内容与直播回放</div>
+                </div>
+            </div>
+            <div class="sub-balance-bar" id="subBalanceBar">
+                <span><i class="fa-solid fa-wallet"></i> 钱包可用余额</span>
+                <b id="subBalanceVal">— USDT</b>
+            </div>
+            <div class="sub-plan-list">
+                <button type="button" class="sub-plan active" data-price="16"><span><div class="p1">月度计划</div><div class="p2">可随时取消</div></span><span class="price">16 USDT</span></button>
+                <button type="button" class="sub-plan" data-price="42"><span><div class="p1">季度计划</div><div class="p2">节省 12%</div></span><span class="price">42 USDT</span></button>
+                <button type="button" class="sub-plan" data-price="150"><span><div class="p1">年度计划</div><div class="p2">含专属徽章</div></span><span class="price">150 USDT</span></button>
+            </div>
+            <button type="button" class="btn btn-primary btn-block" id="btnConfirmSubscribe"><i class="fa-solid fa-bolt"></i> 确认订阅并支付</button>
+        </div>
+        <div class="sub-modal-step" id="subStepRecharge">
+            <div class="sub-recharge-hint" id="subRechargeHint"><i class="fa-solid fa-circle-exclamation"></i><span>余额不足，需充值 <b id="subRechargeNeed">—</b> USDT。</span></div>
+            <div class="sub-pay-summary">
+                <div class="row"><span>当前余额</span><span class="v" id="subRechargeBalNow">—</span></div>
+                <div class="row"><span>订阅应付</span><span class="v" id="subRechargePayDue">—</span></div>
+            </div>
+            <div class="sub-recharge-amt-grid">
+                <button type="button" class="sub-recharge-amt" data-amt="50">50 USDT</button>
+                <button type="button" class="sub-recharge-amt active" data-amt="100">100 USDT</button>
+                <button type="button" class="sub-recharge-amt" data-amt="200">200 USDT</button>
+            </div>
+            <div class="sub-step-actions">
+                <button type="button" class="btn btn-secondary" id="btnSubRechargeBack">返回</button>
+                <button type="button" class="btn btn-primary" id="btnSubRechargeConfirm"><i class="fa-solid fa-bolt"></i> 确认充值</button>
+            </div>
+        </div>
+        <div class="sub-modal-step" id="subStepPayPwd">
+            <div class="sub-pay-summary">
+                <div class="row"><span>订阅创作者</span><span class="v" id="subPayCreator">—</span></div>
+                <div class="row"><span>支付金额</span><span class="v" id="subPayAmount">— USDT</span></div>
+            </div>
+            <div class="sub-pwd-input" id="subPwdDots"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+            <div class="sub-pwd-pad" id="subPwdPad">
+                <button type="button" data-digit="1">1</button><button type="button" data-digit="2">2</button><button type="button" data-digit="3">3</button>
+                <button type="button" data-digit="4">4</button><button type="button" data-digit="5">5</button><button type="button" data-digit="6">6</button>
+                <button type="button" data-digit="7">7</button><button type="button" data-digit="8">8</button><button type="button" data-digit="9">9</button>
+                <button type="button" data-action="clear"><i class="fa-solid fa-delete-left"></i></button>
+                <button type="button" data-digit="0">0</button>
+                <button type="button" data-action="submit"><i class="fa-solid fa-check"></i></button>
+            </div>
+            <div class="sub-step-actions"><button type="button" class="btn btn-secondary" id="btnSubPwdBack">上一步</button></div>
+        </div>
+        <div class="sub-modal-step" id="subStep2">
+            <div class="sub-result"><i class="fa-solid fa-circle-check"></i><h4>订阅成功</h4><p id="subResultText">你已成功订阅该创作者。</p></div>
+            <button type="button" class="btn btn-primary btn-block mt-16" id="btnDoneSubscribe">完成</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function toast(msg) {
+    var host = document.getElementById('toastHostF');
+    if (!host) return;
+    var t = document.createElement('div');
+    t.className = 'toast-f';
+    t.textContent = msg;
+    host.appendChild(t);
+    setTimeout(function () { t.remove(); }, 2400);
+}
+window.toast = toast;
+</script>
+<script src="../js-web/gift-modal-context.js"></script>
+<script src="../js-web/fl-interaction-modal.js"></script>
+<script src="../js-web/live-wallet-store.js"></script>
+<script src="../js-web/subscribe-modal.js"></script>
+<script src="../js-web/risk-whitelist-store.js"></script>
+<script src="../js-web/ppv-unlock-modal.js"></script>
+<script src="../js-web/user-prototype-registry.js"></script>
+<script src="../js-web/user-assets-store.js"></script>
+<script src="../js-web/pay-password-store.js"></script>
+<script src="../js-web/auth-session.js"></script>
+<script src="../js-web/auth-ui-sync.js"></script>
+<script src="../js-web/global-search.js"></script>
+<script src="../js-web/feed-post-text-clamp.js"></script>
+<script src="../js-web/live-view-host.js"></script>
+<script src="../js-web/feed-ab-stack-builder.js"></script>
+<script src="../js-web/home-ab-feed.js"></script>
+<script src="../js-web/app-sidebar-global.js"></script>
+</body>
+</html>

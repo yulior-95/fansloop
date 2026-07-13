@@ -181,11 +181,17 @@
             });
             mountPip();
             syncConsoleStage();
+            try {
+                global.dispatchEvent(new CustomEvent("fl-live-pip-change", { detail: read() }));
+            } catch (e) {}
         },
         deactivate: function () {
             write({ active: false, x: null, y: null });
             removePip();
             syncConsoleStage();
+            try {
+                global.dispatchEvent(new CustomEvent("fl-live-pip-change", { detail: null }));
+            } catch (e) {}
         },
         setPaused: function (paused) {
             write({ paused: !!paused });

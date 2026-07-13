@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>正在直播 · 方案 B · FansLoop</title>
+<meta name="description" content="FansLoop 直播详情 A/B 测试方案 B：沉浸简约布局，聚焦画面与评论。">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/live-pip-placeholder.css">
+<link rel="stylesheet" href="../css-web/live-detail-ab.css?v=20260710-7">
+<link rel="stylesheet" href="../css-web/dev-glass-note.css">
+<script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
+</head>
+<body class="is-live-detail-ab">
+
+<!--
+  A/B 测试 · 方案 B（本页）
+  - 独立路由：live-detail-ab.html，不影响 live-detail.html（方案 A）
+  - 默认演示：?host=yeyu（夜雨听弦 · 深夜爵士）
+  - 切换：顶栏「方案 A」链至 live-detail.html
+-->
+
+<div class="app-shell">
+    <aside class="app-sidebar"></aside>
+
+    <header class="app-header">
+        <div class="h-search h-search-live h-search-unified">
+            <div class="hs-inner">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" placeholder="搜索创作者、内容或话题…" autocomplete="off" />
+            </div>
+            <div class="gs-drop"></div>
+        </div>
+        <div class="h-actions">
+            <button class="h-icon" type="button"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="h-icon" type="button"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" type="button" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i><span class="dot"></span></button>
+            <button class="h-cta" type="button" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+
+        <div class="ld-ab-chrome">
+            <button type="button" class="ld-ab-back" id="ldAbBack" title="返回"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="ld-ab-title">
+                <span class="host" id="ldAbChromeHost">夜雨听弦</span>
+                <span class="sub" id="ldAbChromeSub">深夜爵士</span>
+            </div>
+            <div class="ld-ab-chrome-right">
+                <a class="ld-ab-variant-pill" id="ldAbVariantPill" href="live-detail.html?host=yeyu" title="切换至方案 A">
+                    <span class="dot"></span><span class="lbl">方案 B · 切至 A</span>
+                </a>
+                <div style="position:relative">
+                    <button type="button" class="ld-ab-icon-btn" id="ldAbMoreBtn" title="更多"><i class="fa-solid fa-ellipsis"></i></button>
+                    <div class="ld-ab-more-menu" id="ldAbMoreMenu">
+                        <button type="button" data-action="report"><i class="fa-solid fa-flag"></i> 举报</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ld-ab-stage">
+
+            <!-- 左侧：直播画面 -->
+            <div class="ld-ab-video-col">
+                <div class="ld-ab-player" id="ldAbPlayer" style="background-image: url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1600')">
+                    <div class="ld-ab-gift-fly" id="ldAbGiftFly" aria-label="礼物打赏飘屏"></div>
+
+                    <div class="ld-ab-live-subtitle" id="ldAbLiveSubtitle" hidden aria-live="polite">
+                        <span id="ldAbSubMain"></span>
+                        <span class="orig" id="ldAbSubOrig"></span>
+                    </div>
+
+                    <div class="ld-ab-player-top">
+                        <span class="ld-ab-live-pill"><span class="dot"></span> LIVE</span>
+                        <span class="ld-ab-stat"><i class="fa-regular fa-eye"></i> 2,486 在线</span>
+                        <span class="ld-ab-stat"><i class="fa-regular fa-clock"></i> 2:14:36</span>
+                        <span class="ld-ab-cohost-status host-cohost-chip host-cohost-chip--link" id="ldAbCohostStatus" hidden><i class="fa-solid fa-link"></i> 连麦中 · 2/3</span>
+                        <div class="ld-ab-cohost-layout" id="ldAbCohostLayout" hidden role="group" aria-label="连麦分屏视角">
+                            <button type="button" class="ld-ab-cohost-layout-btn is-active" data-cohost-layout="2">双屏</button>
+                            <button type="button" class="ld-ab-cohost-layout-btn" data-cohost-layout="3">三屏</button>
+                        </div>
+                        <span class="dev-glass-wrap dev-glass-wrap--inline dev-glass-wrap--pop-below ld-ab-cohost-dev" id="ldAbCohostDevGlass" hidden>
+                            <span class="dev-glass-sphere" tabindex="0" aria-describedby="devCohostLayoutTip">
+                                <span class="dev-glass-sphere-shine"></span>
+                                <span class="dev-glass-sphere-txt">To 研发</span>
+                            </span>
+                            <span class="dev-glass-pop dev-glass-pop--wide" id="devCohostLayoutTip" role="tooltip"></span>
+                        </span>
+                        <span class="dev-glass-wrap dev-glass-wrap--inline dev-glass-wrap--pop-below dev-glass-wrap--layer-top ld-ab-live-feature-dev" id="ldAbLiveFeatureDevGlass" hidden>
+                            <span class="dev-glass-sphere" tabindex="0" aria-describedby="devLiveFeatureTip">
+                                <span class="dev-glass-sphere-shine"></span>
+                                <span class="dev-glass-sphere-txt">To 研发</span>
+                            </span>
+                            <span class="dev-glass-pop dev-glass-pop--wide" id="devLiveFeatureTip" role="tooltip"></span>
+                        </span>
+                        <span class="spacer"></span>
+                        <button type="button" class="ld-ab-vctrl" id="ldAbBtnVol" title="音量"><i class="fa-solid fa-volume-high"></i></button>
+                        <button type="button" class="ld-ab-vctrl" id="ldAbBtnTranslate" title="弹幕翻译"><i class="fa-solid fa-language"></i></button>
+                        <button type="button" class="ld-ab-vctrl" id="ldAbBtnGear" title="弹幕与无障碍设置"><i class="fa-solid fa-gear"></i></button>
+                        <button type="button" class="ld-ab-vctrl" id="ldAbBtnPip" title="悬浮小窗"><i class="fa-solid fa-window-restore"></i></button>
+                        <button type="button" class="ld-ab-vctrl expand" id="ldAbBtnExpand" title="全屏"><i class="fa-solid fa-expand"></i></button>
+                    </div>
+
+                    <div class="ld-ab-settings-pop" id="ldAbSettingsPop">
+                        <div class="ld-ab-sp-head">
+                            <h4><i class="fa-solid fa-sliders"></i> 弹幕设置</h4>
+                            <button type="button" class="ld-ab-sp-close" id="ldAbSettingsClose" title="关闭"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div class="ld-ab-sp-item">
+                            <div class="ld-ab-sp-row"><span>弹幕区域</span></div>
+                            <div class="ld-ab-sp-area" id="ldAbDmAreaGroup">
+                                <button type="button" class="is-active" data-dm-area="scroll">弹</button>
+                                <button type="button" data-dm-area="top">顶</button>
+                                <button type="button" data-dm-area="bottom">底</button>
+                            </div>
+                        </div>
+                        <div class="ld-ab-sp-item">
+                            <div class="ld-ab-sp-row"><span>弹幕字号</span><b id="ldAbDmFontVal">14</b></div>
+                            <input type="range" id="ldAbDmFontRange" min="12" max="30" step="1" value="14">
+                        </div>
+                        <div class="ld-ab-sp-item">
+                            <div class="ld-ab-sp-row"><span>弹幕透明度</span><b id="ldAbDmOpacityVal">75%</b></div>
+                            <input type="range" id="ldAbDmOpacityRange" min="20" max="100" step="1" value="75">
+                        </div>
+                        <div class="ld-ab-sp-item ld-ab-sp-switches">
+                            <label class="ld-ab-sp-switch">
+                                <span>隐藏弹幕</span>
+                                <input type="checkbox" id="ldAbDmHide">
+                                <span class="ld-ab-sp-switch-ui"></span>
+                            </label>
+                            <label class="ld-ab-sp-switch">
+                                <span>画面防遮挡</span>
+                                <input type="checkbox" id="ldAbDmSafeArea">
+                                <span class="ld-ab-sp-switch-ui"></span>
+                            </label>
+                            <label class="ld-ab-sp-switch">
+                                <span>礼物特效屏蔽</span>
+                                <input type="checkbox" id="ldAbGiftFxMute">
+                                <span class="ld-ab-sp-switch-ui"></span>
+                            </label>
+                        </div>
+                        <div class="ld-ab-sp-divider"><i class="fa-solid fa-earth-americas"></i> 跨国界无障碍</div>
+                        <div class="ld-ab-sp-item ld-ab-sp-switches">
+                            <label class="ld-ab-sp-switch">
+                                <span>自动翻译聊天弹幕</span>
+                                <input type="checkbox" id="ldAbGaChatTranslate" checked>
+                                <span class="ld-ab-sp-switch-ui"></span>
+                            </label>
+                            <label class="ld-ab-sp-switch">
+                                <span>主播语音实时字幕</span>
+                                <input type="checkbox" id="ldAbGaLiveSubtitle">
+                                <span class="ld-ab-sp-switch-ui"></span>
+                            </label>
+                        </div>
+                        <div class="ld-ab-sp-item">
+                            <div class="ld-ab-sp-row"><span>观看语言</span></div>
+                            <select id="ldAbGaCommLang" class="ld-ab-sp-lang" aria-label="观看语言"></select>
+                        </div>
+                    </div>
+
+                    <span class="ld-ab-cohost-pill"><i class="fa-solid fa-microphone-lines"></i> 观众席 · 1/2</span>
+
+                    <div class="ld-ab-stream-title" id="ldAbStreamTitle">深夜爵士 · 即兴钢琴</div>
+
+                    <div class="ld-ab-host-chip" id="ldAbHostChip">
+                        <div class="av" id="ldAbHostAv" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200')"></div>
+                        <div class="meta">
+                            <div class="nm" id="ldAbHostNm">夜雨听弦</div>
+                            <div class="tag" id="ldAbHostTag">音乐主播 · LV 7</div>
+                        </div>
+                        <button type="button" class="ld-ab-follow-btn" id="ldAbBtnFollow" title="关注">
+                            <i class="fa-regular fa-bell"></i><span class="lbl">关注</span>
+                        </button>
+                    </div>
+
+                    <div class="obs-audience-slots ld-ab-audience-slots" id="ldAbAudienceSlots" aria-label="观众连麦席位">
+                        <div class="obs-audience-slot is-speaking" data-slot="0">
+                            <div class="av-wrap"><div class="av" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div></div>
+                            <span class="nm">Luna 🌙</span>
+                        </div>
+                        <div class="obs-audience-slot empty" data-slot="1">
+                            <div class="av-wrap"><div class="av"><i class="fa-solid fa-plus"></i></div></div>
+                            <span class="nm">空席</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ld-ab-info-panel" id="ldAbInfoPanel">
+                    <div class="ld-ab-info-section">
+                        <h4><i class="fa-solid fa-circle-info"></i> 直播简介</h4>
+                        <p id="ldAbIntroBody">雨夜小提琴与钢琴即兴合奏，欢迎弹幕点曲。礼物将触发直播间特效。</p>
+                        <div class="tags" id="ldAbIntroTags">
+                            <span class="chip"># 爵士</span>
+                            <span class="chip"># 即兴钢琴</span>
+                            <span class="chip"># 深夜直播</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：评论 -->
+            <aside class="ld-ab-chat-col">
+                <div class="ld-ab-chat-head">
+                    <h4><i class="fa-regular fa-comments"></i> 聊天</h4>
+                    <div class="ld-ab-chat-head-end">
+                        <button type="button" class="ld-ab-rank-toggle" id="ldAbRankToggle" aria-expanded="false" aria-controls="ldAbRankPanel" title="打赏榜单">
+                            <span class="ld-ab-rank-avatars" id="ldAbRankAvatars" aria-hidden="true"></span>
+                            <i class="fa-solid fa-chevron-down ld-ab-rank-chevron"></i>
+                        </button>
+                        <span class="ld-ab-online">2,486 在线</span>
+                    </div>
+                </div>
+
+                <div class="ld-ab-chat-tabs">
+                    <div class="ld-ab-ct active" data-chat-tab="all">全部</div>
+                    <div class="ld-ab-ct" data-chat-tab="host">管理员</div>
+                    <div class="ld-ab-ct" data-chat-tab="gift">礼物</div>
+                    <div class="ld-ab-ct" data-chat-tab="sub">订阅</div>
+                </div>
+
+                <div class="ld-ab-chat-body" id="ldAbChatBody" data-tab="all">
+                    <div class="ld-ab-sys"><i class="fa-solid fa-shield-halved" style="margin-right:4px"></i> 文明用语 · 禁止刷屏</div>
+
+                    <div class="ld-ab-msg" data-filter="sub">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=80')"></div>
+                        <div class="body">
+                            <span class="nm vip"><span class="badge lv">LV6</span>NeoMaster</span>
+                            <span class="text">刚刚 <span style="color:#C084FC;font-weight:700">订阅了房主</span> 月费 28 USDT 🎉</span>
+                        </div>
+                    </div>
+
+                    <div class="ld-ab-msg">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                        <div class="body">
+                            <span class="nm">Luna 🌙</span>
+                            <span class="text">连麦中 · 这段即兴太美了</span>
+                        </div>
+                    </div>
+
+                    <div class="ld-ab-msg is-gift" data-filter="gift">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
+                        <div class="body">
+                            <span class="nm gift">Ken</span>
+                            <span class="text">送出 🎉 荧光棒 ×10</span>
+                        </div>
+                    </div>
+
+                    <div class="ld-ab-msg is-gift" data-filter="gift">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></div>
+                        <div class="body">
+                            <span class="nm gift">Aria</span>
+                            <span class="text">送出 💎 钻石礼物</span>
+                        </div>
+                    </div>
+
+                    <div class="ld-ab-msg is-gift" data-filter="gift">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
+                        <div class="body">
+                            <span class="nm gift">Ken</span>
+                            <span class="text">送出 🎉 荧光棒 ×10</span>
+                        </div>
+                    </div>
+
+                    <div class="ld-ab-msg" data-filter="gift">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></div>
+                        <div class="body">
+                            <span class="nm">BlockTrader</span>
+                            <span class="text">打赏 50 USDT</span>
+                        </div>
+                    </div>
+
+                    <div class="ld-ab-msg is-gift" data-filter="gift">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
+                        <div class="body">
+                            <span class="nm gift">WhaleX</span>
+                            <span class="text">送出 🚀 火箭 ×1</span>
+                        </div>
+                    </div>
+
+                    <div class="ld-ab-msg">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80')"></div>
+                        <div class="body">
+                            <span class="nm">Echo</span>
+                            <span class="text">可以点一首《Autumn Leaves》吗？</span>
+                        </div>
+                    </div>
+
+                    <div class="ld-ab-msg" data-filter="host">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
+                        <div class="body">
+                            <span class="nm host"><span class="badge creator">主播</span>夜雨听弦</span>
+                            <span class="text">收到，下一首安排 🎹</span>
+                        </div>
+                    </div>
+
+                    <div class="ld-ab-msg" data-filter="host">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1463453091185-61582044d556?w=80')"></div>
+                        <div class="body">
+                            <span class="nm mod"><span class="badge mod">管理</span>Mason</span>
+                            <span class="text">欢迎新朋友，点歌请走弹幕～</span>
+                        </div>
+                    </div>
+
+                    <div class="ld-ab-msg">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1463453091185-61582044d556?w=80')"></div>
+                        <div class="body">
+                            <span class="nm">Maya</span>
+                            <span class="text">雨声配钢琴，氛围绝了</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ld-ab-chat-foot">
+                    <div class="ld-ab-emoji-pop" id="ldAbEmojiPop"></div>
+                    <div class="ld-ab-mic-reject" id="ldAbMicReject" hidden>
+                        <i class="fa-solid fa-circle-xmark"></i> 主播拒绝了你的上麦申请
+                    </div>
+                    <div class="ld-ab-mic-bar" id="ldAbMicBar" hidden>
+                        <i class="fa-solid fa-microphone"></i>
+                        <span class="txt">你已上麦 · 麦克风已开启</span>
+                        <div class="actions">
+                            <button type="button" class="ld-ab-mic-act" id="ldAbMicMute">静音</button>
+                            <button type="button" class="ld-ab-mic-act leave" id="ldAbMicLeave">下麦</button>
+                        </div>
+                    </div>
+
+                    <div class="ld-ab-quick-bar">
+                        <button type="button" class="ld-ab-quick" id="ldAbBtnCheer" title="喝彩">
+                            <i class="fa-regular fa-thumbs-up"></i><span class="lbl">2.8K</span>
+                        </button>
+                        <button type="button" class="ld-ab-quick" id="ldAbBtnShare" title="分享">
+                            <i class="fa-solid fa-share-nodes"></i><span class="lbl">分享</span>
+                        </button>
+                        <button type="button" class="ld-ab-quick" id="ldAbBtnMic" title="申请上麦">
+                            <i class="fa-solid fa-microphone"></i><span class="lbl">上麦</span>
+                        </button>
+                        <button type="button" class="ld-ab-quick gift-cta" id="ldAbBtnGift" title="打赏送礼">
+                            <i class="fa-solid fa-gift"></i><span class="lbl">送礼</span>
+                        </button>
+                    </div>
+
+                    <div class="ld-ab-input-row">
+                        <button type="button" class="ld-ab-emoji-btn" id="ldAbBtnEmoji" title="表情"><i class="fa-regular fa-face-smile"></i></button>
+                        <input type="text" id="ldAbChatInput" placeholder="说点什么…" autocomplete="off" />
+                        <button type="button" class="ld-ab-send-btn" id="ldAbBtnSend" title="发送"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+
+                <div class="ld-ab-rank-pop" id="ldAbRankPanel" hidden role="dialog" aria-label="打赏榜单">
+                    <div class="ld-ab-rank-pop-hd">
+                        <h5><i class="fa-solid fa-trophy"></i> 打赏榜单</h5>
+                        <span class="ld-ab-tips-total" id="ldAbTipsTotal">总打赏 520 USDT</span>
+                        <button type="button" class="ld-ab-rank-pop-close" id="ldAbRankClose" title="关闭"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <ul class="ld-ab-rank-list" id="ldAbRankList">
+                        <li><span class="rk">1</span><span class="av" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></span><span class="nm">Ken</span><span class="amt">188 USDT</span></li>
+                        <li><span class="rk">2</span><span class="av" style="background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></span><span class="nm">Aria</span><span class="amt">126 USDT</span></li>
+                        <li><span class="rk">3</span><span class="av" style="background-image:url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></span><span class="nm">BlockTrader</span><span class="amt">50 USDT</span></li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    </main>
+</div>
+
+<div class="ld-ab-mic-leave-ovl" id="ldAbMicLeaveOvl" hidden>
+    <div class="ld-ab-mic-leave-card">
+        <h4><i class="fa-solid fa-microphone-slash"></i> 确认下麦</h4>
+        <p>下麦后将断开连麦并释放观众席位，确定要下麦吗？</p>
+        <div class="acts">
+            <button type="button" class="cancel" id="ldAbMicLeaveCancel">取消</button>
+            <button type="button" class="confirm" id="ldAbMicLeaveConfirm">确认下麦</button>
+        </div>
+    </div>
+</div>
+
+<div class="ld-ab-toast" id="ldAbToast" role="status"></div>
+<div class="ld-ab-like-burst" id="ldAbLikeBurst" aria-hidden="true"></div>
+
+<div class="ld-ab-pip-win" id="ldAbPipWin">
+    <div class="pip-hd">
+        <span id="ldAbPipTitle"><i class="fa-solid fa-circle" style="color:#EF4444;font-size:8px"></i> 直播中</span>
+        <div class="pip-actions">
+            <button type="button" id="ldAbPipRestore" class="pip-restore"><i class="fa-solid fa-up-right-and-down-left-from-center"></i> 回到页面</button>
+            <button type="button" id="ldAbPipClose"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+    </div>
+    <div class="pip-body"></div>
+</div>
+
+<div id="flStandaloneModalRoot" class="fl-modal--default" aria-hidden="true" style="display:none;position:fixed;inset:0;z-index:99999;align-items:center;justify-content:center;padding:clamp(12px,3vw,24px);background:rgba(0,0,0,0.58);backdrop-filter:blur(10px);">
+    <iframe title="FansLoop 弹窗" style="width:min(940px,calc(100vw - 32px));height:min(920px,calc(100vh - 32px));border:none;border-radius:var(--r-xl);background:transparent;box-shadow:0 28px 70px rgba(0,0,0,0.5);pointer-events:auto;"></iframe>
+</div>
+
+<script src="../js-web/live-view-host.js"></script>
+<script>
+(function () {
+    var p = new URLSearchParams(location.search);
+    if (!p.has('host')) {
+        var u = new URL(location.href);
+        u.searchParams.set('host', 'yeyu');
+        history.replaceState(null, '', u.pathname + u.search);
+    }
+    if (window.LiveViewHost && window.LiveViewHost.applyFromUrl) {
+        window.LiveViewHost.applyFromUrl();
+    }
+})();
+</script>
+<script src="../js-web/live-pip-placeholder.js"></script>
+<script src="../js-web/gift-modal-context.js"></script>
+<script src="../js-web/global-accessibility-store.js"></script>
+<script src="../js-web/fl-interaction-modal.js"></script>
+<script src="../js-web/live-detail-cohost.js"></script>
+<script src="../js-web/live-detail-ab.js"></script>
+<script src="../js-web/global-search.js"></script>
+<script src="../js-web/app-sidebar-global.js"></script>
+<script src="../js-web/host-live-pip-global.js"></script>
+<script src="../js-web/dev-glass-viewport.js"></script>
+</body>
+</html>

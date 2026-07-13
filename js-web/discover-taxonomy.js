@@ -38,7 +38,7 @@
             id: 'p2', title: '雨夜小提琴现场 · 1,284 观看', author: '夜雨听弦', handle: '@nightrain',
             av: 'photo-1500648767791-00dcc994a43e', cover: 'photo-1465847899084-d164df4dedc6',
             primaryCategory: 'music', categories: ['music'], hashtags: ['爵士夜'],
-            live: true, views: '1,284 直播观看', type: 'live'
+            live: true, hostSlug: 'yeyu', views: '1,284 直播观看', type: 'live'
         },
         {
             id: 'p3', title: '富士山五合目零下 4℃ 拍摄手记', author: '山野食光', handle: '@yamano',

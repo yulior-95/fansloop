@@ -25,6 +25,7 @@ window.DEMO_PAGE_GROUPS = [
     ]],
     ["积分中心", [
         ["home.html", "首页 Feed"],
+        ["home-ab-feed.html", "首页 A/B · 方案 B（沉浸 Feed）"],
         ["home.html?pointsDrawer=open", "首页 · 积分抽屉"],
         ["home-points-ledger.html", "积分流水"],
         ["points-mall.html", "积分兑换商城"],
@@ -32,6 +33,7 @@ window.DEMO_PAGE_GROUPS = [
     ]],
     ["主场景", [
         ["home.html", "首页（已登录信息流）"],
+        ["home-ab-feed.html", "首页 A/B · 方案 B（沉浸 Feed）"],
         ["subscriptions.html", "订阅"],
         ["discover.html", "发现"],
         ["create.html", "创建内容"],
@@ -58,6 +60,7 @@ window.DEMO_PAGE_GROUPS = [
         ["topic-detail.html", "话题详情"],
         ["live-detail.html", "直播详情"],
         ["live-all.html", "全部直播"],
+        ["obs-cohost-pk/index.html", "OBS 连麦 & PK · 高保真原型"],
         ["creator-profile.html", "创作者主页"]
     ]],
     ["创作发布 / 付费解锁", [
