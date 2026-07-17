@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>账户划转 · FansLoop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css-web/common-web.css">
+<script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
+<link rel="stylesheet" href="../css-web/recharge-flow.css">
+<style>
+.tf-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 22px; max-width: 1100px; }
+@media (max-width: 1000px) { .tf-grid { grid-template-columns: 1fr; } }
+.tf-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 22px 24px;
+}
+.tf-card h4 { font-size: 14px; font-weight: 700; margin: 0 0 14px; }
+.tf-leg { margin-bottom: 6px; }
+.tf-swap-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 4px 0 10px;
+}
+.tf-swap-btn {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(168,85,247,0.35);
+    background: linear-gradient(145deg, rgba(168,85,247,0.2), rgba(236,72,153,0.12));
+    color: #E9D5FF;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.28s ease, box-shadow 0.15s;
+    box-shadow: 0 6px 16px rgba(168,85,247,0.18);
+}
+.tf-swap-btn:hover { box-shadow: 0 8px 20px rgba(168,85,247,0.28); }
+.tf-swap-btn.spin { transform: rotate(180deg); }
+.tf-amt {
+    margin-top: 8px;
+    padding: 18px 18px 16px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+}
+.tf-amt .lbl {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: var(--t-tertiary); font-weight: 600; margin-bottom: 10px;
+}
+.tf-amt .lbl a { color: var(--brand-purple); }
+.tf-amt .row { display: flex; align-items: baseline; gap: 8px; }
+.tf-amt input {
+    flex: 1; min-width: 0; background: transparent; border: none; outline: none;
+    font-size: 36px; font-weight: 900; color: #fff; letter-spacing: -0.5px;
+}
+.tf-amt .unit { font-size: 16px; font-weight: 700; color: var(--t-tertiary); }
+.tf-amt .avail { font-size: 12px; color: var(--t-tertiary); margin-top: 8px; }
+.tf-hint {
+    margin-top: 14px;
+    font-size: 12.5px; line-height: 1.65; color: var(--t-secondary);
+}
+.tf-hint b { color: #fff; }
+.toast-mini {
+    position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(12px);
+    padding: 10px 16px; border-radius: 999px;
+    background: rgba(20,20,28,0.92); border: 1px solid rgba(255,255,255,0.12);
+    color: #fff; font-size: 13px; font-weight: 600;
+    opacity: 0; pointer-events: none; transition: 0.2s; z-index: 200;
+}
+.toast-mini.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.tf-success-mask {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(0,0,0,0.55); backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.tf-success-mask.show { display: flex; }
+.tf-success-card {
+    width: min(420px, 100%);
+    background: var(--bg-card);
+    border: 1px solid rgba(168,85,247,0.28);
+    border-radius: var(--r-xl);
+    padding: 28px 26px 22px;
+    text-align: center;
+    animation: tfPop 0.28s ease;
+}
+@keyframes tfPop {
+    from { opacity: 0; transform: translateY(10px) scale(0.97); }
+    to { opacity: 1; transform: none; }
+}
+.tf-success-ic {
+    width: 64px; height: 64px; margin: 0 auto 14px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(52,211,153,0.12));
+    color: #6EE7B7; font-size: 28px;
+}
+.tf-success-card h3 { font-size: 18px; font-weight: 800; margin: 0 0 8px; }
+.tf-success-card p { font-size: 13px; color: var(--t-secondary); margin: 0 0 18px; line-height: 1.55; }
+.tf-success-actions { display: flex; gap: 10px; }
+.tf-success-actions .btn { flex: 1; justify-content: center; }
+</style>
+<link rel="stylesheet" href="../css-web/global-lang-switch.css">
+<script src="../js-web/ui-i18n.js" defer></script>
+<script src="../js-web/global-lang-switch.js" defer></script>
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <div class="s-section">主导航</div>
+        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
+        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
+        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
+        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
+        <div class="s-section">互动</div>
+        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
+        <div class="s-item" onclick="location.href='notifications.html?tab=unread'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
+        <div class="s-section">资产</div>
+        <div class="s-item active" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
+        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span></div>
+        <div class="s-item" onclick="location.href='points-mall.html'"><span class="ic"><i class="fa-solid fa-store"></i></span><span class="lb">积分商城</span></div>
+        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-section">个人</div>
+        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
+        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
+        <div class="s-bottom">
+            <div class="s-user">
+                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+                <div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <header class="app-header">
+        <div class="h-search h-search-live h-search-unified">
+            <div class="hs-inner">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" placeholder="搜索…" autocomplete="off" />
+            </div>
+            <div class="gs-drop"></div>
+        </div>
+        <div class="h-actions">
+            <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+            <button class="h-icon" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i></button>
+            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="page-head">
+            <div class="ph-l">
+                <div class="crumb"><a href="home.html">首页</a><i class="fa-solid fa-chevron-right"></i><a href="wallet.html">我的钱包</a><i class="fa-solid fa-chevron-right"></i><span class="curr">划转</span></div>
+                <h1>账户划转</h1>
+                <p>在平台内 <b style="color:#fff">USDT ↔ USDC</b> 币种账户之间划转，即时到账，不产生链上 Gas。</p>
+            </div>
+        </div>
+
+        <div class="tf-grid">
+            <div class="tf-card" style="overflow:visible">
+                <h4><i class="fa-solid fa-right-left" style="color:#C084FC;margin-right:6px"></i>划转方向</h4>
+
+                <div class="tf-leg">
+                    <div style="font-size:12px;color:var(--t-tertiary);font-weight:600;margin-bottom:8px">从</div>
+                    <div class="fl-dd" id="tfDdFrom">
+                        <button type="button" class="fl-dd-trigger" id="tfFromTrigger" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="coin-ic usdt">₮</span>
+                            <span class="ph" style="display:none">选择账户</span>
+                            <span class="mid" style="display:flex">
+                                <span class="n">USDT</span>
+                                <span class="d">USDT 账户</span>
+                            </span>
+                            <i class="fa-solid fa-chevron-down chev"></i>
+                        </button>
+                        <div class="fl-dd-panel" id="tfFromPanel" role="listbox">
+                            <div class="fl-dd-hint">选择转出币种账户</div>
+                            <div class="fl-dd-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tf-swap-wrap">
+                    <button type="button" class="tf-swap-btn" id="tfBtnSwap" title="交换方向" aria-label="交换划转方向">
+                        <i class="fa-solid fa-arrows-up-down"></i>
+                    </button>
+                </div>
+
+                <div class="tf-leg">
+                    <div style="font-size:12px;color:var(--t-tertiary);font-weight:600;margin-bottom:8px">到</div>
+                    <div class="fl-dd" id="tfDdTo">
+                        <button type="button" class="fl-dd-trigger" id="tfToTrigger" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="coin-ic usdc">₵</span>
+                            <span class="ph" style="display:none">选择账户</span>
+                            <span class="mid" style="display:flex">
+                                <span class="n">USDC</span>
+                                <span class="d">USDC 账户</span>
+                            </span>
+                            <i class="fa-solid fa-chevron-down chev"></i>
+                        </button>
+                        <div class="fl-dd-panel" id="tfToPanel" role="listbox">
+                            <div class="fl-dd-hint">选择转入币种账户</div>
+                            <div class="fl-dd-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tf-amt">
+                    <div class="lbl">
+                        <span>划转数量</span>
+                        <a href="#" id="tfFillMax">全部</a>
+                    </div>
+                    <div class="row">
+                        <input type="text" id="tfAmtInput" value="100.00" inputmode="decimal" autocomplete="off" />
+                        <span class="unit" id="tfUnit">USDT</span>
+                    </div>
+                    <div class="avail" id="tfAvail">可用 5,816.40 USDT</div>
+                </div>
+
+                <p class="tf-hint">
+                    划转为平台内账本调整：<b>1:1</b> 从转出账户扣减、转入账户增加，不经过链上。请确认方向与金额后再提交。
+                </p>
+            </div>
+
+            <div>
+                <div class="tf-card" style="margin-bottom:14px">
+                    <h4><i class="fa-solid fa-receipt" style="color:#3B82F6;margin-right:6px"></i>划转摘要</h4>
+                    <div class="kv-list">
+                        <div class="kv-row"><span class="k">转出</span><span class="v" id="kvTfFrom">USDT 账户</span></div>
+                        <div class="kv-row"><span class="k">转入</span><span class="v" id="kvTfTo">USDC 账户</span></div>
+                        <div class="kv-row"><span class="k">数量</span><span class="v num" id="kvTfAmt">100.00 USDT</span></div>
+                        <div class="kv-row" style="border-bottom:none"><span class="k" style="color:#fff;font-weight:600">预计到账</span><span class="v num t-grad" id="kvTfRecv" style="font-size:18px;font-weight:800">100.00 USDC</span></div>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-block btn-lg" style="margin-top:18px" id="tfBtnSubmit">
+                        <i class="fa-solid fa-right-left"></i> 确认划转
+                    </button>
+                </div>
+                <div class="tf-card">
+                    <h4><i class="fa-solid fa-circle-info" style="color:#FBBF24;margin-right:6px"></i>说明</h4>
+                    <div style="font-size:12.5px;line-height:1.75;color:var(--t-secondary)">
+                        • 仅支持 USDT / USDC 账户互转<br>
+                        • 即时到账，无网络费<br>
+                        • 划转记录可在账变中查看
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="tfToast" class="toast-mini" role="status" aria-live="polite"></div>
+<div class="tf-success-mask" id="tfSuccessMask" aria-live="polite">
+    <div class="tf-success-card">
+        <div class="tf-success-ic"><i class="fa-solid fa-check"></i></div>
+        <h3>划转成功</h3>
+        <p id="tfSuccessLine">已完成账户划转</p>
+        <div class="tf-success-actions">
+            <button type="button" class="btn btn-secondary" id="tfSuccessOk">继续划转</button>
+            <button type="button" class="btn btn-primary" id="tfSuccessBack">返回钱包</button>
+        </div>
+    </div>
+</div>
+
+<script src="../js-web/global-search.js"></script>
+<script src="../js-web/app-sidebar-global.js"></script>
+<script src="../js-web/transfer-flow.js"></script>
+</body>
+</html>

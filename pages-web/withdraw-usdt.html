@@ -144,7 +144,7 @@ body.page-withdraw-web .app-main {
             <div class="ph-l">
                 <div class="crumb"><a href="wallet.html">我的钱包</a><i class="fa-solid fa-chevron-right"></i><a href="withdraw-fiat.html">提现</a><i class="fa-solid fa-chevron-right"></i><span class="curr">钱包提现</span></div>
                 <h1>钱包提现</h1>
-                <p>仅支持 <b style="color:#fff">USDT</b> 提现至链上地址。<b style="color:#fff">参考实时汇率</b>展示法币估值；最终以提现成功时的实时汇率为准。</p>
+                <p id="wdPageDesc">支持 <b style="color:#fff">USDT / USDC</b> 提现至链上地址。<b style="color:#fff">参考实时汇率</b>展示法币估值；最终以提现成功时的实时汇率为准。</p>
             </div>
             <div class="ph-r">
                 <button type="button" class="btn btn-secondary btn-sm" onclick="location.href='funds-history.html'"><i class="fa-solid fa-clock-rotate-left"></i> 充提记录</button>
@@ -152,7 +152,7 @@ body.page-withdraw-web .app-main {
             </div>
         </div>
 
-        <div class="bal-hero-card" id="balWithdrawHero" data-max-usdt="5820.40" data-cny-rate="7.0991">
+        <div class="bal-hero-card" id="balWithdrawHero" data-max-bal="5820.40" data-cny-rate="7.0991">
             <div class="bal-main">
                 <div class="lb">可提现余额</div>
                 <div class="val">5,820.40<span class="u">USDT</span></div>
@@ -170,17 +170,38 @@ body.page-withdraw-web .app-main {
             </div>
             <div class="mt-card chain active">
                 <div class="ic-big">₮</div>
-                <div class="info"><div class="t">钱包提现</div><div class="s">USDT 转至链上地址</div></div>
+                <div class="info"><div class="t">钱包提现</div><div class="s">USDT / USDC 转至链上地址</div></div>
             </div>
         </div>
 
         <div class="wd-grid">
             <div>
+                <div class="card wd-dd-card" style="padding: 22px 24px; margin-bottom: 18px">
+                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 14px"><i class="fa-solid fa-coins"></i> 提现币种</h4>
+                    <div class="flow-block" style="margin: 0; padding: 0; border: none">
+                        <div class="fl-dd" id="wdDdCoin">
+                            <button type="button" class="fl-dd-trigger" id="wdCoinTrigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="wdCoinPanel">
+                                <span class="coin-ic usdt">₮</span>
+                                <span class="ph" style="display:none">请选择币种</span>
+                                <span class="mid" style="display:flex">
+                                    <span class="n">USDT</span>
+                                    <span class="d">TetherUS</span>
+                                </span>
+                                <i class="fa-solid fa-chevron-down chev"></i>
+                            </button>
+                            <div class="fl-dd-panel" id="wdCoinPanel" role="listbox" aria-label="提现币种">
+                                <div class="fl-dd-hint">从对应币种账户余额中扣减并提现至链上地址。</div>
+                                <div class="fl-dd-list" id="wdCoinDdList"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="amt-input">
                     <div class="lbl"><span>提现金额</span><a href="#" id="wdFillMax">全部 5,820.40 USDT</a></div>
                     <div class="input-row">
                         <input type="text" id="wdAmtInput" value="200.00" inputmode="decimal" autocomplete="off" />
-                        <span class="unit">USDT</span>
+                        <span class="unit" id="wdAmtUnit">USDT</span>
                     </div>
                     <div class="equiv" id="wdEquivLine">≈ ¥1,419.82 · 参考实时汇率，<b style="color:var(--t-secondary)">最终以提现成功时的实时汇率为准</b></div>
                 </div>

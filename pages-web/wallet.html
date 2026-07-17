@@ -69,7 +69,7 @@
 .bal-amt .sub .delta { color: var(--success-light); font-weight: 600; margin-left: 8px; }
 
 .bal-actions {
-    display: grid; grid-template-columns: repeat(5, 1fr);
+    display: grid; grid-template-columns: repeat(4, 1fr);
     gap: 10px;
     margin-top: 22px;
     position: relative; z-index: 2;
@@ -84,6 +84,9 @@
     display: flex; align-items: center; justify-content: center; gap: 8px;
     transition: 0.15s;
     cursor: pointer;
+}
+.bal-actions button[hidden] {
+    display: none !important;
 }
 .bal-actions button:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
 .bal-actions button.primary {
@@ -295,7 +298,7 @@
             <div class="ph-l">
                 <div class="crumb"><a href="home.html">首页</a><i class="fa-solid fa-chevron-right"></i><span class="curr">我的钱包</span></div>
                 <h1>我的钱包</h1>
-                <p>USDT 即时结算 · 多链支持 · 全球银行卡通道 · FansLoop 不接触你的私钥</p>
+                <p>USDT / USDC 分账户管理 · 多链充提 · FansLoop 不接触你的私钥</p>
             </div>
             <div class="ph-r">
                 <button class="btn"><i class="fa-solid fa-rotate"></i>刷新余额</button>
@@ -310,14 +313,14 @@
                     <span class="net">实时同步 · Ethereum Mainnet</span>
                 </div>
                 <div class="bal-amt">
-                    <div class="v"><span class="currency">$</span>5,824<span class="cents">.32</span></div>
-                    <div class="sub">≈ 5,816.4 USDT <span class="delta"><i class="fa-solid fa-arrow-up"></i>+$248.50 本月</span></div>
+                    <div class="v"><span class="currency">$</span>7,096<span class="cents">.90</span></div>
+                    <div class="sub">USDT 5,816.40 + USDC 1,280.50 <span class="delta"><i class="fa-solid fa-arrow-up"></i>+$248.50 本月</span></div>
                 </div>
                 <div class="bal-actions">
                     <button class="primary" onclick="location.href='recharge.html'"><i class="fa-solid fa-arrow-down"></i>充值</button>
                     <button onclick="location.href='withdraw-fiat.html'"><i class="fa-solid fa-arrow-up"></i>提现</button>
+                    <button hidden aria-hidden="true"><i class="fa-solid fa-right-left"></i>划转</button>
                     <button onclick="location.href='funds-history.html'"><i class="fa-solid fa-clock-rotate-left"></i>充提记录</button>
-                    <button hidden><i class="fa-solid fa-arrow-right-arrow-left"></i>转账</button>
                     <button onclick="location.href='transactions.html'"><i class="fa-solid fa-list-ul"></i>账变</button>
                 </div>
             </div>
@@ -364,43 +367,32 @@
             </div>
         </div>
 
-        <!-- Tokens（产品仅 USDT，多币种资产区隐藏） -->
-        <div class="section-card" id="walletAssetsSection" hidden>
+        <!-- 稳定币账户：USDT / USDC 分账户管理 -->
+        <div class="section-card" id="walletAssetsSection">
             <div class="sh">
-                <h3><i class="fa-solid fa-coins" style="color:#FBBF24"></i>资产 <span class="cnt">5</span></h3>
-                <a class="more" href="#">管理资产 →</a>
+                <h3><i class="fa-solid fa-coins" style="color:#FBBF24"></i>币种账户 <span class="cnt">2</span></h3>
+                <a class="more" href="recharge.html">去充值 →</a>
             </div>
-            <div class="token-row">
-                <div class="tk-ic usdt">₮<span class="net eth">E</span></div>
+            <div class="token-row" role="button" tabindex="0" onclick="location.href='recharge.html'" style="cursor:pointer">
+                <div class="tk-ic usdt">₮</div>
                 <div class="info">
-                    <div class="n">Tether USD <span class="net-tag">ERC20</span></div>
-                    <div class="price">$1.00 <span class="up">+0.01%</span></div>
+                    <div class="n">USDT 账户 <span class="net-tag">多链</span></div>
+                    <div class="price">可用余额 · 可充值 / 提现</div>
                 </div>
                 <div class="amt">
                     <div class="v">5,816.40 <span style="color:var(--t-tertiary);font-weight:600">USDT</span></div>
                     <div class="vu">≈ $5,816.40</div>
                 </div>
             </div>
-            <div class="token-row">
-                <div class="tk-ic eth"><i class="fa-brands fa-ethereum"></i></div>
+            <div class="token-row" role="button" tabindex="0" onclick="location.href='recharge.html'" style="cursor:pointer">
+                <div class="tk-ic usdc">₵</div>
                 <div class="info">
-                    <div class="n">Ethereum <span class="net-tag">Mainnet</span></div>
-                    <div class="price">$3,420.18 <span class="up">+2.3%</span></div>
+                    <div class="n">USDC 账户 <span class="net-tag">多链</span></div>
+                    <div class="price">可用余额 · 可充值 / 提现</div>
                 </div>
                 <div class="amt">
-                    <div class="v">0.0024 <span style="color:var(--t-tertiary);font-weight:600">ETH</span></div>
-                    <div class="vu">≈ $8.21</div>
-                </div>
-            </div>
-            <div class="token-row">
-                <div class="tk-ic usdc">$<span class="net eth">E</span></div>
-                <div class="info">
-                    <div class="n">USD Coin <span class="net-tag">ERC20</span></div>
-                    <div class="price">$1.00 <span class="up">+0.0%</span></div>
-                </div>
-                <div class="amt">
-                    <div class="v">0.00 <span style="color:var(--t-tertiary);font-weight:600">USDC</span></div>
-                    <div class="vu">≈ $0.00</div>
+                    <div class="v">1,280.50 <span style="color:var(--t-tertiary);font-weight:600">USDC</span></div>
+                    <div class="vu">≈ $1,280.50</div>
                 </div>
             </div>
         </div>

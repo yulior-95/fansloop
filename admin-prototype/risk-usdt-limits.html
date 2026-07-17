@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin-shell.css">
   <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/risk-usdt-limits.css">
 </head>
 <body data-admin-page="risk-usdt-limits">
 <div class="admin-app">
@@ -23,10 +24,6 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">USDT 充提限额</h1>
-      <p class="admin-page-desc">
-        链上资产充值 / 提现的单笔与单日累计上限，与<strong>积分风控</strong>（虚拟积分额度、冷静期）分域管理。
-        映射 <code>PUT /api/v1/admin/asset-limits</code>；订单侧见 <a href="orders-recharge.html">充值订单</a>、<a href="orders-withdraw.html">提现订单</a>。
-      </p>
 
       <div class="ant-card ant-card-bordered">
         <div class="ant-card-head"><div class="ant-card-head-title">充值 / 提现（USDT）</div></div>
@@ -67,6 +64,66 @@
           <button type="button" class="ant-btn ant-btn-primary" id="btnCoolingSave">保存冷静期策略</button>
         </div>
       </div>
+
+      <div class="ant-card ant-card-bordered" style="margin-top:16px">
+        <div class="ant-card-head"><div class="ant-card-head-title"><i class="fa-solid fa-link" style="margin-right:8px;color:#1890ff"></i>修改提现地址冷却期</div></div>
+        <div class="ant-card-body">
+          <p style="margin:0 0 16px;color:rgba(0,0,0,.55);font-size:13px;line-height:1.6">
+            用户<strong>新增或修改</strong>提现地址后，在冷却期内禁止向该地址发起提现；冷却从地址保存成功时刻起算。平台级策略，用户端不可自行开关。
+          </p>
+          <div class="ant-row" style="max-width:900px">
+            <div class="ant-col ant-col-8" style="padding:8px">
+              <div class="ant-form-item">
+                <label><input type="checkbox" checked style="margin-right:6px">启用地址冷却期</label>
+              </div>
+            </div>
+            <div class="ant-col ant-col-8" style="padding:8px">
+              <div class="ant-form-item"><label>冷却时长（小时）</label><input class="ant-input" type="number" value="24" min="1" style="width:100%;margin-top:6px"></div>
+            </div>
+          </div>
+          <button type="button" class="ant-btn ant-btn-primary" id="btnAddrCoolSave">保存地址冷却期</button>
+        </div>
+      </div>
+
+      <div class="ant-card ant-card-bordered" style="margin-top:16px">
+        <div class="ant-card-head">
+          <div class="ant-card-head-title ul-card-head-row">
+            <span><i class="fa-solid fa-shield-halved" style="margin-right:8px;color:#1890ff"></i>异常 IP / 异常设备登录后提现限制</span>
+            <span class="ul-dev-glass-inline" aria-label="研发批注">
+              <span class="ul-dev-glass-label"><i class="fa-solid fa-flask"></i> To 研发</span>
+              <span class="ul-dev-glass-wrap">
+                <span class="ul-dev-glass-sphere" tabindex="0" aria-describedby="ulDevTipAbnormal">
+                  <span class="ul-dev-glass-shine"></span>
+                  <span class="ul-dev-glass-txt">判定</span>
+                </span>
+                <span class="ul-dev-glass-pop" id="ulDevTipAbnormal" role="tooltip">
+                  <strong>异常 IP / 异常设备 · 判定逻辑（研发对齐）</strong>
+                  <p><b>异常 IP</b>：本次登录 IP 满足任一条件即命中——① 不在该 UID 近 30 天「成功登录常用 IP」集合；② 与上次成功登录 IP 的 geo（国家/省）发生突变；③ 命中代理 / IDC / 黑名单 IP 库。</p>
+                  <p><b>异常设备</b>：本次登录设备指纹（Device ID）满足任一条件即命中——① 不在该 UID 已信任设备列表；② 账号首次出现的新设备；③ 环境异常标记（模拟器 / 篡改等，若客户端有上报）。</p>
+                  <p><b>限制生效</b>：登录成功且判定为异常 IP <em>或</em> 异常设备后，自该次登录起进入限制窗；窗内禁止发起提现（接口直接拒绝）。限制时长取本页「限制时长」配置；用户完成二次验证并加入可信设备/IP 后可提前解除（产品可选，需研发确认）。</p>
+                  <p style="color:rgba(0,0,0,.45)">存储建议：登录态写入 <code>last_login_ip</code> / <code>device_id</code> 与异常标记；提现下单前校验 <code>withdraw_lock_until</code>。</p>
+                </span>
+              </span>
+            </span>
+          </div>
+        </div>
+        <div class="ant-card-body">
+          <p style="margin:0 0 16px;color:rgba(0,0,0,.55);font-size:13px;line-height:1.6">
+            检测到异常 IP 或异常设备登录后，在限制时长内禁止该用户发起提现。判定细则见旁侧「To 研发」玻璃批注。
+          </p>
+          <div class="ant-row" style="max-width:900px">
+            <div class="ant-col ant-col-8" style="padding:8px">
+              <div class="ant-form-item">
+                <label><input type="checkbox" checked style="margin-right:6px">启用异常登录提现限制</label>
+              </div>
+            </div>
+            <div class="ant-col ant-col-8" style="padding:8px">
+              <div class="ant-form-item"><label>限制时长（小时）</label><input class="ant-input" type="number" value="24" min="1" style="width:100%;margin-top:6px"></div>
+            </div>
+          </div>
+          <button type="button" class="ant-btn ant-btn-primary" id="btnAbnormalSave">保存异常登录限制</button>
+        </div>
+      </div>
     </main>
   </div>
 </div>
@@ -90,6 +147,24 @@
       message: "将更新全站大额提现延迟到账规则，用户端不可自行修改。请输入谷歌验证码确认保存。",
       onVerified: function () {
         M.toast("大额提现冷静期已保存（原型）");
+      }
+    });
+  });
+  document.getElementById("btnAddrCoolSave").addEventListener("click", function () {
+    M.confirmGoogle({
+      title: "保存地址冷却期",
+      message: "将更新全站「修改提现地址冷却期」规则，用户端不可自行修改。请输入谷歌验证码确认保存。",
+      onVerified: function () {
+        M.toast("提现地址冷却期已保存（原型）");
+      }
+    });
+  });
+  document.getElementById("btnAbnormalSave").addEventListener("click", function () {
+    M.confirmGoogle({
+      title: "保存异常登录提现限制",
+      message: "将更新全站异常 IP / 异常设备登录后的提现限制规则。请输入谷歌验证码确认保存。",
+      onVerified: function () {
+        M.toast("异常登录提现限制已保存（原型）");
       }
     });
   });

@@ -1,9 +1,8 @@
 (function () {
+    /** 充值仅开放 USDT / USDC */
     var COINS = [
-        { id: 'usdt', sym: 'USDT', name: 'TetherUS', search: 'usdt tether 泰达' },
-        { id: 'usdc', sym: 'USDC', name: 'USD Coin', search: 'usdc circle' },
-        { id: 'btc', sym: 'BTC', name: 'Bitcoin', search: 'btc bitcoin 比特' },
-        { id: 'eth', sym: 'ETH', name: 'Ethereum', search: 'eth ethereum 以太' }
+        { id: 'usdt', sym: 'USDT', name: 'TetherUS', mark: '₮', search: 'usdt tether 泰达 稳定币' },
+        { id: 'usdc', sym: 'USDC', name: 'USD Coin', mark: '₵', search: 'usdc circle 稳定币' }
     ];
 
     var NETS_BY_COIN = {
@@ -16,11 +15,14 @@
         usdc: [
             { id: 'erc20', label: 'ETH · Ethereum (ERC20)', sub: '主网 USDC', hintEnd: '0a5b3', search: 'eth erc20' },
             { id: 'poly', label: 'Polygon', sub: '低成本转账', hintEnd: '7e2aa', search: 'polygon' },
-            { id: 'sol', label: 'Solana', sub: '高速确认', hintEnd: '4d91c', search: 'sol solana' }
-        ],
-        btc: [{ id: 'btc', label: 'Bitcoin', sub: '原生网络', hintEnd: '—', search: 'btc bitcoin' }],
-        eth: [{ id: 'erc20', label: 'Ethereum (ERC20)', sub: '原生 ETH', hintEnd: '2f8ac', search: 'eth erc20' }]
+            { id: 'sol', label: 'Solana', sub: '高速确认', hintEnd: '4d91c', search: 'sol solana' },
+            { id: 'bep20', label: 'BSC (BEP20)', sub: '币安智能链', hintEnd: 'c1e90', search: 'bsc bep20' }
+        ]
     };
+
+    function coinMark(c) {
+        return (c && c.mark) || (c && c.sym ? c.sym.charAt(0) : '?');
+    }
 
     /** 模糊：含连续子串匹配 + 子序列匹配（拼音/缩写容错） */
     function fuzzyMatch(q, text) {
@@ -36,9 +38,8 @@
     }
 
     function addrFor(coinId, netId) {
-        if (coinId === 'btc') return 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh';
-        if ((coinId === 'usdt' || coinId === 'usdc') && netId === 'trc20')
-            return 'TLa2f6WVqHrKZ5X6c9Y8a8X7a7X6a5X4a3X2';
+        if (netId === 'trc20') return 'TLa2f6WVqHrKZ5X6c9Y8a8X7a7X6a5X4a3X2';
+        if (netId === 'sol') return '7EqQdEULxWcraVx3mXKFjc84LhCkMGZCkRuDpvcMwJeK';
         return '0xb2132bae7ddd15459dcfaebbef5266d51eaeb74a';
     }
 
@@ -105,7 +106,7 @@
                 '<span class="coin-ic ' +
                 c.id +
                 '">' +
-                (c.id === 'usdt' ? '₮' : c.id === 'btc' ? '₿' : c.id === 'eth' ? 'Ξ' : c.sym.charAt(0)) +
+                coinMark(c) +
                 '</span><span class="mid"><span class="n">' +
                 c.sym +
                 '</span><span class="d">' +
@@ -165,7 +166,7 @@
     }
 
     function syncCoinTrigger() {
-        if (!coinTrigger || (ddCoin && ddCoin.classList.contains('fl-dd-static-coin'))) return;
+        if (!coinTrigger) return;
         var mid = coinTrigger.querySelector('.mid');
         var ph = coinTrigger.querySelector('.ph');
         var ic = coinTrigger.querySelector('.coin-ic');
@@ -183,14 +184,7 @@
         if (ic) {
             ic.style.display = 'flex';
             ic.className = 'coin-ic ' + state.coin.id;
-            ic.textContent =
-                state.coin.id === 'usdt'
-                    ? '₮'
-                    : state.coin.id === 'btc'
-                      ? '₿'
-                      : state.coin.id === 'eth'
-                        ? 'Ξ'
-                        : state.coin.sym.charAt(0);
+            ic.textContent = coinMark(state.coin);
         }
         var nEl = coinTrigger.querySelector('.mid .n');
         var dEl = coinTrigger.querySelector('.mid .d');
@@ -313,11 +307,31 @@
         });
     }
 
+    if (coinTrigger && ddCoin) {
+        coinTrigger.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var open = ddCoin.classList.contains('open');
+            closeAllDd();
+            if (!open) {
+                ddCoin.classList.add('open');
+                syncDdAria();
+                renderCoinList();
+                if (coinSearch) {
+                    coinSearch.value = '';
+                    updateSearchClear(coinSearch, coinSearch.closest('.fl-search-row'));
+                    setTimeout(function () {
+                        coinSearch.focus();
+                    }, 50);
+                }
+            }
+        });
+    }
+
     if (netTrigger && ddNet) {
         netTrigger.addEventListener('click', function (e) {
             e.stopPropagation();
             if (!state.coin) {
-                showToast('请先选择网络');
+                showToast('请先选择币种');
                 return;
             }
             var open = ddNet.classList.contains('open');
@@ -385,8 +399,10 @@
         });
     }
 
+    syncCoinTrigger();
     syncNetTrigger();
     updateNetDdDisabled();
+    renderCoinList();
     refreshNetList();
     updateAll();
     syncDdAria();
