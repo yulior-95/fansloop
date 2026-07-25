@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FansLoop 原型调整记录 · 2026-07-25</title>
+<style>
+:root {
+    --bg: #0f0f17; --card: #1a1a28; --border: rgba(255,255,255,0.1);
+    --text: rgba(255,255,255,0.92); --muted: rgba(255,255,255,0.55); --accent: #a855f7;
+    --code-bg: rgba(255,255,255,0.06);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; padding: 32px 20px 80px; }
+.wrap { max-width: 960px; margin: 0 auto; }
+header { margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+header h1 { font-size: 28px; font-weight: 800; }
+header p { color: var(--muted); margin-top: 8px; font-size: 14px; }
+.badge { display: inline-block; margin-top: 12px; padding: 4px 10px; border-radius: 999px; background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.35); color: #c4b5fd; font-size: 12px; font-weight: 600; }
+.badge-compare { margin-left: 8px; background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.35); color: #93c5fd; }
+.badge-admin { margin-left: 8px; background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.35); color: #86efac; }
+.badge-c { margin-left: 8px; background: rgba(236,72,153,0.12); border-color: rgba(236,72,153,0.35); color: #f9a8d4; }
+.badge-doc { margin-left: 8px; background: rgba(249,115,22,0.12); border-color: rgba(249,115,22,0.35); color: #fdba74; }
+article h2 { font-size: 20px; font-weight: 700; margin: 36px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+article h3 { font-size: 16px; font-weight: 700; margin: 22px 0 10px; color: #e9d5ff; }
+article h4 { font-size: 14px; font-weight: 600; margin: 16px 0 8px; color: #d8b4fe; }
+article p, article li { font-size: 14.5px; }
+article ul, article ol { margin: 10px 0 10px 22px; }
+article li { margin: 6px 0; }
+article table { width: 100%; border-collapse: collapse; margin: 14px 0 20px; font-size: 13px; }
+article th, article td { border: 1px solid var(--border); padding: 10px 12px; text-align: left; vertical-align: top; }
+article th { background: var(--card); font-weight: 600; }
+article tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+article code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; background: var(--code-bg); padding: 2px 6px; border-radius: 4px; color: #f0abfc; }
+article pre { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; overflow-x: auto; margin: 14px 0; font-size: 12px; }
+article pre code { background: none; padding: 0; color: #e2e8f0; white-space: pre; }
+article blockquote { margin: 14px 0; padding: 12px 16px; border-left: 3px solid var(--accent); background: rgba(168,85,247,0.08); color: var(--muted); font-size: 13.5px; border-radius: 0 8px 8px 0; }
+article hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+article a { color: #93c5fd; }
+.toc { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 28px; }
+.toc h2 { font-size: 15px; margin: 0 0 10px; border: none; padding: 0; }
+.toc ol { margin: 0 0 0 18px; font-size: 13px; columns: 2; column-gap: 24px; }
+.toc li { break-inside: avoid; margin: 4px 0; }
+.toc a { color: var(--text); text-decoration: none; }
+.toc a:hover { color: #c4b5fd; }
+.tag-new { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.4); color: #86efac; margin-left: 6px; vertical-align: middle; }
+.tag-mod { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.4); color: #93c5fd; margin-left: 6px; vertical-align: middle; }
+.stat-row { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0 6px; }
+.stat { flex: 1 1 150px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+.stat .n { font-size: 24px; font-weight: 800; color: #c4b5fd; }
+.stat .l { font-size: 12px; color: var(--muted); margin-top: 2px; }
+footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+    <h1>FansLoop Web 原型 · 今日调整记录</h1>
+    <p>日期：2026 年 7 月 25 日（周六） · 对比基准：<a href="prototype-changelog-2026-07-18.html">2026-07-18</a> · 三级内容类目体系 · 后台类别管理 · 创作端类别单选 · 热门算法规格书</p>
+    <span class="badge">完整版 · HTML 页面</span>
+    <span class="badge badge-compare">相对 7/18 增量</span>
+    <span class="badge badge-c">pages-web / C 端</span>
+    <span class="badge badge-admin">admin-prototype / 运营后台</span>
+    <span class="badge badge-doc">docs / 规则文档</span>
+</header>
+
+<nav class="toc">
+    <h2>目录</h2>
+    <ol>
+        <li><a href="#overview">本次主题与改动概览</a></li>
+        <li><a href="#store">三级类目共享数据源（新增）</a></li>
+        <li><a href="#discover">发现页 · 一级频道 Tab 改造</a></li>
+        <li><a href="#admin">运营后台 · 平台内容类别管理（新增）</a></li>
+        <li><a href="#create">创作页 · 内容类别三级单选抽屉（新增）</a></li>
+        <li><a href="#algo">热门频道推荐算法规格书（新增）</a></li>
+        <li><a href="#docs">规则文档与调试页同步</a></li>
+        <li><a href="#verify">验收路径</a></li>
+        <li><a href="#files">文件汇总</a></li>
+        <li><a href="#compare">与 7/18 对比一览</a></li>
+    </ol>
+</nav>
+
+<article>
+
+<h2 id="overview">1. 本次主题与改动概览</h2>
+
+<blockquote>
+7/18 及之前几版的主体是<strong>资金链路</strong>（钱包双账户、稳定币充提、划转、风控）。
+本次完全切换到<strong>内容侧</strong>：把发现页写死在前端的 12 个平铺分类，
+升级为「后台可维护的三级类目树 + 用户端只露一级 + 创作端必选三级」的完整链路，
+并为热门频道补上了一份可落地的推荐算法规格书。
+</blockquote>
+
+<div class="stat-row">
+    <div class="stat"><div class="n">9</div><div class="l">一级频道（用户可见）</div></div>
+    <div class="stat"><div class="n">19</div><div class="l">二级类目</div></div>
+    <div class="stat"><div class="n">42</div><div class="l">三级类目</div></div>
+    <div class="stat"><div class="n">37</div><div class="l">创作者可选三级（不含热门 5 个算法位）</div></div>
+</div>
+
+<h3>一句话说明改了什么</h3>
+<table>
+    <thead><tr><th style="width:130px">角色</th><th>7/18 之前</th><th>7/25 之后</th></tr></thead>
+    <tbody>
+        <tr>
+            <td><strong>用户</strong></td>
+            <td>发现页 12 个平铺 Tab（全部 / 摄影 / 影视 / 音乐 / 游戏 / 绘画 / 旅行 / 美食 / 健身 / 读书 / 科技 / 时尚）</td>
+            <td>9 个一级频道 Tab，二三级不外露，减少选择负担</td>
+        </tr>
+        <tr>
+            <td><strong>创作者</strong></td>
+            <td>发布时无类目字段，只能打标签，归类靠 hashtag 猜</td>
+            <td>图文 / 视频发布均<strong>必选</strong>三级类目，抽屉单选</td>
+        </tr>
+        <tr>
+            <td><strong>运营</strong></td>
+            <td>改分类要找研发改前端代码</td>
+            <td>后台三级联动页面自助增删改、排序、启停</td>
+        </tr>
+        <tr>
+            <td><strong>算法</strong></td>
+            <td>热门 = 「全部」，无定义</td>
+            <td>热门为系统频道，下挂 5 个算法投放位，每位有独立公式与门槛</td>
+        </tr>
+    </tbody>
+</table>
+
+<hr>
+
+<h2 id="store">2. 三级类目共享数据源 <span class="tag-new">新增</span></h2>
+<p><strong>文件：</strong> <code>js-web/content-taxonomy-store.js</code></p>
+
+<blockquote>原来发现页的 <code>CATEGORIES</code> 数组硬编码在 <code>discover-taxonomy.js</code> 里，后台改不了、创作页也读不到。本次抽成前后台共用的单一事实来源，用 <code>localStorage</code> 持久化，跨标签页同步。</blockquote>
+
+<h3>数据结构</h3>
+<pre><code>{
+  id: 'visual', name: '视觉美学', icon: '🎨',
+  enabled: true, system: false,
+  children: [
+    { id: 'visual-photo', name: '写真摄影', enabled: true,
+      children: [
+        { id: 'photo-art',      name: '艺术写真' },
+        { id: 'photo-portrait', name: '人像摄影' },
+        { id: 'photo-fashion',  name: '时尚展示' }
+      ] }
+  ]
+}</code></pre>
+
+<h3>对外 API</h3>
+<table>
+    <thead><tr><th style="width:210px">方法</th><th>用途</th></tr></thead>
+    <tbody>
+        <tr><td><code>getTree()</code> / <code>save(tree)</code> / <code>reset()</code></td><td>全量读写与恢复默认</td></tr>
+        <tr><td><code>getLevel1()</code></td><td>用户端 Tab 数据源，只返回一级</td></tr>
+        <tr><td><code>getChildren(id)</code> · <code>getLeaves()</code> · <code>isLeaf(id)</code></td><td>层级导航与叶子判定</td></tr>
+        <tr><td><code>getPath(id)</code> · <code>getPathLabel(id)</code></td><td>返回「视觉美学 / 写真摄影 / 艺术写真」完整路径</td></tr>
+        <tr><td><code>rootIdOf(id)</code></td><td>由三级反查所属一级，用于发现页筛选</td></tr>
+        <tr><td><code>searchLeaves(kw)</code></td><td>抽屉搜索三级类目</td></tr>
+        <tr><td><code>onChange(fn)</code></td><td>后台改动后，前台 Tab 实时跟随（含跨标签页）</td></tr>
+    </tbody>
+</table>
+
+<h3>完整类目树</h3>
+<table>
+    <thead><tr><th style="width:120px">一级</th><th style="width:150px">二级</th><th>三级</th></tr></thead>
+    <tbody>
+        <tr><td rowspan="2">🔥 热门<br><span style="color:#fdba74;font-size:12px">系统频道</span></td><td>热门推荐</td><td>今日热门 · 爆款视频 · 高互动内容</td></tr>
+        <tr><td>新鲜发现</td><td>新创作者 · 最新发布</td></tr>
+        <tr><td rowspan="2">☕ 创作者日常</td><td>创作者生活</td><td>日常分享 · 幕后花絮 · 个人故事</td></tr>
+        <tr><td>粉丝互动</td><td>问答互动 · 粉丝福利 · 会员内容</td></tr>
+        <tr><td rowspan="2">🎨 视觉美学</td><td>写真摄影</td><td>艺术写真 · 人像摄影 · 时尚展示</td></tr>
+        <tr><td>造型主题</td><td>Cosplay · 角色装扮 · 创意造型</td></tr>
+        <tr><td rowspan="2">🎬 娱乐精选</td><td>剧情内容</td><td>情景短剧 · 角色剧情 · 故事演绎</td></tr>
+        <tr><td>表演内容</td><td>舞蹈 · 才艺 · 音乐</td></tr>
+        <tr><td rowspan="2">💬 互动时刻</td><td>直播内容</td><td>真人直播 · 聊天互动 · 连麦互动</td></tr>
+        <tr><td>私密互动</td><td>定制内容 · 一对一互动</td></tr>
+        <tr><td>💞 情感关系</td><td>情侣内容</td><td>情侣日常 · 双人互动 · 情感故事</td></tr>
+        <tr><td rowspan="2">🌌 沉浸体验</td><td>ASMR</td><td>声音体验 · 放松陪伴</td></tr>
+        <tr><td>第一视角</td><td>POV 体验 · 沉浸剧情</td></tr>
+        <tr><td rowspan="4">🌿 生活方式</td><td>旅行生活</td><td>旅行记录</td></tr>
+        <tr><td>美食生活</td><td>美食分享</td></tr>
+        <tr><td>健身生活</td><td>健身训练</td></tr>
+        <tr><td>时尚生活</td><td>穿搭美妆</td></tr>
+        <tr><td rowspan="2">💡 知识分享</td><td>情感知识</td><td>两性关系 · 情感交流</td></tr>
+        <tr><td>个人成长</td><td>技能分享</td></tr>
+    </tbody>
+</table>
+
+<hr>
+
+<h2 id="discover">3. 发现页 · 一级频道 Tab 改造 <span class="tag-mod">改造</span></h2>
+<p><strong>页面：</strong> <code>pages-web/discover.html</code><br>
+<strong>逻辑：</strong> <code>js-web/discover-taxonomy.js</code>（v4→v5） · <code>js-web/discover-page.js</code>（v7→v8）</p>
+
+<h3>主要调整</h3>
+<ul>
+    <li>Tab 数据源由内部硬编码数组改为 <code>FL_CONTENT_TAXONOMY.getLevel1()</code>，<strong>只渲染一级</strong></li>
+    <li>默认选中项由 <code>all</code> 改为 <code>hot</code>；<code>all</code> 保留为别名，旧链接 <code>?category=all</code> 仍可打开</li>
+    <li>URL 同步逻辑跟着改：选中热门时删除 <code>category</code> 参数，其余写入一级 id</li>
+    <li>接入 <code>onChange</code> 监听——运营在后台改类目后，发现页 Tab 与内容列表实时刷新，无需重载</li>
+    <li>当前选中的类目被后台停用/删除时，自动回落到热门，不会出现空白 Tab</li>
+</ul>
+
+<h3>内容归类逻辑</h3>
+<p>Post 数据模型从「一个 <code>categories</code> 数组」升级为双字段：</p>
+<pre><code>categoryId:      'photo-art'   // 创作者选的三级叶子，落库主字段
+primaryCategory: 'visual'      // 由 rootIdOf(categoryId) 推导，用于 Tab 筛选</code></pre>
+<ul>
+    <li><code>resolveContentCategory()</code> 判定优先级：创作者选的三级 &gt; hashtag 映射 &gt; 兜底</li>
+    <li><code>HASHTAG_MAP</code> 全量重挂到新的叶子 id（如 <code>旅行摄影 → travel-log</code>、<code>日出 → photo-art</code>）</li>
+    <li>演示数据从 12 条扩到 <strong>17 条</strong>，补齐沉浸体验、情感关系、互动时刻等新频道，避免切 Tab 出现空列表</li>
+</ul>
+
+<h3>页面内批注同步</h3>
+<p>发现页「推荐规则」玻璃批注新增一条：<em>Tab 只取后台三级类目树的一级；二三级仅用于归类与推荐</em>。</p>
+
+<hr>
+
+<h2 id="admin">4. 运营后台 · 平台内容类别管理 <span class="tag-new">新增页面</span></h2>
+<p><strong>页面：</strong> <code>admin-prototype/content-categories.html</code><br>
+<strong>样式 / 逻辑：</strong> <code>admin-prototype/css/content-categories.css</code> · <code>admin-prototype/js/content-categories-page.js</code><br>
+<strong>入口：</strong> 侧边栏「内容与运营」首项 · <code>admin-nav.js</code> · 总览页 <code>index-HT.html</code></p>
+
+<blockquote>三列联动布局：左列一级、中列二级、右列三级，点击逐级下钻。按需求<strong>不显示任何数量统计</strong>。</blockquote>
+
+<h3>功能清单</h3>
+<table>
+    <thead><tr><th style="width:130px">能力</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td>新增 / 编辑</td><td>弹窗表单，字段含名称、图标（一级）、启用状态；自动生成 slug 与唯一 id</td></tr>
+        <tr><td>删除</td><td>二次确认；有子级时提示将连带删除</td></tr>
+        <tr><td>启用 / 停用</td><td>停用后不在用户端与创作端出现，但已有内容归类保留</td></tr>
+        <tr><td>排序</td><td>上移 / 下移，决定发现页 Tab 顺序</td></tr>
+        <tr><td>搜索</td><td>跨三级搜索，命中后直接定位到所在层级</td></tr>
+        <tr><td>恢复默认</td><td>一键重置为出厂类目树（二次确认）</td></tr>
+        <tr><td>面包屑</td><td>顶部实时展示当前下钻路径</td></tr>
+    </tbody>
+</table>
+
+<h3>热门频道的特殊规则</h3>
+<ul>
+    <li>热门标记为 <code>system: true</code>，<strong>不可删除、不可停用</strong></li>
+    <li>其下「热门推荐 / 新鲜发现」<strong>可以</strong>维护子级——它们是推荐算法的投放位</li>
+    <li>下钻到热门时，面包屑旁出现黄色提示条：<em>该频道下的类目为推荐算法投放位，由算法按热度与新鲜度填充，创作者发布时不可选择</em></li>
+    <li>页面顶部规则卡同步写明这条约定，避免运营误把热门当普通归类频道使用</li>
+</ul>
+
+<hr>
+
+<h2 id="create">5. 创作页 · 内容类别三级单选抽屉 <span class="tag-new">新增</span></h2>
+<p><strong>页面：</strong> <code>pages-web/create.html</code><br>
+<strong>样式 / 逻辑：</strong> <code>css-web/create-category.css</code> · <code>js-web/create-category-select.js</code> · <code>js-web/create-studio.js</code></p>
+
+<h3>入口</h3>
+<p>图文动态（<code>#panelImage</code>）与视频作品（<code>#panelVideo</code>）两个编辑面板各插入一个类别字段，标注「必选」。未选择时显示占位文案「选择内容类别（需精确到三级）」，选中后显示完整三级路径。</p>
+
+<h3>抽屉交互</h3>
+<ul>
+    <li>三列联动：一级 → 二级 → 三级，<strong>只有点到三级才算选中</strong></li>
+    <li>顶部搜索框可直接搜三级类目（如「人像写真」「链上科普」），命中后单列结果展示完整路径</li>
+    <li>底部实时预览已选路径，配「清空 / 确认选择」两个动作</li>
+    <li>图文与视频<strong>各自独立记忆</strong>选择结果，切换内容类型不串台</li>
+    <li>一级列表过滤掉 <code>system: true</code>，因此<strong>热门及其 5 个算法位创作者选不到</strong></li>
+</ul>
+
+<h3>与发布流程打通</h3>
+<table>
+    <thead><tr><th style="width:150px">环节</th><th>行为</th></tr></thead>
+    <tbody>
+        <tr><td>发布校验</td><td><code>requireCategory(type)</code>：未选类别时弹 Toast「请先选择内容类别（需精确到三级）」并自动打开抽屉，阻断发布</td></tr>
+        <tr><td>成功提示</td><td>提交成功文案追加「已归类到「视觉美学 / 写真摄影 / 艺术写真」。」</td></tr>
+        <tr><td>草稿</td><td><code>categoryId</code> 写入草稿 payload，重新进入编辑器自动回填</td></tr>
+        <tr><td>预览</td><td>预览卡新增蓝色类别徽章 <code>.pm-badge.cat</code>，与免费 / 订阅 / PPV 徽章并列</td></tr>
+        <tr><td>待审内容</td><td>待审列表的预览按钮补 <code>data-category</code>，预览时展示该内容自己的类别而非当前编辑态</td></tr>
+    </tbody>
+</table>
+
+<blockquote>被去掉的内容：两个面板下方原有的说明文字「类目由平台统一维护；用户端只展示一级频道，二三级用于精准推荐与审核分流。」按反馈移除，对应的 <code>.cat-field-hint</code> 样式一并删除。</blockquote>
+
+<hr>
+
+<h2 id="algo">6. 热门频道推荐算法规格书 <span class="tag-new">新增文档</span></h2>
+<p><strong>文档：</strong> <a href="hot-channel-ranking-spec.html">docs/hot-channel-ranking-spec.html</a></p>
+
+<blockquote>热门频道的 5 个投放位不是内容归类，需要算法定义。本文档在原始草案基础上做了修正与补全，共 14 节。</blockquote>
+
+<h3>对原草案的关键修正</h3>
+<table>
+    <thead><tr><th style="width:110px">槽位</th><th style="width:300px">原草案问题</th><th>修正</th></tr></thead>
+    <tbody>
+        <tr>
+            <td>今日热门</td>
+            <td>播放增速（量级 10³）与完播率（0~1）直接加权相加，其余 70% 权重形同虚设；互动率含收藏分享，与后两项重复计算</td>
+            <td>统一走同类目百分位归一化；互动率口径收窄为点赞/评论/弹幕/打赏，保留原 30/30/20/10/10 权重</td>
+        </tr>
+        <tr>
+            <td>爆款视频</td>
+            <td><code>累计播放量 + 五个率</code> 无权重相加，实际等价于按播放量排序；无时间窗，老爆款永久霸榜</td>
+            <td>播放量改为「门槛项 + 对数压缩弱权重」；新增传播系数 K 与破圈率；30 天窗口 + 单条 7 天占位上限</td>
+        </tr>
+        <tr>
+            <td>高互动</td>
+            <td>点赞/评论/收藏/分享等权相加；打赏、订阅、付费解锁等平台核心信号完全缺失；无最小样本</td>
+            <td>差异化权重表（点赞 1 → 订阅 40）；UV ≥ 300 门槛 + 贝叶斯平滑；新增评论健康度与争议内容识别</td>
+        </tr>
+        <tr>
+            <td>新创作者</td>
+            <td><strong>OR 条件致命</strong>：三年老号 50 万粉丝只要「作品 &lt; 10」就能占新人位</td>
+            <td>改为 AND；「注册时间」换成「首次发布时间」；补合规门槛、潜力排序、保量扶持与毕业机制</td>
+        </tr>
+        <tr>
+            <td>最新发布</td>
+            <td>审核状态、用户举报被当作打分项相加，等于「没过审扣点分但还能展示」</td>
+            <td>两项移为硬门槛；时间权重提到 0.70，保证「最新」名副其实</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>新增的通用机制</h3>
+<ul>
+    <li><strong>统一三段式打分：</strong><code>Σ(权重 × norm(因子)) × decay × penalty × trust × access</code></li>
+    <li><strong>归一化：</strong>同期同类目百分位，计数型指标先做 <code>log(1+x)</code> 压缩</li>
+    <li><strong>小样本平滑：</strong>贝叶斯平滑（α=200），杜绝「5 播放 5 互动 = 100%」霸榜</li>
+    <li><strong>时间衰减：</strong>五个槽位分别定义半衰期（2h ~ 72h）</li>
+    <li><strong>负反馈：</strong>不感兴趣 / 秒退 / 举报 / 拉黑，惩罚上限 60%</li>
+    <li><strong>反作弊信任分：</strong>七项检测（增速异常、互动集中、新号占比、IP 聚集等）</li>
+    <li><strong>多样性：</strong>同创作者上限、跨槽位去重优先级、类目 MMR 打散、候选不足兜底链路</li>
+    <li><strong>付费降权：</strong><code>access = 0.55</code>，与现有 <code>discover-access.js</code> 保持一致</li>
+    <li>另含数据字段与埋点清单、接口契约、刷新频率、A/B 方案与 14 项验收清单</li>
+</ul>
+
+<hr>
+
+<h2 id="docs">7. 规则文档与调试页同步 <span class="tag-mod">更新</span></h2>
+<ul>
+    <li><code>docs/discover-taxonomy-spec.md</code> 升到 <strong>v1.1</strong>：数据模型补 <code>level</code> / <code>parent_id</code> / <code>system</code>；
+        明确三级职责分工与「用户端只展示一级」的理由；<code>content_post</code> 字段改为 <code>category_id</code> + <code>primary_category</code>；
+        API 草案改为三级树接口；新增「热门频道是算法位，不是归类位」小节，并链接到算法规格书</li>
+    <li><code>pages-web/proto-discover-taxonomy.html</code>：调试页接入新数据源，下拉可选到三级叶子，
+        结果区同时显示「命中的三级类目」与「推导出的一级频道」</li>
+</ul>
+
+<hr>
+
+<h2 id="verify">8. 验收路径</h2>
+<table>
+    <thead><tr><th style="width:150px">模块</th><th style="width:290px">打开路径</th><th>验收要点</th></tr></thead>
+    <tbody>
+        <tr><td>发现页一级 Tab</td><td><code>pages-web/discover.html</code></td><td>9 个频道，首个为热门；切 Tab 内容不为空；URL 同步</td></tr>
+        <tr><td>后台类目管理</td><td><code>admin-prototype/content-categories.html</code></td><td>三列联动下钻；增删改、启停、排序、搜索、恢复默认；无数量统计</td></tr>
+        <tr><td>热门保护</td><td>同上，选中「热门」</td><td>标「系统」角标，删除按钮置灰；点停用弹警告 Toast；面包屑旁出现算法投放位黄色提示</td></tr>
+        <tr><td>后台入口</td><td><code>admin-prototype/index-HT.html</code></td><td>「内容与运营」分组首张卡片可见</td></tr>
+        <tr><td>图文类别选择</td><td><code>pages-web/create.html</code> → 图文动态</td><td>抽屉三列联动；只有三级可确认；搜索可用</td></tr>
+        <tr><td>视频类别选择</td><td>同上 → 视频作品</td><td>与图文各自独立记忆，切类型不串台</td></tr>
+        <tr><td>发布拦截</td><td>不选类别直接点发布</td><td>Toast 提示并自动弹出抽屉；成功文案含类别路径</td></tr>
+        <tr><td>前后台联动</td><td>后台改名 → 回到发现页</td><td>Tab 文案实时跟随，无需刷新</td></tr>
+        <tr><td>算法规格书</td><td><code>docs/hot-channel-ranking-spec.html</code></td><td>14 节完整；右上角可导出 PDF</td></tr>
+    </tbody>
+</table>
+
+<hr>
+
+<h2 id="files">9. 文件汇总</h2>
+<p>本次共改动 <strong>9 个已有文件</strong>（+319 / −103 行），新增 <strong>7 个文件</strong>。</p>
+
+<h3>新增</h3>
+<table>
+    <thead><tr><th style="width:330px">路径</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td><code>js-web/content-taxonomy-store.js</code></td><td>三级类目共享数据源，前后台唯一事实来源</td></tr>
+        <tr><td><code>js-web/create-category-select.js</code></td><td>创作页类别抽屉逻辑（<code>FL_CreateCategory</code>）</td></tr>
+        <tr><td><code>css-web/create-category.css</code></td><td>类别字段与抽屉样式</td></tr>
+        <tr><td><code>admin-prototype/content-categories.html</code></td><td>后台平台内容类别管理页</td></tr>
+        <tr><td><code>admin-prototype/css/content-categories.css</code></td><td>三列布局与提示条样式</td></tr>
+        <tr><td><code>admin-prototype/js/content-categories-page.js</code></td><td>类目树 CRUD、排序、搜索逻辑</td></tr>
+        <tr><td><code>docs/hot-channel-ranking-spec.html</code></td><td>热门频道推荐算法规格书 v1.0</td></tr>
+    </tbody>
+</table>
+
+<h3>修改</h3>
+<table>
+    <thead><tr><th style="width:330px">路径</th><th style="width:80px">增/删</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td><code>js-web/discover-taxonomy.js</code></td><td>+115 / −56</td><td>改读共享数据源；双字段归类；hashtag 重挂；演示数据 12→17 条</td></tr>
+        <tr><td><code>js-web/create-studio.js</code></td><td>+47 / −2</td><td>发布校验、成功文案、草稿存取、预览徽章</td></tr>
+        <tr><td><code>pages-web/create.html</code></td><td>+60 / −2</td><td>两个面板的类别字段 + 抽屉结构 + 脚本引入</td></tr>
+        <tr><td><code>js-web/discover-page.js</code></td><td>+14 / −5</td><td>默认 <code>hot</code>、URL 同步、<code>onChange</code> 联动</td></tr>
+        <tr><td><code>docs/discover-taxonomy-spec.md</code></td><td>+61 / −26</td><td>升级到 v1.1</td></tr>
+        <tr><td><code>pages-web/proto-discover-taxonomy.html</code></td><td>+16 / −10</td><td>调试页支持三级</td></tr>
+        <tr><td><code>pages-web/discover.html</code></td><td>+4 / −2</td><td>引入数据源脚本、版本号、批注补充</td></tr>
+        <tr><td><code>admin-prototype/js/admin-nav.js</code></td><td>+1</td><td>侧边栏菜单项</td></tr>
+        <tr><td><code>admin-prototype/index-HT.html</code></td><td>+1</td><td>总览页卡片</td></tr>
+    </tbody>
+</table>
+
+<hr>
+
+<h2 id="compare">10. 与 7 月 18 日对比一览</h2>
+<table>
+    <thead><tr><th style="width:150px">维度</th><th>7/18</th><th>7/25（今日）</th></tr></thead>
+    <tbody>
+        <tr><td>本阶段主体</td><td>资金链路：钱包双账户、稳定币充提、划转、充提风控</td><td>内容链路：三级类目体系、后台类别管理、创作端归类、热门算法</td></tr>
+        <tr><td>内容分类</td><td>前端硬编码 12 个平铺分类，运营改不了</td><td>后台可维护三级类目树（9 / 19 / 42），localStorage 持久化 + 跨页同步</td></tr>
+        <tr><td>发现页 Tab</td><td>12 个混合粒度 Tab，默认「全部」</td><td>9 个一级频道，默认「热门」；二三级不外露</td></tr>
+        <tr><td>内容归类方式</td><td>无类目字段，靠 hashtag 反推</td><td>创作者必选三级 <code>category_id</code>，一级 <code>primary_category</code> 自动推导</td></tr>
+        <tr><td>创作页</td><td>只有标题 / 正文 / 媒体 / 标签 / 定价</td><td>新增「内容类别」必选项 + 三级抽屉；发布前置校验与草稿回填</td></tr>
+        <tr><td>运营后台</td><td>「内容与运营」含内容审核 / 系统公告 / 报表统计</td><td>新增首项「平台内容类别管理」，三列联动 CRUD</td></tr>
+        <tr><td>热门频道</td><td>等同于「全部」，无算法定义</td><td>系统频道，下挂 5 个算法投放位，各自有公式、门槛与反作弊规则</td></tr>
+        <tr><td>规则文档</td><td>发现页类目规格 v1.0</td><td>规格升 v1.1；新增热门推荐算法规格书（14 节）</td></tr>
+        <tr><td>钱包 / 充提 / 直播</td><td>本阶段主体</td><td>本阶段无增量（沿用 7/18）</td></tr>
+    </tbody>
+</table>
+
+<h3>已知待办</h3>
+<ul>
+    <li>发现页排序仍是原型级 <code>点赞 + 评论×2 + 置顶加权</code>，尚未接入算法规格书的时间衰减与五槽位分流</li>
+    <li>热门频道当前只作为一级 Tab 呈现，5 个算法位的分区展示未在前端体现</li>
+    <li>直播开播流程尚未接入内容类别选择（本次仅覆盖图文与视频）</li>
+    <li>搜索页筛选未接入一级类目（数据源已就绪，接 <code>getLevel1()</code> 即可）</li>
+</ul>
+
+</article>
+
+<footer>FansLoop Web3 Creator · 原型调整记录 · 2026-07-25 · 上一版：<a href="prototype-changelog-2026-07-18.html">2026-07-18</a> · 相关：<a href="hot-channel-ranking-spec.html">热门频道推荐算法规格书</a></footer>
+</div>
+</body>
+</html>

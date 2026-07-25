@@ -240,6 +240,31 @@
 
 
 
+    /** 发布前置校验：图文 / 视频必须选到三级内容类别 */
+    function requireCategory(type) {
+
+        var CAT = window.FL_CreateCategory;
+
+        if (!CAT || CAT.validate(type)) return true;
+
+        showToast('请先选择内容类别（需精确到三级）');
+
+        CAT.open(type);
+
+        return false;
+
+    }
+
+    function categorySentence(type) {
+
+        var CAT = window.FL_CreateCategory;
+
+        var label = CAT ? CAT.getLabel(type) : '';
+
+        return label ? '已归类到「' + label + '」。' : '';
+
+    }
+
     function getPublishPricingMessage(kind) {
 
         var ppv = getPpvPrice();
@@ -267,6 +292,12 @@
         opts = opts || {};
 
         var badges = [];
+
+        var catLabel = opts.categoryLabel != null
+            ? opts.categoryLabel
+            : (window.FL_CreateCategory ? window.FL_CreateCategory.getLabel(currentType) : '');
+
+        if (catLabel) badges.push({ cls: 'cat', text: catLabel });
 
         if (opts.pricingFree || pricing.free) badges.push({ cls: 'free', text: '免费公开' });
 
@@ -430,6 +461,12 @@
 
         if (textEl && payload.text != null) textEl.value = payload.text;
 
+        if (payload.categoryId && window.FL_CreateCategory) {
+
+            window.FL_CreateCategory.set(type, payload.categoryId);
+
+        }
+
     }
 
     function saveDraftForType(type) {
@@ -445,6 +482,8 @@
             title: panel.querySelector('.title-input')?.value || '',
 
             text: panel.querySelector('.editor-text')?.value || '',
+
+            categoryId: window.FL_CreateCategory ? window.FL_CreateCategory.get(type) : null,
 
             savedAt: Date.now()
 
@@ -1094,6 +1133,8 @@
 
                 text: desc,
 
+                categoryLabel: btn.getAttribute('data-category') || '',
+
                 videoPoster: btn.getAttribute('data-video-poster') || '',
 
                 images: kind === 'image' ? images : []
@@ -1191,13 +1232,17 @@
 
             }
 
-            openSuccess('视频已提交审核。' + getPublishPricingMessage('video'));
+            if (!requireCategory('video')) return;
+
+            openSuccess('视频已提交审核。' + categorySentence('video') + getPublishPricingMessage('video'));
 
             return;
 
         }
 
-        openSuccess(getPublishPricingMessage('image'));
+        if (!requireCategory('image')) return;
+
+        openSuccess(categorySentence('image') + getPublishPricingMessage('image'));
 
     });
 

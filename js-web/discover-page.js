@@ -8,7 +8,8 @@
     if (!T || !A) return;
 
     var VP = window.FL_DISCOVER_VIDEO;
-    var activeCat = 'all';
+    var HOT = (window.FL_CONTENT_TAXONOMY && window.FL_CONTENT_TAXONOMY.HOT_ID) || 'hot';
+    var activeCat = HOT;
 
     function img(id, w) {
         return 'https://images.unsplash.com/' + id + '?w=' + (w || 600) + '&q=80';
@@ -127,12 +128,12 @@
     }
 
     function setCategory(id) {
-        activeCat = id || 'all';
+        activeCat = id || HOT;
         renderCatRow();
         renderPosts();
         var params = new URLSearchParams(location.search);
-        if (id === 'all') params.delete('category');
-        else params.set('category', id);
+        if (activeCat === HOT) params.delete('category');
+        else params.set('category', activeCat);
         var qs = params.toString();
         history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
     }
@@ -161,12 +162,20 @@
     function init() {
         VP = window.FL_DISCOVER_VIDEO;
         var cat = new URLSearchParams(location.search).get('category');
-        if (cat && T.getCategoryById(cat)) activeCat = cat;
+        if (cat && T.getCategoryById(cat)) activeCat = T.getCategoryById(cat).id;
         renderCatRow();
         renderPosts();
         bindCatRow();
         if (VP && VP.init) VP.init();
         setTimeout(syncCatScrollFade, 80);
+        // 后台改动类目树后（同页或其他标签页）Tab 实时跟随
+        if (window.FL_CONTENT_TAXONOMY) {
+            window.FL_CONTENT_TAXONOMY.onChange(function () {
+                if (!T.getCategoryById(activeCat)) activeCat = HOT;
+                renderCatRow();
+                renderPosts();
+            });
+        }
     }
 
     if (document.readyState === 'loading') {

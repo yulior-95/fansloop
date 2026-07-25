@@ -1,7 +1,10 @@
 # 发现页 · 动态标签与推荐体系（研发 / 算法需求说明）
 
-> 版本：v1.0 · 对应原型 `pages-web/discover.html`  
+> 版本：v1.1 · 对应原型 `pages-web/discover.html`  
 > 目标：类抖音「频道 + 内容流」；内容优先，不堆创作者模块。
+>
+> v1.1 变更：类目升级为**后台可配的三级树**（后台页 `admin-prototype/content-categories.html`）。
+> 用户端只展示一级，创作者发布须选到三级。
 
 ---
 
@@ -35,19 +38,39 @@ Main
 
 ## 2. 数据模型
 
-### 2.1 categories（垂类频道）
+### 2.1 categories（三级类目树）
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| id | string | 如 `photo` |
-| slug | string | URL 友好 |
+| id | string | 如 `visual` / `visual-photo` / `photo-portrait` |
 | name | string | 展示名 |
-| icon | string | emoji 或 icon url |
-| sort | int | 排序 |
-| enabled | bool | 是否上线 |
+| level | int | 1 / 2 / 3 |
+| parent_id | string | 上级 id，一级为 null |
+| icon | string | emoji，仅一级需要（用户端 Tab） |
+| sort | int | 同级排序 |
+| enabled | bool | 停用后前台不展示、创作者不可选 |
+| system | bool | 系统频道（`hot` 热门），不可删除或停用；子级为算法投放位 |
 
-- 接口：`GET /api/categories` → 渲染 `cat-row`
-- 原型数据：`js-web/discover-taxonomy.js` → `CATEGORIES`
+**层级职责**
+
+| 层级 | 面向 | 用途 |
+|------|------|------|
+| 一级 | 用户 | 发现页 Tab、搜索筛选的**唯一展示层级**（当前 9 项：热门 / 创作者日常 / 视觉美学 / 娱乐精选 / 互动时刻 / 情感关系 / 沉浸体验 / 生活方式 / 知识分享） |
+| 二级 | 运营 | 后台归类、审核分流、运营分析，不对用户展示 |
+| 三级 | 创作者 | 发布时必选的归类落点，内容落库 `category_id` |
+
+> **为什么用户端只展示一级：** 类目太多会让用户在 Tab 上做无谓选择、降低进流速度。二三级只在创作者侧和算法侧生效。
+
+**热门频道是算法位，不是归类位**
+
+`hot` 的二三级（热门推荐：今日热门 / 爆款视频 / 高互动内容；新鲜发现：新创作者 / 最新发布）
+是**推荐算法的投放槽位**，由算法按热度、互动率与新鲜度实时填充。
+创作者发布时选不到这些节点（选择器过滤 `system=true` 的一级），内容也不会以它们为 `category_id`。
+五个槽位的排序公式、准入门槛与反作弊规则见 [`hot-channel-ranking-spec.html`](./hot-channel-ranking-spec.html)。
+
+- 接口：`GET /api/v1/categories/tree`（全量）· `GET /api/v1/categories/tree?level=1`（用户端）· `PUT /api/v1/admin/categories/tree`
+- 后台维护页：`admin-prototype/content-categories.html`（三级联动列，无数量统计展示）
+- 原型数据：`js-web/content-taxonomy-store.js`（前后台共用，localStorage 持久化）
 
 ### 2.2 content_post（内容）
 
@@ -55,21 +78,22 @@ Main
 |------|------|------|
 | id | string | 内容 ID |
 | type | enum | image / video / live |
-| primary_category_id | string | **频道筛选唯一键** |
+| category_id | string | **三级叶子**，创作者发布时必选 |
+| primary_category | string | 冗余的一级 id，**频道 Tab 筛选唯一键** |
 | category_ids | string[] | 多标签（不展示在卡片 UI） |
 | hashtags | string[] | 话题，参与自动归类 |
 | featured | bool | 是否频道内置顶（首条 3×2 大卡） |
 | duration_sec | int | 视频时长（秒） |
 
-- 接口：`GET /api/discover/posts?category={id}&cursor=`
-- **UI 不展示垂类标签**：一条内容可映射多分类，展示单一垂类易误导。
+- 接口：`GET /api/discover/posts?category={一级 id}&cursor=`
+- **UI 不展示类目标签**：一条内容可映射多分类，展示单一类目易误导。
 
-### 2.3 hashtag_map（话题 → 垂类）
+### 2.3 hashtag_map（话题 → 三级类目）
 
-运营可配置 JSON / 表：
+运营可配置 JSON / 表，值为三级叶子 id，一级由树回溯得到：
 
 ```json
-{ "京都": "travel", "Vlog": "film", "Web3": "tech" }
+{ "京都": "travel-log", "Vlog": "daily-share", "穿搭": "fashion-makeup" }
 ```
 
 ---
@@ -78,15 +102,18 @@ Main
 
 **优先级从高到低：**
 
-1. **用户主垂类**：发布时必选（`create-publish-image` 主垂类）→ 写入 `primary_category_id`
-2. **话题映射**：正文 `#话题` 命中 `hashtag_map` → 自动归类
-3. **创作者默认垂类**：历史发文最多垂类（弱关联，confidence ≤ 0.65，不覆盖 1、2）
+1. **创作者选择的三级类目**：发布图文 / 视频时必选（创作页抽屉单选）→ 写入 `category_id`
+2. **话题映射**：正文 `#话题` 命中 `hashtag_map` → 自动归到三级
+3. **创作者默认类目**：历史发文最多类目（弱关联，confidence ≤ 0.65，不覆盖 1、2）
 4. **多模态模型**（可选）：图文/视频理解 → 仅当 confidence ≥ 0.85 且与用户选择不冲突时落库
 
 **存储策略：**
 
+- `category_id`：三级叶子，单值，归类与审核分流依据
+- `primary_category`：由 `category_id` 回溯的一级 id，**频道 Tab 筛选仅用此字段**
 - `category_ids[]`：多标签全量存储（推荐、检索）
-- `primary_category_id`：单值，**频道 Tab 筛选仅用此字段**
+
+**父级停用：** 停用一级/二级后，其下三级在创作者选择器中不可选；已发布内容不做回溯改判。
 
 **原型试算：** `resolveContentCategory()` in `discover-taxonomy.js`；交互页 `proto-discover-taxonomy.html`
 
@@ -130,11 +157,13 @@ Main
 ## 6. API 草案
 
 ```
-GET  /api/categories
-GET  /api/discover/posts?category=all&limit=20&cursor=
-POST /api/content/publish        # body 含 primary_category_id, hashtags[]
-GET  /api/hashtag-map            # 运营配置
-POST /api/content/{id}/classify  # 试算 / 人工覆写（管理端）
+GET  /api/v1/categories/tree             # 全量三级树（创作者选择器）
+GET  /api/v1/categories/tree?level=1     # 一级（发现页 Tab / 搜索筛选）
+PUT  /api/v1/admin/categories/tree       # 后台保存三级树
+GET  /api/discover/posts?category=hot&limit=20&cursor=
+POST /api/content/publish                # body 含 category_id（三级，必填）, hashtags[]
+GET  /api/hashtag-map                    # 运营配置
+POST /api/content/{id}/classify          # 试算 / 人工覆写（管理端）
 ```
 
 ---
@@ -144,8 +173,11 @@ POST /api/content/{id}/classify  # 试算 / 人工覆写（管理端）
 - [ ] 首屏仅 **横滑 cat-row + 内容网格**，无 Hero、无 API 文案、无创作者横条
 - [ ] cat-row 可横滑，右侧渐变提示
 - [ ] 首条 3×2 大卡 + 其余 4 列
-- [ ] 卡片不展示垂类分类标签
-- [ ] `?category=photo` 深链恢复频道
+- [ ] 卡片不展示类目标签
+- [ ] cat-row 只出现**一级**类目，二三级不外露
+- [ ] 后台增删改一级类目后，发现页 Tab 同步
+- [ ] 创作页图文 / 视频未选三级类目时不可发布，点击发布定位到选择入口
+- [ ] `?category=visual` 深链恢复频道
 - [ ] 视频卡控件 + PiP 完整可用
 - [ ] 玻璃球 hover 可见划分/推荐摘要
 - [ ] 本文档与 `proto-discover-taxonomy.html` 可供研发评审
@@ -156,6 +188,9 @@ POST /api/content/{id}/classify  # 试算 / 人工覆写（管理端）
 
 | 路径 | 用途 |
 |------|------|
+| `js-web/content-taxonomy-store.js` | **三级类目树唯一数据源**（前后台共用） |
+| `admin-prototype/content-categories.html` | 后台「平台内容类别管理」 |
+| `js-web/create-category-select.js` | 创作页三级类目抽屉单选 |
 | `pages-web/discover.html` | 发现页主界面 |
 | `js-web/discover-taxonomy.js` | 样本数据 + 归类引擎 |
 | `js-web/discover-page.js` | 渲染与频道筛选 |

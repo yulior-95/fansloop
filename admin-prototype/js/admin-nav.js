@@ -145,6 +145,7 @@
     {
       title: "内容与运营",
       items: [
+        { key: "content-categories", href: "content-categories.html", icon: "fa-sitemap", label: "平台内容类别管理" },
         { key: "content-review", href: "content-review.html", icon: "fa-eye", label: "内容审核" },
         { key: "system-announcements", href: "system-announcements.html", icon: "fa-bullhorn", label: "系统公告" },
         { key: "reports", href: "reports.html", icon: "fa-table", label: "报表统计" }

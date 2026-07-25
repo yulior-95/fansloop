@@ -65,7 +65,7 @@
     <div class="proto-card">
         <h2>输入</h2>
         <div class="proto-row">
-            <label>主垂类</label>
+            <label>三级类目</label>
             <select id="inPrimary">
                 <option value="">（未选择）</option>
             </select>
@@ -82,11 +82,15 @@
                 <option value="">（无）</option>
             </select>
         </div>
+        <p style="font-size:12px;color:var(--t-tertiary);line-height:1.6;margin:-4px 0 12px">
+            类目树由运营后台「平台内容类别管理」维护；创作者发布须选到三级，用户端（发现页 Tab / 搜索）只展示一级。
+        </p>
         <div class="proto-row">
             <button type="button" class="btn-run" id="btnRun"><i class="fa-solid fa-play"></i> 试算归类</button>
         </div>
         <div class="result-box" id="resultBox" hidden>
-            <div>判定主垂类：<span class="primary" id="outPrimary">—</span></div>
+            <div>判定类目：<span class="primary" id="outPrimary">—</span></div>
+            <div>发现页 Tab（一级）：<span id="outRoot">—</span></div>
             <div>方法：<span id="outMethod">—</span></div>
             <ol id="outSteps"></ol>
         </div>
@@ -104,20 +108,21 @@
     <p class="doc-link"><a href="../docs/discover-taxonomy-spec.md" target="_blank"><i class="fa-solid fa-file-lines"></i> 打开完整需求文档</a>
      · <a href="discover.html"><i class="fa-solid fa-compass"></i> 返回发现页</a></p>
 </div>
+<script src="../js-web/content-taxonomy-store.js"></script>
 <script src="../js-web/discover-taxonomy.js"></script>
 <script>
 (function () {
     var T = window.FL_DISCOVER_TAXONOMY;
     if (!T) return;
+    var TX = window.FL_CONTENT_TAXONOMY;
     var selPrimary = document.getElementById('inPrimary');
     var selCreator = document.getElementById('inCreatorDefault');
-    T.getCategories().filter(function (c) { return c.id !== 'all'; }).forEach(function (c) {
+    (TX ? TX.getLeaves() : []).forEach(function (item) {
         var o1 = document.createElement('option');
-        o1.value = c.id;
-        o1.textContent = c.icon + ' ' + c.name;
+        o1.value = item.node.id;
+        o1.textContent = item.path.map(function (n) { return n.name; }).join(' / ');
         selPrimary.appendChild(o1);
-        var o2 = o1.cloneNode(true);
-        selCreator.appendChild(o2);
+        selCreator.appendChild(o1.cloneNode(true));
     });
     T.rules.classify.forEach(function (t) {
         var li = document.createElement('li');
@@ -133,14 +138,15 @@
         var tags = (document.getElementById('inHashtags').value || '')
             .split(/[,，\s]+/).filter(Boolean);
         var r = T.resolveContentCategory({
-            primaryCategory: selPrimary.value || null,
+            categoryId: selPrimary.value || null,
             hashtags: tags,
             creatorDefaultCategory: selCreator.value || null
         });
         var box = document.getElementById('resultBox');
         box.hidden = false;
-        var cat = T.getCategoryById(r.primaryCategory);
-        document.getElementById('outPrimary').textContent = cat ? (cat.icon + ' ' + cat.name) : '待补全';
+        var root = T.getCategoryById(r.primaryCategory);
+        document.getElementById('outPrimary').textContent = r.pathLabel || '待补全';
+        document.getElementById('outRoot').textContent = root ? (root.icon + ' ' + root.name) : '待补全';
         document.getElementById('outMethod').textContent = r.method;
         var steps = document.getElementById('outSteps');
         steps.innerHTML = '';

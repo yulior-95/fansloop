@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>热门频道推荐算法规格书 v1.0 · FansLoop</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: #f5f7fb;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+    padding: 20px;
+    color: #1e293b;
+}
+.toolbar {
+    max-width: 1080px;
+    margin: 0 auto 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #fff;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e9edf4;
+}
+.toolbar .doc-title { font-size: 18px; font-weight: 600; color: #0f172a; display: flex; align-items: center; gap: 10px; }
+.toolbar .doc-title span { background: #3b82f6; color: #fff; font-size: 11px; font-weight: 500; padding: 2px 10px; border-radius: 20px; }
+.toolbar button {
+    padding: 8px 18px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500;
+    cursor: pointer; background: #3b82f6; color: #fff; transition: background 0.2s;
+}
+.toolbar button:hover { background: #2563eb; }
+
+.doc {
+    max-width: 1080px; margin: 0 auto; background: #fff; border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); border: 1px solid #e9edf4; padding: 48px 56px;
+    font-size: 15px; line-height: 1.78;
+}
+.doc h1 { font-size: 30px; font-weight: 700; color: #0f172a; padding-bottom: 12px; border-bottom: 2px solid #e9edf4; }
+.doc .meta { color: #64748b; font-size: 13px; margin: 14px 0 4px; }
+.doc h2 {
+    font-size: 22px; font-weight: 600; color: #0f172a; margin: 44px 0 16px;
+    padding-bottom: 8px; border-bottom: 1px solid #e9edf4;
+}
+.doc h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+.doc h4 { font-size: 15px; font-weight: 600; color: #334155; margin: 20px 0 8px; }
+.doc p { margin: 10px 0; }
+.doc ul, .doc ol { margin: 10px 0 10px 22px; }
+.doc li { margin: 5px 0; }
+.doc code {
+    background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px;
+    padding: 1px 6px; font-size: 13px; font-family: ui-monospace, Menlo, Consolas, monospace; color: #be185d;
+}
+.doc a { color: #2563eb; }
+
+table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
+th, td { border: 1px solid #e2e8f0; padding: 9px 12px; text-align: left; vertical-align: top; }
+th { background: #f8fafc; font-weight: 600; color: #0f172a; }
+td code { font-size: 12.5px; }
+tbody tr:nth-child(even) { background: #fcfdfe; }
+
+.formula {
+    background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 16px 20px; margin: 14px 0;
+    font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13.5px; line-height: 1.9;
+    overflow-x: auto; white-space: pre;
+}
+.formula .k { color: #7dd3fc; }
+.formula .n { color: #fca5a5; }
+.formula .c { color: #94a3b8; }
+
+.callout { border-radius: 10px; padding: 14px 18px; margin: 16px 0; font-size: 14px; line-height: 1.7; }
+.callout strong { display: block; margin-bottom: 4px; }
+.callout.bad { background: #fef2f2; border: 1px solid #fecaca; color: #7f1d1d; }
+.callout.fix { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
+.callout.note { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a5f; }
+.callout.warn { background: #fffbeb; border: 1px solid #fde68a; color: #713f12; }
+
+.slot-head {
+    display: flex; align-items: center; gap: 12px; margin: 48px 0 6px;
+    padding: 14px 18px; background: linear-gradient(135deg, #eff6ff, #f8fafc);
+    border: 1px solid #dbeafe; border-radius: 12px;
+}
+.slot-head .idx {
+    width: 30px; height: 30px; flex-shrink: 0; border-radius: 8px; background: #3b82f6; color: #fff;
+    font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center;
+}
+.slot-head .t { font-size: 19px; font-weight: 700; color: #0f172a; }
+.slot-head .id { margin-left: auto; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #64748b; }
+
+.toc { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 24px; margin: 24px 0 8px; }
+.toc ol { margin-left: 20px; }
+.toc li { margin: 3px 0; }
+
+.tag { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.tag.gate { background: #fee2e2; color: #991b1b; }
+.tag.score { background: #dbeafe; color: #1e40af; }
+.tag.mult { background: #f3e8ff; color: #6b21a8; }
+
+@media print {
+    body { background: #fff; padding: 0; }
+    .toolbar { display: none; }
+    .doc { box-shadow: none; border: none; padding: 0; max-width: none; }
+    .slot-head { break-inside: avoid; }
+    table { break-inside: avoid; }
+}
+@media (max-width: 720px) {
+    .doc { padding: 28px 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+    <div class="doc-title">热门频道推荐算法规格书 <span>v1.0</span></div>
+    <button onclick="window.print()">打印 / 导出 PDF</button>
+</div>
+
+<article class="doc">
+
+<h1>热门频道推荐算法规格书</h1>
+<p class="meta">
+    适用范围：发现页「🔥 热门」频道下的 5 个算法投放位 ·
+    关联文档 <code>docs/discover-taxonomy-spec.md</code> ·
+    关联代码 <code>js-web/discover-access.js</code>
+</p>
+<p class="meta">
+    定位：热门频道的二三级<strong>不是内容归类</strong>，创作者发布时选不到，
+    全部由本文定义的算法按热度、传播与新鲜度填充。
+</p>
+
+<div class="toc">
+    <strong>目录</strong>
+    <ol>
+        <li>设计原则与原方案总体问题</li>
+        <li>通用计算框架（归一化 / 平滑 / 衰减 / 惩罚）</li>
+        <li>互动行为权重表</li>
+        <li>槽位 1 · 今日热门</li>
+        <li>槽位 2 · 爆款视频</li>
+        <li>槽位 3 · 高互动内容</li>
+        <li>槽位 4 · 新创作者</li>
+        <li>槽位 5 · 最新发布</li>
+        <li>反作弊与信任分</li>
+        <li>多样性、去重与兜底</li>
+        <li>数据字段与埋点</li>
+        <li>接口契约与运行参数</li>
+        <li>效果指标与 A/B 方案</li>
+        <li>落地验收清单</li>
+    </ol>
+</div>
+
+<h2>1. 设计原则与原方案总体问题</h2>
+
+<h3>1.1 五条设计原则</h3>
+<table>
+    <thead><tr><th style="width:170px">原则</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td>量纲可比</td><td>任何进入加权求和的因子必须先归一化到 <code>[0,1]</code>，绝不允许「计数 + 比率」直接相加。</td></tr>
+        <tr><td>硬门槛与打分分离</td><td>审核状态、举报、合规这类是<span class="tag gate">准入门槛</span>，只决定「能不能进池」，不参与加权打分。</td></tr>
+        <tr><td>小样本不失真</td><td>所有比率必须做贝叶斯平滑或取 Wilson 置信下界，杜绝「3 次播放 3 个赞 = 100% 互动率」霸榜。</td></tr>
+        <tr><td>信号不重复计算</td><td>同一用户行为只在一个因子里出现一次，避免变相加权。</td></tr>
+        <tr><td>贴合创作者经济</td><td>打赏、订阅转化、付费解锁是本平台最高价值信号，权重必须显著高于点赞。</td></tr>
+    </tbody>
+</table>
+
+<h3>1.2 原方案的五个共性问题</h3>
+<div class="callout bad">
+    <strong>问题 A｜量纲混加，权重失效</strong>
+    「播放量增长速度 × 30%」与「完播率 × 20%」相加时，前者量级可能是 5000，后者是 0.6，
+    最终分数 99.99% 由播放速度决定，其余权重形同虚设。爆款视频的公式问题更严重——
+    <code>累计播放量 + 各种率</code> 实际等价于「按播放量排序」。
+</div>
+<div class="callout bad">
+    <strong>问题 B｜信号重复计算</strong>
+    原方案定义「互动率 =（点赞+评论+收藏+分享）/ 播放人数」，
+    但今日热门又把收藏率、分享率各自单列 10%。收藏和分享被算了两遍，实际权重被放大。
+</div>
+<div class="callout bad">
+    <strong>问题 C｜小样本可以刷榜</strong>
+    所有比率型指标都没有最小曝光门槛和平滑处理。一条只有 10 次播放、8 次点赞的内容，
+    互动率 80% 会直接压过一条 10 万播放、互动率 12% 的优质内容。
+</div>
+<div class="callout bad">
+    <strong>问题 D｜只有正向信号，没有负向约束</strong>
+    五个槽位里只有「最新发布」提到举报。缺少「不感兴趣」「秒退（3 秒内划走）」「拉黑」
+    等负反馈，也缺少刷量识别，算法可以被低成本操纵。
+</div>
+<div class="callout bad">
+    <strong>问题 E｜缺少时间窗口定义</strong>
+    「今日热门」没说是自然日还是滚动 24 小时；「爆款视频」用累计播放量且无时间窗，
+    会导致一条半年前的老爆款永久占据槽位，频道失去更新感。
+</div>
+
+<h2>2. 通用计算框架</h2>
+
+<h3>2.1 统一打分结构</h3>
+<p>五个槽位全部套用同一个三段式结构，差异只体现在门槛条件与加权项：</p>
+<div class="formula"><span class="c">// 三段式：门槛 → 加权 → 修正</span>
+<span class="k">最终分</span> = <span class="k">Σ</span>( 权重ᵢ × norm(因子ᵢ) )   <span class="c">// 加权项，结果 ∈ [0,1]</span>
+        × decay(Δt)                <span class="c">// 时间衰减</span>
+        × penalty                  <span class="c">// 负反馈惩罚</span>
+        × trust                    <span class="c">// 反作弊信任分</span>
+        × access                   <span class="c">// 付费可见性系数</span>
+
+<span class="c">// 任一硬门槛不通过 → 直接不进候选池，不计算分数</span></div>
+
+<h3>2.2 归一化 norm()：解决量纲问题</h3>
+<p>采用<strong>同期同池百分位归一化</strong>，而不是 min-max：百分位对刷量产生的极端值天然鲁棒，
+且不需要预设量级上限。对播放量这类长尾分布的计数指标，先做对数压缩再取百分位。</p>
+<div class="formula"><span class="k">norm</span>(x) = percentile_rank(x, pool) ∈ [0, 1]
+
+<span class="c">// 计数型（播放、点赞数…）先压缩长尾</span>
+<span class="k">norm</span>(V) = percentile_rank( log(1 + V), pool )
+
+<span class="c">// pool = 同一时间窗 + 同一一级类目 的候选集合</span>
+<span class="c">// 同类目对比可避免「美食天然比知识播放高」造成的系统性偏差</span></div>
+
+<h3>2.3 小样本平滑：杜绝低播放霸榜</h3>
+<p>所有比率型指标使用贝叶斯平滑，用类目历史均值作为先验，把样本不足的内容拉回均值：</p>
+<div class="formula"><span class="k">rate_smooth</span> = ( x + α × μ_cat ) / ( n + α )
+
+x     = 行为发生次数（如完播次数）
+n     = 分母基数（如播放人数）
+μ_cat = 该三级类目近 30 天该指标的均值（先验）
+α     = 先验强度，建议 <span class="n">α = 200</span>
+
+<span class="c">// 效果：n=10 时几乎等于类目均值；n=5000 时几乎等于真实值</span></div>
+<p>对需要保守估计的场景（如高互动槽位），改用 Wilson 95% 置信下界，宁可低估也不误推。</p>
+
+<h3>2.4 时间衰减 decay()</h3>
+<div class="formula"><span class="k">decay</span>(Δt) = 0.5 ^ ( Δt / H )    <span class="c">// H = 半衰期</span></div>
+<table>
+    <thead><tr><th>槽位</th><th>半衰期 H</th><th>理由</th></tr></thead>
+    <tbody>
+        <tr><td>今日热门</td><td>6 小时</td><td>强调「此刻正在热」，半天前的热度应明显退坡</td></tr>
+        <tr><td>爆款视频</td><td>72 小时</td><td>爆款需要沉淀期，衰减要慢，但仍需让位给新爆款</td></tr>
+        <tr><td>高互动内容</td><td>24 小时</td><td>互动质量相对稳定，中速衰减</td></tr>
+        <tr><td>新创作者</td><td>不衰减</td><td>由 30 天扶持期与毕业机制控制生命周期</td></tr>
+        <tr><td>最新发布</td><td>2 小时</td><td>时效性最强，2 小时后排序权重减半</td></tr>
+    </tbody>
+</table>
+
+<h3>2.5 负反馈惩罚 penalty</h3>
+<div class="formula"><span class="k">负反馈率</span> NFR = ( 1.0×不感兴趣 + 1.5×秒退 + 5.0×举报 + 8.0×拉黑创作者 ) / 曝光数
+
+<span class="k">penalty</span> = 1 − min( <span class="n">0.6</span>, 25 × NFR )   <span class="c">// 惩罚上限 60%，不做一票否决</span>
+
+<span class="c">// 秒退 = 视频进入后 3 秒内退出 / 图文进入后 2 秒内退出</span>
+<span class="c">// 举报率 ≥ 0.5% 或举报绝对数 ≥ 3 → 转硬门槛，直接下架并送人工复审</span></div>
+
+<h3>2.6 付费内容可见性系数 access</h3>
+<p>与现有 <code>js-web/discover-access.js</code> 保持一致，避免算法与前端展示规则打架：</p>
+<table>
+    <thead><tr><th>场景</th><th>access</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td>免费内容</td><td>1.0</td><td>完整可消费</td></tr>
+        <tr><td>付费内容 · 当前用户已订阅/已解锁</td><td>1.0</td><td>等同免费</td></tr>
+        <tr><td>付费内容 · 当前用户未订阅</td><td>0.55</td><td>只能看 Teaser，消费体验打折</td></tr>
+        <tr><td>游客</td><td>—</td><td>付费内容不进候选，只出 5 条免费内容</td></tr>
+    </tbody>
+</table>
+<div class="callout note">
+    <strong>注意：付费内容的率值要按可见部分归一</strong>
+    未订阅用户看到的是 12 秒 Teaser，其「完播率」不可与免费长视频直接比较。
+    付费内容的完播率应按 <code>已订阅用户的观看数据</code> 单独统计，避免系统性低估付费优质内容。
+</div>
+
+<h2>3. 互动行为权重表</h2>
+<p>原方案把点赞、评论、收藏、分享等权相加，这在创作者经济平台上是明显失真的——
+点赞几乎零成本，而订阅意味着真金白银。权重按<strong>用户付出成本 × 商业价值</strong>递增设定：</p>
+<table>
+    <thead><tr><th style="width:150px">行为</th><th style="width:90px">权重 w</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td>点赞</td><td>1</td><td>成本最低，最易刷，作为基准单位</td></tr>
+        <tr><td>收藏</td><td>3</td><td>延时消费意图，质量信号强于点赞</td></tr>
+        <tr><td>弹幕</td><td>3</td><td>直播/视频场景的实时参与</td></tr>
+        <tr><td>评论</td><td>5</td><td>需要组织语言，成本高；需过滤灌水（见 9.3）</td></tr>
+        <tr><td>分享</td><td>8</td><td>愿意用社交关系背书，站外分享额外 ×1.5</td></tr>
+        <tr><td>关注创作者</td><td>12</td><td>长期关系建立，对创作者增长最关键</td></tr>
+        <tr><td>打赏 / 送礼</td><td>15</td><td>付费行为，按次计（金额单独进变现指标，不进热度分）</td></tr>
+        <tr><td>付费解锁（PPV）</td><td>25</td><td>为单条内容直接付费，最强的内容质量信号</td></tr>
+        <tr><td>订阅创作者</td><td>40</td><td>最高价值转化</td></tr>
+    </tbody>
+</table>
+<div class="formula"><span class="k">加权互动分</span> A = Σ ( wᵢ × 行为次数ᵢ )
+
+<span class="c">// 防刷：单个用户对单条内容的贡献上限 60 分</span>
+<span class="c">// 金额不进热度分，避免大额打赏单点拉爆排序；金额只用于创作者收益榜</span></div>
+
+<!-- ============ 槽位 1 ============ -->
+<div class="slot-head">
+    <span class="idx">1</span>
+    <span class="t">今日热门</span>
+    <span class="id">hot-today</span>
+</div>
+
+<h3>4.1 原方案与问题</h3>
+<table>
+    <thead><tr><th style="width:230px">原方案</th><th>问题</th><th style="width:280px">修正</th></tr></thead>
+    <tbody>
+        <tr>
+            <td>播放量增长速度 × 30%</td>
+            <td>无上界的计数值，直接吞掉其余 70% 权重</td>
+            <td>取 <code>log(1+增速)</code> 后做同类目百分位归一</td>
+        </tr>
+        <tr>
+            <td>互动率 × 30%</td>
+            <td>按原定义含收藏与分享，与后两项重复计算</td>
+            <td>互动率<strong>剔除</strong>收藏与分享，只保留点赞/评论/弹幕/打赏</td>
+        </tr>
+        <tr>
+            <td>完播率 × 20%</td>
+            <td>低播放量内容完播率虚高</td>
+            <td>贝叶斯平滑 + 最小播放门槛</td>
+        </tr>
+        <tr>
+            <td>收藏率 10% / 分享率 10%</td>
+            <td>权重本身合理，但被重复计入互动率</td>
+            <td>保留权重，去重后独立计算</td>
+        </tr>
+        <tr>
+            <td>（缺失）</td>
+            <td>没有时间窗、没有衰减、没有负反馈、图文与视频混排不公平</td>
+            <td>补齐窗口定义、衰减、惩罚，并按内容形态分池</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>4.2 修正后算法</h3>
+<h4><span class="tag gate">硬门槛</span> 全部满足才进候选池</h4>
+<ul>
+    <li>内容审核状态 = 通过，且未被举报下架</li>
+    <li>发布时间在最近 <strong>7 天</strong>内（保证「今日热」的内容本身不老）</li>
+    <li>滚动 24 小时内曝光 ≥ <strong>1000</strong>，独立播放人数 ≥ <strong>200</strong></li>
+    <li>举报率 &lt; 0.5%，信任分 <code>trust ≥ 0.6</code></li>
+</ul>
+
+<h4><span class="tag score">加权打分</span></h4>
+<div class="formula"><span class="k">S_today</span> =
+    0.30 × norm( log(1 + 播放增速 Vph) )      <span class="c">// 增长速度</span>
+  + 0.30 × norm( 加权互动率 IR_w )            <span class="c">// 不含收藏分享</span>
+  + 0.20 × norm( 完播率 CR_smooth )
+  + 0.10 × norm( 收藏率 FR_smooth )
+  + 0.10 × norm( 分享率 SR_smooth )
+
+<span class="k">最终</span> = S_today × decay(H=6h) × penalty × trust × access
+
+<span class="c">其中：</span>
+Vph   = 最近 6 小时播放量 / min(6, 已发布小时数)   <span class="c">// 避免刚发布时分母过小</span>
+IR_w  = (1×点赞 + 5×评论 + 3×弹幕 + 15×打赏) / 独立播放人数
+CR_smooth = (完播次数 + 200 × μ完播_类目) / (播放次数 + 200)
+FR_smooth、SR_smooth 同理</div>
+
+<h4><span class="tag mult">边界与兜底</span></h4>
+<ul>
+    <li><strong>分池：</strong>视频与图文分开计算百分位（图文没有完播率，其 20% 权重按比例分摊给互动率与收藏率）</li>
+    <li><strong>时间窗：</strong>滚动 24 小时，不是自然日；每 15 分钟重算一次</li>
+    <li><strong>直播：</strong>进行中的直播单独用「实时在线人数增速 + 礼物流水增速」评估，不与录播混排</li>
+    <li><strong>候选不足：</strong>放宽曝光门槛到 500，仍不足则从「爆款视频」池回填</li>
+</ul>
+
+<!-- ============ 槽位 2 ============ -->
+<div class="slot-head">
+    <span class="idx">2</span>
+    <span class="t">爆款视频</span>
+    <span class="id">hot-viral</span>
+</div>
+
+<h3>5.1 原方案与问题</h3>
+<div class="callout bad">
+    <strong>原公式实际等价于「按播放量排序」</strong>
+    <code>累计播放量 + 点赞率 + 评论率 + 收藏率 + 分享率 + 完播率</code>：
+    播放量量级为 10⁴~10⁶，五个率之和最大不超过 5。也就是说后面五项加起来的影响，
+    还不如播放量多 5 次播放。而且六项无权重、无时间窗，老爆款会永久占位。
+</div>
+<div class="callout fix">
+    <strong>修正思路：把播放量从「打分项」改成「门槛项 + 弱权重项」</strong>
+    「爆款」的本质不是播放量绝对值高，而是<strong>突破了创作者自己的粉丝圈层</strong>并产生了自发传播。
+    因此新增两个原方案完全缺失的核心因子：<strong>传播系数 K</strong> 与 <strong>破圈率</strong>。
+</div>
+
+<h3>5.2 修正后算法</h3>
+<h4><span class="tag gate">硬门槛</span></h4>
+<ul>
+    <li>发布时间在最近 <strong>30 天</strong>内，且已发布满 <strong>24 小时</strong>（需要沉淀期才能判断是否爆）</li>
+    <li>累计播放量 ≥ <code>max(50,000, 同类目近 30 天 P90)</code>——用相对门槛避免冷门类目永远出不了爆款</li>
+    <li>审核通过、信任分 <code>trust ≥ 0.8</code>（爆款位曝光大，反作弊要求更严）</li>
+    <li>完播率 ≥ 同类目 P30（排除靠标题党骗进来的高播放低质内容）</li>
+</ul>
+
+<h4><span class="tag score">加权打分</span></h4>
+<div class="formula"><span class="k">S_viral</span> =
+    0.25 × norm( log(1 + 累计播放 V) )     <span class="c">// 规模，压缩后弱权重</span>
+  + 0.20 × norm( 传播系数 K )              <span class="c">// 自发扩散能力（新增）</span>
+  + 0.15 × norm( 破圈率 OutR )             <span class="c">// 是否突破粉丝圈（新增）</span>
+  + 0.15 × norm( 完播率 CR_smooth )
+  + 0.10 × norm( 分享率 SR_smooth )
+  + 0.10 × norm( 评论率 CmR_smooth )
+  + 0.05 × norm( 收藏率 FR_smooth )
+
+<span class="k">最终</span> = S_viral × decay(H=72h) × penalty × trust × access
+
+<span class="c">其中：</span>
+K    = 由分享链接带来的新增播放数 / 分享次数      <span class="c">// 病毒系数，K>1 表示自增长</span>
+OutR = 非粉丝播放人数 / 总播放人数               <span class="c">// 破圈率</span></div>
+<p>点赞率不单列——它是最易刷且区分度最低的信号，已在信任分与互动质量校验中使用。</p>
+
+<h4><span class="tag mult">边界与兜底</span></h4>
+<ul>
+    <li><strong>防霸榜：</strong>同一条内容在爆款位累计出现不超过 <strong>7 天</strong>，到期强制轮换</li>
+    <li><strong>同创作者上限：</strong>爆款位内同一创作者最多 1 条</li>
+    <li><strong>名副其实校验：</strong>进入爆款位后若 CTR 低于槽位均值 50%，2 小时内自动降位</li>
+</ul>
+
+<!-- ============ 槽位 3 ============ -->
+<div class="slot-head">
+    <span class="idx">3</span>
+    <span class="t">高互动内容</span>
+    <span class="id">hot-engaged</span>
+</div>
+
+<h3>6.1 原方案与问题</h3>
+<table>
+    <thead><tr><th style="width:230px">原方案</th><th>问题</th><th style="width:280px">修正</th></tr></thead>
+    <tbody>
+        <tr>
+            <td>点赞、评论、收藏、分享<strong>等权</strong>相加</td>
+            <td>点赞成本趋近于 0，评论/分享成本高数十倍，等权会让「点赞刷子」直接登顶</td>
+            <td>启用第 3 节的差异化权重表</td>
+        </tr>
+        <tr>
+            <td>缺少平台高价值行为</td>
+            <td>打赏、订阅转化、付费解锁——本平台最核心的信号完全没纳入</td>
+            <td>纳入并给予最高权重（15 / 40 / 25）</td>
+        </tr>
+        <tr>
+            <td>分母「播放人数」未定义</td>
+            <td>是否去重直接影响结果，重复播放会稀释互动率</td>
+            <td>明确为<strong>独立播放人数 UV</strong>，同一用户当日多次播放算 1</td>
+        </tr>
+        <tr>
+            <td>无最小样本、无平滑</td>
+            <td>5 播放 5 互动 = 100%，必然霸榜</td>
+            <td>UV ≥ 300 门槛 + Wilson 置信下界</td>
+        </tr>
+        <tr>
+            <td>无负向项</td>
+            <td>争议性内容（大量对骂评论）会被判为「高互动」</td>
+            <td>引入负反馈惩罚 + 评论健康度系数</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>6.2 修正后算法</h3>
+<h4><span class="tag gate">硬门槛</span></h4>
+<ul>
+    <li>独立播放人数 UV ≥ <strong>300</strong></li>
+    <li>评论健康度 ≥ 0.7（非灌水、非辱骂评论占比，由敏感词与相似度模型判定）</li>
+    <li>审核通过、<code>trust ≥ 0.7</code></li>
+</ul>
+
+<h4><span class="tag score">加权打分</span></h4>
+<div class="formula"><span class="k">加权互动分</span> A = 1×点赞 + 3×收藏 + 3×弹幕 + 5×评论 + 8×分享
+                  + 12×关注 + 15×打赏 + 25×付费解锁 + 40×订阅
+                  <span class="c">（单用户单条内容贡献上限 60）</span>
+
+<span class="k">互动率</span> IR = A / UV
+
+<span class="k">平滑</span> IR_smooth = ( A + 100 × μ_A_类目 ) / ( UV + 100 )
+
+<span class="k">S_engaged</span> = norm( IR_smooth )
+            × 评论健康度
+            × decay(H=24h) × penalty × trust × access</div>
+
+<h4><span class="tag mult">边界与兜底</span></h4>
+<ul>
+    <li><strong>互动来源集中度校验：</strong>Top 10 用户贡献 &gt; 40% 加权互动分 → 该内容 trust ×0.5</li>
+    <li><strong>争议内容识别：</strong>负面情感评论占比 &gt; 60% 时不进该槽位，即使互动率极高</li>
+    <li><strong>形态公平：</strong>直播回放、图文、视频分池排名后按 4:3:3 混合，避免单一形态垄断</li>
+</ul>
+
+<!-- ============ 槽位 4 ============ -->
+<div class="slot-head">
+    <span class="idx">4</span>
+    <span class="t">新创作者</span>
+    <span class="id">fresh-creator</span>
+</div>
+
+<h3>7.1 原方案的致命问题</h3>
+<div class="callout bad">
+    <strong>OR 条件会让头部创作者混进新人扶持位</strong>
+    原条件「注册 &lt; 30 天 <strong>或</strong> 粉丝 &lt; 1000 <strong>或</strong> 发布作品 &lt; 10」中，
+    任意一条满足即可。一个注册 3 年、拥有 50 万粉丝、但只发过 8 条作品的头部创作者，
+    因「发布作品 &lt; 10」成立而占据新人位——这会让扶持资源完全失效。
+    <br>必须改成 <strong>AND</strong>。
+</div>
+<div class="callout bad">
+    <strong>缺少合规门槛，等于给养号刷粉开后门</strong>
+    新号 + 低粉是刷量团伙的典型特征。没有实名、原创校验、违规记录检查，
+    这个槽位会迅速被搬运号和引流号占领。
+</div>
+<div class="callout bad">
+    <strong>只定义了「谁能进」，没定义「怎么排」和「什么时候出去」</strong>
+    新创作者天然没有播放量，如果沿用热度排序，永远排不上来；
+    同时缺少毕业机制，会导致同一批人长期霸占扶持位。
+</div>
+
+<h3>7.2 修正后算法：资格 → 合规 → 潜力排序 → 保量 → 毕业</h3>
+
+<h4><span class="tag gate">第一步：资格判定（AND，全部满足）</span></h4>
+<table>
+    <thead><tr><th style="width:200px">条件</th><th>阈值</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td>首次发布内容时间</td><td>≤ 30 天</td><td>用「首次发布」而非「注册」，避免注册后长期不活跃再突然发力</td></tr>
+        <tr><td>粉丝数</td><td>&lt; 1000</td><td>与毕业条件对齐</td></tr>
+        <tr><td>累计发布作品</td><td>&lt; 10</td><td>—</td></tr>
+        <tr><td>未毕业</td><td>—</td><td>见 7.4 毕业机制</td></tr>
+    </tbody>
+</table>
+
+<h4><span class="tag gate">第二步：合规门槛（新增，全部满足）</span></h4>
+<ul>
+    <li>KYC / 实名认证已通过</li>
+    <li>近 90 天无内容违规记录，账号未处于限流或封禁状态</li>
+    <li>本条内容审核通过，且原创校验通过（非搬运、非重复投稿）</li>
+    <li>创作者资料完整：头像、昵称、简介、主营类目均已填写</li>
+</ul>
+
+<h4><span class="tag score">第三步：潜力排序（不用热度，用转化质量）</span></h4>
+<div class="formula"><span class="c">// 新人没有播放量基数，只能看「小样本下的转化效率」</span>
+
+<span class="k">S_new</span> =
+    0.35 × norm( 完播率 CR_smooth )
+  + 0.30 × norm( 加权互动率 IR_w )
+  + 0.20 × norm( 关注转化率 FollowR )   <span class="c">// 看完后关注的比例，最能代表创作者潜力</span>
+  + 0.15 × norm( 内容完整度 Quality )   <span class="c">// 封面/标题/类目/标签/简介齐全度</span>
+
+<span class="k">最终</span> = S_new × penalty × trust
+
+<span class="c">// pool 限定为「同期新创作者候选集」，只和同批新人比，不和成熟创作者比</span>
+FollowR = 观看后关注创作者人数 / 独立播放人数</div>
+
+<h4>第四步：保量扶持（原方案缺失）</h4>
+<p>光有排序不叫扶持，必须给保底曝光，否则新人永远拿不到第一批数据：</p>
+<table>
+    <thead><tr><th>阶段</th><th>曝光配额</th><th>晋级条件</th></tr></thead>
+    <tbody>
+        <tr><td>冷启动池</td><td>3,000 次曝光</td><td>互动率 ≥ 同类目 P50 且负反馈率 &lt; 2%</td></tr>
+        <tr><td>加速池</td><td>追加 10,000 次</td><td>互动率 ≥ 同类目 P70</td></tr>
+        <tr><td>常规池</td><td>不限，转入通用推荐</td><td>—</td></tr>
+    </tbody>
+</table>
+<p>未达晋级条件的内容退出扶持，不再追加曝光；创作者仍可用剩余作品重新进入冷启动池。</p>
+
+<h4 id="graduate">第五步：毕业机制（原方案缺失）</h4>
+<p>满足任一条件即毕业，退出新创作者池，把位置让给下一批新人：</p>
+<ul>
+    <li>粉丝数 ≥ 1000</li>
+    <li>任一作品播放量 ≥ 50,000</li>
+    <li>首次发布满 30 天</li>
+    <li>累计发布 ≥ 10 条</li>
+</ul>
+
+<div class="callout warn">
+    <strong>槽位质量下限</strong>
+    新创作者内容在热门频道整体信息流中的占比上限为 <strong>20%</strong>。
+    扶持不能以牺牲整体消费体验为代价，否则会伤害用户对「热门」的信任。
+</div>
+
+<!-- ============ 槽位 5 ============ -->
+<div class="slot-head">
+    <span class="idx">5</span>
+    <span class="t">最新发布</span>
+    <span class="id">fresh-latest</span>
+</div>
+
+<h3>8.1 原方案与问题</h3>
+<div class="callout bad">
+    <strong>把硬门槛当成了打分项</strong>
+    原方案「发布时间 + 账号质量分 + 审核状态 + 用户举报」把四项并列相加。
+    但<strong>审核状态</strong>是布尔量——未通过的内容根本不该出现在任何位置，
+    而不是「扣一点分但仍可展示」。<strong>用户举报</strong>同理，达到阈值应立即撤下。
+    这两项必须从加权公式中移出，改为准入门槛。
+</div>
+<div class="callout bad">
+    <strong>质量分权重过高会让「最新」名不副实</strong>
+    如果账号质量分权重与时间相当，排在最前面的可能是 20 小时前的大 V 内容，
+    而不是 5 分钟前的新内容，槽位就失去了存在意义。时间必须占绝对主导。
+</div>
+
+<h3>8.2 修正后算法</h3>
+<h4><span class="tag gate">硬门槛（原「审核状态」「用户举报」移到这里）</span></h4>
+<ul>
+    <li>内容审核状态 = <strong>通过</strong>（审核中、驳回一律不进池）</li>
+    <li>举报数 &lt; 3 且举报率 &lt; 0.5%；触线即刻从槽位撤下并转人工复审</li>
+    <li>账号状态正常（非封禁、非限流、非风控观察期）</li>
+    <li>非重复投稿（与该创作者近 7 天内容的相似度 &lt; 0.9）</li>
+    <li>发布时间在 <strong>24 小时</strong>内（候选不足时放宽至 72 小时）</li>
+</ul>
+
+<h4><span class="tag score">加权打分（时间主导）</span></h4>
+<div class="formula"><span class="k">S_latest</span> = 0.70 × 时间新鲜度 f(t)
+          + 0.30 × 账号质量分 Q
+
+f(t) = 0.5 ^ ( Δt / 2h )          <span class="c">// 2 小时半衰期</span>
+
+<span class="k">账号质量分</span> Q ∈ [0,1] =
+    0.40 × 历史内容质量分   <span class="c">// 近 30 天作品的平均完播率与互动率分位</span>
+  + 0.30 × 合规记录分       <span class="c">// 违规次数、举报率的反向映射</span>
+  + 0.20 × 粉丝互动健康度   <span class="c">// 真实粉丝占比、互动来源分散度</span>
+  + 0.10 × 资料完整度
+
+<span class="k">最终</span> = S_latest × penalty × access</div>
+
+<h4><span class="tag mult">边界与兜底</span></h4>
+<ul>
+    <li><strong>刷屏保护：</strong>同一创作者 30 分钟内最多 1 条进池</li>
+    <li><strong>新人保底：</strong>该槽位为新创作者预留 30% 名额，避免被高质量分的成熟账号挤满</li>
+    <li><strong>刷新频率：</strong>每 1 分钟重算，接近实时</li>
+    <li><strong>先发后审场景：</strong>若平台开启先发后审，未过审内容仅创作者自己可见，绝不进入该槽位</li>
+</ul>
+
+<h2>9. 反作弊与信任分</h2>
+
+<h3>9.1 信任分 trust</h3>
+<p><code>trust ∈ [0,1]</code>，作为全局乘子作用于所有槽位。初始值 1.0，命中以下规则逐项相乘扣减：</p>
+<table>
+    <thead><tr><th style="width:250px">检测项</th><th style="width:110px">触发条件</th><th style="width:90px">系数</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td>播放增速异常</td><td>&gt; 同类目历史 P99.9</td><td>×0.3</td><td>进入观察队列，2 小时内不进热门</td></tr>
+        <tr><td>互动来源集中</td><td>Top 10 用户占比 &gt; 40%</td><td>×0.5</td><td>典型的互赞群 / 水军特征</td></tr>
+        <tr><td>新号互动占比高</td><td>注册 &lt; 7 天用户占比 &gt; 60%</td><td>×0.4</td><td>批量小号刷量</td></tr>
+        <tr><td>设备/IP 聚集</td><td>同 IP 段互动 &gt; 30%</td><td>×0.3</td><td>机房刷量</td></tr>
+        <tr><td>互动时间分布异常</td><td>行为间隔方差极低</td><td>×0.5</td><td>脚本机器人特征</td></tr>
+        <tr><td>完播率异常</td><td>&gt; 95% 且播放 &gt; 1 万</td><td>×0.6</td><td>真实长视频极难达到，疑似挂机</td></tr>
+        <tr><td>创作者历史违规</td><td>近 90 天有处罚</td><td>×0.7</td><td>累犯叠加</td></tr>
+    </tbody>
+</table>
+
+<h3>9.2 计数去重规则</h3>
+<ul>
+    <li><strong>播放：</strong>同一用户对同一内容，24 小时内多次播放只计 1 次 UV；视频需播放 ≥ 3 秒才计有效播放</li>
+    <li><strong>点赞/收藏：</strong>取消后重新操作不重复计数</li>
+    <li><strong>分享：</strong>按「分享落地页产生的新访问」计有效分享，空点分享按钮不计</li>
+    <li>被判定为作弊的行为数据从分子中<strong>剔除</strong>，而不只是降权</li>
+</ul>
+
+<h3>9.3 评论健康度</h3>
+<div class="formula"><span class="k">评论健康度</span> = 有效评论数 / 总评论数 ∈ [0,1]
+
+<span class="c">// 以下不计入有效评论：</span>
+- 长度 &lt; 2 字符或纯表情
+- 与同内容下其他评论相似度 &gt; 0.9（复制刷屏）
+- 命中敏感词库或辱骂模型
+- 同一用户在同一内容下的第 4 条及以后的评论</div>
+
+<h2>10. 多样性、去重与兜底</h2>
+<table>
+    <thead><tr><th style="width:200px">规则</th><th>约束</th></tr></thead>
+    <tbody>
+        <tr><td>同创作者约束</td><td>单个槽位内最多 1 条；热门频道整页最多 2 条</td></tr>
+        <tr><td>跨槽位去重</td><td>同一条内容同时命中多个槽位时，只保留优先级最高的一个。<br>优先级：今日热门 &gt; 爆款视频 &gt; 高互动 &gt; 新创作者 &gt; 最新发布</td></tr>
+        <tr><td>类目多样性</td><td>用 MMR 打散，同一一级类目连续出现不超过 3 条</td></tr>
+        <tr><td>已消费过滤</td><td>用户已完整消费过的内容 7 天内不重复推荐；已曝光未点击 3 次后降权 50%</td></tr>
+        <tr><td>候选不足兜底</td><td>依次回填：放宽门槛 → 扩大时间窗 → 从相邻槽位借用 → 全站热度榜。<strong>槽位不允许为空</strong></td></tr>
+        <tr><td>合规兜底</td><td>任何时刻内容被下架/封禁，须在 60 秒内从所有槽位缓存中清除</td></tr>
+    </tbody>
+</table>
+
+<h2>11. 数据字段与埋点</h2>
+
+<h3>11.1 内容侧实时指标（建议 Redis + 分钟级聚合）</h3>
+<table>
+    <thead><tr><th style="width:200px">字段</th><th style="width:110px">类型</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td><code>impression_cnt</code></td><td>int</td><td>曝光数（进入视口 ≥ 1 秒）</td></tr>
+        <tr><td><code>play_uv</code> / <code>play_pv</code></td><td>int</td><td>独立播放人数 / 播放次数</td></tr>
+        <tr><td><code>complete_cnt</code></td><td>int</td><td>完播次数（视频 ≥ 90% 进度；图文 = 滑到底）</td></tr>
+        <tr><td><code>quick_exit_cnt</code></td><td>int</td><td>秒退次数</td></tr>
+        <tr><td><code>like/comment/collect/share_cnt</code></td><td>int</td><td>四类基础互动</td></tr>
+        <tr><td><code>danmaku_cnt</code></td><td>int</td><td>弹幕数</td></tr>
+        <tr><td><code>gift_cnt</code> / <code>gift_amount</code></td><td>int / decimal</td><td>打赏次数与金额（金额不进热度分）</td></tr>
+        <tr><td><code>ppv_unlock_cnt</code></td><td>int</td><td>付费解锁次数</td></tr>
+        <tr><td><code>sub_conv_cnt</code> / <code>follow_conv_cnt</code></td><td>int</td><td>由本内容带来的订阅 / 关注转化</td></tr>
+        <tr><td><code>share_click_cnt</code></td><td>int</td><td>分享链接产生的回流播放（算 K 因子）</td></tr>
+        <tr><td><code>non_fan_play_uv</code></td><td>int</td><td>非粉丝播放人数（算破圈率）</td></tr>
+        <tr><td><code>dislike/report/block_cnt</code></td><td>int</td><td>负反馈三件套</td></tr>
+        <tr><td><code>trust_score</code></td><td>float</td><td>反作弊信任分</td></tr>
+        <tr><td><code>audit_status</code></td><td>enum</td><td>pending / approved / rejected</td></tr>
+    </tbody>
+</table>
+
+<h3>11.2 创作者侧字段</h3>
+<p><code>first_publish_at</code>、<code>fans_cnt</code>、<code>works_cnt</code>、<code>kyc_status</code>、
+<code>violation_cnt_90d</code>、<code>account_status</code>、<code>quality_score</code>、<code>graduated_at</code></p>
+
+<h3>11.3 埋点新增项</h3>
+<p>相对现有埋点，以下为本方案<strong>新增必需</strong>项，缺失会导致对应因子无法计算：</p>
+<ul>
+    <li><code>quick_exit</code> 秒退事件（含停留毫秒数）</li>
+    <li><code>share_landing</code> 分享落地回流（需带 <code>share_id</code> 归因）</li>
+    <li><code>viewer_relation</code> 观看者与创作者关系（粉丝 / 订阅者 / 陌生人）</li>
+    <li><code>content_conversion</code> 内容→订阅/关注/解锁的归因事件</li>
+</ul>
+
+<h2>12. 接口契约与运行参数</h2>
+<div class="formula"><span class="k">GET</span> /api/v1/discover/hot?slot=hot-today&amp;limit=30&amp;cursor=
+
+<span class="c">// slot 取值与三级类目 id 一一对应</span>
+hot-today | hot-viral | hot-engaged | fresh-creator | fresh-latest
+
+<span class="k">响应</span>
+{
+  "slot": "hot-today",
+  "items": [
+    { "postId": "...", "score": 0.8421, "reason": "24h 播放增速 P97",
+      "debug": { "growth": 0.97, "interact": 0.81, "complete": 0.76,
+                 "decay": 0.71, "penalty": 1.0, "trust": 1.0 } }
+  ],
+  "refreshedAt": "2026-07-25T19:45:00Z",
+  "nextCursor": "..."
+}
+
+<span class="c">// debug 字段仅对运营后台与内部灰度开放，线上客户端不下发</span></div>
+
+<table>
+    <thead><tr><th>槽位</th><th style="width:120px">重算频率</th><th style="width:110px">槽位容量</th><th style="width:110px">缓存 TTL</th></tr></thead>
+    <tbody>
+        <tr><td>今日热门</td><td>15 分钟</td><td>30 条</td><td>5 分钟</td></tr>
+        <tr><td>爆款视频</td><td>2 小时</td><td>30 条</td><td>30 分钟</td></tr>
+        <tr><td>高互动内容</td><td>30 分钟</td><td>30 条</td><td>10 分钟</td></tr>
+        <tr><td>新创作者</td><td>1 小时</td><td>20 条</td><td>15 分钟</td></tr>
+        <tr><td>最新发布</td><td>1 分钟</td><td>50 条</td><td>30 秒</td></tr>
+    </tbody>
+</table>
+
+<h2>13. 效果指标与 A/B 方案</h2>
+
+<h3>13.1 北极星与护栏指标</h3>
+<table>
+    <thead><tr><th style="width:120px">类别</th><th style="width:220px">指标</th><th>目标方向</th></tr></thead>
+    <tbody>
+        <tr><td>北极星</td><td>热门频道人均有效消费时长</td><td>↑</td></tr>
+        <tr><td>消费</td><td>槽位 CTR、完播率、人均消费条数</td><td>↑</td></tr>
+        <tr><td>互动</td><td>加权互动率、评论健康度</td><td>↑</td></tr>
+        <tr><td>变现</td><td>热门频道带来的订阅转化率、PPV 解锁率</td><td>↑</td></tr>
+        <tr><td>生态</td><td>新创作者 7 日留存、首次获得 100 粉丝的中位天数</td><td>↑</td></tr>
+        <tr><td>护栏</td><td>负反馈率、举报率、头部创作者曝光集中度（HHI）</td><td>↓</td></tr>
+        <tr><td>护栏</td><td>算法响应 P99 延迟</td><td>&lt; 200ms</td></tr>
+    </tbody>
+</table>
+
+<h3>13.2 A/B 实验设计</h3>
+<ul>
+    <li><strong>分流：</strong>按用户 ID 哈希分桶，每组不低于 5% 流量，实验周期 ≥ 14 天（覆盖两个完整周周期）</li>
+    <li><strong>建议首批实验：</strong>
+        <ol>
+            <li>归一化方式：百分位 vs z-score</li>
+            <li>今日热门半衰期：4h / 6h / 12h</li>
+            <li>互动权重表：等权（原方案）vs 差异化权重（新方案）</li>
+            <li>新创作者占比上限：10% / 20% / 30%</li>
+        </ol>
+    </li>
+    <li><strong>停止条件：</strong>护栏指标恶化超过 5% 立即回滚</li>
+</ul>
+
+<h2>14. 落地验收清单</h2>
+<ul>
+    <li>[ ] 所有加权因子均经过 <code>norm()</code>，公式中不存在计数值与比率直接相加</li>
+    <li>[ ] 今日热门的互动率已剔除收藏与分享，无重复计算</li>
+    <li>[ ] 爆款视频的播放量已改为门槛项 + 对数压缩弱权重，并接入 K 因子与破圈率</li>
+    <li>[ ] 高互动使用差异化权重表，且包含打赏 / 订阅 / 付费解锁</li>
+    <li>[ ] 所有比率均有最小样本门槛与贝叶斯平滑</li>
+    <li>[ ] 新创作者资格判定为 <strong>AND</strong> 逻辑，且已接入合规门槛与毕业机制</li>
+    <li>[ ] 审核状态与举报已从打分项移出，改为硬门槛</li>
+    <li>[ ] 五个槽位均有时间窗口、衰减半衰期与候选不足兜底策略</li>
+    <li>[ ] 负反馈（不感兴趣 / 秒退 / 举报 / 拉黑）已埋点并进入 penalty</li>
+    <li>[ ] 信任分七项检测已上线，作弊行为从分子剔除</li>
+    <li>[ ] 同创作者、跨槽位、类目多样性三类去重已生效</li>
+    <li>[ ] 付费内容 access 系数与 <code>discover-access.js</code> 的 0.55 保持一致</li>
+    <li>[ ] 内容下架后 60 秒内从所有槽位缓存清除</li>
+    <li>[ ] 运营后台可查看每条内容的 debug 分项得分</li>
+</ul>
+
+<h2>附录 · 与当前原型实现的差距</h2>
+<p>原型 <code>js-web/discover-access.js</code> 目前的热度计算为：</p>
+<div class="formula">hotScore = 点赞数 + 评论数 × 2 + (置顶 ? 800 : 0)
+未订阅付费内容 → × 0.55</div>
+<p>这是一个仅用于前端演示的极简版本。它与本文的差距在于：无归一化、无平滑、无时间衰减、
+无负反馈、无反作弊、无五槽位区分。<strong>付费降权 0.55 这一项已与本文一致</strong>，其余需在服务端实现。
+原型阶段可先补充「时间衰减」与「五槽位分流」两项，使演示效果贴近真实排序。</p>
+
+</article>
+
+</body>
+</html>

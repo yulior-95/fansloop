@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>平台内容类别管理 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/content-categories.css">
+</head>
+<body data-admin-page="content-categories">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 内容与运营 / 平台内容类别管理</span></div>
+      <div class="admin-header-right">
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>运营</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">平台内容类别管理</h1>
+      <p class="cc-hint">
+        平台类目共 <b>三级</b>：一级为用户端展示层级（发现页 Tab、搜索筛选），二级用于后台归类与运营分析，
+        三级为创作者发布内容时的必选落点。此处保存后，前台发现页 Tab 与创作页类别抽屉<b>实时同步</b>。
+      </p>
+
+      <div class="admin-toolbar">
+        <input class="ant-input" id="ccSearch" type="search" placeholder="搜索类目名称 / 标识" style="width:240px">
+        <button type="button" class="ant-btn" id="btnCcReset"><i class="fa-solid fa-rotate-left"></i> 恢复默认类目树</button>
+        <button type="button" class="ant-btn ant-btn-primary" id="btnCcAddL1" style="margin-left:auto"><i class="fa-solid fa-plus"></i> 新增一级类目</button>
+      </div>
+
+      <div class="cc-crumb" id="ccCrumb"></div>
+
+      <div class="cc-columns">
+        <section class="cc-col">
+          <div class="cc-col-head">
+            <span class="cc-col-title">一级类目</span>
+            <span class="cc-col-sub">用户端展示</span>
+            <button type="button" class="ant-btn ant-btn-sm" data-cc-add="1"><i class="fa-solid fa-plus"></i> 新增</button>
+          </div>
+          <div class="cc-col-body" id="ccColL1"></div>
+        </section>
+        <section class="cc-col">
+          <div class="cc-col-head">
+            <span class="cc-col-title">二级类目</span>
+            <span class="cc-col-sub">后台归类</span>
+            <button type="button" class="ant-btn ant-btn-sm" data-cc-add="2"><i class="fa-solid fa-plus"></i> 新增</button>
+          </div>
+          <div class="cc-col-body" id="ccColL2"></div>
+        </section>
+        <section class="cc-col">
+          <div class="cc-col-head">
+            <span class="cc-col-title">三级类目</span>
+            <span class="cc-col-sub">发布必选</span>
+            <button type="button" class="ant-btn ant-btn-sm" data-cc-add="3"><i class="fa-solid fa-plus"></i> 新增</button>
+          </div>
+          <div class="cc-col-body" id="ccColL3"></div>
+        </section>
+      </div>
+
+      <div class="ant-card ant-card-bordered cc-rules">
+        <div class="ant-card-body">
+          <h3 style="margin:0 0 10px;font-size:14px;font-weight:600">前后台联动规则（研发对齐）</h3>
+          <ul>
+            <li><b>一级</b>：发现页 Tab 与搜索筛选的唯一展示层级；停用后前台立即隐藏，历史内容归类保留。</li>
+            <li><b>二级</b>：不直接对用户展示，仅用于后台内容归类、审核分流与运营分析。</li>
+            <li><b>三级</b>：创作者发布图文 / 视频时必选，内容落库 <code>category_id</code>，同时冗余一级 <code>primary_category</code> 供 Tab 聚合。</li>
+            <li><b>热门</b>为系统频道，不可删除或停用；其下「热门推荐 / 新鲜发现」是<b>推荐算法的投放位</b>，由算法按热度、互动与新鲜度自动填充，<b>创作者发布时不可选择</b>。</li>
+            <li>父级停用时，其下子级在创作者选择器中一并不可选；已发布内容不做回溯改判。</li>
+            <li>接口：<code>GET /api/v1/categories/tree</code> · <code>GET /api/v1/categories/tree?level=1</code> · <code>PUT /api/v1/admin/categories/tree</code></li>
+          </ul>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="../js-web/content-taxonomy-store.js"></script>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="js/content-categories-page.js"></script>
+</body>
+</html>
