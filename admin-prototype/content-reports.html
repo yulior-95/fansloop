@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>举报记录 · FansLoop 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/content-reports.css">
+</head>
+<body data-admin-page="content-reports">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 内容与运营 / 举报记录</span></div>
+      <div class="admin-header-right">
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>运营</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">举报记录</h1>
+      <p class="cr-hint">
+        用户在图文 / 视频 / 直播观看页提交的举报会写入本列表（原型阶段读写 <code>localStorage</code>）。
+        与 C 端共用同一数据源，前台提交后刷新本页即可看到最新记录。
+      </p>
+
+      <div class="cr-kpi" id="crKpi"></div>
+
+      <div class="admin-toolbar">
+        <select class="ant-input" id="crFilterType" style="width:130px">
+          <option value="">全部类型</option>
+          <option value="video">视频</option>
+          <option value="image">图文</option>
+          <option value="live">直播</option>
+          <option value="content">其他</option>
+        </select>
+        <select class="ant-input" id="crFilterStatus" style="width:130px">
+          <option value="">全部状态</option>
+          <option value="pending">待处理</option>
+          <option value="handled">已处理</option>
+          <option value="ignored">已忽略</option>
+        </select>
+        <select class="ant-input" id="crFilterReason" style="width:180px">
+          <option value="">全部原因</option>
+        </select>
+        <input class="ant-input" id="crSearch" type="search" placeholder="搜索内容 ID / 标题 / 举报人" style="width:240px">
+        <button type="button" class="ant-btn ant-btn-primary" id="crQuery"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
+        <button type="button" class="ant-btn" id="crReset">重置</button>
+        <button type="button" class="ant-btn" id="crSeed" style="margin-left:auto"><i class="fa-solid fa-flask"></i> 注入演示数据</button>
+        <button type="button" class="ant-btn" id="crRefresh"><i class="fa-solid fa-rotate"></i> 刷新</button>
+      </div>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-small ant-table-bordered">
+            <table style="width:100%">
+              <thead class="ant-table-thead">
+                <tr>
+                  <th style="width:150px">提交时间</th>
+                  <th style="width:72px">类型</th>
+                  <th>被举报内容</th>
+                  <th style="width:140px">举报原因</th>
+                  <th style="width:110px">举报人</th>
+                  <th style="width:90px">状态</th>
+                  <th style="width:220px">操作</th>
+                </tr>
+              </thead>
+              <tbody class="ant-table-tbody" id="crBody"></tbody>
+            </table>
+          </div>
+          <div class="cr-empty" id="crEmpty" hidden>暂无举报记录。可在 C 端观看页提交举报，或点击「注入演示数据」。</div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="../js-web/content-report.js"></script>
+<script src="js/content-reports-page.js"></script>
+</body>
+</html>

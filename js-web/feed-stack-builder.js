@@ -396,6 +396,7 @@
             '<span class="a-btn' + guestCls + '"' + commentClick + '><i class="fa-regular fa-comment"></i>' + comments + '</span>' +
             '<span class="a-btn' + guestCls + '"' + shareClick + '><i class="fa-solid fa-arrow-up-right-from-square"></i>分享</span>' +
             liveExtra +
+            '<span class="a-btn report-act' + guestCls + '" role="button" title="举报"><i class="fa-regular fa-flag"></i><span>举报</span></span>' +
             '</div>'
         );
     }
@@ -442,7 +443,7 @@
             : '';
 
         return (
-            '<div class="feed-stack-slide">' +
+            '<div class="feed-stack-slide" data-feed-id="stack-' + stackKind + '-' + i + '">' +
             '<article class="post-card post-card--immersive" data-post-type="' + type + '"' +
             (type === 'live' ? ' data-live-status="' + liveStatus + '"' : '') +
             (liveHostSlug ? ' data-host-slug="' + liveHostSlug + '"' : '') +
@@ -462,7 +463,10 @@
         if (!track) return 0;
         var n = parseInt(track.getAttribute('data-build'), 10) || COUNT;
         var html = '';
+        var R = global.FL_ContentReport;
         for (var i = 0; i < n; i++) {
+            var fid = 'stack-' + stackKind + '-' + i;
+            if (R && R.isReported(fid)) continue;
             html += buildSlide(i, stackKind, opts);
         }
         track.innerHTML = html;

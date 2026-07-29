@@ -185,4 +185,8 @@
     }
 
     window.FL_discoverSetCategory = setCategory;
+    window.FL_DISCOVER_PAGE = {
+        renderPosts: renderPosts,
+        setCategory: setCategory
+    };
 })();

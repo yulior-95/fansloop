@@ -275,7 +275,9 @@
             '<i class="fa-solid fa-gift"></i><span>打赏</span></button>' +
             '<button type="button" class="ab-rail-btn' + guestCls + '"' + shareAttr + '>' +
             '<i class="fa-solid fa-share"></i><span>分享</span></button>' +
-            extra
+            extra +
+            '<button type="button" class="ab-rail-btn report-act' + guestCls + '" role="button" title="举报">' +
+            '<i class="fa-regular fa-flag"></i><span>举报</span></button>'
         );
     }
 
@@ -292,6 +294,7 @@
 
         return (
             '<div class="ab-feed-slide" data-post-type="' + type + '"' +
+            ' data-feed-id="ab-' + stackKind + '-' + i + '"' +
             (type === 'live' ? ' data-live-status="' + liveStatus + '"' : '') +
             ' data-creator="' + esc(c.name) + '"' +
             (type === 'live' ? ' data-detail-href="' + liveDetailHref(c.name, liveStatus) + '"' : '') + '>' +
@@ -310,7 +313,10 @@
         if (!track) return 0;
         var n = parseInt(track.getAttribute('data-build'), 10) || COUNT;
         var html = '';
+        var R = global.FL_ContentReport;
         for (var j = 0; j < n; j++) {
+            var fid = 'ab-' + stackKind + '-' + j;
+            if (R && R.isReported(fid)) continue;
             html += buildSlide(j, stackKind, opts);
         }
         track.innerHTML = html;

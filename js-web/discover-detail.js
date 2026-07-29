@@ -250,7 +250,8 @@
             '<button type="button" class="dd-rail-btn" data-dd-like><i class="fa-regular fa-heart"></i><span>' + likesLabel(p) + '</span></button>' +
             '<button type="button" class="dd-rail-btn" data-dd-comment-open><i class="fa-regular fa-comment-dots"></i><span>' + commentsLabel(p) + '</span></button>' +
             '<button type="button" class="dd-rail-btn" data-dd-share><i class="fa-solid fa-share"></i><span>分享</span></button>' +
-            '<button type="button" class="dd-rail-btn" data-dd-save><i class="fa-regular fa-bookmark"></i><span>收藏</span></button></aside>' +
+            '<button type="button" class="dd-rail-btn" data-dd-save><i class="fa-regular fa-bookmark"></i><span>收藏</span></button>' +
+            '<button type="button" class="dd-rail-btn" data-dd-report title="举报"><i class="fa-regular fa-flag"></i><span>举报</span></button></aside>' +
             '<footer class="dd-bottom"><h1 class="dd-title">' + esc(p.title) + '</h1>' +
             (locked ? excerptHtml(p) : '') +
             '<div class="dd-tags">' + buildTagsHtml(p) + '</div></footer>' +
@@ -291,6 +292,9 @@
             icon.classList.toggle('fa-regular', !btn.classList.contains('is-saved'));
             icon.classList.toggle('fa-solid', btn.classList.contains('is-saved'));
             toast(btn.classList.contains('is-saved') ? '已加入收藏' : '已取消收藏');
+        });
+        stage.querySelector('[data-dd-report]').addEventListener('click', function () {
+            openReport(p);
         });
         stage.querySelector('[data-dd-share]').addEventListener('click', openShare);
         stage.querySelector('[data-dd-comment-open]').addEventListener('click', function () {
@@ -444,9 +448,72 @@
         document.querySelectorAll('#discContentGrid [data-disc-vp] video').forEach(function (v) { v.pause(); });
     }
 
+    function openReport(p) {
+        var R = global.FL_ContentReport;
+        if (!R) {
+            toast('举报功能暂不可用');
+            return;
+        }
+        var kind = isVideoPost(p) ? 'video' : 'image';
+        R.open({
+            type: kind,
+            contentId: p.id,
+            contentTitle: p.title || p.id,
+            toast: toast,
+            onDone: function () {
+                afterReportHide(p.id);
+            }
+        });
+    }
+
+    function afterReportHide(reportedId) {
+        var grid = document.getElementById('discContentGrid');
+        var tiles = grid
+            ? Array.prototype.slice.call(grid.querySelectorAll('.content-tile[data-post-id]'))
+            : [];
+        var curIdx = -1;
+        for (var i = 0; i < tiles.length; i++) {
+            if (tiles[i].getAttribute('data-post-id') === reportedId) {
+                curIdx = i;
+                break;
+            }
+        }
+        var nextId = null;
+        if (curIdx >= 0) {
+            for (var j = curIdx + 1; j < tiles.length; j++) {
+                var cand = tiles[j].getAttribute('data-post-id');
+                if (cand && cand !== reportedId) { nextId = cand; break; }
+            }
+            if (!nextId) {
+                for (var k = 0; k < curIdx; k++) {
+                    var cand2 = tiles[k].getAttribute('data-post-id');
+                    if (cand2 && cand2 !== reportedId) { nextId = cand2; break; }
+                }
+            }
+        }
+
+        var page = global.FL_DISCOVER_PAGE;
+        if (page && typeof page.renderPosts === 'function') {
+            page.renderPosts();
+        } else if (grid) {
+            var gone = grid.querySelector('.content-tile[data-post-id="' + reportedId + '"]');
+            if (gone) gone.remove();
+        }
+
+        if (nextId && getPost(nextId) && !(global.FL_ContentReport && global.FL_ContentReport.isReported(nextId))) {
+            open(nextId);
+        } else {
+            close();
+        }
+    }
+
     function open(id) {
         var p = getPost(id);
         if (!p) return;
+        if (global.FL_ContentReport && global.FL_ContentReport.isReported(p.id)) {
+            toast('该内容已举报，不再展示');
+            return;
+        }
         if (p.live) {
             if (global.LiveViewHost && global.LiveViewHost.navigateFromFeed) {
                 var fakeArticle = document.createElement('article');

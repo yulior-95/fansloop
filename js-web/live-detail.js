@@ -357,25 +357,25 @@
     /* 举报 */
     var btnReport = document.getElementById("btnReport");
     if (btnReport) {
-        btnReport.addEventListener("click", function () { openOverlay("ldReportOverlay"); });
-    }
-    var btnReportSubmit = document.getElementById("btnReportSubmit");
-    if (btnReportSubmit) {
-        btnReportSubmit.addEventListener("click", function () {
-            var checked = document.querySelector('input[name="reportReason"]:checked');
-            if (!checked) {
-                toast("请选择举报原因");
+        btnReport.addEventListener("click", function () {
+            var R = window.FL_ContentReport;
+            if (!R) {
+                toast("举报功能暂不可用");
                 return;
             }
-            closeOverlay("ldReportOverlay");
-            openOverlay("ldReportDoneOverlay");
-        });
-    }
-    var btnReportDone = document.getElementById("btnReportDone");
-    if (btnReportDone) {
-        btnReportDone.addEventListener("click", function () {
-            closeOverlay("ldReportDoneOverlay");
-            toast("感谢反馈，我们将尽快处理");
+            var params = new URLSearchParams(location.search);
+            var host = params.get("host") || "live";
+            R.open({
+                type: "live",
+                contentId: "live-" + host,
+                toast: toast,
+                onDone: function () {
+                    setTimeout(function () {
+                        if (history.length > 1) history.back();
+                        else location.href = "home-ab-feed.html";
+                    }, 400);
+                }
+            });
         });
     }
 

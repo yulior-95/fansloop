@@ -71,6 +71,9 @@
         var T = global.FL_DISCOVER_TAXONOMY;
         if (!T) return [];
         var list = T.filterPosts(categoryId || 'all');
+        if (global.FL_ContentReport && global.FL_ContentReport.filterReported) {
+            list = global.FL_ContentReport.filterReported(list, 'id');
+        }
         if (isGuest()) {
             return rankPosts(list.filter(isFreePost)).slice(0, 5);
         }

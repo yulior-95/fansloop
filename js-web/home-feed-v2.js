@@ -16,7 +16,7 @@
         setTimeout(function () { t.remove(); }, 2400);
     }
 
-    var FEED_BUILD_VERSION = '17';
+    var FEED_BUILD_VERSION = '18';
 
     var CREATOR_LIVE_HOST = {
         '山野食光': 'shanye',
@@ -246,8 +246,41 @@
                     var bic = bookmark.querySelector('i');
                     if (bic) bic.className = saved ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark';
                     toast(saved ? '收藏成功' : '已取消收藏');
+                    return;
+                }
+                var reportBtn = e.target.closest('.report-act');
+                if (reportBtn) {
+                    if (reportBtn.classList.contains('guest-act')) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openStackFeedReport(reportBtn.closest('.feed-stack-slide'));
                 }
             });
+        });
+    }
+
+    function openStackFeedReport(slide) {
+        var R = window.FL_ContentReport;
+        if (!R || !slide) {
+            toast('举报功能暂不可用');
+            return;
+        }
+        var article = slide.querySelector('.post-card');
+        var postType = (article && article.getAttribute('data-post-type')) || 'video';
+        var feedId = slide.getAttribute('data-feed-id') || ('stack-' + Date.now());
+        R.open({
+            type: R.resolveType(postType, 'video'),
+            contentId: feedId,
+            toast: toast,
+            onDone: function () {
+                var track = slide.parentElement;
+                var slides = track ? Array.prototype.slice.call(track.children) : [];
+                var idx = slides.indexOf(slide);
+                slide.remove();
+                if (typeof window.FL_FEED_AFTER_REPORT === 'function') {
+                    window.FL_FEED_AFTER_REPORT(track, idx);
+                }
+            }
         });
     }
 
@@ -386,13 +419,27 @@
         return {
             id: cfg.id,
             panel: cfg.panel,
+            track: track,
             sync: sync,
             go: go,
+            getIndex: function () { return index; },
+            setIndex: function (i) { index = i; },
             reset: function () { index = 0; sync(); }
         };
     }
 
     var stacks = stackConfigs.map(createFeedStack).filter(Boolean);
+
+    window.FL_FEED_AFTER_REPORT = function (track, removedIdx) {
+        var st = stacks.find(function (s) { return s.track === track; });
+        if (!st) return;
+        if (removedIdx < 0) removedIdx = st.getIndex();
+        st.setIndex(removedIdx);
+        st.sync();
+        if (!track.querySelector('.feed-stack-slide')) {
+            toast('暂无更多内容');
+        }
+    };
 
     function refreshAllStacks() {
         ensureFeedStacksBuilt();

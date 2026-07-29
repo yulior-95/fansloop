@@ -11,6 +11,7 @@
         { user: 'Neo', av: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=80', text: '已收藏，期待下一组 🙌', time: '32 分钟前' },
         { user: 'BlockTrader', av: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80', text: '画面太美了，打赏支持！', time: '1 小时前' }
     ];
+    var currentPayload = null;
 
     function toast(msg) {
         var el = root.querySelector('.cdd-toast');
@@ -41,6 +42,7 @@
 
     function open(payload) {
         payload = payload || {};
+        currentPayload = payload;
         var title = payload.title || '作品详情';
         var image = payload.image || 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=1200';
         var author = payload.author || 'Luna 🌙';
@@ -104,6 +106,25 @@
         }
         if (act === 'share') toast('链接已复制，可分享给好友');
         if (act === 'forward') toast('已打开转发面板（原型）');
+        if (act === 'report') {
+            var R = global.FL_ContentReport;
+            if (!R) {
+                toast('举报功能暂不可用');
+                return;
+            }
+            var cid = (currentPayload && (currentPayload.id || currentPayload.contentId)) ||
+                ('cdd-' + (currentPayload && currentPayload.title ? currentPayload.title : Date.now()));
+            R.open({
+                type: (currentPayload && currentPayload.kind === 'video') ? 'video' : 'image',
+                contentId: String(cid),
+                toast: toast,
+                onDone: function () {
+                    close();
+                    var card = document.querySelector('[data-content-id="' + cid + '"], [data-post-id="' + cid + '"]');
+                    if (card) card.remove();
+                }
+            });
+        }
     });
 
     root.querySelector('#cddSendComment')?.addEventListener('click', function () {

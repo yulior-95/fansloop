@@ -264,8 +264,43 @@
             btn.addEventListener("click", function () {
                 var act = btn.getAttribute("data-action");
                 moreMenu.classList.remove("open");
-                if (act === "report") toast("已提交举报（原型）");
+                if (act === "report") openLiveAbReport();
             });
+        });
+    }
+
+    function openLiveAbReport() {
+        var R = window.FL_ContentReport;
+        if (!R) {
+            toast("举报功能暂不可用");
+            return;
+        }
+        var params = new URLSearchParams(location.search);
+        var host = params.get("host") || "live";
+        R.open({
+            type: "live",
+            contentId: "live-ab-" + host,
+            toast: toast,
+            onDone: function () {
+                setTimeout(function () {
+                    if (history.length > 1) history.back();
+                    else location.href = "home-ab-feed.html";
+                }, 400);
+            }
+        });
+    }
+
+    var btnAbReport = document.getElementById("ldAbBtnReport");
+    if (btnAbReport) {
+        btnAbReport.addEventListener("click", openLiveAbReport);
+    }
+    var btnAbBookmark = document.getElementById("ldAbBtnBookmark");
+    if (btnAbBookmark) {
+        btnAbBookmark.addEventListener("click", function () {
+            var on = btnAbBookmark.classList.toggle("is-saved");
+            var ic = btnAbBookmark.querySelector("i");
+            if (ic) ic.className = on ? "fa-solid fa-bookmark" : "fa-regular fa-bookmark";
+            toast(on ? "收藏成功" : "已取消收藏");
         });
     }
 
