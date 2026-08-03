@@ -2,7 +2,7 @@
  * 直播场次元数据（创建页 → 观众页 / 主播端 原型同步）
  */
 (function (global) {
-    var KEY = "fansloop_live_session";
+    var KEY = "goodfans_live_session";
     var DEFAULT = {
         title: "深夜爵士 · 即兴钢琴",
         desc: "今晚即兴爵士，欢迎点歌；支持 USDT 打赏与礼物。",
@@ -70,7 +70,7 @@
         endLive: function () {
             write(Object.assign(read(), { status: "ended", endedAt: Date.now() }));
             try {
-                localStorage.removeItem("fansloop_host_pip");
+                localStorage.removeItem("goodfans_host_pip");
             } catch (e) {}
             return read();
         },

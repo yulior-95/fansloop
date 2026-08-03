@@ -53,7 +53,7 @@
 <body>
 
 <header class="top-bar">
-    <div class="brand"><i class="fa-solid fa-infinity"></i> FansLoop · <span style="font-size:12px;font-weight:700;color:var(--t-tertiary);">Onboarding</span></div>
+    <div class="brand"><i class="fa-solid fa-infinity"></i> GOODFANS · <span style="font-size:12px;font-weight:700;color:var(--t-tertiary);">Onboarding</span></div>
     <button type="button" class="btn btn-secondary" style="padding:8px 14px;border-radius:var(--r-md);font-weight:700;" onclick="FL_finishOnboarding(true)">跳过（原型）</button>
 </header>
 
@@ -118,7 +118,7 @@
     try {
         pendingEmail = sessionStorage.getItem('fl_pending_onboard_email') || '';
     } catch (e) {}
-    if (!pendingEmail && window.FansloopAuth) pendingEmail = window.FansloopAuth.getEmail() || '';
+    if (!pendingEmail && window.GoodfansAuth) pendingEmail = window.GoodfansAuth.getEmail() || '';
 
     if (pendingEmail && nickInput && !nickInput.value) {
         var local = pendingEmail.split('@')[0] || '';
@@ -148,14 +148,14 @@
             alert('请填写昵称');
             return;
         }
-        if (window.FansloopAuth && pendingEmail) {
-            if (!window.FansloopAuth.isLoggedIn()) {
-                window.FansloopAuth.register({ email: pendingEmail, name: name || undefined });
+        if (window.GoodfansAuth && pendingEmail) {
+            if (!window.GoodfansAuth.isLoggedIn()) {
+                window.GoodfansAuth.register({ email: pendingEmail, name: name || undefined });
             } else if (name) {
-                window.FansloopAuth.updateProfile({ name: name, isNewUser: false });
+                window.GoodfansAuth.updateProfile({ name: name, isNewUser: false });
             }
-        } else if (name && window.FansloopAuth) {
-            window.FansloopAuth.updateProfile({ name: name, isNewUser: false });
+        } else if (name && window.GoodfansAuth) {
+            window.GoodfansAuth.updateProfile({ name: name, isNewUser: false });
         }
         try { sessionStorage.removeItem('fl_pending_onboard_email'); } catch (e) {}
         location.href = 'home.html';

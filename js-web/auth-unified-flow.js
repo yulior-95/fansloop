@@ -138,13 +138,13 @@
                 return;
             }
         }
-        if (window.FansloopAuth) window.FansloopAuth.register({ email: email });
+        if (window.GoodfansAuth) window.GoodfansAuth.register({ email: email });
         location.href = 'onboarding-profile-complete.html?source=email';
     });
 
     function finishEmailLogin(email) {
         var next = function () {
-            if (window.FansloopAuth) window.FansloopAuth.login({ email: email });
+            if (window.GoodfansAuth) window.GoodfansAuth.login({ email: email });
             location.href = 'home.html';
         };
         if (window.FL_login2fa && window.FL_login2fa.maybeGate({ email: email, method: 'email', next: next })) {

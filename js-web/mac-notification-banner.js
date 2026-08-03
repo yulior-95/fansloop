@@ -68,7 +68,7 @@
             '<button type="button" class="mac-notify-close" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>' +
             '<div class="mac-notify-icon">' + iconHtml + '</div>' +
             '<div class="mac-notify-body">' +
-            '<div class="mac-notify-head"><span class="mac-notify-app">' + (opts.app || 'FansLoop') + '</span>' +
+            '<div class="mac-notify-head"><span class="mac-notify-app">' + (opts.app || 'GOODFANS') + '</span>' +
             '<span class="mac-notify-time">' + (opts.time || '现在') + '</span></div>' +
             '<div class="mac-notify-title">' + (opts.title || '新通知') + '</div>' +
             '<div class="mac-notify-text">' + (opts.body || '') + '</div>' +

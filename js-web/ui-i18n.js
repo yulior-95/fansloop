@@ -1,5 +1,5 @@
 /**
- * FansLoop · 全站 UI 国际化运行时
+ * GOODFANS · 全站 UI 国际化运行时
  * - 语义键词典 + 中文原文反向索引自动翻译
  * - 排除 [data-i18n-exclude] 区域（如私信发送框）
  * - 回落链：当前语言 → en → zh-CN
@@ -75,11 +75,11 @@
         set_grp_creator: L('创作者', '創作者', 'Creator', 'Creator'),
         set_nav_subscription: L('会员订阅设置', '會員訂閱設定', 'Subscription settings', 'Abo-Einstellungen'),
         set_grp_about: L('关于', '關於', 'About', 'Über'),
-        set_nav_about: L('关于 FansLoop', '關於 FansLoop', 'About FansLoop', 'Über FansLoop'),
+        set_nav_about: L('关于 GOODFANS', '關於 GOODFANS', 'About GOODFANS', 'Über GOODFANS'),
         set_nav_terms: L('条款与协议', '條款與協議', 'Terms & policies', 'AGB & Richtlinien'),
         set_nav_logout: L('退出登录', '登出', 'Sign out', 'Abmelden'),
 
-        about_title: L('关于 FansLoop', '關於 FansLoop', 'About FansLoop', 'Über FansLoop'),
+        about_title: L('关于 GOODFANS', '關於 GOODFANS', 'About GOODFANS', 'Über GOODFANS'),
         about_tagline: L('面向加密原生用户与创作者的 Web3 内容订阅与打赏平台。', '面向加密原生用戶與創作者的 Web3 內容訂閱與打賞平台。', 'Web3 subscription & tipping for crypto-native fans and creators.', 'Web3-Abo & Trinkgeld für Krypto-Nutzer und Creator.'),
         about_copy_ver: L('复制版本', '複製版本', 'Copy version', 'Version kopieren'),
         about_check_update: L('检查更新', '檢查更新', 'Check for updates', 'Nach Updates suchen'),
@@ -95,9 +95,9 @@
         about_changelog: L('更新日志', '更新日誌', 'Changelog', 'Änderungsprotokoll'),
         about_changelog_sub: L('近期版本变更记录', '近期版本變更記錄', 'Recent release notes', 'Aktuelle Versionshinweise'),
         about_legal: L('法律信息', '法律資訊', 'Legal', 'Rechtliches'),
-        about_legal_sub: L('© 2024–2026 FansLoop Labs. 保留所有权利。', '© 2024–2026 FansLoop Labs. 保留所有權利。', '© 2024–2026 FansLoop Labs. All rights reserved.', '© 2024–2026 FansLoop Labs. Alle Rechte vorbehalten.'),
+        about_legal_sub: L('© 2024–2026 GOODFANS Labs. 保留所有权利。', '© 2024–2026 GOODFANS Labs. 保留所有權利。', '© 2024–2026 GOODFANS Labs. All rights reserved.', '© 2024–2026 GOODFANS Labs. Alle Rechte vorbehalten.'),
         fb_title: L('提交产品反馈', '提交產品回饋', 'Send product feedback', 'Produktfeedback senden'),
-        fb_hint: L('感谢你帮助改进 FansLoop，我们会认真阅读每一条反馈。', '感謝你幫助改進 FansLoop，我們會認真閱讀每一條回饋。', 'Thanks for helping improve FansLoop. We read every submission.', 'Danke, dass du FansLoop verbesserst. Wir lesen jedes Feedback.'),
+        fb_hint: L('感谢你帮助改进 GOODFANS，我们会认真阅读每一条反馈。', '感謝你幫助改進 GOODFANS，我們會認真閱讀每一條回饋。', 'Thanks for helping improve GOODFANS. We read every submission.', 'Danke, dass du GOODFANS verbesserst. Wir lesen jedes Feedback.'),
         fb_type_label: L('反馈类型', '回饋類型', 'Feedback type', 'Feedback-Typ'),
         fb_type_feature: L('功能建议', '功能建議', 'Feature idea', 'Funktionsidee'),
         fb_type_experience: L('体验问题', '體驗問題', 'UX issue', 'UX-Problem'),
@@ -485,11 +485,11 @@
     }
 
     function getLangCode() {
-        if (global.FansLoopLang && global.FansLoopLang.getLang) {
-            return global.FansLoopLang.getLang();
+        if (global.GoodFansLang && global.GoodFansLang.getLang) {
+            return global.GoodFansLang.getLang();
         }
         try {
-            return localStorage.getItem('fansloop-ui-lang') || 'zh-CN';
+            return localStorage.getItem('goodfans-ui-lang') || 'zh-CN';
         } catch (e) {
             return 'zh-CN';
         }
@@ -525,7 +525,7 @@
         if (global.FL_applySidebarI18n) global.FL_applySidebarI18n(code);
     }
 
-    document.addEventListener('fansloop-lang-change', function (e) {
+    document.addEventListener('goodfans-lang-change', function (e) {
         applyAll(e.detail && e.detail.code);
     });
 

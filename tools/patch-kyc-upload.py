@@ -5,7 +5,7 @@ html = r'''<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>证件认证 · KYC · FansLoop</title>
+<title>证件认证 · KYC · GOODFANS</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
 <link rel="stylesheet" href="../css-web/kyc-subpages.css">
@@ -96,7 +96,7 @@ html = r'''<!DOCTYPE html>
     document.getElementById("tileFront").addEventListener("click", function () { f = true; this.classList.add("ok"); syncUpload(); });
     document.getElementById("tileBack").addEventListener("click", function () { b = true; this.classList.add("ok"); syncUpload(); });
     document.getElementById("btnToFace").addEventListener("click", function () {
-        sessionStorage.setItem("fansloop_kyc_draft", JSON.stringify({ country: country, idType: document.getElementById("selIdType").value }));
+        sessionStorage.setItem("goodfans_kyc_draft", JSON.stringify({ country: country, idType: document.getElementById("selIdType").value }));
         window.KycFlowNav.go("kyc-face-verify.html");
     });
 })();

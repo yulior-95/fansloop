@@ -90,7 +90,7 @@
     var hex = ((n * 2654435761) >>> 0).toString(16).slice(0, 8).toUpperCase();
     var presets = [
       { deviceName: "Chrome / macOS", deviceId: "WEB-MAC-" + hex, ip: "203.0.113." + ((n % 190) + 10) },
-      { deviceName: "FansLoop App / Android", deviceId: "AND-FL-" + hex, ip: "198.51.100." + ((n % 190) + 10) },
+      { deviceName: "GOODFANS App / Android", deviceId: "AND-FL-" + hex, ip: "198.51.100." + ((n % 190) + 10) },
       { deviceName: "Safari / iOS", deviceId: "IOS-SAF-" + hex, ip: "192.0.2." + ((n % 190) + 10) },
       { deviceName: "WeChat / iOS", deviceId: "IOS-WX-" + hex, ip: "114.114.114." + ((n % 190) + 10) }
     ];
@@ -319,7 +319,7 @@
         realName: "Alex Chen",
         realNameAlt: "Alex Chen",
         status: "待审核",
-        deviceName: "FansLoop App / Android",
+        deviceName: "GOODFANS App / Android",
         deviceId: "AND-FL-9E8D7C6B",
         ip: "198.51.100.15",
         region: "马尼拉",
@@ -372,7 +372,7 @@
         realName: "李明辉",
         realNameAlt: "Lee Ming Hui",
         status: "通过",
-        deviceName: "FansLoop App / iOS",
+        deviceName: "GOODFANS App / iOS",
         deviceId: "IOS-FL-339011A2",
         ip: "203.0.113.88",
         region: "新加坡",
@@ -395,8 +395,8 @@
   }
 
   function resolveUidFromSession() {
-    if (global.FansloopAuth && global.FansloopAuth.getUserId) {
-      var uid = global.FansloopAuth.getUserId();
+    if (global.GoodfansAuth && global.GoodfansAuth.getUserId) {
+      var uid = global.GoodfansAuth.getUserId();
       if (uid && global.FLUserRegistry && global.FLUserRegistry.getByUserId) {
         var acc = global.FLUserRegistry.getByUserId(uid);
         if (acc && acc.publicUid) return String(acc.publicUid);

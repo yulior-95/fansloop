@@ -43,7 +43,7 @@
       user: {
         uid: "882910",
         nickname: "Luna 🌙",
-        email: "luna@fansloop.io",
+        email: "luna@goodfans.io",
         role: "Creator",
         kyc: "已认证",
         registeredAt: "2024-03-12 09:15:00"
@@ -224,7 +224,7 @@
       user: {
         uid: "882910",
         nickname: "Luna 🌙",
-        email: "luna@fansloop.io",
+        email: "luna@goodfans.io",
         role: "Creator",
         kyc: "已认证",
         registeredAt: "2024-03-12 09:15:00"

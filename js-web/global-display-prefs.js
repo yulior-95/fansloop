@@ -1,5 +1,5 @@
 /**
- * FansLoop · 全局外观偏好（主题 / 字体 / 动效 / 毛玻璃 / 高对比 / 无衬线）
+ * GOODFANS · 全局外观偏好（主题 / 字体 / 动效 / 毛玻璃 / 高对比 / 无衬线）
  * 写入 localStorage，全站通过 html 属性即时生效
  */
 (function (global) {
@@ -65,7 +65,7 @@
         save(prefs);
         apply(prefs);
         try {
-            global.dispatchEvent(new CustomEvent('fansloop-display-change', { detail: prefs }));
+            global.dispatchEvent(new CustomEvent('goodfans-display-change', { detail: prefs }));
         } catch (e) { /* ignore */ }
         return prefs;
     }

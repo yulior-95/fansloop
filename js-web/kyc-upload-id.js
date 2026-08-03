@@ -97,7 +97,7 @@
 
     document.getElementById("btnToFace").addEventListener("click", function () {
         sessionStorage.setItem(
-            "fansloop_kyc_draft",
+            "goodfans_kyc_draft",
             JSON.stringify({
                 country: country,
                 idType: idType,
@@ -105,10 +105,10 @@
                 idCardBack: backUrl
             })
         );
-        sessionStorage.removeItem("fansloop_kyc_face_token");
-        if (window.FansloopKycStore) {
-            window.FansloopKycStore.clearFaceDone();
-            window.FansloopKycStore.writeKyc({
+        sessionStorage.removeItem("goodfans_kyc_face_token");
+        if (window.GoodfansKycStore) {
+            window.GoodfansKycStore.clearFaceDone();
+            window.GoodfansKycStore.writeKyc({
                 authStatus: "unverified",
                 status: "none",
                 stage: "face",

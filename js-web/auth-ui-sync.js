@@ -16,7 +16,7 @@
     };
 
     function getUser() {
-        return global.FansloopAuth && global.FansloopAuth.getUser ? global.FansloopAuth.getUser() : null;
+        return global.GoodfansAuth && global.GoodfansAuth.getUser ? global.GoodfansAuth.getUser() : null;
     }
 
     function resolveUser() {
@@ -209,7 +209,7 @@
         apply();
     }
 
-    global.addEventListener('fansloop-auth-change', apply);
+    global.addEventListener('goodfans-auth-change', apply);
     global.addEventListener('fl-user-assets-change', apply);
     global.addEventListener('fl-points-data-change', function (e) {
         if (e.detail) refreshPointsFromData(e.detail);

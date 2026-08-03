@@ -677,7 +677,7 @@
       devBacked: true,
       goodsTemplate: 'staking_boost',
       benefitUsageMode: 'duration_unlimited',
-      purpose: 'FansLoop 质押池收益加成，链上活动期内持续生效。',
+      purpose: 'GOODFANS 质押池收益加成，链上活动期内持续生效。',
       usageGuide: '兑换即激活 type=staking_boost；质押结算读取 bonusPercent、grantValidDays。有效期内不限质押笔数。',
       opsUsageNote: '纯时长制；须链上活动期开启才实际加成。每月限购 1 次。',
       mallCats: ['asset'],
@@ -696,7 +696,7 @@
       status: 'enabled',
       sort: 34,
       image: 'https://images.unsplash.com/photo-1640340434855-6084b1db14fb?w=400&q=80',
-      description: 'FansLoop 质押池收益加成 +5%（链上活动期可用）。',
+      description: 'GOODFANS 质押池收益加成 +5%（链上活动期可用）。',
       updatedAt: '2026-06-11 10:00'
     }
   ];

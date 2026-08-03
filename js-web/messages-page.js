@@ -111,7 +111,7 @@
         },
         {
             id: 'official',
-            name: 'FansLoop 官方',
+            name: 'GOODFANS 官方',
             av: '',
             official: true,
             kind: 'dm',
@@ -1694,7 +1694,7 @@
         }
 
         window.addEventListener('message', function (e) {
-            if (!e.data || e.data.type !== 'fansloop-gift-sent') return;
+            if (!e.data || e.data.type !== 'goodfans-gift-sent') return;
             addMessage({ from: 'me', type: 'gift', text: '送出礼物 · ' + (e.data.label || '星月礼盒') + ' · ≈ $' + (e.data.amount || '12') });
         });
 

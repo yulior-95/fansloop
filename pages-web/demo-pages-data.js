@@ -1,5 +1,5 @@
 /**
- * FansLoop Web 交互演示 · 页面分组清单（yanshi-web.html 读取）
+ * GOODFANS Web 交互演示 · 页面分组清单（yanshi-web.html 读取）
  *
  * 约定：每新增一个可演示的 pages-web/*.html（演示壳 yanshi-web.html 除外），
  * 请在本数组对应分组中追加 [文件名, 显示名称]，否则无法在顶部搜索与页面网格中找到。
@@ -116,5 +116,20 @@ window.DEMO_PAGE_GROUPS = [
         ["transaction-more-menu.html", "更多菜单"],
         ["transaction-appeal.html", "发起申诉"],
         ["transaction-contact.html", "联系客服"]
+    ]],
+    ["双商城 · 数字资产", [
+        ["creator-showcase.html", "创作者橱窗（访客可购）"],
+        ["creator-showcase.html?owner=1", "创作者橱窗（本人管理+数据）"],
+        ["digital-asset-store.html", "Creator Store 数字资产专区"],
+        ["digital-asset-detail.html?id=da_seed_nft_01", "数字资产详情 · 购买"],
+        ["create-digital-asset.html", "创建数字资产"],
+        ["my-digital-assets.html", "我的数字资产"],
+        ["creator-profile.html", "创作者主页 · 橱窗入口"]
+    ]],
+    ["双商城 · 实体联盟", [
+        ["affiliate-catalog.html", "实体选品库（商品中心）"],
+        ["creator-showcase.html?owner=1", "橱窗内管理选品"],
+        ["creator-profile.html?tab=showcase", "创作者主页 · 橱窗 Tab"],
+        ["proto-discover-detail-video.html", "视频暂停 · AI 商品识别"]
     ]]
 ];

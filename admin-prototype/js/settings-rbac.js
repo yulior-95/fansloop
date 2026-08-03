@@ -165,7 +165,7 @@
     {
       account: "wangyi",
       name: "王一",
-      email: "wangyi@fansloop.io",
+      email: "wangyi@goodfans.io",
       role: "运营",
       roleCode: "ROLE_OPS",
       status: "enabled",
@@ -176,7 +176,7 @@
     {
       account: "limin",
       name: "李敏",
-      email: "limin@fansloop.io",
+      email: "limin@goodfans.io",
       role: "风控",
       roleCode: "ROLE_RISK",
       status: "enabled",
@@ -187,7 +187,7 @@
     {
       account: "chenchen",
       name: "陈晨",
-      email: "chenchen@fansloop.io",
+      email: "chenchen@goodfans.io",
       role: "超级管理员",
       roleCode: "ROLE_ROOT",
       status: "disabled",
@@ -201,7 +201,7 @@
     {
       time: "2026-05-11 10:22:01",
       operator: "wangyi",
-      operatorEmail: "wangyi@fansloop.io",
+      operatorEmail: "wangyi@goodfans.io",
       module: "用户管理",
       submodule: "用户列表",
       action: "重置密码",
@@ -214,7 +214,7 @@
     {
       time: "2026-05-11 10:18:44",
       operator: "limin",
-      operatorEmail: "limin@fansloop.io",
+      operatorEmail: "limin@goodfans.io",
       module: "风控中心",
       submodule: "异常发言",
       action: "禁言 24h",
@@ -227,7 +227,7 @@
     {
       time: "2026-05-11 09:55:12",
       operator: "admin",
-      operatorEmail: "admin@fansloop.io",
+      operatorEmail: "admin@goodfans.io",
       module: "系统设置",
       submodule: "角色管理",
       action: "更新权限",
@@ -240,7 +240,7 @@
     {
       time: "2026-05-11 09:12:00",
       operator: "chenchen",
-      operatorEmail: "chenchen@fansloop.io",
+      operatorEmail: "chenchen@goodfans.io",
       module: "登录",
       submodule: "后台登录",
       action: "登录失败",
@@ -253,7 +253,7 @@
     {
       time: "2026-05-11 08:40:33",
       operator: "wangyi",
-      operatorEmail: "wangyi@fansloop.io",
+      operatorEmail: "wangyi@goodfans.io",
       module: "系统设置",
       submodule: "成员账号",
       action: "创建成员",
@@ -582,7 +582,7 @@
       '<div class="field"><label>邮箱<span class="opt">（选填）</span></label>' +
       '<input class="ant-input" id="memEmail" type="email" value="' +
       esc(m.email || "") +
-      '" placeholder="member@fansloop.io"></div>';
+      '" placeholder="member@goodfans.io"></div>';
     html +=
       '<div class="field"><label>显示名称<span class="opt">（选填）</span></label>' +
       '<input class="ant-input" id="memName" value="' +

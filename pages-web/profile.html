@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>个人主页 · FansLoop</title>
+<title>个人主页 · GOODFANS</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
 <script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
@@ -391,7 +391,7 @@
 
 <div class="app-shell">
     <aside class="app-sidebar">
-        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">GOODFANS<span>Web3 Creator</span></div></div>
         <div class="s-section">主导航</div>
         <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
         <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
@@ -458,6 +458,7 @@
                     <div class="bio">📷 旅行 / 美食 / 慢生活 摄影师｜📍现居东京｜35mm 定焦执着患者｜合作请私信</div>
                 </div>
                 <div class="acts">
+                    <button type="button" class="btn btn-primary" id="btnMyShowcase"><i class="fa-solid fa-store"></i>我的橱窗</button>
                     <button type="button" class="btn" id="btnShareProfile"><i class="fa-solid fa-share-nodes"></i>分享主页</button>
                     <button type="button" class="btn btn-secondary" id="btnProfileInviteData"><i class="fa-solid fa-user-group"></i>邀请数据</button>
                     <button type="button" class="btn btn-secondary" id="btnEditProfile"><i class="fa-solid fa-pen"></i>编辑资料</button>
@@ -1221,7 +1222,7 @@
         <div class="sh-body share-sheet-body">
             <p class="share-lead">扫码海报或复制链接/邀请码，好友注册后你可获得积分奖励</p>
             <div class="profile-share-poster" id="profileSharePoster" aria-label="分享海报预览">
-                <span class="psp-brand"><i class="fa-solid fa-infinity"></i> FansLoop</span>
+                <span class="psp-brand"><i class="fa-solid fa-infinity"></i> GOODFANS</span>
                 <div class="psp-cover" style="background-image:url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=900&q=80')">
                     <span class="psp-av" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400')"></span>
                 </div>
@@ -1236,7 +1237,7 @@
                     <div class="psp-foot">
                         <div>
                             <div class="psp-url-lbl">主页链接</div>
-                            <div class="psp-url">fansloop.io/@luna</div>
+                            <div class="psp-url">goodfans.io/@luna</div>
                         </div>
                         <div class="psp-qr">
                             <img id="profileShareQr" src="" alt="主页二维码" width="72" height="72" />
@@ -1251,7 +1252,7 @@
             <div class="share-field-block">
                 <label>主页链接</label>
                 <div class="share-link-row">
-                    <input type="text" id="profileShareLinkInput" readonly value="https://fansloop.io/@luna" aria-label="主页链接" />
+                    <input type="text" id="profileShareLinkInput" readonly value="https://goodfans.io/@luna" aria-label="主页链接" />
                     <button type="button" class="btn-mini" id="btnCopyProfileLink" title="复制链接"><i class="fa-regular fa-copy"></i></button>
                 </div>
             </div>
@@ -1526,5 +1527,45 @@
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/host-live-pip-global.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>
+<script src="../js-web/mall-commerce-config-store.js"></script>
+<script src="../js-web/digital-assets-store.js"></script>
+<script src="../js-web/affiliate-catalog-store.js"></script>
+<script src="../js-web/affiliate-showcase-store.js"></script>
+<script>
+(function () {
+    function creatorDisplayName() {
+        var h1 = document.querySelector('#profileViewHome .profile-head h1');
+        return (h1 && h1.textContent.trim()) || 'Luna 🌙';
+    }
+    function totalCount() {
+        var dig = 0;
+        var aff = 0;
+        try {
+            if (window.DigitalAssetsStore) {
+                dig = DigitalAssetsStore.list({ creatorId: DigitalAssetsStore.DEMO_CREATOR })
+                    .filter(function (p) { return p.status !== 'draft' && p.status !== 'pending_review'; }).length;
+            }
+            if (window.AffiliateShowcaseStore) {
+                aff = (AffiliateShowcaseStore.listShowcase(AffiliateShowcaseStore.DEMO_CREATOR) || []).length;
+            }
+        } catch (e) { /* ignore */ }
+        return dig + aff;
+    }
+    function syncBtn() {
+        var btn = document.getElementById('btnMyShowcase');
+        if (!btn) return;
+        var n = totalCount();
+        btn.innerHTML = '<i class="fa-solid fa-store"></i>我的橱窗' + (n ? ' · ' + n : '');
+    }
+    var btn = document.getElementById('btnMyShowcase');
+    if (btn) {
+        btn.addEventListener('click', function () {
+            var name = encodeURIComponent(creatorDisplayName());
+            location.href = 'creator-showcase.html?owner=1&name=' + name;
+        });
+        syncBtn();
+    }
+})();
+</script>
 </body>
 </html>

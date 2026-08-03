@@ -41,7 +41,7 @@
       href: "network-fees.html",
       icon: "fa-percent",
       label: "手续费",
-      desc: "充值 / 提现 / 链上 Gas 等费率",
+      desc: "USDT/USDC 多网络充提地址、手续费与二维码",
       api: "PUT /api/v1/admin/fee-config"
     },
     {
@@ -151,6 +151,19 @@
         { key: "system-announcements", href: "system-announcements.html", icon: "fa-bullhorn", label: "系统公告" },
         { key: "reports", href: "reports.html", icon: "fa-table", label: "报表统计" }
       ]
+    },
+    {
+      title: "双商城",
+      items: [
+        { key: "mall-digital-review", href: "mall-digital-review.html", icon: "fa-gem", label: "数字商品审核" },
+        { key: "mall-digital-products", href: "mall-digital-products.html", icon: "fa-cubes", label: "数字商品管理" },
+        { key: "mall-digital-orders", href: "mall-digital-orders.html", icon: "fa-receipt", label: "数字销售记录" },
+        { key: "mall-commerce-config", href: "mall-commerce-config.html", icon: "fa-percent", label: "商城分成配置" },
+        { key: "mall-affiliate-partners", href: "mall-affiliate-partners.html", icon: "fa-handshake", label: "第三方商城" },
+        { key: "mall-affiliate-sync", href: "mall-affiliate-sync.html", icon: "fa-arrows-rotate", label: "商品同步" },
+        { key: "mall-affiliate-categories", href: "mall-affiliate-categories.html", icon: "fa-tags", label: "实体分类" },
+        { key: "mall-affiliate-commissions", href: "mall-affiliate-commissions.html", icon: "fa-sack-dollar", label: "联盟佣金流水" }
+      ]
     }
   ];
 
@@ -251,7 +264,7 @@
   var html = [];
   html.push('<div class="admin-sider-logo">');
   html.push('<img src="https://images.unsplash.com/photo-1557683316-973673baf926?w=64&h=64&fit=crop" alt="">');
-  html.push("<span>FansLoop 运营后台</span></div>");
+  html.push("<span>GOODFANS 运营后台</span></div>");
   html.push('<nav class="admin-menu">');
 
   CFG.blocks.forEach(function (b) {

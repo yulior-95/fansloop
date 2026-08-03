@@ -6,7 +6,7 @@
 
     function tr(key, fallback) {
         if (window.FLI18n && window.FLI18n.t) {
-            var code = window.FansLoopLang ? window.FansLoopLang.getLang() : 'zh-CN';
+            var code = window.GoodFansLang ? window.GoodFansLang.getLang() : 'zh-CN';
             return window.FLI18n.t(code, key) || fallback;
         }
         return fallback;
@@ -150,7 +150,7 @@
         apply();
     }
 
-    document.addEventListener('fansloop-lang-change', apply);
+    document.addEventListener('goodfans-lang-change', apply);
 
     window.FL_applySettingsAppHeader = apply;
 })();

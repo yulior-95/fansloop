@@ -13,7 +13,7 @@
         }
         if (global.parent && global.parent !== global) {
             try {
-                global.parent.postMessage({ type: 'fansloop-close-modal' }, '*');
+                global.parent.postMessage({ type: 'goodfans-close-modal' }, '*');
                 return;
             } catch (_) { /* noop */ }
         }

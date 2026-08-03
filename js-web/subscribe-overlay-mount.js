@@ -13,7 +13,7 @@
                 if (window.FL_bindSubscribeUI) window.FL_bindSubscribeUI();
             })
             .catch(function () {
-                console.warn('[FansLoop] subscribe-overlay mount failed');
+                console.warn('[GOODFANS] subscribe-overlay mount failed');
             });
     }
 

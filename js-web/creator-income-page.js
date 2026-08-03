@@ -2,12 +2,13 @@
  * 创作者收入页 · 账变筛选 / 来源分布周期 / 弹窗导出与规则 / 明细跳转
  */
 (function () {
-    var DIST_KEYS = ['sub', 'tip', 'live', 'ppv'];
+    var DIST_KEYS = ['sub', 'tip', 'live', 'ppv', 'mall'];
     var DIST_COLORS = {
         sub: '#A855F7',
         tip: '#EC4899',
         live: '#10B981',
         ppv: '#3B82F6',
+        mall: '#38BDF8',
         gift: '#F59E0B'
     };
 
@@ -84,8 +85,8 @@
         if (window.FLAuthUiSync && window.FLAuthUiSync.resolveUser) {
             return window.FLAuthUiSync.resolveUser();
         }
-        if (window.FansloopAuth && window.FansloopAuth.getUser) {
-            return window.FansloopAuth.getUser();
+        if (window.GoodfansAuth && window.GoodfansAuth.getUser) {
+            return window.GoodfansAuth.getUser();
         }
         return null;
     }
@@ -191,8 +192,57 @@
         });
     }
 
+    function parseAmt(am) {
+        if (typeof am === 'number') return am;
+        return Number(String(am || '0').replace(/[^0-9.-]/g, '')) || 0;
+    }
+
+    function getLiveMallParts() {
+        var dig = 0;
+        var aff = 0;
+        try {
+            if (window.DigitalAssetOrdersStore) dig = window.DigitalAssetOrdersStore.sumCreatorEarnings() || 0;
+        } catch (e1) { /* ignore */ }
+        try {
+            if (window.AffiliateShowcaseStore) {
+                aff = window.AffiliateShowcaseStore.sumCreatorCommissions(
+                    window.AffiliateShowcaseStore.DEMO_CREATOR) || 0;
+            }
+        } catch (e2) { /* ignore */ }
+        return { dig: dig, aff: aff, total: dig + aff };
+    }
+
+    function buildPeriodData(period) {
+        var base = DIST_BY_PERIOD[period] || DIST_BY_PERIOD['30'];
+        var factor = period === '7' ? 0.25 : (period === '90' ? 2.85 : 1);
+        var live = getLiveMallParts();
+        var mallAmt = Math.round(live.total * factor * 100) / 100;
+        var baseKeys = ['sub', 'tip', 'live', 'ppv'];
+        var baseSum = baseKeys.reduce(function (s, k) {
+            return s + (base[k] ? parseAmt(base[k].am) : 0);
+        }, 0);
+        var newTotal = baseSum + mallAmt;
+        var out = { total: fmtUsdt(newTotal) };
+        baseKeys.forEach(function (k) {
+            var amt = base[k] ? parseAmt(base[k].am) : 0;
+            var pct = newTotal > 0 ? (amt / newTotal) * 100 : 0;
+            out[k] = {
+                am: fmtUsdt(amt) + ' USDT',
+                pc: pct.toFixed(1) + '%',
+                pct: pct
+            };
+        });
+        var mallPct = newTotal > 0 ? (mallAmt / newTotal) * 100 : 0;
+        out.mall = {
+            am: fmtUsdt(mallAmt) + ' USDT',
+            pc: mallPct.toFixed(1) + '%',
+            pct: mallPct
+        };
+        return out;
+    }
+
     function renderPieChart(period) {
-        var data = DIST_BY_PERIOD[period];
+        var data = buildPeriodData(period);
         var svg = document.getElementById('distPieSvg');
         var totalEl = document.getElementById('distPieTotal');
         if (!data || !svg) return;
@@ -206,8 +256,9 @@
         var html = '';
         DIST_KEYS.forEach(function (key) {
             var item = data[key];
-            if (!item) return;
+            if (!item || !item.pct) return;
             var sweep = (item.pct / pctSum) * 360;
+            if (sweep <= 0) return;
             var start = cursor;
             var end = cursor + sweep;
             cursor = end;
@@ -229,7 +280,7 @@
 
     function syncDistPeriod(period) {
         currentPeriod = period;
-        var data = DIST_BY_PERIOD[period];
+        var data = buildPeriodData(period);
         if (!data) return;
         DIST_KEYS.forEach(function (key) {
             var row = document.querySelector('.dist-legend .dist-row.' + key);
@@ -264,10 +315,12 @@
     }
 
     function rowCategory(row) {
+        if (row.getAttribute('data-cat')) return row.getAttribute('data-cat');
         if (row.querySelector('.tag.sub')) return 'sub';
         if (row.querySelector('.tag.tip')) return 'tip';
         if (row.querySelector('.tag.live')) return 'live';
         if (row.querySelector('.tag.ppv') || row.querySelector('.tag.paid')) return 'paid';
+        if (row.querySelector('.tag.digital') || row.querySelector('.tag.aff') || row.querySelector('.tag.mall')) return 'mall';
         return 'all';
     }
 
@@ -287,7 +340,7 @@
     }
 
     function bindListTabs() {
-        var map = { '全部': 'all', '订阅': 'sub', '打赏': 'tip', '直播': 'live', '付费': 'paid' };
+        var map = { '全部': 'all', '订阅': 'sub', '打赏': 'tip', '直播': 'live', '付费': 'paid', '商城': 'mall' };
         document.querySelectorAll('.list-card .fl-tabs .ft').forEach(function (tab) {
             tab.addEventListener('click', function () {
                 document.querySelectorAll('.list-card .fl-tabs .ft').forEach(function (t) { t.classList.remove('active'); });
@@ -297,18 +350,64 @@
         });
     }
 
+    function escHtml(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function renderMallIncomeRows() {
+        var host = document.getElementById('ciMallIncomeRows');
+        if (!host) return;
+        var html = '';
+        var dig = window.DigitalAssetOrdersStore;
+        var aff = window.AffiliateShowcaseStore;
+        if (dig && dig.listEarnings) {
+            dig.listEarnings().slice(0, 8).forEach(function (e, i) {
+                html +=
+                    '<div class="income-row" data-cat="mall" data-tx="tx_digital_' + escHtml(e.id || i) + '">' +
+                    '<div class="av" style="background-image:url(\'' + escHtml(e.coverUrl || 'https://images.unsplash.com/photo-1727722158074-b7916daf6af4?w=80') + '\')"></div>' +
+                    '<div class="info"><div class="nm">数字资产销售 <span class="tag digital">数字</span></div>' +
+                    '<div class="meta">「' + escHtml(e.productTitle || '数字商品') + '」成交实得 · ' + escHtml(e.createdAt || '') + '</div></div>' +
+                    '<div class="right"><div class="am">+' + fmtUsdt(e.amount) + ' USDT</div><div class="stt">已结算</div></div>' +
+                    '</div>';
+            });
+        }
+        if (aff && aff.listCommissions) {
+            aff.listCommissions({ creatorId: aff.DEMO_CREATOR }).slice(0, 8).forEach(function (c, i) {
+                html +=
+                    '<div class="income-row" data-cat="mall" data-tx="tx_aff_' + escHtml(c.id || i) + '">' +
+                    '<div class="av" style="background:linear-gradient(135deg,#0EA5E9,#10B981);display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-bag-shopping" style="color:#fff"></i></div>' +
+                    '<div class="info"><div class="nm">联盟佣金 <span class="tag aff">佣金</span></div>' +
+                    '<div class="meta">「' + escHtml(c.productTitle || '实体选品') + '」回传结算 · ' + escHtml(c.createdAt || '') + '</div></div>' +
+                    '<div class="right"><div class="am">+' + fmtUsdt(c.creatorShare) + ' USDT</div><div class="stt">已结算</div></div>' +
+                    '</div>';
+            });
+        }
+        if (!html) {
+            html = '<div class="income-row" data-cat="mall" style="cursor:default">' +
+                '<div class="info"><div class="nm">暂无商城收益明细</div>' +
+                '<div class="meta">数字资产成交与联盟佣金回传后将显示在此</div></div></div>';
+        }
+        host.innerHTML = html;
+    }
+
     function bindIncomeRows() {
         var rows = document.querySelectorAll('.list-card .income-row');
-        rows.forEach(function (row, i) {
+        rows.forEach(function (row) {
+            if (row.style.cursor === 'default') return;
             row.style.cursor = 'pointer';
             row.setAttribute('role', 'button');
             row.setAttribute('tabindex', '0');
-            row.addEventListener('click', function () {
-                var meta = ROW_TX[i] || { id: 'tx_income_' + (i + 1) };
-                location.href = 'transaction-detail.html?id=' + encodeURIComponent(meta.id) + '&from=creator-income';
-            });
+            function go() {
+                var id = row.getAttribute('data-tx') || 'tx_income';
+                location.href = 'transaction-detail.html?id=' + encodeURIComponent(id) + '&from=creator-income';
+            }
+            row.addEventListener('click', go);
             row.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); row.click(); }
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
             });
         });
     }
@@ -413,6 +512,7 @@
             tip: '粉丝打赏',
             live: '直播收入',
             ppv: '付费内容',
+            mall: '商品收益',
             gift: '私信礼物'
         };
         document.querySelectorAll('.dist-legend .dist-row').forEach(function (row) {
@@ -422,18 +522,26 @@
             row.addEventListener('mouseenter', function () { highlightDistSegment(key); });
             row.addEventListener('mouseleave', function () { highlightDistSegment(null); });
             row.addEventListener('click', function () {
+                var tabName = key === 'sub' ? '订阅'
+                    : key === 'tip' ? '打赏'
+                    : key === 'live' ? '直播'
+                    : key === 'ppv' ? '付费'
+                    : key === 'mall' ? '商城'
+                    : '全部';
                 document.querySelectorAll('.list-card .fl-tabs .ft').forEach(function (t) {
-                    t.classList.toggle('active', t.textContent.trim() === (key === 'sub' ? '订阅' : key === 'tip' ? '打赏' : key === 'live' ? '直播' : key === 'ppv' ? '付费' : '全部'));
+                    t.classList.toggle('active', t.textContent.trim() === tabName);
                 });
                 if (key === 'gift') {
                     applyListFilter('all');
-                    showToast('私信礼物收入已计入「打赏」类明细');
+                    showToast('私信礼物明细可在账变记录中查看');
                     return;
                 }
-                if (key === 'ppv') applyListFilter('paid');
-                else applyListFilter(key);
-                document.querySelector('.list-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                showToast('已筛选：' + (labels[key] || ''));
+                applyListFilter(key === 'ppv' ? 'paid' : (key === 'mall' ? 'mall' : key));
+                showToast('已筛选「' + (labels[key] || key) + '」明细');
+                var listCard = document.querySelector('.list-card');
+                if (listCard && listCard.scrollIntoView) {
+                    listCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             });
         });
     }
@@ -456,9 +564,34 @@
         }
     }
 
+    function syncCommerceCard() {
+        var live = getLiveMallParts();
+        var digCnt = 0;
+        var affCnt = 0;
+        try {
+            if (window.DigitalAssetOrdersStore) digCnt = window.DigitalAssetOrdersStore.listEarnings().length;
+        } catch (e1) { /* ignore */ }
+        try {
+            if (window.AffiliateShowcaseStore) {
+                affCnt = window.AffiliateShowcaseStore.listCommissions({
+                    creatorId: window.AffiliateShowcaseStore.DEMO_CREATOR
+                }).length;
+            }
+        } catch (e2) { /* ignore */ }
+        var el = document.getElementById('ciDigitalEarn');
+        var cnt = document.getElementById('ciDigitalCnt');
+        var el2 = document.getElementById('ciAffiliateEarn');
+        var cnt2 = document.getElementById('ciAffiliateCnt');
+        if (el) el.textContent = fmtUsdt(live.dig) + ' USDT';
+        if (cnt) cnt.textContent = digCnt + ' 笔';
+        if (el2) el2.textContent = fmtUsdt(live.aff) + ' USDT';
+        if (cnt2) cnt2.textContent = affCnt + ' 笔';
+    }
+
     function init() {
         bindPeriodTabs();
         bindListTabs();
+        renderMallIncomeRows();
         bindIncomeRows();
         bindHeaderActions();
         bindPageHeadButtons();
@@ -466,6 +599,7 @@
         bindWithdrawCard();
         bindDeltaHints();
         bindDistRows();
+        syncCommerceCard();
         syncDistPeriod(currentPeriod);
         applyCreatorIncomeForUser();
         applyDeepLinks();
@@ -474,7 +608,7 @@
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
     else init();
 
-    window.addEventListener('fansloop-auth-change', function () {
+    window.addEventListener('goodfans-auth-change', function () {
         applyCreatorIncomeForUser();
     });
     window.addEventListener('fl-auth-prototype-ready', function () {

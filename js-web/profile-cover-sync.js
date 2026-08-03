@@ -36,5 +36,5 @@
         else apply();
     });
 
-    global.addEventListener('fansloop-auth-change', apply);
+    global.addEventListener('goodfans-auth-change', apply);
 })(typeof window !== 'undefined' ? window : this);

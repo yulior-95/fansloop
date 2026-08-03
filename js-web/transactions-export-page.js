@@ -7,7 +7,7 @@
 
     function closeModal() {
         if (window.parent && window.parent !== window) {
-            try { window.parent.postMessage({ type: 'fansloop-close-modal' }, '*'); return; } catch (_) {}
+            try { window.parent.postMessage({ type: 'goodfans-close-modal' }, '*'); return; } catch (_) {}
         }
         location.href = fromPage === 'creator-income' ? 'creator-income.html' : 'transactions.html';
     }
@@ -96,7 +96,7 @@
                 var blob = new Blob(['订单号,类型,金额\nTX001,订阅收入,10.00\n'], { type: 'text/csv;charset=utf-8' });
                 var a = document.createElement('a');
                 a.href = URL.createObjectURL(blob);
-                a.download = 'fansloop-export-' + Date.now() + '.' + fmt.toLowerCase();
+                a.download = 'goodfans-export-' + Date.now() + '.' + fmt.toLowerCase();
                 a.click();
                 URL.revokeObjectURL(a.href);
                 setTimeout(closeModal, 400);

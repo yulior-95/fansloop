@@ -104,6 +104,38 @@
         }).join('');
     }
 
+    /**
+     * 双商城分成只读摘要（主配置在 MallCommerceConfigStore，避免双写）
+     */
+    function getMallCommerceSummaryRules() {
+        var cfg = global.MallCommerceConfigStore && global.MallCommerceConfigStore.load
+            ? global.MallCommerceConfigStore.load()
+            : { digitalPlatformFeePercent: 10, affiliateCreatorSharePercent: 70 };
+        var digitalCreator = 100 - (cfg.digitalPlatformFeePercent || 10);
+        return [
+            {
+                id: 'digital_asset',
+                name: '数字资产',
+                desc: '创作者自建数字商品售卖；平台抽成由「双商城配置」维护',
+                settlementLabel: 'T+0',
+                creatorPercent: digitalCreator,
+                platformPercent: cfg.digitalPlatformFeePercent || 10,
+                readonly: true,
+                configHref: 'mall-commerce-config.html'
+            },
+            {
+                id: 'affiliate_commission',
+                name: '联盟佣金',
+                desc: '第三方联盟回传佣金中创作者实得占比；由「双商城配置」维护',
+                settlementLabel: '回传后',
+                creatorPercent: cfg.affiliateCreatorSharePercent || 70,
+                platformPercent: 100 - (cfg.affiliateCreatorSharePercent || 70),
+                readonly: true,
+                configHref: 'mall-commerce-config.html'
+            }
+        ];
+    }
+
     global.FLCreatorIncomeSplit = {
         LS_KEY: LS_KEY,
         RULE_DEFS: RULE_DEFS,
@@ -115,6 +147,7 @@
         getRules: getRules,
         getTipGiftCreatorPercent: getTipGiftCreatorPercent,
         renderSplitTableRows: renderSplitTableRows,
+        getMallCommerceSummaryRules: getMallCommerceSummaryRules,
         clampPercent: clampPercent
     };
 })(typeof window !== 'undefined' ? window : this);

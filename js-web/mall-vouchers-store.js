@@ -136,8 +136,8 @@
     }
 
     function currentUserId() {
-        if (global.FansloopAuth && global.FansloopAuth.getUserId) {
-            return global.FansloopAuth.getUserId() || null;
+        if (global.GoodfansAuth && global.GoodfansAuth.getUserId) {
+            return global.GoodfansAuth.getUserId() || null;
         }
         return null;
     }

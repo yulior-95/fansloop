@@ -6,7 +6,7 @@ const lines = [
   '<html lang="zh-CN">',
   "<head>",
   '<meta charset="UTF-8">',
-  "<title>\u94b1\u5305\u9a8c\u8bc1 \u00b7 zkMe \u00b7 FansLoop</title>",
+  "<title>\u94b1\u5305\u9a8c\u8bc1 \u00b7 zkMe \u00b7 GOODFANS</title>",
   '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">',
   '<link rel="stylesheet" href="../css-web/common-web.css">',
   '<link rel="stylesheet" href="../css-web/kyc-subpages.css">',
@@ -19,7 +19,7 @@ const html = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>\u94b1\u5305\u9a8c\u8bc1 \u00b7 zkMe \u00b7 FansLoop</title>
+<title>\u94b1\u5305\u9a8c\u8bc1 \u00b7 zkMe \u00b7 GOODFANS</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
 <link rel="stylesheet" href="../css-web/kyc-subpages.css">
@@ -105,10 +105,10 @@ const html = `<!DOCTYPE html>
             show("stateVerify");
             setTimeout(function () {
                 if (window.KycFlowNav.qp("demo") === "fail") {
-                    window.FansloopKycStore.setZkpFailed();
+                    window.GoodfansKycStore.setZkpFailed();
                     show("stateFail");
                 } else {
-                    window.FansloopKycStore.setWalletSuccess(wallet);
+                    window.GoodfansKycStore.setWalletSuccess(wallet);
                     show("stateOk");
                 }
             }, 1800);

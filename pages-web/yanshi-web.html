@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>FansLoop Web · 交互演示</title>
+<title>GOODFANS Web · 交互演示</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
 <style>
@@ -412,7 +412,7 @@ body { display: grid; grid-template-rows: auto 1fr; }
 <div class="demo-bar">
     <div class="brand">
         <div class="lo"><i class="fa-solid fa-infinity"></i></div>
-        <div><div class="nm">FansLoop Web Demo</div><div class="sub">交互式高保真原型</div></div>
+        <div><div class="nm">GOODFANS Web Demo</div><div class="sub">交互式高保真原型</div></div>
     </div>
 
     <div class="nav-btns">
@@ -432,7 +432,7 @@ body { display: grid; grid-template-rows: auto 1fr; }
     </div>
     <div class="url-bar" aria-hidden="true">
         <i class="fa-solid fa-lock lock"></i>
-        <span><span class="path">https://fansloop.io/</span><span class="page" id="urlPage">guest-home.html</span></span>
+        <span><span class="path">https://goodfans.io/</span><span class="page" id="urlPage">guest-home.html</span></span>
     </div>
 
     <div class="viewport-toggle">
@@ -471,7 +471,7 @@ body { display: grid; grid-template-rows: auto 1fr; }
 <div id="rewardFloatLayer" aria-live="polite"></div>
 
 <div id="embedModalRoot" aria-hidden="true">
-    <iframe class="embed-modal-frame" id="embedModalFrame" title="FansLoop 交互弹窗"></iframe>
+    <iframe class="embed-modal-frame" id="embedModalFrame" title="GOODFANS 交互弹窗"></iframe>
 </div>
 
 <div id="rewardModalRoot" aria-hidden="true">
@@ -692,7 +692,7 @@ document.addEventListener('click', e => {
 
 /* ========== 积分倒计时 · 首次弹窗 + 后续 dock 上浮（不写入 iframe 内） ========== */
 const REWARD_TOTAL = 45;
-const REWARD_FIRST_CLAIM_KEY = 'fansloop_reward_first_claim_done';
+const REWARD_FIRST_CLAIM_KEY = 'goodfans_reward_first_claim_done';
 let rewardLeft = REWARD_TOTAL;
 let rewardTimer = null;
 
@@ -873,21 +873,21 @@ function closeEmbedModal() {
 window.addEventListener('message', (ev) => {
     const d = ev.data;
     if (!d || typeof d !== 'object') return;
-    if (d.type === 'fansloop-open-modal' && typeof d.page === 'string') {
+    if (d.type === 'goodfans-open-modal' && typeof d.page === 'string') {
         openEmbedModal(d.page);
     }
-    if (d.type === 'fansloop-close-modal') {
+    if (d.type === 'goodfans-close-modal') {
         closeEmbedModal();
     }
-    if (d.type === 'fansloop-live-scheduled') {
+    if (d.type === 'goodfans-live-scheduled') {
         closeEmbedModal();
         const frame = document.getElementById('frame');
         if (frame && frame.contentWindow) {
-            frame.contentWindow.postMessage({ type: 'fansloop-live-scheduled', payload: d.payload }, '*');
+            frame.contentWindow.postMessage({ type: 'goodfans-live-scheduled', payload: d.payload }, '*');
         }
         return;
     }
-    if (d.type === 'fansloop-live-now') {
+    if (d.type === 'goodfans-live-now') {
         closeEmbedModal();
         const frame = document.getElementById('frame');
         if (frame) {

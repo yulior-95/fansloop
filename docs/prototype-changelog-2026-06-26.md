@@ -1,4 +1,4 @@
-# FansLoop Web 原型 · 今日调整记录
+# GOODFANS Web 原型 · 今日调整记录
 
 > **日期：** 2026 年 6 月 26 日（周五）  
 > **对比基准：** [2026-06-25 变更记录](./prototype-changelog-2026-06-25.md)（导出任务、充提订单、订阅升购等）  
@@ -281,4 +281,4 @@ fl_admin_sensitive_risk_v1        // 敏感词风控（命中/日志/阶梯参�
 
 ---
 
-*FansLoop Web3 Creator · 原型调整记录 · 2026-06-26*
+*GOODFANS Web3 Creator · 原型调整记录 · 2026-06-26*

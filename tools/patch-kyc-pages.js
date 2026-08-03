@@ -12,7 +12,7 @@ const pages = {
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>审核中 · KYC · FansLoop</title>
+<title>审核中 · KYC · GOODFANS</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
 <link rel="stylesheet" href="../css-web/kyc-subpages.css">
@@ -53,16 +53,16 @@ const pages = {
 <script src="../js-web/kyc-flow-nav.js"></script>
 <script>
 (function () {
-    var k = window.FansloopKycStore.readKyc();
+    var k = window.GoodfansKycStore.readKyc();
     document.getElementById("metaId").textContent = k.lastId || "—";
     document.getElementById("btnStatus").href = window.KycFlowNav.hrefWithRet("kyc-status.html");
     document.getElementById("linkBack").href = window.KycFlowNav.hrefWithRet("kyc-status.html");
     document.getElementById("btnSimOk").addEventListener("click", function () {
-        window.FansloopKycStore.setDocumentApproved();
+        window.GoodfansKycStore.setDocumentApproved();
         window.KycFlowNav.go("kyc-complete.html", { source: "document" });
     });
     document.getElementById("btnSimFail").addEventListener("click", function () {
-        window.FansloopKycStore.setDocumentRejected("证件人像不清晰，请重新拍摄后提交。");
+        window.GoodfansKycStore.setDocumentRejected("证件人像不清晰，请重新拍摄后提交。");
         window.KycFlowNav.go("kyc-doc-result.html", { outcome: "fail" });
     });
 })();
@@ -74,7 +74,7 @@ const pages = {
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>认证结果 · KYC · FansLoop</title>
+<title>认证结果 · KYC · GOODFANS</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
 <link rel="stylesheet" href="../css-web/kyc-subpages.css">
@@ -114,7 +114,7 @@ const pages = {
 (function () {
     document.getElementById("linkBack").href = window.KycFlowNav.hrefWithRet("kyc-intro.html");
     var outcome = window.KycFlowNav.qp("outcome");
-    var k = window.FansloopKycStore.readKyc();
+    var k = window.GoodfansKycStore.readKyc();
     if (outcome === "fail" || k.authStatus === "rejected") {
         document.getElementById("panelFail").style.display = "block";
         document.getElementById("failReason").textContent = k.rejectReason || "";
@@ -136,7 +136,7 @@ const pages = {
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>身份认证已完成 · FansLoop</title>
+<title>身份认证已完成 · GOODFANS</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
 <link rel="stylesheet" href="../css-web/kyc-subpages.css">
@@ -169,7 +169,7 @@ const pages = {
 (function () {
     var ret = window.KycFlowNav.retParam();
     document.getElementById("linkBack").href = ret || "settings.html";
-    var k = window.FansloopKycStore.readKyc();
+    var k = window.GoodfansKycStore.readKyc();
     var src = window.KycFlowNav.qp("source") || k.authSource || "";
     document.getElementById("metaSource").textContent = src === "wallet" ? "钱包验证 (zkMe)" : src === "document" ? "证件认证" : "—";
     document.getElementById("metaZkp").textContent = k.zkpStatus === "success" ? "成功" : k.zkpStatus === "failed" ? "失败" : "未知";

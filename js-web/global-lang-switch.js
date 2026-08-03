@@ -1,9 +1,9 @@
 /**
- * FansLoop · 全局语言切换（挂载到 .app-header 或悬浮）
+ * GOODFANS · 全局语言切换（挂载到 .app-header 或悬浮）
  * 字典：仅翻译常见界面词；各页可用 data-i18n-global="key" 扩展。
  */
 (function (global) {
-    var STORAGE = 'fansloop-ui-lang';
+    var STORAGE = 'goodfans-ui-lang';
 
     var LANGS = [
         { code: 'zh-CN', label: '简体中文', native: '中文' },
@@ -150,23 +150,23 @@
         document.documentElement.lang = code;
         document.documentElement.dir = (code === 'ar') ? 'rtl' : 'ltr';
         applyDict(code);
-        document.dispatchEvent(new CustomEvent('fansloop-lang-change', { detail: { code: code } }));
+        document.dispatchEvent(new CustomEvent('goodfans-lang-change', { detail: { code: code } }));
     }
 
     function buildMount() {
-        if (document.getElementById('fansloop-lang-root')) return;
+        if (document.getElementById('goodfans-lang-root')) return;
 
         var code = getLang();
         document.documentElement.lang = code;
         document.documentElement.dir = (code === 'ar') ? 'rtl' : 'ltr';
 
         var wrap = document.createElement('div');
-        wrap.id = 'fansloop-lang-root';
-        wrap.className = 'fansloop-lang-mount';
+        wrap.id = 'goodfans-lang-root';
+        wrap.className = 'goodfans-lang-mount';
         wrap.innerHTML =
-            '<button type="button" class="lang-trigger" id="fansloopLangBtn" aria-expanded="false" title="">' +
+            '<button type="button" class="lang-trigger" id="goodfansLangBtn" aria-expanded="false" title="">' +
             '<i class="fa-solid fa-language"></i><span class="lbl"></span><i class="fa-solid fa-chevron-down chev"></i></button>' +
-            '<div class="fansloop-lang-dd" id="fansloopLangDd" role="listbox"></div>';
+            '<div class="goodfans-lang-dd" id="goodfansLangDd" role="listbox"></div>';
 
         var header = document.querySelector('.app-header');
         if (header) {
@@ -178,8 +178,8 @@
             document.body.appendChild(wrap);
         }
 
-        var btn = document.getElementById('fansloopLangBtn');
-        var dd = document.getElementById('fansloopLangDd');
+        var btn = document.getElementById('goodfansLangBtn');
+        var dd = document.getElementById('goodfansLangDd');
         var lbl = wrap.querySelector('.lbl');
 
         function syncLbl() {
@@ -224,7 +224,7 @@
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', buildMount);
     else buildMount();
 
-    global.FansLoopLang = {
+    global.GoodFansLang = {
         LANGS: LANGS,
         DICT: DICT,
         getLang: getLang,

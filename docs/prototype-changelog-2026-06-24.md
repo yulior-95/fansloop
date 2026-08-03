@@ -1,4 +1,4 @@
-# FansLoop Web 原型 · 今日调整记录
+# GOODFANS Web 原型 · 今日调整记录
 
 > **日期：** 2026 年 6 月 24 日（周三）  
 > **范围：** 运营后台（RBAC、用户列表/资产、KYC 审核、地址簿、账变、全站分页与 UID）、C 端设置（关于/条款/安全/KYC）、钱包与充值  
@@ -207,7 +207,7 @@ AdminPager.bootStaticTables()
 
 ## 11. C 端 · 设置模块
 
-### 关于 FansLoop
+### 关于 GOODFANS
 
 **页面：** `pages-web/settings-about.html`  
 **新增：** `js-web/settings-about-page.js` · `css-web/settings-about-terms.css`
@@ -358,4 +358,4 @@ fl_display_prefs_v1        // 全站外观（沿用）
 
 ---
 
-*FansLoop Web3 Creator · 原型调整记录 · 2026-06-24*
+*GOODFANS Web3 Creator · 原型调整记录 · 2026-06-24*

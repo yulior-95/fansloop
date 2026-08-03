@@ -7,8 +7,8 @@
     var MAX_BYTES = 8 * 1024 * 1024;
 
     function storageKey() {
-        var uid = global.FansloopAuth && global.FansloopAuth.getUserId
-            ? global.FansloopAuth.getUserId()
+        var uid = global.GoodfansAuth && global.GoodfansAuth.getUserId
+            ? global.GoodfansAuth.getUserId()
             : '';
         return uid ? BASE_KEY + '_' + uid : BASE_KEY;
     }

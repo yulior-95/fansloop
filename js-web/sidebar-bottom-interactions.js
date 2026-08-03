@@ -25,7 +25,7 @@
     function getUser() {
         return global.FLAuthUiSync && global.FLAuthUiSync.getUser
             ? global.FLAuthUiSync.getUser()
-            : (global.FansloopAuth && global.FansloopAuth.getUser ? global.FansloopAuth.getUser() : null);
+            : (global.GoodfansAuth && global.GoodfansAuth.getUser ? global.GoodfansAuth.getUser() : null);
     }
 
     function shouldShowProCard() {
@@ -205,11 +205,11 @@
     }
 
     function ensureLoggedInForPro() {
-        if (global.FansloopAuth && global.FansloopAuth.isLoggedIn && global.FansloopAuth.isLoggedIn()) {
+        if (global.GoodfansAuth && global.GoodfansAuth.isLoggedIn && global.GoodfansAuth.isLoggedIn()) {
             return true;
         }
-        if (global.FansloopAuth && global.FansloopAuth.login) {
-            global.FansloopAuth.login({ email: 'luna@fansloop.io' });
+        if (global.GoodfansAuth && global.GoodfansAuth.login) {
+            global.GoodfansAuth.login({ email: 'luna@goodfans.io' });
             return true;
         }
         return false;
@@ -708,7 +708,7 @@
         applySidebarUserDisplay();
     }
 
-    global.addEventListener('fansloop-auth-change', function () {
+    global.addEventListener('goodfans-auth-change', function () {
         applyProCardVisibility();
         applySidebarUserDisplay();
     });

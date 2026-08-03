@@ -6,8 +6,8 @@
     var LS_TASKS_BASE = 'fl_points_tasks_state_v1';
 
     function getCurrentUserId() {
-        if (global.FansloopAuth && global.FansloopAuth.getUserId) {
-            var id = global.FansloopAuth.getUserId();
+        if (global.GoodfansAuth && global.GoodfansAuth.getUserId) {
+            var id = global.GoodfansAuth.getUserId();
             if (id) return id;
         }
         return 'default';
@@ -350,8 +350,8 @@
                         available: data.wallet.available,
                         todayEarned: data.wallet.todayEarned
                     };
-                    if (global.FLUserRegistry && global.FansloopAuth) {
-                        var uid = global.FansloopAuth.getUserId();
+                    if (global.FLUserRegistry && global.GoodfansAuth) {
+                        var uid = global.GoodfansAuth.getUserId();
                         if (uid) {
                             global.FLUserRegistry.updatePointsWallet(uid, {
                                 available: data.wallet.available,
@@ -392,8 +392,8 @@
                 available: data.wallet.available,
                 todayEarned: data.wallet.todayEarned
             };
-            if (global.FLUserRegistry && global.FansloopAuth) {
-                var uid2 = global.FansloopAuth.getUserId();
+            if (global.FLUserRegistry && global.GoodfansAuth) {
+                var uid2 = global.GoodfansAuth.getUserId();
                 if (uid2) {
                     global.FLUserRegistry.updatePointsWallet(uid2, {
                         available: data.wallet.available,

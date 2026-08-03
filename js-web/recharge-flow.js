@@ -256,7 +256,7 @@
         if (show && addrText && qrImg && state.coin && state.network) {
             var addr = addrFor(state.coin.id, state.network.id);
             addrText.textContent = addr;
-            var enc = encodeURIComponent('fansloop:' + state.coin.sym + ':' + state.network.id + ':' + addr);
+            var enc = encodeURIComponent('goodfans:' + state.coin.sym + ':' + state.network.id + ':' + addr);
             qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=148x148&data=' + enc;
             qrImg.alt = '充值二维码';
         }

@@ -297,7 +297,7 @@
         }
     }
 
-    window.addEventListener('fansloop-auth-change', function () {
+    window.addEventListener('goodfans-auth-change', function () {
         S.fetchPointsData().then(refreshAll);
     });
     window.addEventListener('fl-points-data-change', function (e) {

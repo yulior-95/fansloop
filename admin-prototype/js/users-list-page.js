@@ -39,7 +39,7 @@
         { time: "2026-06-18 03:12:44", ip: "203.0.113.99", location: "未知", device: "Chrome / Windows", result: "失败" }
       ],
       opLogs: [
-        { time: "2026-06-15 10:22:01", operator: "limin@fansloop.io", action: "修改登录邮箱", detail: "island.day@example.com", result: "成功" },
+        { time: "2026-06-15 10:22:01", operator: "limin@goodfans.io", action: "修改登录邮箱", detail: "island.day@example.com", result: "成功" },
         { time: "2025-12-02 09:00:11", operator: "system", action: "KYC 机审通过", detail: "证件+人脸", result: "成功" }
       ]
     },
@@ -57,17 +57,17 @@
       accountStatus: "正常",
       walletStatus: "禁用",
       regChannel: "App",
-      regDevice: "FansLoop App / Android",
+      regDevice: "GOODFANS App / Android",
       payPasswordSet: false,
       ledger: [
         { category: "recharge", time: "2026-03-20 12:00:00", type: "注册赠金", currency: "USDT", change: "+10.00", balance: "10.00", orderId: "CH102938" }
       ],
       loginLogs: [
-        { time: "2026-06-22 08:05:51", ip: "198.51.100.15", location: "马尼拉", device: "FansLoop App / Android", result: "成功" },
-        { time: "2026-06-21 19:33:02", ip: "198.51.100.15", location: "马尼拉", device: "FansLoop App / Android", result: "成功" }
+        { time: "2026-06-22 08:05:51", ip: "198.51.100.15", location: "马尼拉", device: "GOODFANS App / Android", result: "成功" },
+        { time: "2026-06-21 19:33:02", ip: "198.51.100.15", location: "马尼拉", device: "GOODFANS App / Android", result: "成功" }
       ],
       opLogs: [
-        { time: "2026-03-19 14:10:00", operator: "wangyi@fansloop.io", action: "禁用钱包", detail: "风控复核", result: "成功" }
+        { time: "2026-03-19 14:10:00", operator: "wangyi@goodfans.io", action: "禁用钱包", detail: "风控复核", result: "成功" }
       ]
     },
     {
@@ -94,7 +94,7 @@
         { time: "2026-06-10 13:25:00", ip: "114.114.114.114", location: "深圳市", device: "WeChat / iOS", result: "成功" }
       ],
       opLogs: [
-        { time: "2026-06-12 09:30:00", operator: "chenchen@fansloop.io", action: "禁用账号", detail: "违规内容", result: "成功" }
+        { time: "2026-06-12 09:30:00", operator: "chenchen@goodfans.io", action: "禁用账号", detail: "违规内容", result: "成功" }
       ]
     },
     {
@@ -185,14 +185,14 @@
       accountStatus: "正常",
       walletStatus: "启用",
       regChannel: "App",
-      regDevice: "FansLoop App / Android",
+      regDevice: "GOODFANS App / Android",
       payPasswordSet: true,
       ledger: [
         { category: "recharge", time: "2026-05-12 10:05:00", type: "链上充值", currency: "USDT", change: "+108.07", balance: "1,208.07", orderId: "RCH20260512080" },
         { category: "withdraw", time: "2026-05-10 16:40:02", type: "链上提现", currency: "USDT", change: "-798.00", balance: "1,100.00", orderId: "WD20260510055" }
       ],
       loginLogs: [
-        { time: "2026-05-12 10:04:00", ip: "172.16.8.22", location: "深圳市", device: "FansLoop App / Android", result: "成功" }
+        { time: "2026-05-12 10:04:00", ip: "172.16.8.22", location: "深圳市", device: "GOODFANS App / Android", result: "成功" }
       ],
       opLogs: []
     },

@@ -7,7 +7,7 @@ const root = path.join(__dirname, '..');
 const out = path.join(root, 'pages-web', 'guest-home.html');
 let h = fs.readFileSync(path.join(root, 'pages-web', 'home.html'), 'utf8');
 
-h = h.replace('<title>首页 · FansLoop</title>', '<title>首页（游客）· FansLoop</title>');
+h = h.replace('<title>首页 · GOODFANS</title>', '<title>首页（游客）· GOODFANS</title>');
 h = h.replace(
   '<link rel="stylesheet" href="../css-web/common-web.css">',
   `<link rel="stylesheet" href="../css-web/common-web.css">

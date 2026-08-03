@@ -20,7 +20,7 @@
         location.href = hrefWithRet(path, extra);
     }
     function queryAuthStatus() {
-        var KS = global.FansloopKycStore;
+        var KS = global.GoodfansKycStore;
         if (!KS) return { authStatus: "unverified", authSource: null, zkpStatus: "unknown" };
         var k = KS.readKyc();
         return {

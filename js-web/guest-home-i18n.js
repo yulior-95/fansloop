@@ -1,6 +1,6 @@
 /** guest-home.html · data-i18n 文案（多语言：其余语种回落英文） */
 (function () {
-    var STORAGE = 'fansloop-ui-lang';
+    var STORAGE = 'goodfans-ui-lang';
 
     var PACK = {
         'zh-CN': {
@@ -48,5 +48,5 @@
     }
 
     document.addEventListener('DOMContentLoaded', apply);
-    document.addEventListener('fansloop-lang-change', apply);
+    document.addEventListener('goodfans-lang-change', apply);
 })();

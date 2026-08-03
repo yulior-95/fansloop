@@ -42,7 +42,7 @@
             pop.style.right = 'auto';
             pop.style.bottom = 'auto';
             pop.style.transform = 'none';
-            pop.style.zIndex = '100002';
+            pop.style.zIndex = '100060';
         }
 
         global.requestAnimationFrame(function () {

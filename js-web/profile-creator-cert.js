@@ -5,7 +5,7 @@
     const STORAGE_KEY = 'fl_creator_cert_v1';
 
     function certStorageKey() {
-        var uid = window.FansloopAuth && window.FansloopAuth.getUserId ? window.FansloopAuth.getUserId() : 'default';
+        var uid = window.GoodfansAuth && window.GoodfansAuth.getUserId ? window.GoodfansAuth.getUserId() : 'default';
         return STORAGE_KEY + '_' + uid;
     }
     const tagWrap = document.getElementById('creatorCertTagWrap');
@@ -70,8 +70,8 @@
         var kycOk = !kycFail;
         if (!kycFail && window.FLUserAssets) {
             kycOk = window.FLUserAssets.isKycApproved();
-        } else if (!kycFail && window.FansLoopKycStore) {
-            kycOk = window.FansLoopKycStore.isApproved();
+        } else if (!kycFail && window.GoodfansKycStore) {
+            kycOk = window.GoodfansKycStore.isApproved();
         }
         return {
             kyc: kycOk,

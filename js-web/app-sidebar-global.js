@@ -1,5 +1,5 @@
 /**
- * FansLoop · 全局侧栏展开/收起 + 一屏布局（配合 common-web.css）
+ * GOODFANS · 全局侧栏展开/收起 + 一屏布局（配合 common-web.css）
  * · 统一侧栏导航：各子页面菜单结构一致
  */
 (function (global) {
@@ -45,7 +45,7 @@
         { file: 'user-prototype-registry.js', ready: function () { return !!global.FLUserRegistry; } },
         { file: 'user-assets-store.js', ready: function () { return !!global.FLUserAssets; } },
         { file: 'pay-password-store.js', ready: function () { return !!global.FLPayPasswordStore; } },
-        { file: 'auth-session.js', ready: function () { return !!global.FansloopAuth; } },
+        { file: 'auth-session.js', ready: function () { return !!global.GoodfansAuth; } },
         { file: 'auth-ui-sync.js', ready: function () { return !!global.FLAuthUiSync; } },
         { file: 'creator-income-store.js', ready: function () { return !!global.FLCreatorIncomeStore; } },
         { file: 'creator-pro-store.js', ready: function () { return !!global.FLCreatorPro; } },
@@ -365,14 +365,14 @@
     }
 
     function sidebarDict(code) {
-        code = code || (global.FansLoopLang ? global.FansLoopLang.getLang() : 'zh-CN');
+        code = code || (global.GoodFansLang ? global.GoodFansLang.getLang() : 'zh-CN');
         if (global.FLI18n && global.FLI18n.t) {
             return function (key, fallback) {
                 return global.FLI18n.t(code, key) || fallback;
             };
         }
-        var d = (global.FansLoopLang && global.FansLoopLang.DICT && global.FansLoopLang.DICT[code]) || {};
-        var en = (global.FansLoopLang && global.FansLoopLang.DICT && global.FansLoopLang.DICT.en) || {};
+        var d = (global.GoodFansLang && global.GoodFansLang.DICT && global.GoodFansLang.DICT[code]) || {};
+        var en = (global.GoodFansLang && global.GoodFansLang.DICT && global.GoodFansLang.DICT.en) || {};
         return function (key, fallback) {
             return d[key] || en[key] || fallback;
         };
@@ -471,7 +471,7 @@
             }
         }, true);
 
-        document.addEventListener('fansloop-lang-change', function () {
+        document.addEventListener('goodfans-lang-change', function () {
             applySidebarNavTips();
         });
     }
@@ -520,7 +520,7 @@
 
     global.FL_applySidebarI18n = applySidebarI18n;
 
-    document.addEventListener('fansloop-lang-change', function (e) {
+    document.addEventListener('goodfans-lang-change', function (e) {
         applySidebarI18n(e.detail && e.detail.code);
         applySidebarIndicators();
     });

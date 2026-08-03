@@ -9,9 +9,9 @@
   var DEMO_CODE = "123456";
 
   var DEFAULT_MEMBERS = {
-    wangyi: { name: "王一", email: "wangyi@fansloop.io", secret: "KRSXG5BAONSWGCTK", password: "123456a" },
-    limin: { name: "李敏", email: "limin@fansloop.io", secret: "JBSWY3DPEHPK3PXP", password: "123456a" },
-    chenchen: { name: "陈晨", email: "chenchen@fansloop.io", secret: "MFRGGZDFMZTWQ2LK", password: "123456a" }
+    wangyi: { name: "王一", email: "wangyi@goodfans.io", secret: "KRSXG5BAONSWGCTK", password: "123456a" },
+    limin: { name: "李敏", email: "limin@goodfans.io", secret: "JBSWY3DPEHPK3PXP", password: "123456a" },
+    chenchen: { name: "陈晨", email: "chenchen@goodfans.io", secret: "MFRGGZDFMZTWQ2LK", password: "123456a" }
   };
 
   function loadMembers() {
@@ -66,10 +66,10 @@
       if (s.account) {
         var byAccount = getMemberAuth(s.account);
         if (byAccount && byAccount.email) return byAccount.email;
-        return s.account.indexOf("@") >= 0 ? s.account : s.account + "@fansloop.io";
+        return s.account.indexOf("@") >= 0 ? s.account : s.account + "@goodfans.io";
       }
     } catch (e) { /* ignore */ }
-    return "wangyi@fansloop.io";
+    return "wangyi@goodfans.io";
   }
 
   function generateSecret() {

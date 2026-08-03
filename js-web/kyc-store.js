@@ -1,19 +1,19 @@
 /**
- * FansLoop KYC 原型 · 传统证件 + zkMe 钱包隐私证明
+ * GOODFANS KYC 原型 · 传统证件 + zkMe 钱包隐私证明
  * authStatus: unverified | reviewing | approved | rejected
  * status (兼容): none | submitted | approved | rejected
  */
 (function (global) {
-    var KYC_STORE = "fansloop_kyc";
-    var AUDIT_LOG = "fansloop_kyc_audit_log";
-    var FACE_DONE_KEY = "fansloop_kyc_face_done";
-    var AUTH_KEY = "fansloop_auth";
+    var KYC_STORE = "goodfans_kyc";
+    var AUDIT_LOG = "goodfans_kyc_audit_log";
+    var FACE_DONE_KEY = "goodfans_kyc_face_done";
+    var AUTH_KEY = "goodfans_auth";
     var REGISTRY_KEY = "fl_user_registry_v1";
     var DEMO_USER = "Luna \uD83C\uDF19";
 
     function getActiveUserId() {
-        if (global.FansloopAuth && global.FansloopAuth.getUserId) {
-            var viaApi = global.FansloopAuth.getUserId();
+        if (global.GoodfansAuth && global.GoodfansAuth.getUserId) {
+            var viaApi = global.GoodfansAuth.getUserId();
             if (viaApi) return viaApi;
         }
         try {
@@ -401,7 +401,7 @@
         };
         localStorage.setItem(FACE_DONE_KEY, JSON.stringify(payload));
         try {
-            global.dispatchEvent(new CustomEvent("fansloop-kyc-face-done", { detail: payload }));
+            global.dispatchEvent(new CustomEvent("goodfans-kyc-face-done", { detail: payload }));
         } catch (e) {}
         return payload;
     }
@@ -472,7 +472,7 @@
         return "kyc-intro.html";
     }
 
-    global.FansloopKycStore = {
+    global.GoodfansKycStore = {
         KYC_STORE: KYC_STORE,
         AUDIT_LOG: AUDIT_LOG,
         getActiveUserId: getActiveUserId,

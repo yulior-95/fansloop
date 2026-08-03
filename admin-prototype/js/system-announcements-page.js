@@ -4,7 +4,7 @@
 (function () {
   var M = window.AdminModal;
   var CURRENT_USER = "张运营";
-  var PUBLISHER_ACCOUNT = "FansLoop官方";
+  var PUBLISHER_ACCOUNT = "GOODFANS官方";
 
   var PUBLISH_TYPE = { system: "系统公告", force: "系统强公告" };
   var TARGET = { all: "全部用户", specified: "指定用户", online: "在线用户" };

@@ -28,7 +28,7 @@
     function init() {
         var bar = document.getElementById('rechargeDemoCredit');
         if (!bar) return;
-        if (!global.FansloopAuth || !global.FansloopAuth.isLoggedIn || !global.FansloopAuth.isLoggedIn()) {
+        if (!global.GoodfansAuth || !global.GoodfansAuth.isLoggedIn || !global.GoodfansAuth.isLoggedIn()) {
             bar.style.display = 'none';
             return;
         }

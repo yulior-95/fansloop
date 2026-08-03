@@ -1,4 +1,4 @@
-# FansLoop Web 原型 · 今日调整记录
+# GOODFANS Web 原型 · 今日调整记录
 
 > **日期：** 2026 年 6 月 20 日（周六）  
 > **范围：** 设置模块、全局偏好、侧栏、钱包与支付、订阅、会员订阅设置、优惠码、创作者主页、等级与周榜、按篇购买文案、跨国界无障碍、直播页等  
@@ -13,7 +13,7 @@
 - 基础资料第二行字段名 **Handle** → **用户名**
 - 帮助文案：`当前 Handle 已使用…` → `当前用户名已使用…`
 - 个性域名说明：`基于 Handle 自动生成` → `基于用户名自动生成`
-- 输入规则（`fansloop.io/@xxx`、字母数字下划线）不变
+- 输入规则（`goodfans.io/@xxx`、字母数字下划线）不变
 
 ---
 
@@ -78,7 +78,7 @@
 | 主题（深/浅/跟随系统） | `html[data-fl-theme]` + `fl_display_prefs_v1` |
 | 字体 5 档滑块 | `--fl-font-scale` · `common-web.css` 基准字号 |
 | 高对比 / 无衬线 / 毛玻璃 | `html[data-fl-high-contrast]` 等属性 |
-| 界面语言 | `fansloop-ui-lang` + 侧栏 i18n + 顶栏搜索/充值 |
+| 界面语言 | `goodfans-ui-lang` + 侧栏 i18n + 顶栏搜索/充值 |
 
 - 「动画与视觉效果」卡片改名为 **视觉效果**，副标题聚焦顶栏/浮层毛玻璃
 
@@ -314,7 +314,7 @@
 
 ```
 fl_display_prefs_v1           // 主题 / 字体 / 高对比 / 无衬线 / 毛玻璃 / 时区
-fansloop-ui-lang              // 界面语言
+goodfans-ui-lang              // 界面语言
 fl_settings_wallets_v1        // 钱包列表
 fl_settings_wallet_prefs_v1   // 钱包偏好
 fl_creator_pro_v1             // Creator Pro

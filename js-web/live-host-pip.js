@@ -103,12 +103,12 @@
 
     window.addEventListener("fl-live-pip-change", syncStagePip);
     window.addEventListener("storage", function (e) {
-        if (e.key === "fansloop_host_pip") syncStagePip();
+        if (e.key === "goodfans_host_pip") syncStagePip();
     });
 
     try {
-        if (sessionStorage.getItem("fansloop_host_pip_return")) {
-            sessionStorage.removeItem("fansloop_host_pip_return");
+        if (sessionStorage.getItem("goodfans_host_pip_return")) {
+            sessionStorage.removeItem("goodfans_host_pip_return");
             syncStageHidden();
             syncPipBtn();
         }

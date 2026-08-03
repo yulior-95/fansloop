@@ -78,8 +78,8 @@
     function goMall() { location.href = 'points-mall.html'; }
 
     function applyWalletFromStorage(data) {
-        if (window.FLUserRegistry && window.FansloopAuth && window.FansloopAuth.getUserId()) {
-            var acc = window.FLUserRegistry.getByUserId(window.FansloopAuth.getUserId());
+        if (window.FLUserRegistry && window.GoodfansAuth && window.GoodfansAuth.getUserId()) {
+            var acc = window.FLUserRegistry.getByUserId(window.GoodfansAuth.getUserId());
             if (acc && acc.pointsWallet) return data;
         }
         var saved = S.loadTaskState()._wallet;
@@ -256,7 +256,7 @@
         boot();
     }
 
-    window.addEventListener('fansloop-auth-change', boot);
+    window.addEventListener('goodfans-auth-change', boot);
     window.addEventListener('fl-points-data-change', function (e) {
         if (e.detail) renderAll(applyWalletFromStorage(e.detail));
     });

@@ -40,7 +40,7 @@
     var state = { links: [], mode: 'add', editingId: null };
 
     function storageKey() {
-        var uid = global.FansloopAuth && global.FansloopAuth.getUserId ? global.FansloopAuth.getUserId() : '';
+        var uid = global.GoodfansAuth && global.GoodfansAuth.getUserId ? global.GoodfansAuth.getUserId() : '';
         return uid ? STORAGE_KEY + '_' + uid : STORAGE_KEY;
     }
 

@@ -256,7 +256,7 @@
   window.FL_openInteractionModal = function (page) {
     if (window.parent && window.parent !== window) {
       try {
-        window.parent.postMessage({ type: 'fansloop-open-modal', page: page }, '*');
+        window.parent.postMessage({ type: 'goodfans-open-modal', page: page }, '*');
         return;
       } catch (_) { /* 继续本页兜底 */ }
     }
@@ -303,7 +303,7 @@
   };
 
   window.addEventListener('message', function (e) {
-    if (!e.data || e.data.type !== 'fansloop-close-modal') return;
+    if (!e.data || e.data.type !== 'goodfans-close-modal') return;
     window.FL_closeStandaloneModal();
   });
 

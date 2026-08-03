@@ -41,9 +41,9 @@
     function getLiveLink() {
         if (window.LiveViewHost && window.LiveViewHost.getCurrent) {
             var h = window.LiveViewHost.getCurrent();
-            return "https://fansloop.io/live/" + h.roomSlug;
+            return "https://goodfans.io/live/" + h.roomSlug;
         }
-        return "https://fansloop.io/live/novaplay-apex-8842";
+        return "https://goodfans.io/live/novaplay-apex-8842";
     }
 
     if (window.LiveViewHost && window.LiveViewHost.applyFromUrl) {
@@ -746,7 +746,7 @@
     checkLiveEnded();
     reapplyLiveHost();
     window.addEventListener("storage", function (e) {
-        if (e.key !== "fansloop_live_session") return;
+        if (e.key !== "goodfans_live_session") return;
         if (shouldShowEndedFromUrl()) return;
         var store = window.LiveMetaStore;
         if (store && store.isLiveEnded && store.isLiveEnded()) {

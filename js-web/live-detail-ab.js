@@ -205,7 +205,7 @@
             renderRankList(DEFAULT_RANK);
         }
 
-        document.title = "正在直播 · " + (h.name || "FansLoop");
+        document.title = "正在直播 · " + (h.name || "GOODFANS");
     }
 
     function bootHost() {

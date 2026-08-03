@@ -532,7 +532,7 @@
 
     function isPrototypeQuickRechargeAllowed() {
         return global.FLUserAssets && global.FLUserAssets.DEMO_UID &&
-            global.FansloopAuth && global.FansloopAuth.getUserId() === global.FLUserAssets.DEMO_UID;
+            global.GoodfansAuth && global.GoodfansAuth.getUserId() === global.FLUserAssets.DEMO_UID;
     }
 
     function goSubRechargePage() {

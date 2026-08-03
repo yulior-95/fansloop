@@ -216,7 +216,7 @@
     }
 
     function liveUrl(h) {
-        return "https://fansloop.io/live/" + h.roomSlug;
+        return "https://goodfans.io/live/" + h.roomSlug;
     }
 
     function setCreatorNameEl(el, name, verified) {
@@ -375,7 +375,7 @@
         }
 
         var spUrl = document.querySelector("#sharePosterCard .sp-link-url");
-        if (spUrl) spUrl.textContent = "fansloop.io/live/" + h.roomSlug;
+        if (spUrl) spUrl.textContent = "goodfans.io/live/" + h.roomSlug;
 
         var shareInp = document.getElementById("shareLinkInput");
         if (shareInp) shareInp.value = liveUrl(h);

@@ -19,7 +19,7 @@
     var EMOJIS = ['🌙', '✨', '🎬', '📷', '🎵', '🚀', '🌸', '⚡', '🍜', '🎮'];
 
     var BIOS = [
-        '刚加入 FansLoop，正在探索创作者与粉丝的新连接方式。',
+        '刚加入 GOODFANS，正在探索创作者与粉丝的新连接方式。',
         '摄影 / 旅行爱好者 · 用镜头记录日常。',
         '独立音乐人 · 偶尔直播 · 欢迎点歌。',
         '游戏与电竞内容 · 周末固定开播。',
@@ -67,7 +67,7 @@
         return {
             userId: DEMO_USER_ID,
             publicUid: '882910',
-            email: 'luna@fansloop.io',
+            email: 'luna@goodfans.io',
             name: 'Luna 🌙',
             avatar: AVATARS[0],
             role: 'Creator',
@@ -161,7 +161,7 @@
         var local = email.split('@')[0] || 'user';
         var isNew = !!opts.isNewUser;
         var registerDays = isNew ? 0 : (opts.registerDays != null ? opts.registerDays : 5 + (parseInt(hash.slice(2, 4), 16) % 20));
-        var userId = email === 'luna@fansloop.io' ? DEMO_USER_ID : ('uid_' + hash.slice(0, 10));
+        var userId = email === 'luna@goodfans.io' ? DEMO_USER_ID : ('uid_' + hash.slice(0, 10));
 
         var available = isNew ? 0 : 800 + (parseInt(hash.slice(4, 6), 16) % 40) * 50;
         var frozen = isNew ? 200 : (parseInt(hash.slice(6, 8), 16) % 3) * 200;
@@ -173,7 +173,7 @@
             name: formatDisplayName(local, hash),
             avatar: AVATARS[parseInt(hash.slice(0, 2), 16) % AVATARS.length],
             role: isNew ? 'Fan' : (parseInt(hash.slice(1, 2), 16) % 3 === 0 ? 'Creator' : 'Fan'),
-            bio: isNew ? '欢迎来到 FansLoop！完善资料后开始探索吧。' : BIOS[parseInt(hash.slice(2, 3), 16) % BIOS.length],
+            bio: isNew ? '欢迎来到 GOODFANS！完善资料后开始探索吧。' : BIOS[parseInt(hash.slice(2, 3), 16) % BIOS.length],
             walletAddress: '0x' + hash.slice(0, 4).toUpperCase() + hash.slice(4, 8) + 'a1b2c3d4e5f6789012345678' + hash.slice(8, 12),
             joinedAt: isNew ? '刚刚' : (2024 + (parseInt(hash.slice(3, 4), 16) % 2)) + ' 年 ' + ((parseInt(hash.slice(5, 6), 16) % 12) + 1) + ' 月',
             location: ['中国 · 上海', '中国 · 北京', '新加坡', '日本 · 东京', '美国 · 加州'][parseInt(hash.slice(7, 8), 16) % 5],
@@ -223,7 +223,7 @@
         if (!email) return null;
         var existing = getByEmail(email);
         if (existing) return existing;
-        var account = email === 'luna@fansloop.io' ? lunaSeed() : buildAccount(email, { isNewUser: true });
+        var account = email === 'luna@goodfans.io' ? lunaSeed() : buildAccount(email, { isNewUser: true });
         if (opts && opts.name) account.name = opts.name;
         return saveAccount(account);
     }
@@ -241,7 +241,7 @@
 
     function loginWallet(walletAddress, isRegister) {
         var addr = String(walletAddress || '0x7c5A8D93a1b2c3d4e5f6789012345678901234').toLowerCase();
-        var email = 'wallet+' + addr + '@fansloop.io';
+        var email = 'wallet+' + addr + '@goodfans.io';
         if (isRegister) return registerEmail(email, {});
         return loginEmail(email);
     }

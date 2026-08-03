@@ -11,8 +11,8 @@
     }
 
     function userId() {
-        if (global.FansloopAuth && global.FansloopAuth.getUserId) {
-            return global.FansloopAuth.getUserId();
+        if (global.GoodfansAuth && global.GoodfansAuth.getUserId) {
+            return global.GoodfansAuth.getUserId();
         }
         return null;
     }
@@ -75,8 +75,8 @@
     }
 
     function chipTipLabel(amount) {
-        var lang = global.FansLoopLang && global.FansLoopLang.getLang
-            ? global.FansLoopLang.getLang()
+        var lang = global.GoodFansLang && global.GoodFansLang.getLang
+            ? global.GoodFansLang.getLang()
             : 'zh-CN';
         var formatted = formatUsdtFull(amount);
         if (lang === 'en') {
@@ -89,8 +89,8 @@
     }
 
     function chipHintShort() {
-        var lang = global.FansLoopLang && global.FansLoopLang.getLang
-            ? global.FansLoopLang.getLang()
+        var lang = global.GoodFansLang && global.GoodFansLang.getLang
+            ? global.GoodFansLang.getLang()
             : 'zh-CN';
         if (lang === 'en') return 'Income this month (USDT)';
         if (lang === 'zh-TW') return '本月創作者收入（USDT）';

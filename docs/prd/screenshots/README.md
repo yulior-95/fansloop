@@ -1,6 +1,6 @@
 # PRD 截图资源目录
 
-将浏览器中打开的 **`pages-web/*.html`** 原型页面导出为 PNG，放入本目录，并与 [`../PRD-FansLoop-Web-Prototype.md`](../PRD-FansLoop-Web-Prototype.md) 中的引用文件名对齐。
+将浏览器中打开的 **`pages-web/*.html`** 原型页面导出为 PNG，放入本目录，并与 [`../PRD-GOODFANS-Web-Prototype.md`](../PRD-GOODFANS-Web-Prototype.md) 中的引用文件名对齐。
 
 ## 建议命名
 

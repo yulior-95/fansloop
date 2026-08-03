@@ -15,7 +15,7 @@
         invite.classList.add('is-active');
         invite.setAttribute('aria-hidden', 'false');
         if (btnInvite) btnInvite.classList.add('is-active');
-        document.title = '邀请数据 · 个人主页 · FansLoop';
+        document.title = '邀请数据 · 个人主页 · GOODFANS';
         if (tab && window.FL_profileInviteSwitchTab) {
             window.FL_profileInviteSwitchTab(tab);
         }
@@ -29,7 +29,7 @@
         invite.classList.remove('is-active');
         invite.setAttribute('aria-hidden', 'true');
         if (btnInvite) btnInvite.classList.remove('is-active');
-        document.title = '个人主页 · FansLoop';
+        document.title = '个人主页 · GOODFANS';
         try {
             history.replaceState(null, '', 'profile.html');
         } catch (e) {}

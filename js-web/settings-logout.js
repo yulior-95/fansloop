@@ -2,8 +2,8 @@
  * 设置侧栏 · 退出登录（事件委托，兼容动态导航）
  */
 (function () {
-    if (window.FansloopAuth && window.FansloopAuth.ensureDemoLogin) {
-        window.FansloopAuth.ensureDemoLogin();
+    if (window.GoodfansAuth && window.GoodfansAuth.ensureDemoLogin) {
+        window.GoodfansAuth.ensureDemoLogin();
     }
 
     function onLogoutClick(e) {
@@ -11,8 +11,8 @@
         if (!el) return;
         e.preventDefault();
         if (window.confirm("确认退出登录？")) {
-            if (window.FansloopAuth) {
-                window.FansloopAuth.logoutAndGoGuest();
+            if (window.GoodfansAuth) {
+                window.GoodfansAuth.logoutAndGoGuest();
             } else {
                 location.href = "guest-home.html";
             }

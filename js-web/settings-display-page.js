@@ -99,7 +99,7 @@
     }
 
     function syncLangGrid() {
-        var code = window.FansLoopLang ? window.FansLoopLang.getLang() : 'zh-CN';
+        var code = window.GoodFansLang ? window.GoodFansLang.getLang() : 'zh-CN';
         document.querySelectorAll('.lang-item[data-lang]').forEach(function (item) {
             item.classList.toggle('on', item.getAttribute('data-lang') === code);
         });
@@ -165,10 +165,10 @@
         document.querySelectorAll('.lang-item[data-lang]').forEach(function (item) {
             item.addEventListener('click', function () {
                 var code = item.getAttribute('data-lang');
-                if (window.FansLoopLang) {
-                    window.FansLoopLang.setLang(code);
+                if (window.GoodFansLang) {
+                    window.GoodFansLang.setLang(code);
                 } else {
-                    try { localStorage.setItem('fansloop-ui-lang', code); } catch (e) { /* ignore */ }
+                    try { localStorage.setItem('goodfans-ui-lang', code); } catch (e) { /* ignore */ }
                 }
                 syncLangGrid();
                 toast('界面语言已切换 · 全站菜单与按钮已更新');
@@ -348,7 +348,7 @@
             updateTzPreview('system');
             var tzSearch = $('dispTzSearch');
             if (tzSearch) tzSearch.value = '';
-            if (window.FansLoopLang) window.FansLoopLang.setLang('zh-CN');
+            if (window.GoodFansLang) window.GoodFansLang.setLang('zh-CN');
             toast('已恢复默认外观设置');
         });
     }
@@ -370,11 +370,11 @@
 
         document.addEventListener('click', function () { closeAllGaDd(); });
 
-        document.addEventListener('fansloop-lang-change', function () {
+        document.addEventListener('goodfans-lang-change', function () {
             syncLangGrid();
         });
 
-        document.addEventListener('fansloop-display-change', function () {
+        document.addEventListener('goodfans-display-change', function () {
             syncThemeCards();
             syncFontSlider();
             syncSwitches();

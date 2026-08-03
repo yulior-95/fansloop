@@ -3,7 +3,7 @@
  * 绑定 #kycNeedModal / #kycWizardModal 及提现提交按钮
  */
 (function () {
-    var KS = window.FansloopKycStore;
+    var KS = window.GoodfansKycStore;
     if (!KS) return;
 
     function readKyc() {
@@ -171,7 +171,7 @@
                     box.style.display = "block";
                     box.textContent = url;
                 }
-                localStorage.setItem("fansloop_kyc_face_demo_url", url);
+                localStorage.setItem("goodfans_kyc_face_demo_url", url);
                 var fd = document.getElementById("kycFaceDone");
                 if (fd) fd.disabled = false;
                 showToast(toastId, "已生成识别链接，可在手机浏览器打开");
@@ -206,7 +206,7 @@
                 showToast(toastId, "已提交审核，请等待机审 / 人工处理");
             });
 
-        window.FansloopKycWithdrawGate = {
+        window.GoodfansKycWithdrawGate = {
             kycGate: function () {
                 return kycGate(toastId);
             },
@@ -217,5 +217,5 @@
         };
     }
 
-    global.FansloopKycWithdrawBootstrap = { wireKycWizard: wireKycWizard };
+    global.GoodfansKycWithdrawBootstrap = { wireKycWizard: wireKycWizard };
 })(window);

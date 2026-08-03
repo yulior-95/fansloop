@@ -1,5 +1,5 @@
 (function () {
-    var KS = window.FansloopKycStore;
+    var KS = window.GoodfansKycStore;
     var k = KS.readKyc();
     document.getElementById("metaId").textContent = k.lastId || "—";
     document.getElementById("linkBack").href = window.KycFlowNav.hrefWithRet("settings.html");
@@ -46,7 +46,7 @@
     document.getElementById("btnRetryPending").addEventListener("click", function () {
         KS.writeKyc({ authStatus: "unverified", status: "none", rejectReason: null, stage: "face" });
         KS.clearFaceDone();
-        sessionStorage.removeItem("fansloop_kyc_face_token");
+        sessionStorage.removeItem("goodfans_kyc_face_token");
         window.KycFlowNav.go("kyc-face-verify.html");
     });
     document.getElementById("btnOkContinue").addEventListener("click", function () {

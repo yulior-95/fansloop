@@ -3,11 +3,11 @@
  */
 (function () {
     var INVITE_CODE = 'LUNA-8K3F';
-    var PROFILE_URL = 'https://fansloop.io/@luna';
+    var PROFILE_URL = 'https://goodfans.io/@luna';
     var SHARE_URL = PROFILE_URL + '?ref=' + encodeURIComponent(INVITE_CODE);
     var COVER_IMG = 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=900&q=80';
     var AVATAR_IMG = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80';
-    var POSTER_FILENAME = 'FansLoop-Luna-profile.png';
+    var POSTER_FILENAME = 'GOODFANS-Luna-profile.png';
 
     var FL = window.FLInviteReward;
     var inviteRewardConfig = FL ? FL.DEFAULT : { inviterPoints: 200, inviteePoints: 200 };
@@ -184,7 +184,7 @@
         var name = readPosterText('.psp-name', 'Luna 🌙');
         var role = readPosterText('.psp-role', '认证创作者');
         var bio = readPosterText('.psp-bio', '旅行 / 美食 / 慢生活摄影师 · 现居东京 · 35mm 定焦');
-        var urlText = readPosterText('.psp-url', 'fansloop.io/@luna');
+        var urlText = readPosterText('.psp-url', 'goodfans.io/@luna');
         var inviteCode = readPosterText('.psp-invite-code', INVITE_CODE);
 
         var qrUrl =
@@ -216,7 +216,7 @@
                 ctx.fill();
                 ctx.fillStyle = '#fff';
                 ctx.font = 'bold 18px system-ui, sans-serif';
-                ctx.fillText('FansLoop', 44, 44);
+                ctx.fillText('GOODFANS', 44, 44);
 
                 var avR = 52;
                 var avX = 32;

@@ -81,7 +81,7 @@
   function boot() {
     syncGate();
     global.addEventListener('fl-risk-whitelist-change', syncGate);
-    global.addEventListener('fansloop-auth-change', syncGate);
+    global.addEventListener('goodfans-auth-change', syncGate);
   }
 
   if (document.readyState === 'loading') {

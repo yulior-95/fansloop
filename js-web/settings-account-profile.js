@@ -93,7 +93,7 @@
     function saveAvatarToLocal() {
         var url = getAvatarUrl();
         var a = document.createElement("a");
-        a.download = "fansloop-avatar.jpg";
+        a.download = "goodfans-avatar.jpg";
         if (url.indexOf("data:") === 0) {
             a.href = url;
             a.click();
@@ -183,7 +183,7 @@
     function paintAccountUid() {
         var uidEl = document.getElementById("settingsAccountUid");
         if (!uidEl) return;
-        var user = window.FansloopAuth && window.FansloopAuth.getUser ? window.FansloopAuth.getUser() : null;
+        var user = window.GoodfansAuth && window.GoodfansAuth.getUser ? window.GoodfansAuth.getUser() : null;
         if (!user) {
             uidEl.textContent = "UID: —";
             return;
@@ -209,5 +209,5 @@
         init();
     }
 
-    window.addEventListener("fansloop-auth-change", paintAccountUid);
+    window.addEventListener("goodfans-auth-change", paintAccountUid);
 })();

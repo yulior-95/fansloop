@@ -21,7 +21,7 @@
     };
 
     window.addEventListener("message", function (e) {
-        if (!e.data || e.data.type !== "fansloop-danmaku-sent") return;
+        if (!e.data || e.data.type !== "goodfans-danmaku-sent") return;
         showToast("弹幕已发送：" + (e.data.text || ""));
     });
 

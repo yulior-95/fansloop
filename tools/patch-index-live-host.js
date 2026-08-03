@@ -9,7 +9,7 @@ if (s.includes("create-live-host.html")) {
 const d = "d" + "iv";
 const block = [
   "        <" + d + ' class="frame-card">',
-  "            <" + d + ' class="frame-head"><' + d + ' class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></' + d + "><" + d + ' class="url"><i class="fa-solid fa-lock"></i>fansloop.io/create-live-host.html</' + d + '><a class="open" href="pages-web/create-live-host.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></' + d + ">",
+  "            <" + d + ' class="frame-head"><' + d + ' class="traffic"><span class="red"></span><span class="yellow"></span><span class="green"></span></' + d + "><" + d + ' class="url"><i class="fa-solid fa-lock"></i>goodfans.io/create-live-host.html</' + d + '><a class="open" href="pages-web/create-live-host.html" target="_blank">打开 <i class="fa-solid fa-up-right-from-square"></i></a></' + d + ">",
   '            <' + d + ' class="frame-body" style="min-height:720px"><iframe src="pages-web/create-live-host.html" loading="lazy"></iframe></' + d + ">",
   "            <" + d + ' class="frame-foot"><' + d + ' class="ti">主播直播中</' + d + "><" + d + ' class="desc">OBS 推流 · 礼物/弹幕自下而上 · 敏感词脱敏 · 删除/踢出 · To 研发玻璃球</' + d + "><" + d + ' class="meta"><span class="app">App-Shell</span><span>C02b</span></' + d + "></" + d + ">",
   "        </" + d + ">",

@@ -3,11 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>网络费用（手续费）· FansLoop 运营后台</title>
+  <title>链上充提网络与手续费 · GOODFANS 运营后台</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin-shell.css">
   <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/admin-pagination.css">
+  <link rel="stylesheet" href="css/admin-form-controls.css">
+  <link rel="stylesheet" href="css/network-fees.css">
 </head>
 <body data-admin-page="network-fees">
 <div class="admin-app">
@@ -17,30 +20,79 @@
       <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 全局参数 / 手续费</span></div>
       <div class="admin-header-right">
         <a href="settings-global.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-sliders"></i> 参数总览</a>
+        <button type="button" class="ant-btn ant-btn-primary ant-btn-sm" id="btnNfAddHeader"><i class="fa-solid fa-plus"></i> 新增网络</button>
         <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>财务配置</span></div>
       </div>
     </header>
     <main class="admin-content">
-      <h1 class="admin-page-title">手续费配置</h1>
-      <div class="ant-card ant-card-bordered">
-        <div class="ant-card-body" style="padding-top:0">
-          <div class="ant-table ant-table-bordered ant-table-middle">
-            <table style="width:100%">
-              <thead class="ant-table-thead">
-                <tr>
-                  <th>场景</th>
-                  <th>计费方式</th>
-                  <th>费率</th>
-                  <th>最小手续费</th>
-                  <th>状态</th>
-                  <th style="width:100px">修改人</th>
-                  <th style="width:168px">修改时间</th>
-                  <th style="width:72px">操作</th>
-                </tr>
-              </thead>
-              <tbody class="ant-table-tbody" id="feeTbody"></tbody>
-            </table>
+      <h1 class="admin-page-title">链上充提网络与手续费</h1>
+      <p class="admin-page-desc">按资产（USDT / USDC）× 网络独立配置充值/提现地址、手续费与二维码。启用后的网络将同步展示于用户端充提流程。</p>
+
+      <div class="nf-stats" id="nfStats" aria-label="配置概览"></div>
+
+      <div class="admin-toolbar nf-filter-toolbar">
+        <label class="nf-filter-item">
+          <span class="nf-filter-label">资产</span>
+          <select class="ant-input" id="nfAsset" style="width:140px">
+            <option value="">全部资产</option>
+            <option value="USDT">USDT</option>
+            <option value="USDC">USDC</option>
+          </select>
+        </label>
+        <label class="nf-filter-item">
+          <span class="nf-filter-label">状态</span>
+          <select class="ant-input" id="nfEnabled" style="width:140px">
+            <option value="">全部状态</option>
+            <option value="1">启用</option>
+            <option value="0">停用</option>
+          </select>
+        </label>
+        <label class="nf-filter-item">
+          <span class="nf-filter-label">关键字</span>
+          <span class="ant-input-affix-wrapper" style="width:260px">
+            <input class="ant-input" id="nfQ" placeholder="网络名称 / 标识 / 地址">
+          </span>
+        </label>
+        <span class="nf-filter-actions">
+          <button type="button" class="ant-btn ant-btn-primary" id="btnNfQuery"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
+          <button type="button" class="ant-btn" id="btnNfReset">重置</button>
+        </span>
+        <div class="admin-toolbar-spacer"></div>
+        <button type="button" class="ant-btn" id="btnNfResetData" title="恢复演示默认数据"><i class="fa-solid fa-rotate-left"></i> 恢复默认</button>
+        <button type="button" class="ant-btn ant-btn-primary" id="btnNfAdd"><i class="fa-solid fa-plus"></i> 新增网络</button>
+      </div>
+
+      <div class="ant-card ant-card-bordered nf-card">
+        <div class="ant-card-body">
+          <div class="nf-table-head">
+            <div>
+              <div class="title">网络配置列表</div>
+              <div class="hint" id="nfListHint">按排序权重展示 · 支持横向滚动查看完整字段</div>
+            </div>
           </div>
+          <div class="nf-scroll">
+            <div class="ant-table ant-table-middle nf-table">
+              <table>
+                <thead class="ant-table-thead">
+                  <tr>
+                    <th class="col-sticky-asset">资产</th>
+                    <th class="col-sticky-net">网络</th>
+                    <th>充值地址</th>
+                    <th>提现地址</th>
+                    <th>充值手续费</th>
+                    <th>提现手续费</th>
+                    <th>充值二维码</th>
+                    <th>提现二维码</th>
+                    <th>状态</th>
+                    <th>更新信息</th>
+                    <th class="col-ops">操作</th>
+                  </tr>
+                </thead>
+                <tbody class="ant-table-tbody" id="feeTbody" data-pager="js"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="nfPager"></div>
         </div>
       </div>
     </main>
@@ -49,6 +101,8 @@
 <script src="../js-web/fee-config.js"></script>
 <script src="js/admin-nav.js"></script>
 <script src="js/admin-modal.js"></script>
+<script src="js/admin-pagination.js"></script>
+<script src="js/admin-form-controls.js"></script>
 <script src="js/network-fees-admin.js"></script>
 </body>
 </html>

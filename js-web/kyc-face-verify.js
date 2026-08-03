@@ -1,5 +1,5 @@
 (function () {
-    var KS = window.FansloopKycStore;
+    var KS = window.GoodfansKycStore;
     var FN = window.KycFlowNav;
     document.getElementById("linkBack").href = FN.hrefWithRet("kyc-upload-id.html");
 
@@ -24,7 +24,7 @@
     var statusChip = document.getElementById("faceStatusChip");
     var liveFailReason = document.getElementById("faceLiveFailReason");
 
-    var faceToken = sessionStorage.getItem("fansloop_kyc_face_token") || "";
+    var faceToken = sessionStorage.getItem("goodfans_kyc_face_token") || "";
     var faceUrl = "";
     var stream = null;
     var faceDone = false;
@@ -290,7 +290,7 @@
 
     btnGen.addEventListener("click", function () {
         faceToken = "face_" + Math.random().toString(36).slice(2, 12);
-        sessionStorage.setItem("fansloop_kyc_face_token", faceToken);
+        sessionStorage.setItem("goodfans_kyc_face_token", faceToken);
         if (KS) KS.clearFaceDone();
         var url = new URL("kyc-face-mobile.html?token=" + encodeURIComponent(faceToken), location.href).href;
         linkBox.textContent = url;
@@ -318,7 +318,7 @@
         }
         var draft = {};
         try {
-            draft = JSON.parse(sessionStorage.getItem("fansloop_kyc_draft") || "{}");
+            draft = JSON.parse(sessionStorage.getItem("goodfans_kyc_draft") || "{}");
         } catch (e) {}
         if (KS) {
             KS.submitDocument({
@@ -330,7 +330,7 @@
             });
             KS.clearFaceDone();
         }
-        sessionStorage.removeItem("fansloop_kyc_face_token");
+        sessionStorage.removeItem("goodfans_kyc_face_token");
         FN.go("kyc-doc-pending.html");
     });
 
@@ -346,7 +346,7 @@
     window.addEventListener("storage", function (e) {
         if (KS && e.key === KS.FACE_DONE_KEY) checkRemoteFaceDone();
     });
-    window.addEventListener("fansloop-kyc-face-done", checkRemoteFaceDone);
+    window.addEventListener("goodfans-kyc-face-done", checkRemoteFaceDone);
 
     if (isFileProto && fileBanner) fileBanner.style.display = "flex";
 
@@ -357,7 +357,7 @@
         if (KS) KS.clearFaceDone();
         if (!faceToken) {
             faceToken = "face_" + Math.random().toString(36).slice(2, 10);
-            sessionStorage.setItem("fansloop_kyc_face_token", faceToken);
+            sessionStorage.setItem("goodfans_kyc_face_token", faceToken);
         }
         var pending = KS && KS.readFaceDone();
         if (pending && pending.at && (!pending.token || pending.token === faceToken)) {

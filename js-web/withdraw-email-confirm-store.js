@@ -5,8 +5,8 @@
     var KEY = 'fl_withdraw_email_confirm_v1';
 
     function uid() {
-        return global.FansloopAuth && global.FansloopAuth.getUserId
-            ? global.FansloopAuth.getUserId()
+        return global.GoodfansAuth && global.GoodfansAuth.getUserId
+            ? global.GoodfansAuth.getUserId()
             : 'guest';
     }
 

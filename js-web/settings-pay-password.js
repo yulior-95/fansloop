@@ -259,7 +259,7 @@
         bindActions();
         renderMode();
         syncPaneCopy();
-        document.addEventListener('fansloop-auth-change', renderMode);
+        document.addEventListener('goodfans-auth-change', renderMode);
     }
 
     if (document.readyState === 'loading') {

@@ -21,8 +21,8 @@
     }
 
     function userEmail() {
-        if (global.FansloopAuth && global.FansloopAuth.getEmail) {
-            return global.FansloopAuth.getEmail() || '';
+        if (global.GoodfansAuth && global.GoodfansAuth.getEmail) {
+            return global.GoodfansAuth.getEmail() || '';
         }
         return '';
     }

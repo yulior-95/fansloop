@@ -47,7 +47,7 @@
 
     function render(active) {
         var html = '<div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div>' +
-            '<div class="name">FansLoop<span>Web3 Creator</span></div></div>';
+            '<div class="name">GOODFANS<span>Web3 Creator</span></div></div>';
         ITEMS.forEach(function (grp) {
             html += '<div class="s-section">' + grp.section + '</div>';
             grp.rows.forEach(function (r) {

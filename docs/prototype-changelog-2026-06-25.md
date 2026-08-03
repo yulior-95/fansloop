@@ -1,4 +1,4 @@
-# FansLoop Web 原型 · 今日调整记录
+# GOODFANS Web 原型 · 今日调整记录
 
 > **日期：** 2026 年 6 月 25 日（周四）  
 > **范围：** 运营后台（全站导出任务、充值/提现订单、订阅管理）、AdminModal 谷歌验证、C 端创作者主页升购订阅  
@@ -268,4 +268,4 @@ fl_recharge_suggest              // C 端充值建议金额（沿用）
 
 ---
 
-*FansLoop Web3 Creator · 原型调整记录 · 2026-06-25*
+*GOODFANS Web3 Creator · 原型调整记录 · 2026-06-25*

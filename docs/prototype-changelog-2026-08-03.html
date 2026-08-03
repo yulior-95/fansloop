@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GOODFANS 原型调整记录 · 2026-08-03</title>
+<style>
+:root {
+    --bg: #0f0f17; --card: #1a1a28; --border: rgba(255,255,255,0.1);
+    --text: rgba(255,255,255,0.92); --muted: rgba(255,255,255,0.55); --accent: #a855f7;
+    --code-bg: rgba(255,255,255,0.06);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; padding: 32px 20px 80px; }
+.wrap { max-width: 960px; margin: 0 auto; }
+header { margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+header h1 { font-size: 26px; font-weight: 800; }
+header p { color: var(--muted); margin-top: 8px; font-size: 14px; }
+.badge { display: inline-block; margin-top: 10px; padding: 4px 10px; border-radius: 999px; background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.35); color: #c4b5fd; font-size: 12px; font-weight: 600; }
+.badge-compare { margin-left: 8px; background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.35); color: #93c5fd; }
+.badge-admin { margin-left: 8px; background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.35); color: #86efac; }
+.badge-c { margin-left: 8px; background: rgba(236,72,153,0.12); border-color: rgba(236,72,153,0.35); color: #f9a8d4; }
+.badge-brand { margin-left: 8px; background: rgba(251,191,36,0.12); border-color: rgba(251,191,36,0.4); color: #fbbf24; }
+article h2 { font-size: 19px; font-weight: 700; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+article h3 { font-size: 15px; font-weight: 700; margin: 20px 0 10px; color: #e9d5ff; }
+article ul, article ol { margin: 10px 0 10px 22px; }
+article li { margin: 6px 0; font-size: 14px; }
+article p { font-size: 14px; margin: 8px 0; color: var(--muted); }
+article table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+article th, article td { border: 1px solid var(--border); padding: 9px 11px; text-align: left; vertical-align: top; }
+article th { background: var(--card); }
+article tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+article code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; background: var(--code-bg); padding: 2px 6px; border-radius: 4px; color: #f0abfc; }
+article a { color: #93c5fd; }
+article blockquote { margin: 14px 0; padding: 12px 16px; border-left: 3px solid var(--accent); background: rgba(168,85,247,0.08); color: var(--muted); font-size: 13.5px; border-radius: 0 8px 8px 0; }
+.toc { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 24px; }
+.toc h2 { font-size: 14px; margin: 0 0 10px; border: none; padding: 0; }
+.toc ol { margin: 0 0 0 18px; font-size: 13px; columns: 2; column-gap: 24px; }
+.toc li { break-inside: avoid; margin: 4px 0; }
+.toc a { color: var(--text); text-decoration: none; }
+.toc a:hover { color: #c4b5fd; }
+.tag-new { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.4); color: #86efac; margin-left: 6px; vertical-align: middle; }
+.tag-mod { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.4); color: #93c5fd; margin-left: 6px; vertical-align: middle; }
+.stat-row { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0 6px; }
+.stat { flex: 1 1 140px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+.stat .n { font-size: 22px; font-weight: 800; color: #c4b5fd; }
+.stat .l { font-size: 12px; color: var(--muted); margin-top: 2px; }
+footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+    <h1>原型调整记录 · 2026-08-03</h1>
+    <p>对比基准：<a href="prototype-changelog-2026-07-29.html">2026-07-29</a>（双商城闭环）· 本期聚焦品牌定稿、橱窗闭环打磨、后台充提网络与联盟商品同步高保真</p>
+    <span class="badge">相对 7/29 增量</span>
+    <span class="badge badge-brand">品牌 · GOODFANS</span>
+    <span class="badge badge-c">pages-web / C 端</span>
+    <span class="badge badge-admin">admin-prototype / 运营后台</span>
+</header>
+
+<nav class="toc">
+    <h2>目录</h2>
+    <ol>
+        <li><a href="#overview">本次主题与概览</a></li>
+        <li><a href="#brand">品牌更名 GOODFANS</a></li>
+        <li><a href="#showcase">创作者橱窗与账变</a></li>
+        <li><a href="#admin-mall">后台双商城列表优化</a></li>
+        <li><a href="#admin-fee">后台链上充提网络与手续费</a></li>
+        <li><a href="#discover">发现页研发批注层级</a></li>
+        <li><a href="#compare">与 7/29 对比一览</a></li>
+        <li><a href="#verify">验收路径</a></li>
+        <li><a href="#files">文件汇总</a></li>
+    </ol>
+</nav>
+
+<article>
+<section id="overview">
+    <h2>1. 本次主题与概览</h2>
+    <blockquote>7/29 交付了双商城「能跑通」的闭环；8/3 在此基础上完成产品名定稿、橱窗运营体验打磨，以及运营后台企业级列表（联盟商品同步、链上多网络充提手续费）高保真改造。</blockquote>
+    <div class="stat-row">
+        <div class="stat"><div class="n">品牌</div><div class="l">FansLoop → GOODFANS</div></div>
+        <div class="stat"><div class="n">橱窗</div><div class="l">下架留 Tab · 账变深链</div></div>
+        <div class="stat"><div class="n">后台</div><div class="l">商品同步 / 充提网络</div></div>
+        <div class="stat"><div class="n">UI</div><div class="l">Ant Design 企业级</div></div>
+    </div>
+    <ul>
+        <li>全站产品名、域名文案、会话键与关键文件统一为 <strong>GOODFANS</strong></li>
+        <li>创作者橱窗：下架后保持数字资产 Tab；统计卡跳转账变并过滤；卡片操作区防溢出</li>
+        <li>后台「第三方商城」去掉佣金说明列；「商品同步」改为商品行 CRUD + SDK 字段弹窗</li>
+        <li>后台「手续费」升级为 USDT/USDC × 多网络：地址、充提手续费、二维码增删改查 + 高保真列表</li>
+        <li>发现页右下角研发玻璃球批注提升至最上层，避免被画中画遮挡</li>
+    </ul>
+</section>
+
+<section id="brand">
+    <h2>2. 品牌更名 GOODFANS <span class="tag-mod">改</span></h2>
+    <p>产品名定稿后，相对 7/29 文档中仍写「FansLoop」的表述，本期完成全库替换。</p>
+    <table>
+        <thead><tr><th>类型</th><th>变更</th></tr></thead>
+        <tbody>
+            <tr><td>展示文案</td><td><code>FansLoop</code> → <code>GOODFANS</code>（标题、侧栏品牌、关于页、后台壳层等）</td></tr>
+            <tr><td>域名 / 邮箱</td><td><code>fansloop.io</code> → <code>goodfans.io</code></td></tr>
+            <tr><td>会话与事件</td><td><code>FansloopAuth</code> → <code>GoodfansAuth</code>；<code>fansloop_*</code> localStorage / 自定义事件同步更名</td></tr>
+            <tr><td>文件重命名</td><td><code>pages/fansloop-*.html</code> → <code>goodfans-*.html</code>；<code>css/goodfans-auth.css</code>；PRD 文档同步</td></tr>
+        </tbody>
+    </table>
+    <p>说明：内部技术前缀（如 <code>fl_*</code>、<code>FLUserRegistry</code>）仍保留，避免打散既有演示数据键。</p>
+</section>
+
+<section id="showcase">
+    <h2>3. 创作者橱窗与账变 <span class="tag-mod">改</span></h2>
+    <h3>3.1 统一橱窗运营体验</h3>
+    <ul>
+        <li>数字商品<strong>下架后 reload</strong>不再被 URL <code>?tab=affiliate</code> 拉回实体选品；切换 Tab 同步 <code>history.replaceState</code></li>
+        <li>已下架卡片脚部按钮：取消 <code>flex:1</code> 挤压，缩短「移除橱窗」为「移除」，避免文字溢出</li>
+        <li>本人管理态统计「数字销售实得 / 联盟佣金实得」可点击，进入账变并带过滤</li>
+    </ul>
+    <h3>3.2 账变记录过滤</h3>
+    <ul>
+        <li><code>transactions.html?type=digital|affiliate</code>：新增「数字资产 / 联盟佣金」筛选 Chip</li>
+        <li>注入 Store 中的数字销售与联盟佣金流水，进入页即按 query 过滤</li>
+    </ul>
+    <h3>3.3 创作者收益页（延续双商城）</h3>
+    <ul>
+        <li>收入来源增加「商品收益」；明细 Tab「商城」展示数字实得 / 联盟佣金行</li>
+        <li>支持 <code>?tab=商城</code> 深链；去掉与橱窗/选品库冲突的旧入口按钮（相对 7/29 初稿继续收口）</li>
+    </ul>
+</section>
+
+<section id="admin-mall">
+    <h2>4. 后台双商城列表优化 <span class="tag-mod">改</span></h2>
+    <h3>4.1 第三方商城 <code>mall-affiliate-partners.html</code></h3>
+    <ul>
+        <li>对齐 Ant Design 列表：工具栏筛选 + 表格 + 分页</li>
+        <li>去掉「佣金说明」列（合作方仅保留名称 / Endpoint / 状态 / 更新时间 / 操作）</li>
+    </ul>
+    <h3>4.2 商品同步 <code>mall-affiliate-sync.html</code> <span class="tag-new">重做</span></h3>
+    <p>7/29 为「同步任务」列表；8/3 改为<strong>每一行一个商品</strong>的运营配置台。</p>
+    <table>
+        <thead><tr><th>能力</th><th>说明</th></tr></thead>
+        <tbody>
+            <tr><td>列表字段</td><td>分类、商品 ID、库存、单价（含原币单位）、汇率、USDT、佣金比例、创建/更新时间、状态开关、推广创作者数、操作</td></tr>
+            <tr><td>操作</td><td>编辑始终可见；<strong>删除仅停用后展示</strong></td></tr>
+            <tr><td>编辑弹窗</td><td>列表字段可改 + 三方联盟 SDK 回传字段表（Amazon PA-API / Shopify Partners）</td></tr>
+            <tr><td>数据</td><td><code>affiliate-catalog-store</code> 升至 v3：库存、汇率、USDT、SDK payload、删除/启停 API</td></tr>
+        </tbody>
+    </table>
+</section>
+
+<section id="admin-fee">
+    <h2>5. 后台链上充提网络与手续费 <span class="tag-new">新</span></h2>
+    <p>原 <code>network-fees.html</code> 仅 2 行场景费率；本期改为 <strong>USDT / USDC × 多网络</strong> 配置中心，并按 Ant Design 企业后台做高保真。</p>
+    <h3>5.1 业务能力</h3>
+    <ul>
+        <li>资产：USDT、USDC；网络：TRC20 / ERC20 / BEP20 / Polygon / Solana 等（可增删）</li>
+        <li>每网络独立：充值地址、提现地址、充值手续费、提现手续费（固定费 / 百分比 + 最低费）</li>
+        <li>支持上传或填写 URL 的充值二维码、提现二维码</li>
+        <li>启用开关、排序、查询筛选、谷歌验证后保存/删除</li>
+    </ul>
+    <h3>5.2 高保真 UI（相对 7/29 通用后台表）</h3>
+    <ul>
+        <li>顶部 Statistic 概览（USDT/USDC 网络数、启用/停用）</li>
+        <li>带标签 Filter 工具栏；列表左右冻结列；资产徽章；手续费 Tag；二维码悬停预览；地址一键复制</li>
+        <li>编辑弹窗分区：基础信息 → 地址 → 充/提手续费 → 二维码；Select/Input 走 Ant Design 增强控件</li>
+    </ul>
+    <h3>5.3 数据</h3>
+    <ul>
+        <li><code>js-web/fee-config.js</code> → <code>fl_fee_config_v2</code>；可从 v1 scenes 迁移</li>
+        <li>样式：<code>admin-prototype/css/network-fees.css</code></li>
+    </ul>
+</section>
+
+<section id="discover">
+    <h2>6. 发现页研发批注层级 <span class="tag-mod">改</span></h2>
+    <ul>
+        <li><code>.disc-rules-fab</code> z-index 从 90 提升至 <code>100050</code>，气泡批注压过主内容与悬浮画中画</li>
+        <li><code>dev-glass-viewport.js</code> 固定定位气泡同步抬升，保证「推荐 / 展示」说明始终可见</li>
+    </ul>
+</section>
+
+<section id="compare">
+    <h2>7. 与 2026-07-29 对比一览</h2>
+    <table>
+        <thead><tr><th>维度</th><th>7/29</th><th>8/3（今日）</th></tr></thead>
+        <tbody>
+            <tr><td>产品品牌</td><td>文档与界面仍以 FansLoop 为主</td><td>全站定稿 <strong>GOODFANS</strong></td></tr>
+            <tr><td>双商城 C 端</td><td>首次闭环：数字购买 + 联盟橱窗</td><td>橱窗 Tab 持久化、账变深链过滤、按钮与收益页收口</td></tr>
+            <tr><td>后台第三方商城</td><td>含佣金说明的简单表</td><td>去佣金说明 + Ant Design 筛选分页</td></tr>
+            <tr><td>后台商品同步</td><td>同步任务 Mock 列表</td><td><strong>商品行</strong> CRUD + SDK 字段弹窗</td></tr>
+            <tr><td>后台手续费</td><td>链上充值/提现两行场景费率</td><td><strong>多资产多网络</strong>地址/费率/二维码 + 高保真 UI</td></tr>
+            <tr><td>发现页研发球</td><td>存在，易被浮层遮挡</td><td>提到最上层</td></tr>
+            <tr><td>积分商城边界</td><td>明确不承载双商城</td><td>不变，继续隔离</td></tr>
+        </tbody>
+    </table>
+</section>
+
+<section id="verify">
+    <h2>8. 验收路径</h2>
+    <ol>
+        <li>侧栏 / 关于页 / 后台登录标题确认展示 <strong>GOODFANS</strong></li>
+        <li><code>creator-showcase.html?owner=1</code> → 数字资产下架 → 仍停在数字资产 Tab → 点「数字销售实得」→ 账变仅数字流水</li>
+        <li><code>admin-prototype/mall-affiliate-sync.html</code> → 停用商品出现「删除」→ 编辑弹窗可见 SDK 字段</li>
+        <li><code>admin-prototype/network-fees.html</code> → 筛选 USDT → 编辑某网络充提费与二维码 → 保存（谷歌码 <code>123456</code>）</li>
+        <li><code>discover.html</code> → 悬停右下「展示」球，气泡不被画中画遮挡</li>
+    </ol>
+</section>
+
+<section id="files">
+    <h2>9. 文件汇总</h2>
+    <table>
+        <thead><tr><th>区域</th><th>主要文件</th></tr></thead>
+        <tbody>
+            <tr><td>品牌</td><td>全库文案 / <code>GoodfansAuth</code> / <code>pages/goodfans-*.html</code> / <code>css/goodfans-auth.css</code></td></tr>
+            <tr><td>橱窗 / 账变</td><td><code>js-web/creator-showcase-page.js</code>、<code>css-web/affiliate-commerce.css</code>、<code>pages-web/transactions.html</code>、<code>js-web/creator-income-page.js</code></td></tr>
+            <tr><td>联盟商品库</td><td><code>js-web/affiliate-catalog-store.js</code>（v3）、<code>js-web/affiliate-showcase-store.js</code></td></tr>
+            <tr><td>后台双商城</td><td><code>mall-affiliate-partners.html</code>、<code>mall-affiliate-sync.html</code>、<code>js/mall-admin-pages.js</code></td></tr>
+            <tr><td>后台手续费</td><td><code>network-fees.html</code>、<code>css/network-fees.css</code>、<code>js/network-fees-admin.js</code>、<code>js-web/fee-config.js</code>（v2）</td></tr>
+            <tr><td>发现页</td><td><code>css-web/discover-v2.css</code>、<code>js-web/dev-glass-viewport.js</code></td></tr>
+            <tr><td>本文档</td><td><code>docs/prototype-changelog-2026-08-03.html</code></td></tr>
+        </tbody>
+    </table>
+</section>
+</article>
+
+<footer>
+    GOODFANS Web 原型说明 · 2026-08-03 · 对比 <a href="prototype-changelog-2026-07-29.html">2026-07-29</a>
+</footer>
+</div>
+</body>
+</html>

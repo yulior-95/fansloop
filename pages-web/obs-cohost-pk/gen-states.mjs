@@ -35,7 +35,7 @@ const HOST_HEAD = `<!DOCTYPE html>
 <body class="page-live-host">
 <div class="app-shell">
     <aside class="app-sidebar">
-        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">GOODFANS<span>Web3 Creator</span></div></div>
         <div class="s-section">主导航</div>
         <div class="s-item" onclick="location.href='../home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
         <div class="s-item active" onclick="location.href='../create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
@@ -103,7 +103,7 @@ const VIEWER_HEAD = `<!DOCTYPE html>
 <body>
 <div class="app-shell">
     <aside class="app-sidebar">
-        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">FansLoop<span>Web3 Creator</span></div></div>
+        <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">GOODFANS<span>Web3 Creator</span></div></div>
         <div class="s-item active"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
         <div class="s-item"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
         <div class="s-bottom"><div class="s-user"><div class="av" style="background-image:url('${I.fan}')"></div><div class="info"><div class="n">Fan_01</div><div class="e">观众</div></div></div></div>

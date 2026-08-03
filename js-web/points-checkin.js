@@ -31,8 +31,8 @@
     }
 
     function userId() {
-        if (global.FansloopAuth && global.FansloopAuth.getUserId) {
-            return global.FansloopAuth.getUserId() || 'default';
+        if (global.GoodfansAuth && global.GoodfansAuth.getUserId) {
+            return global.GoodfansAuth.getUserId() || 'default';
         }
         return 'default';
     }
@@ -298,6 +298,6 @@
         init();
     }
 
-    global.addEventListener('fansloop-auth-change', refresh);
+    global.addEventListener('goodfans-auth-change', refresh);
     global.addEventListener('fl-checkin-change', refresh);
 })(typeof window !== 'undefined' ? window : this);

@@ -2,7 +2,7 @@
  * 主播直播小窗 · 全站悬浮（localStorage 跨页保持）
  */
 (function (global) {
-    var KEY = "fansloop_host_pip";
+    var KEY = "goodfans_host_pip";
     var CONSOLE_PATH = /create-live-host\.html$/;
     var COVER =
         "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&q=80";
@@ -93,7 +93,7 @@
                 ? "create-live-host.html"
                 : "pages-web/create-live-host.html";
         try {
-            sessionStorage.setItem("fansloop_host_pip_return", "1");
+            sessionStorage.setItem("goodfans_host_pip_return", "1");
         } catch (e) {}
         location.href = base;
     }

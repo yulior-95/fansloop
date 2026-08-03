@@ -1,4 +1,4 @@
-# FansLoop 运营后台 · Ant Design 组件映射与开发约定
+# GOODFANS 运营后台 · Ant Design 组件映射与开发约定
 
 **文档版本**：2026-05-11  
 **原型目录**：`web3-app-prototype/admin-prototype/`  

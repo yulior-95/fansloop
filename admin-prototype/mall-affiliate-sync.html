@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>商品同步管理 · GOODFANS 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/admin-pagination.css">
+  <style>
+    [data-admin-page="mall-affiliate-sync"] .admin-content { padding-left: 0; padding-right: 0; }
+    [data-admin-page="mall-affiliate-sync"] .admin-page-title,
+    [data-admin-page="mall-affiliate-sync"] .admin-toolbar { padding-left: 20px; padding-right: 20px; }
+    [data-admin-page="mall-affiliate-sync"] .mall-sync-card { border-left: none; border-right: none; border-radius: 0; }
+    [data-admin-page="mall-affiliate-sync"] .mall-sync-card > .ant-card-body { padding: 0; }
+    .mall-sync-scroll { overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch; }
+    .mall-sync-table { font-size: 13px; }
+    .mall-sync-table table { width: 100%; min-width: 1480px; border-collapse: separate; border-spacing: 0; }
+    .mall-sync-table th,
+    .mall-sync-table td { white-space: nowrap; padding: 12px 14px; background: #fff; border-bottom: 1px solid #f0f0f0; }
+    .mall-sync-table thead th { background: #fafafa; font-weight: 500; color: rgba(0,0,0,.85); }
+    .mall-sync-table .col-ops { position: sticky; right: 0; z-index: 2; min-width: 120px; border-left: 1px solid #f0f0f0; box-shadow: -4px 0 6px -2px rgba(0,0,0,.06); }
+    .mall-sync-table thead .col-ops { z-index: 3; background: #fafafa; }
+    .mall-sync-table .pid { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; }
+    .mall-sync-table .pid-sub { display: block; margin-top: 2px; font-size: 12px; color: rgba(0,0,0,.45); white-space: normal; max-width: 180px; }
+    .mall-edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+    .mall-edit-grid .span-2 { grid-column: 1 / -1; }
+    .mall-edit-grid .ant-form-item { margin-bottom: 0; }
+    .mall-edit-grid label { display: block; font-size: 12px; color: rgba(0,0,0,.45); margin-bottom: 6px; }
+    .mall-sdk-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .mall-sdk-table th,
+    .mall-sdk-table td { border: 1px solid #f0f0f0; padding: 8px 10px; text-align: left; vertical-align: top; }
+    .mall-sdk-table th { width: 38%; background: #fafafa; color: rgba(0,0,0,.65); font-weight: 500; }
+    .mall-sdk-table td { word-break: break-all; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    @media (max-width: 720px) {
+      .mall-edit-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-admin-page="mall-affiliate-sync">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 双商城 / 商品同步</span></div>
+      <div class="admin-header-right"><div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>运营</span></div></div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">商品同步管理</h1>
+      <div class="admin-toolbar">
+        <select class="ant-input" id="mallSyncPartner" style="width:200px"></select>
+        <select class="ant-input" id="mallSyncCategory" style="width:160px">
+          <option value="">全部分类</option>
+        </select>
+        <select class="ant-input" id="mallSyncEnabled" style="width:120px">
+          <option value="">全部状态</option>
+          <option value="1">启用</option>
+          <option value="0">停用</option>
+        </select>
+        <span class="ant-input-affix-wrapper" style="width:200px">
+          <input class="ant-input" id="mallSyncQ" placeholder="商品 ID / 标题">
+        </span>
+        <button type="button" class="ant-btn ant-btn-primary" id="btnMallSyncQuery">查询</button>
+        <button type="button" class="ant-btn" id="btnMallSyncReset">重置</button>
+        <div class="admin-toolbar-spacer"></div>
+        <button type="button" class="ant-btn ant-btn-primary" id="btnMallSync"><i class="fa-solid fa-arrows-rotate"></i> 立即同步</button>
+      </div>
+      <div class="ant-card ant-card-bordered mall-sync-card">
+        <div class="ant-card-body">
+          <div class="mall-sync-scroll">
+            <div class="ant-table ant-table-middle mall-sync-table">
+              <table>
+                <thead class="ant-table-thead">
+                  <tr>
+                    <th>商品分类</th>
+                    <th>商品ID</th>
+                    <th>商品库存数</th>
+                    <th>商品单价</th>
+                    <th>汇率</th>
+                    <th>USDT金额</th>
+                    <th>佣金比例</th>
+                    <th>创建时间</th>
+                    <th>更新时间</th>
+                    <th>状态</th>
+                    <th>推广创作者</th>
+                    <th class="col-ops">操作</th>
+                  </tr>
+                </thead>
+                <tbody class="ant-table-tbody" id="mallSyncBody" data-pager="js"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="mallSyncPager"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="../js-web/mall-commerce-config-store.js"></script>
+<script src="../js-web/digital-assets-store.js"></script>
+<script src="../js-web/digital-asset-orders-store.js"></script>
+<script src="../js-web/affiliate-catalog-store.js"></script>
+<script src="../js-web/affiliate-showcase-store.js"></script>
+<script src="../js-web/creator-income-split-config.js"></script>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="js/admin-pagination.js"></script>
+<script src="js/mall-admin-pages.js"></script>
+</body>
+</html>

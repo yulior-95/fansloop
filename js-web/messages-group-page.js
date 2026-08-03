@@ -29,7 +29,7 @@
             id: 'welcome',
             name: '新粉欢迎群',
             members: 2041,
-            preview: '你：欢迎加入 FansLoop 家族',
+            preview: '你：欢迎加入 GOODFANS 家族',
             messages: [
                 { from: 'host', sender: 'Luna 🌙', text: '欢迎新朋友们！先看置顶：群规 + 订阅福利说明 👋', time: '昨天' }
             ]

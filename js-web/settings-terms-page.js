@@ -150,7 +150,7 @@
         if (!panel) return;
         var title = panel.querySelector('.terms-doc-hd h3');
         var sections = panel.querySelectorAll('.terms-sec:not(.hidden-by-search)');
-        var lines = [(title ? title.textContent : 'FansLoop 协议') + '\n', '导出时间：' + new Date().toLocaleString('zh-CN'), ''];
+        var lines = [(title ? title.textContent : 'GOODFANS 协议') + '\n', '导出时间：' + new Date().toLocaleString('zh-CN'), ''];
         sections.forEach(function (sec) {
             var ti = sec.querySelector('.terms-sec-head .ti');
             var body = sec.querySelector('.terms-sec-body');
@@ -161,7 +161,7 @@
         var blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
         var a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = 'fansloop-' + activeDoc + '.txt';
+        a.download = 'goodfans-' + activeDoc + '.txt';
         a.click();
         URL.revokeObjectURL(a.href);
         toast('协议已导出为文本文件', 'ok');

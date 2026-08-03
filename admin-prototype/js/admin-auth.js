@@ -60,7 +60,7 @@
     var member = members[accountKey];
     var pwd = (member && member.password) || Auth.DEFAULT_PASSWORD;
     if (String(password || "") !== pwd) return { ok: false, msg: "账号或密码错误" };
-    var email = member.email || accountKey + "@fansloop.io";
+    var email = member.email || accountKey + "@goodfans.io";
     var v = Auth.verify(totp, email);
     if (!v || !v.ok) return { ok: false, msg: (v && v.msg) || "谷歌验证码错误" };
 

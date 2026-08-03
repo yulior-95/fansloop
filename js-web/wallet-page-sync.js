@@ -3,7 +3,7 @@
  */
 (function (global) {
     function getUser() {
-        return global.FansloopAuth && global.FansloopAuth.getUser ? global.FansloopAuth.getUser() : null;
+        return global.GoodfansAuth && global.GoodfansAuth.getUser ? global.GoodfansAuth.getUser() : null;
     }
 
     function apply() {
@@ -73,6 +73,6 @@
         apply();
     }
 
-    global.addEventListener('fansloop-auth-change', apply);
+    global.addEventListener('goodfans-auth-change', apply);
     global.addEventListener('fl-user-assets-change', apply);
 })(typeof window !== 'undefined' ? window : this);

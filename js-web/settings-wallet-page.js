@@ -56,19 +56,19 @@
         walletconnect: {
             label: 'WalletConnect',
             hint: '使用 MetaMask / OKX / Trust 等 App 扫描上方二维码，或在移动端点击下方 Deep Link 直接唤起钱包。',
-            qrData: 'FansLoop_WC_Settings_V2',
+            qrData: 'GOODFANS_WC_Settings_V2',
             deeplink: '使用 Deep Link 打开钱包'
         },
         coinbase: {
             label: 'Coinbase Wallet',
             hint: '打开 Coinbase Wallet App，点击右上角「扫码」，对准上方二维码完成连接。PC 端无插件时均通过 App 扫码绑定。',
-            qrData: 'FansLoop_CoinbaseWallet_Connect',
+            qrData: 'GOODFANS_CoinbaseWallet_Connect',
             deeplink: '使用 Coinbase Wallet Deep Link'
         },
         okx: {
             label: 'OKX Wallet',
             hint: '打开 OKX Wallet App → 钱包 → 扫一扫，扫描上方二维码。亦支持 WalletConnect 协议连接。',
-            qrData: 'FansLoop_OKXWallet_Connect',
+            qrData: 'GOODFANS_OKXWallet_Connect',
             deeplink: '使用 OKX Deep Link 打开'
         }
     };

@@ -291,7 +291,7 @@
       ["导出时间", task.exportTime],
       ["导出人", task.exporter],
       [],
-      ["说明", "FansLoop 运营后台导出文件（原型演示）"]
+      ["说明", "GOODFANS 运营后台导出文件（原型演示）"]
     ];
     var xml =
       '<?xml version="1.0" encoding="UTF-8"?>\n' +

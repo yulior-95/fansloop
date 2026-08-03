@@ -6,7 +6,7 @@
     }
     if (window.parent !== window) {
       try {
-        window.parent.postMessage({ type: 'fansloop-close-modal' }, '*');
+        window.parent.postMessage({ type: 'goodfans-close-modal' }, '*');
         return;
       } catch (_) { /* fall through */ }
     }

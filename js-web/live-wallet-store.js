@@ -2,14 +2,14 @@
  * 直播页 · 钱包余额原型（按用户隔离，存于 FLUserAssets）
  */
 (function (global) {
-    var LEGACY_KEY = 'fansloop_wallet_usdt';
+    var LEGACY_KEY = 'goodfans_wallet_usdt';
 
     function isLoggedIn() {
-        return global.FansloopAuth && global.FansloopAuth.isLoggedIn && global.FansloopAuth.isLoggedIn();
+        return global.GoodfansAuth && global.GoodfansAuth.isLoggedIn && global.GoodfansAuth.isLoggedIn();
     }
 
     function useAssets() {
-        return isLoggedIn() && global.FLUserAssets && global.FansloopAuth.getUserId();
+        return isLoggedIn() && global.FLUserAssets && global.GoodfansAuth.getUserId();
     }
 
     function read() {

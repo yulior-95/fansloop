@@ -1,5 +1,5 @@
 /**
- * 关于 FansLoop · 检查更新 / 复制版本 / 更新日志 / 反馈弹窗
+ * 关于 GOODFANS · 检查更新 / 复制版本 / 更新日志 / 反馈弹窗
  */
 (function () {
     var VERSION = '2.4.1';
@@ -34,7 +34,7 @@
     if (buildText) buildText.textContent = 'Build ' + BUILD;
 
     function copyVersion() {
-        var text = 'FansLoop v' + VERSION + ' (Build ' + BUILD + ')';
+        var text = 'GOODFANS v' + VERSION + ' (Build ' + BUILD + ')';
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text).then(function () {
                 toast('版本信息已复制', 'ok');
@@ -364,7 +364,7 @@
     if (updateBtn) updateBtn.addEventListener('click', checkUpdate);
     bindChangelog();
     bindLinkRows();
-    document.addEventListener('fansloop-lang-change', function () {
+    document.addEventListener('goodfans-lang-change', function () {
         if (window.FLI18n) window.FLI18n.applyAll();
     });
 

@@ -15,8 +15,8 @@
     var DEMO_USER_ID = 'demo_uid_882910';
 
     function getCurrentUserId() {
-        if (global.FansloopAuth && global.FansloopAuth.getUserId) {
-            var id = global.FansloopAuth.getUserId();
+        if (global.GoodfansAuth && global.GoodfansAuth.getUserId) {
+            var id = global.GoodfansAuth.getUserId();
             if (id) return id;
         }
         return DEMO_USER_ID;

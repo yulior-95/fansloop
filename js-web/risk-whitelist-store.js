@@ -105,8 +105,8 @@
 
   function publicUidFromSession() {
     try {
-      if (global.FansloopAuth && global.FansloopAuth.read) {
-        var s = global.FansloopAuth.read();
+      if (global.GoodfansAuth && global.GoodfansAuth.read) {
+        var s = global.GoodfansAuth.read();
         if (s && s.loggedIn && s.user) {
           var raw = String(s.user.publicUid || s.user.userId || '');
           var digits = raw.replace(/\D/g, '');

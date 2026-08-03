@@ -6,8 +6,8 @@
     var LS_KEY = 'fl_creator_pro_v1';
 
     function userId() {
-        if (global.FansloopAuth && global.FansloopAuth.getUserId) {
-            return global.FansloopAuth.getUserId();
+        if (global.GoodfansAuth && global.GoodfansAuth.getUserId) {
+            return global.GoodfansAuth.getUserId();
         }
         return null;
     }

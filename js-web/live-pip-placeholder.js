@@ -3,7 +3,7 @@
  */
 (function (global) {
     var VIEWER_KEY = "fl_live_pip_state";
-    var HOST_KEY = "fansloop_host_pip";
+    var HOST_KEY = "goodfans_host_pip";
 
     var PLACEHOLDER_HTML =
         '<div class="fl-pip-placeholder" data-fl-pip-placeholder hidden>' +

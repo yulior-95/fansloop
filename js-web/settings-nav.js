@@ -34,7 +34,7 @@
             title: "关于",
             titleKey: "set_grp_about",
             items: [
-                { id: "about", label: "关于 FansLoop", i18nKey: "set_nav_about", href: "settings-about.html", icon: "fa-solid fa-circle-info" },
+                { id: "about", label: "关于 GOODFANS", i18nKey: "set_nav_about", href: "settings-about.html", icon: "fa-solid fa-circle-info" },
                 { id: "terms", label: "条款与协议", i18nKey: "set_nav_terms", href: "settings-terms.html", icon: "fa-solid fa-file-lines" },
                 { id: "logout", label: "退出登录", i18nKey: "set_nav_logout", href: "#", icon: "fa-solid fa-right-from-bracket", logout: true }
             ]
@@ -56,7 +56,7 @@
 
     function tr(key, fallback) {
         if (window.FLI18n && window.FLI18n.t) {
-            var code = window.FansLoopLang ? window.FansLoopLang.getLang() : "zh-CN";
+            var code = window.GoodFansLang ? window.GoodFansLang.getLang() : "zh-CN";
             return window.FLI18n.t(code, key) || fallback;
         }
         return fallback;
@@ -151,7 +151,7 @@
         mount();
     };
 
-    document.addEventListener("fansloop-lang-change", function () {
+    document.addEventListener("goodfans-lang-change", function () {
         mount();
     });
 

@@ -86,7 +86,7 @@
       actualQty: 49.85,
       actualCny: 359.92,
       txHash: "a3f8c2e91d7045b6e8f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2",
-      device: "FansLoop App · Android",
+      device: "GOODFANS App · Android",
       ip: "198.51.100.44",
       region: "美国 · 加州",
       orderTime: "2026-06-18 19:02:11",

@@ -33,8 +33,8 @@
     ];
 
     function userId() {
-        if (global.FansloopAuth && global.FansloopAuth.getUserId) {
-            return global.FansloopAuth.getUserId();
+        if (global.GoodfansAuth && global.GoodfansAuth.getUserId) {
+            return global.GoodfansAuth.getUserId();
         }
         return DEMO_UID;
     }

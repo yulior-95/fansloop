@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GOODFANS 双商城体系规格书 v1.0</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: #f5f7fb;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+    padding: 20px; color: #1e293b;
+}
+.toolbar {
+    max-width: 1080px; margin: 0 auto 24px; display: flex; flex-wrap: wrap;
+    align-items: center; justify-content: space-between; gap: 12px;
+    background: #fff; padding: 16px 24px; border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06); border: 1px solid #e9edf4;
+}
+.toolbar .doc-title { font-size: 18px; font-weight: 600; color: #0f172a; display: flex; align-items: center; gap: 10px; }
+.toolbar .doc-title span { background: #3b82f6; color: #fff; font-size: 11px; font-weight: 500; padding: 2px 10px; border-radius: 20px; }
+.toolbar button {
+    padding: 8px 18px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500;
+    cursor: pointer; background: #3b82f6; color: #fff;
+}
+.doc {
+    max-width: 1080px; margin: 0 auto; background: #fff; border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.04); border: 1px solid #e9edf4; padding: 48px 56px;
+    font-size: 15px; line-height: 1.78;
+}
+.doc h1 { font-size: 30px; font-weight: 700; color: #0f172a; padding-bottom: 12px; border-bottom: 2px solid #e9edf4; }
+.doc .meta { color: #64748b; font-size: 13px; margin: 14px 0 4px; }
+.doc h2 { font-size: 22px; font-weight: 600; color: #0f172a; margin: 44px 0 16px; padding-bottom: 8px; border-bottom: 1px solid #e9edf4; }
+.doc h3 { font-size: 17px; font-weight: 600; color: #0f172a; margin: 28px 0 10px; }
+.doc p { margin: 10px 0; }
+.doc ul, .doc ol { margin: 10px 0 10px 22px; }
+.doc li { margin: 5px 0; }
+.doc code {
+    background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px;
+    padding: 1px 6px; font-size: 13px; font-family: ui-monospace, Menlo, Consolas, monospace; color: #be185d;
+}
+table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
+th, td { border: 1px solid #e2e8f0; padding: 9px 12px; text-align: left; vertical-align: top; }
+th { background: #f8fafc; font-weight: 600; }
+tbody tr:nth-child(even) { background: #fcfdfe; }
+.callout { border-radius: 10px; padding: 14px 18px; margin: 16px 0; font-size: 14px; line-height: 1.7; }
+.callout strong { display: block; margin-bottom: 4px; }
+.callout.bad { background: #fef2f2; border: 1px solid #fecaca; color: #7f1d1d; }
+.callout.ok { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
+.callout.note { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a5f; }
+.callout.warn { background: #fffbeb; border: 1px solid #fde68a; color: #713f12; }
+.toc { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 24px; margin: 24px 0 8px; }
+.toc ol { margin-left: 20px; }
+.formula {
+    background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 16px 20px; margin: 14px 0;
+    font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13.5px; line-height: 1.9; white-space: pre;
+}
+@media print {
+    body { background: #fff; padding: 0; }
+    .toolbar { display: none; }
+    .doc { box-shadow: none; border: none; padding: 0; max-width: none; }
+}
+@media (max-width: 720px) { .doc { padding: 28px 20px; } }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+    <div class="doc-title">GOODFANS 双商城体系规格书 <span>v1.0</span></div>
+    <button onclick="window.print()">打印 / 导出 PDF</button>
+</div>
+
+<article class="doc">
+<h1>GOODFANS 双商城体系规格书</h1>
+<p class="meta">版本 v1.0 · 2026-07-29 · 原型：<code>pages-web/*</code> / <code>admin-prototype/mall-*</code> / <code>js-web/*-store.js</code></p>
+<p class="meta">定位：创作者经济 + 内容变现的双轨商品体系；<strong>非</strong>传统电商，不做仓储物流与平台内实体履约。</p>
+
+<div class="toc">
+    <strong>目录</strong>
+    <ol>
+        <li>整体定位与硬边界</li>
+        <li>数字虚拟资产商城</li>
+        <li>实体联盟商品商城</li>
+        <li>入口矩阵与页面清单</li>
+        <li>AI 商品识别关联</li>
+        <li>收益与结算</li>
+        <li>后台模块与 API 约定</li>
+        <li>与积分商城的隔离</li>
+        <li>验收清单</li>
+    </ol>
+</div>
+
+<h2>1. 整体定位与硬边界</h2>
+
+<p>GOODFANS 商城包含两条<strong>完全独立</strong>的业务线，在创作者侧统一汇入「创作者橱窗」：</p>
+<ol>
+    <li><strong>数字虚拟资产商城（Creator Digital Assets）</strong> — 创作者自建资产，站内支付，即时发放权益。</li>
+    <li><strong>实体商品商城（Affiliate Physical Products）</strong> — 第三方联盟商品库 + 创作者选品推广，外跳成交 + 佣金回传。</li>
+</ol>
+<div class="callout note">
+    <strong>统一橱窗入口</strong>
+    每个创作者个人详情页展示「橱窗」入口。进入后同时看到：本人创建的数字商品 + 从商品中心选品的实体商品。
+    访客可购买；本人视图（<code>?owner=1</code>）无购买按钮，提供「从商品中心选品 / 创建数字商品」与数据面板。
+</div>
+
+<div class="callout bad">
+    <strong>明确不做</strong>
+    平台库存仓储、物流追踪、收货地址、发货流程、供应链、实体商品平台内支付订单。两条业务线禁止共用同一商品表或同一购买流程。
+</div>
+
+<div class="callout ok">
+    <strong>核心转化链路</strong>
+    内容产生流量 → AI 发现商品（实体）→ 创作者推广 → 用户购买 → 平台与创作者获得收益。
+</div>
+
+<h2>2. 数字虚拟资产商城</h2>
+
+<h3>2.1 业务流程</h3>
+<ol>
+    <li>创作者进入创作中心 → 创建数字资产</li>
+    <li>上传内容与封面，设置价格 / 发行量 / 发布时间</li>
+    <li>提交平台审核 → 通过后上架 Creator Store</li>
+    <li>用户购买（USDT）→ 订单完成 → <strong>立即</strong>获得数字权益</li>
+    <li>收益进入创作者收益账户（扣平台服务费）</li>
+</ol>
+
+<h3>2.2 数据模型 <code>digital_product</code></h3>
+<table>
+    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td>id</td><td>string</td><td>商品 ID</td></tr>
+        <tr><td>creatorId / creatorName</td><td>string</td><td>创作者</td></tr>
+        <tr><td>title / description / coverUrl</td><td>string</td><td>展示信息</td></tr>
+        <tr><td>assetType</td><td>enum</td><td>nft / image / video / exclusive / membership / other</td></tr>
+        <tr><td>contentFiles[]</td><td>string[]</td><td>数字内容文件 URL</td></tr>
+        <tr><td>priceUsdt</td><td>number</td><td>创作者定价</td></tr>
+        <tr><td>supplyMode</td><td>enum</td><td>unlimited / limited</td></tr>
+        <tr><td>supplyTotal / soldCount</td><td>int</td><td>限量发行；剩余 = total − sold</td></tr>
+        <tr><td>status</td><td>enum</td><td>draft / pending_review / rejected / listed / sold_out / delisted</td></tr>
+        <tr><td>publishedAt / rejectReason</td><td>string</td><td>发布时间 / 驳回原因</td></tr>
+    </tbody>
+</table>
+
+<p>状态机：<code>draft → pending_review → listed | rejected</code>；限量售罄自动 <code>sold_out</code>；创作者可 <code>delisted</code>。</p>
+
+<h3>2.3 订单与权益</h3>
+<ul>
+    <li><code>digital_order</code>：buyerId、productId、priceUsdt、platformFee、creatorNet、createdAt、status=completed</li>
+    <li><code>user_digital_entitlement</code>：购买成功即时写入，用户「我的数字资产」可读</li>
+    <li>无物流、无地址、无发货步骤</li>
+</ul>
+
+<div class="formula">creatorNet = priceUsdt × (1 − digitalPlatformFeePercent / 100)
+platformFee = priceUsdt − creatorNet
+// 默认 digitalPlatformFeePercent = 10 → 创作者 90%</div>
+
+<h2>3. 实体联盟商品商城</h2>
+
+<h3>3.1 业务流程</h3>
+<ol>
+    <li>第三方商城 API 同步 → GOODFANS 商品库</li>
+    <li>创作者浏览商品库 → 加入个人橱窗</li>
+    <li>内容推广 / AI 识别展示商品卡</li>
+    <li>用户点击 → <strong>跳转第三方</strong>完成支付、库存、发货、售后</li>
+    <li>第三方回传成交佣金 → GOODFANS 分配给创作者</li>
+</ol>
+
+<h3>3.2 数据模型</h3>
+<p><code>affiliate_partner</code>：id、name、apiEndpoint、enabled、commissionNote</p>
+<p><code>affiliate_product</code>：</p>
+<table>
+    <thead><tr><th>字段</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td>id, partnerId, externalId</td><td>同步主键</td></tr>
+        <tr><td>title, imageUrl, description, priceDisplay</td><td>展示</td></tr>
+        <tr><td>categoryId, tags[], affiliateUrl</td><td>分类 / 匹配 / 外跳</td></tr>
+        <tr><td>commissionRate</td><td>第三方联盟比例（如 0.05）</td></tr>
+        <tr><td>embeddingHint</td><td>向量占位，供 AI 匹配</td></tr>
+        <tr><td>syncStatus, syncedAt</td><td>同步状态</td></tr>
+    </tbody>
+</table>
+<p><code>showcase_item</code>：creatorId + productId + pinned + addedAt</p>
+<p><code>affiliate_click</code> / <code>affiliate_commission</code>：点击与佣金回传流水</p>
+
+<div class="callout warn">
+    <strong>禁止字段</strong>
+    实体商品不得出现平台库存、物流单号、收货地址。成交与履约均在第三方。
+</div>
+
+<div class="formula">affiliateGross = orderAmount × commissionRate          // 第三方付给 GOODFANS
+creatorShare  = affiliateGross × (affiliateCreatorSharePercent / 100)
+platformShare = affiliateGross − creatorShare
+// 默认 affiliateCreatorSharePercent = 70</div>
+
+<h2>4. 入口矩阵与页面清单</h2>
+
+<table>
+    <thead><tr><th>入口</th><th>模式</th><th>页面</th></tr></thead>
+    <tbody>
+        <tr><td>创作者主页 · 橱窗入口 / Tab</td><td>统一</td><td><code>creator-profile.html</code> → <code>creator-showcase.html</code></td></tr>
+        <tr><td>统一创作者橱窗（访客可购 / 本人管理+数据）</td><td>统一</td><td><code>creator-showcase.html</code>（选品 / 创建数字商品入口仅在此页本人视图）</td></tr>
+        <tr><td>我的数字资产</td><td>数字</td><td><code>my-digital-assets.html</code></td></tr>
+        <tr><td>视频暂停 · AI 商品卡</td><td>实体</td><td><code>proto-discover-detail-video.html</code></td></tr>
+    </tbody>
+</table>
+
+<div class="callout note">
+    <strong>侧栏导航</strong>
+    不新增第二个「商城」菜单项，避免与积分商城混淆。数字/实体入口挂在创作者主页与创作中心。
+</div>
+
+<h2>5. AI 商品识别关联</h2>
+<ol>
+    <li>用户观看视频 → 暂停</li>
+    <li>前端调用匹配（原型：按 tags / embeddingHint 相似度）</li>
+    <li>从实体商品库取 Top-N → 展示商品卡</li>
+    <li>点击 → 外跳 <code>affiliateUrl</code> 并记 click</li>
+</ol>
+<p>依赖字段：imageUrl、title、categoryId、tags、embeddingHint。</p>
+
+<h2>6. 收益与结算</h2>
+<ul>
+    <li>数字资产：T+0 即时入账演示；配置源 <code>MallCommerceConfigStore.digitalPlatformFeePercent</code></li>
+    <li>联盟佣金：回传后入账；配置源 <code>affiliateCreatorSharePercent</code></li>
+    <li>创作者收入页展示分项：数字资产 / 联盟佣金</li>
+    <li>分成页（creator-income-split）对上述两项展示<strong>只读摘要</strong>，主配置在商城配置页，避免双写</li>
+</ul>
+
+<h2>7. 后台模块与 API 约定</h2>
+<table>
+    <thead><tr><th>后台页</th><th>Mock API</th></tr></thead>
+    <tbody>
+        <tr><td>mall-digital-review</td><td><code>GET/POST /api/v1/admin/digital-products/review</code></td></tr>
+        <tr><td>mall-digital-products</td><td><code>GET /api/v1/admin/digital-products</code></td></tr>
+        <tr><td>mall-digital-orders</td><td><code>GET /api/v1/admin/digital-orders</code></td></tr>
+        <tr><td>mall-commerce-config</td><td><code>GET/PUT /api/v1/admin/mall-commerce-config</code></td></tr>
+        <tr><td>mall-affiliate-partners</td><td><code>GET/PUT /api/v1/admin/affiliate-partners</code></td></tr>
+        <tr><td>mall-affiliate-sync</td><td><code>POST /api/v1/admin/affiliate-sync</code></td></tr>
+        <tr><td>mall-affiliate-categories</td><td><code>GET/PUT /api/v1/admin/affiliate-categories</code></td></tr>
+        <tr><td>mall-affiliate-commissions</td><td><code>GET /api/v1/admin/affiliate-commissions</code></td></tr>
+    </tbody>
+</table>
+
+<h2>8. 与积分商城的隔离</h2>
+<ul>
+    <li><code>points-mall.html</code> 保持积分兑换权益，不承载数字资产或联盟商品</li>
+    <li>命名：Creator Store / 数字资产 / 实体橱窗 / Affiliate，禁止复用「积分商城」文案</li>
+</ul>
+
+<h2>9. 验收清单</h2>
+<ol>
+    <li>创建 → 审核 → 上架 → 购买 → 我的资产 → 创作者收益（扣平台费）</li>
+    <li>限量售罄自动 sold_out；无限发行不展示剩余</li>
+    <li>同步联盟商品 → 加入橱窗 → 外跳 → 佣金回传 → 创作者收益</li>
+    <li>视频暂停 AI 商品卡 → 外跳</li>
+    <li>无地址/物流/库存履约 UI；积分商城路径不受影响</li>
+</ol>
+
+</article>
+</body>
+</html>

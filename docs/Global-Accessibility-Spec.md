@@ -1,4 +1,4 @@
-# FansLoop · 跨国界无障碍（Global Accessibility）
+# GOODFANS · 跨国界无障碍（Global Accessibility）
 
 > **原型范围**：独立 HTML，不修改 `live-detail.html`、`messages.html` 等既有页面。  
 > **存储键**：`localStorage.fl_global_accessibility_v1`

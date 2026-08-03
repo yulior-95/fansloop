@@ -1,4 +1,4 @@
-# FansLoop Web 端高保真原型 · PRD
+# GOODFANS Web 端高保真原型 · PRD
 
 **文档版本**：2026-05-09  
 **原型仓库路径**：`web3-app-prototype/pages-web/`（HTML + CSS + Font Awesome）  
@@ -83,9 +83,9 @@
 
 ### 3.3 弹窗通信（嵌入父页时）
 
-- 打开：`postMessage({ type: 'fansloop-open-modal', page })`（见 `fl-interaction-modal.js`）  
-- 关闭：`fansloop-close-modal`  
-- 预约成功：`fansloop-live-scheduled`（演示壳 `yanshi-web.html` 会转发至内层 iframe）  
+- 打开：`postMessage({ type: 'goodfans-open-modal', page })`（见 `fl-interaction-modal.js`）  
+- 关闭：`goodfans-close-modal`  
+- 预约成功：`goodfans-live-scheduled`（演示壳 `yanshi-web.html` 会转发至内层 iframe）  
 
 ---
 
