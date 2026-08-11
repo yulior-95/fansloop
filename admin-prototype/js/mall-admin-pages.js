@@ -49,10 +49,47 @@
       });
       body.querySelectorAll('.js-reject').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          var reason = prompt('驳回原因', '内容不符合数字资产规范') || '内容不符合数字资产规范';
-          Store.reject(btn.getAttribute('data-id'), reason);
-          toast('已驳回');
-          render();
+          var id = btn.getAttribute('data-id');
+          var p = Store.getById(id);
+          if (!p || !window.AdminModal) return;
+          window.AdminModal.open({
+            title: '驳回数字商品',
+            width: 520,
+            body:
+              '<p style="margin:0 0 12px;color:rgba(0,0,0,.65);font-size:13px">驳回「<strong>' + esc(p.title) + '</strong>」后，创作者端将展示驳回结果与原因，可修改后重新提交。</p>' +
+              '<div class="ant-form-item" style="margin:0">' +
+              '<label style="display:block;margin-bottom:6px;font-size:12px;color:rgba(0,0,0,.45)">驳回原因 <span style="color:#ff4d4f">*</span></label>' +
+              '<textarea class="ant-input" id="mallRejectReason" rows="4" maxlength="200" placeholder="请填写驳回原因（必填，将展示给创作者）" style="width:100%;resize:vertical"></textarea>' +
+              '<div id="mallRejectReasonErr" style="margin-top:6px;font-size:12px;color:#ff4d4f;min-height:18px"></div>' +
+              '</div>',
+            footer: [
+              { text: '取消', onClick: function () { window.AdminModal.close(); } },
+              {
+                text: '确认驳回',
+                danger: true,
+                primary: true,
+                onClick: function () {
+                  var ta = document.getElementById('mallRejectReason');
+                  var err = document.getElementById('mallRejectReasonErr');
+                  var reason = ta ? String(ta.value || '').trim() : '';
+                  if (!reason) {
+                    if (err) err.textContent = '请填写驳回原因';
+                    if (ta) ta.focus();
+                    return;
+                  }
+                  if (err) err.textContent = '';
+                  Store.reject(id, reason);
+                  window.AdminModal.close();
+                  toast('已驳回，创作者端可见原因');
+                  render();
+                }
+              }
+            ],
+            onMount: function (root) {
+              var ta = root.querySelector('#mallRejectReason');
+              if (ta) setTimeout(function () { ta.focus(); }, 0);
+            }
+          });
         });
       });
     }
@@ -324,7 +361,13 @@
         '<div class="ant-form-item"><label>商品单价</label><div style="display:flex;gap:8px"><input class="ant-input" type="number" min="0" step="0.01" id="edPrice" value="' + esc(p.priceAmount) + '" style="flex:1"><input class="ant-input" id="edCurrency" value="' + esc(p.priceCurrency || 'USD') + '" style="width:88px" placeholder="单位"></div></div>' +
         '<div class="ant-form-item"><label>汇率（原币 → USDT）</label><input class="ant-input" type="number" min="0" step="0.0001" id="edFx" value="' + esc(p.fxRate) + '"></div>' +
         '<div class="ant-form-item"><label>USDT金额</label><input class="ant-input" id="edUsdt" value="' + Number(p.priceUsdt || 0).toFixed(2) + '" disabled></div>' +
-        '<div class="ant-form-item"><label>佣金比例（%）</label><input class="ant-input" type="number" min="0" step="0.01" id="edComm" value="' + esc((Math.round((Number(p.commissionRate) || 0) * 10000) / 100).toFixed(2)) + '"></div>' +
+        '<div class="ant-form-item"><label>佣金比例（%）</label><input class="ant-input" type="number" min="0" step="0.01" id="edComm" value="' + esc((Math.round((Number(p.commissionRate) || 0) * 10000) / 100).toFixed(2)) + '">' +
+        '<div class="mall-edit-glass mall-dev-glass-inline" aria-label="研发批注">' +
+        '<span class="mall-dev-glass-wrap">' +
+        '<span class="mall-dev-glass-sphere" tabindex="0"><span class="mall-dev-glass-shine"></span><span class="mall-dev-glass-txt">To 研发</span></span>' +
+        '<span class="mall-dev-glass-pop" role="note"><strong>SKU 联盟佣金率</strong>成交额 × 本比例 = 联盟佣金（平台从第三方获得）。' +
+        '<div class="formula">创作者最终实得另由「商城分成配置 · 创作者分成」二次分配，勿与本字段混用。</div></span>' +
+        '</span></div></div>' +
         '<div class="ant-form-item"><label>状态</label><div style="padding-top:4px">' + switchHtml(p.enabled !== false, p.id).replace('js-prod-switch', 'js-ed-switch') + ' <span id="edEnabledLabel" style="margin-left:8px;font-size:12px;color:rgba(0,0,0,.65)">' + (p.enabled !== false ? '启用' : '停用') + '</span></div></div>' +
         '<div class="ant-form-item"><label>创建时间</label><input class="ant-input" value="' + esc(p.createdAt) + '" disabled></div>' +
         '<div class="ant-form-item"><label>更新时间</label><input class="ant-input" value="' + esc(p.updatedAt) + '" disabled></div>' +
@@ -376,6 +419,7 @@
           }
         ],
         onMount: function (root) {
+          if (window.MallDevGlass && window.MallDevGlass.bind) window.MallDevGlass.bind(root);
           function recalc() {
             var price = parseFloat(document.getElementById('edPrice').value);
             var fx = parseFloat(document.getElementById('edFx').value);
@@ -525,20 +569,43 @@
     var Aff = window.AffiliateShowcaseStore;
     var body = document.getElementById('mallCommBody');
     if (!Aff || !body) return;
+
+    function statusTag(status) {
+      var label = Aff.statusLabel ? Aff.statusLabel(status) : status;
+      var cls = 'ant-tag';
+      if (status === 'settled') cls += ' ant-tag-green';
+      else if (status === 'pending') cls += ' ant-tag-gold';
+      else if (status === 'reverse') cls += ' ant-tag-red';
+      return '<span class="' + cls + '">' + esc(label) + '</span>';
+    }
+
+    function fmtAmt(n) {
+      var v = Number(n) || 0;
+      var s = v.toFixed(2);
+      return v < 0 ? '<span style="color:#cf1322">' + s + '</span>' : s;
+    }
+
     var list = Aff.listCommissions();
     body.innerHTML = list.map(function (c, i) {
+      var titleSub = '';
+      if (c.status === 'reverse' && c.relatedId) {
+        titleSub = '<div style="color:rgba(0,0,0,.45);margin-top:2px">冲销原单 ' + esc(c.relatedId) +
+          (c.remark ? ' · ' + esc(c.remark) : '') + '</div>';
+      }
       return '<tr>' +
         '<td>' + (i + 1) + '</td>' +
-        '<td>' + esc(c.productTitle) + '</td>' +
+        '<td style="white-space:nowrap">' + esc(c.platformOrderNo || '—') + '</td>' +
+        '<td style="white-space:nowrap">' + esc(c.partnerOrderNo || '—') + '</td>' +
+        '<td><div>' + esc(c.productTitle) + '</div>' + titleSub + '</td>' +
         '<td>' + esc(c.creatorId) + '</td>' +
-        '<td>' + Number(c.orderAmount).toFixed(2) + '</td>' +
+        '<td>' + fmtAmt(c.orderAmount) + '</td>' +
         '<td>' + Math.round((c.commissionRate || 0) * 1000) / 10 + '%</td>' +
-        '<td>' + Number(c.affiliateGross).toFixed(2) + '</td>' +
-        '<td>' + Number(c.creatorShare).toFixed(2) + '</td>' +
-        '<td>' + Number(c.platformShare).toFixed(2) + '</td>' +
-        '<td><span class="ant-tag">' + esc(c.status) + '</span></td>' +
+        '<td>' + fmtAmt(c.affiliateGross) + '</td>' +
+        '<td>' + fmtAmt(c.creatorShare) + '</td>' +
+        '<td>' + fmtAmt(c.platformShare) + '</td>' +
+        '<td>' + statusTag(c.status) + '</td>' +
         '<td>' + esc(c.createdAt) + '</td></tr>';
-    }).join('') || '<tr><td colspan="10" style="text-align:center;padding:24px;color:rgba(0,0,0,.45)">暂无佣金回传（可在橱窗点击「去购买」模拟）</td></tr>';
+    }).join('') || '<tr><td colspan="12" style="text-align:center;padding:24px;color:rgba(0,0,0,.45)">暂无佣金回传（可在橱窗点击「去购买」模拟）</td></tr>';
   }
 
   function initSplitReadonly() {

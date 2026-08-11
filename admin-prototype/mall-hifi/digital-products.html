@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>数字商品管理 · GOODFANS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/shell.css">
+  <link rel="stylesheet" href="css/glass-notes.css">
+</head>
+<body>
+<div class="mh-app">
+  <aside class="mh-sider" id="mhSider"></aside>
+  <div class="mh-main">
+    <header class="mh-header">
+      <div class="mh-breadcrumb"><i class="fa-solid fa-bars"></i><span>双商城</span><span>/</span><strong>数字商品管理</strong></div>
+      <div class="mh-header-right">
+        <div class="mh-header-user">
+          <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt="">
+          <span>运营</span>
+        </div>
+      </div>
+    </header>
+    <main class="mh-content">
+      <div class="mh-page-head">
+        <div>
+          <h1 class="mh-page-title">数字商品管理</h1>
+          <p class="mh-page-desc">全量数字商品生命周期视图：草稿、待审、上架、售罄、驳回、下架。运营可强制下架已上架商品。</p>
+        </div>
+        <span class="mh-anno-inline">
+          <span class="mh-anno-sphere"><span>To 研发</span></span>
+          <span class="mh-anno-pop"><b>状态筛选</b>query.status 精确匹配；列表默认全量（含草稿）。</span>
+        </span>
+      </div>
+
+      <div class="mh-stats">
+        <div class="mh-stat is-ok"><div class="label">已上架</div><div class="value">2</div><div class="sub">可售卖</div></div>
+        <div class="mh-stat is-warn"><div class="label">待审核</div><div class="value">1</div><div class="sub">见审核队列</div></div>
+        <div class="mh-stat is-danger"><div class="label">已驳回</div><div class="value">1</div><div class="sub">待创作者修订</div></div>
+        <div class="mh-stat"><div class="label">已售罄</div><div class="value">1</div><div class="sub">限量售完</div></div>
+      </div>
+
+      <section class="mh-card">
+        <div class="mh-card-head">
+          <h2>商品列表</h2>
+          <div class="mh-toolbar" style="margin:0">
+            <select class="mh-select" id="statusFilter">
+              <option value="">全部状态</option>
+              <option value="pending_review">待审核</option>
+              <option value="listed">已上架</option>
+              <option value="sold_out">已售罄</option>
+              <option value="rejected">已驳回</option>
+              <option value="delisted">已下架</option>
+              <option value="draft">草稿</option>
+            </select>
+            <input class="mh-input" id="kw" placeholder="标题 / 创作者" style="width:200px">
+          </div>
+        </div>
+        <div class="mh-card-body">
+          <div class="mh-table-wrap">
+            <table class="mh-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th style="width:64px">封面</th>
+                  <th>标题</th>
+                  <th>创作者</th>
+                  <th>类型</th>
+                  <th>价格</th>
+                  <th>已售/总量</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="prodBody"></tbody>
+            </table>
+          </div>
+          <div class="mh-pager"><span>共 <b id="totalCount">5</b> 条</span><div class="pages"><button type="button" class="is-active">1</button></div></div>
+        </div>
+      </section>
+    </main>
+    <footer class="mh-footer">GOODFANS · 数字商品管理 · PATCH /admin/digital-products/:id/delist</footer>
+  </div>
+</div>
+<div class="mh-anno-rail" id="mhAnnoRail"></div>
+<script src="js/shell.js"></script>
+<script>
+(function () {
+  var Shell = window.MallHifiShell;
+  Shell.mountSider('digital-products');
+  Shell.mountAnnoRail([
+    { title: '封面列对齐审核页', body: '管理页补充封面缩略图，便于运营识别 NFT / 视频素材。' },
+    { title: '驳回态展示', body: '已驳回行可悬停/展开 rejectReason；本原型用标签 + 副文案示意。' },
+    { title: '下架权限', body: '仅 listed 显示下架；售罄/驳回/草稿无下架入口。' }
+  ]);
+
+  var statusMap = {
+    listed: ['已上架', 'mh-tag-green'],
+    pending_review: ['待审核', 'mh-tag-gold'],
+    sold_out: ['已售罄', 'mh-tag-geek'],
+    rejected: ['已驳回', 'mh-tag-red'],
+    delisted: ['已下架', 'mh-tag'],
+    draft: ['草稿', 'mh-tag']
+  };
+
+  var products = [
+    { id: '1', title: 'Neon Echo · Genesis Pass', creator: 'Luna 🌙', type: 'NFT 收藏品', price: 10, sold: '20/100', status: 'listed', cover: 'https://images.unsplash.com/photo-1727722158074-b7916daf6af4?w=200&h=200&fit=crop', note: '' },
+    { id: '2', title: '幕后花絮 · 独家短片', creator: 'Luna 🌙', type: '数字视频', price: 6, sold: '0/200', status: 'rejected', cover: 'https://images.unsplash.com/photo-1665663389418-1e8c19f048c0?w=200&h=200&fit=crop', note: '封面与链上元数据不一致' },
+    { id: '3', title: '创作者周会 · 数字会员月卡', creator: 'Luna 🌙', type: '数字会员权益', price: 19.9, sold: '50/50', status: 'sold_out', cover: 'https://images.unsplash.com/photo-1651607792435-e944c20826a2?w=200&h=200&fit=crop', note: '' },
+    { id: '4', title: '富士山日出 · 4K 数字写真包', creator: 'Luna 🌙', type: '数字图片', price: 4.5, sold: '∞ / 86', status: 'listed', cover: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=200&h=200&fit=crop', note: '' },
+    { id: '5', title: '街头夜景 · NFT 草稿样张', creator: 'Luna 🌙', type: 'NFT 收藏品', price: 12, sold: '0/88', status: 'pending_review', cover: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=200&h=200&fit=crop', note: '' }
+  ];
+
+  var body = document.getElementById('prodBody');
+  function render() {
+    var st = document.getElementById('statusFilter').value;
+    var kw = (document.getElementById('kw').value || '').trim().toLowerCase();
+    var list = products.filter(function (p) {
+      if (st && p.status !== st) return false;
+      if (kw && (p.title + p.creator).toLowerCase().indexOf(kw) < 0) return false;
+      return true;
+    });
+    document.getElementById('totalCount').textContent = String(list.length);
+    body.innerHTML = list.map(function (p, i) {
+      var sm = statusMap[p.status] || ['—', 'mh-tag'];
+      var ops = p.status === 'listed'
+        ? '<button type="button" class="mh-btn mh-btn-sm js-delist" data-id="' + p.id + '">下架</button>'
+        : '—';
+      var note = p.note ? '<div style="font-size:11px;color:#cf1322;margin-top:2px">' + p.note + '</div>' : '';
+      return '<tr>' +
+        '<td>' + (i + 1) + '</td>' +
+        '<td><img class="mh-cover" src="' + p.cover + '" alt=""></td>' +
+        '<td><div class="mh-product"><strong>' + p.title + '</strong>' + note + '</div></td>' +
+        '<td>' + p.creator + '</td>' +
+        '<td>' + p.type + '</td>' +
+        '<td>' + p.price.toFixed(2) + '</td>' +
+        '<td>' + p.sold + '</td>' +
+        '<td><span class="mh-tag ' + sm[1] + '">' + sm[0] + '</span></td>' +
+        '<td>' + ops + '</td></tr>';
+    }).join('') || '<tr><td colspan="9" style="text-align:center;padding:28px;color:rgba(0,0,0,.45)">暂无数据</td></tr>';
+
+    body.querySelectorAll('.js-delist').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-id');
+        products.forEach(function (p) { if (p.id === id) p.status = 'delisted'; });
+        Shell.toast('已下架');
+        render();
+      });
+    });
+  }
+  document.getElementById('statusFilter').onchange = render;
+  document.getElementById('kw').oninput = render;
+  render();
+})();
+</script>
+</body>
+</html>

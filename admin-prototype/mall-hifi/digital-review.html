@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>数字商品审核 · GOODFANS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/shell.css">
+  <link rel="stylesheet" href="css/glass-notes.css">
+</head>
+<body data-page="digital-review">
+<div class="mh-app">
+  <aside class="mh-sider" id="mhSider"></aside>
+  <div class="mh-main">
+    <header class="mh-header">
+      <div class="mh-breadcrumb"><i class="fa-solid fa-bars"></i><span>双商城</span><span>/</span><strong>数字商品审核</strong></div>
+      <div class="mh-header-right">
+        <button type="button" class="mh-btn mh-btn-sm" id="btnRefresh"><i class="fa-solid fa-rotate"></i> 刷新队列</button>
+        <div class="mh-header-user">
+          <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt="">
+          <span>运营审核</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="mh-content">
+      <div class="mh-page-head">
+        <div>
+          <h1 class="mh-page-title">数字商品审核</h1>
+          <p class="mh-page-desc">创作者提交 NFT / 视频 / 会员权益等数字商品后进入本队列。通过即上架 Creator Store；驳回须填写原因并回传创作者端。</p>
+        </div>
+        <span class="mh-anno-inline">
+          <span class="mh-anno-sphere"><span>To 研发</span></span>
+          <span class="mh-anno-pop"><b>审核态机</b>pending_review → listed / rejected；无物流审核字段。</span>
+        </span>
+      </div>
+
+      <div class="mh-info">
+        <i class="fa-solid fa-circle-info"></i>
+        <div>审核通过后商品进入 Creator Store 上架；驳回后创作者可见原因并可修改后重新提交。数字资产无物流审核项。</div>
+      </div>
+
+      <div class="mh-stats">
+        <div class="mh-stat is-warn"><div class="label">待审核</div><div class="value" id="statPending">2</div><div class="sub">今日新增 1</div></div>
+        <div class="mh-stat is-ok"><div class="label">今日通过</div><div class="value">5</div><div class="sub">平均耗时 18 分钟</div></div>
+        <div class="mh-stat is-danger"><div class="label">今日驳回</div><div class="value">1</div><div class="sub">需补充素材说明</div></div>
+        <div class="mh-stat"><div class="label">队列积压 SLA</div><div class="value">2h</div><div class="sub">目标 &lt; 4h</div></div>
+      </div>
+
+      <section class="mh-card">
+        <div class="mh-card-head">
+          <h2>待审核队列</h2>
+          <div class="mh-toolbar" style="margin:0">
+            <select class="mh-select" id="typeFilter">
+              <option value="">全部类型</option>
+              <option value="nft">NFT 收藏品</option>
+              <option value="video">数字视频</option>
+              <option value="membership">数字会员权益</option>
+            </select>
+            <input class="mh-input" id="kw" placeholder="搜索商品 / 创作者" style="width:200px">
+          </div>
+        </div>
+        <div class="mh-card-body">
+          <div class="mh-table-wrap">
+            <table class="mh-table">
+              <thead>
+                <tr>
+                  <th style="width:48px">#</th>
+                  <th style="width:70px">封面</th>
+                  <th>商品</th>
+                  <th>创作者</th>
+                  <th>价格</th>
+                  <th>发行</th>
+                  <th>提交时间</th>
+                  <th style="width:180px">操作</th>
+                </tr>
+              </thead>
+              <tbody id="reviewBody"></tbody>
+            </table>
+          </div>
+          <div class="mh-pager">
+            <span>共 <b id="totalCount">2</b> 条</span>
+            <div class="pages">
+              <button type="button" class="is-active">1</button>
+            </div>
+            <select class="mh-select" style="min-width:90px"><option>10 条/页</option><option>20 条/页</option></select>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="mh-footer">GOODFANS 运营后台 · 数字商品审核高保真原型 · 可直接对齐开发接口 POST /admin/digital-products/:id/approve|reject</footer>
+  </div>
+</div>
+
+<div class="mh-anno-rail" id="mhAnnoRail"></div>
+
+<div class="mh-modal-mask" id="rejectMask" aria-hidden="true">
+  <div class="mh-modal" role="dialog" aria-labelledby="rejectTitle">
+    <div class="mh-modal-head">
+      <span id="rejectTitle">驳回数字商品</span>
+      <button type="button" class="mh-btn mh-btn-sm" id="rejectClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mh-modal-body">
+      <p style="margin:0 0 12px;color:rgba(0,0,0,.65);font-size:13px">驳回「<strong id="rejectName">—</strong>」后，创作者端将展示驳回结果与原因，可修改后重新提交。</p>
+      <label style="display:block;margin-bottom:6px;font-size:12px;color:rgba(0,0,0,.45)">驳回原因 <span style="color:#ff4d4f">*</span></label>
+      <textarea class="mh-textarea" id="rejectReason" maxlength="200" placeholder="请填写驳回原因（必填，将展示给创作者）"></textarea>
+      <div class="mh-form-err" id="rejectErr"></div>
+    </div>
+    <div class="mh-modal-foot">
+      <button type="button" class="mh-btn" id="rejectCancel">取消</button>
+      <button type="button" class="mh-btn mh-btn-danger" id="rejectConfirm">确认驳回</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/shell.js"></script>
+<script>
+(function () {
+  var Shell = window.MallHifiShell;
+  Shell.mountSider('digital-review');
+  Shell.mountAnnoRail([
+    { title: '驳回原因必填', body: '弹窗确认 + textarea 校验；空原因禁止提交。创作者橱窗展示 rejectReason。' },
+    { title: '封面与媒体', body: '列表展示 coverUrl；详情可扩展 contentFiles / nftTraits / chainNetwork 只读预览。' },
+    { title: '通过副作用', body: 'approve 后 status=listed，写入 publishedAt，同步 Creator Store 与橱窗。' }
+  ]);
+
+  var rows = [
+    {
+      id: 'da_pending_nft_01',
+      title: 'Aurora Vault · Genesis NFT',
+      type: 'nft',
+      typeLabel: 'NFT 收藏品',
+      creator: 'Luna 🌙',
+      price: 18,
+      supply: '限量 88',
+      time: '2026-08-06 08:42',
+      cover: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&h=200&fit=crop'
+    },
+    {
+      id: 'da_pending_vid_02',
+      title: '幕后花絮 · 独家短片',
+      type: 'video',
+      typeLabel: '数字视频',
+      creator: 'Luna 🌙',
+      price: 6,
+      supply: '限量 200',
+      time: '2026-08-05 21:00',
+      cover: 'https://cdn.pixabay.com/photo/2019/07/24/14/17/monkey-4360298_640.jpg'
+    }
+  ];
+
+  var rejectId = null;
+  var body = document.getElementById('reviewBody');
+
+  function render() {
+    var type = document.getElementById('typeFilter').value;
+    var kw = (document.getElementById('kw').value || '').trim().toLowerCase();
+    var list = rows.filter(function (r) {
+      if (type && r.type !== type) return false;
+      if (kw && (r.title + r.creator).toLowerCase().indexOf(kw) < 0) return false;
+      return true;
+    });
+    document.getElementById('statPending').textContent = String(rows.length);
+    document.getElementById('totalCount').textContent = String(list.length);
+    if (!list.length) {
+      body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:rgba(0,0,0,.45);padding:36px">暂无待审核数字商品</td></tr>';
+      return;
+    }
+    body.innerHTML = list.map(function (r, i) {
+      return '<tr data-id="' + r.id + '">' +
+        '<td>' + (i + 1) + '</td>' +
+        '<td><img class="mh-cover" src="' + r.cover + '" alt=""></td>' +
+        '<td><div class="mh-product"><strong>' + r.title + '</strong><span>' + r.typeLabel + '</span></div></td>' +
+        '<td>' + r.creator + '</td>' +
+        '<td><strong>' + r.price.toFixed(2) + '</strong> USDT</td>' +
+        '<td>' + r.supply + '</td>' +
+        '<td>' + r.time + '</td>' +
+        '<td>' +
+        '<button type="button" class="mh-btn mh-btn-primary mh-btn-sm js-approve">通过</button> ' +
+        '<button type="button" class="mh-btn mh-btn-danger mh-btn-sm js-reject">驳回</button>' +
+        '</td></tr>';
+    }).join('');
+
+    body.querySelectorAll('.js-approve').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var tr = btn.closest('tr');
+        var id = tr.getAttribute('data-id');
+        rows = rows.filter(function (r) { return r.id !== id; });
+        Shell.toast('已通过并上架 Creator Store');
+        render();
+      });
+    });
+    body.querySelectorAll('.js-reject').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var tr = btn.closest('tr');
+        rejectId = tr.getAttribute('data-id');
+        var row = rows.filter(function (r) { return r.id === rejectId; })[0];
+        document.getElementById('rejectName').textContent = row ? row.title : '—';
+        document.getElementById('rejectReason').value = '';
+        document.getElementById('rejectErr').textContent = '';
+        document.getElementById('rejectMask').classList.add('is-open');
+        document.getElementById('rejectMask').setAttribute('aria-hidden', 'false');
+        setTimeout(function () { document.getElementById('rejectReason').focus(); }, 0);
+      });
+    });
+  }
+
+  function closeReject() {
+    document.getElementById('rejectMask').classList.remove('is-open');
+    document.getElementById('rejectMask').setAttribute('aria-hidden', 'true');
+    rejectId = null;
+  }
+
+  document.getElementById('rejectClose').onclick = closeReject;
+  document.getElementById('rejectCancel').onclick = closeReject;
+  document.getElementById('rejectConfirm').onclick = function () {
+    var reason = document.getElementById('rejectReason').value.trim();
+    if (!reason) {
+      document.getElementById('rejectErr').textContent = '请填写驳回原因';
+      return;
+    }
+    rows = rows.filter(function (r) { return r.id !== rejectId; });
+    closeReject();
+    Shell.toast('已驳回，创作者端可见原因');
+    render();
+  };
+  document.getElementById('typeFilter').onchange = render;
+  document.getElementById('kw').oninput = render;
+  document.getElementById('btnRefresh').onclick = function () { Shell.toast('队列已刷新'); render(); };
+  render();
+})();
+</script>
+</body>
+</html>

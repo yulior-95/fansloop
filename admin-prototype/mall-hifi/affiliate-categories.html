@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>实体商品分类 · GOODFANS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/shell.css">
+  <link rel="stylesheet" href="css/glass-notes.css">
+</head>
+<body>
+<div class="mh-app">
+  <aside class="mh-sider" id="mhSider"></aside>
+  <div class="mh-main">
+    <header class="mh-header">
+      <div class="mh-breadcrumb"><i class="fa-solid fa-bars"></i><span>双商城</span><span>/</span><strong>实体商品分类</strong></div>
+      <div class="mh-header-right">
+        <button type="button" class="mh-btn mh-btn-primary mh-btn-sm" id="btnAdd"><i class="fa-solid fa-plus"></i> 新增分类</button>
+        <div class="mh-header-user">
+          <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt="">
+          <span>运营</span>
+        </div>
+      </div>
+    </header>
+    <main class="mh-content">
+      <div class="mh-page-head">
+        <div>
+          <h1 class="mh-page-title">实体商品分类</h1>
+          <p class="mh-page-desc">管理联盟选品库的一级分类。启停影响创作者选品浏览分组；排序决定 C 端选品库标签顺序。</p>
+        </div>
+        <span class="mh-anno-inline">
+          <span class="mh-anno-sphere"><span>To 研发</span></span>
+          <span class="mh-anno-pop"><b>无履约</b>分类仅服务选品导航；成交在第三方，平台不产生实体订单。</span>
+        </span>
+      </div>
+
+      <div class="mh-info">
+        <i class="fa-solid fa-circle-info"></i>
+        <div>分类数据供创作者「实体选品库」筛选使用。停用后新选品不可再挂靠该分类；已挂靠商品仍可展示，建议同步迁移。</div>
+      </div>
+
+      <div class="mh-cat-grid" id="catCards"></div>
+
+      <section class="mh-card">
+        <div class="mh-card-head"><h2>分类配置表</h2></div>
+        <div class="mh-card-body">
+          <div class="mh-table-wrap">
+            <table class="mh-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>预览</th>
+                  <th>名称</th>
+                  <th>排序</th>
+                  <th>关联商品</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="catBody"></tbody>
+            </table>
+          </div>
+          <div class="mh-pager"><span>共 <b>4</b> 条</span><div class="pages"><button type="button" class="is-active">1</button></div>
+            <select class="mh-select" style="min-width:90px"><option>10 条/页</option></select>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="mh-footer">GOODFANS · 实体商品分类 · PUT /admin/affiliate/categories/:id/toggle</footer>
+  </div>
+</div>
+<div class="mh-anno-rail" id="mhAnnoRail"></div>
+<script src="js/shell.js"></script>
+<script>
+(function () {
+  var Shell = window.MallHifiShell;
+  Shell.mountSider('affiliate-categories');
+  Shell.mountAnnoRail([
+    { title: '排序权重', body: 'sortAsc 越小越靠前；拖拽排序可二期，本页用数字编辑示意。' },
+    { title: '启停切换', body: 'toggle 即时生效；需写操作日志（operator + before/after）。' },
+    { title: '视觉素材', body: '卡片封面使用真实商品场景图，便于运营理解分类语义。' }
+  ]);
+
+  var cats = [
+    { id: 'fashion', name: '服饰穿搭', sort: 1, enabled: true, count: 128, cover: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=240&h=240&fit=crop', desc: '服装、鞋靴、配饰' },
+    { id: 'beauty', name: '美妆个护', sort: 2, enabled: true, count: 96, cover: 'https://images.unsplash.com/photo-1596462502278-27bfdd403348?w=240&h=240&fit=crop', desc: '彩妆、护肤、个护' },
+    { id: 'gear', name: '数码周边', sort: 3, enabled: true, count: 74, cover: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=240&h=240&fit=crop', desc: '3C、配件、周边' },
+    { id: 'lifestyle', name: '生活方式', sort: 4, enabled: true, count: 61, cover: 'https://images.unsplash.com/photo-1484101403633-562f891dc89a?w=240&h=240&fit=crop', desc: '家居、出行、文创' }
+  ];
+
+  function renderCards() {
+    document.getElementById('catCards').innerHTML = cats.map(function (c) {
+      return '<article class="mh-cat-card">' +
+        '<img src="' + c.cover + '" alt="">' +
+        '<div><h3>' + c.name + ' <span class="mh-tag ' + (c.enabled ? 'mh-tag-green' : 'mh-tag-red') + '">' + (c.enabled ? '启用' : '停用') + '</span></h3>' +
+        '<p>' + c.desc + ' · 关联 ' + c.count + ' 个商品 · 排序 ' + c.sort + '</p></div></article>';
+    }).join('');
+  }
+
+  function renderTable() {
+    document.getElementById('catBody').innerHTML = cats.map(function (c) {
+      return '<tr data-id="' + c.id + '">' +
+        '<td><code>' + c.id + '</code></td>' +
+        '<td><img class="mh-cover" style="width:40px;height:40px" src="' + c.cover + '" alt=""></td>' +
+        '<td><strong>' + c.name + '</strong></td>' +
+        '<td>' + c.sort + '</td>' +
+        '<td>' + c.count + '</td>' +
+        '<td><span class="mh-tag ' + (c.enabled ? 'mh-tag-green' : 'mh-tag-red') + '">' + (c.enabled ? '启用' : '停用') + '</span></td>' +
+        '<td><button type="button" class="mh-btn mh-btn-sm js-toggle">切换启用</button></td></tr>';
+    }).join('');
+
+    document.querySelectorAll('.js-toggle').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.closest('tr').getAttribute('data-id');
+        cats.forEach(function (c) { if (c.id === id) c.enabled = !c.enabled; });
+        Shell.toast('分类状态已更新');
+        renderCards();
+        renderTable();
+      });
+    });
+  }
+
+  document.getElementById('btnAdd').onclick = function () {
+    Shell.toast('新增分类弹窗（原型占位）');
+  };
+  renderCards();
+  renderTable();
+})();
+</script>
+</body>
+</html>

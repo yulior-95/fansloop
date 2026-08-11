@@ -87,7 +87,7 @@
         if (!Store) return [];
         if (isManageMode()) {
             return Store.list({ creatorId: cid }).filter(function (p) {
-                return p.status !== 'draft' && p.status !== 'pending_review';
+                return !p.removedFromShowcase && p.status !== 'draft';
             });
         }
         return Store.list({ creatorId: cid, listedOnly: true });
@@ -137,6 +137,8 @@
         var owned = Orders && Orders.hasEntitlement(p.id, entBuyer || undefined);
         var soldout = p.status === 'sold_out';
         var delisted = p.status === 'delisted';
+        var rejected = p.status === 'rejected';
+        var pending = p.status === 'pending_review';
         var canBuy = !manage && !preview && p.status === 'listed' && !owned &&
             (p.supplyMode === 'unlimited' || (left !== null && left > 0));
         var supply = p.supplyMode === 'limited'
@@ -146,21 +148,40 @@
             ? '<span class="badge soldout">售罄</span>'
             : (delisted
                 ? '<span class="badge soldout">已下架</span>'
-                : '<span class="badge">' + esc(type) + '</span>');
+                : (rejected
+                    ? '<span class="badge soldout">已驳回</span>'
+                    : (pending
+                        ? '<span class="badge">审核中</span>'
+                        : '<span class="badge">' + esc(type) + '</span>')));
         if (p.pinned) badge += '<span class="badge pin">置顶</span>';
+
+        var rejectBanner = '';
+        if (manage && rejected && p.rejectReason) {
+            rejectBanner = '<div class="cs-reject-banner"><i class="fa-solid fa-circle-exclamation"></i> 驳回原因：' +
+                esc(p.rejectReason) + '</div>';
+        } else if (manage && pending) {
+            rejectBanner = '<div class="cs-pending-banner"><i class="fa-solid fa-clock"></i> 已提交审核，请耐心等待平台结果</div>';
+        }
 
         var foot = '';
         if (manage) {
-            var actions = '<button type="button" class="btn btn-sm js-cs-da-view" data-id="' + esc(p.id) + '">查看</button>' +
-                '<button type="button" class="btn btn-sm js-cs-da-edit" data-id="' + esc(p.id) + '">编辑</button>' +
-                '<button type="button" class="btn btn-sm js-cs-da-pin" data-id="' + esc(p.id) + '">' + (p.pinned ? '取消置顶' : '置顶') + '</button>';
-            if (p.status === 'listed' || p.status === 'sold_out') {
-                actions += '<button type="button" class="btn btn-sm js-cs-da-delist" data-id="' + esc(p.id) + '">下架</button>';
-            } else if (delisted) {
-                actions += '<button type="button" class="btn btn-sm btn-primary js-cs-da-relist" data-id="' + esc(p.id) + '">上架</button>';
-                actions += '<button type="button" class="btn btn-sm js-cs-da-remove" data-id="' + esc(p.id) + '">移除</button>';
+            var actions = '<button type="button" class="btn btn-sm js-cs-da-view" data-id="' + esc(p.id) + '">查看</button>';
+            if (rejected) {
+                actions += '<button type="button" class="btn btn-sm js-cs-da-edit" data-id="' + esc(p.id) + '">修改</button>' +
+                    '<button type="button" class="btn btn-sm btn-primary js-cs-da-resubmit" data-id="' + esc(p.id) + '">重新提交</button>';
+            } else if (pending) {
+                actions += '<span class="chip sm">待审核</span>';
             } else {
-                actions += '<span class="chip sm">' + esc(Store.statusLabel(p.status)) + '</span>';
+                actions += '<button type="button" class="btn btn-sm js-cs-da-edit" data-id="' + esc(p.id) + '">编辑</button>' +
+                    '<button type="button" class="btn btn-sm js-cs-da-pin" data-id="' + esc(p.id) + '">' + (p.pinned ? '取消置顶' : '置顶') + '</button>';
+                if (p.status === 'listed' || p.status === 'sold_out') {
+                    actions += '<button type="button" class="btn btn-sm js-cs-da-delist" data-id="' + esc(p.id) + '">下架</button>';
+                } else if (delisted) {
+                    actions += '<button type="button" class="btn btn-sm btn-primary js-cs-da-relist" data-id="' + esc(p.id) + '">上架</button>';
+                    actions += '<button type="button" class="btn btn-sm js-cs-da-remove" data-id="' + esc(p.id) + '">移除</button>';
+                } else {
+                    actions += '<span class="chip sm">' + esc(Store.statusLabel(p.status)) + '</span>';
+                }
             }
             foot = '<div class="cs-card-foot">' + actions + '</div>';
         } else if (preview) {
@@ -181,14 +202,18 @@
         }
 
         return (
-            '<article class="cs-card' + (delisted ? ' is-delisted' : '') + '" data-kind="digital" data-id="' + esc(p.id) + '">' +
+            '<article class="cs-card' + (delisted ? ' is-delisted' : '') + (rejected ? ' is-rejected' : '') + (pending ? ' is-pending' : '') + '" data-kind="digital" data-id="' + esc(p.id) + '">' +
             '<div class="cover js-cs-da-view" data-id="' + esc(p.id) + '" role="button" tabindex="0">' + badge +
             '<img src="' + esc(p.coverUrl) + '" alt="" loading="lazy"></div>' +
             '<div class="body">' +
-            '<div class="type">' + esc(type) + (delisted ? ' · 已下架' : '') + '</div>' +
+            '<div class="type">' + esc(type) +
+            (delisted ? ' · 已下架' : '') +
+            (rejected ? ' · 已驳回' : '') +
+            (pending ? ' · 审核中' : '') + '</div>' +
             '<h3 class="js-cs-da-view" data-id="' + esc(p.id) + '" style="cursor:pointer">' + esc(p.title) + '</h3>' +
             '<div class="meta"><span class="price">' + Number(p.priceUsdt).toFixed(2) + ' USDT</span></div>' +
             '<div class="supply">' + esc(supply) + '</div>' +
+            rejectBanner +
             foot +
             '</div></article>'
         );
@@ -317,6 +342,16 @@
                 var p = global.DigitalAssetsStore.relist(id);
                 if (!p) return toast('上架失败', true);
                 toast(p.status === 'sold_out' ? '已恢复展示（售罄）' : '已重新上架');
+                reload();
+            });
+        });
+        qsa('.js-cs-da-resubmit', root).forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var id = btn.getAttribute('data-id');
+                var p = global.DigitalAssetsStore.submitForReview(id);
+                if (!p) return toast('提交失败', true);
+                toast('已重新提交审核');
                 reload();
             });
         });
@@ -555,7 +590,7 @@
         if (createDigBtn && !createDigBtn._bound) {
             createDigBtn._bound = true;
             createDigBtn.addEventListener('click', function () {
-                toast('功能开发中，敬请期待');
+                location.href = 'create-digital-asset.html?type=nft&from=showcase';
             });
         }
         if (!skipToast && manage && param('from') === 'catalog' && activeTab === 'affiliate') {

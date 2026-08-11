@@ -130,26 +130,118 @@
         var form = qs('#daCreateForm');
         if (!form || !Store) return;
 
+        var forcedType = (param('type') || '').toLowerCase();
+        var fromShowcase = param('from') === 'showcase';
+        var isNftWizard = forcedType === 'nft' && !!qs('#daSteps');
+        var step = 1;
+        var totalSteps = 4;
+
         var typeSel = qs('#daAssetType');
         if (typeSel) {
             typeSel.innerHTML = Store.ASSET_TYPES.map(function (t) {
                 return '<option value="' + t.id + '">' + t.label + '</option>';
             }).join('');
+            if (forcedType) {
+                var match = Store.ASSET_TYPES.some(function (t) { return t.id === forcedType; });
+                if (match) typeSel.value = forcedType;
+            }
+            if (isNftWizard) {
+                typeSel.value = 'nft';
+                typeSel.disabled = true;
+            }
+        }
+
+        var backBtn = qs('#daBackShowcase');
+        if (backBtn) {
+            backBtn.addEventListener('click', function () {
+                location.href = fromShowcase
+                    ? 'creator-showcase.html?owner=1&tab=digital'
+                    : 'digital-asset-store.html?mine=1';
+            });
+        }
+
+        function afterSaveRedirect(p, submitted) {
+            if (fromShowcase) {
+                location.href = 'creator-showcase.html?owner=1&tab=digital' +
+                    (p && p.id ? '&open=' + encodeURIComponent(p.id) : '');
+                return;
+            }
+            if (submitted) {
+                location.href = 'digital-asset-store.html?mine=1';
+                return;
+            }
+            location.href = 'digital-asset-detail.html?id=' + encodeURIComponent(p.id);
+        }
+
+        function collectTraits() {
+            var list = qs('#daTraitsList');
+            if (!list) return [];
+            return qsa('.da-trait-row', list).map(function (row) {
+                var k = qs('.da-trait-key', row);
+                var v = qs('.da-trait-val', row);
+                return {
+                    trait_type: k ? k.value.trim() : '',
+                    value: v ? v.value.trim() : ''
+                };
+            }).filter(function (t) { return t.trait_type && t.value; });
+        }
+
+        function addTraitRow(traitType, value) {
+            var list = qs('#daTraitsList');
+            if (!list) return;
+            var row = document.createElement('div');
+            row.className = 'da-trait-row';
+            row.innerHTML =
+                '<input class="da-trait-key" type="text" placeholder="属性名" maxlength="40" value="' + esc(traitType || '') + '">' +
+                '<input class="da-trait-val" type="text" placeholder="属性值" maxlength="80" value="' + esc(value || '') + '">' +
+                '<button type="button" class="btn btn-sm da-trait-del" aria-label="删除属性"><i class="fa-solid fa-xmark"></i></button>';
+            list.appendChild(row);
+            qs('.da-trait-del', row).addEventListener('click', function () { row.remove(); });
         }
 
         function collect() {
             var mode = qs('#daSupplyMode').value;
+            var cover = qs('#daCover').value.trim();
+            var content = qs('#daContent').value.trim();
+            var assetType = typeSel ? typeSel.value : 'other';
+            if (isNftWizard) assetType = 'nft';
             return {
                 title: qs('#daTitle').value.trim(),
                 description: qs('#daDesc').value.trim(),
-                coverUrl: qs('#daCover').value.trim() || 'https://images.unsplash.com/photo-1727722158074-b7916daf6af4?w=800&q=80',
-                assetType: qs('#daAssetType').value,
-                contentFiles: [qs('#daContent').value.trim() || 'https://example.com/asset.bin'],
+                coverUrl: cover || 'https://images.unsplash.com/photo-1727722158074-b7916daf6af4?w=800&q=80',
+                assetType: assetType,
+                contentFiles: [content || 'https://example.com/nft-media.bin'],
                 priceUsdt: parseFloat(qs('#daPrice').value) || 0,
                 supplyMode: mode,
                 supplyTotal: mode === 'limited' ? (parseInt(qs('#daSupplyTotal').value, 10) || 100) : 0,
-                soldCount: 0
+                soldCount: 0,
+                nftTraits: collectTraits(),
+                chainNetwork: (qs('#daChain') && qs('#daChain').value) || 'Polygon'
             };
+        }
+
+        function validateStep(n, data) {
+            if (n === 1) {
+                if (!data.title) return '请填写 NFT 名称';
+                if (!data.description) return '请填写商品描述';
+                return null;
+            }
+            if (n === 2) {
+                if (!qs('#daCover').value.trim()) return '请填写封面图 URL';
+                if (!qs('#daContent').value.trim()) return '请填写数字内容 / 媒体 URL';
+                return null;
+            }
+            if (n === 3) {
+                if (data.priceUsdt <= 0) return '请设置有效价格';
+                if (data.supplyMode === 'limited' && data.supplyTotal < 1) return '限量发行数量至少为 1';
+                return null;
+            }
+            if (n === 4) {
+                var agree = qs('#daAgree');
+                if (agree && !agree.checked) return '请先确认版权与审核规范';
+                return null;
+            }
+            return null;
         }
 
         function validate(data) {
@@ -159,26 +251,133 @@
             return null;
         }
 
-        qs('#daSupplyMode').addEventListener('change', function () {
-            qs('#daSupplyTotalWrap').style.display = this.value === 'limited' ? '' : 'none';
-        });
+        function renderConfirm(data) {
+            var card = qs('#daConfirmCard');
+            if (!card) return;
+            var traits = (data.nftTraits || []).map(function (t) {
+                return '<span class="da-trait-chip">' + esc(t.trait_type) + ' · ' + esc(t.value) + '</span>';
+            }).join('') || '<span class="da-muted">未配置 Traits</span>';
+            var supply = data.supplyMode === 'limited'
+                ? ('限量 ' + data.supplyTotal + ' 份')
+                : '无限发行';
+            card.innerHTML =
+                '<div class="da-confirm-cover"><img src="' + esc(data.coverUrl) + '" alt=""></div>' +
+                '<div class="da-confirm-body">' +
+                '<div class="k">类型</div><div class="v">' + esc(Store.typeLabel(data.assetType)) + '</div>' +
+                '<div class="k">名称</div><div class="v">' + esc(data.title) + '</div>' +
+                '<div class="k">描述</div><div class="v">' + esc(data.description) + '</div>' +
+                '<div class="k">价格</div><div class="v">' + Number(data.priceUsdt).toFixed(2) + ' USDT</div>' +
+                '<div class="k">发行</div><div class="v">' + esc(supply) + ' · ' + esc(data.chainNetwork) + '</div>' +
+                '<div class="k">媒体</div><div class="v trunc">' + esc(data.contentFiles[0] || '') + '</div>' +
+                '<div class="k">Traits</div><div class="v da-confirm-traits">' + traits + '</div>' +
+                '</div>';
+        }
+
+        function setStep(n) {
+            step = Math.max(1, Math.min(totalSteps, n));
+            qsa('.da-step', qs('#daSteps')).forEach(function (el) {
+                var s = parseInt(el.getAttribute('data-step'), 10);
+                el.classList.toggle('is-active', s === step);
+                el.classList.toggle('is-done', s < step);
+            });
+            qsa('.da-step-panel', form).forEach(function (panel) {
+                var s = parseInt(panel.getAttribute('data-panel'), 10);
+                var on = s === step;
+                panel.hidden = !on;
+                panel.classList.toggle('is-active', on);
+            });
+            var prev = qs('#btnDaPrev');
+            var next = qs('#btnDaNext');
+            var submit = qs('#btnDaSubmit');
+            if (prev) prev.hidden = step <= 1;
+            if (next) next.hidden = step >= totalSteps;
+            if (submit) submit.hidden = step < totalSteps;
+            if (step === totalSteps) renderConfirm(collect());
+        }
+
+        var supplyMode = qs('#daSupplyMode');
+        if (supplyMode) {
+            supplyMode.addEventListener('change', function () {
+                var wrap = qs('#daSupplyTotalWrap');
+                if (wrap) wrap.style.display = this.value === 'limited' ? '' : 'none';
+            });
+        }
+
+        var coverInput = qs('#daCover');
+        var coverPreview = qs('#daCoverPreview');
+        var coverImg = qs('#daCoverImg');
+        function refreshCoverPreview() {
+            if (!coverInput || !coverPreview || !coverImg) return;
+            var url = coverInput.value.trim();
+            if (!url) {
+                coverPreview.hidden = true;
+                return;
+            }
+            coverImg.src = url;
+            coverPreview.hidden = false;
+        }
+        if (coverInput) {
+            coverInput.addEventListener('input', refreshCoverPreview);
+            coverInput.addEventListener('change', refreshCoverPreview);
+        }
+
+        var traitAdd = qs('#daTraitAdd');
+        if (traitAdd) {
+            traitAdd.addEventListener('click', function () { addTraitRow('', ''); });
+            if (!qs('#daTraitsList') || !qs('#daTraitsList').children.length) {
+                addTraitRow('Rarity', 'Rare');
+                addTraitRow('Scene', 'Night Street');
+            }
+        }
+
+        if (isNftWizard) {
+            setStep(1);
+            var btnPrev = qs('#btnDaPrev');
+            var btnNext = qs('#btnDaNext');
+            if (btnPrev) {
+                btnPrev.addEventListener('click', function () { setStep(step - 1); });
+            }
+            if (btnNext) {
+                btnNext.addEventListener('click', function () {
+                    var data = collect();
+                    var err = validateStep(step, data);
+                    if (err) return toast(err, true);
+                    setStep(step + 1);
+                });
+            }
+        } else {
+            var wizardBits = [qs('#btnDaPrev'), qs('#btnDaNext'), qs('#daSteps')];
+            wizardBits.forEach(function (el) { if (el) el.hidden = true; });
+            var submitOnly = qs('#btnDaSubmit');
+            if (submitOnly) submitOnly.hidden = false;
+        }
 
         qs('#btnDaSaveDraft').addEventListener('click', function () {
             var data = collect();
-            var err = validate(data);
-            if (err) return toast(err, true);
+            if (isNftWizard) {
+                var e1 = validateStep(1, data);
+                if (e1) return toast(e1, true);
+            } else {
+                var err = validate(data);
+                if (err) return toast(err, true);
+            }
             var p = Store.create(Object.assign(data, { status: 'draft' }));
             toast('草稿已保存');
-            setTimeout(function () { location.href = 'digital-asset-detail.html?id=' + encodeURIComponent(p.id); }, 700);
+            setTimeout(function () { afterSaveRedirect(p, false); }, 700);
         });
 
         qs('#btnDaSubmit').addEventListener('click', function () {
             var data = collect();
-            var err = validate(data);
+            var err;
+            if (isNftWizard) {
+                err = validateStep(1, data) || validateStep(2, data) || validateStep(3, data) || validateStep(4, data);
+            } else {
+                err = validate(data);
+            }
             if (err) return toast(err, true);
             var p = Store.create(Object.assign(data, { status: 'pending_review' }));
-            toast('已提交审核');
-            setTimeout(function () { location.href = 'digital-asset-store.html?mine=1'; }, 700);
+            toast('已提交审核，请在橱窗查看进度');
+            setTimeout(function () { afterSaveRedirect(p, true); }, 700);
         });
     }
 

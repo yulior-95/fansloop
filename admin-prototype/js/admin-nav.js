@@ -41,7 +41,7 @@
       href: "network-fees.html",
       icon: "fa-percent",
       label: "手续费",
-      desc: "USDT/USDC 多网络充提地址、手续费与二维码",
+      desc: "USDT/USDC 多网络充值地址、手续费与二维码",
       api: "PUT /api/v1/admin/fee-config"
     },
     {

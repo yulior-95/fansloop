@@ -2,7 +2,8 @@
  * 数字资产订单 + 用户权益 + 创作者数字收益流水
  */
 (function (global) {
-    var LS_KEY = 'fl_digital_asset_orders_v1';
+    var LS_KEY = 'fl_digital_asset_orders_v2';
+    var LS_KEY_LEGACY = 'fl_digital_asset_orders_v1';
     var DEMO_BUYER = 'demo_fan_991001';
     var DEMO_CREATOR = 'demo_uid_882910';
 
@@ -14,15 +15,173 @@
         return (prefix || 'dao') + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     }
 
+    function seedData() {
+        var covers = {
+            nft: 'https://images.unsplash.com/photo-1727722158074-b7916daf6af4?w=400&q=80',
+            img: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=400&q=80',
+            mem: 'https://images.unsplash.com/photo-1651607792435-e944c20826a2?w=400&q=80'
+        };
+        var orders = [
+            {
+                id: 'DO20260806001',
+                productId: 'da_seed_nft_01',
+                productTitle: 'Neon Echo · Genesis Pass',
+                coverUrl: covers.nft,
+                assetType: 'nft',
+                creatorId: DEMO_CREATOR,
+                creatorName: 'Luna 🌙',
+                buyerId: 'demo_fan_991001',
+                priceUsdt: 10,
+                platformFee: 1,
+                creatorNet: 9,
+                feePercent: 10,
+                status: 'completed',
+                createdAt: '2026-08-06 09:12'
+            },
+            {
+                id: 'DO20260805014',
+                productId: 'da_seed_img_02',
+                productTitle: '富士山日出 · 4K 数字写真包',
+                coverUrl: covers.img,
+                assetType: 'image',
+                creatorId: DEMO_CREATOR,
+                creatorName: 'Luna 🌙',
+                buyerId: 'buyer_k9m0',
+                priceUsdt: 4.5,
+                platformFee: 0.45,
+                creatorNet: 4.05,
+                feePercent: 10,
+                status: 'completed',
+                createdAt: '2026-08-05 16:40'
+            },
+            {
+                id: 'DO20260804008',
+                productId: 'da_seed_nft_01',
+                productTitle: 'Neon Echo · Genesis Pass',
+                coverUrl: covers.nft,
+                assetType: 'nft',
+                creatorId: DEMO_CREATOR,
+                creatorName: 'Luna 🌙',
+                buyerId: 'buyer_q3w4',
+                priceUsdt: 10,
+                platformFee: 1,
+                creatorNet: 9,
+                feePercent: 10,
+                status: 'completed',
+                createdAt: '2026-08-04 11:05'
+            },
+            {
+                id: 'DO20260803022',
+                productId: 'da_seed_mem_03',
+                productTitle: '创作者周会 · 数字会员月卡',
+                coverUrl: covers.mem,
+                assetType: 'membership',
+                creatorId: DEMO_CREATOR,
+                creatorName: 'Luna 🌙',
+                buyerId: 'buyer_z7x8',
+                priceUsdt: 19.9,
+                platformFee: 1.99,
+                creatorNet: 17.91,
+                feePercent: 10,
+                status: 'completed',
+                createdAt: '2026-08-03 20:18'
+            },
+            {
+                id: 'DO20260802007',
+                productId: 'da_seed_img_02',
+                productTitle: '富士山日出 · 4K 数字写真包',
+                coverUrl: covers.img,
+                assetType: 'image',
+                creatorId: DEMO_CREATOR,
+                creatorName: 'Luna 🌙',
+                buyerId: 'demo_fan_772210',
+                priceUsdt: 4.5,
+                platformFee: 0.45,
+                creatorNet: 4.05,
+                feePercent: 10,
+                status: 'completed',
+                createdAt: '2026-08-02 13:26'
+            }
+        ];
+        var entitlements = orders.map(function (o, i) {
+            return {
+                id: 'ent_seed_0' + (i + 1),
+                orderId: o.id,
+                productId: o.productId,
+                productTitle: o.productTitle,
+                coverUrl: o.coverUrl,
+                assetType: o.assetType,
+                contentFiles: [o.coverUrl],
+                creatorId: o.creatorId,
+                creatorName: o.creatorName,
+                buyerId: o.buyerId,
+                priceUsdt: o.priceUsdt,
+                grantedAt: o.createdAt
+            };
+        });
+        var earnings = orders.map(function (o, i) {
+            return {
+                id: 'dae_seed_0' + (i + 1),
+                orderId: o.id,
+                productId: o.productId,
+                productTitle: o.productTitle,
+                creatorId: o.creatorId,
+                amount: o.creatorNet,
+                gross: o.priceUsdt,
+                platformFee: o.platformFee,
+                createdAt: o.createdAt
+            };
+        });
+        return { orders: orders, entitlements: entitlements, earnings: earnings };
+    }
+
+    function ensureSeed(data) {
+        if (!data.orders) data.orders = [];
+        if (!data.entitlements) data.entitlements = [];
+        if (!data.earnings) data.earnings = [];
+        var seed = seedData();
+        var orderIds = {};
+        data.orders.forEach(function (o) { orderIds[o.id] = true; });
+        seed.orders.forEach(function (o) {
+            if (!orderIds[o.id]) data.orders.push(o);
+        });
+        var entIds = {};
+        data.entitlements.forEach(function (e) { entIds[e.id] = true; });
+        seed.entitlements.forEach(function (e) {
+            if (!entIds[e.id]) data.entitlements.push(e);
+        });
+        var earnIds = {};
+        data.earnings.forEach(function (e) { earnIds[e.id] = true; });
+        seed.earnings.forEach(function (e) {
+            if (!earnIds[e.id]) data.earnings.push(e);
+        });
+        return data;
+    }
+
     function read() {
         try {
             var raw = localStorage.getItem(LS_KEY);
             if (raw) {
                 var p = JSON.parse(raw);
-                if (p && Array.isArray(p.orders)) return p;
+                if (p && Array.isArray(p.orders)) {
+                    ensureSeed(p);
+                    write(p);
+                    return p;
+                }
+            }
+            var legacy = localStorage.getItem(LS_KEY_LEGACY);
+            if (legacy) {
+                var old = JSON.parse(legacy);
+                if (old && Array.isArray(old.orders)) {
+                    ensureSeed(old);
+                    write(old);
+                    return old;
+                }
             }
         } catch (e) { /* ignore */ }
-        return { orders: [], entitlements: [], earnings: [] };
+        var seeded = seedData();
+        write(seeded);
+        return seeded;
     }
 
     function write(data) {

@@ -2,8 +2,16 @@
  * 创作者实体橱窗 + 点击 + 佣金回传分配
  */
 (function (global) {
-    var LS_KEY = 'fl_affiliate_showcase_v1';
+    var LS_KEY = 'fl_affiliate_showcase_v4';
+    var LS_KEY_LEGACY = ['fl_affiliate_showcase_v3', 'fl_affiliate_showcase_v2', 'fl_affiliate_showcase_v1'];
     var DEMO_CREATOR = 'demo_uid_882910';
+
+    /** 流水状态：冲正是独立一条负向记录，不改写原结算单 */
+    var STATUS_LABELS = {
+        settled: '已结算',
+        pending: '待结算',
+        reverse: '冲正'
+    };
 
     function nowIso() {
         return new Date().toISOString().slice(0, 16).replace('T', ' ');
@@ -13,23 +21,221 @@
         return (prefix || 'ash') + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     }
 
-    function read() {
-        try {
-            var raw = localStorage.getItem(LS_KEY);
-            if (raw) {
-                var p = JSON.parse(raw);
-                if (p && Array.isArray(p.items)) return p;
+    function statusLabel(status) {
+        return STATUS_LABELS[status] || status || '—';
+    }
+
+    /** 平台侧联盟佣金流水号 */
+    function genPlatformOrderNo() {
+        var d = new Date();
+        var y = d.getFullYear();
+        var m = String(d.getMonth() + 1).padStart(2, '0');
+        var day = String(d.getDate()).padStart(2, '0');
+        var seq = String(Math.floor(Math.random() * 9000) + 1000);
+        return 'AC' + y + m + day + seq;
+    }
+
+    /** 模拟三方订单号 */
+    function genPartnerOrderNo(partnerId) {
+        var prefix = (partnerId || '').indexOf('shopify') >= 0 ? 'SHP' : 'AMZ';
+        return prefix + '-' + String(Math.floor(Math.random() * 900000) + 100000) + '-' +
+            String(Math.floor(Math.random() * 90000) + 10000);
+    }
+
+    function seedCommissions() {
+        return [
+            {
+                id: 'acm_seed_settled_01',
+                clickId: 'clk_seed_01',
+                productId: 'afp_lipstick_02',
+                productTitle: 'Velvet Matte Lipstick · Rose Clay',
+                creatorId: DEMO_CREATOR,
+                partnerId: 'partner_amazon',
+                platformOrderNo: 'AC202608060105',
+                partnerOrderNo: 'AMZ-482913-77102',
+                orderAmount: 24,
+                commissionRate: 0.08,
+                affiliateGross: 1.92,
+                creatorShare: 1.34,
+                platformShare: 0.58,
+                status: 'settled',
+                relatedId: '',
+                createdAt: '2026-08-06 01:05'
+            },
+            {
+                id: 'acm_seed_pending_02',
+                clickId: 'clk_seed_02',
+                productId: 'afp_jacket_01',
+                productTitle: 'Urban Tech Softshell Jacket',
+                creatorId: DEMO_CREATOR,
+                partnerId: 'partner_amazon',
+                platformOrderNo: 'AC202608051422',
+                partnerOrderNo: 'AMZ-319557-44081',
+                orderAmount: 89,
+                commissionRate: 0.05,
+                affiliateGross: 4.45,
+                creatorShare: 3.12,
+                platformShare: 1.33,
+                status: 'pending',
+                relatedId: '',
+                createdAt: '2026-08-05 14:22'
+            },
+            {
+                id: 'acm_seed_settled_03',
+                clickId: 'clk_seed_03',
+                productId: 'afp_camera_03',
+                productTitle: 'Compact Mirrorless Camera Kit',
+                creatorId: DEMO_CREATOR,
+                partnerId: 'partner_shopify',
+                platformOrderNo: 'AC202608041118',
+                partnerOrderNo: 'SHP-902441-11830',
+                orderAmount: 699,
+                commissionRate: 0.04,
+                affiliateGross: 27.96,
+                creatorShare: 19.57,
+                platformShare: 8.39,
+                status: 'settled',
+                relatedId: '',
+                createdAt: '2026-08-04 11:18'
+            },
+            {
+                id: 'acm_seed_settled_04',
+                clickId: 'clk_seed_04',
+                productId: 'afp_mug_04',
+                productTitle: 'Ceramic Pour-Over Mug Set',
+                creatorId: 'demo_uid_771002',
+                partnerId: 'partner_shopify',
+                platformOrderNo: 'AC202608030940',
+                partnerOrderNo: 'SHP-778210-66315',
+                orderAmount: 36,
+                commissionRate: 0.1,
+                affiliateGross: 3.6,
+                creatorShare: 2.52,
+                platformShare: 1.08,
+                status: 'settled',
+                relatedId: '',
+                createdAt: '2026-08-03 09:40'
+            },
+            {
+                id: 'acm_seed_reverse_04b',
+                clickId: 'clk_seed_04',
+                productId: 'afp_mug_04',
+                productTitle: 'Ceramic Pour-Over Mug Set',
+                creatorId: 'demo_uid_771002',
+                partnerId: 'partner_shopify',
+                platformOrderNo: 'AC202608031812R',
+                partnerOrderNo: 'SHP-778210-66315',
+                orderAmount: -36,
+                commissionRate: 0.1,
+                affiliateGross: -3.6,
+                creatorShare: -2.52,
+                platformShare: -1.08,
+                status: 'reverse',
+                relatedId: 'acm_seed_settled_04',
+                remark: '第三方退货回传 · 冲销原结算单',
+                createdAt: '2026-08-03 18:12'
+            },
+            {
+                id: 'acm_seed_pending_05',
+                clickId: 'clk_seed_05',
+                productId: 'afp_lipstick_02',
+                productTitle: 'Velvet Matte Lipstick · Rose Clay',
+                creatorId: 'demo_uid_771002',
+                partnerId: 'partner_amazon',
+                platformOrderNo: 'AC202608021655',
+                partnerOrderNo: 'AMZ-661204-39017',
+                orderAmount: 24,
+                commissionRate: 0.08,
+                affiliateGross: 1.92,
+                creatorShare: 1.34,
+                platformShare: 0.58,
+                status: 'pending',
+                relatedId: '',
+                createdAt: '2026-08-02 16:55'
             }
-        } catch (e) { /* ignore */ }
-        var seed = {
+        ];
+    }
+
+    function defaultSeed() {
+        return {
             items: [
                 { id: 'shi_1', creatorId: DEMO_CREATOR, productId: 'afp_jacket_01', pinned: true, addedAt: '2026-07-26 10:00' },
                 { id: 'shi_2', creatorId: DEMO_CREATOR, productId: 'afp_camera_03', pinned: false, addedAt: '2026-07-26 10:05' },
                 { id: 'shi_3', creatorId: DEMO_CREATOR, productId: 'afp_lipstick_02', pinned: false, addedAt: '2026-07-27 09:00' }
             ],
             clicks: [],
-            commissions: []
+            commissions: seedCommissions()
         };
+    }
+
+    function ensureDemoCommissions(data) {
+        if (!data.commissions) data.commissions = [];
+        var seeds = seedCommissions();
+        var byId = {};
+        data.commissions.forEach(function (c) { byId[c.id] = c; });
+        seeds.forEach(function (seed) {
+            if (!byId[seed.id]) {
+                data.commissions.push(seed);
+                byId[seed.id] = seed;
+                return;
+            }
+            var cur = byId[seed.id];
+            if (!cur.platformOrderNo) cur.platformOrderNo = seed.platformOrderNo;
+            if (!cur.partnerOrderNo) cur.partnerOrderNo = seed.partnerOrderNo;
+            if (cur.relatedId == null) cur.relatedId = seed.relatedId || '';
+            if (seed.remark && !cur.remark) cur.remark = seed.remark;
+        });
+
+        // 去掉与种子重复的旧模拟行（曾出现同一成交两条：一条无订单号）
+        var seedIdMap = {};
+        seeds.forEach(function (s) { seedIdMap[s.id] = true; });
+        data.commissions = data.commissions.filter(function (c) {
+            if (seedIdMap[c.id]) return true;
+            var dupSeed = seeds.some(function (s) {
+                return s.productId === c.productId &&
+                    s.creatorId === c.creatorId &&
+                    Number(s.orderAmount) === Number(c.orderAmount) &&
+                    s.createdAt === c.createdAt &&
+                    s.status === c.status;
+            });
+            return !dupSeed;
+        });
+
+        // 其余流水补齐订单号
+        data.commissions.forEach(function (c) {
+            if (!c.platformOrderNo) c.platformOrderNo = genPlatformOrderNo();
+            if (!c.partnerOrderNo) c.partnerOrderNo = genPartnerOrderNo(c.partnerId);
+        });
+        return data;
+    }
+
+    function read() {
+        try {
+            var raw = localStorage.getItem(LS_KEY);
+            if (raw) {
+                var p = JSON.parse(raw);
+                if (p && Array.isArray(p.items)) {
+                    ensureDemoCommissions(p);
+                    write(p);
+                    return p;
+                }
+            }
+            for (var i = 0; i < LS_KEY_LEGACY.length; i++) {
+                var legacy = localStorage.getItem(LS_KEY_LEGACY[i]);
+                if (!legacy) continue;
+                var old = JSON.parse(legacy);
+                if (old && Array.isArray(old.items)) {
+                    // 去掉旧版「单条改状态为 reversed」演示行，改由结算+冲正两条种子覆盖
+                    old.commissions = (old.commissions || []).filter(function (c) {
+                        return c.id !== 'acm_seed_reversed_04' && c.status !== 'reversed';
+                    });
+                    ensureDemoCommissions(old);
+                    write(old);
+                    return old;
+                }
+            }
+        } catch (e) { /* ignore */ }
+        var seed = defaultSeed();
         write(seed);
         return seed;
     }
@@ -143,12 +349,15 @@
                 productTitle: product.title,
                 creatorId: creatorId,
                 partnerId: product.partnerId,
+                platformOrderNo: opts.platformOrderNo || genPlatformOrderNo(),
+                partnerOrderNo: opts.partnerOrderNo || genPartnerOrderNo(product.partnerId),
                 orderAmount: orderAmount,
                 commissionRate: product.commissionRate,
                 affiliateGross: split.affiliateGross,
                 creatorShare: split.creatorShare,
                 platformShare: split.platformShare,
                 status: 'settled',
+                relatedId: '',
                 createdAt: nowIso()
             };
             data.commissions.unshift(commission);
@@ -171,6 +380,7 @@
 
     function sumCreatorCommissions(creatorId) {
         return listCommissions({ creatorId: creatorId || DEMO_CREATOR })
+            .filter(function (c) { return c.status === 'settled' || c.status === 'reverse'; })
             .reduce(function (s, c) { return s + (c.creatorShare || 0); }, 0);
     }
 
@@ -185,6 +395,8 @@
 
     global.AffiliateShowcaseStore = {
         DEMO_CREATOR: DEMO_CREATOR,
+        STATUS_LABELS: STATUS_LABELS,
+        statusLabel: statusLabel,
         listShowcase: listShowcase,
         hasInShowcase: hasInShowcase,
         addToShowcase: addToShowcase,

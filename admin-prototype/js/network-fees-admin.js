@@ -179,7 +179,7 @@
   }
 
   function bindQrUploads() {
-    ['nfDepQr', 'nfWdQr'].forEach(function (prefix) {
+    ['nfDepQr'].forEach(function (prefix) {
       var file = document.getElementById(prefix + 'File');
       var hidden = document.getElementById(prefix + 'Url');
       var input = document.getElementById(prefix + 'UrlInput');
@@ -230,11 +230,8 @@
       networkName: '',
       enabled: true,
       depositAddress: '',
-      withdrawAddress: '',
       depositFee: { billingType: 'fixed', rate: 1, minFee: null },
-      withdrawFee: { billingType: 'fixed', rate: 1, minFee: null },
       depositQrUrl: Fee.placeholderQr('new-deposit'),
-      withdrawQrUrl: Fee.placeholderQr('new-withdraw'),
       sort: 100
     };
 
@@ -259,20 +256,15 @@
         '<option value="0"' + (row.enabled === false ? ' selected' : '') + '>停用</option>' +
         '</select></div>' +
 
-        '<div class="nf-section"><i class="fa-solid fa-wallet"></i>地址配置<span class="hint">充值收款 / 提现出款</span></div>' +
+        '<div class="nf-section"><i class="fa-solid fa-wallet"></i>充值地址<span class="hint">平台收款地址</span></div>' +
         '<div class="ant-form-item span-2"><label>充值地址</label>' +
         '<input class="ant-input" id="nfDepAddr" value="' + esc(row.depositAddress) + '" placeholder="平台收款地址"></div>' +
-        '<div class="ant-form-item span-2"><label>提现地址</label>' +
-        '<input class="ant-input" id="nfWdAddr" value="' + esc(row.withdrawAddress) + '" placeholder="平台热钱包 / 出款地址"></div>' +
 
         '<div class="nf-section"><i class="fa-solid fa-percent"></i>充值手续费<span class="hint">按网络独立计价</span></div>' +
         feeFieldsHtml('nfDep', row.depositFee, asset) +
-        '<div class="nf-section"><i class="fa-solid fa-arrow-up-from-bracket"></i>提现手续费<span class="hint">按网络独立计价</span></div>' +
-        feeFieldsHtml('nfWd', row.withdrawFee, asset) +
 
-        '<div class="nf-section"><i class="fa-solid fa-qrcode"></i>二维码<span class="hint">用户端展示用</span></div>' +
+        '<div class="nf-section"><i class="fa-solid fa-qrcode"></i>充值二维码<span class="hint">用户端展示用</span></div>' +
         qrUploadHtml('nfDepQr', row.depositQrUrl, '充值二维码') +
-        qrUploadHtml('nfWdQr', row.withdrawQrUrl, '提现二维码') +
         '</div>'
       );
     }
@@ -293,17 +285,12 @@
             var networkId = (document.getElementById('nfNetId').value || '').trim();
             var networkName = (document.getElementById('nfNetName').value || '').trim();
             var depositAddress = (document.getElementById('nfDepAddr').value || '').trim();
-            var withdrawAddress = (document.getElementById('nfWdAddr').value || '').trim();
             if (!networkId) { toast('请填写网络标识'); return; }
             if (!networkName) { toast('请填写网络名称'); return; }
             if (!depositAddress) { toast('请填写充值地址'); return; }
-            if (!withdrawAddress) { toast('请填写提现地址'); return; }
             var depFee = readFee('nfDep');
             if (depFee.error) { toast(depFee.error); return; }
-            var wdFee = readFee('nfWd');
-            if (wdFee.error) { toast(wdFee.error); return; }
             var depQr = document.getElementById('nfDepQrUrl').value.trim();
-            var wdQr = document.getElementById('nfWdQrUrl').value.trim();
             var sort = parseInt(document.getElementById('nfSort').value, 10);
             var enabled = document.getElementById('nfEnabledSel').value !== '0';
 
@@ -313,18 +300,18 @@
               networkId: networkId,
               networkName: networkName,
               depositAddress: depositAddress,
-              withdrawAddress: withdrawAddress,
+              withdrawAddress: row.withdrawAddress || '',
               depositFee: depFee,
-              withdrawFee: wdFee,
+              withdrawFee: row.withdrawFee || { billingType: 'fixed', rate: 0, minFee: null },
               depositQrUrl: depQr || Fee.placeholderQr(asset + '-' + networkId + '-deposit'),
-              withdrawQrUrl: wdQr || Fee.placeholderQr(asset + '-' + networkId + '-withdraw'),
+              withdrawQrUrl: row.withdrawQrUrl || '',
               sort: isFinite(sort) ? sort : 100,
               enabled: enabled,
               createdAt: row.createdAt
             };
 
             M.confirmGoogle({
-              message: (isEdit ? '变更' : '新增') + '链上充提网络将影响用户端可选网络与手续费报价，需谷歌验证。',
+              message: (isEdit ? '变更' : '新增') + '链上充值网络将影响用户端可选网络与手续费报价，需谷歌验证。',
               onVerified: function () {
                 Fee.upsertNetwork(payload);
                 M.close();
@@ -399,7 +386,7 @@
     }
     if (!pageList.length) {
       body.innerHTML =
-        '<tr><td colspan="11" style="text-align:center;color:rgba(0,0,0,.45);padding:48px 28px">' +
+        '<tr><td colspan="8" style="text-align:center;color:rgba(0,0,0,.45);padding:48px 28px">' +
         '<div style="font-size:32px;opacity:.25;margin-bottom:8px"><i class="fa-solid fa-inbox"></i></div>' +
         '暂无网络配置，请点击「新增网络」</td></tr>';
       return;
@@ -411,11 +398,8 @@
         '<td class="col-sticky-net"><div class="nf-net-name">' + esc(n.networkName) + '</div>' +
         '<div class="nf-net-id">' + esc(n.networkId) + '</div></td>' +
         '<td>' + addrCell(n.depositAddress) + '</td>' +
-        '<td>' + addrCell(n.withdrawAddress) + '</td>' +
         '<td>' + feeHtml(n.depositFee, n.asset) + '</td>' +
-        '<td>' + feeHtml(n.withdrawFee, n.asset) + '</td>' +
         '<td>' + qrCell(n.depositQrUrl, '充值二维码 · ' + n.asset + ' / ' + n.networkName) + '</td>' +
-        '<td>' + qrCell(n.withdrawQrUrl, '提现二维码 · ' + n.asset + ' / ' + n.networkName) + '</td>' +
         '<td>' + switchHtml(n.enabled !== false, n.id) + '</td>' +
         '<td><div class="nf-time">' + esc(Fee.formatUpdatedAt(n.updatedAt)) +
         '<div class="by">' + esc(n.updatedBy || '—') + '</div></div></td>' +

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>数字销售记录 · GOODFANS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/shell.css">
+  <link rel="stylesheet" href="css/glass-notes.css">
+</head>
+<body>
+<div class="mh-app">
+  <aside class="mh-sider" id="mhSider"></aside>
+  <div class="mh-main">
+    <header class="mh-header">
+      <div class="mh-breadcrumb"><i class="fa-solid fa-bars"></i><span>双商城</span><span>/</span><strong>数字销售记录</strong></div>
+      <div class="mh-header-right">
+        <button type="button" class="mh-btn mh-btn-sm" id="btnExport"><i class="fa-solid fa-file-export"></i> 导出</button>
+        <div class="mh-header-user">
+          <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt="">
+          <span>财务运营</span>
+        </div>
+      </div>
+    </header>
+    <main class="mh-content">
+      <div class="mh-page-head">
+        <div>
+          <h1 class="mh-page-title">数字销售记录</h1>
+          <p class="mh-page-desc">平台内数字商品成交明细：成交额、平台费、创作者实得。支付完成后即时入账，无需物流履约。</p>
+        </div>
+        <span class="mh-anno-inline">
+          <span class="mh-anno-sphere"><span>To 研发</span></span>
+          <span class="mh-anno-pop"><b>分成来源</b>平台费比例读取商城分成配置 digitalPlatformFeePercent。</span>
+        </span>
+      </div>
+
+      <div class="mh-stats">
+        <div class="mh-stat"><div class="label">成交笔数</div><div class="value">4</div><div class="sub">近 7 日</div></div>
+        <div class="mh-stat is-ok"><div class="label">成交额</div><div class="value">52.40</div><div class="sub">USDT</div></div>
+        <div class="mh-stat"><div class="label">平台费合计</div><div class="value">5.24</div><div class="sub">USDT</div></div>
+        <div class="mh-stat is-ok"><div class="label">创作者实得</div><div class="value">47.16</div><div class="sub">USDT</div></div>
+      </div>
+
+      <section class="mh-card">
+        <div class="mh-card-head">
+          <h2>成交明细</h2>
+          <div class="mh-toolbar" style="margin:0">
+            <input class="mh-input" type="date" value="2026-08-01">
+            <span style="color:rgba(0,0,0,.35)">至</span>
+            <input class="mh-input" type="date" value="2026-08-06">
+            <input class="mh-input" id="kw" placeholder="订单号 / 商品 / 买家" style="width:220px">
+          </div>
+        </div>
+        <div class="mh-card-body">
+          <div class="mh-table-wrap">
+            <table class="mh-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>订单号</th>
+                  <th>商品</th>
+                  <th>创作者</th>
+                  <th>买家</th>
+                  <th>成交额</th>
+                  <th>平台费</th>
+                  <th>创作者实得</th>
+                  <th>时间</th>
+                </tr>
+              </thead>
+              <tbody id="orderBody"></tbody>
+            </table>
+          </div>
+          <div class="mh-pager"><span>共 <b>4</b> 条</span><div class="pages"><button type="button" class="is-active">1</button></div></div>
+        </div>
+      </section>
+    </main>
+    <footer class="mh-footer">GOODFANS · 数字销售记录 · GET /admin/digital-orders</footer>
+  </div>
+</div>
+<div class="mh-anno-rail" id="mhAnnoRail"></div>
+<script src="js/shell.js"></script>
+<script>
+(function () {
+  var Shell = window.MallHifiShell;
+  Shell.mountSider('digital-orders');
+  Shell.mountAnnoRail([
+    { title: '演示数据填充', body: '避免空表误判为缺功能；联调时可切换 localStorage DigitalAssetOrdersStore。' },
+    { title: '导出任务', body: '导出走异步任务队列，与充提订单导出一致（任务列表下载）。' },
+    { title: '买家隐私', body: '列表可展示脱敏 UID；详情需权限控制。' }
+  ]);
+
+  var orders = [
+    { id: 'DO20260806001', product: 'Neon Echo · Genesis Pass', creator: 'Luna 🌙', buyer: 'buyer_u1a2', amount: 10, fee: 1, net: 9, time: '2026-08-06 09:12', cover: 'https://images.unsplash.com/photo-1727722158074-b7916daf6af4?w=120&h=120&fit=crop' },
+    { id: 'DO20260805014', product: '富士山日出 · 4K 数字写真包', creator: 'Luna 🌙', buyer: 'buyer_k9m0', amount: 4.5, fee: 0.45, net: 4.05, time: '2026-08-05 16:40', cover: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=120&h=120&fit=crop' },
+    { id: 'DO20260804008', product: 'Neon Echo · Genesis Pass', creator: 'Luna 🌙', buyer: 'buyer_q3w4', amount: 10, fee: 1, net: 9, time: '2026-08-04 11:05', cover: 'https://images.unsplash.com/photo-1727722158074-b7916daf6af4?w=120&h=120&fit=crop' },
+    { id: 'DO20260803022', product: '创作者周会 · 数字会员月卡', creator: 'Luna 🌙', buyer: 'buyer_z7x8', amount: 19.9, fee: 1.99, net: 17.91, time: '2026-08-03 20:18', cover: 'https://images.unsplash.com/photo-1651607792435-e944c20826a2?w=120&h=120&fit=crop' }
+  ];
+
+  var body = document.getElementById('orderBody');
+  function render() {
+    var kw = (document.getElementById('kw').value || '').trim().toLowerCase();
+    var list = orders.filter(function (o) {
+      return !kw || (o.id + o.product + o.buyer).toLowerCase().indexOf(kw) >= 0;
+    });
+    body.innerHTML = list.map(function (o, i) {
+      return '<tr>' +
+        '<td>' + (i + 1) + '</td>' +
+        '<td><code style="font-size:12px">' + o.id + '</code></td>' +
+        '<td><div style="display:flex;align-items:center;gap:10px"><img class="mh-cover" style="width:40px;height:40px" src="' + o.cover + '" alt=""><span>' + o.product + '</span></div></td>' +
+        '<td>' + o.creator + '</td>' +
+        '<td>' + o.buyer + '</td>' +
+        '<td><strong>' + o.amount.toFixed(2) + '</strong></td>' +
+        '<td>' + o.fee.toFixed(2) + '</td>' +
+        '<td>' + o.net.toFixed(2) + '</td>' +
+        '<td>' + o.time + '</td></tr>';
+    }).join('') || '<tr><td colspan="9" style="text-align:center;padding:28px;color:rgba(0,0,0,.45)">暂无销售记录</td></tr>';
+  }
+  document.getElementById('kw').oninput = render;
+  document.getElementById('btnExport').onclick = function () { Shell.toast('已加入导出任务队列（原型）'); };
+  render();
+})();
+</script>
+</body>
+</html>

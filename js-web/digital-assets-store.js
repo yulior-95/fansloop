@@ -3,7 +3,7 @@
  * API: GET/POST /api/v1/digital-products · admin review endpoints
  */
 (function (global) {
-    var LS_KEY = 'fl_digital_assets_v5';
+    var LS_KEY = 'fl_digital_assets_v6';
     var DEMO_CREATOR = 'demo_uid_882910';
 
     var ASSET_TYPES = [
@@ -108,6 +108,30 @@
                 rejectReason: '',
                 createdAt: '2026-07-28 21:00',
                 updatedAt: '2026-07-28 21:00'
+            },
+            {
+                id: 'da_seed_rejected_05',
+                creatorId: DEMO_CREATOR,
+                creatorName: 'Luna 🌙',
+                title: '街头夜景 · NFT 草稿样张',
+                description: '演示驳回态：创作者可见驳回原因并可重新提交。',
+                coverUrl: MONKEY_COVERS[1],
+                assetType: 'nft',
+                contentFiles: [MONKEY_COVERS[1]],
+                priceUsdt: 12,
+                supplyMode: 'limited',
+                supplyTotal: 88,
+                soldCount: 0,
+                status: 'rejected',
+                publishedAt: '',
+                rejectReason: '封面与链上元数据不一致，请补充清晰 NFT 素材说明后重新提交。',
+                createdAt: '2026-07-27 15:20',
+                updatedAt: '2026-07-29 11:05',
+                nftTraits: [
+                    { trait_type: 'Scene', value: 'Night Street' },
+                    { trait_type: 'Rarity', value: 'Rare' }
+                ],
+                chainNetwork: 'Polygon'
             }
         ];
     }
@@ -117,14 +141,27 @@
             var raw = localStorage.getItem(LS_KEY);
             if (raw) {
                 var parsed = JSON.parse(raw);
-                if (parsed && Array.isArray(parsed.products) && parsed.version === 5) return parsed;
+                if (parsed && Array.isArray(parsed.products) && parsed.version === 6) return parsed;
             }
+            try {
+                var legacy = localStorage.getItem('fl_digital_assets_v5');
+                if (legacy) {
+                    var old = JSON.parse(legacy);
+                    if (old && Array.isArray(old.products)) {
+                        old.version = 6;
+                        writeAll(old);
+                        localStorage.removeItem('fl_digital_assets_v5');
+                        return old;
+                    }
+                }
+            } catch (eMig) { /* ignore */ }
             try { localStorage.removeItem('fl_digital_assets_v1'); } catch (e1) { /* ignore */ }
             try { localStorage.removeItem('fl_digital_assets_v2'); } catch (e2) { /* ignore */ }
             try { localStorage.removeItem('fl_digital_assets_v3'); } catch (e3) { /* ignore */ }
             try { localStorage.removeItem('fl_digital_assets_v4'); } catch (e4) { /* ignore */ }
+            try { localStorage.removeItem('fl_digital_assets_v5'); } catch (e5) { /* ignore */ }
         } catch (e) { /* ignore */ }
-        var seed = { products: seedProducts(), version: 5 };
+        var seed = { products: seedProducts(), version: 6 };
         writeAll(seed);
         return seed;
     }
@@ -203,6 +240,8 @@
             status: 'draft',
             publishedAt: '',
             rejectReason: '',
+            nftTraits: [],
+            chainNetwork: 'Polygon',
             createdAt: nowIso()
         }, partial || {});
         return upsert(p);

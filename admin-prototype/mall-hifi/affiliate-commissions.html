@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>联盟佣金流水 · GOODFANS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/shell.css">
+  <link rel="stylesheet" href="css/glass-notes.css">
+</head>
+<body>
+<div class="mh-app">
+  <aside class="mh-sider" id="mhSider"></aside>
+  <div class="mh-main">
+    <header class="mh-header">
+      <div class="mh-breadcrumb"><i class="fa-solid fa-bars"></i><span>双商城</span><span>/</span><strong>联盟佣金流水</strong></div>
+      <div class="mh-header-right">
+        <button type="button" class="mh-btn mh-btn-sm" id="btnExport"><i class="fa-solid fa-file-export"></i> 导出</button>
+        <div class="mh-header-user">
+          <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt="">
+          <span>财务运营</span>
+        </div>
+      </div>
+    </header>
+    <main class="mh-content">
+      <div class="mh-page-head">
+        <div>
+          <h1 class="mh-page-title">联盟佣金流水</h1>
+          <p class="mh-page-desc">第三方成交回传 → GOODFANS 收佣 → 按商城配置分配给创作者。平台不承担实体履约，仅做佣金分账。</p>
+        </div>
+        <span class="mh-anno-inline">
+          <span class="mh-anno-sphere"><span>To 研发</span></span>
+          <span class="mh-anno-pop"><b>分账公式</b>创作者实得 = 联盟佣金 × affiliateCreatorSharePercent。</span>
+        </span>
+      </div>
+
+      <div class="mh-info">
+        <i class="fa-solid fa-circle-info"></i>
+        <div>第三方成交回传 → GOODFANS 收佣 → 按商城配置分配给创作者。无平台内实体订单履约。当前创作者分成比例：<strong>70%</strong>（平台留存 30%）。</div>
+      </div>
+
+      <div class="mh-stats">
+        <div class="mh-stat"><div class="label">回传笔数</div><div class="value">3</div><div class="sub">近 7 日</div></div>
+        <div class="mh-stat"><div class="label">成交额</div><div class="value">86.00</div><div class="sub">USDT 等值</div></div>
+        <div class="mh-stat is-ok"><div class="label">联盟佣金</div><div class="value">6.88</div><div class="sub">USDT</div></div>
+        <div class="mh-stat is-ok"><div class="label">创作者实得</div><div class="value">4.82</div><div class="sub">已结算</div></div>
+      </div>
+
+      <section class="mh-card">
+        <div class="mh-card-head">
+          <h2>佣金明细</h2>
+          <div class="mh-toolbar" style="margin:0">
+            <select class="mh-select" id="statusFilter">
+              <option value="">全部状态</option>
+              <option value="settled">已结算</option>
+              <option value="pending">待结算</option>
+              <option value="reverse">冲正</option>
+            </select>
+            <input class="mh-input" id="kw" placeholder="平台流水号 / 三方订单号 / 商品" style="width:260px">
+          </div>
+        </div>
+        <div class="mh-card-body">
+          <div class="mh-table-wrap">
+            <table class="mh-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>平台流水号</th>
+                  <th>三方订单号</th>
+                  <th>商品</th>
+                  <th>创作者</th>
+                  <th>成交额</th>
+                  <th>佣金率</th>
+                  <th>联盟佣金</th>
+                  <th>创作者实得</th>
+                  <th>平台留存</th>
+                  <th>状态</th>
+                  <th>时间</th>
+                </tr>
+              </thead>
+              <tbody id="commBody"></tbody>
+            </table>
+          </div>
+          <div class="mh-pager"><span>共 <b id="totalCount">5</b> 条</span><div class="pages"><button type="button" class="is-active">1</button></div></div>
+        </div>
+      </section>
+    </main>
+    <footer class="mh-footer">GOODFANS · 联盟佣金流水 · GET /admin/affiliate/commissions</footer>
+  </div>
+</div>
+<div class="mh-anno-rail" id="mhAnnoRail"></div>
+<script src="js/shell.js"></script>
+<script>
+(function () {
+  var Shell = window.MallHifiShell;
+  Shell.mountSider('affiliate-commissions');
+  Shell.mountAnnoRail([
+    { title: '双订单号', body: 'platformOrderNo 平台生成；partnerOrderNo 三方回传，建议作幂等键。冲正可复用三方单号，平台流水号新开。' },
+    { title: '冲正双记录', body: '退货时保留原「已结算」，另增一条「冲正」负向流水并关联 relatedId，不改写原单。' },
+    { title: '配置只读快照', body: '流水落库时快照佣金率与分成比例，避免事后改配置影响历史。' }
+  ]);
+
+  var share = 0.7;
+  var rows = [
+    { product: 'Velvet Matte Lipstick · Rose Clay', creator: 'demo_uid_882910', gmv: 24, rate: 0.08, status: 'settled', time: '2026-08-06 01:05', cover: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=120&h=120&fit=crop', relatedId: '', platformOrderNo: 'AC202608060105', partnerOrderNo: 'AMZ-482913-77102' },
+    { product: 'Urban Softshell Jacket', creator: 'demo_uid_882910', gmv: 42, rate: 0.1, status: 'pending', time: '2026-08-04 14:22', cover: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=120&h=120&fit=crop', relatedId: '', platformOrderNo: 'AC202608041422', partnerOrderNo: 'AMZ-319557-44081' },
+    { product: 'Ceramic Pour-Over Mug Set', creator: 'demo_uid_771002', gmv: 36, rate: 0.1, status: 'settled', time: '2026-08-03 09:40', cover: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=120&h=120&fit=crop', relatedId: '', id: 'acm_seed_settled_04', platformOrderNo: 'AC202608030940', partnerOrderNo: 'SHP-778210-66315' },
+    { product: 'Ceramic Pour-Over Mug Set', creator: 'demo_uid_771002', gmv: -36, rate: 0.1, status: 'reverse', time: '2026-08-03 18:12', cover: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=120&h=120&fit=crop', relatedId: 'acm_seed_settled_04', remark: '退货冲销原结算单', platformOrderNo: 'AC202608031812R', partnerOrderNo: 'SHP-778210-66315' },
+    { product: 'Wireless Clip Mic Kit', creator: 'demo_uid_771002', gmv: 20, rate: 0.06, status: 'pending', time: '2026-08-03 09:48', cover: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=120&h=120&fit=crop', relatedId: '', platformOrderNo: 'AC202608030948', partnerOrderNo: 'SHP-551002-88219' }
+  ].map(function (r) {
+    var commission = +(r.gmv * r.rate).toFixed(2);
+    var creatorNet = +(commission * share).toFixed(2);
+    var platform = +(commission - creatorNet).toFixed(2);
+    return Object.assign({}, r, { commission: commission, creatorNet: creatorNet, platform: platform });
+  });
+
+  var body = document.getElementById('commBody');
+  var statusZh = { settled: '已结算', pending: '待结算', reverse: '冲正' };
+  function tag(st) {
+    if (st === 'settled') return 'mh-tag-green';
+    if (st === 'pending') return 'mh-tag-gold';
+    return 'mh-tag-red';
+  }
+  function fmt(n) {
+    var s = Number(n).toFixed(2);
+    return n < 0 ? '<span style="color:#cf1322">' + s + '</span>' : s;
+  }
+  function render() {
+    var st = document.getElementById('statusFilter').value;
+    var kw = (document.getElementById('kw').value || '').trim().toLowerCase();
+    var list = rows.filter(function (r) {
+      if (st && r.status !== st) return false;
+      if (kw && (r.product + r.creator + r.platformOrderNo + r.partnerOrderNo).toLowerCase().indexOf(kw) < 0) return false;
+      return true;
+    });
+    document.getElementById('totalCount').textContent = String(list.length);
+    body.innerHTML = list.map(function (r, i) {
+      var sub = r.status === 'reverse' && r.relatedId
+        ? '<div style="font-size:11px;color:rgba(0,0,0,.45);margin-top:2px">冲销原单 ' + r.relatedId + (r.remark ? ' · ' + r.remark : '') + '</div>'
+        : '';
+      return '<tr>' +
+        '<td>' + (i + 1) + '</td>' +
+        '<td><code style="font-size:12px">' + r.platformOrderNo + '</code></td>' +
+        '<td><code style="font-size:12px">' + r.partnerOrderNo + '</code></td>' +
+        '<td><div style="display:flex;align-items:center;gap:10px"><img class="mh-cover" style="width:40px;height:40px" src="' + r.cover + '" alt=""><div><span>' + r.product + '</span>' + sub + '</div></div></td>' +
+        '<td>' + r.creator + '</td>' +
+        '<td>' + fmt(r.gmv) + '</td>' +
+        '<td>' + Math.round(r.rate * 100) + '%</td>' +
+        '<td><strong>' + fmt(r.commission) + '</strong></td>' +
+        '<td>' + fmt(r.creatorNet) + '</td>' +
+        '<td>' + fmt(r.platform) + '</td>' +
+        '<td><span class="mh-tag ' + tag(r.status) + '">' + (statusZh[r.status] || r.status) + '</span></td>' +
+        '<td>' + r.time + '</td></tr>';
+    }).join('') || '<tr><td colspan="12" style="text-align:center;padding:28px;color:rgba(0,0,0,.45)">暂无流水</td></tr>';
+  }
+  document.getElementById('statusFilter').onchange = render;
+  document.getElementById('kw').oninput = render;
+  document.getElementById('btnExport').onclick = function () { Shell.toast('已加入导出任务队列（原型）'); };
+  render();
+})();
+</script>
+</body>
+</html>

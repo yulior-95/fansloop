@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin-shell.css">
   <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/mall-dev-glass.css">
 </head>
 <body data-admin-page="mall-commerce-config">
 <div class="admin-app">
@@ -21,7 +22,35 @@
       <h1 class="admin-page-title">商城分成配置</h1>
             <div class="ant-card ant-card-bordered" style="margin-bottom:16px"><div class="ant-card-body" style="font-size:13px;color:rgba(0,0,0,.55)"><i class="fa-solid fa-circle-info" style="color:#1677ff;margin-right:6px"></i>本页为双商城主配置源。创作者分成页对数字资产 / 联盟佣金仅展示只读摘要，避免双写冲突。</div></div>
       <div class="ant-card ant-card-bordered" style="margin-bottom:16px"><div class="ant-card-head"><div class="ant-card-head-title">数字资产 · 平台抽成</div></div><div class="ant-card-body"><label style="display:block;margin-bottom:8px;font-size:13px">平台服务费比例（%）</label><input class="ant-input" id="cfgDigitalFee" type="number" min="0" max="50" style="width:140px"><p id="cfgDigitalPreview" style="margin:10px 0 0;font-size:13px;color:rgba(0,0,0,.55)"></p></div></div>
-      <div class="ant-card ant-card-bordered" style="margin-bottom:16px"><div class="ant-card-head"><div class="ant-card-head-title">联盟佣金 · 创作者分成</div></div><div class="ant-card-body"><label style="display:block;margin-bottom:8px;font-size:13px">创作者获得第三方佣金的比例（%）</label><input class="ant-input" id="cfgAffiliateShare" type="number" min="0" max="100" style="width:140px"><p id="cfgAffiliatePreview" style="margin:10px 0 0;font-size:13px;color:rgba(0,0,0,.55)"></p></div></div>
+      <div class="ant-card ant-card-bordered" style="margin-bottom:16px">
+        <div class="ant-card-head">
+          <div class="ant-card-head-title mall-dev-glass-head">
+            <span class="mall-dev-glass-head-title">联盟佣金 · 创作者分成</span>
+            <span class="mall-dev-glass-inline" aria-label="研发批注">
+              <span class="mall-dev-glass-wrap">
+                <span class="mall-dev-glass-sphere" tabindex="0" aria-describedby="tipAffiliateShare">
+                  <span class="mall-dev-glass-shine"></span>
+                  <span class="mall-dev-glass-txt">To 研发</span>
+                </span>
+                <span class="mall-dev-glass-pop" id="tipAffiliateShare" role="note">
+                  <strong>平台二次分账比例（≠ 商品佣金比例）</strong>
+                  字段 <code>affiliateCreatorSharePercent</code>：平台已从第三方拿到「联盟佣金」后，再按本比例分给推广创作者，剩余为平台留存。
+                  <div class="formula">
+                    创作者实得 = 联盟佣金 × 本比例<br>
+                    平台留存 = 联盟佣金 × (1 − 本比例)<br>
+                    与「商品同步 · 佣金比例」不同：后者是 GMV→联盟佣金，本项是 联盟佣金→创作者/平台。
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+        </div>
+        <div class="ant-card-body">
+          <label style="display:block;margin-bottom:8px;font-size:13px">创作者获得第三方佣金的比例（%）</label>
+          <input class="ant-input" id="cfgAffiliateShare" type="number" min="0" max="100" style="width:140px">
+          <p id="cfgAffiliatePreview" style="margin:10px 0 0;font-size:13px;color:rgba(0,0,0,.55)"></p>
+        </div>
+      </div>
       <p id="cfgMeta" style="font-size:12px;color:rgba(0,0,0,.45);margin-bottom:12px"></p>
       <button type="button" class="ant-btn ant-btn-primary" id="btnMallCfgSave"><i class="fa-solid fa-floppy-disk"></i> 保存配置</button>
       <button type="button" class="ant-btn" id="btnMallCfgReset"><i class="fa-solid fa-rotate-left"></i> 恢复默认</button>
@@ -36,6 +65,7 @@
 <script src="../js-web/creator-income-split-config.js"></script>
 <script src="js/admin-nav.js"></script>
 <script src="js/admin-modal.js"></script>
+<script src="js/mall-dev-glass.js"></script>
 <script src="js/mall-admin-pages.js"></script>
 </body>
 </html>
