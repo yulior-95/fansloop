@@ -1,4 +1,4 @@
-/* 数字虚拟资产商城 */
+﻿/* 数字虚拟资产商城 */
 .da-hero {
     padding: 28px 32px;
     margin-bottom: 22px;
@@ -227,6 +227,8 @@
     border-radius: var(--r-xl);
     padding: 24px 28px;
 }
+/* .btn / img 等自带 display，会盖掉 [hidden]，表单内统一强制隐藏 */
+.da-form [hidden] { display: none !important; }
 .da-form .field { margin-bottom: 16px; }
 .da-form label {
     display: block;
@@ -336,7 +338,112 @@
     aspect-ratio: 1;
     object-fit: cover;
 }
+
+/* 商品首图选择（上传 / URL / 从合集指定） */
+.da-hero-pick {
+    display: grid;
+    grid-template-columns: 168px minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+    margin-top: 10px;
+}
+.da-hero-preview {
+    position: relative;
+    aspect-ratio: 1;
+    border: 1px dashed var(--border);
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.03);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.da-hero-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.da-hero-preview .ph {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--t-tertiary);
+}
+.da-hero-preview .ph i { font-size: 22px; }
+.da-hero-preview .tag {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: rgba(139, 92, 246, 0.92);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+}
+.da-hero-ops { display: flex; flex-direction: column; gap: 10px; }
+.da-hero-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.da-hero-ops .da-field-hint { margin: 0; }
+@media (max-width: 640px) {
+    .da-hero-pick { grid-template-columns: 1fr; }
+    .da-media-row { grid-template-columns: 1fr auto auto; }
+}
 .da-traits { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+
+.da-type-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.da-type-card {
+    text-align: left;
+    padding: 14px 14px 12px;
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.03);
+    color: #fff;
+    cursor: pointer;
+    transition: 0.15s ease;
+}
+.da-type-card i {
+    display: block;
+    font-size: 18px;
+    margin-bottom: 8px;
+    color: #a78bfa;
+}
+.da-type-card strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+.da-type-card span {
+    display: block;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--t-tertiary);
+}
+.da-type-card.is-active {
+    border-color: rgba(167, 139, 250, 0.55);
+    background: rgba(167, 139, 250, 0.12);
+    box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.25);
+}
+.da-media-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.da-media-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8px;
+    align-items: center;
+}
+.da-media-row input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    color: #fff;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+@media (max-width: 640px) {
+    .da-type-cards { grid-template-columns: 1fr; }
+}
 .da-trait-row {
     display: grid;
     grid-template-columns: 1fr 1fr auto;
@@ -363,10 +470,22 @@
     margin-bottom: 16px;
 }
 .da-confirm-cover {
+    position: relative;
     border-radius: var(--r-md);
     overflow: hidden;
     border: 1px solid var(--border);
     aspect-ratio: 1;
+}
+.da-confirm-cover .tag {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: rgba(139, 92, 246, 0.92);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
 }
 .da-confirm-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .da-confirm-body {
@@ -479,7 +598,9 @@
 
 .da-cm-edit { display: flex; flex-direction: column; gap: 12px; }
 .da-cm-field { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--t-tertiary); font-weight: 600; }
+.da-cm-field[hidden] { display: none !important; }
 .da-cm-field input,
+.da-cm-field select,
 .da-cm-field textarea {
     background: rgba(255,255,255,0.04);
     border: 1px solid var(--border);

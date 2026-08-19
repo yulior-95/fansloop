@@ -117,7 +117,7 @@ tbody tr:nth-child(even) { background: #fcfdfe; }
 
 <h3>2.1 业务流程</h3>
 <ol>
-    <li>创作者进入创作中心 → 创建数字资产</li>
+    <li>创作者进入橱窗 → 创建数字商品（图片合集 / 视频作品）</li>
     <li>上传内容与封面，设置价格 / 发行量 / 发布时间</li>
     <li>提交平台审核 → 通过后上架 Creator Store</li>
     <li>用户购买（USDT）→ 订单完成 → <strong>立即</strong>获得数字权益</li>
@@ -131,22 +131,23 @@ tbody tr:nth-child(even) { background: #fcfdfe; }
         <tr><td>id</td><td>string</td><td>商品 ID</td></tr>
         <tr><td>creatorId / creatorName</td><td>string</td><td>创作者</td></tr>
         <tr><td>title / description / coverUrl</td><td>string</td><td>展示信息</td></tr>
-        <tr><td>assetType</td><td>enum</td><td>nft / image / video / exclusive / membership / other</td></tr>
+        <tr><td>assetType</td><td>enum</td><td>image（图片合集）/ video（视频作品）；历史 nft/membership 等已迁移归并为 image</td></tr>
         <tr><td>contentFiles[]</td><td>string[]</td><td>数字内容文件 URL</td></tr>
         <tr><td>priceUsdt</td><td>number</td><td>创作者定价</td></tr>
         <tr><td>supplyMode</td><td>enum</td><td>unlimited / limited</td></tr>
-        <tr><td>supplyTotal / soldCount</td><td>int</td><td>限量发行；剩余 = total − sold</td></tr>
+        <tr><td>supplyTotal / soldCount</td><td>int</td><td>商品个数（可售份数）与已售份数；剩余 = total − sold，售罄自动转 sold_out</td></tr>
+        <tr><td>autoList</td><td>bool</td><td>创作者创建时选择的上架状态：true = 审核通过后立即上架；false = 通过后保持 delisted，由创作者手动上架</td></tr>
         <tr><td>status</td><td>enum</td><td>draft / pending_review / rejected / listed / sold_out / delisted</td></tr>
         <tr><td>publishedAt / rejectReason</td><td>string</td><td>发布时间 / 驳回原因</td></tr>
     </tbody>
 </table>
 
-<p>状态机：<code>draft → pending_review → listed | rejected</code>；限量售罄自动 <code>sold_out</code>；创作者可 <code>delisted</code>。</p>
+<p>状态机：<code>draft → pending_review → listed | delisted | rejected</code>（<code>autoList=false</code> 时通过进入 <code>delisted</code>）；限量售罄自动 <code>sold_out</code>；创作者可随时在橱窗切换 <code>listed / delisted</code>。</p>
 
 <h3>2.3 订单与权益</h3>
 <ul>
     <li><code>digital_order</code>：buyerId、productId、priceUsdt、platformFee、creatorNet、createdAt、status=completed</li>
-    <li><code>user_digital_entitlement</code>：购买成功即时写入，用户「我的数字资产」可读</li>
+    <li><code>user_digital_entitlement</code>：购买成功即时写入，用户「我的作品」可读</li>
     <li>无物流、无地址、无发货步骤</li>
 </ul>
 
@@ -199,7 +200,7 @@ platformShare = affiliateGross − creatorShare
     <tbody>
         <tr><td>创作者主页 · 橱窗入口 / Tab</td><td>统一</td><td><code>creator-profile.html</code> → <code>creator-showcase.html</code></td></tr>
         <tr><td>统一创作者橱窗（访客可购 / 本人管理+数据）</td><td>统一</td><td><code>creator-showcase.html</code>（选品 / 创建数字商品入口仅在此页本人视图）</td></tr>
-        <tr><td>我的数字资产</td><td>数字</td><td><code>my-digital-assets.html</code></td></tr>
+        <tr><td>我的作品（已购合集/视频）</td><td>数字</td><td><code>my-digital-assets.html</code></td></tr>
         <tr><td>视频暂停 · AI 商品卡</td><td>实体</td><td><code>proto-discover-detail-video.html</code></td></tr>
     </tbody>
 </table>
@@ -220,9 +221,9 @@ platformShare = affiliateGross − creatorShare
 
 <h2>6. 收益与结算</h2>
 <ul>
-    <li>数字资产：T+0 即时入账演示；配置源 <code>MallCommerceConfigStore.digitalPlatformFeePercent</code></li>
+    <li>数字商品（图片合集 / 视频）：T+0 即时入账演示；配置源 <code>MallCommerceConfigStore.digitalPlatformFeePercent</code></li>
     <li>联盟佣金：回传后入账；配置源 <code>affiliateCreatorSharePercent</code></li>
-    <li>创作者收入页展示分项：数字资产 / 联盟佣金</li>
+    <li>创作者收入页展示分项：数字商品销售 / 联盟佣金</li>
     <li>分成页（creator-income-split）对上述两项展示<strong>只读摘要</strong>，主配置在商城配置页，避免双写</li>
 </ul>
 
@@ -243,8 +244,8 @@ platformShare = affiliateGross − creatorShare
 
 <h2>8. 与积分商城的隔离</h2>
 <ul>
-    <li><code>points-mall.html</code> 保持积分兑换权益，不承载数字资产或联盟商品</li>
-    <li>命名：Creator Store / 数字资产 / 实体橱窗 / Affiliate，禁止复用「积分商城」文案</li>
+    <li><code>points-mall.html</code> 保持积分兑换权益，不承载数字商品或联盟商品</li>
+    <li>命名：Creator Store / 数字商品（图片合集·视频作品）/ 实体橱窗 / Affiliate，禁止复用「积分商城」文案</li>
 </ul>
 
 <h2>9. 验收清单</h2>

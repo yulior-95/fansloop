@@ -15,7 +15,7 @@
     alert(msg);
   }
 
-  function initDigitalReview() {
+    function initDigitalReview() {
     var Store = window.DigitalAssetsStore;
     var body = document.getElementById('mallReviewBody');
     if (!Store || !body) return;
@@ -23,7 +23,7 @@
     function render() {
       var list = Store.list({ status: 'pending_review' });
       if (!list.length) {
-        body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:rgba(0,0,0,.45);padding:28px">暂无待审核数字商品</td></tr>';
+        body.innerHTML = '<tr><td colspan="9" style="text-align:center;color:rgba(0,0,0,.45);padding:28px">暂无待审核数字商品</td></tr>';
         return;
       }
       body.innerHTML = list.map(function (p, i) {
@@ -33,6 +33,10 @@
           '<td><strong>' + esc(p.title) + '</strong><div style="font-size:12px;color:rgba(0,0,0,.45)">' + esc(Store.typeLabel(p.assetType)) + '</div></td>' +
           '<td>' + esc(p.creatorName) + '</td>' +
           '<td>' + Number(p.priceUsdt).toFixed(2) + ' USDT</td>' +
+          '<td>' + esc(Store.supplyLabel(p)) + '</td>' +
+          '<td>' + (p.autoList === false
+            ? '<span class="ant-tag">下架</span>'
+            : '<span class="ant-tag ant-tag-green">上架</span>') + '</td>' +
           '<td>' + esc(p.createdAt) + '</td>' +
           '<td>' +
           '<button type="button" class="ant-btn ant-btn-primary ant-btn-sm js-approve" data-id="' + esc(p.id) + '">通过</button> ' +
@@ -42,8 +46,10 @@
 
       body.querySelectorAll('.js-approve').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          Store.approve(btn.getAttribute('data-id'));
-          toast('已通过并上架');
+          var updated = Store.approve(btn.getAttribute('data-id'));
+          toast(updated && updated.status === 'delisted'
+            ? '已通过审核，按创作者设置保持下架，等待其手动上架'
+            : '已通过并上架');
           render();
         });
       });
@@ -56,7 +62,7 @@
             title: '驳回数字商品',
             width: 520,
             body:
-              '<p style="margin:0 0 12px;color:rgba(0,0,0,.65);font-size:13px">驳回「<strong>' + esc(p.title) + '</strong>」后，创作者端将展示驳回结果与原因，可修改后重新提交。</p>' +
+              '<p style="margin:0 0 12px;color:rgba(0,0,0,.65);font-size:13px">驳回「<strong>' + esc(p.title) + '</strong>」后，创作者端将展示驳回结果与原因（如版权、封面与内容不符、素材不清晰等），可修改后重新提交。</p>' +
               '<div class="ant-form-item" style="margin:0">' +
               '<label style="display:block;margin-bottom:6px;font-size:12px;color:rgba(0,0,0,.45)">驳回原因 <span style="color:#ff4d4f">*</span></label>' +
               '<textarea class="ant-input" id="mallRejectReason" rows="4" maxlength="200" placeholder="请填写驳回原因（必填，将展示给创作者）" style="width:100%;resize:vertical"></textarea>' +
@@ -102,6 +108,16 @@
     var filter = document.getElementById('mallProductStatus');
     if (!Store || !body) return;
 
+    function statusOps(p) {
+      if (p.status === 'listed' || p.status === 'sold_out') {
+        return '<button type="button" class="ant-btn ant-btn-sm js-delist" data-id="' + esc(p.id) + '">下架</button>';
+      }
+      if (p.status === 'delisted') {
+        return '<button type="button" class="ant-btn ant-btn-primary ant-btn-sm js-relist" data-id="' + esc(p.id) + '">上架</button>';
+      }
+      return '—';
+    }
+
     function render() {
       var status = filter && filter.value ? filter.value : '';
       var list = status ? Store.list({ status: status }) : Store.list();
@@ -112,17 +128,25 @@
           '<td>' + esc(p.creatorName) + '</td>' +
           '<td>' + esc(Store.typeLabel(p.assetType)) + '</td>' +
           '<td>' + Number(p.priceUsdt).toFixed(2) + '</td>' +
-          '<td>' + (p.supplyMode === 'limited' ? (p.soldCount + '/' + p.supplyTotal) : ('∞ / ' + p.soldCount)) + '</td>' +
-          '<td><span class="ant-tag">' + esc(Store.statusLabel(p.status)) + '</span></td>' +
-          '<td>' +
-          (p.status === 'listed' ? '<button type="button" class="ant-btn ant-btn-sm js-delist" data-id="' + esc(p.id) + '">下架</button>' : '—') +
-          '</td></tr>';
+          '<td>' + (p.supplyMode === 'limited' ? (p.soldCount + ' / ' + p.supplyTotal + ' 份') : ('不限 · 已售 ' + p.soldCount)) + '</td>' +
+          '<td><span class="ant-tag' +
+            (p.status === 'listed' ? ' ant-tag-green' : (p.status === 'sold_out' ? ' ant-tag-gold' : (p.status === 'rejected' ? ' ant-tag-red' : ''))) +
+            '">' + esc(Store.statusLabel(p.status)) + '</span></td>' +
+          '<td>' + statusOps(p) + '</td></tr>';
       }).join('') || '<tr><td colspan="8" style="text-align:center;padding:24px;color:rgba(0,0,0,.45)">暂无数据</td></tr>';
 
       body.querySelectorAll('.js-delist').forEach(function (btn) {
         btn.addEventListener('click', function () {
           Store.delist(btn.getAttribute('data-id'));
           toast('已下架');
+          render();
+        });
+      });
+      body.querySelectorAll('.js-relist').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var updated = Store.relist(btn.getAttribute('data-id'));
+          if (!updated) return toast('上架失败：商品已被创作者移除橱窗');
+          toast(updated.status === 'sold_out' ? '已恢复展示（售罄）' : '已上架');
           render();
         });
       });

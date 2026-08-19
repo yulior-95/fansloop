@@ -1,25 +1,32 @@
 /**
- * 数字虚拟资产商品库 · localStorage Mock
+ * 数字商品库 · 图片合集 / 视频作品（localStorage Mock）
  * API: GET/POST /api/v1/digital-products · admin review endpoints
  */
 (function (global) {
-    var LS_KEY = 'fl_digital_assets_v6';
+    var LS_KEY = 'fl_digital_assets_v7';
+    var LEGACY_KEYS = [
+        'fl_digital_assets_v6',
+        'fl_digital_assets_v5',
+        'fl_digital_assets_v4',
+        'fl_digital_assets_v3',
+        'fl_digital_assets_v2',
+        'fl_digital_assets_v1'
+    ];
     var DEMO_CREATOR = 'demo_uid_882910';
 
     var ASSET_TYPES = [
-        { id: 'nft', label: 'NFT 收藏品' },
-        { id: 'image', label: '数字图片' },
-        { id: 'video', label: '数字视频' },
-        { id: 'exclusive', label: '独家内容' },
-        { id: 'membership', label: '数字会员权益' },
-        { id: 'other', label: '其他虚拟资产' }
+        { id: 'image', label: '图片合集' },
+        { id: 'video', label: '视频作品' }
     ];
 
-    var MONKEY_COVERS = [
-        'https://images.unsplash.com/photo-1727722158074-b7916daf6af4?w=800&q=80',
-        'https://images.unsplash.com/photo-1665663389418-1e8c19f048c0?w=800&q=80',
-        'https://images.unsplash.com/photo-1651607792435-e944c20826a2?w=800&q=80',
-        'https://cdn.pixabay.com/photo/2019/07/24/14/17/monkey-4360298_640.jpg'
+    var ALLOWED_TYPES = { image: true, video: true };
+
+    var COVERS = [
+        'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&q=80',
+        'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+        'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80',
+        'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80',
+        'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80'
     ];
 
     function nowIso() {
@@ -30,57 +37,85 @@
         return (prefix || 'da') + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     }
 
+    function mapLegacyType(typeId) {
+        if (typeId === 'video') return 'video';
+        if (typeId === 'image') return 'image';
+        // nft / membership / exclusive / other → 按媒体语义归并
+        if (typeId === 'nft') return 'image';
+        return 'image';
+    }
+
+    function normalizeProduct(p) {
+        if (!p || typeof p !== 'object') return p;
+        p.assetType = ALLOWED_TYPES[p.assetType] ? p.assetType : mapLegacyType(p.assetType);
+        if (p.nftTraits) delete p.nftTraits;
+        if (p.chainNetwork) delete p.chainNetwork;
+        if (!Array.isArray(p.contentFiles)) p.contentFiles = [];
+        // autoList：审核通过后是否直接上架（老数据默认直接上架）
+        p.autoList = p.autoList !== false;
+        return p;
+    }
+
     function seedProducts() {
         return [
             {
-                id: 'da_seed_nft_01',
+                id: 'da_seed_img_01',
                 creatorId: DEMO_CREATOR,
                 creatorName: 'Luna 🌙',
-                title: 'Neon Echo · Genesis Pass',
-                description: '创世数字通行证，解锁未来 NFT 空投资格与专属社群入口。',
-                coverUrl: MONKEY_COVERS[0],
-                assetType: 'nft',
-                contentFiles: [MONKEY_COVERS[0]],
-                priceUsdt: 10,
-                supplyMode: 'limited',
-                supplyTotal: 100,
-                soldCount: 20,
-                status: 'listed',
-                pinned: true,
-                publishedAt: '2026-07-20 12:00',
-                rejectReason: '',
-                createdAt: '2026-07-18 09:00',
-                updatedAt: '2026-07-20 12:00'
-            },
-            {
-                id: 'da_seed_img_02',
-                creatorId: DEMO_CREATOR,
-                creatorName: 'Luna 🌙',
-                title: '富士山日出 · 4K 数字写真包',
-                description: '五合目日出组图高清原片，购买后即时下载。',
-                coverUrl: MONKEY_COVERS[1],
+                title: '富士山日出 · 4K 写真合集',
+                description: '五合目日出组图高清原片共 8 张，购买后可浏览与下载全套。',
+                coverUrl: COVERS[0],
                 assetType: 'image',
-                contentFiles: [MONKEY_COVERS[1], MONKEY_COVERS[2]],
+                contentFiles: [
+                    COVERS[0],
+                    COVERS[1],
+                    'https://images.unsplash.com/photo-1490806843957-31f4c9a91c8e?w=800&q=80',
+                    'https://images.unsplash.com/photo-1528164344705-47542687000d?w=800&q=80'
+                ],
                 priceUsdt: 4.5,
                 supplyMode: 'unlimited',
                 supplyTotal: 0,
                 soldCount: 86,
                 status: 'listed',
+                pinned: true,
                 publishedAt: '2026-07-15 08:30',
                 rejectReason: '',
                 createdAt: '2026-07-14 18:00',
                 updatedAt: '2026-07-15 08:30'
             },
             {
-                id: 'da_seed_mem_03',
+                id: 'da_seed_vid_02',
                 creatorId: DEMO_CREATOR,
                 creatorName: 'Luna 🌙',
-                title: '创作者周会 · 数字会员月卡',
-                description: '30 日数字会员权益：周会回放、素材库、优先问答。',
-                coverUrl: MONKEY_COVERS[2],
-                assetType: 'membership',
-                contentFiles: ['membership://pass'],
-                priceUsdt: 19.9,
+                title: '城市夜色 · 延时短片',
+                description: '约 3 分钟 4K 延时成片，购买后可在线播放与下载原片。',
+                coverUrl: COVERS[2],
+                assetType: 'video',
+                contentFiles: ['https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'],
+                priceUsdt: 6,
+                supplyMode: 'limited',
+                supplyTotal: 200,
+                soldCount: 42,
+                status: 'listed',
+                publishedAt: '2026-07-20 12:00',
+                rejectReason: '',
+                createdAt: '2026-07-18 09:00',
+                updatedAt: '2026-07-20 12:00'
+            },
+            {
+                id: 'da_seed_img_03',
+                creatorId: DEMO_CREATOR,
+                creatorName: 'Luna 🌙',
+                title: '街头人像 · 黑白胶片风合集',
+                description: '街拍人像 12 张，含调色预设说明。限量售卖。',
+                coverUrl: COVERS[1],
+                assetType: 'image',
+                contentFiles: [
+                    COVERS[1],
+                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80',
+                    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80'
+                ],
+                priceUsdt: 8,
                 supplyMode: 'limited',
                 supplyTotal: 50,
                 soldCount: 50,
@@ -94,46 +129,50 @@
                 id: 'da_seed_pending_04',
                 creatorId: DEMO_CREATOR,
                 creatorName: 'Luna 🌙',
-                title: '幕后花絮 · 独家短片',
-                description: '待审核的独家视频资产（演示）。',
-                coverUrl: MONKEY_COVERS[3],
+                title: '幕后花絮 · 拍摄纪实短片',
+                description: '待审核的视频作品（演示）。',
+                coverUrl: COVERS[3],
                 assetType: 'video',
-                contentFiles: ['https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'],
-                priceUsdt: 6,
+                contentFiles: ['https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'],
+                priceUsdt: 5,
                 supplyMode: 'limited',
-                supplyTotal: 200,
+                supplyTotal: 100,
                 soldCount: 0,
                 status: 'pending_review',
+                autoList: false,
                 publishedAt: '',
                 rejectReason: '',
-                createdAt: '2026-07-28 21:00',
-                updatedAt: '2026-07-28 21:00'
+                createdAt: '2026-08-10 21:00',
+                updatedAt: '2026-08-10 21:00'
             },
             {
                 id: 'da_seed_rejected_05',
                 creatorId: DEMO_CREATOR,
                 creatorName: 'Luna 🌙',
-                title: '街头夜景 · NFT 草稿样张',
-                description: '演示驳回态：创作者可见驳回原因并可重新提交。',
-                coverUrl: MONKEY_COVERS[1],
-                assetType: 'nft',
-                contentFiles: [MONKEY_COVERS[1]],
-                priceUsdt: 12,
-                supplyMode: 'limited',
-                supplyTotal: 88,
+                title: '旅拍随手拍 · 未命名合集',
+                description: '演示驳回态：创作者可见驳回原因并可修改后重新提交。',
+                coverUrl: COVERS[0],
+                assetType: 'image',
+                contentFiles: [COVERS[0]],
+                priceUsdt: 3,
+                supplyMode: 'unlimited',
+                supplyTotal: 0,
                 soldCount: 0,
                 status: 'rejected',
                 publishedAt: '',
-                rejectReason: '封面与链上元数据不一致，请补充清晰 NFT 素材说明后重新提交。',
-                createdAt: '2026-07-27 15:20',
-                updatedAt: '2026-07-29 11:05',
-                nftTraits: [
-                    { trait_type: 'Scene', value: 'Night Street' },
-                    { trait_type: 'Rarity', value: 'Rare' }
-                ],
-                chainNetwork: 'Polygon'
+                rejectReason: '封面与合集内容关联性不足，请补充清晰作品说明并完善图片清单后重新提交。',
+                createdAt: '2026-08-08 15:20',
+                updatedAt: '2026-08-09 11:05'
             }
         ];
+    }
+
+    function migrateProducts(list) {
+        return (list || []).map(function (p) {
+            return normalizeProduct(Object.assign({}, p));
+        }).filter(function (p) {
+            return ALLOWED_TYPES[p.assetType];
+        });
     }
 
     function readAll() {
@@ -141,27 +180,34 @@
             var raw = localStorage.getItem(LS_KEY);
             if (raw) {
                 var parsed = JSON.parse(raw);
-                if (parsed && Array.isArray(parsed.products) && parsed.version === 6) return parsed;
+                if (parsed && Array.isArray(parsed.products) && parsed.version === 7) {
+                    parsed.products = migrateProducts(parsed.products);
+                    return parsed;
+                }
             }
-            try {
-                var legacy = localStorage.getItem('fl_digital_assets_v5');
-                if (legacy) {
+            for (var i = 0; i < LEGACY_KEYS.length; i++) {
+                try {
+                    var legacy = localStorage.getItem(LEGACY_KEYS[i]);
+                    if (!legacy) continue;
                     var old = JSON.parse(legacy);
                     if (old && Array.isArray(old.products)) {
-                        old.version = 6;
-                        writeAll(old);
-                        localStorage.removeItem('fl_digital_assets_v5');
-                        return old;
+                        var migrated = {
+                            products: migrateProducts(old.products),
+                            version: 7
+                        };
+                        // 若迁移后为空，用新种子
+                        if (!migrated.products.length) migrated.products = seedProducts();
+                        writeAll(migrated);
+                        try { localStorage.removeItem(LEGACY_KEYS[i]); } catch (eRm) { /* ignore */ }
+                        return migrated;
                     }
-                }
-            } catch (eMig) { /* ignore */ }
-            try { localStorage.removeItem('fl_digital_assets_v1'); } catch (e1) { /* ignore */ }
-            try { localStorage.removeItem('fl_digital_assets_v2'); } catch (e2) { /* ignore */ }
-            try { localStorage.removeItem('fl_digital_assets_v3'); } catch (e3) { /* ignore */ }
-            try { localStorage.removeItem('fl_digital_assets_v4'); } catch (e4) { /* ignore */ }
-            try { localStorage.removeItem('fl_digital_assets_v5'); } catch (e5) { /* ignore */ }
+                } catch (eOne) { /* ignore */ }
+            }
+            LEGACY_KEYS.forEach(function (k) {
+                try { localStorage.removeItem(k); } catch (e) { /* ignore */ }
+            });
         } catch (e) { /* ignore */ }
-        var seed = { products: seedProducts(), version: 6 };
+        var seed = { products: seedProducts(), version: 7 };
         writeAll(seed);
         return seed;
     }
@@ -181,6 +227,9 @@
         }
         if (filter.statuses && filter.statuses.length) {
             products = products.filter(function (p) { return filter.statuses.indexOf(p.status) >= 0; });
+        }
+        if (filter.assetType) {
+            products = products.filter(function (p) { return p.assetType === filter.assetType; });
         }
         if (filter.listedOnly) {
             products = products.filter(function (p) {
@@ -212,6 +261,7 @@
 
     function upsert(product) {
         var data = readAll();
+        product = normalizeProduct(product);
         var idx = -1;
         for (var i = 0; i < data.products.length; i++) {
             if (data.products[i].id === product.id) { idx = i; break; }
@@ -231,19 +281,21 @@
             title: '',
             description: '',
             coverUrl: '',
-            assetType: 'other',
+            assetType: 'image',
             contentFiles: [],
             priceUsdt: 0,
             supplyMode: 'limited',
             supplyTotal: 100,
             soldCount: 0,
+            autoList: true,
             status: 'draft',
             publishedAt: '',
             rejectReason: '',
-            nftTraits: [],
-            chainNetwork: 'Polygon',
             createdAt: nowIso()
         }, partial || {});
+        if (!ALLOWED_TYPES[p.assetType]) p.assetType = 'image';
+        delete p.nftTraits;
+        delete p.chainNetwork;
         return upsert(p);
     }
 
@@ -258,8 +310,14 @@
     function approve(id) {
         var p = getById(id);
         if (!p) return null;
-        p.status = 'listed';
         p.rejectReason = '';
+        p.reviewedAt = nowIso();
+        // 创作者选择「通过后暂不上架」时，审核通过即进入已下架，由创作者手动上架
+        if (p.autoList === false) {
+            p.status = 'delisted';
+            return upsert(p);
+        }
+        p.status = (p.supplyMode === 'limited' && remaining(p) === 0) ? 'sold_out' : 'listed';
         if (!p.publishedAt) p.publishedAt = nowIso();
         return upsert(p);
     }
@@ -268,7 +326,7 @@
         var p = getById(id);
         if (!p) return null;
         p.status = 'rejected';
-        p.rejectReason = reason || '不符合平台数字资产规范';
+        p.rejectReason = reason || '不符合平台数字商品规范（请检查版权与素材质量）';
         return upsert(p);
     }
 
@@ -292,7 +350,6 @@
         return upsert(p);
     }
 
-    /** 仅已下架商品可从橱窗移除（软移除，不再展示） */
     function removeFromShowcase(id) {
         var p = getById(id);
         if (!p) return { ok: false, error: '商品不存在' };
@@ -303,7 +360,6 @@
         return { ok: true };
     }
 
-    /** 数字商品同橱窗仅允许 1 个置顶 */
     function togglePin(id) {
         var p = getById(id);
         if (!p) return { ok: false, error: '商品不存在' };
@@ -322,7 +378,7 @@
         var p = getById(id);
         if (!p) return null;
         fields = fields || {};
-        ['title', 'description', 'coverUrl', 'priceUsdt', 'assetType'].forEach(function (k) {
+        ['title', 'description', 'coverUrl', 'priceUsdt', 'assetType', 'contentFiles', 'supplyMode', 'supplyTotal', 'autoList'].forEach(function (k) {
             if (fields[k] !== undefined) p[k] = fields[k];
         });
         return upsert(p);
@@ -342,6 +398,18 @@
     function typeLabel(typeId) {
         var t = ASSET_TYPES.filter(function (x) { return x.id === typeId; })[0];
         return t ? t.label : typeId;
+    }
+
+    /** 商品数量文案：限量份数 / 无限 */
+    function supplyLabel(p) {
+        if (!p) return '';
+        if (p.supplyMode !== 'limited') return '不限个数 · 已售 ' + (p.soldCount || 0);
+        return (p.supplyTotal || 0) + ' 份 · 已售 ' + (p.soldCount || 0) + ' · 剩余 ' + remaining(p);
+    }
+
+    /** 创作者设置的上架意向 */
+    function listIntentLabel(p) {
+        return (p && p.autoList === false) ? '通过后下架' : '通过后上架';
     }
 
     function statusLabel(s) {
@@ -374,6 +442,8 @@
         incrementSold: incrementSold,
         typeLabel: typeLabel,
         statusLabel: statusLabel,
+        supplyLabel: supplyLabel,
+        listIntentLabel: listIntentLabel,
         DEMO_CREATOR: DEMO_CREATOR
     };
 })(typeof window !== 'undefined' ? window : this);

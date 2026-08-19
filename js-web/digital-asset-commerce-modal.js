@@ -28,6 +28,10 @@
         var num = Math.round(Number(n) * 100) / 100;
         return num % 1 === 0 ? String(num) : num.toFixed(2);
     }
+    function deliverNote(p) {
+        if (p && p.assetType === 'video') return '购买后可播放 / 下载视频作品';
+        return '购买后可浏览 / 下载图片合集';
+    }
     function toast(msg, isErr) {
         if (global.DigitalAssetPages && global.DigitalAssetPages.toast) {
             return global.DigitalAssetPages.toast(msg, isErr);
@@ -253,6 +257,7 @@
     }
 
     function openEditForm(p) {
+        var Store = global.DigitalAssetsStore;
         var body = document.getElementById('daCmDetailBody');
         var head = document.getElementById('daCmHeadTitle');
         if (!body) return;
@@ -262,12 +267,37 @@
             '<label class="da-cm-field"><span>标题</span><input type="text" id="daEditTitle" value="' + esc(p.title) + '"></label>' +
             '<label class="da-cm-field"><span>简介</span><textarea id="daEditDesc" rows="3">' + esc(p.description || '') + '</textarea></label>' +
             '<label class="da-cm-field"><span>价格（USDT）</span><input type="number" id="daEditPrice" min="0" step="0.01" value="' + Number(p.priceUsdt) + '"></label>' +
-            '<label class="da-cm-field"><span>封面 URL</span><input type="text" id="daEditCover" value="' + esc(p.coverUrl || '') + '"></label>' +
-            '<p class="note">修改后立即生效；不影响已完成订单。进行中的支付仍按用户确认时的金额完成。</p>' +
+            '<label class="da-cm-field"><span>商品首图 URL</span><input type="text" id="daEditCover" value="' + esc(p.coverUrl || '') + '"></label>' +
+            '<label class="da-cm-field"><span>数量方式</span><select id="daEditSupplyMode">' +
+            '<option value="limited"' + (p.supplyMode === 'limited' ? ' selected' : '') + '>限量</option>' +
+            '<option value="unlimited"' + (p.supplyMode !== 'limited' ? ' selected' : '') + '>不限个数</option>' +
+            '</select></label>' +
+            '<label class="da-cm-field" id="daEditSupplyTotalWrap"' + (p.supplyMode === 'limited' ? '' : ' hidden') + '>' +
+            '<span>商品个数（可售份数，已售 ' + (p.soldCount || 0) + '）</span>' +
+            '<input type="number" id="daEditSupplyTotal" min="1" step="1" value="' + (p.supplyTotal || 0) + '"></label>' +
+            (p.status === 'pending_review' || p.status === 'rejected' || p.status === 'draft'
+                ? ('<label class="da-cm-field"><span>通过后状态</span><select id="daEditAutoList">' +
+                    '<option value="auto"' + (p.autoList !== false ? ' selected' : '') + '>上架</option>' +
+                    '<option value="manual"' + (p.autoList === false ? ' selected' : '') + '>下架</option>' +
+                    '</select></label>')
+                : (p.status === 'listed' || p.status === 'delisted' || p.status === 'sold_out'
+                    ? ('<label class="da-cm-field"><span>上架状态</span><select id="daEditListStatus">' +
+                        '<option value="listed"' + (p.status !== 'delisted' ? ' selected' : '') + '>上架</option>' +
+                        '<option value="delisted"' + (p.status === 'delisted' ? ' selected' : '') + '>下架</option>' +
+                        '</select></label>')
+                    : '')) +
+            '<p class="note">修改后立即生效；不影响已完成订单。商品个数不可小于已售份数；售罄后增加个数并选「上架」会重新对外售卖。</p>' +
             '<div class="sub-step-actions" style="margin-top:12px">' +
             '<button type="button" class="btn btn-secondary" id="daEditCancel">取消</button>' +
             '<button type="button" class="btn btn-primary" id="daEditSave">保存</button>' +
             '</div></div>';
+        var modeSel = document.getElementById('daEditSupplyMode');
+        var totalWrap = document.getElementById('daEditSupplyTotalWrap');
+        if (modeSel && totalWrap) {
+            modeSel.addEventListener('change', function () {
+                totalWrap.hidden = modeSel.value !== 'limited';
+            });
+        }
         document.getElementById('daEditCancel').addEventListener('click', function () {
             if (head) head.innerHTML = '<i class="fa-solid fa-sliders" style="color:#C084FC"></i> 管理商品';
             fillDetail(global.DigitalAssetsStore.getById(p.id), { ownerView: true });
@@ -277,15 +307,41 @@
             var desc = (document.getElementById('daEditDesc').value || '').trim();
             var price = Number(document.getElementById('daEditPrice').value);
             var cover = (document.getElementById('daEditCover').value || '').trim();
+            var mode = modeSel ? modeSel.value : p.supplyMode;
+            var total = mode === 'limited'
+                ? parseInt(document.getElementById('daEditSupplyTotal').value, 10) || 0
+                : 0;
             if (!title) return toast('请填写标题', true);
             if (!(price >= 0)) return toast('请填写有效价格', true);
-            var updated = global.DigitalAssetsStore.updateProduct(p.id, {
+            if (mode === 'limited') {
+                if (total < 1) return toast('商品个数至少为 1 份', true);
+                if (total < (p.soldCount || 0)) return toast('商品个数不能小于已售 ' + p.soldCount + ' 份', true);
+            }
+            var autoListEl = document.getElementById('daEditAutoList');
+            var listStatusEl = document.getElementById('daEditListStatus');
+            var fields = {
                 title: title,
                 description: desc,
                 priceUsdt: price,
-                coverUrl: cover || p.coverUrl
-            });
+                coverUrl: cover || p.coverUrl,
+                supplyMode: mode,
+                supplyTotal: total
+            };
+            if (autoListEl) fields.autoList = autoListEl.value !== 'manual';
+            var updated = global.DigitalAssetsStore.updateProduct(p.id, fields);
             if (!updated) return toast('保存失败', true);
+            if (listStatusEl) {
+                var want = listStatusEl.value;
+                if (want === 'delisted' && updated.status !== 'delisted') {
+                    updated = Store.delist(updated.id) || updated;
+                } else if (want === 'listed' && updated.status === 'delisted') {
+                    updated = Store.relist(updated.id) || updated;
+                } else if (want === 'listed' && updated.status === 'sold_out' && Store.remaining(updated) !== 0) {
+                    updated = Store.relist(updated.id) || updated;
+                }
+            } else if (updated.status === 'sold_out' && Store.remaining(updated) !== 0) {
+                updated = Store.relist(updated.id) || updated;
+            }
             toast('商品已更新');
             var cb = state.onDone;
             if (head) head.innerHTML = '<i class="fa-solid fa-sliders" style="color:#C084FC"></i> 管理商品';
@@ -316,8 +372,8 @@
             feeNote = '平台服务费 ' + cfg.digitalPlatformFeePercent + '% · ';
         }
         var supply = p.supplyMode === 'limited'
-            ? ('限量 ' + p.supplyTotal + ' · 已售 ' + (p.soldCount || 0) + ' · 剩余 ' + left)
-            : ('无限发行 · 已售 ' + (p.soldCount || 0));
+            ? ('限量 ' + p.supplyTotal + ' 份 · 已售 ' + (p.soldCount || 0) + ' · 剩余 ' + left)
+            : ('不限个数 · 已售 ' + (p.soldCount || 0));
 
         var body = document.getElementById('daCmDetailBody');
         if (!body) return;
@@ -343,13 +399,13 @@
                 encodeURIComponent(p.creatorName || '') + '">去我的橱窗管理</a>';
         } else if (canBuy) {
             actionHtml =
-                '<p class="note">' + feeNote + '购买成功即时获得数字权益 · 无需物流与地址</p>' +
+                '<p class="note">' + feeNote + deliverNote(p) + ' · 无需物流与地址</p>' +
                 '<button type="button" class="btn btn-primary btn-block" id="daCmBuyBtn"><i class="fa-solid fa-bolt"></i> 立即购买</button>';
         } else {
             actionHtml =
-                '<p class="note">' + feeNote + '购买成功即时获得数字权益 · 无需物流与地址</p>' +
+                '<p class="note">' + feeNote + deliverNote(p) + ' · 无需物流与地址</p>' +
                 '<button type="button" class="btn btn-block" disabled>' +
-                (owned ? '已获得权益' : (p.status === 'sold_out' ? '已售罄' : '暂不可购')) +
+                (owned ? '已获得作品' : (p.status === 'sold_out' ? '已售罄' : '暂不可购')) +
                 '</button>';
         }
 
@@ -401,7 +457,8 @@
         var head = document.getElementById('daCmHeadTitle');
         if (head) head.innerHTML = '<i class="fa-solid fa-receipt" style="color:#FBBF24"></i> 确认订单';
         document.getElementById('daCmConfirmTitle').textContent = p.title;
-        document.getElementById('daCmConfirmSub').textContent = (p.creatorName || '') + ' · 数字资产';
+        document.getElementById('daCmConfirmSub').textContent =
+            (p.creatorName || '') + ' · ' + ((global.DigitalAssetsStore && global.DigitalAssetsStore.typeLabel(p.assetType)) || '数字商品');
         document.getElementById('daCmBalanceVal').textContent = formatBal(bal) + ' USDT';
         document.getElementById('daCmBalanceBar').classList.toggle('is-low', bal < state.price);
         document.getElementById('daCmSumTitle').textContent = p.title;
@@ -474,7 +531,8 @@
         var head = document.getElementById('daCmHeadTitle');
         if (head) head.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#34D399"></i> 购买成功';
         document.getElementById('daCmOkText').textContent =
-            '已获得「' + state.title + '」数字权益，扣款 ' + fmt(state.price) + ' USDT。';
+            '已获得「' + state.title + '」。' + deliverNote({ assetType: (global.DigitalAssetsStore.getById(state.productId) || {}).assetType }) +
+            ' · 扣款 ' + fmt(state.price) + ' USDT。';
         showStep('daCmStepOk');
     }
 

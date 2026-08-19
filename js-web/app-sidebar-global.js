@@ -28,7 +28,7 @@
 
     var STORAGE_KEY = 'fl_sidebar_collapsed';
     var NAV_CONTEXT_KEY = 'fl_sidebar_nav_context';
-    var SIDEBAR_SHELL_CACHE_KEY = 'fl_sidebar_shell_v1';
+    var SIDEBAR_SHELL_CACHE_KEY = 'fl_sidebar_shell_v2';
 
     function detectScriptBase() {
         var scripts = document.getElementsByTagName('script');
@@ -187,6 +187,17 @@
         }
     ];
 
+    /** 橱窗 / 数字商品链路：不单独占菜单，沿用进入时的来源项 */
+    var SHOWCASE_FLOW_PAGES = [
+        'creator-showcase.html',
+        'affiliate-showcase.html',
+        'affiliate-catalog.html',
+        'create-digital-asset.html',
+        'digital-asset-store.html',
+        'digital-asset-detail.html',
+        'my-digital-assets.html'
+    ];
+
     var DEFAULT_BOTTOM =
         '<div class="s-bottom">' +
         '  <div class="s-pro-card" data-fl-pro-card>' +
@@ -224,6 +235,11 @@
             page === 'discover.html' || page === 'topics.html' || page === 'topic-detail.html' ||
             page === 'bookmarks.html' || page.indexOf('proto-discover') === 0
         ) return 'discover';
+        // 橱窗 / 数字商品链路：沿用来源菜单（多数从「我的主页 · 我的橱窗」进入）
+        if (SHOWCASE_FLOW_PAGES.indexOf(page) >= 0) {
+            var showcaseCtx = readNavContext();
+            return showcaseCtx || 'profile';
+        }
         if (page.indexOf('create') === 0) return 'create';
         if (page.indexOf('messages') === 0) return 'messages';
         if (page.indexOf('notification') === 0) return 'notifications';
@@ -306,9 +322,13 @@
 
     function syncSidebarActiveState(sidebar, activeId) {
         if (!sidebar) return;
-        sidebar.querySelectorAll('.s-item[data-nav-id]').forEach(function (row) {
-            row.classList.toggle('active', row.getAttribute('data-nav-id') === activeId);
+        // 先清掉所有旧高亮（含静态 HTML / 旧缓存里没有 data-nav-id 的项）
+        sidebar.querySelectorAll('.s-item.active').forEach(function (row) {
+            row.classList.remove('active');
         });
+        if (!activeId) return;
+        var target = sidebar.querySelector('.s-item[data-nav-id="' + activeId + '"]');
+        if (target) target.classList.add('active');
     }
 
     function applyCreatorIncomeChip(sidebar, row) {
@@ -544,6 +564,7 @@
 
     function cacheSidebarShell(sidebar) {
         if (!sidebar || sidebar.getAttribute('data-fl-nav-unified') !== '1') return;
+        if (!sidebar.querySelector('.s-item[data-nav-id]')) return;
         try {
             var clone = sidebar.cloneNode(true);
             var toggle = clone.querySelector('.s-sidebar-toggle');
@@ -556,6 +577,11 @@
         try {
             var raw = sessionStorage.getItem(SIDEBAR_SHELL_CACHE_KEY);
             if (!raw) return false;
+            // 缓存必须是统一导航结构（含 data-nav-id），否则会残留旧页高亮
+            if (raw.indexOf('data-nav-id') < 0) {
+                sessionStorage.removeItem(SIDEBAR_SHELL_CACHE_KEY);
+                return false;
+            }
             sidebar.innerHTML = raw;
             syncSidebarActiveState(sidebar, activeId);
             sidebar.setAttribute('data-fl-nav-unified', '1');

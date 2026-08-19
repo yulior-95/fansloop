@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GOODFANS 原型调整记录 · 2026-08-12</title>
+<style>
+:root {
+    --bg: #0f0f17; --card: #1a1a28; --border: rgba(255,255,255,0.1);
+    --text: rgba(255,255,255,0.92); --muted: rgba(255,255,255,0.55); --accent: #a855f7;
+    --code-bg: rgba(255,255,255,0.06);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; padding: 32px 20px 80px; }
+.wrap { max-width: 960px; margin: 0 auto; }
+header { margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+header h1 { font-size: 26px; font-weight: 800; }
+header p { color: var(--muted); margin-top: 8px; font-size: 14px; }
+.badge { display: inline-block; margin-top: 10px; padding: 4px 10px; border-radius: 999px; background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.35); color: #c4b5fd; font-size: 12px; font-weight: 600; }
+.badge-c { margin-left: 8px; background: rgba(236,72,153,0.12); border-color: rgba(236,72,153,0.35); color: #f9a8d4; }
+.badge-admin { margin-left: 8px; background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.35); color: #86efac; }
+.badge-hifi { margin-left: 8px; background: rgba(251,191,36,0.12); border-color: rgba(251,191,36,0.4); color: #fbbf24; }
+article h2 { font-size: 19px; font-weight: 700; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+article h3 { font-size: 15px; font-weight: 700; margin: 20px 0 10px; color: #e9d5ff; }
+article ul, article ol { margin: 10px 0 10px 22px; }
+article li { margin: 6px 0; font-size: 14px; }
+article p { font-size: 14px; margin: 8px 0; color: var(--muted); }
+article table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+article th, article td { border: 1px solid var(--border); padding: 9px 11px; text-align: left; vertical-align: top; }
+article th { background: var(--card); }
+article tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+article code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; background: var(--code-bg); padding: 2px 6px; border-radius: 4px; color: #f0abfc; }
+article a { color: #93c5fd; }
+article blockquote { margin: 14px 0; padding: 12px 16px; border-left: 3px solid var(--accent); background: rgba(168,85,247,0.08); color: var(--muted); font-size: 13.5px; border-radius: 0 8px 8px 0; }
+.toc { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 24px; }
+.toc h2 { font-size: 14px; margin: 0 0 10px; border: none; padding: 0; }
+.toc ol { margin: 0 0 0 18px; font-size: 13px; }
+.toc li { margin: 4px 0; }
+.toc a { color: var(--text); text-decoration: none; }
+.toc a:hover { color: #c4b5fd; }
+footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+    <h1>原型调整记录 · 2026-08-12</h1>
+    <p>对比基准：<a href="prototype-changelog-2026-08-11.html">2026-08-11</a> · 本期将数字产品从「NFT 优先」纠偏为「创作者上传图片合集 / 视频作品售卖」</p>
+    <span class="badge">相对 8/11 纠偏</span>
+    <span class="badge badge-c">C 端创建 / 商城 / 权益</span>
+    <span class="badge badge-admin">运营审核三页</span>
+    <span class="badge badge-hifi">mall-hifi 演示数据</span>
+</header>
+
+<nav class="toc">
+    <h2>目录</h2>
+    <ol>
+        <li><a href="#def">产品定义</a></li>
+        <li><a href="#model">数据模型</a></li>
+        <li><a href="#create">创建向导</a></li>
+        <li><a href="#c">C 端表面</a></li>
+        <li><a href="#admin">后台与高保真</a></li>
+        <li><a href="#verify">验收路径</a></li>
+        <li><a href="#files">主要文件</a></li>
+    </ol>
+</nav>
+
+<article>
+<h2 id="def">1. 产品定义</h2>
+<blockquote>
+数字产品 = 创作者上传并售卖的 <strong style="color:#fff">图片合集</strong> 或 <strong style="color:#fff">视频作品</strong>（非链上 NFT）。审核通过后上架 Creator Store / 橱窗；购买后即时获得浏览合集 / 播放视频权益。
+</blockquote>
+<p>本期明确不做：NFT Traits / 链网络 / 铸造空投交互；会员权益与独家内容作为可创建类型；真实文件上传（仍用 URL 列表模拟）。</p>
+
+<h2 id="model">2. 数据模型</h2>
+<ul>
+    <li><code>ASSET_TYPES</code> 仅保留 <code>image</code>（图片合集）、<code>video</code>（视频作品）</li>
+    <li>localStorage 升级为 <code>fl_digital_assets_v7</code>；旧类型迁移归并为 image/video，并清理展示用 NFT 字段</li>
+    <li><code>create()</code> 新写入不再带 <code>nftTraits</code> / <code>chainNetwork</code></li>
+    <li>订单种子 <code>fl_digital_asset_orders_v3</code>：商品标题与类型改为图片 / 视频</li>
+    <li>驳回样例原因改为版权 / 素材质量相关</li>
+</ul>
+
+<h2 id="create">3. 创建向导（四步）</h2>
+<ol>
+    <li>类型与基础信息：单选图片合集 / 视频作品 + 标题 + 描述</li>
+    <li>作品素材：封面 URL；合集 = 多图 URL 列表；视频 = 视频 URL</li>
+    <li>售卖设置：价格 USDT、限量 / 无限（无链网络、Traits）</li>
+    <li>确认提交：预览 → 版权勾选 → <code>pending_review</code></li>
+</ol>
+<p>橱窗入口：<code>create-digital-asset.html?from=showcase</code>（不再强制 <code>type=nft</code>）。</p>
+
+<h2 id="c">4. C 端表面</h2>
+<ul>
+    <li>Creator Store / 橱窗：类型标签「图片合集」「视频作品」；创建文案去 NFT</li>
+    <li>购买弹窗：交付说明改为「购买后可浏览合集 / 播放视频」</li>
+    <li>「我的作品」页：已购合集与视频库</li>
+</ul>
+
+<h2 id="admin">5. 后台与高保真</h2>
+<table>
+    <thead><tr><th>页面</th><th>调整</th></tr></thead>
+    <tbody>
+        <tr><td>数字商品审核</td><td>类型仅图片合集 / 视频；驳回文案偏版权与素材质量</td></tr>
+        <tr><td>数字商品管理</td><td>状态筛选保留；类型展示新标签</td></tr>
+        <tr><td>数字销售记录</td><td>随订单种子更新商品名 / 类型</td></tr>
+        <tr><td>mall-hifi 三页</td><td>演示数据与筛选与上表对齐；index UX 去掉 NFT 表述</td></tr>
+    </tbody>
+</table>
+<p>规格文档 <a href="commerce-dual-mall-spec.html">commerce-dual-mall-spec.html</a> 中 <code>assetType</code> 枚举已改为 image / video。</p>
+
+<h2 id="verify">6. 验收路径</h2>
+<ol>
+    <li>橱窗 → 创建数字商品：可选图片合集（多图）或视频，无 Traits / 链</li>
+    <li>提交后进审核队列；驳回原因在橱窗可见并可重提</li>
+    <li>通过后 Creator Store / 橱窗可售；购买后「我的作品」可见</li>
+    <li>后台审核 / 管理 / 销售记录类型仅为图片合集或视频</li>
+    <li>数字商品主路径文案无「NFT / 链上」表述</li>
+</ol>
+
+<h2 id="files">7. 主要文件</h2>
+<ul>
+    <li><code>js-web/digital-assets-store.js</code>、<code>js-web/digital-asset-orders-store.js</code></li>
+    <li><code>pages-web/create-digital-asset.html</code>、<code>js-web/digital-asset-pages.js</code>、<code>css-web/digital-assets.css</code></li>
+    <li><code>js-web/creator-showcase-page.js</code>、<code>js-web/digital-asset-commerce-modal.js</code></li>
+    <li><code>pages-web/digital-asset-store.html</code>、<code>pages-web/my-digital-assets.html</code></li>
+    <li><code>admin-prototype/mall-digital-*.html</code>、<code>admin-prototype/js/mall-admin-pages.js</code></li>
+    <li><code>admin-prototype/mall-hifi/digital-*.html</code>、<code>admin-prototype/mall-hifi/index.html</code></li>
+    <li><code>docs/commerce-dual-mall-spec.html</code>（本页）</li>
+</ul>
+</article>
+
+<footer>
+    GOODFANS 静态原型 · 2026-08-12 · 上期：<a href="prototype-changelog-2026-08-11.html">2026-08-11</a>
+</footer>
+</div>
+</body>
+</html>

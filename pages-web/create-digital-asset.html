@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>创建 NFT 数字商品 · GOODFANS</title>
+<title>创建数字商品 · GOODFANS</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
 <link rel="stylesheet" href="../css-web/digital-assets.css">
@@ -13,7 +13,7 @@
     <aside class="app-sidebar">
         <div class="s-brand"><div class="logo"><i class="fa-solid fa-infinity"></i></div><div class="name">GOODFANS<span>Web3 Creator</span></div></div>
         <div class="s-section">橱窗</div>
-        <div class="s-item active"><span class="ic"><i class="fa-solid fa-gem"></i></span><span class="lb">创建 NFT</span></div>
+        <div class="s-item active"><span class="ic"><i class="fa-solid fa-images"></i></span><span class="lb">创建数字商品</span></div>
         <div class="s-item" onclick="location.href='creator-showcase.html?owner=1&tab=digital'"><span class="ic"><i class="fa-solid fa-store"></i></span><span class="lb">我的橱窗</span></div>
         <div class="s-item" onclick="location.href='affiliate-catalog.html'"><span class="ic"><i class="fa-solid fa-bag-shopping"></i></span><span class="lb">实体选品库</span></div>
         <div class="s-item" onclick="location.href='creator-profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">创作者主页</span></div>
@@ -26,120 +26,154 @@
     <main class="app-main">
         <div class="page-head">
             <div class="ph-l">
-                <h1>创建 NFT 数字商品</h1>
-                <p>按步骤完善 NFT 信息并提交平台审核，通过后将出现在你的创作者橱窗与 Creator Store。</p>
+                <h1>创建数字商品</h1>
+                <p>上传图片合集或视频作品并定价售卖。提交后进入平台审核，通过后出现在创作者橱窗与 Creator Store。（与内容流 PPV 付费帖无关）</p>
             </div>
         </div>
 
         <div class="da-steps" id="daSteps" aria-label="创建步骤">
-            <div class="da-step is-active" data-step="1"><span class="n">1</span><span class="lb">基础信息</span></div>
-            <div class="da-step" data-step="2"><span class="n">2</span><span class="lb">NFT 素材</span></div>
-            <div class="da-step" data-step="3"><span class="n">3</span><span class="lb">发行设置</span></div>
+            <div class="da-step is-active" data-step="1"><span class="n">1</span><span class="lb">类型与基础</span></div>
+            <div class="da-step" data-step="2"><span class="n">2</span><span class="lb">作品素材</span></div>
+            <div class="da-step" data-step="3"><span class="n">3</span><span class="lb">售卖设置</span></div>
             <div class="da-step" data-step="4"><span class="n">4</span><span class="lb">确认提交</span></div>
         </div>
 
         <form class="da-form da-form--wizard" id="daCreateForm" onsubmit="return false">
-            <!-- Step 1 -->
             <section class="da-step-panel is-active" data-panel="1">
-                <h2 class="da-step-title">基础信息</h2>
-                <p class="da-step-desc">填写 NFT 名称与权益说明，将展示给买家。</p>
+                <h2 class="da-step-title">类型与基础信息</h2>
+                <p class="da-step-desc">选择商品类型，并填写将展示给买家的标题与介绍。</p>
                 <div class="field">
-                    <label for="daTitle">NFT 名称 <span class="req">*</span></label>
-                    <input id="daTitle" type="text" placeholder="例如：Neon Echo · Genesis Pass #001" maxlength="80">
+                    <label>商品类型 <span class="req">*</span></label>
+                    <div class="da-type-cards" id="daTypeCards" role="radiogroup" aria-label="商品类型">
+                        <button type="button" class="da-type-card is-active" data-type="image" role="radio" aria-checked="true">
+                            <i class="fa-solid fa-images"></i>
+                            <strong>图片合集</strong>
+                            <span>以一张首图作为作品售卖，购买后可浏览 / 下载</span>
+                        </button>
+                        <button type="button" class="da-type-card" data-type="video" role="radio" aria-checked="false">
+                            <i class="fa-solid fa-film"></i>
+                            <strong>视频作品</strong>
+                            <span>单个视频成片售卖，购买后可播放 / 下载</span>
+                        </button>
+                    </div>
+                    <select id="daAssetType" hidden></select>
                 </div>
                 <div class="field">
-                    <label for="daDesc">商品描述 <span class="req">*</span></label>
-                    <textarea id="daDesc" placeholder="描述 NFT 权益、社群入口、空投资格等"></textarea>
+                    <label for="daTitle">作品名称 <span class="req">*</span></label>
+                    <input id="daTitle" type="text" placeholder="例如：富士山日出 · 4K 写真合集" maxlength="80">
                 </div>
                 <div class="field">
-                    <label for="daAssetType">商品类型</label>
-                    <select id="daAssetType" disabled></select>
-                    <p class="da-field-hint">橱窗入口创建固定为 NFT 收藏品类型</p>
+                    <label for="daDesc">作品描述 <span class="req">*</span></label>
+                    <textarea id="daDesc" placeholder="介绍拍摄主题、张数/时长、交付方式等"></textarea>
                 </div>
             </section>
 
-            <!-- Step 2 -->
             <section class="da-step-panel" data-panel="2" hidden>
-                <h2 class="da-step-title">NFT 素材</h2>
-                <p class="da-step-desc">上传封面与数字内容，并配置链上属性（Traits）。</p>
+                <h2 class="da-step-title">作品素材</h2>
+                <p class="da-step-desc">设置商品首图（一张即可）。图片合集以该图作为作品内容；视频作品另填视频链接。</p>
                 <div class="field">
-                    <label for="daCover">封面图 URL <span class="req">*</span></label>
-                    <input id="daCover" type="url" placeholder="https://…">
-                    <div class="da-cover-preview" id="daCoverPreview" hidden>
-                        <img alt="封面预览" id="daCoverImg">
+                    <label>商品首图 <span class="req">*</span></label>
+                    <p class="da-field-hint">买家在橱窗 / Creator Store 列表与商品详情看到的主图，一张即可，建议 1:1</p>
+                    <div class="da-hero-pick">
+                        <div class="da-hero-preview" id="daCoverPreview">
+                            <img alt="首图预览" id="daCoverImg" hidden>
+                            <span class="ph" id="daCoverPh"><i class="fa-solid fa-image"></i>暂无首图</span>
+                            <span class="tag" id="daCoverTag" hidden>首图</span>
+                        </div>
+                        <div class="da-hero-ops">
+                            <input type="file" id="daCoverFile" accept="image/*" hidden>
+                            <div class="da-hero-btns">
+                                <button type="button" class="btn btn-sm btn-primary" id="btnDaCoverUpload"><i class="fa-solid fa-arrow-up-from-bracket"></i> 上传首图</button>
+                                <button type="button" class="btn btn-sm" id="btnDaCoverClear" hidden>移除首图</button>
+                            </div>
+                            <input id="daCover" type="url" placeholder="或粘贴图片 URL：https://…">
+                            <p class="da-field-hint" id="daCoverState">未设置首图，可上传本地图片或粘贴 URL</p>
+                        </div>
                     </div>
                 </div>
-                <div class="field">
-                    <label for="daContent">数字内容 / 媒体 URL <span class="req">*</span></label>
-                    <input id="daContent" type="url" placeholder="图片 / 视频 / IPFS 资源链接">
-                </div>
-                <div class="field">
-                    <label>属性 Traits</label>
-                    <div id="daTraitsList" class="da-traits"></div>
-                    <button type="button" class="btn btn-sm" id="daTraitAdd"><i class="fa-solid fa-plus"></i> 添加属性</button>
-                    <p class="da-field-hint">例如 Scene / Night Street · Rarity / Rare</p>
+                <div class="field" id="daVideoFileWrap" hidden>
+                    <label for="daVideoUrl">视频 URL <span class="req">*</span></label>
+                    <input id="daVideoUrl" type="url" placeholder="https://…/video.mp4">
+                    <p class="da-field-hint">购买后可在线播放或下载原片</p>
                 </div>
             </section>
 
-            <!-- Step 3 -->
             <section class="da-step-panel" data-panel="3" hidden>
-                <h2 class="da-step-title">发行设置</h2>
-                <p class="da-step-desc">设置售价、发行量与目标网络（原型 Mock）。</p>
-                <div class="row2">
-                    <div class="field">
-                        <label for="daPrice">价格（USDT） <span class="req">*</span></label>
-                        <input id="daPrice" type="number" min="0.01" step="0.01" value="10">
-                    </div>
-                    <div class="field">
-                        <label for="daChain">链网络</label>
-                        <select id="daChain">
-                            <option value="Polygon">Polygon</option>
-                            <option value="Ethereum">Ethereum</option>
-                            <option value="BSC">BSC</option>
-                            <option value="Solana">Solana</option>
-                        </select>
-                    </div>
+                <h2 class="da-step-title">售卖设置</h2>
+                <p class="da-step-desc">设置价格、可售商品个数，以及审核通过后是上架还是下架。</p>
+                <div class="field">
+                    <label for="daPrice">价格（USDT） <span class="req">*</span></label>
+                    <input id="daPrice" type="number" min="0.01" step="0.01" value="4.5">
                 </div>
-                <div class="row2">
-                    <div class="field">
-                        <label for="daSupplyMode">发行方式</label>
-                        <select id="daSupplyMode">
-                            <option value="limited">限量发行</option>
-                            <option value="unlimited">无限发行</option>
-                        </select>
+                <div class="field">
+                    <label>商品个数 <span class="req">*</span></label>
+                    <div class="da-type-cards" id="daSupplyCards" role="radiogroup" aria-label="商品个数">
+                        <button type="button" class="da-type-card is-active" data-supply="limited" role="radio" aria-checked="true">
+                            <i class="fa-solid fa-hashtag"></i>
+                            <strong>限量</strong>
+                            <span>设定可售份数，卖完自动变为「已售罄」</span>
+                        </button>
+                        <button type="button" class="da-type-card" data-supply="unlimited" role="radio" aria-checked="false">
+                            <i class="fa-solid fa-infinity"></i>
+                            <strong>不限个数</strong>
+                            <span>不限制购买份数，可一直售卖</span>
+                        </button>
                     </div>
-                    <div class="field" id="daSupplyTotalWrap">
-                        <label for="daSupplyTotal">发行数量</label>
-                        <input id="daSupplyTotal" type="number" min="1" step="1" value="100">
+                    <select id="daSupplyMode" hidden>
+                        <option value="limited" selected>限量</option>
+                        <option value="unlimited">不限个数</option>
+                    </select>
+                </div>
+                <div class="field" id="daSupplyTotalWrap">
+                    <label for="daSupplyTotal">可售份数 <span class="req">*</span></label>
+                    <input id="daSupplyTotal" type="number" min="1" step="1" value="100">
+                    <p class="da-field-hint">买家可购买的总份数。例如填 100，表示一共卖 100 份</p>
+                </div>
+                <div class="field">
+                    <label>上架状态 <span class="req">*</span></label>
+                    <div class="da-type-cards" id="daListCards" role="radiogroup" aria-label="上架状态">
+                        <button type="button" class="da-type-card is-active" data-list="auto" role="radio" aria-checked="true">
+                            <i class="fa-solid fa-shop"></i>
+                            <strong>上架</strong>
+                            <span>审核通过后立即出现在橱窗与 Creator Store，访客可购买</span>
+                        </button>
+                        <button type="button" class="da-type-card" data-list="manual" role="radio" aria-checked="false">
+                            <i class="fa-solid fa-box-archive"></i>
+                            <strong>下架</strong>
+                            <span>审核通过后保持下架，你在橱窗点「上架」后再对外售卖</span>
+                        </button>
                     </div>
+                    <select id="daListState" hidden>
+                        <option value="auto" selected>上架</option>
+                        <option value="manual">下架</option>
+                    </select>
+                    <p class="da-field-hint">提交后先进入「待审核」。此处是审核通过后的状态；之后仍可在橱窗随时切换上架 / 下架。</p>
                 </div>
             </section>
 
-            <!-- Step 4 -->
             <section class="da-step-panel" data-panel="4" hidden>
                 <h2 class="da-step-title">确认提交</h2>
-                <p class="da-step-desc">请核对信息。提交后进入平台审核，通过后自动上架橱窗。</p>
+                <p class="da-step-desc">请核对信息。提交后进入平台审核；通过后按你选择的上架状态生效。</p>
                 <div class="da-confirm-card" id="daConfirmCard"></div>
                 <label class="da-check">
-                    <input type="checkbox" id="daAgree">
-                    <span>我确认素材版权清晰，并同意平台数字资产审核规范</span>
+                    <input type="checkbox" id="daAgree" checked>
+                    我确认拥有该作品版权，内容符合平台规范，同意提交审核
                 </label>
             </section>
 
             <div class="da-form-actions">
+                <button type="button" class="btn" id="btnDaSaveDraft">保存草稿</button>
+                <div style="flex:1"></div>
                 <button type="button" class="btn" id="btnDaPrev" hidden>上一步</button>
-                <button type="button" class="btn" id="btnDaSaveDraft"><i class="fa-regular fa-floppy-disk"></i> 保存草稿</button>
                 <button type="button" class="btn btn-primary" id="btnDaNext">下一步</button>
-                <button type="button" class="btn btn-primary" id="btnDaSubmit" hidden><i class="fa-solid fa-paper-plane"></i> 提交审核</button>
+                <button type="button" class="btn btn-primary" id="btnDaSubmit" hidden>提交审核</button>
             </div>
-            <p class="da-note" style="margin-top:14px">流程：草稿 / 提交 → 待审核 → 上架或驳回（驳回后可在橱窗查看原因并重新提交）。</p>
         </form>
     </main>
 </div>
 <script src="../js-web/app-sidebar-global.js"></script>
-<script src="../js-web/mall-commerce-config-store.js"></script>
+<script src="../js-web/user-prototype-registry.js"></script>
 <script src="../js-web/digital-assets-store.js"></script>
-<script src="../js-web/digital-asset-orders-store.js"></script>
 <script src="../js-web/digital-asset-pages.js"></script>
 <script>DigitalAssetPages.initCreatePage();</script>
 </body>

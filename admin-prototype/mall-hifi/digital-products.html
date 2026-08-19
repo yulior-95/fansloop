@@ -25,7 +25,7 @@
       <div class="mh-page-head">
         <div>
           <h1 class="mh-page-title">数字商品管理</h1>
-          <p class="mh-page-desc">全量数字商品生命周期视图：草稿、待审、上架、售罄、驳回、下架。运营可强制下架已上架商品。</p>
+          <p class="mh-page-desc">全量图片合集 / 视频作品生命周期视图：草稿、待审、上架、售罄、驳回、下架。运营可强制下架已上架商品。</p>
         </div>
         <span class="mh-anno-inline">
           <span class="mh-anno-sphere"><span>To 研发</span></span>
@@ -62,12 +62,12 @@
               <thead>
                 <tr>
                   <th>#</th>
-                  <th style="width:64px">封面</th>
+                  <th style="width:64px">首图</th>
                   <th>标题</th>
                   <th>创作者</th>
                   <th>类型</th>
                   <th>价格</th>
-                  <th>已售/总量</th>
+                  <th>商品个数</th>
                   <th>状态</th>
                   <th>操作</th>
                 </tr>
@@ -79,7 +79,7 @@
         </div>
       </section>
     </main>
-    <footer class="mh-footer">GOODFANS · 数字商品管理 · PATCH /admin/digital-products/:id/delist</footer>
+    <footer class="mh-footer">GOODFANS · 数字商品管理 · PATCH /admin/digital-products/:id/delist · PATCH /admin/digital-products/:id/relist</footer>
   </div>
 </div>
 <div class="mh-anno-rail" id="mhAnnoRail"></div>
@@ -89,9 +89,10 @@
   var Shell = window.MallHifiShell;
   Shell.mountSider('digital-products');
   Shell.mountAnnoRail([
-    { title: '封面列对齐审核页', body: '管理页补充封面缩略图，便于运营识别 NFT / 视频素材。' },
+    { title: '首图列对齐审核页', body: '管理页补充首图缩略图，便于运营识别图片合集 / 视频素材。' },
     { title: '驳回态展示', body: '已驳回行可悬停/展开 rejectReason；本原型用标签 + 副文案示意。' },
-    { title: '下架权限', body: '仅 listed 显示下架；售罄/驳回/草稿无下架入口。' }
+    { title: '上架 / 下架权限', body: '已上架、已售罄可下架；已下架可重新上架；待审核 / 已驳回 / 草稿无上下架入口。' },
+    { title: '商品个数', body: '总量即创作者设置的可售份数；不限个数显示「不限 · 已售」。' }
   ]);
 
   var statusMap = {
@@ -104,11 +105,12 @@
   };
 
   var products = [
-    { id: '1', title: 'Neon Echo · Genesis Pass', creator: 'Luna 🌙', type: 'NFT 收藏品', price: 10, sold: '20/100', status: 'listed', cover: 'https://images.unsplash.com/photo-1727722158074-b7916daf6af4?w=200&h=200&fit=crop', note: '' },
-    { id: '2', title: '幕后花絮 · 独家短片', creator: 'Luna 🌙', type: '数字视频', price: 6, sold: '0/200', status: 'rejected', cover: 'https://images.unsplash.com/photo-1665663389418-1e8c19f048c0?w=200&h=200&fit=crop', note: '封面与链上元数据不一致' },
-    { id: '3', title: '创作者周会 · 数字会员月卡', creator: 'Luna 🌙', type: '数字会员权益', price: 19.9, sold: '50/50', status: 'sold_out', cover: 'https://images.unsplash.com/photo-1651607792435-e944c20826a2?w=200&h=200&fit=crop', note: '' },
-    { id: '4', title: '富士山日出 · 4K 数字写真包', creator: 'Luna 🌙', type: '数字图片', price: 4.5, sold: '∞ / 86', status: 'listed', cover: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=200&h=200&fit=crop', note: '' },
-    { id: '5', title: '街头夜景 · NFT 草稿样张', creator: 'Luna 🌙', type: 'NFT 收藏品', price: 12, sold: '0/88', status: 'pending_review', cover: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=200&h=200&fit=crop', note: '' }
+    { id: '1', title: '城市夜色 · 延时短片', creator: 'Luna 🌙', type: '视频作品', price: 6, sold: '20/200', status: 'listed', cover: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=200&h=200&fit=crop', note: '' },
+    { id: '2', title: '幕后花絮 · 拍摄短片', creator: 'Luna 🌙', type: '视频作品', price: 6, sold: '0/200', status: 'rejected', cover: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=200&h=200&fit=crop', note: '封面与成片内容不符，请更换封面或补充说明' },
+    { id: '3', title: '极光之夜 · 限量写真合集', creator: 'Luna 🌙', type: '图片合集', price: 12, sold: '50/50', status: 'sold_out', cover: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop', note: '' },
+    { id: '4', title: '富士山日出 · 4K 写真合集', creator: 'Luna 🌙', type: '图片合集', price: 4.5, sold: '不限 · 已售 86', status: 'listed', cover: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=200&h=200&fit=crop', note: '' },
+    { id: '5', title: '街头夜景 · 街拍合集', creator: 'Luna 🌙', type: '图片合集', price: 8, sold: '0 / 88 份', status: 'pending_review', cover: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=200&h=200&fit=crop', note: '创作者设置：通过后下架' },
+    { id: '6', title: '海边清晨 · 写真合集', creator: 'Luna 🌙', type: '图片合集', price: 9.9, sold: '0/60', status: 'delisted', cover: 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c8e?w=200&h=200&fit=crop', note: '审核已通过，等待创作者上架' }
   ];
 
   var body = document.getElementById('prodBody');
@@ -123,10 +125,14 @@
     document.getElementById('totalCount').textContent = String(list.length);
     body.innerHTML = list.map(function (p, i) {
       var sm = statusMap[p.status] || ['—', 'mh-tag'];
-      var ops = p.status === 'listed'
-        ? '<button type="button" class="mh-btn mh-btn-sm js-delist" data-id="' + p.id + '">下架</button>'
-        : '—';
-      var note = p.note ? '<div style="font-size:11px;color:#cf1322;margin-top:2px">' + p.note + '</div>' : '';
+      var ops = '—';
+      if (p.status === 'listed' || p.status === 'sold_out') {
+        ops = '<button type="button" class="mh-btn mh-btn-sm js-delist" data-id="' + p.id + '">下架</button>';
+      } else if (p.status === 'delisted') {
+        ops = '<button type="button" class="mh-btn mh-btn-sm mh-btn-primary js-relist" data-id="' + p.id + '">上架</button>';
+      }
+      var noteColor = p.status === 'rejected' ? '#cf1322' : 'rgba(0,0,0,.45)';
+      var note = p.note ? '<div style="font-size:11px;color:' + noteColor + ';margin-top:2px">' + p.note + '</div>' : '';
       return '<tr>' +
         '<td>' + (i + 1) + '</td>' +
         '<td><img class="mh-cover" src="' + p.cover + '" alt=""></td>' +
@@ -144,6 +150,18 @@
         var id = btn.getAttribute('data-id');
         products.forEach(function (p) { if (p.id === id) p.status = 'delisted'; });
         Shell.toast('已下架');
+        render();
+      });
+    });
+    body.querySelectorAll('.js-relist').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-id');
+        products.forEach(function (p) {
+          if (p.id !== id) return;
+          p.status = 'listed';
+          p.note = '';
+        });
+        Shell.toast('已上架');
         render();
       });
     });

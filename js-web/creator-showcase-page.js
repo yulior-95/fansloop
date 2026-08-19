@@ -142,8 +142,8 @@
         var canBuy = !manage && !preview && p.status === 'listed' && !owned &&
             (p.supplyMode === 'unlimited' || (left !== null && left > 0));
         var supply = p.supplyMode === 'limited'
-            ? ('限量 ' + p.supplyTotal + ' · 剩余 ' + left)
-            : ('无限发行 · 已售 ' + (p.soldCount || 0));
+            ? ('限量 ' + p.supplyTotal + ' 份 · 剩余 ' + left)
+            : ('不限个数 · 已售 ' + (p.soldCount || 0));
         var badge = soldout
             ? '<span class="badge soldout">售罄</span>'
             : (delisted
@@ -160,7 +160,8 @@
             rejectBanner = '<div class="cs-reject-banner"><i class="fa-solid fa-circle-exclamation"></i> 驳回原因：' +
                 esc(p.rejectReason) + '</div>';
         } else if (manage && pending) {
-            rejectBanner = '<div class="cs-pending-banner"><i class="fa-solid fa-clock"></i> 已提交审核，请耐心等待平台结果</div>';
+            rejectBanner = '<div class="cs-pending-banner"><i class="fa-solid fa-clock"></i> 已提交审核，请耐心等待平台结果 · ' +
+                (p.autoList === false ? '通过后保持下架，可手动上架' : '通过后自动上架') + '</div>';
         }
 
         var foot = '';
@@ -590,7 +591,7 @@
         if (createDigBtn && !createDigBtn._bound) {
             createDigBtn._bound = true;
             createDigBtn.addEventListener('click', function () {
-                location.href = 'create-digital-asset.html?type=nft&from=showcase';
+                location.href = 'create-digital-asset.html?from=showcase';
             });
         }
         if (!skipToast && manage && param('from') === 'catalog' && activeTab === 'affiliate') {

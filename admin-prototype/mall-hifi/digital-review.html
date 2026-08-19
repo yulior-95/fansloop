@@ -27,7 +27,7 @@
       <div class="mh-page-head">
         <div>
           <h1 class="mh-page-title">数字商品审核</h1>
-          <p class="mh-page-desc">创作者提交 NFT / 视频 / 会员权益等数字商品后进入本队列。通过即上架 Creator Store；驳回须填写原因并回传创作者端。</p>
+          <p class="mh-page-desc">创作者上传的图片合集 / 视频作品进入本队列（数字商品，非内容流 PPV）。通过即上架 Creator Store；驳回须填写原因并回传创作者端。</p>
         </div>
         <span class="mh-anno-inline">
           <span class="mh-anno-sphere"><span>To 研发</span></span>
@@ -37,7 +37,7 @@
 
       <div class="mh-info">
         <i class="fa-solid fa-circle-info"></i>
-        <div>审核通过后商品进入 Creator Store 上架；驳回后创作者可见原因并可修改后重新提交。数字资产无物流审核项。</div>
+        <div>审核通过后商品进入 Creator Store 上架；驳回后创作者可见原因并可修改后重新提交。数字商品无物流审核项。</div>
       </div>
 
       <div class="mh-stats">
@@ -53,9 +53,8 @@
           <div class="mh-toolbar" style="margin:0">
             <select class="mh-select" id="typeFilter">
               <option value="">全部类型</option>
-              <option value="nft">NFT 收藏品</option>
-              <option value="video">数字视频</option>
-              <option value="membership">数字会员权益</option>
+              <option value="image">图片合集</option>
+              <option value="video">视频作品</option>
             </select>
             <input class="mh-input" id="kw" placeholder="搜索商品 / 创作者" style="width:200px">
           </div>
@@ -66,11 +65,12 @@
               <thead>
                 <tr>
                   <th style="width:48px">#</th>
-                  <th style="width:70px">封面</th>
+                  <th style="width:70px">首图</th>
                   <th>商品</th>
                   <th>创作者</th>
                   <th>价格</th>
-                  <th>发行</th>
+                  <th>商品个数</th>
+                  <th>通过后</th>
                   <th>提交时间</th>
                   <th style="width:180px">操作</th>
                 </tr>
@@ -102,7 +102,7 @@
       <button type="button" class="mh-btn mh-btn-sm" id="rejectClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="mh-modal-body">
-      <p style="margin:0 0 12px;color:rgba(0,0,0,.65);font-size:13px">驳回「<strong id="rejectName">—</strong>」后，创作者端将展示驳回结果与原因，可修改后重新提交。</p>
+      <p style="margin:0 0 12px;color:rgba(0,0,0,.65);font-size:13px">驳回「<strong id="rejectName">—</strong>」后，创作者端将展示驳回结果与原因（如版权、封面与内容不符、素材不清晰等），可修改后重新提交。</p>
       <label style="display:block;margin-bottom:6px;font-size:12px;color:rgba(0,0,0,.45)">驳回原因 <span style="color:#ff4d4f">*</span></label>
       <textarea class="mh-textarea" id="rejectReason" maxlength="200" placeholder="请填写驳回原因（必填，将展示给创作者）"></textarea>
       <div class="mh-form-err" id="rejectErr"></div>
@@ -121,32 +121,34 @@
   Shell.mountSider('digital-review');
   Shell.mountAnnoRail([
     { title: '驳回原因必填', body: '弹窗确认 + textarea 校验；空原因禁止提交。创作者橱窗展示 rejectReason。' },
-    { title: '封面与媒体', body: '列表展示 coverUrl；详情可扩展 contentFiles / nftTraits / chainNetwork 只读预览。' },
+    { title: '封面与媒体', body: '列表展示 coverUrl；详情可扩展 contentFiles（多图 URL / 视频 URL）只读预览。' },
     { title: '通过副作用', body: 'approve 后 status=listed，写入 publishedAt，同步 Creator Store 与橱窗。' }
   ]);
 
   var rows = [
     {
-      id: 'da_pending_nft_01',
-      title: 'Aurora Vault · Genesis NFT',
-      type: 'nft',
-      typeLabel: 'NFT 收藏品',
+      id: 'da_pending_img_01',
+      title: '街头夜景 · 街拍合集',
+      type: 'image',
+      typeLabel: '图片合集',
       creator: 'Luna 🌙',
-      price: 18,
-      supply: '限量 88',
+      price: 8,
+      supply: '限量 88 份',
+      autoList: true,
       time: '2026-08-06 08:42',
-      cover: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&h=200&fit=crop'
+      cover: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=200&h=200&fit=crop'
     },
     {
       id: 'da_pending_vid_02',
-      title: '幕后花絮 · 独家短片',
+      title: '幕后花絮 · 拍摄短片',
       type: 'video',
-      typeLabel: '数字视频',
+      typeLabel: '视频作品',
       creator: 'Luna 🌙',
       price: 6,
-      supply: '限量 200',
+      supply: '限量 200 份',
+      autoList: false,
       time: '2026-08-05 21:00',
-      cover: 'https://cdn.pixabay.com/photo/2019/07/24/14/17/monkey-4360298_640.jpg'
+      cover: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=200&h=200&fit=crop'
     }
   ];
 
@@ -164,7 +166,7 @@
     document.getElementById('statPending').textContent = String(rows.length);
     document.getElementById('totalCount').textContent = String(list.length);
     if (!list.length) {
-      body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:rgba(0,0,0,.45);padding:36px">暂无待审核数字商品</td></tr>';
+      body.innerHTML = '<tr><td colspan="9" style="text-align:center;color:rgba(0,0,0,.45);padding:36px">暂无待审核数字商品</td></tr>';
       return;
     }
     body.innerHTML = list.map(function (r, i) {
@@ -175,6 +177,7 @@
         '<td>' + r.creator + '</td>' +
         '<td><strong>' + r.price.toFixed(2) + '</strong> USDT</td>' +
         '<td>' + r.supply + '</td>' +
+        '<td>' + (r.autoList === false ? '<span class="mh-tag">下架</span>' : '<span class="mh-tag mh-tag-green">上架</span>') + '</td>' +
         '<td>' + r.time + '</td>' +
         '<td>' +
         '<button type="button" class="mh-btn mh-btn-primary mh-btn-sm js-approve">通过</button> ' +
@@ -186,8 +189,11 @@
       btn.addEventListener('click', function () {
         var tr = btn.closest('tr');
         var id = tr.getAttribute('data-id');
+        var row = rows.filter(function (r) { return r.id === id; })[0];
         rows = rows.filter(function (r) { return r.id !== id; });
-        Shell.toast('已通过并上架 Creator Store');
+        Shell.toast(row && row.autoList === false
+          ? '已通过审核，按创作者设置保持下架'
+          : '已通过并上架 Creator Store');
         render();
       });
     });
