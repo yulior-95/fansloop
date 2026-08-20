@@ -16,10 +16,11 @@
 
     var ASSET_TYPES = [
         { id: 'image', label: '图片合集' },
-        { id: 'video', label: '视频作品' }
+        { id: 'video', label: '视频作品' },
+        { id: 'bundle', label: '图视作品包' }
     ];
 
-    var ALLOWED_TYPES = { image: true, video: true };
+    var ALLOWED_TYPES = { image: true, video: true, bundle: true };
 
     var COVERS = [
         'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&q=80',
@@ -37,10 +38,45 @@
         return (prefix || 'da') + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     }
 
+    function isVideoUrl(url) {
+        var u = String(url || '');
+        return /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u) ||
+            /gtv-videos-bucket|\/video\//i.test(u);
+    }
+
+    function mediaItems(p) {
+        return ((p && p.contentFiles) || []).map(function (f) {
+            if (f && typeof f === 'object') {
+                return { kind: f.kind === 'video' ? 'video' : 'image', url: String(f.url || '') };
+            }
+            var url = String(f || '');
+            return { kind: isVideoUrl(url) ? 'video' : 'image', url: url };
+        }).filter(function (x) { return x.url; });
+    }
+
+    function mediaCounts(p) {
+        var items = mediaItems(p);
+        var images = 0;
+        var videos = 0;
+        items.forEach(function (it) {
+            if (it.kind === 'video') videos += 1;
+            else images += 1;
+        });
+        return { images: images, videos: videos, total: items.length };
+    }
+
+    function mediaSummary(p) {
+        var c = mediaCounts(p);
+        var parts = [];
+        if (c.images) parts.push(c.images + ' 张图');
+        if (c.videos) parts.push(c.videos + ' 个视频');
+        return parts.join(' · ') || '无素材';
+    }
+
     function mapLegacyType(typeId) {
         if (typeId === 'video') return 'video';
+        if (typeId === 'bundle') return 'bundle';
         if (typeId === 'image') return 'image';
-        // nft / membership / exclusive / other → 按媒体语义归并
         if (typeId === 'nft') return 'image';
         return 'image';
     }
@@ -51,8 +87,8 @@
         if (p.nftTraits) delete p.nftTraits;
         if (p.chainNetwork) delete p.chainNetwork;
         if (!Array.isArray(p.contentFiles)) p.contentFiles = [];
-        // autoList：审核通过后是否直接上架（老数据默认直接上架）
         p.autoList = p.autoList !== false;
+        p.forceDelisted = !!p.forceDelisted;
         return p;
     }
 
@@ -133,7 +169,10 @@
                 description: '待审核的视频作品（演示）。',
                 coverUrl: COVERS[3],
                 assetType: 'video',
-                contentFiles: ['https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'],
+                contentFiles: [
+                    { kind: 'video', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' },
+                    { kind: 'image', url: COVERS[3] }
+                ],
                 priceUsdt: 5,
                 supplyMode: 'limited',
                 supplyTotal: 100,
@@ -163,6 +202,30 @@
                 rejectReason: '封面与合集内容关联性不足，请补充清晰作品说明并完善图片清单后重新提交。',
                 createdAt: '2026-08-08 15:20',
                 updatedAt: '2026-08-09 11:05'
+            },
+            {
+                id: 'da_seed_bundle_06',
+                creatorId: DEMO_CREATOR,
+                creatorName: 'Luna 🌙',
+                title: '旅拍花絮 · 图视作品包',
+                description: '写真 4 张 + 幕后短片，购买后可浏览图片并播放视频。',
+                coverUrl: COVERS[4],
+                assetType: 'bundle',
+                contentFiles: [
+                    { kind: 'image', url: COVERS[4] },
+                    { kind: 'image', url: COVERS[0] },
+                    { kind: 'video', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4' }
+                ],
+                priceUsdt: 9.9,
+                supplyMode: 'limited',
+                supplyTotal: 80,
+                soldCount: 12,
+                status: 'listed',
+                autoList: true,
+                publishedAt: '2026-08-12 10:00',
+                rejectReason: '',
+                createdAt: '2026-08-11 16:00',
+                updatedAt: '2026-08-12 10:00'
             }
         ];
     }
@@ -182,6 +245,11 @@
                 var parsed = JSON.parse(raw);
                 if (parsed && Array.isArray(parsed.products) && parsed.version === 7) {
                     parsed.products = migrateProducts(parsed.products);
+                    var ids = {};
+                    parsed.products.forEach(function (p) { ids[p.id] = true; });
+                    seedProducts().forEach(function (s) {
+                        if (!ids[s.id]) parsed.products.push(s);
+                    });
                     return parsed;
                 }
             }
@@ -288,6 +356,7 @@
             supplyTotal: 100,
             soldCount: 0,
             autoList: true,
+            forceDelisted: false,
             status: 'draft',
             publishedAt: '',
             rejectReason: '',
@@ -330,17 +399,22 @@
         return upsert(p);
     }
 
-    function delist(id) {
+    function delist(id, opts) {
         var p = getById(id);
         if (!p) return null;
+        opts = opts || {};
         p.status = 'delisted';
+        p.forceDelisted = !!opts.force;
         return upsert(p);
     }
 
-    function relist(id) {
+    function relist(id, opts) {
         var p = getById(id);
         if (!p) return null;
+        opts = opts || {};
         if (p.removedFromShowcase) return null;
+        if (p.forceDelisted && !opts.adminForce) return null;
+        if (opts.adminForce) p.forceDelisted = false;
         if (p.supplyMode === 'limited' && remaining(p) === 0) {
             p.status = 'sold_out';
         } else {
@@ -348,6 +422,25 @@
             if (!p.publishedAt) p.publishedAt = nowIso();
         }
         return upsert(p);
+    }
+
+    function creatorRelistBlocked(p) {
+        if (p && p.forceDelisted) return '运营已强制下架，核实完成前不可自行上架';
+        return '';
+    }
+
+    function shelfStatus(p) {
+        if (!p) return '';
+        if (p.status === 'delisted') return 'delisted';
+        if (p.status === 'listed' || p.status === 'sold_out') return 'listed';
+        return p.status;
+    }
+
+    function shelfLabel(p) {
+        if (!p) return '';
+        if (p.status === 'delisted') return p.forceDelisted ? '已下架（强制）' : '已下架';
+        if (p.status === 'listed' || p.status === 'sold_out') return '已上架';
+        return statusLabel(p.status);
     }
 
     function removeFromShowcase(id) {
@@ -444,6 +537,13 @@
         statusLabel: statusLabel,
         supplyLabel: supplyLabel,
         listIntentLabel: listIntentLabel,
+        mediaItems: mediaItems,
+        mediaCounts: mediaCounts,
+        mediaSummary: mediaSummary,
+        isVideoUrl: isVideoUrl,
+        creatorRelistBlocked: creatorRelistBlocked,
+        shelfStatus: shelfStatus,
+        shelfLabel: shelfLabel,
         DEMO_CREATOR: DEMO_CREATOR
     };
 })(typeof window !== 'undefined' ? window : this);

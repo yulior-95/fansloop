@@ -178,8 +178,12 @@
                 if (p.status === 'listed' || p.status === 'sold_out') {
                     actions += '<button type="button" class="btn btn-sm js-cs-da-delist" data-id="' + esc(p.id) + '">下架</button>';
                 } else if (delisted) {
-                    actions += '<button type="button" class="btn btn-sm btn-primary js-cs-da-relist" data-id="' + esc(p.id) + '">上架</button>';
-                    actions += '<button type="button" class="btn btn-sm js-cs-da-remove" data-id="' + esc(p.id) + '">移除</button>';
+                    if (p.forceDelisted) {
+                        actions += '<span class="chip sm">运营强制下架</span>';
+                    } else {
+                        actions += '<button type="button" class="btn btn-sm btn-primary js-cs-da-relist" data-id="' + esc(p.id) + '">上架</button>';
+                        actions += '<button type="button" class="btn btn-sm js-cs-da-remove" data-id="' + esc(p.id) + '">移除</button>';
+                    }
                 } else {
                     actions += '<span class="chip sm">' + esc(Store.statusLabel(p.status)) + '</span>';
                 }
@@ -208,6 +212,7 @@
             '<img src="' + esc(p.coverUrl) + '" alt="" loading="lazy"></div>' +
             '<div class="body">' +
             '<div class="type">' + esc(type) +
+            (manage ? ' · ' + esc(p.id) : '') +
             (delisted ? ' · 已下架' : '') +
             (rejected ? ' · 已驳回' : '') +
             (pending ? ' · 审核中' : '') + '</div>' +
@@ -341,7 +346,8 @@
                 e.stopPropagation();
                 var id = btn.getAttribute('data-id');
                 var p = global.DigitalAssetsStore.relist(id);
-                if (!p) return toast('上架失败', true);
+                var blocked = global.DigitalAssetsStore.creatorRelistBlocked(global.DigitalAssetsStore.getById(id));
+                if (!p) return toast(blocked || '上架失败', true);
                 toast(p.status === 'sold_out' ? '已恢复展示（售罄）' : '已重新上架');
                 reload();
             });

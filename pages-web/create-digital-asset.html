@@ -27,146 +27,139 @@
         <div class="page-head">
             <div class="ph-l">
                 <h1>创建数字商品</h1>
-                <p>上传图片合集或视频作品并定价售卖。提交后进入平台审核，通过后出现在创作者橱窗与 Creator Store。（与内容流 PPV 付费帖无关）</p>
             </div>
         </div>
 
-        <div class="da-steps" id="daSteps" aria-label="创建步骤">
-            <div class="da-step is-active" data-step="1"><span class="n">1</span><span class="lb">类型与基础</span></div>
-            <div class="da-step" data-step="2"><span class="n">2</span><span class="lb">作品素材</span></div>
-            <div class="da-step" data-step="3"><span class="n">3</span><span class="lb">售卖设置</span></div>
-            <div class="da-step" data-step="4"><span class="n">4</span><span class="lb">确认提交</span></div>
-        </div>
+        <form class="da-form" id="daCreateForm" onsubmit="return false">
+            <h2 class="da-step-title">类型与基础</h2>
+            <div class="field">
+                <label>商品类型 <span class="req">*</span></label>
+                <div class="da-type-cards da-type-cards--3" id="daTypeCards" role="radiogroup" aria-label="商品类型">
+                    <button type="button" class="da-type-card is-active" data-type="image" role="radio" aria-checked="true">
+                        <i class="fa-solid fa-images"></i>
+                        <strong>图片合集</strong>
+                        <span>多张写真打包售卖</span>
+                    </button>
+                    <button type="button" class="da-type-card" data-type="video" role="radio" aria-checked="false">
+                        <i class="fa-solid fa-film"></i>
+                        <strong>视频作品</strong>
+                        <span>单个或多个成片售卖</span>
+                    </button>
+                    <button type="button" class="da-type-card" data-type="bundle" role="radio" aria-checked="false">
+                        <i class="fa-solid fa-layer-group"></i>
+                        <strong>图视作品包</strong>
+                        <span>图片 + 视频一起交付</span>
+                    </button>
+                </div>
+                <select id="daAssetType" hidden></select>
+            </div>
+            <div class="field">
+                <label for="daTitle">作品名称 <span class="req">*</span></label>
+                <input id="daTitle" type="text" placeholder="例如：富士山日出 · 4K 写真合集" maxlength="80">
+            </div>
+            <div class="field">
+                <label for="daDesc">作品描述 <span class="req">*</span></label>
+                <textarea id="daDesc" placeholder="介绍拍摄主题、张数 / 时长、交付内容等"></textarea>
+            </div>
 
-        <form class="da-form da-form--wizard" id="daCreateForm" onsubmit="return false">
-            <section class="da-step-panel is-active" data-panel="1">
-                <h2 class="da-step-title">类型与基础信息</h2>
-                <p class="da-step-desc">选择商品类型，并填写将展示给买家的标题与介绍。</p>
-                <div class="field">
-                    <label>商品类型 <span class="req">*</span></label>
-                    <div class="da-type-cards" id="daTypeCards" role="radiogroup" aria-label="商品类型">
-                        <button type="button" class="da-type-card is-active" data-type="image" role="radio" aria-checked="true">
-                            <i class="fa-solid fa-images"></i>
-                            <strong>图片合集</strong>
-                            <span>以一张首图作为作品售卖，购买后可浏览 / 下载</span>
-                        </button>
-                        <button type="button" class="da-type-card" data-type="video" role="radio" aria-checked="false">
-                            <i class="fa-solid fa-film"></i>
-                            <strong>视频作品</strong>
-                            <span>单个视频成片售卖，购买后可播放 / 下载</span>
-                        </button>
+            <h2 class="da-step-title" style="margin-top:8px">作品素材</h2>
+            <div class="field">
+                <label>商品首图 <span class="req">*</span></label>
+                <p class="da-field-hint">列表与详情主图，建议 1:1</p>
+                <div class="da-hero-pick">
+                    <div class="da-hero-preview" id="daCoverPreview">
+                        <img alt="首图预览" id="daCoverImg" hidden>
+                        <span class="ph" id="daCoverPh"><i class="fa-solid fa-image"></i>暂无首图</span>
+                        <span class="tag" id="daCoverTag" hidden>首图</span>
                     </div>
-                    <select id="daAssetType" hidden></select>
-                </div>
-                <div class="field">
-                    <label for="daTitle">作品名称 <span class="req">*</span></label>
-                    <input id="daTitle" type="text" placeholder="例如：富士山日出 · 4K 写真合集" maxlength="80">
-                </div>
-                <div class="field">
-                    <label for="daDesc">作品描述 <span class="req">*</span></label>
-                    <textarea id="daDesc" placeholder="介绍拍摄主题、张数/时长、交付方式等"></textarea>
-                </div>
-            </section>
-
-            <section class="da-step-panel" data-panel="2" hidden>
-                <h2 class="da-step-title">作品素材</h2>
-                <p class="da-step-desc">设置商品首图（一张即可）。图片合集以该图作为作品内容；视频作品另填视频链接。</p>
-                <div class="field">
-                    <label>商品首图 <span class="req">*</span></label>
-                    <p class="da-field-hint">买家在橱窗 / Creator Store 列表与商品详情看到的主图，一张即可，建议 1:1</p>
-                    <div class="da-hero-pick">
-                        <div class="da-hero-preview" id="daCoverPreview">
-                            <img alt="首图预览" id="daCoverImg" hidden>
-                            <span class="ph" id="daCoverPh"><i class="fa-solid fa-image"></i>暂无首图</span>
-                            <span class="tag" id="daCoverTag" hidden>首图</span>
+                    <div class="da-hero-ops">
+                        <input type="file" id="daCoverFile" accept="image/*" hidden>
+                        <div class="da-hero-btns">
+                            <button type="button" class="btn btn-sm btn-primary" id="btnDaCoverUpload"><i class="fa-solid fa-arrow-up-from-bracket"></i> 上传首图</button>
+                            <button type="button" class="btn btn-sm" id="btnDaCoverClear" hidden>移除首图</button>
                         </div>
-                        <div class="da-hero-ops">
-                            <input type="file" id="daCoverFile" accept="image/*" hidden>
-                            <div class="da-hero-btns">
-                                <button type="button" class="btn btn-sm btn-primary" id="btnDaCoverUpload"><i class="fa-solid fa-arrow-up-from-bracket"></i> 上传首图</button>
-                                <button type="button" class="btn btn-sm" id="btnDaCoverClear" hidden>移除首图</button>
-                            </div>
-                            <input id="daCover" type="url" placeholder="或粘贴图片 URL：https://…">
-                            <p class="da-field-hint" id="daCoverState">未设置首图，可上传本地图片或粘贴 URL</p>
-                        </div>
+                        <input id="daCover" type="url" placeholder="或粘贴图片 URL：https://…">
+                        <p class="da-field-hint" id="daCoverState">未设置首图，可上传本地图片或粘贴 URL</p>
                     </div>
                 </div>
-                <div class="field" id="daVideoFileWrap" hidden>
-                    <label for="daVideoUrl">视频 URL <span class="req">*</span></label>
-                    <input id="daVideoUrl" type="url" placeholder="https://…/video.mp4">
-                    <p class="da-field-hint">购买后可在线播放或下载原片</p>
+            </div>
+            <div class="field" id="daImageField">
+                <label>写真图片</label>
+                <p class="da-field-hint">可上传多张。至少 1 张（无写真时用首图）</p>
+                <div class="da-work-grid" id="daImageGrid"></div>
+                <div class="da-hero-btns" style="margin-top:8px">
+                    <input type="file" id="daImageFiles" accept="image/*" multiple hidden>
+                    <button type="button" class="btn btn-sm" id="btnDaImageUpload"><i class="fa-solid fa-plus"></i> 上传图片</button>
+                    <input id="daImageUrl" type="url" placeholder="或粘贴图片 URL 后回车" style="flex:1;min-width:180px">
                 </div>
-            </section>
+            </div>
+            <div class="field" id="daVideoField" hidden>
+                <label>视频</label>
+                <p class="da-field-hint">可添加多个视频 URL，至少 1 个</p>
+                <div class="da-work-grid" id="daVideoGrid"></div>
+                <div class="da-hero-btns" style="margin-top:8px">
+                    <button type="button" class="btn btn-sm" id="btnDaVideoAdd"><i class="fa-solid fa-plus"></i> 添加视频</button>
+                    <input id="daVideoUrl" type="url" placeholder="粘贴视频 URL，例如 https://…/clip.mp4" style="flex:1;min-width:180px">
+                </div>
+            </div>
 
-            <section class="da-step-panel" data-panel="3" hidden>
-                <h2 class="da-step-title">售卖设置</h2>
-                <p class="da-step-desc">设置价格、可售商品个数，以及审核通过后是上架还是下架。</p>
-                <div class="field">
-                    <label for="daPrice">价格（USDT） <span class="req">*</span></label>
-                    <input id="daPrice" type="number" min="0.01" step="0.01" value="4.5">
+            <h2 class="da-step-title" style="margin-top:8px">售卖设置</h2>
+            <div class="field">
+                <label for="daPrice">价格（USDT） <span class="req">*</span></label>
+                <input id="daPrice" type="number" min="0.01" step="0.01" value="4.5">
+            </div>
+            <div class="field">
+                <label>商品个数 <span class="req">*</span></label>
+                <div class="da-type-cards" id="daSupplyCards" role="radiogroup" aria-label="商品个数">
+                    <button type="button" class="da-type-card is-active" data-supply="limited" role="radio" aria-checked="true">
+                        <i class="fa-solid fa-hashtag"></i>
+                        <strong>限量</strong>
+                        <span>设定可售份数，卖完自动变为「已售罄」</span>
+                    </button>
+                    <button type="button" class="da-type-card" data-supply="unlimited" role="radio" aria-checked="false">
+                        <i class="fa-solid fa-infinity"></i>
+                        <strong>不限个数</strong>
+                        <span>不限制购买份数，可一直售卖</span>
+                    </button>
                 </div>
-                <div class="field">
-                    <label>商品个数 <span class="req">*</span></label>
-                    <div class="da-type-cards" id="daSupplyCards" role="radiogroup" aria-label="商品个数">
-                        <button type="button" class="da-type-card is-active" data-supply="limited" role="radio" aria-checked="true">
-                            <i class="fa-solid fa-hashtag"></i>
-                            <strong>限量</strong>
-                            <span>设定可售份数，卖完自动变为「已售罄」</span>
-                        </button>
-                        <button type="button" class="da-type-card" data-supply="unlimited" role="radio" aria-checked="false">
-                            <i class="fa-solid fa-infinity"></i>
-                            <strong>不限个数</strong>
-                            <span>不限制购买份数，可一直售卖</span>
-                        </button>
-                    </div>
-                    <select id="daSupplyMode" hidden>
-                        <option value="limited" selected>限量</option>
-                        <option value="unlimited">不限个数</option>
-                    </select>
+                <select id="daSupplyMode" hidden>
+                    <option value="limited" selected>限量</option>
+                    <option value="unlimited">不限个数</option>
+                </select>
+            </div>
+            <div class="field" id="daSupplyTotalWrap">
+                <label for="daSupplyTotal">可售份数 <span class="req">*</span></label>
+                <input id="daSupplyTotal" type="number" min="1" step="1" value="100">
+            </div>
+            <div class="field">
+                <label>上架状态 <span class="req">*</span></label>
+                <div class="da-type-cards" id="daListCards" role="radiogroup" aria-label="上架状态">
+                    <button type="button" class="da-type-card is-active" data-list="auto" role="radio" aria-checked="true">
+                        <i class="fa-solid fa-shop"></i>
+                        <strong>上架</strong>
+                        <span>审核通过后立即出现在橱窗与 Creator Store</span>
+                    </button>
+                    <button type="button" class="da-type-card" data-list="manual" role="radio" aria-checked="false">
+                        <i class="fa-solid fa-box-archive"></i>
+                        <strong>下架</strong>
+                        <span>审核通过后保持下架，橱窗再手动上架</span>
+                    </button>
                 </div>
-                <div class="field" id="daSupplyTotalWrap">
-                    <label for="daSupplyTotal">可售份数 <span class="req">*</span></label>
-                    <input id="daSupplyTotal" type="number" min="1" step="1" value="100">
-                    <p class="da-field-hint">买家可购买的总份数。例如填 100，表示一共卖 100 份</p>
-                </div>
-                <div class="field">
-                    <label>上架状态 <span class="req">*</span></label>
-                    <div class="da-type-cards" id="daListCards" role="radiogroup" aria-label="上架状态">
-                        <button type="button" class="da-type-card is-active" data-list="auto" role="radio" aria-checked="true">
-                            <i class="fa-solid fa-shop"></i>
-                            <strong>上架</strong>
-                            <span>审核通过后立即出现在橱窗与 Creator Store，访客可购买</span>
-                        </button>
-                        <button type="button" class="da-type-card" data-list="manual" role="radio" aria-checked="false">
-                            <i class="fa-solid fa-box-archive"></i>
-                            <strong>下架</strong>
-                            <span>审核通过后保持下架，你在橱窗点「上架」后再对外售卖</span>
-                        </button>
-                    </div>
-                    <select id="daListState" hidden>
-                        <option value="auto" selected>上架</option>
-                        <option value="manual">下架</option>
-                    </select>
-                    <p class="da-field-hint">提交后先进入「待审核」。此处是审核通过后的状态；之后仍可在橱窗随时切换上架 / 下架。</p>
-                </div>
-            </section>
+                <select id="daListState" hidden>
+                    <option value="auto" selected>上架</option>
+                    <option value="manual">下架</option>
+                </select>
+            </div>
 
-            <section class="da-step-panel" data-panel="4" hidden>
-                <h2 class="da-step-title">确认提交</h2>
-                <p class="da-step-desc">请核对信息。提交后进入平台审核；通过后按你选择的上架状态生效。</p>
-                <div class="da-confirm-card" id="daConfirmCard"></div>
-                <label class="da-check">
-                    <input type="checkbox" id="daAgree" checked>
-                    我确认拥有该作品版权，内容符合平台规范，同意提交审核
-                </label>
-            </section>
+            <label class="da-check">
+                <input type="checkbox" id="daAgree" checked>
+                我确认拥有该作品版权，内容符合平台规范，同意提交审核
+            </label>
 
             <div class="da-form-actions">
                 <button type="button" class="btn" id="btnDaSaveDraft">保存草稿</button>
                 <div style="flex:1"></div>
-                <button type="button" class="btn" id="btnDaPrev" hidden>上一步</button>
-                <button type="button" class="btn btn-primary" id="btnDaNext">下一步</button>
-                <button type="button" class="btn btn-primary" id="btnDaSubmit" hidden>提交审核</button>
+                <button type="button" class="btn btn-primary" id="btnDaSubmit">提交审核</button>
             </div>
         </form>
     </main>

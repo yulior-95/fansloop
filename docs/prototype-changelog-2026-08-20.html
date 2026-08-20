@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GOODFANS 原型调整记录 · 2026-08-20</title>
+<style>
+:root {
+    --bg: #0f0f17; --card: #1a1a28; --border: rgba(255,255,255,0.1);
+    --text: rgba(255,255,255,0.92); --muted: rgba(255,255,255,0.55); --accent: #a855f7;
+    --code-bg: rgba(255,255,255,0.06);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; padding: 32px 20px 80px; }
+.wrap { max-width: 960px; margin: 0 auto; }
+header { margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+header h1 { font-size: 26px; font-weight: 800; }
+header p { color: var(--muted); margin-top: 8px; font-size: 14px; }
+.badge { display: inline-block; margin-top: 10px; padding: 4px 10px; border-radius: 999px; background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.35); color: #c4b5fd; font-size: 12px; font-weight: 600; }
+.badge-c { margin-left: 8px; background: rgba(236,72,153,0.12); border-color: rgba(236,72,153,0.35); color: #f9a8d4; }
+.badge-admin { margin-left: 8px; background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.35); color: #86efac; }
+.badge-antd { margin-left: 8px; background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.35); color: #93c5fd; }
+article h2 { font-size: 19px; font-weight: 700; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+article h3 { font-size: 15px; font-weight: 700; margin: 20px 0 10px; color: #e9d5ff; }
+article ul, article ol { margin: 10px 0 10px 22px; }
+article li { margin: 6px 0; font-size: 14px; }
+article p { font-size: 14px; margin: 8px 0; color: var(--muted); }
+article table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+article th, article td { border: 1px solid var(--border); padding: 9px 11px; text-align: left; vertical-align: top; }
+article th { background: var(--card); }
+article tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+article code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; background: var(--code-bg); padding: 2px 6px; border-radius: 4px; color: #f0abfc; }
+article a { color: #93c5fd; }
+article blockquote { margin: 14px 0; padding: 12px 16px; border-left: 3px solid var(--accent); background: rgba(168,85,247,0.08); color: var(--muted); font-size: 13.5px; border-radius: 0 8px 8px 0; }
+.toc { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 24px; }
+.toc h2 { font-size: 14px; margin: 0 0 10px; border: none; padding: 0; }
+.toc ol { margin: 0 0 0 18px; font-size: 13px; }
+.toc li { margin: 4px 0; }
+.toc a { color: var(--text); text-decoration: none; }
+.toc a:hover { color: #c4b5fd; }
+.tag-new { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.4); color: #86efac; margin-left: 6px; vertical-align: middle; }
+.tag-mod { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.4); color: #93c5fd; margin-left: 6px; vertical-align: middle; }
+.stat-row { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0 6px; }
+.stat { flex: 1 1 140px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+.stat .n { font-size: 22px; font-weight: 800; color: #c4b5fd; }
+.stat .l { font-size: 12px; color: var(--muted); margin-top: 2px; }
+footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+    <h1>原型调整记录 · 2026-08-20</h1>
+    <p>对比基准：<a href="prototype-changelog-2026-08-18.html">2026-08-18</a> · 创建页改为一页平铺并支持图视作品包；后台审核可预览全部素材，管理页只做上架 / 下架与强制干预</p>
+    <span class="badge">相对 8/18 增量</span>
+    <span class="badge badge-c">创建平铺 · 多素材</span>
+    <span class="badge badge-admin">审核弹窗 · 强制下架</span>
+    <span class="badge badge-antd">Ant Design 表单 / 表</span>
+</header>
+
+<nav class="toc">
+    <h2>目录</h2>
+    <ol>
+        <li><a href="#overview">本次主题</a></li>
+        <li><a href="#create">C 端创建页</a></li>
+        <li><a href="#edit">橱窗编辑</a></li>
+        <li><a href="#model">数据模型</a></li>
+        <li><a href="#review">后台 · 审核</a></li>
+        <li><a href="#manage">后台 · 管理</a></li>
+        <li><a href="#orders">后台 · 销售记录</a></li>
+        <li><a href="#compare">与 8/18 对比一览</a></li>
+        <li><a href="#verify">验收路径</a></li>
+        <li><a href="#files">主要文件</a></li>
+    </ol>
+</nav>
+
+<article>
+<h2 id="overview">1. 本次主题</h2>
+<blockquote>
+8/18 仍是四步向导、封面 URL + 单视频。8/20 把创建收成<strong style="color:#fff">一页平铺</strong>，类型增加「图视作品包」，素材支持多张写真与多个视频。后台审核在弹窗里看完全部媒体再通过 / 驳回；管理页只保留上架 / 下架，并区分普通下架与强制下架。
+</blockquote>
+<div class="stat-row">
+    <div class="stat"><div class="n">平铺</div><div class="l">取消四步向导</div></div>
+    <div class="stat"><div class="n">图视包</div><div class="l">image / video / bundle</div></div>
+    <div class="stat"><div class="n">审核</div><div class="l">弹窗预览可播视频</div></div>
+    <div class="stat"><div class="n">强制</div><div class="l">运营下架后用户不可自助上架</div></div>
+</div>
+
+<h2 id="create">2. C 端创建页 <span class="tag-mod">改</span></h2>
+<ul>
+    <li>去掉页头说明文案（不再出现 PPV 边界长句）</li>
+    <li>去掉步骤条与上一步 / 下一步；类型、素材、售卖、版权勾选同页提交</li>
+    <li>商品类型三选一：<strong style="color:#fff">图片合集</strong> / <strong style="color:#fff">视频作品</strong> / <strong style="color:#fff">图视作品包</strong></li>
+    <li>素材：必填一张首图；写真可多张上传或粘贴 URL；视频可多个 URL 并在格子里预览</li>
+    <li>校验：图片合集至少 1 张图（无写真则用首图）；视频作品至少 1 个视频；图视包至少 1 张图 + 1 个视频</li>
+</ul>
+
+<h2 id="edit">3. 橱窗编辑 <span class="tag-mod">改</span></h2>
+<ul>
+    <li>「编辑」只改标题、简介、价格、首图、个数，<strong style="color:#fff">不可改上架状态</strong></li>
+    <li>上架 / 下架仍用卡片或详情底部按钮</li>
+    <li>若运营已<strong>强制下架</strong>：不显示创作者「上架」，提示需等待运营核实后再强制上架</li>
+</ul>
+
+<h2 id="model">4. 数据模型</h2>
+<ul>
+    <li><code>assetType</code> 增加 <code>bundle</code>（图视作品包）</li>
+    <li><code>contentFiles[]</code> 统一为 <code>{ kind: 'image'|'video', url }</code>；历史字符串 URL 按后缀 / 域名推断</li>
+    <li>每个商品已有唯一 <code>id</code>（如 <code>da_seed_img_01</code>），列表展示并可搜索</li>
+    <li>新增 <code>forceDelisted</code>：运营强制下架后为 true，创作者 <code>relist</code> 被拒绝；运营「强制上架」清掉该标记</li>
+    <li>订单已有 <code>feePercent</code>：成交当时的平台抽成比例，列表展示「平台 x% / 创作者 y%」</li>
+</ul>
+
+<h2 id="review">5. 后台 · 审核 <span class="tag-mod">改</span></h2>
+<ul>
+    <li>去掉顶部说明卡片</li>
+    <li>搜索：商品 ID / 标题 / 创作者</li>
+    <li>列：商品 ID、首图、商品、创作者、价格、<strong>总量 / 已售 / 剩余</strong>、通过后、提交时间、操作</li>
+    <li>操作改为「审核」：弹窗展示全部写真（图）与视频（可播放），再点通过或驳回</li>
+    <li>控件使用 Ant Design 的 Card / Table / Input / Button / Tag / Modal 样式，便于迁 React / Vue</li>
+</ul>
+
+<h2 id="manage">6. 后台 · 管理 <span class="tag-new">新</span></h2>
+<ul>
+    <li>本页只处理已通过审核的货架商品，状态筛选仅 <strong>已上架 / 已下架</strong>（待审、草稿、驳回不出现）</li>
+    <li>售罄在本页仍记为已上架</li>
+    <li>操作：
+        <ul>
+            <li><strong>详情</strong>：与审核弹窗相同，看全部图片和视频</li>
+            <li><strong>下架</strong>：效果同创作者下架，用户仍可自行上架</li>
+            <li><strong>强制下架</strong>：风控下架，<code>forceDelisted=true</code>，创作者不可上架</li>
+            <li><strong>强制上架</strong>：运营核实后上架并解除强制标记</li>
+        </ul>
+    </li>
+</ul>
+
+<h2 id="orders">7. 后台 · 销售记录 <span class="tag-mod">改</span></h2>
+<ul>
+    <li>增加商品 ID 列与搜索（订单号 / 商品 ID / 标题）</li>
+    <li>「创作者实得」旁增加<strong>分成比例</strong>：记录下单当时配置（默认平台 10% / 创作者 90%）</li>
+</ul>
+
+<h2 id="compare">8. 与 8/18 对比一览</h2>
+<table>
+    <thead><tr><th>项</th><th>2026-08-18</th><th>2026-08-20</th></tr></thead>
+    <tbody>
+        <tr><td>创建流程</td><td>四步向导</td><td>一页平铺</td></tr>
+        <tr><td>页头说明</td><td>含 PPV 边界长句</td><td>去掉，仅留标题</td></tr>
+        <tr><td>商品类型</td><td>图片合集 / 视频作品</td><td>增加图视作品包</td></tr>
+        <tr><td>素材</td><td>一张首图；视频再填 1 个 URL</td><td>首图 + 多写真 + 多视频</td></tr>
+        <tr><td>编辑上架状态</td><td>表单内可改</td><td>不可改，只用上下架按钮</td></tr>
+        <tr><td>审核操作</td><td>列表直接通过 / 驳回</td><td>弹窗看完全部媒体再审</td></tr>
+        <tr><td>个数列</td><td>「100 份 · 已售 0 · 剩余 100」一格</td><td>总量 / 已售 / 剩余三列</td></tr>
+        <tr><td>管理状态</td><td>待审 / 上架 / 售罄 / 驳回 / 下架 / 草稿</td><td>仅已上架、已下架</td></tr>
+        <tr><td>运营下架</td><td>与用户下架相同</td><td>普通下架 vs 强制下架</td></tr>
+        <tr><td>商品 ID</td><td>不展示</td><td>各列表展示并可搜索</td></tr>
+        <tr><td>销售分成</td><td>只显示金额</td><td>金额 + 当时比例</td></tr>
+    </tbody>
+</table>
+
+<h2 id="verify">9. 验收路径</h2>
+<ol>
+    <li>创建页无步骤条、无 PPV 说明；可选图视作品包；上传 2 张写真 + 1 个视频 URL 后能提交</li>
+    <li>橱窗点「编辑」看不到上架状态下拉；上下架仍用卡片按钮</li>
+    <li>后台审核：搜索 ID；点「审核」能播视频、看写真，再通过</li>
+    <li>管理页无待审行；对已上架点「强制下架」后，创作者橱窗不能点上架；运营「强制上架」后恢复</li>
+    <li>普通「下架」后创作者仍可自行上架</li>
+    <li>销售记录能看到商品 ID 与「平台 10% / 创作者 90%」</li>
+</ol>
+
+<h2 id="files">10. 主要文件</h2>
+<ul>
+    <li><code>pages-web/create-digital-asset.html</code>、<code>js-web/digital-asset-pages.js</code>、<code>css-web/digital-assets.css</code></li>
+    <li><code>js-web/digital-assets-store.js</code>（<code>bundle</code>、<code>forceDelisted</code>、<code>mediaItems</code>）</li>
+    <li><code>js-web/digital-asset-commerce-modal.js</code>、<code>js-web/creator-showcase-page.js</code></li>
+    <li><code>admin-prototype/mall-digital-review.html</code>、<code>mall-digital-products.html</code>、<code>mall-digital-orders.html</code></li>
+    <li><code>admin-prototype/js/mall-admin-pages.js</code></li>
+    <li><code>docs/prototype-changelog-2026-08-20.html</code>（本页）</li>
+</ul>
+</article>
+
+<footer>
+    GOODFANS 静态原型 · 2026-08-20 · 上期：<a href="prototype-changelog-2026-08-18.html">2026-08-18</a>
+</footer>
+</div>
+</body>
+</html>

@@ -30,6 +30,7 @@
     }
     function deliverNote(p) {
         if (p && p.assetType === 'video') return '购买后可播放 / 下载视频作品';
+        if (p && p.assetType === 'bundle') return '购买后可浏览图片并播放视频';
         return '购买后可浏览 / 下载图片合集';
     }
     function toast(msg, isErr) {
@@ -228,7 +229,8 @@
         if (relistBtn) {
             relistBtn.addEventListener('click', function () {
                 var updated = Store.relist(p.id);
-                if (!updated) return toast('上架失败', true);
+                var blocked = Store.creatorRelistBlocked(Store.getById(p.id));
+                if (!updated) return toast(blocked || '上架失败', true);
                 toast(updated.status === 'sold_out' ? '已恢复展示（售罄）' : '已重新上架');
                 var cb = state.onDone;
                 close();
@@ -275,18 +277,7 @@
             '<label class="da-cm-field" id="daEditSupplyTotalWrap"' + (p.supplyMode === 'limited' ? '' : ' hidden') + '>' +
             '<span>商品个数（可售份数，已售 ' + (p.soldCount || 0) + '）</span>' +
             '<input type="number" id="daEditSupplyTotal" min="1" step="1" value="' + (p.supplyTotal || 0) + '"></label>' +
-            (p.status === 'pending_review' || p.status === 'rejected' || p.status === 'draft'
-                ? ('<label class="da-cm-field"><span>通过后状态</span><select id="daEditAutoList">' +
-                    '<option value="auto"' + (p.autoList !== false ? ' selected' : '') + '>上架</option>' +
-                    '<option value="manual"' + (p.autoList === false ? ' selected' : '') + '>下架</option>' +
-                    '</select></label>')
-                : (p.status === 'listed' || p.status === 'delisted' || p.status === 'sold_out'
-                    ? ('<label class="da-cm-field"><span>上架状态</span><select id="daEditListStatus">' +
-                        '<option value="listed"' + (p.status !== 'delisted' ? ' selected' : '') + '>上架</option>' +
-                        '<option value="delisted"' + (p.status === 'delisted' ? ' selected' : '') + '>下架</option>' +
-                        '</select></label>')
-                    : '')) +
-            '<p class="note">修改后立即生效；不影响已完成订单。商品个数不可小于已售份数；售罄后增加个数并选「上架」会重新对外售卖。</p>' +
+            '<p class="note">修改后立即生效；不影响已完成订单。商品个数不可小于已售份数。上架 / 下架请用商品详情底部按钮，编辑里不可改状态。</p>' +
             '<div class="sub-step-actions" style="margin-top:12px">' +
             '<button type="button" class="btn btn-secondary" id="daEditCancel">取消</button>' +
             '<button type="button" class="btn btn-primary" id="daEditSave">保存</button>' +
@@ -317,8 +308,6 @@
                 if (total < 1) return toast('商品个数至少为 1 份', true);
                 if (total < (p.soldCount || 0)) return toast('商品个数不能小于已售 ' + p.soldCount + ' 份', true);
             }
-            var autoListEl = document.getElementById('daEditAutoList');
-            var listStatusEl = document.getElementById('daEditListStatus');
             var fields = {
                 title: title,
                 description: desc,
@@ -327,19 +316,9 @@
                 supplyMode: mode,
                 supplyTotal: total
             };
-            if (autoListEl) fields.autoList = autoListEl.value !== 'manual';
             var updated = global.DigitalAssetsStore.updateProduct(p.id, fields);
             if (!updated) return toast('保存失败', true);
-            if (listStatusEl) {
-                var want = listStatusEl.value;
-                if (want === 'delisted' && updated.status !== 'delisted') {
-                    updated = Store.delist(updated.id) || updated;
-                } else if (want === 'listed' && updated.status === 'delisted') {
-                    updated = Store.relist(updated.id) || updated;
-                } else if (want === 'listed' && updated.status === 'sold_out' && Store.remaining(updated) !== 0) {
-                    updated = Store.relist(updated.id) || updated;
-                }
-            } else if (updated.status === 'sold_out' && Store.remaining(updated) !== 0) {
+            if (updated.status === 'sold_out' && Store.remaining(updated) !== 0) {
                 updated = Store.relist(updated.id) || updated;
             }
             toast('商品已更新');
@@ -384,6 +363,8 @@
             manageBtns += '<button type="button" class="btn btn-primary btn-block" data-da-act="edit">编辑商品</button>';
             if (p.status === 'listed' || p.status === 'sold_out') {
                 manageBtns += '<button type="button" class="btn btn-block" data-da-act="delist" style="margin-top:8px">下架</button>';
+            } else if (p.status === 'delisted' && p.forceDelisted) {
+                manageBtns += '<p class="note" style="margin-top:8px">运营已强制下架，核实完成前不可自行上架。</p>';
             } else if (p.status === 'delisted') {
                 manageBtns += '<button type="button" class="btn btn-block" data-da-act="relist" style="margin-top:8px">重新上架</button>';
                 manageBtns += '<button type="button" class="btn btn-block" data-da-act="remove" style="margin-top:8px">移除橱窗</button>';
@@ -414,7 +395,9 @@
             '<div class="da-cm-meta">' +
             '<div class="type-row">' +
             '<span class="da-chip">' + esc(Store.typeLabel(p.assetType)) + '</span>' +
+            '<span class="da-chip">' + esc(p.id) + '</span>' +
             '<span class="da-chip">' + esc(Store.statusLabel(p.status)) + '</span>' +
+            (p.forceDelisted ? '<span class="da-chip">强制下架</span>' : '') +
             (manage ? '<span class="da-chip">本人商品</span>' : '') +
             (owned && !manage ? '<span class="da-chip">已拥有</span>' : '') +
             '</div>' +

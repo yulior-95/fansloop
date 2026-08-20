@@ -15,90 +15,163 @@
     alert(msg);
   }
 
+  function qtyCells(p) {
+    if (!p || p.supplyMode !== 'limited') {
+      return '<td>不限</td><td>' + (p.soldCount || 0) + '</td><td>—</td>';
+    }
+    var left = window.DigitalAssetsStore.remaining(p);
+    return '<td>' + (p.supplyTotal || 0) + '</td><td>' + (p.soldCount || 0) + '</td><td>' + left + '</td>';
+  }
+
+  function mediaGalleryHtml(p) {
+    var Store = window.DigitalAssetsStore;
+    var items = Store.mediaItems ? Store.mediaItems(p) : [];
+    if (!items.length) {
+      return '<div class="ant-empty-description" style="padding:12px 0;color:rgba(0,0,0,.45)">暂无写真 / 视频素材</div>';
+    }
+    return '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px">' +
+      items.map(function (it) {
+        if (it.kind === 'video') {
+          return '<div style="border:1px solid #f0f0f0;border-radius:8px;overflow:hidden;background:#000">' +
+            '<video src="' + esc(it.url) + '" controls playsinline style="width:100%;height:140px;object-fit:contain;display:block"></video>' +
+            '<div style="padding:6px 8px;font-size:12px;color:rgba(0,0,0,.45);background:#fff">视频</div></div>';
+        }
+        return '<div style="border:1px solid #f0f0f0;border-radius:8px;overflow:hidden">' +
+          '<img src="' + esc(it.url) + '" alt="" style="width:100%;height:140px;object-fit:cover;display:block">' +
+          '<div style="padding:6px 8px;font-size:12px;color:rgba(0,0,0,.45)">写真</div></div>';
+      }).join('') + '</div>';
+  }
+
+  function productDetailBody(p) {
+    var Store = window.DigitalAssetsStore;
+    return '<div style="margin-bottom:12px;font-size:13px;color:rgba(0,0,0,.65)">' +
+      '<div><span style="color:rgba(0,0,0,.45)">商品 ID</span> <code>' + esc(p.id) + '</code></div>' +
+      '<div style="margin-top:4px">' + esc(Store.typeLabel(p.assetType)) + ' · ' + esc(Store.mediaSummary(p)) +
+      ' · ' + Number(p.priceUsdt).toFixed(2) + ' USDT</div>' +
+      (p.description ? '<p style="margin:8px 0 0">' + esc(p.description) + '</p>' : '') +
+      '</div>' +
+      '<div style="margin-bottom:8px;font-weight:600">全部素材</div>' +
+      mediaGalleryHtml(p);
+  }
+
+  function matchProductQuery(p, q) {
+    if (!q) return true;
+    var blob = ((p.id || '') + ' ' + (p.title || '') + ' ' + (p.creatorName || '')).toLowerCase();
+    return blob.indexOf(q) >= 0;
+  }
+
     function initDigitalReview() {
     var Store = window.DigitalAssetsStore;
     var body = document.getElementById('mallReviewBody');
+    var qEl = document.getElementById('mallReviewQ');
     if (!Store || !body) return;
 
+    function openReview(p) {
+      if (!window.AdminModal) return;
+      window.AdminModal.open({
+        title: '审核 · ' + p.title,
+        width: 760,
+        body: productDetailBody(p),
+        footer: [
+          { text: '取消', onClick: function () { window.AdminModal.close(); } },
+          {
+            text: '驳回',
+            danger: true,
+            onClick: function () {
+              window.AdminModal.close();
+              openReject(p.id);
+            }
+          },
+          {
+            text: '通过',
+            primary: true,
+            onClick: function () {
+              var updated = Store.approve(p.id);
+              window.AdminModal.close();
+              toast(updated && updated.status === 'delisted'
+                ? '已通过审核，按创作者设置保持下架'
+                : '已通过并上架');
+              render();
+            }
+          }
+        ]
+      });
+    }
+
+    function openReject(id) {
+      var p = Store.getById(id);
+      if (!p || !window.AdminModal) return;
+      window.AdminModal.open({
+        title: '驳回数字商品',
+        width: 520,
+        body:
+          '<p style="margin:0 0 12px;color:rgba(0,0,0,.65);font-size:13px">驳回「<strong>' + esc(p.title) + '</strong>」后，创作者端将展示驳回原因。</p>' +
+          '<div class="ant-form-item" style="margin:0">' +
+          '<label style="display:block;margin-bottom:6px;font-size:12px;color:rgba(0,0,0,.45)">驳回原因 <span style="color:#ff4d4f">*</span></label>' +
+          '<textarea class="ant-input" id="mallRejectReason" rows="4" maxlength="200" placeholder="请填写驳回原因（必填）" style="width:100%;resize:vertical"></textarea>' +
+          '<div id="mallRejectReasonErr" style="margin-top:6px;font-size:12px;color:#ff4d4f;min-height:18px"></div>' +
+          '</div>',
+        footer: [
+          { text: '取消', onClick: function () { window.AdminModal.close(); } },
+          {
+            text: '确认驳回',
+            danger: true,
+            primary: true,
+            onClick: function () {
+              var ta = document.getElementById('mallRejectReason');
+              var err = document.getElementById('mallRejectReasonErr');
+              var reason = ta ? String(ta.value || '').trim() : '';
+              if (!reason) {
+                if (err) err.textContent = '请填写驳回原因';
+                if (ta) ta.focus();
+                return;
+              }
+              Store.reject(id, reason);
+              window.AdminModal.close();
+              toast('已驳回，创作者端可见原因');
+              render();
+            }
+          }
+        ],
+        onMount: function (root) {
+          var ta = root.querySelector('#mallRejectReason');
+          if (ta) setTimeout(function () { ta.focus(); }, 0);
+        }
+      });
+    }
+
     function render() {
-      var list = Store.list({ status: 'pending_review' });
+      var q = (qEl && qEl.value || '').trim().toLowerCase();
+      var list = Store.list({ status: 'pending_review' }).filter(function (p) { return matchProductQuery(p, q); });
       if (!list.length) {
-        body.innerHTML = '<tr><td colspan="9" style="text-align:center;color:rgba(0,0,0,.45);padding:28px">暂无待审核数字商品</td></tr>';
+        body.innerHTML = '<tr><td colspan="12" style="text-align:center;color:rgba(0,0,0,.45);padding:28px">暂无待审核数字商品</td></tr>';
         return;
       }
       body.innerHTML = list.map(function (p, i) {
         return '<tr>' +
           '<td>' + (i + 1) + '</td>' +
+          '<td><code style="font-size:12px">' + esc(p.id) + '</code></td>' +
           '<td><img src="' + esc(p.coverUrl) + '" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px"></td>' +
-          '<td><strong>' + esc(p.title) + '</strong><div style="font-size:12px;color:rgba(0,0,0,.45)">' + esc(Store.typeLabel(p.assetType)) + '</div></td>' +
+          '<td><strong>' + esc(p.title) + '</strong><div style="font-size:12px;color:rgba(0,0,0,.45)">' +
+          esc(Store.typeLabel(p.assetType)) + ' · ' + esc(Store.mediaSummary(p)) + '</div></td>' +
           '<td>' + esc(p.creatorName) + '</td>' +
-          '<td>' + Number(p.priceUsdt).toFixed(2) + ' USDT</td>' +
-          '<td>' + esc(Store.supplyLabel(p)) + '</td>' +
+          '<td>' + Number(p.priceUsdt).toFixed(2) + '</td>' +
+          qtyCells(p) +
           '<td>' + (p.autoList === false
             ? '<span class="ant-tag">下架</span>'
             : '<span class="ant-tag ant-tag-green">上架</span>') + '</td>' +
           '<td>' + esc(p.createdAt) + '</td>' +
-          '<td>' +
-          '<button type="button" class="ant-btn ant-btn-primary ant-btn-sm js-approve" data-id="' + esc(p.id) + '">通过</button> ' +
-          '<button type="button" class="ant-btn ant-btn-dangerous ant-btn-sm js-reject" data-id="' + esc(p.id) + '">驳回</button>' +
-          '</td></tr>';
+          '<td><button type="button" class="ant-btn ant-btn-primary ant-btn-sm js-review" data-id="' + esc(p.id) + '">审核</button></td></tr>';
       }).join('');
 
-      body.querySelectorAll('.js-approve').forEach(function (btn) {
+      body.querySelectorAll('.js-review').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          var updated = Store.approve(btn.getAttribute('data-id'));
-          toast(updated && updated.status === 'delisted'
-            ? '已通过审核，按创作者设置保持下架，等待其手动上架'
-            : '已通过并上架');
-          render();
-        });
-      });
-      body.querySelectorAll('.js-reject').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          var id = btn.getAttribute('data-id');
-          var p = Store.getById(id);
-          if (!p || !window.AdminModal) return;
-          window.AdminModal.open({
-            title: '驳回数字商品',
-            width: 520,
-            body:
-              '<p style="margin:0 0 12px;color:rgba(0,0,0,.65);font-size:13px">驳回「<strong>' + esc(p.title) + '</strong>」后，创作者端将展示驳回结果与原因（如版权、封面与内容不符、素材不清晰等），可修改后重新提交。</p>' +
-              '<div class="ant-form-item" style="margin:0">' +
-              '<label style="display:block;margin-bottom:6px;font-size:12px;color:rgba(0,0,0,.45)">驳回原因 <span style="color:#ff4d4f">*</span></label>' +
-              '<textarea class="ant-input" id="mallRejectReason" rows="4" maxlength="200" placeholder="请填写驳回原因（必填，将展示给创作者）" style="width:100%;resize:vertical"></textarea>' +
-              '<div id="mallRejectReasonErr" style="margin-top:6px;font-size:12px;color:#ff4d4f;min-height:18px"></div>' +
-              '</div>',
-            footer: [
-              { text: '取消', onClick: function () { window.AdminModal.close(); } },
-              {
-                text: '确认驳回',
-                danger: true,
-                primary: true,
-                onClick: function () {
-                  var ta = document.getElementById('mallRejectReason');
-                  var err = document.getElementById('mallRejectReasonErr');
-                  var reason = ta ? String(ta.value || '').trim() : '';
-                  if (!reason) {
-                    if (err) err.textContent = '请填写驳回原因';
-                    if (ta) ta.focus();
-                    return;
-                  }
-                  if (err) err.textContent = '';
-                  Store.reject(id, reason);
-                  window.AdminModal.close();
-                  toast('已驳回，创作者端可见原因');
-                  render();
-                }
-              }
-            ],
-            onMount: function (root) {
-              var ta = root.querySelector('#mallRejectReason');
-              if (ta) setTimeout(function () { ta.focus(); }, 0);
-            }
-          });
+          var p = Store.getById(btn.getAttribute('data-id'));
+          if (p) openReview(p);
         });
       });
     }
+    if (qEl) qEl.addEventListener('input', render);
     render();
   }
 
@@ -106,72 +179,125 @@
     var Store = window.DigitalAssetsStore;
     var body = document.getElementById('mallProductsBody');
     var filter = document.getElementById('mallProductStatus');
+    var qEl = document.getElementById('mallProductQ');
     if (!Store || !body) return;
 
     function statusOps(p) {
-      if (p.status === 'listed' || p.status === 'sold_out') {
-        return '<button type="button" class="ant-btn ant-btn-sm js-delist" data-id="' + esc(p.id) + '">下架</button>';
+      var html = '<button type="button" class="ant-btn ant-btn-sm js-detail" data-id="' + esc(p.id) + '">详情</button> ';
+      var shelf = Store.shelfStatus(p);
+      if (shelf === 'listed') {
+        html += '<button type="button" class="ant-btn ant-btn-sm js-delist" data-id="' + esc(p.id) + '">下架</button> ';
+        html += '<button type="button" class="ant-btn ant-btn-dangerous ant-btn-sm js-force-delist" data-id="' + esc(p.id) + '">强制下架</button>';
+      } else if (shelf === 'delisted') {
+        html += '<button type="button" class="ant-btn ant-btn-primary ant-btn-sm js-force-relist" data-id="' + esc(p.id) + '">强制上架</button>';
       }
-      if (p.status === 'delisted') {
-        return '<button type="button" class="ant-btn ant-btn-primary ant-btn-sm js-relist" data-id="' + esc(p.id) + '">上架</button>';
-      }
-      return '—';
+      return html;
+    }
+
+    function openDetail(p) {
+      if (!window.AdminModal) return;
+      window.AdminModal.open({
+        title: '商品详情 · ' + p.title,
+        width: 760,
+        body: productDetailBody(p),
+        footer: [{ text: '关闭', primary: true, onClick: function () { window.AdminModal.close(); } }]
+      });
     }
 
     function render() {
       var status = filter && filter.value ? filter.value : '';
-      var list = status ? Store.list({ status: status }) : Store.list();
+      var q = (qEl && qEl.value || '').trim().toLowerCase();
+      var list = Store.list().filter(function (p) {
+        var shelf = Store.shelfStatus(p);
+        if (shelf !== 'listed' && shelf !== 'delisted') return false;
+        if (status && shelf !== status) return false;
+        return matchProductQuery(p, q);
+      });
       body.innerHTML = list.map(function (p, i) {
+        var shelf = Store.shelfStatus(p);
         return '<tr>' +
           '<td>' + (i + 1) + '</td>' +
+          '<td><code style="font-size:12px">' + esc(p.id) + '</code></td>' +
           '<td>' + esc(p.title) + '</td>' +
           '<td>' + esc(p.creatorName) + '</td>' +
           '<td>' + esc(Store.typeLabel(p.assetType)) + '</td>' +
           '<td>' + Number(p.priceUsdt).toFixed(2) + '</td>' +
-          '<td>' + (p.supplyMode === 'limited' ? (p.soldCount + ' / ' + p.supplyTotal + ' 份') : ('不限 · 已售 ' + p.soldCount)) + '</td>' +
-          '<td><span class="ant-tag' +
-            (p.status === 'listed' ? ' ant-tag-green' : (p.status === 'sold_out' ? ' ant-tag-gold' : (p.status === 'rejected' ? ' ant-tag-red' : ''))) +
-            '">' + esc(Store.statusLabel(p.status)) + '</span></td>' +
+          qtyCells(p) +
+          '<td><span class="ant-tag' + (shelf === 'listed' ? ' ant-tag-green' : '') + '">' +
+          esc(Store.shelfLabel(p)) + '</span></td>' +
           '<td>' + statusOps(p) + '</td></tr>';
-      }).join('') || '<tr><td colspan="8" style="text-align:center;padding:24px;color:rgba(0,0,0,.45)">暂无数据</td></tr>';
+      }).join('') || '<tr><td colspan="11" style="text-align:center;padding:24px;color:rgba(0,0,0,.45)">暂无数据</td></tr>';
 
+      body.querySelectorAll('.js-detail').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var p = Store.getById(btn.getAttribute('data-id'));
+          if (p) openDetail(p);
+        });
+      });
       body.querySelectorAll('.js-delist').forEach(function (btn) {
         btn.addEventListener('click', function () {
           Store.delist(btn.getAttribute('data-id'));
-          toast('已下架');
+          toast('已下架（创作者仍可自行上架）');
           render();
         });
       });
-      body.querySelectorAll('.js-relist').forEach(function (btn) {
+      body.querySelectorAll('.js-force-delist').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          var updated = Store.relist(btn.getAttribute('data-id'));
-          if (!updated) return toast('上架失败：商品已被创作者移除橱窗');
-          toast(updated.status === 'sold_out' ? '已恢复展示（售罄）' : '已上架');
+          Store.delist(btn.getAttribute('data-id'), { force: true });
+          toast('已强制下架，创作者不可自行上架');
+          render();
+        });
+      });
+      body.querySelectorAll('.js-force-relist').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var updated = Store.relist(btn.getAttribute('data-id'), { adminForce: true });
+          if (!updated) return toast('上架失败');
+          toast('已强制上架');
           render();
         });
       });
     }
     if (filter) filter.addEventListener('change', render);
+    if (qEl) qEl.addEventListener('input', render);
     render();
   }
 
   function initDigitalOrders() {
     var Orders = window.DigitalAssetOrdersStore;
     var body = document.getElementById('mallOrdersBody');
+    var qEl = document.getElementById('mallOrderQ');
     if (!Orders || !body) return;
-    var list = Orders.listOrders();
-    body.innerHTML = list.map(function (o, i) {
-      return '<tr>' +
-        '<td>' + (i + 1) + '</td>' +
-        '<td>' + esc(o.id) + '</td>' +
-        '<td>' + esc(o.productTitle) + '</td>' +
-        '<td>' + esc(o.creatorName) + '</td>' +
-        '<td>' + esc(o.buyerId) + '</td>' +
-        '<td>' + Number(o.priceUsdt).toFixed(2) + '</td>' +
-        '<td>' + Number(o.platformFee).toFixed(2) + '</td>' +
-        '<td>' + Number(o.creatorNet).toFixed(2) + '</td>' +
-        '<td>' + esc(o.createdAt) + '</td></tr>';
-    }).join('') || '<tr><td colspan="9" style="text-align:center;padding:24px;color:rgba(0,0,0,.45)">暂无销售记录（可在 C 端购买后刷新）</td></tr>';
+
+    function splitText(o) {
+      var fee = o.feePercent != null ? Number(o.feePercent) : (o.priceUsdt ? Math.round(o.platformFee / o.priceUsdt * 100) : 10);
+      var creator = 100 - fee;
+      return '平台 ' + fee + '% / 创作者 ' + creator + '%';
+    }
+
+    function render() {
+      var q = (qEl && qEl.value || '').trim().toLowerCase();
+      var list = Orders.listOrders().filter(function (o) {
+        if (!q) return true;
+        var blob = ((o.id || '') + ' ' + (o.productId || '') + ' ' + (o.productTitle || '') + ' ' + (o.buyerId || '')).toLowerCase();
+        return blob.indexOf(q) >= 0;
+      });
+      body.innerHTML = list.map(function (o, i) {
+        return '<tr>' +
+          '<td>' + (i + 1) + '</td>' +
+          '<td>' + esc(o.id) + '</td>' +
+          '<td><code style="font-size:12px">' + esc(o.productId) + '</code></td>' +
+          '<td>' + esc(o.productTitle) + '</td>' +
+          '<td>' + esc(o.creatorName) + '</td>' +
+          '<td>' + esc(o.buyerId) + '</td>' +
+          '<td>' + Number(o.priceUsdt).toFixed(2) + '</td>' +
+          '<td>' + Number(o.platformFee).toFixed(2) + '</td>' +
+          '<td>' + Number(o.creatorNet).toFixed(2) + '</td>' +
+          '<td>' + esc(splitText(o)) + '</td>' +
+          '<td>' + esc(o.createdAt) + '</td></tr>';
+      }).join('') || '<tr><td colspan="11" style="text-align:center;padding:24px;color:rgba(0,0,0,.45)">暂无销售记录</td></tr>';
+    }
+    if (qEl) qEl.addEventListener('input', render);
+    render();
   }
 
   function initCommerceConfig() {

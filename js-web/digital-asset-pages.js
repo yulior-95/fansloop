@@ -145,15 +145,12 @@
             forcedType = 'image';
         }
         var fromShowcase = param('from') === 'showcase';
-        var isWizard = !!qs('#daSteps');
-        var step = 1;
-        var totalSteps = 4;
-
-        /* 商品首图：列表卡片与详情首屏主图 */
         var HERO_MAX_EDGE = 720;
-        var HERO_MAX_LEN = 220000; // 压缩后的 dataURL 上限，避免 localStorage 写入失败
+        var HERO_MAX_LEN = 180000;
         var heroUrl = '';
         var heroSource = '';
+        var workImages = [];
+        var workVideos = [];
 
         function refreshHeroUI() {
             var img = qs('#daCoverImg');
@@ -171,7 +168,7 @@
             if (clear) clear.hidden = !heroUrl;
             if (state) {
                 if (!heroUrl) state.textContent = '未设置首图，可上传本地图片或粘贴 URL';
-                else if (heroSource === 'upload') state.textContent = '已上传本地图片（原型压缩后存本地，约 ' + Math.round(heroUrl.length / 1024) + ' KB）';
+                else if (heroSource === 'upload') state.textContent = '已上传本地图片（约 ' + Math.round(heroUrl.length / 1024) + ' KB）';
                 else state.textContent = '已使用图片 URL 作为首图';
             }
         }
@@ -180,13 +177,11 @@
             heroUrl = url || '';
             heroSource = heroUrl ? (source || 'url') : '';
             var input = qs('#daCover');
-            if (input && !fromInput) {
-                input.value = heroSource === 'upload' ? '' : heroUrl;
-            }
+            if (input && !fromInput) input.value = heroSource === 'upload' ? '' : heroUrl;
             refreshHeroUI();
         }
 
-        function readHeroFile(file, cb) {
+        function readImageFile(file, cb) {
             if (!/^image\//.test(file.type || '')) return toast('请选择图片文件', true);
             var reader = new FileReader();
             reader.onerror = function () { toast('读取图片失败，请重试', true); };
@@ -199,7 +194,7 @@
                     canvas.width = Math.max(1, Math.round(img.width * scale));
                     canvas.height = Math.max(1, Math.round(img.height * scale));
                     canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                    var q = 0.72;
+                    var q = 0.7;
                     var out = canvas.toDataURL('image/jpeg', q);
                     while (out.length > HERO_MAX_LEN && q > 0.4) {
                         q -= 0.12;
@@ -212,12 +207,39 @@
             reader.readAsDataURL(file);
         }
 
+        function renderWorkGrid(kind) {
+            var isVid = kind === 'video';
+            var list = isVid ? workVideos : workImages;
+            var grid = qs(isVid ? '#daVideoGrid' : '#daImageGrid');
+            if (!grid) return;
+            if (!list.length) {
+                grid.innerHTML = '<div class="da-work-empty">尚未添加' + (isVid ? '视频' : '图片') + '</div>';
+                return;
+            }
+            grid.innerHTML = list.map(function (url, i) {
+                var inner = isVid
+                    ? '<video src="' + esc(url) + '" muted></video><span class="tag">视频</span>'
+                    : '<img src="' + esc(url) + '" alt="">';
+                return '<div class="da-work-tile" data-kind="' + kind + '" data-i="' + i + '">' + inner +
+                    '<button type="button" class="da-work-del" aria-label="删除">&times;</button></div>';
+            }).join('');
+            qsa('.da-work-del', grid).forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var tile = btn.parentNode;
+                    var idx = parseInt(tile.getAttribute('data-i'), 10);
+                    if (isVid) workVideos.splice(idx, 1);
+                    else workImages.splice(idx, 1);
+                    renderWorkGrid(kind);
+                });
+            });
+        }
+
         var typeSel = qs('#daAssetType');
         if (typeSel) {
             typeSel.innerHTML = Store.ASSET_TYPES.map(function (t) {
                 return '<option value="' + t.id + '">' + t.label + '</option>';
             }).join('');
-            typeSel.value = (forcedType === 'video' || forcedType === 'image') ? forcedType : 'image';
+            typeSel.value = (forcedType === 'video' || forcedType === 'bundle') ? forcedType : 'image';
         }
 
         function currentType() {
@@ -231,8 +253,10 @@
                 card.classList.toggle('is-active', on);
                 card.setAttribute('aria-checked', on ? 'true' : 'false');
             });
-            var vidWrap = qs('#daVideoFileWrap');
-            if (vidWrap) vidWrap.hidden = t !== 'video';
+            var imageField = qs('#daImageField');
+            var videoField = qs('#daVideoField');
+            if (imageField) imageField.hidden = t === 'video';
+            if (videoField) videoField.hidden = t === 'image';
         }
 
         qsa('#daTypeCards .da-type-card', form).forEach(function (card) {
@@ -266,17 +290,18 @@
 
         function collect() {
             var mode = qs('#daSupplyMode').value;
-            var cover = heroUrl || qs('#daCover').value.trim();
-            var assetType = currentType();
-            var files = assetType === 'video'
-                ? [(qs('#daVideoUrl') && qs('#daVideoUrl').value.trim()) || '']
-                : (cover ? [cover] : []);
-            files = files.filter(Boolean);
+            var t = currentType();
+            var cover = heroUrl || (qs('#daCover') && qs('#daCover').value.trim()) || '';
+            var images = t === 'video' ? [] : workImages.slice();
+            if (cover && images.indexOf(cover) < 0 && !Store.isVideoUrl(cover)) images.unshift(cover);
+            var videos = t === 'image' ? [] : workVideos.slice();
+            var files = images.map(function (url) { return { kind: 'image', url: url }; })
+                .concat(videos.map(function (url) { return { kind: 'video', url: url }; }));
             return {
                 title: qs('#daTitle').value.trim(),
                 description: qs('#daDesc').value.trim(),
-                coverUrl: cover || 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&q=80',
-                assetType: assetType,
+                coverUrl: cover || (images[0] || ''),
+                assetType: currentType(),
                 contentFiles: files,
                 priceUsdt: parseFloat(qs('#daPrice').value) || 0,
                 supplyMode: mode,
@@ -286,82 +311,22 @@
             };
         }
 
-        function validateStep(n, data) {
-            if (n === 1) {
-                if (!data.assetType || (data.assetType !== 'image' && data.assetType !== 'video')) return '请选择商品类型';
-                if (!data.title) return '请填写作品名称';
-                if (!data.description) return '请填写作品描述';
-                return null;
+        function validate(data) {
+            if (!data.assetType || !Store.ASSET_TYPES.filter(function (t) { return t.id === data.assetType; }).length) {
+                return '请选择商品类型';
             }
-            if (n === 2) {
-                if (!heroUrl) return '请设置商品首图（上传图片或填写图片 URL）';
-                if (data.assetType === 'video' && !(qs('#daVideoUrl') && qs('#daVideoUrl').value.trim())) {
-                    return '请填写视频 URL';
-                }
-                return null;
-            }
-            if (n === 3) {
-                if (data.priceUsdt <= 0) return '请设置有效价格';
-                if (data.supplyMode === 'limited' && data.supplyTotal < 1) return '商品个数至少为 1 份';
-                return null;
-            }
-            if (n === 4) {
-                var agree = qs('#daAgree');
-                if (agree && !agree.checked) return '请先确认版权与审核规范';
-                return null;
-            }
+            if (!data.title) return '请填写作品名称';
+            if (!data.description) return '请填写作品描述';
+            if (!heroUrl && !(qs('#daCover') && qs('#daCover').value.trim())) return '请设置商品首图';
+            var counts = Store.mediaCounts(data);
+            if (data.assetType === 'image' && counts.images < 1) return '图片合集请至少上传 1 张写真（或首图）';
+            if (data.assetType === 'video' && counts.videos < 1) return '视频作品请至少添加 1 个视频';
+            if (data.assetType === 'bundle' && (counts.images < 1 || counts.videos < 1)) return '图视作品包需要至少 1 张图片和 1 个视频';
+            if (data.priceUsdt <= 0) return '请设置有效价格';
+            if (data.supplyMode === 'limited' && data.supplyTotal < 1) return '商品个数至少为 1 份';
+            var agree = qs('#daAgree');
+            if (agree && !agree.checked) return '请先确认版权与审核规范';
             return null;
-        }
-
-        function renderConfirm(data) {
-            var card = qs('#daConfirmCard');
-            if (!card) return;
-            var supply = data.supplyMode === 'limited'
-                ? ('限量 ' + data.supplyTotal + ' 份')
-                : '不限个数';
-            var listState = data.autoList
-                ? '审核通过后上架'
-                : '审核通过后保持下架（橱窗可手动上架）';
-            var mediaLabel = data.assetType === 'video'
-                ? '首图 + 视频 1 个'
-                : '首图 1 张';
-            var heroLabel = heroSource === 'upload' ? '本地上传图片' : (heroUrl ? '图片 URL' : '未设置（将使用默认占位图）');
-            card.innerHTML =
-                '<div class="da-confirm-cover"><img src="' + esc(data.coverUrl) + '" alt=""><span class="tag">首图</span></div>' +
-                '<div class="da-confirm-body">' +
-                '<div class="k">类型</div><div class="v">' + esc(Store.typeLabel(data.assetType)) + '</div>' +
-                '<div class="k">首图</div><div class="v">' + esc(heroLabel) + '</div>' +
-                '<div class="k">名称</div><div class="v">' + esc(data.title) + '</div>' +
-                '<div class="k">描述</div><div class="v">' + esc(data.description) + '</div>' +
-                '<div class="k">价格</div><div class="v">' + Number(data.priceUsdt).toFixed(2) + ' USDT</div>' +
-                '<div class="k">个数</div><div class="v">' + esc(supply) + '</div>' +
-                '<div class="k">上架</div><div class="v">' + esc(listState) + '</div>' +
-                '<div class="k">素材</div><div class="v">' + esc(mediaLabel) + '</div>' +
-                '<div class="k">交付</div><div class="v">' +
-                (data.assetType === 'video' ? '购买后可播放 / 下载视频' : '购买后可浏览 / 下载图片') +
-                '</div></div>';
-        }
-
-        function setStep(n) {
-            step = Math.max(1, Math.min(totalSteps, n));
-            qsa('.da-step', qs('#daSteps')).forEach(function (el) {
-                var s = parseInt(el.getAttribute('data-step'), 10);
-                el.classList.toggle('is-active', s === step);
-                el.classList.toggle('is-done', s < step);
-            });
-            qsa('.da-step-panel', form).forEach(function (panel) {
-                var s = parseInt(panel.getAttribute('data-panel'), 10);
-                var on = s === step;
-                panel.hidden = !on;
-                panel.classList.toggle('is-active', on);
-            });
-            var prev = qs('#btnDaPrev');
-            var next = qs('#btnDaNext');
-            var submit = qs('#btnDaSubmit');
-            if (prev) prev.hidden = step <= 1;
-            if (next) next.hidden = step >= totalSteps;
-            if (submit) submit.hidden = step < totalSteps;
-            if (step === totalSteps) renderConfirm(collect());
         }
 
         function syncSupplyUI() {
@@ -403,7 +368,6 @@
                 setHero(coverInput.value.trim(), 'url', true);
             });
         }
-
         var coverFile = qs('#daCoverFile');
         var btnCoverUpload = qs('#btnDaCoverUpload');
         if (btnCoverUpload && coverFile) {
@@ -412,7 +376,7 @@
                 var file = coverFile.files && coverFile.files[0];
                 coverFile.value = '';
                 if (!file) return;
-                readHeroFile(file, function (dataUrl) {
+                readImageFile(file, function (dataUrl) {
                     setHero(dataUrl, 'upload');
                     toast('首图已上传');
                 });
@@ -422,38 +386,60 @@
         if (btnCoverClear) {
             btnCoverClear.addEventListener('click', function () { setHero('', ''); });
         }
-        refreshHeroUI();
 
+        var imageFiles = qs('#daImageFiles');
+        var btnImageUpload = qs('#btnDaImageUpload');
+        if (btnImageUpload && imageFiles) {
+            btnImageUpload.addEventListener('click', function () { imageFiles.click(); });
+            imageFiles.addEventListener('change', function () {
+                var files = Array.prototype.slice.call(imageFiles.files || []);
+                imageFiles.value = '';
+                files.forEach(function (file) {
+                    readImageFile(file, function (dataUrl) {
+                        workImages.push(dataUrl);
+                        renderWorkGrid('image');
+                    });
+                });
+            });
+        }
+        var imageUrlInp = qs('#daImageUrl');
+        if (imageUrlInp) {
+            imageUrlInp.addEventListener('keydown', function (e) {
+                if (e.key !== 'Enter') return;
+                e.preventDefault();
+                var v = imageUrlInp.value.trim();
+                if (!v) return;
+                workImages.push(v);
+                imageUrlInp.value = '';
+                renderWorkGrid('image');
+            });
+        }
+        var videoUrlInp = qs('#daVideoUrl');
+        function addVideoFromInput() {
+            var v = videoUrlInp && videoUrlInp.value.trim();
+            if (!v) return toast('请粘贴视频 URL', true);
+            workVideos.push(v);
+            videoUrlInp.value = '';
+            renderWorkGrid('video');
+        }
+        var btnVideoAdd = qs('#btnDaVideoAdd');
+        if (btnVideoAdd) btnVideoAdd.addEventListener('click', addVideoFromInput);
+        if (videoUrlInp) {
+            videoUrlInp.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') { e.preventDefault(); addVideoFromInput(); }
+            });
+        }
+
+        refreshHeroUI();
+        renderWorkGrid('image');
+        renderWorkGrid('video');
         syncTypeUI();
         syncSupplyUI();
         syncListUI();
 
-        if (isWizard) {
-            setStep(1);
-            var btnPrev = qs('#btnDaPrev');
-            var btnNext = qs('#btnDaNext');
-            if (btnPrev) {
-                btnPrev.addEventListener('click', function () { setStep(step - 1); });
-            }
-            if (btnNext) {
-                btnNext.addEventListener('click', function () {
-                    var data = collect();
-                    var err = validateStep(step, data);
-                    if (err) return toast(err, true);
-                    setStep(step + 1);
-                });
-            }
-        } else {
-            var submitOnly = qs('#btnDaSubmit');
-            if (submitOnly) submitOnly.hidden = false;
-            if (qs('#btnDaNext')) qs('#btnDaNext').hidden = true;
-            if (qs('#btnDaPrev')) qs('#btnDaPrev').hidden = true;
-        }
-
         qs('#btnDaSaveDraft').addEventListener('click', function () {
             var data = collect();
-            var e1 = validateStep(1, data);
-            if (e1) return toast(e1, true);
+            if (!data.title) return toast('请填写作品名称', true);
             var p = Store.create(Object.assign(data, { status: 'draft' }));
             toast('草稿已保存');
             setTimeout(function () { afterSaveRedirect(p, false); }, 700);
@@ -461,14 +447,13 @@
 
         qs('#btnDaSubmit').addEventListener('click', function () {
             var data = collect();
-            var err = validateStep(1, data) || validateStep(2, data) || validateStep(3, data) || validateStep(4, data);
+            var err = validate(data);
             if (err) return toast(err, true);
             var p = Store.create(Object.assign(data, { status: 'pending_review' }));
             toast('已提交审核，请在橱窗查看进度');
             setTimeout(function () { afterSaveRedirect(p, true); }, 700);
         });
     }
-
     function initMyAssetsPage() {
         var Orders = global.DigitalAssetOrdersStore;
         var Store = global.DigitalAssetsStore;
