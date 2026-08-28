@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>创建数字商品</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/digital-h5.css">
+</head>
+<body>
+<div class="status-bar dark-mode">
+    <span class="time">9:41</span>
+    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+</div>
+<div class="nav-bar da-nav solid">
+    <div class="nav-left"><div class="nav-btn" data-back="create.html"><i class="fa-solid fa-xmark"></i></div></div>
+    <div class="nav-title">创建数字商品</div>
+    <div class="nav-right"></div>
+</div>
+
+<div class="app-content da-page no-tab">
+    <div style="padding:12px 16px 0">
+        <div class="da-field">
+            <label>商品类型 <span style="color:#f472b6">*</span></label>
+            <div class="da-type-row" id="daTypeCards">
+                <button type="button" class="da-type on" data-type="image">
+                    <i class="fa-solid fa-images"></i>
+                    <strong>图片合集</strong>
+                    <span>多张写真</span>
+                </button>
+                <button type="button" class="da-type" data-type="video">
+                    <i class="fa-solid fa-film"></i>
+                    <strong>视频作品</strong>
+                    <span>成片售卖</span>
+                </button>
+                <button type="button" class="da-type" data-type="bundle">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <strong>图视作品包</strong>
+                    <span>图 + 视频</span>
+                </button>
+            </div>
+        </div>
+        <div class="da-field">
+            <label>作品名称 <span style="color:#f472b6">*</span></label>
+            <input id="daTitle" type="text" placeholder="例如：富士山日出 · 4K 写真合集" value="富士山日出 · 4K 写真合集">
+        </div>
+        <div class="da-field">
+            <label>作品描述 <span style="color:#f472b6">*</span></label>
+            <textarea id="daDesc" placeholder="介绍拍摄主题、张数 / 时长、交付内容等">五合目日出组图高清原片，购买后可浏览与下载全套。</textarea>
+        </div>
+
+        <h3 style="font-size:13px;color:var(--text-secondary);margin:4px 0 10px">作品素材</h3>
+        <div class="da-field">
+            <label>商品首图 <span style="color:#f472b6">*</span></label>
+            <p class="hint">列表与详情主图，建议 1:1</p>
+            <div class="da-hero-pick">
+                <div class="preview">
+                    <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=300&q=80" alt="">
+                </div>
+                <div class="ops">
+                    <button type="button" class="btn btn-sm btn-primary" style="align-self:flex-start" id="btnCover"><i class="fa-solid fa-arrow-up-from-bracket"></i> 上传首图</button>
+                    <input type="url" placeholder="或粘贴图片 URL">
+                </div>
+            </div>
+        </div>
+
+        <div class="da-field" id="daImageField">
+            <label>写真图片</label>
+            <p class="hint">可上传多张。至少 1 张（无写真时用首图）</p>
+            <div class="da-work-grid">
+                <div class="tile"><img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&q=80" alt=""></div>
+                <div class="tile"><img src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c8e?w=200&q=80" alt=""></div>
+                <div class="tile"><img src="https://images.unsplash.com/photo-1528164344705-47542687000d?w=200&q=80" alt=""></div>
+            </div>
+            <button type="button" class="btn btn-sm btn-secondary" id="btnAddImg"><i class="fa-solid fa-plus"></i> 上传图片</button>
+        </div>
+
+        <div class="da-field" id="daVideoField" hidden>
+            <label>视频</label>
+            <p class="hint">可添加多个视频 URL，至少 1 个</p>
+            <div class="da-work-grid" id="daVideoGrid">
+                <div class="empty">尚未添加视频</div>
+            </div>
+            <input id="daVideoUrl" type="url" placeholder="粘贴视频 URL，例如 https://…/clip.mp4" value="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4">
+            <button type="button" class="btn btn-sm btn-secondary" style="margin-top:8px" id="btnAddVid"><i class="fa-solid fa-plus"></i> 添加视频</button>
+        </div>
+
+        <h3 style="font-size:13px;color:var(--text-secondary);margin:8px 0 10px">售卖设置</h3>
+        <div class="da-field">
+            <label>价格（USDT） <span style="color:#f472b6">*</span></label>
+            <input id="daPrice" type="number" value="4.5" min="0.01" step="0.01">
+        </div>
+        <div class="da-field">
+            <label>商品个数 <span style="color:#f472b6">*</span></label>
+            <div class="da-choice" id="daSupply">
+                <div class="opt on" data-supply="limited"><strong>限量</strong><span>卖完自动售罄</span></div>
+                <div class="opt" data-supply="unlimited"><strong>不限个数</strong><span>可一直售卖</span></div>
+            </div>
+        </div>
+        <div class="da-field" id="daSupplyTotalWrap">
+            <label>可售份数</label>
+            <input type="number" value="100" min="1">
+        </div>
+        <div class="da-field">
+            <label>上架状态 <span style="color:#f472b6">*</span></label>
+            <div class="da-choice" id="daList">
+                <div class="opt on" data-list="auto"><strong>上架</strong><span>审核通过后出现在橱窗</span></div>
+                <div class="opt" data-list="manual"><strong>下架</strong><span>通过后保持下架</span></div>
+            </div>
+        </div>
+        <label class="da-check">
+            <input type="checkbox" id="daAgree" checked>
+            我确认拥有该作品版权，内容符合平台规范，同意提交审核
+        </label>
+        <div class="da-actions">
+            <button type="button" class="btn btn-secondary" id="btnDraft">保存草稿</button>
+            <button type="button" class="btn btn-primary" id="btnSubmit">提交审核</button>
+        </div>
+    </div>
+</div>
+<div class="da-toast" id="daToast"></div>
+<div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var type = 'image';
+    var hasVideo = false;
+    function sync() {
+        document.querySelectorAll('#daTypeCards .da-type').forEach(function (el) {
+            el.classList.toggle('on', el.getAttribute('data-type') === type);
+        });
+        document.getElementById('daImageField').hidden = type === 'video';
+        document.getElementById('daVideoField').hidden = type === 'image';
+    }
+    document.querySelectorAll('#daTypeCards .da-type').forEach(function (el) {
+        el.addEventListener('click', function () {
+            type = el.getAttribute('data-type');
+            sync();
+        });
+    });
+    document.querySelectorAll('#daSupply .opt').forEach(function (el) {
+        el.addEventListener('click', function () {
+            document.querySelectorAll('#daSupply .opt').forEach(function (x) { x.classList.remove('on'); });
+            el.classList.add('on');
+            document.getElementById('daSupplyTotalWrap').hidden = el.getAttribute('data-supply') !== 'limited';
+        });
+    });
+    document.querySelectorAll('#daList .opt').forEach(function (el) {
+        el.addEventListener('click', function () {
+            document.querySelectorAll('#daList .opt').forEach(function (x) { x.classList.remove('on'); });
+            el.classList.add('on');
+        });
+    });
+    document.getElementById('btnAddVid').addEventListener('click', function () {
+        var v = document.getElementById('daVideoUrl').value.trim();
+        if (!v) return DigitalH5Nav.toast('请粘贴视频 URL');
+        hasVideo = true;
+        document.getElementById('daVideoGrid').innerHTML =
+            '<div class="tile"><video src="' + v + '" muted></video></div>';
+        DigitalH5Nav.toast('已添加视频');
+    });
+    document.getElementById('btnCover').addEventListener('click', function () {
+        DigitalH5Nav.toast('原型：首图已就绪');
+    });
+    document.getElementById('btnAddImg').addEventListener('click', function () {
+        DigitalH5Nav.toast('原型：已添加写真');
+    });
+    document.getElementById('btnDraft').addEventListener('click', function () {
+        if (!document.getElementById('daTitle').value.trim()) return DigitalH5Nav.toast('请填写作品名称');
+        DigitalH5Nav.toast('草稿已保存');
+        setTimeout(function () { location.href = 'creator-showcase-manage.html'; }, 700);
+    });
+    document.getElementById('btnSubmit').addEventListener('click', function () {
+        if (!document.getElementById('daTitle').value.trim()) return DigitalH5Nav.toast('请填写作品名称');
+        if (!document.getElementById('daDesc').value.trim()) return DigitalH5Nav.toast('请填写作品描述');
+        if (!document.getElementById('daAgree').checked) return DigitalH5Nav.toast('请先确认版权');
+        if (type === 'video' && !hasVideo) return DigitalH5Nav.toast('视频作品需至少 1 个视频');
+        if (type === 'bundle' && !hasVideo) return DigitalH5Nav.toast('图视包需至少 1 张图 + 1 个视频');
+        DigitalH5Nav.toast('已提交审核');
+        setTimeout(function () { location.href = 'creator-showcase-manage.html'; }, 800);
+    });
+    sync();
+})();
+</script>
+</body>
+</html>

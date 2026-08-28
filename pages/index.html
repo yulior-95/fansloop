@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GOODFANS H5 · 数字橱窗原型平铺</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", sans-serif;
+    background:
+        radial-gradient(circle at 15% 10%, rgba(168,85,247,.08), transparent 50%),
+        radial-gradient(circle at 85% 90%, rgba(236,72,153,.08), transparent 50%),
+        #0A0A12;
+    color: #fff;
+    padding: 40px 24px 72px;
+}
+.wrap { max-width: 1400px; margin: 0 auto; }
+h1 { font-size: 32px; font-weight: 800; letter-spacing: -0.6px; }
+h1 span {
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.lead { margin-top: 10px; color: #A0A0B0; font-size: 14px; line-height: 1.7; max-width: 860px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 28px; }
+.meta span {
+    padding: 5px 12px; border-radius: 999px;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+    font-size: 12px; color: #A0A0B0;
+}
+.meta a { color: #c4b5fd; text-decoration: none; }
+.card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 28px;
+    color: #A0A0B0;
+    font-size: 13px;
+    line-height: 1.7;
+}
+.card h2 { color: #fff; font-size: 15px; margin-bottom: 8px; }
+.card ol { margin-left: 18px; }
+.card li { margin: 4px 0; }
+.group { display: flex; align-items: center; gap: 10px; margin: 36px 0 18px; }
+.group .n {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(168,85,247,.2); color: #c4b5fd;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+}
+.group h3 { font-size: 18px; }
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(375px, 1fr));
+    gap: 48px 28px;
+    justify-items: center;
+}
+.phone-frame { width: 395px; }
+.label { text-align: center; margin-bottom: 14px; }
+.label b { display: block; font-size: 16px; }
+.label span { display: block; margin-top: 4px; font-size: 12px; color: #6B6B7B; }
+.phone-body {
+    width: 395px; height: 832px;
+    border-radius: 54px; background: #000; padding: 10px;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.06), 0 25px 60px rgba(0,0,0,.55);
+    position: relative;
+}
+.phone-body::before {
+    content: '';
+    position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
+    width: 120px; height: 32px; border-radius: 20px; background: #000; z-index: 2;
+}
+.phone-screen { width: 100%; height: 100%; border-radius: 44px; overflow: hidden; background: #0A0A12; }
+iframe { width: 375px; height: 812px; border: 0; display: block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <h1>H5 数字橱窗 · <span>对齐 Web 定稿</span></h1>
+    <p class="lead">对照 Web 8/20 定稿，H5 页面已可点击走完流程。建议从 <a href="profile.html" style="color:#c4b5fd">profile.html</a> 或下方 iframe 进入，勿只在平铺预览里点（iframe 内可点）。</p>
+    <div class="meta">
+        <span>iOS 375 × 812</span>
+        <span>独立 HTML · pages/</span>
+        <span><a href="../vaultx-mobile-index.html">完整 App gallery</a></span>
+        <span><a href="../index-web.html">Web 端原型</a></span>
+    </div>
+
+    <div class="card">
+        <h2>可点通的完整流程</h2>
+        <ol>
+            <li><strong style="color:#fff">创作者</strong>：我的 → 我的橱窗 → 创建数字商品 → 提交 → 管理（置顶/下架/上架/强制下架提示）→ 预览访客 → 实体选品库加入</li>
+            <li><strong style="color:#fff">买家（余额足够）</strong>：Creator Store → 图片详情 → 确认订单 → 输 6 位密码 → 成功 → 已购解锁</li>
+            <li><strong style="color:#fff">买家（余额不足）</strong>：图视包详情 → 确认订单（或点「模拟余额不足」）→ 去充值 / 模拟充值后继续 → 密码 → 成功</li>
+            <li><strong style="color:#fff">已拥有</strong>：访客橱窗点「已拥有」卡片 → 详情禁用购买 → 打开作品</li>
+        </ol>
+    </div>
+
+    <div class="card">
+        <h2>与 Web 对齐的交互要点</h2>
+        <ol>
+            <li>创建：类型切换显隐素材；校验图 / 视频 / 图视包</li>
+            <li>编辑：不可改上架状态；个数不可低于已售</li>
+            <li>橱窗管理：置顶 / 下架 / 上架 / 移除 / 强制下架无自助上架；预览访客</li>
+            <li>购买：确认订单（余额）→ 余额不足或支付密码 → 成功；详情「已拥有」禁用购买</li>
+        </ol>
+    </div>
+
+    <div class="group"><div class="n">A</div><h3>创作者</h3></div>
+    <div class="grid">
+        <div class="phone-frame"><div class="label"><b>创建入口</b><span>含创建数字商品</span></div><div class="phone-body"><div class="phone-screen"><iframe src="create.html" loading="lazy"></iframe></div></div></div>
+        <div class="phone-frame"><div class="label"><b>创建数字商品</b><span>类型显隐 · 平铺提交</span></div><div class="phone-body"><div class="phone-screen"><iframe src="create-digital.html" loading="lazy"></iframe></div></div></div>
+        <div class="phone-frame"><div class="label"><b>编辑商品</b><span>无上架字段</span></div><div class="phone-body"><div class="phone-screen"><iframe src="digital-edit.html" loading="lazy"></iframe></div></div></div>
+        <div class="phone-frame"><div class="label"><b>我的橱窗 · 数字</b><span>统计 / 置顶 / 强制下架</span></div><div class="phone-body"><div class="phone-screen"><iframe src="creator-showcase-manage.html" loading="lazy"></iframe></div></div></div>
+        <div class="phone-frame"><div class="label"><b>我的橱窗 · 实体</b><span>置顶 / 移除</span></div><div class="phone-body"><div class="phone-screen"><iframe src="creator-showcase-affiliate.html" loading="lazy"></iframe></div></div></div>
+        <div class="phone-frame"><div class="label"><b>访客预览</b><span>可看不可买</span></div><div class="phone-body"><div class="phone-screen"><iframe src="creator-showcase-preview.html" loading="lazy"></iframe></div></div></div>
+        <div class="phone-frame"><div class="label"><b>实体选品库</b><span>加入橱窗</span></div><div class="phone-body"><div class="phone-screen"><iframe src="affiliate-catalog.html" loading="lazy"></iframe></div></div></div>
+    </div>
+
+    <div class="group"><div class="n">B</div><h3>买家 · 浏览</h3></div>
+    <div class="grid">
+        <div class="phone-frame"><div class="label"><b>Creator Store</b><span>创建 / 作品库 / 仅看我的</span></div><div class="phone-body"><div class="phone-screen"><iframe src="digital-store.html" loading="lazy"></iframe></div></div></div>
+        <div class="phone-frame"><div class="label"><b>访客橱窗</b><span>购买 / 已拥有 / 售罄</span></div><div class="phone-body"><div class="phone-screen"><iframe src="creator-showcase.html" loading="lazy"></iframe></div></div></div>
+        <div class="phone-frame"><div class="label"><b>图片合集详情</b><span>锁定预览 + 购买</span></div><div class="phone-body"><div class="phone-screen"><iframe src="digital-detail.html" loading="lazy"></iframe></div></div></div>
+        <div class="phone-frame"><div class="label"><b>视频详情</b><span>限量剩余</span></div><div class="phone-body"><div class="phone-screen"><iframe src="digital-detail-video.html" loading="lazy"></iframe></div></div></div>
+        <div class="phone-frame"><div class="label"><b>图视包详情</b><span>图 + 视频</span></div><div class="phone-body"><div class="phone-screen"><iframe src="digital-detail-bundle.html" loading="lazy"></iframe></div></div></div>
+        <div class="phone-frame"><div class="label"><b>详情 · 已拥有</b><span>购买按钮禁用</span></div><div class="phone-body"><div class="phone-screen"><iframe src="digital-detail-owned.html" loading="lazy"></iframe></div></div></div>
+    </div>
+
+    <div class="group"><div class="n">C</div><h3>买家 · 支付闭环</h3></div>
+    <div class="grid">
+        <div class="phone-frame"><div class="label"><b>确认订单</b><span>余额 · 扣款后余额</span></div><div class="phone-body"><div class="phone-screen"><iframe src="digital-pay.html" loading="lazy"></iframe></div></div></div>
+        <div class="phone-frame"><div class="label"><b>余额不足</b><span>去充值</span></div><div class="phone-body"><div class="phone-screen"><iframe src="digital-pay-recharge.html" loading="lazy"></iframe></div></div></div>
+        <div class="phone-frame"><div class="label"><b>支付密码</b><span>6 位键盘</span></div><div class="phone-body"><div class="phone-screen"><iframe src="digital-pay-pwd.html" loading="lazy"></iframe></div></div></div>
+        <div class="phone-frame"><div class="label"><b>购买成功</b><span>权益已发放</span></div><div class="phone-body"><div class="phone-screen"><iframe src="digital-pay-success.html" loading="lazy"></iframe></div></div></div>
+        <div class="phone-frame"><div class="label"><b>我的作品库</b><span>已购列表</span></div><div class="phone-body"><div class="phone-screen"><iframe src="my-digital-assets.html" loading="lazy"></iframe></div></div></div>
+        <div class="phone-frame"><div class="label"><b>已购解锁页</b><span>可看图可播视频</span></div><div class="phone-body"><div class="phone-screen"><iframe src="digital-owned.html" loading="lazy"></iframe></div></div></div>
+    </div>
+</div>
+</body>
+</html>

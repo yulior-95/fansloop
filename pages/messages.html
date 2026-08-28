@@ -12,34 +12,93 @@
     padding-bottom: calc(var(--tab-bar-height) + 10px);
 }
 
-.top-filters {
+.iml-tabs {
     display: flex;
-    gap: 8px;
-    padding: 10px 16px 14px;
+    gap: 6px;
+    padding: 10px 16px 12px;
     overflow-x: auto;
     scrollbar-width: none;
 }
-.top-filters::-webkit-scrollbar { display: none; }
-.top-filters .chip {
+.iml-tabs::-webkit-scrollbar { display: none; }
+.iml-tabs .t {
     flex-shrink: 0;
-    padding: 6px 14px;
-    border-radius: var(--radius-full);
+    padding: 6px 12px;
+    border-radius: 7px;
     background: var(--bg-card);
     color: var(--text-secondary);
-    font-size: 13px;
+    font-size: 12px;
     border: 1px solid var(--border-color);
+    cursor: pointer;
 }
-.top-filters .chip.active {
-    background: var(--brand-gradient);
-    color: #fff; font-weight: 600;
-    border-color: transparent;
+.iml-tabs .t.active {
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-weight: 700;
 }
-.top-filters .chip .dot {
-    display: inline-block;
-    width: 6px; height: 6px; border-radius: 50%;
-    background: #EF4444;
+.iml-tabs .t .cnt {
+    font-size: 9px;
     margin-left: 4px;
-    vertical-align: middle;
+    padding: 1px 5px;
+    background: #ef4444;
+    color: #fff;
+    border-radius: 999px;
+}
+.msg-search {
+    margin: 0 16px 12px;
+    height: 36px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+}
+.msg-search i { font-size: 12px; color: var(--text-tertiary); }
+.msg-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 12px;
+}
+.msg-summary {
+    margin: 0 16px 10px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: var(--bg-card);
+    font-size: 11px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.msg-summary b { color: var(--text-primary); }
+.msg-actions {
+    margin: 0 16px 10px;
+    display: flex;
+    gap: 8px;
+}
+.msg-actions button {
+    flex: 1;
+    height: 32px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.msg-actions button.primary {
+    background: var(--brand-gradient);
+    color: #fff;
+    border-color: transparent;
 }
 
 /* 快捷入口 */
@@ -147,6 +206,112 @@
     color: var(--brand-purple);
     font-weight: 500;
 }
+.msg-ovl {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+}
+.msg-ovl.show { display: flex; }
+.msg-panel {
+    width: 100%;
+    max-width: var(--phone-width);
+    max-height: calc(100vh - 120px);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.msg-panel .hd {
+    padding: 12px;
+    border-bottom: 0.5px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.msg-panel .hd .t { font-size: 14px; font-weight: 700; }
+.msg-panel .hd button {
+    width: 28px; height: 28px; border: 0; border-radius: 50%;
+    background: var(--bg-card); color: var(--text-secondary);
+}
+.msg-panel .bd { padding: 12px; overflow-y: auto; }
+.compose-hint {
+    margin: 0 0 10px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: rgba(168,85,247,0.08);
+}
+.compose-hint i { color: var(--brand-primary); margin-right: 4px; }
+.compose-section {
+    margin: 0 0 8px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+.msg-p-search {
+    width: 100%; height: 34px; border-radius: 10px; border: 1px solid var(--border-color);
+    background: var(--bg-card); color: var(--text-primary); padding: 0 10px; font-size: 12px; margin-bottom: 10px;
+}
+.msg-c-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 0; border-bottom: 0.5px solid var(--border-color);
+}
+.msg-c-row:last-child { border-bottom: none; }
+.msg-c-row .name { flex: 1; min-width: 0; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.msg-c-row .name-wrap {
+    flex: 1;
+    min-width: 0;
+}
+.msg-c-row .name-wrap .name {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.msg-c-row .name-wrap .nick {
+    margin-top: 2px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.msg-c-row input[type="checkbox"] { width: 16px; height: 16px; }
+.msg-c-row .subtag {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    padding: 1px 7px;
+}
+.msg-panel .ft {
+    padding: 10px 12px;
+    border-top: 0.5px solid var(--border-color);
+    display: flex; gap: 8px;
+}
+.msg-panel .ft button {
+    flex: 1; height: 32px; border-radius: 16px; border: 1px solid var(--border-color);
+    background: var(--bg-card); color: var(--text-secondary); font-size: 12px;
+}
+.msg-panel .ft button.primary {
+    background: var(--brand-gradient);
+    color: #fff;
+    border-color: transparent;
+}
+.msg-group-name {
+    width: 100%; height: 34px; border-radius: 10px; border: 1px solid var(--border-color);
+    background: var(--bg-card); color: var(--text-primary); padding: 0 10px; font-size: 12px; margin-bottom: 10px;
+}
 </style>
 </head>
 <body data-page="messages-inbox">
@@ -168,46 +333,56 @@
 
 <div class="app-content">
 
-    <div class="top-filters">
-        <span class="chip active">全部<span class="dot"></span></span>
-        <span class="chip">订阅者</span>
-        <span class="chip">互动</span>
-        <span class="chip">系统</span>
-        <span class="chip">钱包</span>
+    <div class="iml-tabs" id="imlTabs">
+        <span class="t active" data-filter="all">全部<span class="cnt">8</span></span>
+        <span class="t" data-filter="dm">私聊</span>
+        <span class="t" data-filter="group">群聊</span>
+    </div>
+    <div class="msg-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input id="msgSearchInput" placeholder="搜索会话 / 文案关键词" />
+    </div>
+    <div class="msg-summary">
+        <span>当前未读会话 <b id="msgUnreadCount">8</b></span>
+        <span>消息请求 <b id="msgReqCount">3</b></span>
+    </div>
+    <div class="msg-actions">
+        <button type="button" id="btnAddContact"><i class="fa-solid fa-user-plus"></i>添加联系人</button>
+        <button type="button" class="primary" id="btnCreateGroup"><i class="fa-solid fa-user-group"></i>创建群聊</button>
     </div>
 
     <!-- 快捷入口 -->
     <div class="quick-grid">
-        <div class="q" data-href="../pages-web/messages-interactions.html" style="cursor:pointer">
+        <div class="q" data-href="messages-interactions.html?tab=likes" data-cat="interaction" style="cursor:pointer">
             <div class="ic c-1"><i class="fa-regular fa-heart"></i></div>
             <span class="label">赞和收藏</span>
             <span class="badge-num">12</span>
         </div>
-        <div class="q" data-href="../pages-web/messages-interactions.html" style="cursor:pointer">
+        <div class="q" data-href="messages-interactions.html?tab=comments" data-cat="interaction" style="cursor:pointer">
             <div class="ic c-2"><i class="fa-regular fa-comment"></i></div>
             <span class="label">评论 @</span>
             <span class="badge-num">3</span>
         </div>
-        <div class="q" data-href="../pages-web/messages-interactions.html" style="cursor:pointer">
+        <div class="q" data-href="messages-interactions.html?tab=fans" data-cat="subscriber" style="cursor:pointer">
             <div class="ic c-3"><i class="fa-solid fa-user-plus"></i></div>
             <span class="label">新粉丝</span>
         </div>
-        <div class="q" data-href="notifications.html" style="cursor:pointer">
+        <div class="q" data-href="messages-wallet-notices.html" data-cat="wallet" style="cursor:pointer">
             <div class="ic c-4"><i class="fa-solid fa-wallet"></i></div>
             <span class="label">钱包通知</span>
         </div>
     </div>
 
     <div style="margin:0 16px 10px;display:flex;gap:8px">
-        <a href="../pages-web/messages-requests.html" style="flex:1;text-align:center;padding:8px;font-size:12px;background:var(--bg-card);border-radius:var(--radius-md);color:var(--text-secondary);text-decoration:none;border:1px solid var(--border-color)"><i class="fa-solid fa-inbox"></i> 消息请求 <span style="color:#EF4444;font-weight:700">3</span></a>
+        <a href="messages-requests.html" style="flex:1;text-align:center;padding:8px;font-size:12px;background:var(--bg-card);border-radius:var(--radius-md);color:var(--text-secondary);text-decoration:none;border:1px solid var(--border-color)"><i class="fa-solid fa-inbox"></i> 消息请求 <span style="color:#EF4444;font-weight:700">3</span></a>
     </div>
 
     <div class="section-title" style="display:flex;align-items:center;justify-content:space-between">
         <span>最近会话</span>
-        <a href="../pages-web/messages-requests.html" style="font-size:12px;color:var(--brand-purple);text-decoration:none">消息请求 · 3</a>
+        <a href="messages-requests.html" style="font-size:12px;color:var(--brand-purple);text-decoration:none">消息请求 · 3</a>
     </div>
     <div class="chat-list">
-        <div class="chat-item" data-peer="Luna">
+        <div class="chat-item" data-peer="Luna" data-chat-type="dm" data-text="已向你发送新的订阅专属视频">
             <div class="avatar-box">
                 <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80">
                 <div class="unread">5</div>
@@ -221,7 +396,7 @@
                 <div class="msg">已向你发送新的订阅专属视频 🎬</div>
             </div>
         </div>
-        <div class="chat-item" data-peer="Mila">
+        <div class="chat-item" data-peer="Mila" data-chat-type="dm" data-text="谢谢你的打赏 已收到10USDT">
             <div class="avatar-box">
                 <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80">
                 <div class="unread">2</div>
@@ -234,7 +409,7 @@
                 <div class="msg">谢谢你的打赏！已收到 10 USDT 💜</div>
             </div>
         </div>
-        <div class="chat-item" data-peer="Ryo">
+        <div class="chat-item" data-peer="Ryo" data-chat-type="dm" data-text="下周会去京都拍新的vlog 敬请期待">
             <div class="avatar-box">
                 <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80">
             </div>
@@ -246,7 +421,7 @@
                 <div class="msg">下周会去京都拍新的 vlog，敬请期待～</div>
             </div>
         </div>
-        <div class="chat-item" data-peer="Nova">
+        <div class="chat-item" data-peer="Nova" data-chat-type="group" data-text="图片 新作品">
             <div class="avatar-box">
                 <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=80">
             </div>
@@ -258,7 +433,7 @@
                 <div class="msg"><span class="tag-pre">[图片]</span> 新作品～</div>
             </div>
         </div>
-        <div class="chat-item">
+        <div class="chat-item" data-chat-type="group" data-text="你的订阅将在3天后续费79.9USDT">
             <div class="avatar-box">
                 <div class="avatar avatar-md" style="background: var(--brand-gradient); display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px">
                     <i class="fa-solid fa-bell"></i>
@@ -276,11 +451,36 @@
     </div>
 
 </div>
+<div class="msg-ovl" id="ovlAddContact">
+    <div class="msg-panel">
+        <div class="hd"><div class="t">新建私聊</div><button type="button" id="btnCloseAddContact"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="bd">
+            <div class="compose-hint"><i class="fa-solid fa-user-check"></i>仅显示互相关注好友，选择后在当前页打开会话</div>
+            <input class="msg-p-search" id="addContactSearch" placeholder="搜索互关好友..." />
+            <div class="compose-section">互关好友</div>
+            <div id="addContactList"></div>
+        </div>
+    </div>
+</div>
+<div class="msg-ovl" id="ovlCreateGroup">
+    <div class="msg-panel">
+        <div class="hd"><div class="t">创建群聊</div><button type="button" id="btnCloseCreateGroup"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="bd">
+            <input class="msg-group-name" id="groupNameInput" value="VIP 订阅者交流群" />
+            <input class="msg-p-search" id="groupMemberSearch" placeholder="搜索互关好友..." />
+            <div id="groupMemberList"></div>
+        </div>
+        <div class="ft">
+            <button type="button" id="btnCancelCreateGroup">取消</button>
+            <button type="button" class="primary" id="btnConfirmCreateGroup">创建并邀请</button>
+        </div>
+    </div>
+</div>
 
 <!-- Tab Bar -->
 <div class="tab-bar">
     <div class="tab-item">
-        <i class="fa-regular fa-house"></i>
+        <i class="fa-solid fa-house"></i>
         <span>首页</span>
     </div>
     <div class="tab-item">
@@ -302,5 +502,6 @@
 
 <div class="home-indicator"></div>
 <script src="../js/messages-mobile.js"></script>
+<script src="../js/digital-h5-nav.js"></script>
 </body>
 </html>

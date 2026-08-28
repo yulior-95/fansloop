@@ -25,13 +25,23 @@
     height: 36px;
     padding: 0 14px;
 }
+.search-box .search-trigger {
+    border: 0;
+    background: transparent;
+    color: var(--text-tertiary);
+    padding: 0;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
 .search-box input {
     flex: 1; border: none; background: transparent;
     color: var(--text-primary); font-size: 14px;
     outline: none;
 }
 .search-box input::placeholder { color: var(--text-tertiary); }
-.search-cancel { color: var(--brand-purple); font-size: 14px; font-weight: 500; }
+.search-cancel { color: var(--brand-purple); font-size: 14px; font-weight: 500; cursor: pointer; }
 
 .search-content {
     padding: calc(var(--status-bar-height) + 48px) 16px 100px;
@@ -42,7 +52,7 @@
     margin: 16px 0 12px;
 }
 .section-head .title { font-size: 16px; font-weight: 700; }
-.section-head .clear { color: var(--text-tertiary); font-size: 13px; }
+.section-head .clear { color: var(--text-tertiary); font-size: 13px; cursor: pointer; }
 
 .history-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
@@ -102,6 +112,16 @@
     margin-top: 4px;
 }
 .creator-row .stats span { margin-right: 8px; }
+.creator-row[hidden] { display: none !important; }
+.search-empty {
+    display: none;
+    padding: 18px 12px;
+    border-radius: var(--radius-lg);
+    background: var(--bg-card);
+    color: var(--text-tertiary);
+    font-size: 12px;
+    text-align: center;
+}
 
 /* 搜索 tabs */
 .search-tabs {
@@ -135,10 +155,10 @@
 
 <div class="search-header">
     <div class="search-box">
-        <i class="fa-solid fa-magnifying-glass" style="color:var(--text-tertiary)"></i>
-        <input placeholder="搜创作者、视频、标签">
+        <button type="button" class="search-trigger" id="searchTrigger"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <input id="searchInput" placeholder="搜创作者、视频、标签">
     </div>
-    <span class="search-cancel">取消</span>
+    <span class="search-cancel" id="searchCancel">取消</span>
 </div>
 
 <div class="app-content">
@@ -147,9 +167,9 @@
     <!-- 搜索历史 -->
     <div class="section-head">
         <span class="title">搜索历史</span>
-        <span class="clear"><i class="fa-regular fa-trash-can"></i></span>
+        <span class="clear" id="clearHistory"><i class="fa-regular fa-trash-can"></i></span>
     </div>
-    <div class="history-chips">
+    <div class="history-chips" id="historyChips">
         <span class="chip">东京夜拍</span>
         <span class="chip">luna_web3</span>
         <span class="chip">健身小姐姐</span>
@@ -158,61 +178,12 @@
         <span class="chip">#付费专享</span>
     </div>
 
-    <!-- 热搜榜 -->
+    <!-- 推荐创作者（对齐 Web discover 的创作者发现） -->
     <div class="section-head">
-        <span class="title"><i class="fa-solid fa-fire" style="color:#EF4444"></i> 热搜榜</span>
-        <span class="clear">刷新 <i class="fa-solid fa-rotate" style="font-size:11px"></i></span>
-    </div>
-    <div class="trending-list">
-        <div class="trending-item">
-            <span class="rank top">1</span>
-            <span class="text">USDT 订阅模式上线 <span class="tag badge-brand">新</span></span>
-            <span class="heat"><i class="fa-solid fa-fire"></i> 285.3W</span>
-        </div>
-        <div class="trending-item">
-            <span class="rank top">2</span>
-            <span class="text">东京夜生活全记录</span>
-            <span class="heat"><i class="fa-solid fa-fire"></i> 196.1W</span>
-        </div>
-        <div class="trending-item">
-            <span class="rank top">3</span>
-            <span class="text">#男大学生日常</span>
-            <span class="heat"><i class="fa-solid fa-fire"></i> 128.7W</span>
-        </div>
-        <div class="trending-item">
-            <span class="rank mid">4</span>
-            <span class="text">NFT 艺术家创作直播 <span class="tag badge-crypto">直播</span></span>
-            <span class="heat"><i class="fa-solid fa-fire"></i> 102.5W</span>
-        </div>
-        <div class="trending-item">
-            <span class="rank mid">5</span>
-            <span class="text">链上打赏 TOP 榜单</span>
-            <span class="heat"><i class="fa-solid fa-fire"></i> 89.4W</span>
-        </div>
-        <div class="trending-item">
-            <span class="rank mid">6</span>
-            <span class="text">私房摄影教学合集</span>
-            <span class="heat"><i class="fa-solid fa-fire"></i> 76.2W</span>
-        </div>
-        <div class="trending-item">
-            <span class="rank low">7</span>
-            <span class="text">#健身打卡 挑战</span>
-            <span class="heat"><i class="fa-solid fa-fire"></i> 58.9W</span>
-        </div>
-        <div class="trending-item">
-            <span class="rank low">8</span>
-            <span class="text">Web3 创作者收益榜</span>
-            <span class="heat"><i class="fa-solid fa-fire"></i> 42.7W</span>
-        </div>
+        <span class="title">推荐创作者</span>
     </div>
 
-    <!-- 推荐创作者 -->
-    <div class="section-head">
-        <span class="title">为你推荐</span>
-        <span class="clear">更多 <i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
-    </div>
-
-    <div class="creator-row">
+    <div class="creator-row" data-search-text="@mila_studio 私房摄影师 专注光影叙事 12.5W 粉丝 238 作品">
         <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80" alt="">
         <div class="info">
             <div class="name-line">
@@ -229,7 +200,7 @@
         <button class="btn btn-primary btn-sm">订阅</button>
     </div>
 
-    <div class="creator-row">
+    <div class="creator-row" data-search-text="@nova_art 链上艺术 nft 创作者 8.2W 粉丝 156 作品">
         <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=80" alt="">
         <div class="info">
             <div class="name-line">
@@ -245,7 +216,7 @@
         <button class="btn btn-ghost btn-sm">已订阅</button>
     </div>
 
-    <div class="creator-row">
+    <div class="creator-row" data-search-text="@ryo.tokyo 东京 vlogger 热门 6.4W 粉丝 92 作品">
         <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80" alt="">
         <div class="info">
             <div class="name-line">
@@ -260,10 +231,76 @@
         </div>
         <button class="btn btn-primary btn-sm">订阅</button>
     </div>
+    <div class="search-empty" id="searchEmpty">未找到相关创作者，换个关键词试试</div>
 
 </div>
 </div>
 
 <div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var input = document.getElementById('searchInput');
+    var trigger = document.getElementById('searchTrigger');
+    var cancel = document.getElementById('searchCancel');
+    var clearHistory = document.getElementById('clearHistory');
+    var historyEl = document.getElementById('historyChips');
+    var rows = Array.prototype.slice.call(document.querySelectorAll('.creator-row[data-search-text]'));
+    var empty = document.getElementById('searchEmpty');
+
+    function runSearch(keyword) {
+        var q = String(keyword || '').trim().toLowerCase();
+        var visible = 0;
+        rows.forEach(function (row) {
+            var hay = (row.getAttribute('data-search-text') || '').toLowerCase();
+            var hit = !q || hay.indexOf(q) >= 0;
+            row.hidden = !hit;
+            if (hit) visible += 1;
+        });
+        if (empty) empty.style.display = visible ? 'none' : 'block';
+    }
+
+    if (trigger) {
+        trigger.addEventListener('click', function () {
+            if (input) input.focus();
+            runSearch(input ? input.value : '');
+            if (window.DigitalH5Nav && DigitalH5Nav.toast) DigitalH5Nav.toast('已执行搜索');
+        });
+    }
+    if (input) {
+        input.addEventListener('input', function () { runSearch(input.value); });
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                runSearch(input.value);
+                if (window.DigitalH5Nav && DigitalH5Nav.toast) DigitalH5Nav.toast('搜索完成');
+            }
+        });
+    }
+    if (historyEl) {
+        historyEl.addEventListener('click', function (e) {
+            var chip = e.target.closest('.chip');
+            if (!chip || !input) return;
+            input.value = chip.textContent.trim();
+            runSearch(input.value);
+        });
+    }
+    if (clearHistory) {
+        clearHistory.addEventListener('click', function () {
+            if (historyEl) historyEl.innerHTML = '';
+            if (window.DigitalH5Nav && DigitalH5Nav.toast) DigitalH5Nav.toast('已清空搜索历史');
+        });
+    }
+    if (cancel) {
+        cancel.addEventListener('click', function () {
+            if (window.history.length > 1) window.history.back();
+            else if (window.DigitalH5Nav && DigitalH5Nav.go) DigitalH5Nav.go('home.html');
+            else location.href = 'home.html';
+        });
+    }
+
+    runSearch('');
+})();
+</script>
 </body>
 </html>

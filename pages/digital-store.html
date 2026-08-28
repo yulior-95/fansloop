@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Creator Store</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/digital-h5.css">
+</head>
+<body>
+<div class="status-bar dark-mode">
+    <span class="time">9:41</span>
+    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+</div>
+<div class="nav-bar da-nav solid">
+    <div class="nav-left"><div class="nav-btn" data-go="profile.html"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">Creator Store</div>
+    <div class="nav-right"><div class="nav-btn" data-go="my-digital-assets.html"><i class="fa-solid fa-images"></i></div></div>
+</div>
+
+<div class="app-content da-page">
+    <div style="padding:12px 16px 0">
+        <p class="da-desc" style="margin:0 0 10px">创作者上传并售卖的图片合集与视频作品。购买后立即获得浏览 / 播放权益，无需物流。</p>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+            <button class="btn btn-primary btn-sm" style="flex:1" data-go="create-digital.html"><i class="fa-solid fa-plus"></i> 创建</button>
+            <button class="btn btn-secondary btn-sm" style="flex:1" data-go="my-digital-assets.html"><i class="fa-solid fa-images"></i> 我的作品库</button>
+            <button class="btn btn-secondary btn-sm" style="flex:1" id="btnMine"><i class="fa-solid fa-filter"></i> <span id="mineLabel">仅看我的</span></button>
+        </div>
+    </div>
+    <div class="da-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" id="daSearch" placeholder="搜商品 ID / 标题 / 创作者">
+    </div>
+    <div class="da-chips" id="typeChips">
+        <div class="da-chip on" data-filter="all">全部上架</div>
+        <div class="da-chip" data-filter="image">图片合集</div>
+        <div class="da-chip" data-filter="video">视频作品</div>
+        <div class="da-chip" data-filter="bundle">图视作品包</div>
+    </div>
+
+    <div class="da-grid" id="storeGrid">
+        <div class="da-card" data-type="image" data-go="digital-detail.html">
+            <div class="cover">
+                <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&q=80" alt="">
+                <span class="kind">图片合集</span>
+                <span class="price">4.5 U</span>
+            </div>
+            <div class="meta">
+                <div class="title">富士山日出 · 4K 写真合集</div>
+                <div class="sub">Luna 🌙 · 不限 · 已售 86</div>
+                <div class="pid">da_seed_img_01</div>
+            </div>
+        </div>
+        <div class="da-card" data-type="video" data-go="digital-detail-video.html">
+            <div class="cover">
+                <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&q=80" alt="">
+                <span class="kind"><i class="fa-solid fa-play"></i> 视频</span>
+                <span class="price">6.0 U</span>
+            </div>
+            <div class="meta">
+                <div class="title">城市夜色 · 延时短片</div>
+                <div class="sub">Luna 🌙 · 剩余 158 / 200</div>
+                <div class="pid">da_seed_vid_02</div>
+            </div>
+        </div>
+        <div class="da-card" data-type="bundle" data-go="digital-detail-bundle.html">
+            <div class="cover">
+                <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&q=80" alt="">
+                <span class="kind">图视包</span>
+                <span class="price">9.9 U</span>
+            </div>
+            <div class="meta">
+                <div class="title">旅拍花絮 · 图视作品包</div>
+                <div class="sub">Luna 🌙 · 剩余 68 / 80</div>
+                <div class="pid">da_seed_bundle_06</div>
+            </div>
+        </div>
+        <div class="da-card" data-type="image" id="soldCard">
+            <div class="cover">
+                <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80" alt="">
+                <span class="kind">图片合集</span>
+                <span class="price">售罄</span>
+            </div>
+            <div class="meta">
+                <div class="title">街头人像 · 黑白胶片风合集</div>
+                <div class="sub">Luna 🌙 · 50 / 50</div>
+                <div class="pid">da_seed_img_03</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="tab-bar">
+    <div class="tab-item"><i class="fa-solid fa-house"></i><span>首页</span></div>
+    <div class="tab-item"><i class="fa-regular fa-heart"></i><span>订阅</span></div>
+    <div class="tab-create"><div class="create-btn"><i class="fa-solid fa-plus"></i></div></div>
+    <div class="tab-item"><i class="fa-regular fa-message"></i><span>消息</span></div>
+    <div class="tab-item active"><i class="fa-solid fa-user"></i><span>我的</span></div>
+</div>
+<div class="da-toast" id="daToast"></div>
+<div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var filter = 'all';
+    var mine = false;
+    function apply() {
+        document.querySelectorAll('#storeGrid .da-card').forEach(function (card) {
+            var typeOk = filter === 'all' || card.getAttribute('data-type') === filter;
+            card.style.display = typeOk ? '' : 'none';
+        });
+    }
+    document.querySelectorAll('#typeChips .da-chip').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+            document.querySelectorAll('#typeChips .da-chip').forEach(function (c) { c.classList.remove('on'); });
+            chip.classList.add('on');
+            filter = chip.getAttribute('data-filter');
+            apply();
+        });
+    });
+    document.getElementById('btnMine').addEventListener('click', function () {
+        mine = !mine;
+        document.getElementById('mineLabel').textContent = mine ? '查看全部' : '仅看我的';
+        DigitalH5Nav.toast(mine ? '仅看我的商品（演示）' : '查看全部上架');
+    });
+    document.getElementById('soldCard').addEventListener('click', function () {
+        DigitalH5Nav.toast('已售罄');
+    });
+    document.getElementById('daSearch').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') DigitalH5Nav.toast('原型：已按关键词筛选');
+    });
+})();
+</script>
+</body>
+</html>

@@ -6,6 +6,16 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
 <style>
+.status-bar {
+    isolation: isolate;
+}
+.status-bar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--bg-primary);
+    z-index: -1;
+}
 .nav-bar { background: var(--bg-primary); }
 .app-content { padding-top: calc(var(--status-bar-height) + var(--nav-bar-height)); padding-bottom: calc(var(--tab-bar-height) + 20px); }
 
@@ -13,6 +23,7 @@
 .sub-tabs {
     display: flex; gap: 20px;
     padding: 0 16px;
+    margin-top: 8px;
     border-bottom: 0.5px solid var(--border-color);
     background: var(--bg-primary);
     position: sticky;
@@ -24,20 +35,125 @@
     font-size: 14px;
     color: var(--text-tertiary);
     position: relative;
+    cursor: pointer;
 }
 .sub-tabs .tab.active { color: var(--text-primary); font-weight: 600; }
 .sub-tabs .tab.active::after {
     content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px;
     background: var(--brand-gradient); border-radius: 2px;
 }
-.sub-tabs .tab .dot {
-    position: absolute; top: 8px; right: -8px;
-    width: 6px; height: 6px;
-    background: #EF4444;
-    border-radius: 50%;
+.sub-tabs .tab .num {
+    margin-left: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    background: linear-gradient(135deg, #ef4444, #f97316);
+}
+.sub-stats {
+    margin: 10px 16px 0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--bg-card);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 10px;
+}
+.sub-stats--compact {
+    margin-bottom: 14px;
+}
+.sub-stats .item {
+    min-width: 0;
+}
+.sub-stats .k {
+    font-size: 10px;
+    color: var(--text-tertiary);
+}
+.sub-stats .v {
+    margin-top: 3px;
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.sub-stats .v .sub {
+    margin-left: 4px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-weight: 500;
 }
 
 /* 订阅创作者横滑列表 */
+.creator-strip-head {
+    margin: 8px 16px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.creator-strip-head .t {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 700;
+}
+.creator-search-btn {
+    border: 1px solid var(--border-strong);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    border-radius: 14px;
+    padding: 4px 10px;
+    font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.creator-search-slot {
+    min-width: 62px;
+    display: flex;
+    justify-content: flex-end;
+}
+.creator-search-inline {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    width: 220px;
+    height: 30px;
+    border: 1px solid var(--border-strong);
+    border-radius: 15px;
+    background: var(--bg-card);
+    padding: 0 8px;
+}
+.creator-search-inline.show {
+    display: flex;
+}
+.creator-search-inline i {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+.creator-search-inline input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 12px;
+}
+.creator-search-inline .cancel {
+    border: 0;
+    background: transparent;
+    color: var(--text-tertiary);
+    font-size: 11px;
+    padding: 0;
+}
 .creator-strip {
     padding: 16px 0 12px 16px;
     display: flex; gap: 14px;
@@ -51,6 +167,7 @@
     display: flex; flex-direction: column;
     align-items: center;
     gap: 6px;
+    cursor: pointer;
 }
 .creator-strip .ci.active .avatar-ring {
     background: var(--brand-gradient);
@@ -74,17 +191,178 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.creator-strip .ci.add .avatar-ring {
-    background: var(--border-strong);
+.creator-strip .ci.active .name { color: var(--text-primary); font-weight: 600; }
+.creator-strip .ci[hidden] {
+    display: none !important;
 }
-.creator-strip .ci.add .placeholder {
-    width: 56px; height: 56px;
-    border-radius: 50%;
+
+.sub-creator-col-foot {
+    margin: 0 16px 14px;
+    padding: 12px;
     background: var(--bg-card);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--text-secondary);
-    font-size: 20px;
-    border: 2px solid var(--bg-primary);
+    border-radius: 12px;
+}
+.sub-creator-col-foot .hd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+.sub-creator-col-foot .hd .t {
+    font-size: 13px;
+    font-weight: 700;
+}
+.sub-creator-col-foot .hd .bill {
+    font-size: 11px;
+    color: var(--brand-primary);
+    cursor: pointer;
+}
+.sub-exp-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+}
+.sub-exp-item + .sub-exp-item {
+    border-top: 0.5px solid var(--border-color);
+}
+.sub-exp-item img {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.sub-exp-item .info {
+    flex: 1;
+    min-width: 0;
+}
+.sub-exp-item .name {
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.sub-exp-item .sub {
+    margin-top: 2px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+}
+.sub-exp-item .renew {
+    height: 26px;
+    border: 0;
+    border-radius: 13px;
+    padding: 0 10px;
+    background: var(--brand-gradient);
+    color: #fff;
+    font-size: 11px;
+}
+.sub-spend {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+.sub-spend b {
+    color: var(--text-primary);
+}
+.iol-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.52);
+    z-index: 70;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+}
+.iol-overlay.show {
+    display: flex;
+}
+.iol-panel {
+    width: 100%;
+    max-width: var(--phone-width);
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    border-radius: 16px;
+    background: #13131d;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #fff;
+}
+.iol-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.1);
+}
+.iol-head .t { font-size: 14px; font-weight: 700; }
+.iol-close {
+    width: 28px; height: 28px; border: 0; border-radius: 50%;
+    background: rgba(255,255,255,0.08); color: #fff;
+}
+.iol-body { padding: 12px 14px 14px; }
+.iol-kv { font-size: 12px; color: rgba(255,255,255,0.78); margin-bottom: 10px; line-height: 1.5; }
+.iol-kv b { color: #fff; }
+.iol-plan-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.iol-plan-btn {
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 10px;
+    font-size: 12px;
+}
+.iol-plan-btn.on {
+    border-color: rgba(168,85,247,0.9);
+    box-shadow: inset 0 0 0 1px rgba(168,85,247,0.36);
+    background: rgba(168,85,247,0.14);
+}
+.iol-plan-btn small { display:block; font-size:10px; color: rgba(255,255,255,0.62); margin-top: 2px; }
+.iol-promo { margin-bottom: 10px; }
+.iol-promo .hd { display:flex; justify-content:space-between; font-size:11px; color: rgba(255,255,255,0.68); margin-bottom: 6px; }
+.iol-promo .row { display:flex; gap: 8px; }
+.iol-promo input {
+    flex:1; min-width:0; height:32px; border-radius:16px; border:1px solid rgba(255,255,255,0.16);
+    background: rgba(255,255,255,0.04); color:#fff; padding:0 12px; font-size:12px;
+}
+.iol-promo button {
+    height:32px; border:0; border-radius:16px; padding:0 12px; font-size:11px;
+    background: rgba(255,255,255,0.12); color:#fff;
+}
+.iol-step { display: none; }
+.iol-step.active { display: block; }
+.iol-quick { display:flex; gap:8px; margin: 8px 0 10px; }
+.iol-quick button {
+    flex: 1;
+    height: 30px;
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 15px;
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    font-size: 11px;
+}
+.iol-pwd {
+    width: 100%;
+    height: 34px;
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    padding: 0 10px;
+    margin-bottom: 10px;
+}
+.iol-confirm {
+    width: 100%;
+    height: 34px;
+    border: 0;
+    border-radius: 17px;
+    background: var(--brand-gradient);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 /* Feed 卡片 */
@@ -93,21 +371,40 @@
     background: var(--bg-card);
     border-radius: var(--radius-lg);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
-.feed-card .head {
-    display: flex; align-items: center; gap: 10px;
+.feed-card > .feed-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     padding: 12px;
+    min-height: 64px;
+    position: relative;
+    flex: 0 0 auto;
+    line-height: 1.2;
 }
-.feed-card .head .info { flex: 1; min-width: 0; }
-.feed-card .head .name-row {
+.feed-card > .feed-head > .avatar {
+    flex: 0 0 auto;
+}
+.feed-card > .feed-head .info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+.feed-card > .feed-head .name-row {
     display: flex; align-items: center; gap: 6px;
     font-size: 14px; font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.feed-card .head .time {
+.feed-card > .feed-head .time {
     font-size: 11px; color: var(--text-tertiary);
-    margin-top: 2px;
+    margin-top: 4px;
+    white-space: nowrap;
 }
-.feed-card .head .more { color: var(--text-tertiary); }
 
 .feed-card .title {
     padding: 0 12px 10px;
@@ -153,6 +450,39 @@
 }
 .feed-card .actions .act.liked { color: #ff3b5c; }
 .feed-card .actions .sp { flex: 1; }
+.feed-card.is-read { opacity: 0.68; }
+.feed-card {
+    cursor: pointer;
+}
+
+.feed-empty {
+    display: none;
+    margin: 8px 16px 0;
+    padding: 18px 12px;
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: 12px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+}
+
+.preview-book {
+    border: 1px solid var(--border-strong);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    height: 28px;
+    border-radius: 14px;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+}
+.preview-book.is-booked {
+    border-color: rgba(16, 185, 129, 0.45);
+    color: #10b981;
+}
 
 /* 图文卡 */
 .post-text {
@@ -186,55 +516,98 @@
 <div class="nav-bar solid">
     <div class="nav-left"></div>
     <div class="nav-title">订阅</div>
-    <div class="nav-right"><div class="nav-btn"><i class="fa-regular fa-envelope"></i></div></div>
+    <div class="nav-right"></div>
 </div>
 
 <div class="app-content">
-
-    <!-- 子 Tabs -->
-    <div class="sub-tabs">
-        <div class="tab active">最新动态<span class="dot"></span></div>
-        <div class="tab">创作者</div>
-        <div class="tab">直播</div>
+    <div class="creator-strip-head">
+        <div class="t">订阅创作者</div>
+        <div class="creator-search-slot">
+            <button type="button" class="creator-search-btn" id="creatorSearchToggle"><i class="fa-solid fa-magnifying-glass"></i>查找</button>
+            <div class="creator-search-inline" id="creatorSearchInline">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input id="creatorSearchInput" placeholder="搜索创作者" />
+                <button type="button" class="cancel" id="creatorSearchCancel">取消</button>
+            </div>
+        </div>
     </div>
 
     <!-- 创作者横滑条 -->
     <div class="creator-strip">
-        <div class="ci add">
-            <div class="placeholder"><i class="fa-solid fa-plus"></i></div>
-            <span class="name">发现</span>
-        </div>
-        <div class="ci active">
+        <div class="ci active" data-go="creator-profile.html">
             <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80"></div>
             <span class="name">Luna</span>
         </div>
-        <div class="ci active">
+        <div class="ci active" data-go="creator-profile.html">
             <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80"></div>
             <span class="name">Mila</span>
         </div>
-        <div class="ci">
+        <div class="ci" data-go="creator-profile.html">
             <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=80"></div>
             <span class="name">Nova</span>
         </div>
-        <div class="ci active">
+        <div class="ci active" data-go="creator-profile.html">
             <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80"></div>
             <span class="name">Ryo</span>
         </div>
-        <div class="ci">
+        <div class="ci" data-go="creator-profile.html">
             <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&q=80"></div>
             <span class="name">Aria</span>
         </div>
-        <div class="ci active">
+        <div class="ci active" data-go="creator-profile.html">
             <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&q=80"></div>
             <span class="name">Kenji</span>
         </div>
+        <div class="ci" data-go="creator-profile.html">
+            <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1521119989659-a83eee488004?w=120&q=80"></div>
+            <span class="name">Noah</span>
+        </div>
+        <div class="ci" data-go="creator-profile.html">
+            <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=120&q=80"></div>
+            <span class="name">Saki</span>
+        </div>
+    </div>
+    <div class="sub-creator-col-foot">
+        <div class="hd">
+            <div class="t">即将到期</div>
+            <div class="bill" data-go="transactions.html">账变明细</div>
+        </div>
+        <div class="sub-exp-item">
+            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80" alt="">
+            <div class="info">
+                <div class="name">夜雨听弦</div>
+                <div class="sub">3 天后到期</div>
+            </div>
+            <button type="button" class="renew" data-renew-name="夜雨听弦">续费</button>
+        </div>
+        <div class="sub-exp-item">
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80" alt="">
+            <div class="info">
+                <div class="name">山野食光</div>
+                <div class="sub">12 天后到期</div>
+            </div>
+            <button type="button" class="renew" data-renew-name="山野食光">续费</button>
+        </div>
+        <div class="sub-spend">订阅支出：本月 <b>68 USDT</b></div>
+    </div>
+    <!-- 子 Tabs -->
+    <div class="sub-tabs">
+        <div class="tab active" data-sub-tab="feed">动态<span class="num">0</span></div>
+        <div class="tab" data-sub-tab="live">直播<span class="num">0</span></div>
+        <div class="tab" data-sub-tab="paid">付费独享<span class="num">0</span></div>
+    </div>
+    <div class="sub-stats sub-stats--compact">
+        <div class="item"><div class="k">正在直播</div><div class="v">4 场 <span class="sub">2 场你感兴趣</span></div></div>
+        <div class="item"><div class="k">未读动态</div><div class="v">28 条 <span class="sub">12 条付费帖</span></div></div>
+        <div class="item"><div class="k">To 研发</div><div class="v">待同步</div></div>
+        <div class="item"><div class="k">本月已付</div><div class="v">68 USDT <span class="sub">≈ ¥495</span></div></div>
     </div>
 
     <!-- Feed -->
-    <div class="feed-list">
+    <div class="feed-list" id="subFeedList">
         <!-- 视频卡 -->
-        <div class="feed-card">
-            <div class="head">
+        <div class="feed-card" data-sub-type="paid" data-item-id="sub_paid_luna_001" data-unread="1" data-detail-go="digital-detail-owned.html">
+            <div class="feed-head">
                 <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80">
                 <div class="info">
                     <div class="name-row">
@@ -244,7 +617,6 @@
                     </div>
                     <div class="time">2 小时前 · 已订阅</div>
                 </div>
-                <i class="fa-solid fa-ellipsis more"></i>
             </div>
             <div class="title">东京深夜 · 涩谷十字路口的呼吸感 🌃</div>
             <div class="media">
@@ -262,14 +634,13 @@
         </div>
 
         <!-- 图文卡 -->
-        <div class="feed-card">
-            <div class="head">
+        <div class="feed-card" data-sub-type="feed" data-item-id="sub_post_mila_001" data-unread="1" data-detail-go="creator-profile.html">
+            <div class="feed-head">
                 <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80">
                 <div class="info">
                     <div class="name-row">Mila <i class="fa-solid fa-circle-check" style="color:var(--info); font-size:12px"></i></div>
                     <div class="time">5 小时前</div>
                 </div>
-                <i class="fa-solid fa-ellipsis more"></i>
             </div>
             <div class="post-text">
                 <div class="content">
@@ -291,36 +662,78 @@
         </div>
 
         <!-- 视频卡 2 -->
-        <div class="feed-card">
-            <div class="head">
+        <div class="feed-card" data-sub-type="live" data-item-id="sub_live_ryo_001" data-unread="1" data-detail-go="home.html">
+            <div class="feed-head">
                 <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80">
                 <div class="info">
                     <div class="name-row">Ryo</div>
-                    <div class="time">1 天前 · 已订阅</div>
+                    <div class="time">1 天前 · 直播预告</div>
                 </div>
-                <i class="fa-solid fa-ellipsis more"></i>
             </div>
-            <div class="title">新宿后巷の居酒屋探店 vlog</div>
+            <div class="title">新宿后巷の居酒屋探店 · 今晚 20:30 开播</div>
             <div class="media">
                 <img src="https://images.unsplash.com/photo-1554797589-7241bb691973?w=800&q=80">
-                <div class="tag-bl"><i class="fa-solid fa-play"></i> 04:12</div>
+                <div class="tag-bl"><i class="fa-regular fa-calendar"></i> 预约直播</div>
             </div>
             <div class="actions">
                 <div class="act liked"><i class="fa-solid fa-heart"></i> 3.8K</div>
                 <div class="act"><i class="fa-regular fa-comment"></i> 156</div>
                 <div class="act"><i class="fa-regular fa-bookmark"></i> 78</div>
                 <div class="sp"></div>
-                <div class="act"><i class="fa-solid fa-share"></i></div>
+                <button type="button" class="preview-book" data-preview-book="1"><i class="fa-regular fa-bell"></i><span>预约提醒</span></button>
             </div>
         </div>
     </div>
+    <div class="feed-empty" id="subFeedEmpty"><i class="fa-regular fa-folder-open"></i> 当前分类暂无内容</div>
 
+</div>
+<div class="iol-overlay" id="ovlSubscribe">
+    <div class="iol-panel">
+        <div class="iol-head">
+            <div class="t">续费订阅</div>
+            <button type="button" class="iol-close" id="iolClose"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="iol-body">
+            <div class="iol-step active" id="iolStepPlan">
+                <div class="iol-kv"><b id="iolCreatorName">夜雨听弦</b> · 选择月 / 季 / 年计划完成续费</div>
+                <div class="iol-kv">钱包可用余额：<b id="iolBalanceVal">0.00 USDT</b></div>
+                <div class="iol-plan-list">
+                    <button class="iol-plan-btn on" type="button" data-plan-price="28"><span><span>月度计划</span><small>可随时取消自动续订</small></span><b>28 USDT</b></button>
+                    <button class="iol-plan-btn" type="button" data-plan-price="42"><span><span>季度计划</span><small>节省约 12%</small></span><b>42 USDT</b></button>
+                    <button class="iol-plan-btn" type="button" data-plan-price="150"><span><span>年度计划</span><small>含专属徽章</small></span><b>150 USDT</b></button>
+                </div>
+                <div class="iol-promo">
+                    <div class="hd"><span>创作者优惠码</span><span>首月 · 月付可用</span></div>
+                    <div class="row">
+                        <input id="iolPromoInput" placeholder="输入优惠码" />
+                        <button type="button" id="iolPromoApply">应用</button>
+                    </div>
+                </div>
+                <div class="iol-kv">支付从钱包 USDT 扣除；余额不足将引导前往充值页。</div>
+                <button class="iol-confirm" id="iolConfirmBtn" type="button">确认</button>
+            </div>
+            <div class="iol-step" id="iolStepRecharge">
+                <div class="iol-kv">余额不足，还需充值：<b id="iolNeedVal">0 USDT</b></div>
+                <div class="iol-kv">请先完成钱包充值，再返回继续续费订阅。</div>
+                <button class="iol-confirm" id="iolRechargeBtn" type="button">前往充值</button>
+            </div>
+            <div class="iol-step" id="iolStepPwd">
+                <div class="iol-kv">请输入支付密码（演示：123456）</div>
+                <input type="password" class="iol-pwd" id="iolPwdInput" maxlength="6" placeholder="输入 6 位支付密码" />
+                <button class="iol-confirm" id="iolPayBtn" type="button">确认支付</button>
+            </div>
+            <div class="iol-step" id="iolStepDone">
+                <div class="iol-kv"><b><i class="fa-solid fa-circle-check" style="color:#22c55e"></i> 续费成功</b></div>
+                <button class="iol-confirm" id="iolDoneBtn" type="button">完成</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- TabBar -->
 <div class="tab-bar">
     <div class="tab-item">
-        <i class="fa-regular fa-house"></i>
+        <i class="fa-solid fa-house"></i>
         <span>首页</span>
     </div>
     <div class="tab-item active">
@@ -341,5 +754,264 @@
 </div>
 
 <div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('.sub-tabs .tab[data-sub-tab]'));
+    var feedList = document.getElementById('subFeedList');
+    var empty = document.getElementById('subFeedEmpty');
+    var creatorSearchToggle = document.getElementById('creatorSearchToggle');
+    var creatorSearchInline = document.getElementById('creatorSearchInline');
+    var creatorSearchInput = document.getElementById('creatorSearchInput');
+    var creatorSearchCancel = document.getElementById('creatorSearchCancel');
+    var creatorItems = Array.prototype.slice.call(document.querySelectorAll('.creator-strip .ci'));
+    var ovlSubscribe = document.getElementById('ovlSubscribe');
+    var iolClose = document.getElementById('iolClose');
+    var iolCreatorName = document.getElementById('iolCreatorName');
+    var iolBalanceVal = document.getElementById('iolBalanceVal');
+    var iolNeedVal = document.getElementById('iolNeedVal');
+    var iolPromoInput = document.getElementById('iolPromoInput');
+    var iolPromoApply = document.getElementById('iolPromoApply');
+    var iolPwdInput = document.getElementById('iolPwdInput');
+    var iolConfirmBtn = document.getElementById('iolConfirmBtn');
+    var iolRechargeBtn = document.getElementById('iolRechargeBtn');
+    var iolPayBtn = document.getElementById('iolPayBtn');
+    var iolDoneBtn = document.getElementById('iolDoneBtn');
+    var iolPlanBtns = Array.prototype.slice.call(document.querySelectorAll('.iol-plan-btn[data-plan-price]'));
+    var iolSteps = Array.prototype.slice.call(document.querySelectorAll('.iol-step'));
+    if (!tabs.length || !feedList) return;
+    var iolBalance = 0;
+    var iolPlanPrice = 28;
+    var iolPromo = '';
+    var iolCreator = '';
+
+    function toast(msg) {
+        if (window.DigitalH5Nav && typeof DigitalH5Nav.toast === 'function') DigitalH5Nav.toast(msg);
+    }
+
+    function cards() {
+        return Array.prototype.slice.call(feedList.querySelectorAll('.feed-card[data-sub-type]'));
+    }
+    function showIolStep(id) {
+        iolSteps.forEach(function (s) { s.classList.toggle('active', s.id === id); });
+    }
+    function refreshIolBalance() {
+        if (iolBalanceVal) iolBalanceVal.textContent = iolBalance.toFixed(2) + ' USDT';
+    }
+    function iolFinalPay() {
+        var v = iolPlanPrice;
+        if (iolPromo) v = Math.max(0, v - 2);
+        return v;
+    }
+    function openIol(name) {
+        iolCreator = name || '创作者';
+        iolPlanPrice = 28;
+        iolPromo = '';
+        if (iolCreatorName) iolCreatorName.textContent = iolCreator;
+        if (iolPromoInput) iolPromoInput.value = '';
+        if (iolPwdInput) iolPwdInput.value = '';
+        iolPlanBtns.forEach(function (btn) {
+            btn.classList.toggle('on', Number(btn.getAttribute('data-plan-price')) === 28);
+        });
+        refreshIolBalance();
+        showIolStep('iolStepPlan');
+        if (ovlSubscribe) ovlSubscribe.classList.add('show');
+    }
+    function closeIol() {
+        if (ovlSubscribe) ovlSubscribe.classList.remove('show');
+    }
+    function applyCreatorFilter(keyword) {
+        var q = String(keyword || '').trim().toLowerCase();
+        var shown = 0;
+        creatorItems.forEach(function (item) {
+            var name = (item.querySelector('.name') ? item.querySelector('.name').textContent : '').toLowerCase();
+            var match = !q || name.indexOf(q) >= 0;
+            item.hidden = !match;
+            if (match) shown += 1;
+        });
+        if (q && shown === 0) toast('未找到相关创作者');
+    }
+
+    function tabGroup(type) {
+        if (type === 'feed') return 'feed';
+        if (type === 'live') return 'live';
+        return 'paid';
+    }
+
+    function updateTabCounts() {
+        var countMap = { feed: 28, live: 4, paid: 12 };
+        tabs.forEach(function (tab) {
+            var key = tab.getAttribute('data-sub-tab');
+            var num = tab.querySelector('.num');
+            if (num) num.textContent = String(countMap[key] || 0);
+        });
+    }
+
+    function applyTab(tabKey) {
+        var shown = 0;
+        tabs.forEach(function (tab) {
+            tab.classList.toggle('active', tab.getAttribute('data-sub-tab') === tabKey);
+        });
+        cards().forEach(function (card) {
+            var type = card.getAttribute('data-sub-type');
+            var show = tabGroup(type) === tabKey;
+            card.style.display = show ? '' : 'none';
+            if (show) shown += 1;
+        });
+        if (empty) empty.style.display = shown ? 'none' : 'block';
+    }
+
+    function markAsRead(card) {
+        if (!card) return;
+        if (String(card.getAttribute('data-unread')) !== '1') return;
+        card.setAttribute('data-unread', '0');
+        card.classList.add('is-read');
+        updateTabCounts();
+    }
+
+    tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            applyTab(tab.getAttribute('data-sub-tab'));
+        });
+    });
+
+    creatorItems.forEach(function (item) {
+        item.addEventListener('click', function () {
+            creatorItems.forEach(function (i) { i.classList.remove('active'); });
+            item.classList.add('active');
+            var name = item.querySelector('.name') ? item.querySelector('.name').textContent : '创作者';
+            toast('查看创作者：' + name);
+        });
+    });
+    if (creatorSearchToggle && creatorSearchInline) {
+        creatorSearchToggle.addEventListener('click', function () {
+            creatorSearchToggle.style.display = 'none';
+            creatorSearchInline.classList.add('show');
+            if (creatorSearchInput) creatorSearchInput.focus();
+        });
+    }
+    if (creatorSearchInput) {
+        creatorSearchInput.addEventListener('input', function () {
+            applyCreatorFilter(creatorSearchInput.value);
+        });
+    }
+    if (creatorSearchCancel) {
+        creatorSearchCancel.addEventListener('click', function () {
+            if (creatorSearchInput) creatorSearchInput.value = '';
+            applyCreatorFilter('');
+            if (creatorSearchInline) creatorSearchInline.classList.remove('show');
+            if (creatorSearchToggle) creatorSearchToggle.style.display = '';
+        });
+    }
+    if (creatorSearchInput) {
+        creatorSearchInput.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter') return;
+            e.preventDefault();
+            applyCreatorFilter(creatorSearchInput.value);
+        });
+    }
+
+    feedList.addEventListener('click', function (e) {
+        var previewBtn = e.target.closest('[data-preview-book]');
+        if (previewBtn) {
+            e.stopPropagation();
+            var booked = previewBtn.classList.toggle('is-booked');
+            var icon = previewBtn.querySelector('i');
+            var label = previewBtn.querySelector('span');
+            if (icon) icon.className = booked ? 'fa-solid fa-bell' : 'fa-regular fa-bell';
+            if (label) label.textContent = booked ? '已预约' : '预约提醒';
+            toast(booked ? '已预约直播提醒' : '已取消预约提醒');
+            return;
+        }
+
+        var card = e.target.closest('.feed-card[data-sub-type]');
+        if (!card) return;
+        markAsRead(card);
+        var href = card.getAttribute('data-detail-go') || '';
+        if (window.DigitalH5Nav && typeof window.DigitalH5Nav.go === 'function' && href) {
+            window.DigitalH5Nav.go(href);
+            return;
+        }
+        var type = card.getAttribute('data-sub-type');
+        if (type === 'feed') toast('进入动态详情（原型）');
+        else if (type === 'live') toast('进入直播详情（原型）');
+        else toast('进入付费独享内容（原型）');
+    });
+    document.querySelectorAll('.sub-exp-item .renew').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var name = btn.getAttribute('data-renew-name') || '该创作者';
+            openIol(name);
+        });
+    });
+    iolPlanBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            iolPlanBtns.forEach(function (b) { b.classList.remove('on'); });
+            btn.classList.add('on');
+            iolPlanPrice = Number(btn.getAttribute('data-plan-price') || 28);
+        });
+    });
+    if (iolPromoApply) {
+        iolPromoApply.addEventListener('click', function () {
+            var code = (iolPromoInput && iolPromoInput.value || '').trim();
+            if (!code) {
+                toast('请输入优惠码');
+                return;
+            }
+            iolPromo = code.toUpperCase();
+            toast('优惠码已应用');
+        });
+    }
+    if (iolConfirmBtn) {
+        iolConfirmBtn.addEventListener('click', function () {
+            var pay = iolFinalPay();
+            if (iolBalance < pay) {
+                if (iolNeedVal) iolNeedVal.textContent = (pay - iolBalance).toFixed(2) + ' USDT';
+                showIolStep('iolStepRecharge');
+                return;
+            }
+            showIolStep('iolStepPwd');
+        });
+    }
+    if (iolRechargeBtn) {
+        iolRechargeBtn.addEventListener('click', function () {
+            var need = iolNeedVal ? iolNeedVal.textContent : '';
+            closeIol();
+            if (window.DigitalH5Nav && typeof window.DigitalH5Nav.go === 'function') {
+                window.DigitalH5Nav.go('digital-pay-recharge.html?need=' + encodeURIComponent(need) + '&from=' + encodeURIComponent('subscriptions-renew'));
+            } else {
+                location.href = 'digital-pay-recharge.html';
+            }
+        });
+    }
+    if (iolPayBtn) {
+        iolPayBtn.addEventListener('click', function () {
+            var pwd = (iolPwdInput && iolPwdInput.value || '').trim();
+            if (pwd !== '123456') {
+                toast('支付密码错误');
+                return;
+            }
+            iolBalance = Math.max(0, iolBalance - iolFinalPay());
+            refreshIolBalance();
+            showIolStep('iolStepDone');
+        });
+    }
+    if (iolDoneBtn) {
+        iolDoneBtn.addEventListener('click', function () {
+            closeIol();
+            toast('续费成功：' + iolCreator);
+        });
+    }
+    if (iolClose) iolClose.addEventListener('click', closeIol);
+    if (ovlSubscribe) {
+        ovlSubscribe.addEventListener('click', function (e) {
+            if (e.target === ovlSubscribe) closeIol();
+        });
+    }
+
+    updateTabCounts();
+    applyTab('feed');
+    applyCreatorFilter('');
+})();
+</script>
 </body>
 </html>

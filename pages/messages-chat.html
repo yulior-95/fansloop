@@ -26,6 +26,18 @@ body { background: var(--bg-primary); }
     line-height: 1.45;
 }
 .mob-bub.me { align-self: flex-end; background: var(--brand-gradient); color: #fff; }
+.dm-limit-banner {
+    margin: 0 14px 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(245,158,11,0.18), rgba(236,72,153,0.1));
+    border: 1px solid rgba(245,158,11,0.3);
+    color: #fcd34d;
+    font-size: 11px;
+    line-height: 1.45;
+}
+.dm-limit-banner[hidden] { display: none !important; }
+.dm-limit-banner .t { font-weight: 700; color: #fde68a; margin-bottom: 3px; }
 .mob-chat-bar {
     position: fixed;
     left: 0; right: 0; bottom: 0;
@@ -34,7 +46,7 @@ body { background: var(--bg-primary); }
     border-top: 0.5px solid var(--border-color);
 }
 .mob-chat-bar .tools { display: flex; gap: 12px; margin-bottom: 8px; padding: 0 4px; }
-.mob-chat-bar .tools button { font-size: 18px; color: var(--text-secondary); }
+.mob-chat-bar .tools button { font-size: 17px; color: var(--text-secondary); }
 .mob-chat-bar .row { display: flex; gap: 8px; align-items: flex-end; }
 .mob-chat-bar textarea {
     flex: 1;
@@ -50,11 +62,13 @@ body { background: var(--bg-primary); }
     color: var(--text-primary);
 }
 .mob-chat-bar .send-btn {
-    width: 36px; height: 36px;
-    border-radius: 50%;
+    min-width: 56px; height: 36px;
+    border-radius: 18px;
     background: var(--brand-gradient);
     color: #fff;
     display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
 }
 </style>
 </head>
@@ -66,24 +80,28 @@ body { background: var(--bg-primary); }
 </div>
 
 <div class="nav-bar solid">
-    <div class="nav-left"><a class="nav-btn" href="messages.html"><i class="fa-solid fa-chevron-left"></i></a></div>
     <div class="nav-title" id="chatTitle">Luna</div>
-    <div class="nav-right"><div class="nav-btn"><i class="fa-solid fa-ellipsis"></i></div></div>
 </div>
 
 <div class="mob-chat" style="padding-top: calc(var(--status-bar-height) + var(--nav-bar-height))">
+    <div class="dm-limit-banner" id="mobDmLimitBanner" hidden>
+        <div class="t"><i class="fa-solid fa-lock"></i> 私信限制提示</div>
+        <div id="mobDmLimitText">未互关且未订阅时，仅可发送首条私信；互关、订阅或对方回复后解除限制。</div>
+    </div>
     <div class="mob-chat-msgs" id="mobMsgList"></div>
 </div>
 
 <div class="mob-chat-bar">
     <div class="tools">
+        <button type="button" title="表情"><i class="fa-regular fa-face-smile"></i></button>
         <button type="button" id="mobBtnShare" title="分享作品"><i class="fa-solid fa-share"></i></button>
         <button type="button" title="图片"><i class="fa-regular fa-image"></i></button>
+        <button type="button" title="语音"><i class="fa-solid fa-microphone"></i></button>
         <button type="button" id="mobBtnGift" title="送礼"><i class="fa-solid fa-gift"></i></button>
     </div>
     <div class="row">
         <textarea id="mobChatInput" placeholder="发消息…" rows="1"></textarea>
-        <button type="button" class="send-btn" id="mobChatSend"><i class="fa-solid fa-paper-plane"></i></button>
+        <button type="button" class="send-btn" id="mobChatSend">发送</button>
     </div>
 </div>
 

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>支付密码</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/digital-h5.css">
+<style>
+.pwd-dots { display:flex; gap:10px; justify-content:center; margin:28px 0 18px; }
+.pwd-dots span {
+    width:42px; height:48px; border-radius:12px;
+    background:var(--bg-card); border:1px solid var(--border-color);
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; font-weight:800; color:#fff;
+}
+.kb {
+    position:absolute; left:0; right:0; bottom:0;
+    padding:12px 12px 34px;
+    background:rgba(22,22,34,.98);
+    border-top:0.5px solid var(--border-color);
+    display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+}
+.kb button {
+    height:52px; border:0; border-radius:12px;
+    background:var(--bg-elevated); color:#fff;
+    font-size:22px; font-weight:700;
+}
+.kb button.ghost { background:transparent; color:var(--text-tertiary); font-size:14px; }
+</style>
+</head>
+<body>
+<div class="status-bar dark-mode">
+    <span class="time">9:41</span>
+    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+</div>
+<div class="nav-bar da-nav solid">
+    <div class="nav-left"><div class="nav-btn" data-back="digital-pay.html"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">支付密码</div>
+    <div class="nav-right"></div>
+</div>
+
+<div class="app-content da-page no-tab" style="text-align:center;padding-top:80px">
+    <div style="width:56px;height:56px;border-radius:16px;margin:0 auto 12px;background:rgba(168,85,247,.18);display:flex;align-items:center;justify-content:center;color:#C084FC;font-size:22px">
+        <i class="fa-solid fa-lock"></i>
+    </div>
+    <h2 style="font-size:17px;font-weight:800">请输入支付密码</h2>
+    <p class="text-xs text-muted" style="margin-top:6px" id="sub">支付中…</p>
+    <div class="pwd-dots" id="dots">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <p class="text-xs text-muted">演示密码任意 6 位 · 与登录密码不同</p>
+</div>
+
+<div class="kb" id="kb">
+    <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+    <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+    <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+    <button class="ghost" data-k="cancel">取消</button><button data-k="0">0</button><button class="ghost" data-k="del"><i class="fa-solid fa-delete-left"></i></button>
+</div>
+<div class="da-toast" id="daToast"></div>
+<div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var q = new URLSearchParams(location.search);
+    var price = q.get('price') || '4.5';
+    var title = q.get('title') || '富士山日出 · 4K 写真合集';
+    document.getElementById('sub').textContent = '支付 ' + Number(price).toFixed(2) + ' USDT · ' + title;
+    var code = '';
+    var dots = document.querySelectorAll('#dots span');
+    function render() {
+        dots.forEach(function (d, i) { d.textContent = i < code.length ? '•' : ''; });
+        if (code.length === 6) {
+            DigitalH5Nav.toast('支付中…');
+            setTimeout(function () {
+                location.href = 'digital-pay-success.html?price=' + encodeURIComponent(price) +
+                    '&title=' + encodeURIComponent(title);
+            }, 500);
+        }
+    }
+    document.getElementById('kb').addEventListener('click', function (e) {
+        var btn = e.target.closest('button');
+        if (!btn) return;
+        var k = btn.getAttribute('data-k');
+        if (k === 'cancel') return history.back();
+        if (k === 'del') { code = code.slice(0, -1); return render(); }
+        if (code.length >= 6) return;
+        code += k;
+        render();
+    });
+})();
+</script>
+</body>
+</html>

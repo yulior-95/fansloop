@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>余额不足</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/digital-h5.css">
+</head>
+<body>
+<div class="status-bar dark-mode">
+    <span class="time">9:41</span>
+    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+</div>
+<div class="nav-bar da-nav solid">
+    <div class="nav-left"><div class="nav-btn" data-back="digital-pay.html"><i class="fa-solid fa-xmark"></i></div></div>
+    <div class="nav-title">余额不足</div>
+    <div class="nav-right"></div>
+</div>
+
+<div class="app-content da-page no-tab" style="display:flex;flex-direction:column;align-items:center;padding-top:120px">
+    <div style="width:72px;height:72px;border-radius:50%;background:rgba(245,158,11,.15);display:flex;align-items:center;justify-content:center;color:#FBBF24;font-size:28px;margin-bottom:16px">
+        <i class="fa-solid fa-wallet"></i>
+    </div>
+    <h2 style="font-size:20px;font-weight:800">余额不足</h2>
+    <p class="da-desc" style="text-align:center;padding:10px 28px 0;max-width:320px" id="msg">可用余额不足，请先充值后再完成购买。</p>
+    <div style="width:100%;padding:24px 16px 0;display:flex;flex-direction:column;gap:10px">
+        <button class="btn btn-primary btn-block" data-go="recharge.html"><i class="fa-solid fa-bolt"></i> 去充值</button>
+        <button class="btn btn-secondary btn-block" id="btnBack">返回商品</button>
+        <button class="btn btn-ghost btn-block" id="btnEnough">模拟充值后继续支付</button>
+    </div>
+</div>
+<div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var q = new URLSearchParams(location.search);
+    var price = parseFloat(q.get('price') || '4.5') || 4.5;
+    var bal = parseFloat(q.get('bal') || '2.1') || 2.1;
+    var title = q.get('title') || '';
+    var need = Math.max(0, price - bal);
+    document.getElementById('msg').textContent =
+        '可用余额 ' + bal.toFixed(2) + ' USDT，购买需 ' + price.toFixed(2) +
+        ' USDT。还需充值约 ' + need.toFixed(2) + ' USDT 后再完成购买。';
+    document.getElementById('btnBack').addEventListener('click', function () {
+        location.href = 'digital-detail.html';
+    });
+    document.getElementById('btnEnough').addEventListener('click', function () {
+        location.href = 'digital-pay-pwd.html?price=' + encodeURIComponent(price) +
+            '&title=' + encodeURIComponent(title || '数字商品');
+    });
+})();
+</script>
+</body>
+</html>

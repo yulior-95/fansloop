@@ -7,6 +7,24 @@
 <link rel="stylesheet" href="../css/common.css">
 <style>
 body { background: #000; }
+body { touch-action: pan-y; }
+
+.feed-viewport {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+.feed-track {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+}
+.feed-page {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
 
 .feed-video {
     position: absolute;
@@ -18,6 +36,23 @@ body { background: #000; }
     object-fit: cover;
     display: block;
 }
+.feed-video.clickable { cursor: pointer; }
+.feed-live-badge {
+    position: absolute;
+    top: calc(var(--status-bar-height) + 50px);
+    left: 14px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgba(239, 68, 68, 0.88);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 22;
+}
+.feed-live-badge i { font-size: 8px; }
 
 /* 顶部导航 */
 .top-nav {
@@ -42,6 +77,10 @@ body { background: #000; }
     font-size: 15px; font-weight: 500;
     position: relative;
     padding-bottom: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
 }
 .top-nav .cat.active {
     color: #fff; font-weight: 700;
@@ -52,10 +91,8 @@ body { background: #000; }
     width: 20px; height: 3px; border-radius: 2px;
     background: var(--brand-gradient);
 }
-.top-nav .live-icon {
+.top-nav .nav-spacer {
     width: 36px; height: 36px;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 18px;
 }
 
 /* 右侧动作栏 */
@@ -104,20 +141,12 @@ body { background: #000; }
     color: #fff; font-size: 10px;
     box-shadow: 0 2px 6px rgba(168,85,247,0.5);
 }
-
-/* 音乐转盘 */
-.music-disc {
-    margin-top: 4px;
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    background: radial-gradient(circle, #444 2px, #1a1a26 5px, #000);
-    padding: 3px;
+.action-bar .creator-avatar.following .follow-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
 }
-.music-disc img {
-    width: 100%; height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-}
+.action-bar .action { cursor: pointer; }
+.action-bar .action.action-like.is-on i { color: #ff3b5c; }
+.action-bar .action.action-save.is-on i { color: var(--crypto-gold); }
 
 /* 底部信息 */
 .feed-info {
@@ -142,6 +171,20 @@ body { background: #000; }
     font-size: 14px; line-height: 1.5;
     margin-bottom: 8px;
     text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+.feed-info .title.expandable {
+    cursor: pointer;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    max-height: 44px;
+}
+.feed-info .title.expandable.expanded {
+    display: block;
+    max-height: 140px;
+    overflow-y: auto;
+    padding-right: 4px;
 }
 .feed-info .tags {
     display: flex; flex-wrap: wrap; gap: 8px;
@@ -199,42 +242,7 @@ body { background: #000; }
     font-size: 12px; color: rgba(255,255,255,0.7);
 }
 
-/* Feed page indicator */
-.page-dots {
-    position: absolute;
-    right: 6px;
-    top: 50%; transform: translateY(-50%);
-    display: flex; flex-direction: column; gap: 6px;
-    z-index: 20;
-}
-.page-dots span {
-    width: 3px; height: 14px;
-    border-radius: 2px;
-    background: rgba(255,255,255,0.3);
-}
-.page-dots span.active {
-    background: var(--brand-gradient);
-    height: 20px;
-}
-
 .tab-bar { background: rgba(0,0,0,0.65); }
-
-/* 图文类型标识 */
-.media-type {
-    position: absolute;
-    top: 96px;
-    left: 16px;
-    padding: 4px 10px;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(10px);
-    border-radius: var(--radius-full);
-    font-size: 11px;
-    color: #fff;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    z-index: 20;
-}
 
 /* =============================================
    积分商城悬浮球（参考番茄小说，Web3 化）
@@ -247,9 +255,12 @@ body { background: #000; }
     height: 72px;
     z-index: 40;
     cursor: pointer;
+    touch-action: none;
+    user-select: none;
     /* 入场缓动 */
     animation: rbFloatIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both,
                rbSway 4s ease-in-out infinite 0.6s;
+    transition: left 0.24s cubic-bezier(0.22, 0.61, 0.36, 1), top 0.24s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 @keyframes rbFloatIn {
     from { transform: translateY(20px) scale(0.5); opacity: 0; }
@@ -421,23 +432,19 @@ body { background: #000; }
 }
 .reward-ball .rb-tail i { font-size: 7px; color: #FBBF24; }
 
-/* 右上角关闭按钮 */
-.reward-ball .rb-close {
-    position: absolute;
-    top: -4px; left: -4px;
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    background: rgba(0,0,0,0.7);
-    border: 1px solid rgba(255,255,255,0.25);
-    color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 9px;
+/* 收起状态：保留核心金币，弱化其他装饰 */
+.reward-ball.is-collapsed .rb-halo,
+.reward-ball.is-collapsed .rb-ring,
+.reward-ball.is-collapsed .rb-orbit,
+.reward-ball.is-collapsed .rb-pop,
+.reward-ball.is-collapsed .rb-tail {
     opacity: 0;
-    transition: opacity 0.25s;
-    z-index: 2;
+    transition: opacity 0.2s ease;
 }
-.reward-ball:hover .rb-close,
-.reward-ball:active .rb-close { opacity: 1; }
+.reward-ball.is-collapsed .rb-core {
+    inset: 10px;
+    transition: inset 0.2s ease;
+}
 
 /* 点击按压反馈 */
 .reward-ball:active {
@@ -497,15 +504,779 @@ body { background: #000; }
     80%  { opacity: 1; transform: translateX(0); }
     100% { opacity: 0; transform: translateX(-8px); pointer-events: none; visibility: hidden; }
 }
+
+/* 底部弹层 */
+.home-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(4px);
+    z-index: 120;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+}
+.home-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+.home-sheet {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    max-width: 100%;
+    bottom: 0;
+    background: #12121b;
+    border-radius: 18px 18px 0 0;
+    z-index: 121;
+    transform: translateY(100%);
+    transition: transform .24s cubic-bezier(0.22, 0.61, 0.36, 1);
+    box-shadow: 0 -14px 40px rgba(0,0,0,0.45);
+}
+.home-sheet.show { transform: translateY(0); }
+.home-sheet .hs-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.08);
+}
+.home-sheet .hs-head .t { color: #fff; font-size: 15px; font-weight: 700; }
+.home-sheet .hs-head .x {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 0; background: rgba(255,255,255,0.08); color: #fff;
+}
+.home-sheet .hs-body { padding: 12px 16px 18px; }
+
+.comment-sheet { height: 75%; display: flex; flex-direction: column; }
+.comment-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+.cm-item { display: flex; gap: 10px; }
+.cm-item img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; }
+.cm-item .nm { color: #fff; font-size: 12px; font-weight: 700; }
+.cm-item .tx { color: rgba(255,255,255,0.88); font-size: 12px; line-height: 1.45; margin-top: 2px; }
+.cm-compose { display: flex; gap: 8px; margin-top: 10px; }
+.cm-compose input {
+    flex: 1; height: 38px; border: 0; border-radius: 19px;
+    padding: 0 12px; color: #fff; background: rgba(255,255,255,0.08);
+}
+
+.share-sheet { height: 52%; }
+.share-sheet .hs-body { overflow-y: auto; }
+.share-bonus {
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(251,191,36,0.28);
+    background: rgba(251,191,36,0.12);
+    color: #fde68a;
+    font-size: 12px;
+}
+.share-preview {
+    display: flex; gap: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 12px;
+    background: rgba(255,255,255,0.04);
+}
+.share-preview .thumb {
+    width: 76px; height: 76px; border-radius: 10px; object-fit: cover;
+}
+.share-preview .info .ti {
+    color: #fff; font-size: 12px; font-weight: 700; line-height: 1.4;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.share-preview .info .by { color: rgba(255,255,255,0.7); font-size: 11px; margin: 4px 0 6px; }
+.share-preview .info .stats { color: rgba(255,255,255,0.7); font-size: 10px; display: flex; gap: 10px; }
+.share-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px 8px;
+    margin-bottom: 12px;
+}
+.share-item {
+    border: 0; background: transparent; color: #fff;
+    display: flex; flex-direction: column; align-items: center; gap: 7px;
+}
+.share-item .ic {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+}
+.share-item .lb { font-size: 11px; color: rgba(255,255,255,0.8); }
+.share-link-card {
+    border: 1px solid rgba(168,85,247,0.35);
+    background: rgba(168,85,247,0.1);
+    border-radius: 10px;
+    padding: 10px;
+}
+.share-link-row {
+    display: flex; gap: 8px; align-items: center;
+    background: rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+.share-link-row .url {
+    flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    color: #c084fc; font-size: 11px; font-family: ui-monospace, monospace;
+}
+.share-link-row .copy-btn {
+    border: 0; border-radius: 6px; padding: 4px 8px;
+    background: var(--brand-gradient); color: #fff; font-size: 11px; font-weight: 700;
+}
+
+.subscribe-sheet { height: 68%; }
+.sub-step { display: none; }
+.sub-step.active { display: block; }
+.sub-creator {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px; border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    margin-bottom: 10px;
+}
+.sub-creator .av {
+    width: 36px; height: 36px; border-radius: 50%; object-fit: cover;
+}
+.sub-creator .n { color: #fff; font-size: 13px; font-weight: 700; }
+.sub-creator .d { color: rgba(255,255,255,0.72); font-size: 11px; margin-top: 2px; }
+.sub-plan-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.sub-plan-btn {
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    color: #fff; border-radius: 12px;
+    padding: 10px 12px; display: flex; justify-content: space-between; align-items: center;
+}
+.sub-plan-btn.on { border-color: rgba(168,85,247,0.7); background: rgba(168,85,247,0.16); }
+.sub-kv { font-size: 12px; color: rgba(255,255,255,0.8); margin-bottom: 8px; }
+.sub-kv b { color: #fff; }
+.sub-promo {
+    margin: 0 0 10px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+}
+.sub-promo-hd {
+    display: flex; justify-content: space-between; align-items: center;
+    color: rgba(255,255,255,0.82); font-size: 11px; margin-bottom: 8px;
+}
+.sub-promo-row { display: flex; gap: 8px; }
+.sub-promo-row input {
+    flex: 1; height: 34px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.04); color: #fff; padding: 0 10px;
+}
+.sub-promo-row button {
+    border: 0; border-radius: 8px; padding: 0 12px;
+    background: rgba(168,85,247,0.25); color: #fff; font-size: 12px;
+}
+.sub-quick { display: flex; gap: 8px; margin: 8px 0 10px; }
+.sub-quick button { flex: 1; height: 34px; border: 0; border-radius: 10px; background: rgba(255,255,255,0.08); color: #fff; }
+.sub-pwd {
+    width: 100%; height: 40px; border: 0; border-radius: 12px;
+    padding: 0 12px; margin: 8px 0 12px;
+    color: #fff; background: rgba(255,255,255,0.08);
+}
+
+/* 直播观看层（H5 内） */
+.live-room-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 140;
+    background: #000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+}
+.live-room-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+.live-room-player {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+.live-room-player::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 168px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.66), rgba(0,0,0,0));
+    z-index: 1;
+    pointer-events: none;
+}
+.live-room-player::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 210px;
+    background: linear-gradient(0deg, rgba(0,0,0,0.74), rgba(0,0,0,0));
+    z-index: 1;
+    pointer-events: none;
+}
+.live-room-player img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.live-cohost-stage {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--status-bar-height) + 46px);
+    bottom: calc(var(--tab-bar-height) + 150px);
+    z-index: 2;
+    display: none;
+    gap: 0;
+    background: #000;
+    overflow: hidden;
+}
+.live-cohost-stage.show { display: grid; }
+.live-cohost-stage.mode-two { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+.live-cohost-stage.mode-three { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.live-cohost-stage.mode-three .cohost-pane.first {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+}
+.live-cohost-stage.mode-three .cohost-pane.second {
+    grid-column: 2;
+    grid-row: 1;
+}
+.live-cohost-stage.mode-three .cohost-pane.third {
+    grid-column: 2;
+    grid-row: 2;
+}
+.cohost-pane {
+    position: relative;
+    border-radius: 0;
+    overflow: hidden;
+    background: #111;
+}
+.cohost-pane img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.cohost-pane .lb {
+    position: absolute;
+    left: 6px;
+    bottom: 6px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    font-size: 10px;
+}
+.live-room-danmu {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    top: calc(var(--status-bar-height) + 56px);
+    bottom: 190px;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 8;
+}
+.dm-layer {
+    position: absolute;
+    left: 0;
+    right: 0;
+}
+.dm-layer-scroll { top: 0; bottom: 0; }
+.dm-layer-top { top: 0; height: 38%; }
+.dm-layer-bottom { bottom: 0; height: 38%; }
+.dm-line {
+    position: absolute;
+    right: -80%;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.45);
+    color: #fff;
+    font-size: 12px;
+    white-space: nowrap;
+    animation: dmMove 7s linear forwards;
+}
+@keyframes dmMove { to { right: 110%; } }
+.dm-line.dm-fixed {
+    left: 12px;
+    right: auto;
+    animation: none;
+}
+
+.live-player-top {
+    position: absolute;
+    top: calc(var(--status-bar-height) + 10px);
+    left: 10px;
+    right: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+}
+.live-host-mini {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 3px 8px 3px 3px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.42);
+    backdrop-filter: blur(6px);
+}
+.live-host-mini .av {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.35);
+    object-fit: cover;
+}
+.live-host-mini .nm {
+    font-size: 11px;
+    color: #fff;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+.live-host-mini .vw {
+    font-size: 10px;
+    color: rgba(255,255,255,0.74);
+    margin-top: 1px;
+}
+.live-top-actions { display: flex; gap: 8px; }
+.live-rank-avatars {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-right: 2px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.42);
+    padding: 3px 5px;
+    backdrop-filter: blur(6px);
+}
+.live-rank-avatars .rk-av {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.35);
+    object-fit: cover;
+    cursor: pointer;
+    margin-left: -4px;
+}
+.live-rank-avatars .rk-av:first-child { margin-left: 0; }
+.live-rank-avatars .rk-av:nth-child(1) { border-color: rgba(250,204,21,0.9); }
+.live-rank-avatars .rk-av:nth-child(2) { border-color: rgba(148,163,184,0.9); }
+.live-rank-avatars .rk-av:nth-child(3) { border-color: rgba(251,146,60,0.9); }
+.live-rank-avatars .rk-av:hover { transform: translateY(-1px); }
+.live-rank-avatars .rk-av:active { transform: scale(0.95); }
+.live-top-actions .live-vctrl {
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.live-vctrl {
+    width: 34px; height: 34px; border: 0; border-radius: 10px;
+    background: rgba(0,0,0,0.45); color: #fff;
+}
+.live-vctrl.is-on { background: rgba(168,85,247,0.85); }
+.live-settings-pop {
+    position: absolute;
+    right: 12px;
+    top: calc(var(--status-bar-height) + 52px);
+    width: 320px;
+    max-width: calc(100% - 24px);
+    border-radius: 14px;
+    background: rgba(17,17,24,0.96);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 12px;
+    z-index: 4;
+    display: none;
+}
+.live-settings-pop.open { display: block; }
+.live-settings-pop h4 {
+    margin: 0 0 10px; color: #fff; font-size: 14px; font-weight: 700;
+}
+.live-settings-pop .row {
+    display: flex; align-items: center; justify-content: space-between;
+    color: rgba(255,255,255,0.86);
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+.live-settings-pop .seg {
+    display: flex; gap: 6px; margin-bottom: 8px;
+}
+.live-settings-pop .seg button {
+    border: 0; border-radius: 999px; padding: 4px 9px;
+    background: rgba(255,255,255,0.08); color: #fff; font-size: 11px;
+}
+.live-settings-pop .seg button.on { background: rgba(168,85,247,0.75); }
+.live-settings-pop input[type="range"] { width: 140px; }
+.live-settings-pop .lang {
+    width: 140px; height: 28px;
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.04);
+    color: #fff;
+}
+.live-subtitle {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: calc(var(--tab-bar-height) + 88px);
+    text-align: center;
+    font-size: 12px;
+    color: #fff;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    z-index: 9;
+    display: none;
+}
+.live-subtitle.show { display: block; }
+.live-chat-stream {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: calc(var(--tab-bar-height) + 132px);
+    max-height: 122px;
+    overflow-y: auto;
+    z-index: 9;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.live-chat-msg {
+    align-self: flex-start;
+    max-width: 92%;
+    padding: 5px 9px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 11px;
+    color: #fff;
+}
+.live-chat-msg b { color: #c4b5fd; margin-right: 4px; }
+.live-chat-compose {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 4px;
+    z-index: 10;
+    display: flex;
+    gap: 5px;
+}
+.live-chat-compose input {
+    flex: 1;
+    height: 34px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 17px;
+    background: rgba(0,0,0,0.56);
+    color: #fff;
+    padding: 0 12px;
+    backdrop-filter: blur(8px);
+}
+.live-chat-compose button {
+    height: 34px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 17px;
+    background: rgba(168,85,247,0.88);
+    color: #fff;
+    padding: 0 11px;
+    min-width: 40px;
+    font-size: 12px;
+    backdrop-filter: blur(8px);
+}
+#liveBtnShare { background: rgba(37,99,235,0.86); }
+#liveGiftBtn { background: rgba(168,85,247,0.9); }
+.live-like-float {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    color: #ff5a7a;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.28);
+    pointer-events: none;
+    z-index: 12;
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0;
+    animation: like-float-up 0.8s ease-out forwards;
+}
+@keyframes like-float-up {
+    0% { transform: translate(-50%, -50%) translateY(0) scale(0.7); opacity: 0; }
+    16% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) translateY(-64px) scale(1.25); opacity: 0; }
+}
+.live-action-rail {
+    position: absolute;
+    right: 10px;
+    top: calc(var(--status-bar-height) + 180px);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 58px;
+}
+.live-act-btn {
+    border: 0;
+    border-radius: 10px;
+    min-height: 40px;
+    background: rgba(0,0,0,0.54);
+    color: #fff;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px 0;
+    line-height: 1;
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(6px);
+}
+.live-act-btn i { font-size: 13px; }
+.live-act-btn:active { transform: scale(0.96); }
+.live-act-btn.is-on { background: rgba(168,85,247,0.85); }
+.live-tool-sheet {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 62%;
+    background: rgba(18, 18, 27, 0.985);
+    border-top: 1px solid rgba(255,255,255,0.14);
+    border-radius: 16px 16px 0 0;
+    z-index: 13;
+    transform: translateY(100%);
+    transition: transform .22s cubic-bezier(0.22, 0.61, 0.36, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 -12px 30px rgba(0,0,0,0.45);
+}
+.live-tool-sheet.show { transform: translateY(0); }
+.live-modal-sheet {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 78%;
+    background: rgba(18, 18, 27, 0.99);
+    border-top: 1px solid rgba(255,255,255,0.14);
+    border-radius: 16px 16px 0 0;
+    z-index: 14;
+    transform: translateY(105%);
+    transition: transform .22s cubic-bezier(0.22, 0.61, 0.36, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 -12px 30px rgba(0,0,0,0.45);
+}
+.live-modal-sheet.show { transform: translateY(0); }
+.lms-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.08);
+}
+.lms-head .t { color: #fff; font-size: 14px; font-weight: 700; }
+.lms-close {
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+}
+.lms-body {
+    overflow-y: auto;
+    padding: 12px;
+}
+.live-share-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px 6px;
+}
+.live-share-item {
+    border: 0;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    min-height: 62px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-size: 10px;
+}
+.live-share-item i { font-size: 14px; }
+.gift-modal-note {
+    margin-bottom: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.86);
+    font-size: 11px;
+    line-height: 1.5;
+}
+.gift-target-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.gift-target-row .left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+.gift-target-row img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.gift-target-row .name { font-size: 12px; color: #fff; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gift-target-row .sub { font-size: 10px; color: rgba(255,255,255,0.7); }
+.gift-badge {
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 10px;
+    background: rgba(245,158,11,0.24);
+    color: #fde68a;
+}
+.gift-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-bottom: 10px;
+}
+.gift-tabs::-webkit-scrollbar { display: none; }
+.gift-tab {
+    flex: 0 0 auto;
+    border: 0;
+    border-radius: 999px;
+    padding: 5px 11px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.86);
+    background: rgba(255,255,255,0.09);
+}
+.gift-tab.on {
+    background: rgba(236,72,153,0.86);
+    color: #fff;
+}
+.gift-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+.gift-card {
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    min-height: 86px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-size: 11px;
+}
+.gift-card .emoji { font-size: 18px; line-height: 1; }
+.gift-card .price { font-size: 10px; color: rgba(255,255,255,0.75); }
+.gift-card.on {
+    border-color: rgba(168,85,247,0.95);
+    box-shadow: inset 0 0 0 1px rgba(168,85,247,0.45);
+    background: rgba(168,85,247,0.16);
+}
+.gift-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 10px;
+}
+.gift-foot .txt {
+    color: rgba(255,255,255,0.82);
+    font-size: 11px;
+}
+.gift-send-btn {
+    border: 0;
+    border-radius: 16px;
+    height: 32px;
+    padding: 0 14px;
+    background: linear-gradient(90deg, #ec4899, #a855f7);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+}
+.lts-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 8px 12px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.08);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.lts-tabs::-webkit-scrollbar { display: none; }
+.lts-tab {
+    flex: 0 0 auto;
+    border: 0;
+    border-radius: 14px;
+    padding: 4px 10px;
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.82);
+    font-size: 11px;
+}
+.lts-tab.on {
+    background: rgba(168,85,247,0.86);
+    color: #fff;
+}
+.lts-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.08);
+}
+.lts-head .t { color: #fff; font-size: 14px; font-weight: 700; }
+.lts-close {
+    width: 28px; height: 28px;
+    border: 0; border-radius: 50%;
+    background: rgba(255,255,255,0.08); color: #fff;
+}
+.lts-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 12px 14px;
+}
+.lts-item {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 8px;
+    color: #fff;
+    font-size: 12px;
+}
+.lts-item .sub { color: rgba(255,255,255,0.68); font-size: 11px; margin-top: 3px; }
 </style>
 </head>
 <body>
 
-<!-- 视频背景 -->
-<div class="feed-video">
-    <img class="cover" src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&q=80" alt="">
-    <div class="gradient-overlay-top"></div>
-    <div class="gradient-overlay-bottom"></div>
+<!-- 全屏竖滑内容流 -->
+<div class="feed-viewport" id="homeFeedViewport">
+    <div class="feed-track" id="homeFeedTrack"></div>
 </div>
 
 <!-- 状态栏 -->
@@ -522,83 +1293,11 @@ body { background: #000; }
 <div class="top-nav">
     <div class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
     <div class="categories">
-        <span class="cat">关注</span>
-        <span class="cat active">推荐</span>
-        <span class="cat">同城</span>
-        <span class="cat">付费</span>
+        <span class="cat active" data-feed-tab="rec"><i class="fa-solid fa-compass" style="font-size:11px"></i> 推荐</span>
+        <span class="cat" data-feed-tab="follow"><i class="fa-solid fa-fire" style="font-size:11px"></i> 关注</span>
+        <span class="cat" data-feed-tab="live"><i class="fa-solid fa-tower-broadcast" style="font-size:11px"></i> 直播</span>
     </div>
-    <div class="live-icon"><i class="fa-solid fa-video"></i></div>
-</div>
-
-<!-- 分页指示 -->
-<div class="page-dots">
-    <span></span><span class="active"></span><span></span><span></span>
-</div>
-
-<!-- 媒体类型标签 -->
-<div class="media-type">
-    <i class="fa-solid fa-circle-play"></i> 视频 · 02:38
-</div>
-
-<!-- 付费锁 -->
-<div class="paywall">
-    <div class="lock-icon"><i class="fa-solid fa-lock"></i></div>
-    <div class="tip">订阅后解锁全部内容</div>
-    <div class="sub">该创作者本月 62 条专属内容</div>
-    <div class="price-row">
-        <span class="price gradient-text">29.9</span>
-        <span class="price-unit">USDT / 月</span>
-    </div>
-    <button class="btn btn-primary btn-block btn-sm" style="height:40px">
-        <i class="fa-solid fa-bolt"></i> 立即订阅
-    </button>
-</div>
-
-<!-- 右侧动作栏 -->
-<div class="action-bar">
-    <div class="creator-avatar">
-        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=80" alt="">
-        <div class="follow-btn"><i class="fa-solid fa-plus"></i></div>
-    </div>
-    <div class="action liked">
-        <i class="fa-solid fa-heart"></i>
-        <span class="count">328.5K</span>
-    </div>
-    <div class="action">
-        <i class="fa-solid fa-comment-dots"></i>
-        <span class="count">12.4K</span>
-    </div>
-    <div class="action saved">
-        <i class="fa-solid fa-bookmark"></i>
-        <span class="count">8.2K</span>
-    </div>
-    <div class="action">
-        <i class="fa-solid fa-share"></i>
-        <span class="count">分享</span>
-    </div>
-    <div class="music-disc">
-        <img src="https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=100&q=80" alt="">
-    </div>
-</div>
-
-<!-- 底部信息 -->
-<div class="feed-info">
-    <div class="creator">
-        <span class="name">@luna_web3</span>
-        <span class="badge badge-brand"><i class="fa-solid fa-crown"></i> Pro</span>
-    </div>
-    <div class="title">
-        熬夜剪的新 vlog，东京夜色 × 电子乐，chill 到骨子里 🌆✨
-    </div>
-    <div class="tags">
-        <span class="hash">#东京夜拍</span>
-        <span class="hash">#私房vlog</span>
-        <span class="hash">#付费专享</span>
-    </div>
-    <div class="music-info">
-        <i class="fa-solid fa-music"></i>
-        <span>原声 · Luna · Midnight in Shibuya</span>
-    </div>
+    <div class="nav-spacer" aria-hidden="true"></div>
 </div>
 
 <!-- 底部 Tab -->
@@ -630,8 +1329,7 @@ body { background: #000; }
     <span>浏览 <b class="grad">30s</b> 可得 <b class="grad">+5 金币</b> →</span>
 </div>
 
-<div class="reward-ball" role="button" aria-label="积分商城">
-    <div class="rb-close"><i class="fa-solid fa-xmark"></i></div>
+<div class="reward-ball" role="button" aria-label="积分商城" aria-expanded="true">
     <div class="rb-halo"></div>
     <div class="rb-ring"></div>
     <div class="rb-orbit"></div>
@@ -650,6 +1348,1729 @@ body { background: #000; }
     </div>
 </div>
 
+<div class="home-overlay" id="homeOverlay"></div>
+
+<div class="home-sheet comment-sheet" id="commentSheet">
+    <div class="hs-head"><div class="t">评论</div><button class="x" type="button" data-close-sheet="comment"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="hs-body">
+        <div class="comment-list" id="commentList"></div>
+        <div class="cm-compose">
+            <input id="commentInput" placeholder="说点什么..." />
+            <button class="btn btn-primary btn-sm" id="commentSendBtn">发送</button>
+        </div>
+    </div>
+</div>
+
+<div class="home-sheet share-sheet" id="shareSheet">
+    <div class="hs-head"><div class="t">分享到</div><button class="x" type="button" data-close-sheet="share"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="hs-body">
+        <div class="share-bonus"><i class="fa-solid fa-coins"></i> 分享后，每完成 1 次有效访问，你可获得 <b>0.2 USDT</b> 推广奖励</div>
+        <div class="share-preview" id="sharePreview">
+            <img class="thumb" id="shareThumb" src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=220&q=80" alt="">
+            <div class="info">
+                <div class="ti" id="shareTitle">富士山五合目 · 零下 4℃ 的清晨日出全记录</div>
+                <div class="by" id="shareBy">Luna 🌙</div>
+                <div class="stats"><span id="shareLike">2.4K</span><span id="shareComment">186</span><span id="shareSave">412</span><span id="shareView">18.6K</span></div>
+            </div>
+        </div>
+        <div style="color:rgba(255,255,255,0.64);font-size:11px;font-weight:700;margin:0 0 10px;">分享到第三方平台</div>
+        <div class="share-grid" id="shareGrid">
+            <button class="share-item" data-share="x"><span class="ic"><i class="fa-brands fa-x-twitter"></i></span><span class="lb">X</span></button>
+            <button class="share-item" data-share="facebook"><span class="ic"><i class="fa-brands fa-facebook-f"></i></span><span class="lb">Facebook</span></button>
+            <button class="share-item" data-share="instagram"><span class="ic"><i class="fa-brands fa-instagram"></i></span><span class="lb">Instagram</span></button>
+            <button class="share-item" data-share="telegram"><span class="ic"><i class="fa-brands fa-telegram"></i></span><span class="lb">Telegram</span></button>
+            <button class="share-item" data-share="discord"><span class="ic"><i class="fa-brands fa-discord"></i></span><span class="lb">Discord</span></button>
+            <button class="share-item" data-share="wechat"><span class="ic"><i class="fa-brands fa-weixin"></i></span><span class="lb">微信</span></button>
+            <button class="share-item" data-share="qq"><span class="ic"><i class="fa-brands fa-qq"></i></span><span class="lb">QQ</span></button>
+            <button class="share-item" data-share="weibo"><span class="ic"><i class="fa-brands fa-weibo"></i></span><span class="lb">微博</span></button>
+            <button class="share-item" data-share="reddit"><span class="ic"><i class="fa-brands fa-reddit"></i></span><span class="lb">Reddit</span></button>
+            <button class="share-item" data-share="line"><span class="ic"><i class="fa-brands fa-line"></i></span><span class="lb">LINE</span></button>
+        </div>
+        <div class="share-link-card">
+            <div class="share-link-row">
+                <span class="url" id="shareUrl">https://goodfans.io/p/luna-mt-fuji-sunrise</span>
+                <button type="button" class="copy-btn" id="shareCopyBtn">复制</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="home-sheet subscribe-sheet" id="subscribeSheet">
+    <div class="hs-head"><div class="t">订阅创作者</div><button class="x" type="button" data-close-sheet="subscribe"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="hs-body">
+        <div class="sub-step active" id="subStepPlan">
+            <div class="sub-creator">
+                <img class="av" id="subCreatorAv" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80" alt="">
+                <div>
+                    <div class="n" id="subCreatorName">夜雨听弦</div>
+                    <div class="d">订阅后可解锁专属内容与直播回放</div>
+                </div>
+            </div>
+            <div class="sub-kv">钱包可用余额：<b id="subBalanceVal">0.00 USDT</b></div>
+            <div class="sub-plan-list">
+                <button class="sub-plan-btn on" type="button" data-plan-price="16"><span><span>月度计划</span><small style="display:block;color:rgba(255,255,255,0.62);font-size:10px">可随时取消</small></span><b>16 USDT</b></button>
+                <button class="sub-plan-btn" type="button" data-plan-price="42"><span><span>季度计划</span><small style="display:block;color:rgba(255,255,255,0.62);font-size:10px">节省 12%</small></span><b>42 USDT</b></button>
+                <button class="sub-plan-btn" type="button" data-plan-price="150"><span><span>年度计划</span><small style="display:block;color:rgba(255,255,255,0.62);font-size:10px">含专属徽章</small></span><b>150 USDT</b></button>
+            </div>
+            <div class="sub-promo">
+                <div class="sub-promo-hd"><span>创作者优惠码</span><span>首月 · 月付可用</span></div>
+                <div class="sub-promo-row">
+                    <input id="subPromoInput" placeholder="输入优惠码" />
+                    <button type="button" id="subPromoApplyBtn">应用</button>
+                </div>
+                <div style="margin-top:8px;color:rgba(255,255,255,0.6);font-size:10px">与积分商城兑换券不可叠加，优先使用优惠码</div>
+            </div>
+            <div class="sub-kv">支付将从钱包 USDT 余额扣除；余额不足将引导充值。</div>
+            <button class="btn btn-primary btn-block" id="subConfirmBtn"><i class="fa-solid fa-bolt"></i> 确认订阅并支付</button>
+        </div>
+        <div class="sub-step" id="subStepRecharge">
+            <div class="sub-kv">余额不足，还需充值：<b id="subNeedVal">0 USDT</b></div>
+            <div class="sub-quick">
+                <button type="button" data-recharge="50">+50</button>
+                <button type="button" data-recharge="100">+100</button>
+                <button type="button" data-recharge="200">+200</button>
+            </div>
+            <button class="btn btn-primary btn-block" id="subRechargeBtn">确认充值</button>
+        </div>
+        <div class="sub-step" id="subStepPwd">
+            <div class="sub-kv">请输入支付密码（演示：123456）</div>
+            <input type="password" class="sub-pwd" id="subPwdInput" maxlength="6" placeholder="输入 6 位支付密码" />
+            <button class="btn btn-primary btn-block" id="subPayBtn">确认支付</button>
+        </div>
+        <div class="sub-step" id="subStepDone">
+            <div class="sub-kv"><b><i class="fa-solid fa-circle-check" style="color:#22c55e"></i> 订阅成功</b></div>
+            <button class="btn btn-primary btn-block" id="subDoneBtn">完成</button>
+        </div>
+    </div>
+</div>
+
+<div class="live-room-overlay" id="liveRoomOverlay">
+    <div class="live-room-player" id="liveRoomPlayer">
+        <img id="liveRoomCover" src="" alt="">
+        <div class="live-cohost-stage" id="liveCohostStage"></div>
+        <div class="live-room-danmu" id="liveDanmuLayer">
+            <div class="dm-layer dm-layer-scroll" id="dmLayerScroll"></div>
+            <div class="dm-layer dm-layer-top" id="dmLayerTop"></div>
+            <div class="dm-layer dm-layer-bottom" id="dmLayerBottom"></div>
+        </div>
+        <div class="live-player-top">
+            <div class="live-host-mini">
+                <img class="av" id="liveHostAv" src="" alt="">
+                <div>
+                    <div class="nm" id="liveHostName">@creator</div>
+                    <div class="vw" id="liveHostViewers">1.2K 观看</div>
+                </div>
+            </div>
+            <div class="live-top-actions">
+                <div class="live-rank-avatars" id="liveRankAvatars">
+                    <img class="rk-av" id="liveRankA1" src="" alt="">
+                    <img class="rk-av" id="liveRankA2" src="" alt="">
+                    <img class="rk-av" id="liveRankA3" src="" alt="">
+                </div>
+                <button type="button" class="live-vctrl" id="liveBtnVol" title="音量"><i class="fa-solid fa-volume-high"></i></button>
+                <button type="button" class="live-vctrl is-on" id="liveBtnTranslate" title="弹幕翻译"><i class="fa-solid fa-language"></i></button>
+                <button type="button" class="live-vctrl" id="liveBtnGear" title="弹幕与无障碍设置"><i class="fa-solid fa-gear"></i></button>
+            </div>
+        </div>
+        <div class="live-settings-pop" id="liveSettingsPop">
+            <h4>弹幕设置</h4>
+            <div class="row"><span>弹幕区域</span><div class="seg"><button class="on" type="button" data-dm-area="scroll">弹</button><button type="button" data-dm-area="top">顶</button><button type="button" data-dm-area="bottom">底</button></div></div>
+            <div class="row"><span>弹幕字号</span><input id="dmFontRange" type="range" min="12" max="20" value="14"><b id="dmFontVal">14</b></div>
+            <div class="row"><span>弹幕透明度</span><input id="dmOpacityRange" type="range" min="30" max="100" value="75"><b id="dmOpacityVal">75%</b></div>
+            <div class="row"><span>隐藏弹幕</span><input id="dmHideToggle" type="checkbox"></div>
+            <div class="row"><span>画面防遮挡</span><input id="dmSafeToggle" type="checkbox" checked></div>
+            <div class="row"><span>礼物特效屏蔽</span><input id="dmGiftToggle" type="checkbox"></div>
+            <h4 style="margin-top:10px;">跨国界无障碍</h4>
+            <div class="row"><span>自动翻译聊天弹幕</span><input id="dmTranslateToggle" type="checkbox" checked></div>
+            <div class="row"><span>主播语音实时字幕</span><input id="dmSubtitleToggle" type="checkbox"></div>
+            <div class="row"><span>观看语言</span>
+                <select id="dmLangSelect" class="lang">
+                    <option>简体中文</option><option>English</option><option>日本語</option><option>한국어</option>
+                    <option>Español</option><option>Français</option><option>Deutsch</option><option>Português</option>
+                    <option>Русский</option><option>العربية</option><option>Tiếng Việt</option><option>ไทย</option>
+                </select>
+            </div>
+        </div>
+        <div class="live-subtitle" id="liveSubtitle">[字幕] 主播正在介绍本场直播内容…</div>
+        <div class="live-chat-stream" id="liveChatStream"></div>
+        <div class="live-chat-compose">
+            <input id="liveChatInput" placeholder="聊两句..." />
+            <button type="button" id="liveBtnShare"><i class="fa-solid fa-share-nodes"></i></button>
+            <button type="button" id="liveGiftBtn"><i class="fa-solid fa-gift"></i></button>
+        </div>
+        <div class="live-action-rail">
+            <button type="button" class="live-act-btn" id="liveBtnSendGift"><i class="fa-solid fa-gift"></i>送礼</button>
+            <button type="button" class="live-act-btn" id="liveBtnRank"><i class="fa-solid fa-ranking-star"></i>榜单</button>
+        </div>
+        <div class="live-tool-sheet" id="liveToolSheet">
+            <div class="lts-head">
+                <div class="t" id="liveToolTitle">评论列表</div>
+                <button type="button" class="lts-close" id="liveToolClose"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="lts-tabs">
+                <button type="button" class="lts-tab on" data-tool-tab="comments">评论</button>
+                <button type="button" class="lts-tab" data-tool-tab="admins">管理员</button>
+                <button type="button" class="lts-tab" data-tool-tab="gifts">礼物</button>
+                <button type="button" class="lts-tab" data-tool-tab="subs">订阅</button>
+                <button type="button" class="lts-tab" data-tool-tab="rank">榜单</button>
+            </div>
+            <div class="lts-body" id="liveToolBody"></div>
+        </div>
+        <div class="live-modal-sheet" id="liveShareSheet">
+            <div class="lms-head">
+                <div class="t">分享到</div>
+                <button type="button" class="lms-close" id="liveShareClose"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="lms-body">
+                <div class="share-bonus"><i class="fa-solid fa-coins"></i> 分享后，每完成 1 次有效访问，你可获得 <b>0.2 USDT</b> 推广奖励</div>
+                <div class="share-preview" id="liveSharePreview">
+                    <img class="thumb" id="liveShareThumb" src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=220&q=80" alt="">
+                    <div class="info">
+                        <div class="ti" id="liveShareTitle">东京夜拍实时调色演示，欢迎进来互动。</div>
+                        <div class="by" id="liveShareBy">luna_web3 🌙</div>
+                        <div class="stats"><span id="liveShareLike">3.2K</span><span id="liveShareComment">1.1K</span><span id="liveShareSave">602</span><span id="liveShareView">18.6K</span></div>
+                    </div>
+                </div>
+                <div style="color:rgba(255,255,255,0.64);font-size:11px;font-weight:700;margin:0 0 10px;">分享到第三方平台</div>
+                <div class="share-grid" id="liveShareGrid">
+                    <button class="share-item" data-share="x"><span class="ic"><i class="fa-brands fa-x-twitter"></i></span><span class="lb">X</span></button>
+                    <button class="share-item" data-share="facebook"><span class="ic"><i class="fa-brands fa-facebook-f"></i></span><span class="lb">Facebook</span></button>
+                    <button class="share-item" data-share="instagram"><span class="ic"><i class="fa-brands fa-instagram"></i></span><span class="lb">Instagram</span></button>
+                    <button class="share-item" data-share="telegram"><span class="ic"><i class="fa-brands fa-telegram"></i></span><span class="lb">Telegram</span></button>
+                    <button class="share-item" data-share="discord"><span class="ic"><i class="fa-brands fa-discord"></i></span><span class="lb">Discord</span></button>
+                    <button class="share-item" data-share="wechat"><span class="ic"><i class="fa-brands fa-weixin"></i></span><span class="lb">微信</span></button>
+                    <button class="share-item" data-share="qq"><span class="ic"><i class="fa-brands fa-qq"></i></span><span class="lb">QQ</span></button>
+                    <button class="share-item" data-share="weibo"><span class="ic"><i class="fa-brands fa-weibo"></i></span><span class="lb">微博</span></button>
+                    <button class="share-item" data-share="reddit"><span class="ic"><i class="fa-brands fa-reddit"></i></span><span class="lb">Reddit</span></button>
+                    <button class="share-item" data-share="line"><span class="ic"><i class="fa-brands fa-line"></i></span><span class="lb">LINE</span></button>
+                </div>
+                <div class="share-link-card">
+                    <div class="share-link-row">
+                        <span class="url" id="liveShareUrl">https://goodfans.io/p/luna_web3-post-1</span>
+                        <button type="button" class="copy-btn" id="liveShareCopyBtn">复制</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="live-modal-sheet" id="liveGiftSheet">
+            <div class="lms-head">
+                <div class="t">送出心意</div>
+                <button type="button" class="lms-close" id="liveGiftClose"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="lms-body">
+                <div class="gift-modal-note">礼物会以飘屏 / 全屏特效送达，并出现在创作者打赏榜前列 🎁</div>
+                <div class="gift-modal-note" id="liveGiftNotice">你刚刚送出 钻石礼物！</div>
+                <div class="gift-target-row">
+                    <div class="left">
+                        <img id="giftTargetAv" src="" alt="">
+                        <div>
+                            <div class="name" id="giftTargetName">山野食光</div>
+                            <div class="sub">美食创作者 · 正在直播 · LV 6</div>
+                        </div>
+                    </div>
+                    <span class="gift-badge">直播打赏</span>
+                </div>
+                <div class="gift-tabs">
+                    <button type="button" class="gift-tab on">热门</button>
+                    <button type="button" class="gift-tab">心意</button>
+                    <button type="button" class="gift-tab">助力</button>
+                    <button type="button" class="gift-tab">豪华</button>
+                    <button type="button" class="gift-tab">限定</button>
+                </div>
+                <div class="gift-grid" id="liveGiftGrid">
+                    <button type="button" class="gift-card on" data-gift-name="玫瑰" data-gift-price="1"><span class="emoji">🌹</span><span>玫瑰</span><span class="price">1 USDT</span></button>
+                    <button type="button" class="gift-card" data-gift-name="啤酒" data-gift-price="3"><span class="emoji">🍻</span><span>啤酒</span><span class="price">3 USDT</span></button>
+                    <button type="button" class="gift-card" data-gift-name="蛋糕" data-gift-price="5"><span class="emoji">🎂</span><span>蛋糕</span><span class="price">5 USDT</span></button>
+                    <button type="button" class="gift-card" data-gift-name="心意盒" data-gift-price="9"><span class="emoji">💝</span><span>心意盒</span><span class="price">9 USDT</span></button>
+                    <button type="button" class="gift-card" data-gift-name="火箭" data-gift-price="50"><span class="emoji">🚀</span><span>火箭</span><span class="price">50 USDT</span></button>
+                    <button type="button" class="gift-card" data-gift-name="钻石" data-gift-price="200"><span class="emoji">💎</span><span>钻石</span><span class="price">200 USDT</span></button>
+                    <button type="button" class="gift-card" data-gift-name="独角兽" data-gift-price="288"><span class="emoji">🦄</span><span>独角兽</span><span class="price">288 USDT</span></button>
+                </div>
+                <div class="gift-foot">
+                    <div class="txt" id="liveGiftSelectedText">已选：玫瑰 · 1 USDT</div>
+                    <button type="button" class="gift-send-btn" id="liveGiftSendNow">立即送出</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    function esc(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+    var feedGroups = {
+        rec: [
+        {
+            id: 'rec_luna_1',
+            cover: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&q=80',
+            creator: '@luna_web3',
+            title: '熬夜剪的新 vlog，东京夜色 × 电子乐，chill 到骨子里 🌆✨',
+            tags: ['#东京夜拍', '#私房vlog', '#付费专享'],
+            music: '原声 · Luna · Midnight in Shibuya',
+            like: '328.5K',
+            comment: '12.4K',
+            save: '8.2K',
+            avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=80',
+            comments: [
+                { name: 'Nina', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80', text: '镜头语言太绝了，等完整版！' },
+                { name: 'Kaito', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80', text: '这个夜景调色真的高级。' }
+            ],
+            locked: true,
+            paywallTip: '订阅后解锁全部内容',
+            paywallSub: '该创作者本月 62 条专属内容'
+        },
+        {
+            id: 'rec_mila_1',
+            cover: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80',
+            creator: '@mila_private',
+            title: '今天的光线太爱了，整组胶片风私房，完整版已经更新到订阅频道。',
+            tags: ['#胶片风', '#私房摄影', '#订阅更新'],
+            music: '原声 · Mila · Soft Light',
+            like: '12.4K',
+            comment: '832',
+            save: '256',
+            avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80',
+            comments: [
+                { name: 'Leo', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&q=80', text: '这组光线太美了，求机位参数！' },
+                { name: 'Sora', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&q=80', text: '已订阅，等你下次更新。' }
+            ],
+            locked: false
+        },
+        {
+            id: 'rec_nova_1',
+            cover: 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=800&q=80',
+            creator: '@nova_room',
+            title: '雨夜城市纪录片片段，今晚 10 点直播放送完整版。',
+            tags: ['#雨夜城市', '#纪录短片', '#直播预告'],
+            music: '原声 · Nova · Rain in Neon',
+            like: '76.2K',
+            comment: '3.1K',
+            save: '1.2K',
+            avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80',
+            comments: [
+                { name: 'Mina', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=80', text: '雨夜氛围感拉满。' }
+            ],
+            locked: true,
+            paywallTip: '订阅后观看完整纪录片',
+            paywallSub: '该创作者本月 14 条订阅内容'
+        },
+        {
+            id: 'rec_alex_1',
+            cover: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80',
+            creator: '@alex_cut',
+            title: '一分钟后期教程：如何把夜景调出电影质感。',
+            tags: ['#后期教程', '#调色', '#一分钟技巧'],
+            music: '原声 · Alex · Color Pop',
+            like: '9.6K',
+            comment: '642',
+            save: '389',
+            avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80',
+            comments: [
+                { name: 'Rena', avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=120&q=80', text: '一分钟干货，收藏了！' }
+            ],
+            locked: false
+        }
+        ],
+        follow: [
+            {
+                id: 'follow_mila_1',
+                cover: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80',
+                creator: '@mila_private',
+                title: '订阅更新：胶片风私房写真完整版已发布，感谢大家支持。',
+                tags: ['#订阅更新', '#胶片风', '#已关注'],
+                music: '原声 · Mila · Soft Light',
+                like: '12.4K',
+                comment: '832',
+                save: '256',
+                avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80',
+                comments: [
+                    { name: 'Leo', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&q=80', text: '最喜欢你的构图。' }
+                ],
+                locked: false
+            },
+            {
+                id: 'follow_nova_1',
+                cover: 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=800&q=80',
+                creator: '@nova_room',
+                title: '关注专享：本周幕后花絮已更新，欢迎评论区提问。',
+                tags: ['#幕后花絮', '#关注专享', '#纪录片'],
+                music: '原声 · Nova · Rain in Neon',
+                like: '8.1K',
+                comment: '451',
+                save: '189',
+                avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80',
+                comments: [
+                    { name: 'Mina', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=80', text: '这个视角太有感觉了。' }
+                ],
+                locked: false
+            },
+            {
+                id: 'follow_kenji_1',
+                cover: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80',
+                creator: '@kenji_shot',
+                title: '新作品首发：东京地铁夜拍实验，完整版在作品集。',
+                tags: ['#东京地铁', '#夜拍', '#关注创作者'],
+                music: '原声 · Kenji · Midnight Subway',
+                like: '5.9K',
+                comment: '268',
+                save: '133',
+                avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&q=80',
+                comments: [
+                    { name: 'Ari', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&q=80', text: '节奏感超强！' }
+                ],
+                locked: false
+            }
+        ],
+        live: [
+            {
+                id: 'live_luna_1',
+                cover: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=900&q=80',
+                creator: '@luna_web3',
+                title: '东京夜拍实时调色演示，欢迎进来互动。',
+                tags: ['#直播中', '#实时调色', '#互动问答'],
+                music: '直播间 · Luna',
+                like: '3.2K',
+                comment: '1.1K',
+                save: '602',
+                avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=80',
+                liveBadge: '直播中 · 1.2K 观看',
+                liveScene: '双人连麦',
+                liveHref: 'live-detail-ab.html?host=yeyu&creator=%E5%A4%9C%E9%9B%A8%E5%90%AC%E5%BC%A6&nav=home',
+                cohosts: [
+                    { name: 'Luna', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&q=80' },
+                    { name: 'Yeyu', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&q=80' }
+                ],
+                danmu: ['这个色调太绝了', '求 LUT 参数', '双人连麦好有氛围'],
+                comments: [
+                    { name: 'Nina', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80', text: '直播画质很稳！' }
+                ],
+                locked: false
+            },
+            {
+                id: 'live_nova_1',
+                cover: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=900&q=80',
+                creator: '@nova_room',
+                title: '今晚 22:00 开播，聊聊纪录片拍摄流程。',
+                tags: ['#直播预告', '#预约提醒', '#纪录片'],
+                music: '直播预告 · Nova',
+                like: '1.8K',
+                comment: '642',
+                save: '309',
+                avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80',
+                liveBadge: '直播预告 · 今晚 22:00',
+                liveScene: '多人连麦',
+                liveHref: 'live-detail-ab.html?host=coffee&creator=%E5%92%96%E5%95%A1%E5%BA%97%E4%B8%BB&nav=home',
+                cohosts: [
+                    { name: 'Nova', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&q=80' },
+                    { name: 'Host-A', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&q=80' },
+                    { name: 'Host-B', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&q=80' }
+                ],
+                danmu: ['已预约', '今晚见', '多人连麦会聊哪些设备？'],
+                comments: [
+                    { name: 'Ryo', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80', text: '已预约，等你开播。' }
+                ],
+                locked: false
+            },
+            {
+                id: 'live_alex_1',
+                cover: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=900&q=80',
+                creator: '@alex_cut',
+                title: '夜景电影感调色全流程（精简版）。',
+                tags: ['#直播回放', '#调色教学', '#后期'],
+                music: '直播回放 · Alex',
+                like: '2.7K',
+                comment: '518',
+                save: '221',
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80',
+                liveBadge: '直播回放 · 可观看',
+                liveScene: '单人直播（无人连麦）',
+                liveHref: 'live-detail.html',
+                danmu: ['回放也很清晰', '这个步骤记住了', '收藏回看'],
+                comments: [
+                    { name: 'Rena', avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=120&q=80', text: '回放也很有价值。' }
+                ],
+                locked: false
+            },
+            {
+                id: 'live_aria_1',
+                cover: 'https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=900&q=80',
+                creator: '@aria_lab',
+                title: '深夜电台测试场：双人连麦互动问答。',
+                tags: ['#直播中', '#双人连麦', '#问答'],
+                music: '直播间 · Aria',
+                like: '1.4K',
+                comment: '302',
+                save: '98',
+                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80',
+                liveBadge: '直播中 · 双人连麦',
+                liveScene: '双人连麦',
+                liveHref: 'live-detail-ab.html?host=yeyu&creator=%E5%A4%9C%E9%9B%A8%E5%90%AC%E5%BC%A6&nav=home',
+                cohosts: [
+                    { name: 'Aria', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&q=80' },
+                    { name: 'Guest', avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300&q=80' }
+                ],
+                danmu: ['连麦节奏很好', '声音好稳', '蹲后半场'],
+                comments: [
+                    { name: 'Iris', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80', text: '这一场很舒服。' }
+                ],
+                locked: false
+            },
+            {
+                id: 'live_kenji_1',
+                cover: 'https://images.unsplash.com/photo-1521336575822-6da63fb45455?w=900&q=80',
+                creator: '@kenji_shot',
+                title: '跨国创作圆桌：多人连麦创作复盘。',
+                tags: ['#直播中', '#多人连麦', '#创作复盘'],
+                music: '直播间 · Kenji',
+                like: '2.1K',
+                comment: '744',
+                save: '201',
+                avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&q=80',
+                liveBadge: '直播中 · 多人连麦',
+                liveScene: '多人连麦',
+                liveHref: 'live-detail-ab.html?host=coffee&creator=%E5%92%96%E5%95%A1%E5%BA%97%E4%B8%BB&nav=home',
+                cohosts: [
+                    { name: 'Kenji', avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=300&q=80' },
+                    { name: 'Mate-1', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&q=80' },
+                    { name: 'Mate-2', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80' }
+                ],
+                danmu: ['多人连麦很热闹', '信息量很大', '已截图重点'],
+                comments: [
+                    { name: 'May', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=80', text: '今晚内容很硬核。' }
+                ],
+                locked: false
+            },
+            {
+                id: 'live_nova_solo_1',
+                cover: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=900&q=80',
+                creator: '@nova_room',
+                title: '无人连麦场：单人沉浸式夜景拍摄直播。',
+                tags: ['#直播中', '#无人连麦', '#沉浸式'],
+                music: '直播间 · Nova',
+                like: '980',
+                comment: '211',
+                save: '73',
+                avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80',
+                liveBadge: '直播中 · 无人连麦',
+                liveScene: '单人直播（无人连麦）',
+                liveHref: 'live-detail.html',
+                danmu: ['安静看直播好舒服', '画面太干净了', '收藏等回放'],
+                comments: [
+                    { name: 'Bo', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80', text: '这场太沉浸了。' }
+                ],
+                locked: false
+            }
+        ]
+    };
+
+    Object.keys(feedGroups).forEach(function (k) {
+        feedGroups[k].forEach(function (f) {
+            if (!f.__state) {
+                f.__state = { followed: false, liked: false, saved: false, titleExpanded: false };
+            }
+        });
+    });
+    var activeFeedKey = 'rec';
+    var activeFeeds = feedGroups[activeFeedKey] || [];
+
+    var viewport = document.getElementById('homeFeedViewport');
+    var track = document.getElementById('homeFeedTrack');
+    if (!viewport || !track) return;
+
+    var idx = 0;
+    var lock = false;
+    var startY = 0;
+    var startX = 0;
+    var dragging = false;
+    var dragY = 0;
+
+    function currentFeeds() {
+        return activeFeeds || [];
+    }
+
+    function pageHtml(f, i) {
+        var st = f.__state || { followed: false, liked: false, saved: false, titleExpanded: false };
+        var followIcon = st.followed ? 'fa-solid fa-check' : 'fa-solid fa-plus';
+        var likeCls = st.liked ? ' is-on' : '';
+        var saveCls = st.saved ? ' is-on' : '';
+        var followCls = st.followed ? ' following' : '';
+        var titleCls = st.titleExpanded ? ' expanded' : '';
+        var tagsHtml = (f.tags || []).map(function (t) { return '<span class="hash">' + esc(t) + '</span>'; }).join('');
+        var liveBadgeHtml = f.liveBadge
+            ? '<div class="feed-live-badge" data-action="enter-live"><i class="fa-solid fa-circle"></i><span>' + esc(f.liveBadge) + '</span></div>'
+            : '';
+        var videoCls = f.liveHref ? 'feed-video clickable' : 'feed-video';
+        var liveSettingsAction = f.liveHref
+            ? '<div class="action action-live-settings" data-action="open-live-settings"><i class="fa-solid fa-gear"></i><span class="count">设置</span></div>'
+            : '';
+        return '' +
+            '<section class="feed-page" data-feed-index="' + i + '" style="transform:translateY(' + (i * 100) + '%)">' +
+                '<div class="' + videoCls + '" ' + (f.liveHref ? 'data-action="enter-live"' : '') + '>' +
+                    '<img class="cover" src="' + esc(f.cover) + '" alt="">' +
+                    '<div class="gradient-overlay-top"></div>' +
+                    '<div class="gradient-overlay-bottom"></div>' +
+                '</div>' +
+                liveBadgeHtml +
+                (f.locked ? (
+                    '<div class="paywall" data-role="paywall">' +
+                        '<div class="lock-icon"><i class="fa-solid fa-lock"></i></div>' +
+                        '<div class="tip">' + esc(f.paywallTip || '订阅后解锁全部内容') + '</div>' +
+                        '<div class="sub">' + esc(f.paywallSub || '') + '</div>' +
+                        '<div class="price-row"><span class="price gradient-text">29.9</span><span class="price-unit">USDT / 月</span></div>' +
+                        '<button class="btn btn-primary btn-block btn-sm" style="height:40px" data-action="subscribe"><i class="fa-solid fa-bolt"></i> 立即订阅</button>' +
+                    '</div>'
+                ) : '') +
+                '<div class="action-bar">' +
+                    '<div class="creator-avatar' + followCls + '">' +
+                        '<img src="' + esc(f.avatar || '') + '" alt="">' +
+                        '<div class="follow-btn" data-action="follow"><i class="' + followIcon + '"></i></div>' +
+                    '</div>' +
+                    '<div class="action action-like' + likeCls + '" data-action="like"><i class="fa-solid fa-heart"></i><span class="count">' + esc(f.like) + '</span></div>' +
+                    '<div class="action action-comment" data-action="comment"><i class="fa-solid fa-comment-dots"></i><span class="count">' + esc(f.comment) + '</span></div>' +
+                    '<div class="action action-save' + saveCls + '" data-action="save"><i class="fa-solid fa-bookmark"></i><span class="count">' + esc(f.save) + '</span></div>' +
+                    '<div class="action action-share" data-action="share"><i class="fa-solid fa-share"></i><span class="count">分享</span></div>' +
+                    liveSettingsAction +
+                '</div>' +
+                '<div class="feed-info">' +
+                    '<div class="creator"><span class="name">' + esc(f.creator) + '</span><span class="badge badge-brand"><i class="fa-solid fa-crown"></i> Pro</span></div>' +
+                    '<div class="title expandable' + titleCls + '" data-action="toggle-title">' + esc(f.title) + '</div>' +
+                    '<div class="tags">' + tagsHtml + '</div>' +
+                    '<div class="music-info"><i class="fa-solid fa-music"></i><span>' + esc(f.music) + '</span></div>' +
+                '</div>' +
+            '</section>';
+    }
+
+    function buildTrack() {
+        var list = currentFeeds();
+        track.innerHTML = list.map(pageHtml).join('');
+        if (idx >= list.length) idx = 0;
+        applyTrack(false);
+    }
+
+    function viewportH() {
+        return viewport.clientHeight || window.innerHeight || 812;
+    }
+
+    function applyTrack(animated) {
+        track.style.transition = animated ? 'transform 300ms cubic-bezier(0.22, 0.61, 0.36, 1)' : 'none';
+        var y = -idx * viewportH() + dragY;
+        track.style.transform = 'translate3d(0,' + y + 'px,0)';
+    }
+    function showToast(msg) {
+        if (window.DigitalH5Nav && DigitalH5Nav.toast) DigitalH5Nav.toast(msg);
+    }
+
+    var overlay = document.getElementById('homeOverlay');
+    var commentSheet = document.getElementById('commentSheet');
+    var shareSheet = document.getElementById('shareSheet');
+    var subscribeSheet = document.getElementById('subscribeSheet');
+    var commentList = document.getElementById('commentList');
+    var commentInput = document.getElementById('commentInput');
+    var commentSendBtn = document.getElementById('commentSendBtn');
+    var shareGrid = document.getElementById('shareGrid');
+    var shareThumb = document.getElementById('shareThumb');
+    var shareTitle = document.getElementById('shareTitle');
+    var shareBy = document.getElementById('shareBy');
+    var shareLike = document.getElementById('shareLike');
+    var shareComment = document.getElementById('shareComment');
+    var shareSave = document.getElementById('shareSave');
+    var shareView = document.getElementById('shareView');
+    var shareUrl = document.getElementById('shareUrl');
+    var shareCopyBtn = document.getElementById('shareCopyBtn');
+    var subCreatorName = document.getElementById('subCreatorName');
+    var subCreatorAv = document.getElementById('subCreatorAv');
+    var subBalanceVal = document.getElementById('subBalanceVal');
+    var subNeedVal = document.getElementById('subNeedVal');
+    var subPwdInput = document.getElementById('subPwdInput');
+    var subPromoInput = document.getElementById('subPromoInput');
+    var subPromoApplyBtn = document.getElementById('subPromoApplyBtn');
+    var liveRoomOverlay = document.getElementById('liveRoomOverlay');
+    var liveRoomCover = document.getElementById('liveRoomCover');
+    var liveHostAv = document.getElementById('liveHostAv');
+    var liveHostName = document.getElementById('liveHostName');
+    var liveHostViewers = document.getElementById('liveHostViewers');
+    var liveRankAvatars = document.getElementById('liveRankAvatars');
+    var liveRankA1 = document.getElementById('liveRankA1');
+    var liveRankA2 = document.getElementById('liveRankA2');
+    var liveRankA3 = document.getElementById('liveRankA3');
+    var liveCohostStage = document.getElementById('liveCohostStage');
+    var liveDanmuLayer = document.getElementById('liveDanmuLayer');
+    var dmLayerScroll = document.getElementById('dmLayerScroll');
+    var dmLayerTop = document.getElementById('dmLayerTop');
+    var dmLayerBottom = document.getElementById('dmLayerBottom');
+    var liveBtnVol = document.getElementById('liveBtnVol');
+    var liveBtnTranslate = document.getElementById('liveBtnTranslate');
+    var liveBtnGear = document.getElementById('liveBtnGear');
+    var liveSettingsPop = document.getElementById('liveSettingsPop');
+    var dmFontRange = document.getElementById('dmFontRange');
+    var dmFontVal = document.getElementById('dmFontVal');
+    var dmOpacityRange = document.getElementById('dmOpacityRange');
+    var dmOpacityVal = document.getElementById('dmOpacityVal');
+    var dmHideToggle = document.getElementById('dmHideToggle');
+    var dmSafeToggle = document.getElementById('dmSafeToggle');
+    var dmGiftToggle = document.getElementById('dmGiftToggle');
+    var dmTranslateToggle = document.getElementById('dmTranslateToggle');
+    var dmSubtitleToggle = document.getElementById('dmSubtitleToggle');
+    var dmLangSelect = document.getElementById('dmLangSelect');
+    var dmAreaButtons = Array.prototype.slice.call(document.querySelectorAll('[data-dm-area]'));
+    var liveSubtitle = document.getElementById('liveSubtitle');
+    var liveChatStream = document.getElementById('liveChatStream');
+    var liveChatInput = document.getElementById('liveChatInput');
+    var liveGiftBtn = document.getElementById('liveGiftBtn');
+    var liveBtnShare = document.getElementById('liveBtnShare');
+    var liveBtnSendGift = document.getElementById('liveBtnSendGift');
+    var liveBtnRank = document.getElementById('liveBtnRank');
+    var toolTabs = Array.prototype.slice.call(document.querySelectorAll('[data-tool-tab]'));
+    var liveToolSheet = document.getElementById('liveToolSheet');
+    var liveToolTitle = document.getElementById('liveToolTitle');
+    var liveToolBody = document.getElementById('liveToolBody');
+    var liveToolClose = document.getElementById('liveToolClose');
+    var liveShareSheet = document.getElementById('liveShareSheet');
+    var liveShareClose = document.getElementById('liveShareClose');
+    var liveShareGrid = document.getElementById('liveShareGrid');
+    var liveShareThumb = document.getElementById('liveShareThumb');
+    var liveShareTitle = document.getElementById('liveShareTitle');
+    var liveShareBy = document.getElementById('liveShareBy');
+    var liveShareLike = document.getElementById('liveShareLike');
+    var liveShareComment = document.getElementById('liveShareComment');
+    var liveShareSave = document.getElementById('liveShareSave');
+    var liveShareView = document.getElementById('liveShareView');
+    var liveShareUrl = document.getElementById('liveShareUrl');
+    var liveShareCopyBtn = document.getElementById('liveShareCopyBtn');
+    var liveGiftSheet = document.getElementById('liveGiftSheet');
+    var liveGiftClose = document.getElementById('liveGiftClose');
+    var liveGiftGrid = document.getElementById('liveGiftGrid');
+    var liveGiftSendNow = document.getElementById('liveGiftSendNow');
+    var liveGiftNotice = document.getElementById('liveGiftNotice');
+    var liveGiftSelectedText = document.getElementById('liveGiftSelectedText');
+    var giftTargetAv = document.getElementById('giftTargetAv');
+    var giftTargetName = document.getElementById('giftTargetName');
+    var activeFeedIndex = 0;
+    var walletBalance = 0.0;
+    var selectedPlanPrice = 16;
+    var selectedPromo = '';
+    var liveMuted = false;
+    var liveTranslateOn = true;
+    var liveDanmuHidden = false;
+    var danmuTimer = null;
+    var subtitleTimer = null;
+    var dmAreaMode = 'scroll';
+    var dmSafeArea = true;
+    var dmGiftBlocked = false;
+    var subtitleOn = false;
+    var activeLiveFeed = null;
+    var topDanmuSlot = 0;
+    var bottomDanmuSlot = 0;
+    var activeToolType = '';
+    var selectedGift = { name: '玫瑰', price: 1 };
+
+    function anySheetOpen() {
+        var base = overlay && overlay.classList.contains('show');
+        var live = liveRoomOverlay && liveRoomOverlay.classList.contains('show');
+        return !!(base || live);
+    }
+    function closeAllSheets() {
+        if (overlay) overlay.classList.remove('show');
+        [commentSheet, shareSheet, subscribeSheet].forEach(function (el) {
+            if (el) el.classList.remove('show');
+        });
+    }
+    function stopDanmu() {
+        if (danmuTimer) clearInterval(danmuTimer);
+        danmuTimer = null;
+        if (subtitleTimer) clearInterval(subtitleTimer);
+        subtitleTimer = null;
+        if (dmLayerScroll) dmLayerScroll.innerHTML = '';
+        if (dmLayerTop) dmLayerTop.innerHTML = '';
+        if (dmLayerBottom) dmLayerBottom.innerHTML = '';
+        if (liveSubtitle) liveSubtitle.classList.remove('show');
+    }
+    function closeLiveRoom() {
+        stopDanmu();
+        if (liveSettingsPop) liveSettingsPop.classList.remove('open');
+        closeLiveToolSheet();
+        closeLiveModalSheets();
+        if (liveCohostStage) {
+            liveCohostStage.classList.remove('show', 'mode-two', 'mode-three');
+            liveCohostStage.innerHTML = '';
+        }
+        if (liveRoomOverlay) liveRoomOverlay.classList.remove('show');
+    }
+    function renderCohostStage(item) {
+        if (!liveCohostStage) return;
+        liveCohostStage.className = 'live-cohost-stage';
+        liveCohostStage.innerHTML = '';
+        var hosts = Array.isArray(item && item.cohosts) ? item.cohosts : [];
+        if (hosts.length === 2 || (item.liveScene || '').indexOf('双人连麦') >= 0) {
+            if (hosts.length < 2) {
+                hosts = [
+                    { name: (item.creator || '@host').replace('@', ''), avatar: item.cover || '' },
+                    { name: 'Guest', avatar: item.avatar || item.cover || '' }
+                ];
+            }
+            liveCohostStage.classList.add('show', 'mode-two');
+            liveCohostStage.innerHTML = hosts.slice(0, 2).map(function (h) {
+                return '<div class="cohost-pane"><img src="' + esc(h.avatar || item.cover || '') + '" alt=""><span class="lb">' + esc(h.name || '连麦') + '</span></div>';
+            }).join('');
+            return;
+        }
+        if (hosts.length >= 3 || (item.liveScene || '').indexOf('多人连麦') >= 0) {
+            if (hosts.length < 3) {
+                hosts = [
+                    { name: (item.creator || '@host').replace('@', ''), avatar: item.cover || '' },
+                    { name: 'Guest-A', avatar: item.avatar || item.cover || '' },
+                    { name: 'Guest-B', avatar: item.avatar || item.cover || '' }
+                ];
+            }
+            liveCohostStage.classList.add('show', 'mode-three');
+            liveCohostStage.innerHTML = hosts.slice(0, 3).map(function (h, i) {
+                var cls = i === 0 ? ' first' : (i === 1 ? ' second' : ' third');
+                return '<div class="cohost-pane' + cls + '"><img src="' + esc(h.avatar || item.cover || '') + '" alt=""><span class="lb">' + esc(h.name || '连麦') + '</span></div>';
+            }).join('');
+        }
+    }
+    function pushDanmu(text) {
+        if (!liveDanmuLayer || liveDanmuHidden) return;
+        var line = document.createElement('span');
+        line.className = 'dm-line';
+        var topMin = dmSafeArea ? 8 : 2;
+        var topMax = dmSafeArea ? 62 : 80;
+        var top = Math.floor(Math.random() * (topMax - topMin + 1)) + topMin;
+        if (dmAreaMode === 'top') top = topMin;
+        if (dmAreaMode === 'bottom') top = topMax;
+        line.style.top = top + '%';
+        var fontSize = dmFontRange ? Number(dmFontRange.value || 14) : 14;
+        var opacity = dmOpacityRange ? Number(dmOpacityRange.value || 75) / 100 : 0.75;
+        line.style.fontSize = fontSize + 'px';
+        line.style.opacity = String(opacity);
+        var lang = dmLangSelect ? dmLangSelect.value : '简体中文';
+        line.textContent = liveTranslateOn ? (text + ' · ' + lang) : text;
+        if (dmAreaMode === 'top') {
+            var topSlots = dmSafeArea ? 4 : 6;
+            var tIdx = topDanmuSlot % topSlots;
+            topDanmuSlot += 1;
+            line.classList.add('dm-fixed');
+            line.style.top = (6 + tIdx * 16) + '%';
+            if (dmLayerTop) dmLayerTop.appendChild(line);
+            setTimeout(function () { line.remove(); }, 2200);
+            return;
+        }
+        if (dmAreaMode === 'bottom') {
+            var bottomSlots = dmSafeArea ? 4 : 6;
+            var bIdx = bottomDanmuSlot % bottomSlots;
+            bottomDanmuSlot += 1;
+            line.classList.add('dm-fixed');
+            line.style.top = (60 + bIdx * 10) + '%';
+            if (dmLayerBottom) dmLayerBottom.appendChild(line);
+            setTimeout(function () { line.remove(); }, 2200);
+            return;
+        }
+        if (dmLayerScroll) dmLayerScroll.appendChild(line);
+        setTimeout(function () { line.remove(); }, 7200);
+    }
+    function startDanmu(item) {
+        stopDanmu();
+        if (!item || !Array.isArray(item.danmu) || !item.danmu.length) return;
+        item.danmu.slice(0, 3).forEach(pushDanmu);
+        danmuTimer = setInterval(function () {
+            var pool = item.danmu.slice();
+            if (!dmGiftBlocked) pool.push('用户送出礼物 x1');
+            var one = pool[Math.floor(Math.random() * pool.length)];
+            pushDanmu(one);
+        }, 1700);
+        subtitleTimer = setInterval(function () {
+            if (!subtitleOn || !liveSubtitle) return;
+            liveSubtitle.classList.add('show');
+            var one = item.danmu[Math.floor(Math.random() * item.danmu.length)] || '直播实时字幕';
+            liveSubtitle.textContent = '[字幕] ' + one;
+        }, 2600);
+    }
+    function renderLiveChat(item) {
+        if (!liveChatStream) return;
+        var base = (item && item.comments ? item.comments : []).slice(0, 4);
+        liveChatStream.innerHTML = base.map(function (m) {
+            return '<div class="live-chat-msg"><b>' + esc(m.name || '观众') + ':</b>' + esc(m.text || '') + '</div>';
+        }).join('');
+        liveChatStream.scrollTop = liveChatStream.scrollHeight;
+    }
+    function appendLiveChat(name, text) {
+        if (!liveChatStream) return;
+        var div = document.createElement('div');
+        div.className = 'live-chat-msg';
+        div.innerHTML = '<b>' + esc(name || '我') + ':</b>' + esc(text || '');
+        liveChatStream.appendChild(div);
+        liveChatStream.scrollTop = liveChatStream.scrollHeight;
+    }
+    function spawnLiveLikeFx(clientX, clientY) {
+        var player = document.getElementById('liveRoomPlayer');
+        if (!player) return;
+        var rect = player.getBoundingClientRect();
+        var x = clientX - rect.left;
+        var y = clientY - rect.top;
+        var heart = document.createElement('span');
+        heart.className = 'live-like-float';
+        heart.innerHTML = '<i class="fa-solid fa-heart"></i>';
+        heart.style.left = x + 'px';
+        heart.style.top = y + 'px';
+        player.appendChild(heart);
+        setTimeout(function () { heart.remove(); }, 900);
+    }
+    function isLiveInteractiveTarget(el) {
+        if (!el || !el.closest) return false;
+        return !!el.closest('button, input, select, .live-tool-sheet, .live-modal-sheet, .live-settings-pop, .live-top-actions, .live-rank-avatars, .live-host-mini');
+    }
+    function getLiveState(item) {
+        if (!item) return { liked: false };
+        if (!item.__liveState) item.__liveState = { liked: false };
+        return item.__liveState;
+    }
+    function closeLiveToolSheet() {
+        if (liveToolSheet) liveToolSheet.classList.remove('show');
+        activeToolType = '';
+    }
+    function closeLiveModalSheets() {
+        if (liveShareSheet) liveShareSheet.classList.remove('show');
+        if (liveGiftSheet) liveGiftSheet.classList.remove('show');
+    }
+    function openLiveShareSheet() {
+        closeLiveToolSheet();
+        if (liveGiftSheet) liveGiftSheet.classList.remove('show');
+        var f = activeLiveFeed || currentFeeds()[activeFeedIndex] || {};
+        if (liveShareThumb) liveShareThumb.src = f.cover || '';
+        if (liveShareTitle) liveShareTitle.textContent = f.title || '东京夜拍实时调色演示，欢迎进来互动。';
+        if (liveShareBy) liveShareBy.textContent = ((f.creator || 'luna_web3').replace('@', '')) + ' 🌙';
+        if (liveShareLike) liveShareLike.textContent = f.like || '3.2K';
+        if (liveShareComment) liveShareComment.textContent = f.comment || '1.1K';
+        if (liveShareSave) liveShareSave.textContent = f.save || '602';
+        if (liveShareView) liveShareView.textContent = '18.6K';
+        if (liveShareUrl) {
+            liveShareUrl.textContent = 'https://goodfans.io/p/' + (f.creator || 'luna_web3').replace('@', '').replace(/[^a-z0-9_]/ig, '-') + '-post-' + ((activeFeedIndex || 0) + 1);
+        }
+        if (liveShareSheet) liveShareSheet.classList.add('show');
+    }
+    function setGiftSelection(name, price) {
+        selectedGift = { name: name || '玫瑰', price: Number(price || 1) };
+        if (liveGiftSelectedText) liveGiftSelectedText.textContent = '已选：' + selectedGift.name + ' · ' + selectedGift.price + ' USDT';
+    }
+    function openLiveGiftSheet() {
+        closeLiveToolSheet();
+        if (liveShareSheet) liveShareSheet.classList.remove('show');
+        if (giftTargetAv && activeLiveFeed) giftTargetAv.src = activeLiveFeed.avatar || '';
+        if (giftTargetName && activeLiveFeed) giftTargetName.textContent = (activeLiveFeed.creator || '@creator').replace('@', '');
+        if (liveGiftNotice) liveGiftNotice.textContent = '你刚刚送出 钻石礼物！';
+        if (liveGiftSheet) liveGiftSheet.classList.add('show');
+    }
+    function openLiveToolSheet(type) {
+        if (!activeLiveFeed || !liveToolSheet || !liveToolTitle || !liveToolBody) return;
+        closeLiveModalSheets();
+        activeToolType = type;
+        toolTabs.forEach(function (tb) {
+            tb.classList.toggle('on', tb.getAttribute('data-tool-tab') === type);
+        });
+        var titleMap = {
+            comments: '评论列表',
+            admins: '管理员列表',
+            gifts: '礼物列表',
+            subs: '订阅列表',
+            rank: '榜单情况'
+        };
+        liveToolTitle.textContent = titleMap[type] || '详情';
+        var html = '';
+        if (type === 'comments') {
+            var cs = activeLiveFeed.comments || [];
+            html = cs.map(function (c) {
+                return '<div class="lts-item"><div><b>' + esc(c.name || '用户') + '</b>：' + esc(c.text || '') + '</div><div class="sub">2 分钟前 · 来自直播间</div></div>';
+            }).join('');
+        } else if (type === 'admins') {
+            html = [
+                { n: '直播助手-A', s: '负责审核弹幕与举报处理' },
+                { n: '场控-B', s: '负责连麦队列与麦位管理' }
+            ].map(function (x) {
+                return '<div class="lts-item"><div><b>' + x.n + '</b></div><div class="sub">' + x.s + '</div></div>';
+            }).join('');
+        } else if (type === 'gifts') {
+            html = [
+                { n: '玫瑰 x66', s: 'Nina · 1 分钟前' },
+                { n: '火箭 x3', s: 'Kaito · 3 分钟前' },
+                { n: '应援灯牌 x12', s: 'Rena · 4 分钟前' }
+            ].map(function (x) {
+                return '<div class="lts-item"><div><b>' + x.n + '</b></div><div class="sub">' + x.s + '</div></div>';
+            }).join('');
+        } else if (type === 'subs') {
+            html = [
+                { n: '本场新增订阅 27', s: '订阅转化率 3.8%' },
+                { n: '当前订阅用户 1,286', s: '较昨日 +4.2%' }
+            ].map(function (x) {
+                return '<div class="lts-item"><div><b>' + x.n + '</b></div><div class="sub">' + x.s + '</div></div>';
+            }).join('');
+        } else if (type === 'rank') {
+            html = [
+                { n: '榜单 NO.1 · Luna 🌙', s: '热度 98.2K' },
+                { n: '榜单 NO.2 · Nova', s: '热度 76.4K' },
+                { n: '榜单 NO.3 · Kenji', s: '热度 55.1K' }
+            ].map(function (x) {
+                return '<div class="lts-item"><div><b>' + x.n + '</b></div><div class="sub">' + x.s + '</div></div>';
+            }).join('');
+        }
+        liveToolBody.innerHTML = html || '<div class="lts-item">暂无数据</div>';
+        liveToolSheet.classList.add('show');
+    }
+    function syncLiveActionState() {
+        if (!activeLiveFeed) return;
+        getLiveState(activeLiveFeed);
+    }
+    function rankUsersFor(item) {
+        var hs = (item && item.cohosts) ? item.cohosts.slice() : [];
+        while (hs.length < 3) hs.push({ name: 'Top User', avatar: item && item.avatar ? item.avatar : '' });
+        return hs.slice(0, 3);
+    }
+    function openLiveRoom(item) {
+        activeLiveFeed = item || null;
+        if (!activeLiveFeed || !liveRoomOverlay) return;
+        var idxInCurrent = currentFeeds().indexOf(activeLiveFeed);
+        if (idxInCurrent >= 0) activeFeedIndex = idxInCurrent;
+        if (liveRoomCover) liveRoomCover.src = activeLiveFeed.cover || '';
+        if (liveHostAv) liveHostAv.src = activeLiveFeed.avatar || '';
+        if (liveHostName) liveHostName.textContent = (activeLiveFeed.creator || '@creator');
+        if (liveHostViewers) liveHostViewers.textContent = (activeLiveFeed.liveBadge || '').replace(/^[^·]*·\s*/, '') || '1.2K 观看';
+        var rankUsers = rankUsersFor(activeLiveFeed);
+        if (liveRankA1) liveRankA1.src = rankUsers[0].avatar || '';
+        if (liveRankA2) liveRankA2.src = rankUsers[1].avatar || '';
+        if (liveRankA3) liveRankA3.src = rankUsers[2].avatar || '';
+        renderCohostStage(activeLiveFeed);
+        liveRoomOverlay.classList.add('show');
+        liveMuted = false;
+        liveTranslateOn = true;
+        liveDanmuHidden = false;
+        if (liveBtnVol) liveBtnVol.classList.remove('is-on');
+        if (liveBtnTranslate) liveBtnTranslate.classList.add('is-on');
+        if (dmHideToggle) dmHideToggle.checked = false;
+        if (dmSafeToggle) dmSafeToggle.checked = true;
+        if (dmGiftToggle) dmGiftToggle.checked = false;
+        if (dmTranslateToggle) dmTranslateToggle.checked = true;
+        if (dmSubtitleToggle) dmSubtitleToggle.checked = false;
+        dmAreaMode = 'scroll';
+        dmSafeArea = true;
+        dmGiftBlocked = false;
+        subtitleOn = false;
+        topDanmuSlot = 0;
+        bottomDanmuSlot = 0;
+        dmAreaButtons.forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-dm-area') === 'scroll'); });
+        renderLiveChat(activeLiveFeed);
+        syncLiveActionState();
+        startDanmu(activeLiveFeed);
+    }
+    function openSheet(kind) {
+        if (overlay) overlay.classList.add('show');
+        if (kind === 'comment' && commentSheet) commentSheet.classList.add('show');
+        if (kind === 'share' && shareSheet) shareSheet.classList.add('show');
+        if (kind === 'subscribe' && subscribeSheet) subscribeSheet.classList.add('show');
+    }
+    function switchSubStep(id) {
+        document.querySelectorAll('#subscribeSheet .sub-step').forEach(function (el) {
+            el.classList.toggle('active', el.id === id);
+        });
+    }
+    function renderComments(i) {
+        if (!commentList) return;
+        var list = (currentFeeds()[i] && currentFeeds()[i].comments) ? currentFeeds()[i].comments : [];
+        commentList.innerHTML = list.map(function (c) {
+            return '<div class="cm-item"><img src="' + esc(c.avatar || '') + '" alt=""><div><div class="nm">' + esc(c.name || '') + '</div><div class="tx">' + esc(c.text || '') + '</div></div></div>';
+        }).join('');
+    }
+    function openSubscribe(i) {
+        activeFeedIndex = i;
+        var item = currentFeeds()[i] || {};
+        if (subCreatorName) subCreatorName.textContent = item.creator || '-';
+        if (subCreatorAv) subCreatorAv.src = item.avatar || '';
+        if (subBalanceVal) subBalanceVal.textContent = walletBalance.toFixed(2) + ' USDT';
+        selectedPlanPrice = 16;
+        selectedPromo = '';
+        if (subPromoInput) subPromoInput.value = '';
+        document.querySelectorAll('.sub-plan-btn').forEach(function (btn) {
+            btn.classList.toggle('on', Number(btn.getAttribute('data-plan-price')) === 16);
+        });
+        switchSubStep('subStepPlan');
+        openSheet('subscribe');
+    }
+    function openShare(i) {
+        activeFeedIndex = i;
+        var f = currentFeeds()[i] || {};
+        if (shareThumb) shareThumb.src = f.cover || '';
+        if (shareTitle) shareTitle.textContent = f.title || '';
+        if (shareBy) shareBy.textContent = (f.creator || '').replace('@', '') + ' 🌙';
+        if (shareLike) shareLike.textContent = f.like || '0';
+        if (shareComment) shareComment.textContent = f.comment || '0';
+        if (shareSave) shareSave.textContent = f.save || '0';
+        if (shareView) shareView.textContent = '18.6K';
+        if (shareUrl) shareUrl.textContent = 'https://goodfans.io/p/' + (f.creator || 'creator').replace('@', '').replace(/[^a-z0-9_]/ig, '-') + '-post-' + (i + 1);
+        openSheet('share');
+    }
+
+    function switchFeed(dir) {
+        if (anySheetOpen()) return;
+        if (lock) return;
+        var list = currentFeeds();
+        if (!list.length) return;
+        lock = true;
+        idx = (idx + dir + list.length) % list.length;
+        dragY = 0;
+        applyTrack(true);
+        setTimeout(function () { lock = false; }, 320);
+    }
+
+    function settleByDrag() {
+        if (anySheetOpen()) return;
+        var h = viewportH();
+        var threshold = Math.max(56, h * 0.14);
+        var list = currentFeeds();
+        if (!list.length) return;
+        if (Math.abs(dragY) > threshold) {
+            idx = (idx + (dragY < 0 ? 1 : -1) + list.length) % list.length;
+        }
+        dragY = 0;
+        applyTrack(true);
+        setTimeout(function () { lock = false; }, 320);
+    }
+
+    viewport.addEventListener('touchstart', function (e) {
+        if (anySheetOpen()) return;
+        if (lock) return;
+        if (!e.touches || !e.touches[0]) return;
+        startY = e.touches[0].clientY;
+        startX = e.touches[0].clientX;
+        dragging = true;
+        dragY = 0;
+        applyTrack(false);
+    }, { passive: true });
+
+    viewport.addEventListener('touchmove', function (e) {
+        if (anySheetOpen()) return;
+        if (!dragging || lock) return;
+        if (!e.touches || !e.touches[0]) return;
+        var y = e.touches[0].clientY;
+        var x = e.touches[0].clientX;
+        var dy = y - startY;
+        var dx = x - startX;
+        if (Math.abs(dy) < Math.abs(dx)) return;
+        e.preventDefault();
+        dragY = dy;
+        applyTrack(false);
+    }, { passive: false });
+
+    viewport.addEventListener('touchend', function (e) {
+        if (anySheetOpen()) return;
+        if (!dragging || lock) return;
+        lock = true;
+        dragging = false;
+        if (!e.changedTouches || !e.changedTouches[0]) return;
+        settleByDrag();
+    }, { passive: true });
+
+    var wheelTimer = null;
+    viewport.addEventListener('wheel', function (e) {
+        if (anySheetOpen()) return;
+        if (lock) return;
+        if (Math.abs(e.deltaY) < 12) return;
+        e.preventDefault();
+        clearTimeout(wheelTimer);
+        wheelTimer = setTimeout(function () {
+            switchFeed(e.deltaY > 0 ? 1 : -1);
+        }, 20);
+    }, { passive: false });
+
+    window.addEventListener('resize', function () {
+        applyTrack(false);
+    });
+
+    buildTrack();
+
+    track.addEventListener('click', function (e) {
+        var actionEl = e.target.closest('[data-action]');
+        if (!actionEl) return;
+        var section = e.target.closest('.feed-page');
+        if (!section) return;
+        var feedIndex = Number(section.getAttribute('data-feed-index') || 0);
+        var item = currentFeeds()[feedIndex];
+        if (!item) return;
+        var state = item.__state || (item.__state = { followed: false, liked: false, saved: false, titleExpanded: false });
+        var action = actionEl.getAttribute('data-action');
+
+        if (action === 'follow') {
+            state.followed = !state.followed;
+            showToast(state.followed ? '已关注' : '已取消关注');
+            buildTrack();
+            return;
+        }
+        if (action === 'like') {
+            state.liked = !state.liked;
+            showToast(state.liked ? '已点赞' : '已取消点赞');
+            buildTrack();
+            return;
+        }
+        if (action === 'save') {
+            state.saved = !state.saved;
+            showToast(state.saved ? '已收藏' : '已取消收藏');
+            buildTrack();
+            return;
+        }
+        if (action === 'comment') {
+            activeFeedIndex = feedIndex;
+            renderComments(feedIndex);
+            openSheet('comment');
+            return;
+        }
+        if (action === 'share') {
+            openShare(feedIndex);
+            return;
+        }
+        if (action === 'enter-live') {
+            if (item.liveHref) {
+                openLiveRoom(item);
+            } else {
+                showToast('该内容暂不支持进入直播间');
+            }
+            return;
+        }
+        if (action === 'open-live-settings') {
+            if (!item.liveHref) return;
+            openLiveRoom(item);
+            if (liveSettingsPop) liveSettingsPop.classList.add('open');
+            return;
+        }
+        if (action === 'toggle-title') {
+            state.titleExpanded = !state.titleExpanded;
+            buildTrack();
+            return;
+        }
+        if (action === 'subscribe') {
+            openSubscribe(feedIndex);
+        }
+    });
+
+    if (overlay) overlay.addEventListener('click', closeAllSheets);
+    document.querySelectorAll('[data-close-sheet]').forEach(function (btn) {
+        btn.addEventListener('click', closeAllSheets);
+    });
+    if (commentSendBtn) {
+        commentSendBtn.addEventListener('click', function () {
+            var text = (commentInput && commentInput.value || '').trim();
+            if (!text) {
+                showToast('请输入评论内容');
+                return;
+            }
+            var cur = currentFeeds()[activeFeedIndex];
+            if (!cur) return;
+            cur.comments = cur.comments || [];
+            cur.comments.push({
+                name: '我',
+                avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&q=80',
+                text: text
+            });
+            if (commentInput) commentInput.value = '';
+            renderComments(activeFeedIndex);
+            showToast('评论成功');
+        });
+    }
+    if (shareGrid) {
+        shareGrid.addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-share]');
+            if (!btn) return;
+            var type = btn.getAttribute('data-share');
+            var map = {
+                wechat: '微信',
+                x: 'X',
+                facebook: 'Facebook',
+                instagram: 'Instagram',
+                telegram: 'Telegram',
+                discord: 'Discord',
+                qq: 'QQ',
+                weibo: '微博',
+                reddit: 'Reddit',
+                line: 'LINE'
+            };
+            showToast((map[type] || '分享') + '成功');
+            closeAllSheets();
+        });
+    }
+    if (shareCopyBtn) {
+        shareCopyBtn.addEventListener('click', function () {
+            showToast('链接已复制');
+        });
+    }
+
+    document.querySelectorAll('.sub-plan-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.sub-plan-btn').forEach(function (b) { b.classList.remove('on'); });
+            btn.classList.add('on');
+            selectedPlanPrice = Number(btn.getAttribute('data-plan-price') || 16);
+        });
+    });
+    if (subPromoApplyBtn) {
+        subPromoApplyBtn.addEventListener('click', function () {
+            var v = (subPromoInput && subPromoInput.value || '').trim();
+            if (!v) {
+                showToast('请输入优惠码');
+                return;
+            }
+            selectedPromo = v.toUpperCase();
+            showToast('优惠码已应用');
+        });
+    }
+    var subConfirmBtn = document.getElementById('subConfirmBtn');
+    var subRechargeBtn = document.getElementById('subRechargeBtn');
+    var subPayBtn = document.getElementById('subPayBtn');
+    var subDoneBtn = document.getElementById('subDoneBtn');
+    if (subConfirmBtn) {
+        subConfirmBtn.addEventListener('click', function () {
+            var finalPay = selectedPlanPrice;
+            if (selectedPromo) finalPay = Math.max(0, finalPay - 2);
+            if (walletBalance < finalPay) {
+                var need = (finalPay - walletBalance).toFixed(2);
+                if (subNeedVal) subNeedVal.textContent = need + ' USDT';
+                switchSubStep('subStepRecharge');
+                return;
+            }
+            switchSubStep('subStepPwd');
+        });
+    }
+    document.querySelectorAll('[data-recharge]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            walletBalance += Number(btn.getAttribute('data-recharge') || 0);
+            if (subBalanceVal) subBalanceVal.textContent = walletBalance.toFixed(2) + ' USDT';
+            showToast('已充值 ' + btn.getAttribute('data-recharge') + ' USDT');
+        });
+    });
+    if (subRechargeBtn) {
+        subRechargeBtn.addEventListener('click', function () {
+            switchSubStep('subStepPwd');
+        });
+    }
+    if (subPayBtn) {
+        subPayBtn.addEventListener('click', function () {
+            var pwd = (subPwdInput && subPwdInput.value || '').trim();
+            if (pwd !== '123456') {
+                showToast('支付密码错误');
+                return;
+            }
+            var finalPay = selectedPromo ? Math.max(0, selectedPlanPrice - 2) : selectedPlanPrice;
+            walletBalance = Math.max(0, walletBalance - finalPay);
+            if (subBalanceVal) subBalanceVal.textContent = walletBalance.toFixed(2) + ' USDT';
+            var section = track.querySelector('.feed-page[data-feed-index="' + activeFeedIndex + '"]');
+            var paywall = section ? section.querySelector('[data-role="paywall"]') : null;
+            if (paywall) paywall.style.display = 'none';
+            var cur = currentFeeds()[activeFeedIndex];
+            if (cur) cur.locked = false;
+            switchSubStep('subStepDone');
+        });
+    }
+    if (subDoneBtn) {
+        subDoneBtn.addEventListener('click', function () {
+            closeAllSheets();
+            showToast('订阅成功，内容已解锁');
+        });
+    }
+
+    function switchTopFeed(key) {
+        if (!feedGroups[key]) return;
+        activeFeedKey = key;
+        activeFeeds = feedGroups[key];
+        idx = 0;
+        dragY = 0;
+        buildTrack();
+        if (key === 'rec') showToast('已切换到推荐');
+        else if (key === 'follow') showToast('已切换到关注');
+        else if (key === 'live') showToast('已切换到直播');
+    }
+    document.querySelectorAll('.top-nav .categories .cat[data-feed-tab]').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            document.querySelectorAll('.top-nav .categories .cat').forEach(function (t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            switchTopFeed(tab.getAttribute('data-feed-tab'));
+        });
+    });
+
+    var liveSwipeStartX = 0;
+    var liveSwipeStartY = 0;
+    if (liveRoomOverlay) {
+        liveRoomOverlay.addEventListener('touchstart', function (e) {
+            if (!liveRoomOverlay.classList.contains('show')) return;
+            if (!e.touches || !e.touches[0]) return;
+            liveSwipeStartX = e.touches[0].clientX;
+            liveSwipeStartY = e.touches[0].clientY;
+        }, { passive: true });
+        liveRoomOverlay.addEventListener('touchend', function (e) {
+            if (!liveRoomOverlay.classList.contains('show')) return;
+            if (!e.changedTouches || !e.changedTouches[0]) return;
+            var dx = e.changedTouches[0].clientX - liveSwipeStartX;
+            var dy = e.changedTouches[0].clientY - liveSwipeStartY;
+            if (dx > 70 && Math.abs(dx) > Math.abs(dy)) {
+                closeLiveRoom();
+            }
+        }, { passive: true });
+    }
+    if (liveBtnVol) {
+        liveBtnVol.addEventListener('click', function () {
+            liveMuted = !liveMuted;
+            liveBtnVol.classList.toggle('is-on', liveMuted);
+            liveBtnVol.innerHTML = liveMuted ? '<i class="fa-solid fa-volume-xmark"></i>' : '<i class="fa-solid fa-volume-high"></i>';
+            showToast(liveMuted ? '已静音播放' : '已恢复声音');
+        });
+    }
+    if (liveBtnTranslate) {
+        liveBtnTranslate.addEventListener('click', function () {
+            liveTranslateOn = !liveTranslateOn;
+            liveBtnTranslate.classList.toggle('is-on', liveTranslateOn);
+            if (activeLiveFeed) startDanmu(activeLiveFeed);
+            showToast(liveTranslateOn ? '已开启屏幕翻译' : '已关闭屏幕翻译');
+        });
+    }
+    if (liveBtnGear) {
+        liveBtnGear.addEventListener('click', function () {
+            if (liveSettingsPop) liveSettingsPop.classList.toggle('open');
+        });
+    }
+    if (liveSettingsPop) {
+        liveSettingsPop.addEventListener('click', function (e) { e.stopPropagation(); });
+    }
+    if (liveRoomOverlay) {
+        liveRoomOverlay.addEventListener('click', function (e) {
+            if (e.target === liveRoomOverlay) closeLiveRoom();
+        });
+    }
+    if (dmFontRange) {
+        dmFontRange.addEventListener('input', function () {
+            if (dmFontVal) dmFontVal.textContent = dmFontRange.value;
+        });
+    }
+    if (dmOpacityRange) {
+        dmOpacityRange.addEventListener('input', function () {
+            if (dmOpacityVal) dmOpacityVal.textContent = dmOpacityRange.value + '%';
+        });
+    }
+    if (dmHideToggle) {
+        dmHideToggle.addEventListener('change', function () {
+            liveDanmuHidden = !!dmHideToggle.checked;
+            if (liveDanmuLayer) liveDanmuLayer.style.display = liveDanmuHidden ? 'none' : 'block';
+            showToast(liveDanmuHidden ? '已隐藏弹幕' : '已显示弹幕');
+        });
+    }
+    if (dmSafeToggle) {
+        dmSafeToggle.addEventListener('change', function () {
+            dmSafeArea = !!dmSafeToggle.checked;
+            if (activeLiveFeed) startDanmu(activeLiveFeed);
+            showToast(dmSafeArea ? '已开启画面防遮挡' : '已关闭画面防遮挡');
+        });
+    }
+    if (dmGiftToggle) {
+        dmGiftToggle.addEventListener('change', function () {
+            dmGiftBlocked = !!dmGiftToggle.checked;
+            if (activeLiveFeed) startDanmu(activeLiveFeed);
+            showToast(dmGiftBlocked ? '已屏蔽礼物特效' : '已恢复礼物特效');
+        });
+    }
+    if (dmTranslateToggle) {
+        dmTranslateToggle.addEventListener('change', function () {
+            liveTranslateOn = !!dmTranslateToggle.checked;
+            if (liveBtnTranslate) liveBtnTranslate.classList.toggle('is-on', liveTranslateOn);
+            if (activeLiveFeed) startDanmu(activeLiveFeed);
+        });
+    }
+    if (dmSubtitleToggle) {
+        dmSubtitleToggle.addEventListener('change', function () {
+            subtitleOn = !!dmSubtitleToggle.checked;
+            if (!subtitleOn && liveSubtitle) liveSubtitle.classList.remove('show');
+            if (activeLiveFeed) startDanmu(activeLiveFeed);
+            showToast(subtitleOn ? '已开启主播语音实时字幕' : '已关闭主播语音实时字幕');
+        });
+    }
+    dmAreaButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            dmAreaButtons.forEach(function (b) { b.classList.remove('on'); });
+            btn.classList.add('on');
+            dmAreaMode = btn.getAttribute('data-dm-area') || 'scroll';
+            if (activeLiveFeed) startDanmu(activeLiveFeed);
+        });
+    });
+    if (dmLangSelect) {
+        dmLangSelect.addEventListener('change', function () {
+            if (activeLiveFeed) startDanmu(activeLiveFeed);
+            showToast('观看语言已切换为 ' + dmLangSelect.value);
+        });
+    }
+    if (liveBtnShare) {
+        liveBtnShare.addEventListener('click', function () {
+            openLiveShareSheet();
+        });
+    }
+    if (liveBtnSendGift) {
+        liveBtnSendGift.addEventListener('click', function () {
+            openLiveGiftSheet();
+        });
+    }
+    if (liveBtnRank) {
+        liveBtnRank.addEventListener('click', function () {
+            openLiveToolSheet('rank');
+        });
+    }
+    if (liveRankAvatars) {
+        liveRankAvatars.addEventListener('click', function () { openLiveToolSheet('rank'); });
+    }
+    toolTabs.forEach(function (tb) {
+        tb.addEventListener('click', function () {
+            openLiveToolSheet(tb.getAttribute('data-tool-tab'));
+        });
+    });
+    if (liveToolClose) {
+        liveToolClose.addEventListener('click', function () { closeLiveToolSheet(); });
+    }
+    if (liveToolSheet) {
+        liveToolSheet.addEventListener('click', function (e) { e.stopPropagation(); });
+    }
+    if (liveShareSheet) {
+        liveShareSheet.addEventListener('click', function (e) { e.stopPropagation(); });
+    }
+    if (liveGiftSheet) {
+        liveGiftSheet.addEventListener('click', function (e) { e.stopPropagation(); });
+    }
+    if (liveShareClose) {
+        liveShareClose.addEventListener('click', function () {
+            if (liveShareSheet) liveShareSheet.classList.remove('show');
+        });
+    }
+    if (liveGiftClose) {
+        liveGiftClose.addEventListener('click', function () {
+            if (liveGiftSheet) liveGiftSheet.classList.remove('show');
+        });
+    }
+    if (liveShareGrid) {
+        liveShareGrid.addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-share]');
+            if (!btn) return;
+            var type = btn.getAttribute('data-share');
+            var map = {
+                wechat: '微信',
+                x: 'X',
+                facebook: 'Facebook',
+                instagram: 'Instagram',
+                telegram: 'Telegram',
+                discord: 'Discord',
+                qq: 'QQ',
+                weibo: '微博',
+                reddit: 'Reddit',
+                line: 'LINE'
+            };
+            showToast((map[type] || '分享') + '成功');
+            if (liveShareSheet) liveShareSheet.classList.remove('show');
+        });
+    }
+    if (liveShareCopyBtn) {
+        liveShareCopyBtn.addEventListener('click', function () {
+            showToast('链接已复制');
+        });
+    }
+    if (liveGiftGrid) {
+        liveGiftGrid.addEventListener('click', function (e) {
+            var card = e.target.closest('.gift-card');
+            if (!card) return;
+            liveGiftGrid.querySelectorAll('.gift-card').forEach(function (el) { el.classList.remove('on'); });
+            card.classList.add('on');
+            setGiftSelection(card.getAttribute('data-gift-name'), card.getAttribute('data-gift-price'));
+        });
+    }
+    if (liveGiftSendNow) {
+        liveGiftSendNow.addEventListener('click', function () {
+            appendLiveChat('系统', '你送出了 ' + selectedGift.name + ' x1');
+            if (!dmGiftBlocked) pushDanmu('我送出' + selectedGift.name + ' x1');
+            if (liveGiftNotice) liveGiftNotice.textContent = '你刚刚送出 ' + selectedGift.name + ' 礼物！';
+            showToast('已送出 ' + selectedGift.name);
+        });
+    }
+    if (liveChatInput) {
+        liveChatInput.addEventListener('click', function () {
+            liveChatInput.focus();
+        });
+        liveChatInput.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter') return;
+            e.preventDefault();
+            var txt = (liveChatInput.value || '').trim();
+            if (!txt) return;
+            appendLiveChat('我', txt);
+            liveChatInput.value = '';
+            showToast('发送成功');
+        });
+    }
+    if (liveGiftBtn) {
+        liveGiftBtn.addEventListener('click', function () {
+            openLiveGiftSheet();
+        });
+    }
+    var liveTapLastAt = 0;
+    if (liveRoomOverlay) {
+        liveRoomOverlay.addEventListener('click', function (e) {
+            if (!liveRoomOverlay.classList.contains('show') || !activeLiveFeed) return;
+            if (e.target === liveRoomOverlay) return;
+            if (isLiveInteractiveTarget(e.target)) return;
+            spawnLiveLikeFx(e.clientX, e.clientY);
+            var now = Date.now();
+            if (now - liveTapLastAt < 280) {
+                var st = getLiveState(activeLiveFeed);
+                st.liked = true;
+                showToast('已点赞直播');
+                if (!dmGiftBlocked) pushDanmu('我点赞了直播');
+            }
+            liveTapLastAt = now;
+        });
+    }
+
+    var rewardBall = document.querySelector('.reward-ball');
+    if (rewardBall) {
+        var isCollapsed = false;
+        var isRightSide = false;
+        var draggingBall = false;
+        var pointerId = null;
+        var pressTimer = null;
+        var startPointerX = 0;
+        var startPointerY = 0;
+        var startLeft = 0;
+        var startTop = 0;
+        var BALL_MARGIN = 8;
+        var COLLAPSE_RATIO = 0.58;
+        var MOVE_THRESHOLD = 6;
+
+        function cssVarPx(name, fallback) {
+            var raw = getComputedStyle(document.documentElement).getPropertyValue(name) || '';
+            var num = parseFloat(raw.trim());
+            return isNaN(num) ? fallback : num;
+        }
+        function clamp(v, min, max) {
+            if (v < min) return min;
+            if (v > max) return max;
+            return v;
+        }
+        function ballW() { return rewardBall.offsetWidth || 72; }
+        function ballH() { return rewardBall.offsetHeight || 72; }
+        function vw() { return window.innerWidth || 375; }
+        function vh() { return window.innerHeight || 812; }
+        function minTop() { return cssVarPx('--status-bar-height', 20) + 4; }
+        function maxTop() {
+            var h = ballH();
+            var safeBottom = cssVarPx('--tab-bar-height', 64) + 14;
+            return Math.max(minTop(), vh() - h - safeBottom);
+        }
+        function expandedLeft(sideRight) {
+            return sideRight ? (vw() - ballW() - BALL_MARGIN) : BALL_MARGIN;
+        }
+        function collapsedLeft(sideRight) {
+            var hidden = ballW() * COLLAPSE_RATIO;
+            return sideRight ? (vw() - ballW() + hidden) : -hidden;
+        }
+        function currentTop() {
+            return parseFloat(rewardBall.style.top || '0') || 0;
+        }
+        function setBallPosition(left, top, withTransition) {
+            rewardBall.style.transition = withTransition
+                ? 'left 0.24s cubic-bezier(0.22, 0.61, 0.36, 1), top 0.24s cubic-bezier(0.22, 0.61, 0.36, 1)'
+                : 'none';
+            rewardBall.style.left = left + 'px';
+            rewardBall.style.top = top + 'px';
+        }
+        function placeByState(withTransition) {
+            var top = clamp(currentTop(), minTop(), maxTop());
+            var left = isCollapsed ? collapsedLeft(isRightSide) : expandedLeft(isRightSide);
+            setBallPosition(left, top, withTransition);
+            rewardBall.classList.toggle('is-collapsed', isCollapsed);
+            rewardBall.setAttribute('aria-expanded', (!isCollapsed).toString());
+        }
+        function snapToNearestSide(withTransition) {
+            var leftNow = parseFloat(rewardBall.style.left || '0') || 0;
+            var center = leftNow + ballW() / 2;
+            isRightSide = center >= vw() / 2;
+            placeByState(withTransition);
+        }
+        function initBall() {
+            var rect = rewardBall.getBoundingClientRect();
+            rewardBall.style.bottom = 'auto';
+            rewardBall.style.left = rect.left + 'px';
+            rewardBall.style.top = rect.top + 'px';
+            snapToNearestSide(false);
+        }
+        function hideGuide() {
+            var guide = document.querySelector('.reward-guide');
+            if (guide) guide.style.display = 'none';
+        }
+
+        initBall();
+
+        rewardBall.addEventListener('pointerdown', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            pointerId = e.pointerId;
+            rewardBall.setPointerCapture(pointerId);
+            draggingBall = false;
+            startPointerX = e.clientX;
+            startPointerY = e.clientY;
+            startLeft = parseFloat(rewardBall.style.left || '0') || 0;
+            startTop = parseFloat(rewardBall.style.top || '0') || 0;
+            pressTimer = setTimeout(function () {
+                if (!draggingBall && window.DigitalH5Nav && DigitalH5Nav.toast) {
+                    DigitalH5Nav.toast('长按触发：进入积分商城');
+                }
+            }, 550);
+        });
+
+        rewardBall.addEventListener('pointermove', function (e) {
+            if (pointerId !== e.pointerId) return;
+            var dx = e.clientX - startPointerX;
+            var dy = e.clientY - startPointerY;
+            if (!draggingBall && (Math.abs(dx) > MOVE_THRESHOLD || Math.abs(dy) > MOVE_THRESHOLD)) {
+                draggingBall = true;
+                clearTimeout(pressTimer);
+                hideGuide();
+            }
+            if (!draggingBall) return;
+            var hidden = isCollapsed ? ballW() * COLLAPSE_RATIO : 0;
+            var minLeft = -hidden;
+            var maxLeft = vw() - ballW() + hidden;
+            var nextLeft = clamp(startLeft + dx, minLeft, maxLeft);
+            var nextTop = clamp(startTop + dy, minTop(), maxTop());
+            setBallPosition(nextLeft, nextTop, false);
+        });
+
+        function endPointer(e) {
+            if (pointerId !== e.pointerId) return;
+            clearTimeout(pressTimer);
+            if (rewardBall.hasPointerCapture(pointerId)) rewardBall.releasePointerCapture(pointerId);
+            if (draggingBall) {
+                snapToNearestSide(true);
+            } else {
+                isCollapsed = !isCollapsed;
+                hideGuide();
+                placeByState(true);
+            }
+            pointerId = null;
+            draggingBall = false;
+        }
+
+        rewardBall.addEventListener('pointerup', endPointer);
+        rewardBall.addEventListener('pointercancel', endPointer);
+        rewardBall.addEventListener('click', function (e) {
+            e.stopPropagation();
+        });
+
+        window.addEventListener('resize', function () {
+            snapToNearestSide(false);
+        });
+    }
+})();
+</script>
 </body>
 </html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>消息请求</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: calc(var(--tab-bar-height) + 10px);
+}
+.rq-toolbar {
+    margin: 10px 16px 0;
+    display: flex;
+    gap: 8px;
+}
+.rq-search {
+    flex: 1;
+    height: 34px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-card);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 10px;
+}
+.rq-search i { font-size: 12px; color: var(--text-tertiary); }
+.rq-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 12px;
+}
+.rq-act {
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 11px;
+}
+.rq-tabs {
+    margin: 10px 16px 8px;
+    display: flex;
+    gap: 7px;
+}
+.rq-tabs .tab {
+    flex: 1;
+    height: 30px;
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+.rq-tabs .tab.on {
+    border-color: transparent;
+    background: var(--brand-gradient);
+    color: #fff;
+    font-weight: 700;
+}
+.rq-list {
+    margin: 0 16px;
+    background: var(--bg-card);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.rq-item {
+    display: flex;
+    gap: 10px;
+    padding: 12px;
+    border-bottom: 0.5px solid var(--border-color);
+}
+.rq-item:last-child { border-bottom: none; }
+.rq-item .main {
+    flex: 1;
+    min-width: 0;
+}
+.rq-item .name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+.rq-item .name {
+    font-size: 13px;
+    font-weight: 700;
+}
+.rq-item .time {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--text-tertiary);
+}
+.rq-item .msg {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+.rq-item .meta {
+    margin-top: 6px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.rq-item .tag {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    padding: 2px 7px;
+}
+.rq-item .ops {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+}
+.rq-item .ops button {
+    height: 28px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    padding: 0 11px;
+    font-size: 11px;
+}
+.rq-item .ops button.accept {
+    border-color: transparent;
+    background: var(--brand-gradient);
+    color: #fff;
+}
+.rq-item.done { opacity: 0.58; }
+.rq-item .result {
+    margin-top: 7px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+.rq-empty {
+    display: none;
+    margin: 8px 16px 0;
+    padding: 16px 12px;
+    text-align: center;
+    border-radius: 10px;
+    background: var(--bg-card);
+    color: var(--text-tertiary);
+    font-size: 12px;
+}
+</style>
+</head>
+<body data-page="messages-requests">
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" data-back="messages.html"><i class="fa-solid fa-angle-left"></i></div></div>
+    <div class="nav-title">消息请求</div>
+    <div class="nav-right"></div>
+</div>
+
+<div class="app-content">
+    <div class="rq-toolbar">
+        <div class="rq-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input id="rqSearch" placeholder="搜索昵称 / 请求内容">
+        </div>
+        <button type="button" class="rq-act" id="rqRejectAll">全局拒绝</button>
+    </div>
+    <div class="rq-tabs">
+        <button class="tab on" type="button" data-rq-tab="all">全部</button>
+        <button class="tab" type="button" data-rq-tab="dm">私聊</button>
+        <button class="tab" type="button" data-rq-tab="group">群聊</button>
+    </div>
+    <div class="rq-list" id="rqList">
+        <div class="rq-item" data-type="dm" data-keywords="luna 订阅 专属 视频" data-state="pending">
+            <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80" alt="">
+            <div class="main">
+                <div class="name-row"><span class="name">Luna</span><span class="time">刚刚</span></div>
+                <div class="msg">请求与你发起私聊，附言：已向你发送新的订阅专属视频 🎬</div>
+                <div class="meta"><span class="tag">订阅者</span><span class="tag">互关</span></div>
+                <div class="ops">
+                    <button type="button" data-rq-act="reject">拒绝</button>
+                    <button type="button" class="accept" data-rq-act="accept">同意</button>
+                </div>
+                <div class="result" hidden></div>
+            </div>
+        </div>
+        <div class="rq-item" data-type="group" data-keywords="ryo 京都 群聊 邀请" data-state="pending">
+            <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80" alt="">
+            <div class="main">
+                <div class="name-row"><span class="name">Ryo</span><span class="time">14:32</span></div>
+                <div class="msg">邀请你加入群聊「京都创作交流群」，可接收后续活动通知。</div>
+                <div class="meta"><span class="tag">群聊邀请</span><span class="tag">需确认</span></div>
+                <div class="ops">
+                    <button type="button" data-rq-act="reject">拒绝</button>
+                    <button type="button" class="accept" data-rq-act="accept">同意</button>
+                </div>
+                <div class="result" hidden></div>
+            </div>
+        </div>
+        <div class="rq-item" data-type="dm" data-keywords="mila 合作 互推" data-state="pending">
+            <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80" alt="">
+            <div class="main">
+                <div class="name-row"><span class="name">Mila</span><span class="time">昨天</span></div>
+                <div class="msg">请求与你私聊，附言：想聊一下下周联名互推计划。</div>
+                <div class="meta"><span class="tag">私聊请求</span></div>
+                <div class="ops">
+                    <button type="button" data-rq-act="reject">拒绝</button>
+                    <button type="button" class="accept" data-rq-act="accept">同意</button>
+                </div>
+                <div class="result" hidden></div>
+            </div>
+        </div>
+    </div>
+    <div class="rq-empty" id="rqEmpty"><i class="fa-regular fa-folder-open"></i> 当前筛选下暂无消息请求</div>
+</div>
+
+<div class="tab-bar">
+    <div class="tab-item">
+        <i class="fa-solid fa-house"></i>
+        <span>首页</span>
+    </div>
+    <div class="tab-item">
+        <i class="fa-regular fa-heart"></i>
+        <span>订阅</span>
+    </div>
+    <div class="tab-create">
+        <div class="create-btn"><i class="fa-solid fa-plus"></i></div>
+    </div>
+    <div class="tab-item active">
+        <i class="fa-solid fa-message"></i>
+        <span>消息</span>
+    </div>
+    <div class="tab-item">
+        <i class="fa-regular fa-user"></i>
+        <span>我的</span>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var list = document.getElementById('rqList');
+    var empty = document.getElementById('rqEmpty');
+    var search = document.getElementById('rqSearch');
+    var rejectAll = document.getElementById('rqRejectAll');
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('[data-rq-tab]'));
+    var activeTab = 'all';
+    function toast(msg) {
+        if (window.DigitalH5Nav && typeof window.DigitalH5Nav.toast === 'function') window.DigitalH5Nav.toast(msg);
+    }
+    function rows() {
+        return Array.prototype.slice.call(list.querySelectorAll('.rq-item'));
+    }
+    function applyFilter() {
+        var q = String(search && search.value || '').trim().toLowerCase();
+        var shown = 0;
+        rows().forEach(function (row) {
+            var type = row.getAttribute('data-type') || 'dm';
+            var text = (row.getAttribute('data-keywords') || '').toLowerCase();
+            var name = (row.querySelector('.name') ? row.querySelector('.name').textContent : '').toLowerCase();
+            var pending = row.getAttribute('data-state') !== 'done';
+            var tabOk = activeTab === 'all' || activeTab === type;
+            var qOk = !q || text.indexOf(q) >= 0 || name.indexOf(q) >= 0;
+            var show = tabOk && qOk && pending;
+            row.style.display = show ? '' : 'none';
+            if (show) shown += 1;
+        });
+        if (empty) empty.style.display = shown ? 'none' : 'block';
+    }
+    tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            tabs.forEach(function (t) { t.classList.remove('on'); });
+            tab.classList.add('on');
+            activeTab = tab.getAttribute('data-rq-tab') || 'all';
+            applyFilter();
+        });
+    });
+    if (search) search.addEventListener('input', applyFilter);
+    if (rejectAll) {
+        rejectAll.addEventListener('click', function () {
+            rows().forEach(function (row) {
+                row.setAttribute('data-state', 'done');
+                row.classList.add('done');
+            });
+            applyFilter();
+            toast('已全局拒绝本页请求');
+        });
+    }
+    if (list) {
+        list.addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-rq-act]');
+            if (!btn) return;
+            var row = btn.closest('.rq-item');
+            if (!row) return;
+            var act = btn.getAttribute('data-rq-act');
+            var name = row.querySelector('.name') ? row.querySelector('.name').textContent : '用户';
+            var result = row.querySelector('.result');
+            var ops = row.querySelector('.ops');
+            if (act === 'accept') {
+                row.setAttribute('data-state', 'done');
+                row.classList.add('done');
+                if (ops) ops.style.display = 'none';
+                if (result) {
+                    result.hidden = false;
+                    result.textContent = '已同意请求，可在最近会话中查看。';
+                }
+                toast('已同意：' + name);
+                return;
+            }
+            row.setAttribute('data-state', 'done');
+            row.classList.add('done');
+            if (ops) ops.style.display = 'none';
+            if (result) {
+                result.hidden = false;
+                result.textContent = '已拒绝该请求。';
+            }
+            toast('已拒绝：' + name);
+        });
+    }
+    applyFilter();
+})();
+</script>
+</body>
+</html>

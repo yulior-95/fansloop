@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>互动消息</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content { padding-top: calc(var(--status-bar-height) + var(--nav-bar-height)); padding-bottom: calc(var(--tab-bar-height) + 10px); }
+.it-tabs { display: flex; gap: 8px; margin: 10px 16px 8px; }
+.it-tabs .tab {
+    flex: 1; height: 32px; border-radius: 16px; border: 1px solid var(--border-color);
+    background: var(--bg-card); color: var(--text-secondary); font-size: 12px;
+}
+.it-tabs .tab.on { border-color: transparent; background: var(--brand-gradient); color: #fff; font-weight: 700; }
+.it-list { margin: 0 16px; background: var(--bg-card); border-radius: 12px; overflow: hidden; }
+.it-item {
+    display: flex; gap: 10px; padding: 12px; border-bottom: .5px solid var(--border-color);
+}
+.it-item:last-child { border-bottom: none; }
+.it-item .main { flex: 1; min-width: 0; }
+.it-item .row { display: flex; gap: 6px; align-items: center; margin-bottom: 4px; }
+.it-item .name { font-size: 13px; font-weight: 700; }
+.it-item .time { margin-left: auto; font-size: 10px; color: var(--text-tertiary); }
+.it-item .msg { font-size: 12px; color: var(--text-secondary); line-height: 1.45; }
+.it-item .meta { margin-top: 6px; font-size: 10px; color: var(--text-tertiary); }
+.it-empty {
+    display: none; margin: 8px 16px 0; padding: 15px 12px; text-align: center;
+    border-radius: 10px; background: var(--bg-card); color: var(--text-tertiary); font-size: 12px;
+}
+</style>
+</head>
+<body>
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+</div>
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" data-back="messages.html"><i class="fa-solid fa-angle-left"></i></div></div>
+    <div class="nav-title">互动消息</div>
+    <div class="nav-right"></div>
+</div>
+<div class="app-content">
+    <div class="it-tabs">
+        <button type="button" class="tab on" data-it-tab="likes">赞和收藏</button>
+        <button type="button" class="tab" data-it-tab="comments">评论 @</button>
+        <button type="button" class="tab" data-it-tab="fans">新粉丝</button>
+    </div>
+    <div class="it-list" id="itList">
+        <div class="it-item" data-it-type="likes">
+            <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80" alt="">
+            <div class="main">
+                <div class="row"><span class="name">Luna</span><span class="time">刚刚</span></div>
+                <div class="msg">赞了你的内容《东京深夜 · 涩谷十字路口的呼吸感》</div>
+                <div class="meta">累计收到 12 次赞和收藏</div>
+            </div>
+        </div>
+        <div class="it-item" data-it-type="comments">
+            <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80" alt="">
+            <div class="main">
+                <div class="row"><span class="name">Mila</span><span class="time">14:32</span></div>
+                <div class="msg">@你：这组胶片风太绝了，求 LUT 参数 🙌</div>
+                <div class="meta">评论互动 · 可点击进入详情（原型）</div>
+            </div>
+        </div>
+        <div class="it-item" data-it-type="fans">
+            <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&q=80" alt="">
+            <div class="main">
+                <div class="row"><span class="name">Kenji</span><span class="time">昨天</span></div>
+                <div class="msg">关注了你，并开通了月度订阅。</div>
+                <div class="meta">新增粉丝 · 订阅者</div>
+            </div>
+        </div>
+    </div>
+    <div class="it-empty" id="itEmpty"><i class="fa-regular fa-folder-open"></i> 当前分类暂无互动消息</div>
+</div>
+<div class="tab-bar">
+    <div class="tab-item"><i class="fa-solid fa-house"></i><span>首页</span></div>
+    <div class="tab-item"><i class="fa-regular fa-heart"></i><span>订阅</span></div>
+    <div class="tab-create"><div class="create-btn"><i class="fa-solid fa-plus"></i></div></div>
+    <div class="tab-item active"><i class="fa-solid fa-message"></i><span>消息</span></div>
+    <div class="tab-item"><i class="fa-regular fa-user"></i><span>我的</span></div>
+</div>
+<div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('[data-it-tab]'));
+    var list = document.getElementById('itList');
+    var empty = document.getElementById('itEmpty');
+    var tab = (new URLSearchParams(location.search).get('tab') || 'likes').toLowerCase();
+    function apply(kind) {
+        var shown = 0;
+        tabs.forEach(function (t) { t.classList.toggle('on', t.getAttribute('data-it-tab') === kind); });
+        Array.prototype.slice.call(list.querySelectorAll('.it-item')).forEach(function (row) {
+            var ok = row.getAttribute('data-it-type') === kind;
+            row.style.display = ok ? '' : 'none';
+            if (ok) shown += 1;
+        });
+        if (empty) empty.style.display = shown ? 'none' : 'block';
+    }
+    tabs.forEach(function (t) {
+        t.addEventListener('click', function () { apply(t.getAttribute('data-it-tab')); });
+    });
+    if (tab !== 'likes' && tab !== 'comments' && tab !== 'fans') tab = 'likes';
+    apply(tab);
+})();
+</script>
+</body>
+</html>

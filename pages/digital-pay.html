@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>确认订单</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/digital-h5.css">
+</head>
+<body>
+<div class="status-bar dark-mode">
+    <span class="time">9:41</span>
+    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+</div>
+<div class="nav-bar da-nav solid">
+    <div class="nav-left"><div class="nav-btn" data-back="digital-detail.html"><i class="fa-solid fa-xmark"></i></div></div>
+    <div class="nav-title">确认订单</div>
+    <div class="nav-right"></div>
+</div>
+
+<div class="app-content da-page no-tab">
+    <div class="da-manage-card" style="margin:16px">
+        <img id="coverImg" src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=300&q=80" alt="">
+        <div class="main">
+            <div class="t" id="payTitle">富士山日出 · 4K 写真合集</div>
+            <div class="id">Luna 🌙 · 数字商品</div>
+            <div class="row">
+                <span class="da-pill ok">即时交付</span>
+                <span class="da-pill off">无需物流</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="list-group">
+        <div class="list-item">
+            <div class="main"><div class="title">可用余额</div><div class="subtitle">USDT 账户</div></div>
+            <div class="value" style="font-weight:800" id="balVal">128.56 USDT</div>
+        </div>
+        <div class="list-item">
+            <div class="main"><div class="title">支付金额</div></div>
+            <div class="value" style="color:#c4b5fd;font-weight:800" id="priceVal">4.50 USDT</div>
+        </div>
+        <div class="list-item">
+            <div class="main"><div class="title">扣款后余额</div></div>
+            <div class="value" id="afterVal">124.06 USDT</div>
+        </div>
+    </div>
+
+    <p class="da-desc" style="padding:0 16px;margin-top:12px">平台服务费 10% · 购买成功后立即获得数字权益，无物流与地址。</p>
+
+    <div style="padding:20px 16px 0">
+        <button class="btn btn-primary btn-block" id="btnConfirm"><i class="fa-solid fa-bolt"></i> 确认支付</button>
+        <p class="text-center text-xs text-muted" style="margin-top:10px;cursor:pointer" id="demoLow">模拟余额不足 →</p>
+    </div>
+</div>
+<div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var q = new URLSearchParams(location.search);
+    var price = parseFloat(q.get('price') || '4.5') || 4.5;
+    var title = q.get('title') || '富士山日出 · 4K 写真合集';
+    var forceLow = q.get('low') === '1';
+    var bal = forceLow ? 2.1 : 128.56;
+    document.getElementById('payTitle').textContent = title;
+    document.getElementById('priceVal').textContent = price.toFixed(2) + ' USDT';
+    document.getElementById('balVal').textContent = bal.toFixed(2) + ' USDT';
+    document.getElementById('afterVal').textContent = (bal - price).toFixed(2) + ' USDT';
+    if (bal < price) {
+        document.getElementById('balVal').style.color = '#FBBF24';
+        document.getElementById('afterVal').textContent = '不足';
+    }
+    var next = 'digital-pay-pwd.html?price=' + encodeURIComponent(price) + '&title=' + encodeURIComponent(title);
+    var low = 'digital-pay-recharge.html?price=' + encodeURIComponent(price) + '&title=' + encodeURIComponent(title) + '&bal=' + bal;
+    document.getElementById('btnConfirm').addEventListener('click', function () {
+        location.href = bal < price ? low : next;
+    });
+    document.getElementById('demoLow').addEventListener('click', function () {
+        location.href = low;
+    });
+})();
+</script>
+</body>
+</html>
