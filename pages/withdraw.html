@@ -42,7 +42,29 @@
     font-size: 12px;
     color: var(--text-secondary);
     display: flex; align-items: center; gap: 4px;
+    cursor: pointer;
 }
+.kyc-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-top: 6px;
+}
+.kyc-chip.pass {
+    color: #6EE7B7;
+    background: rgba(16,185,129,.16);
+    border: 1px solid rgba(16,185,129,.35);
+}
+.kyc-chip.pending {
+    color: #FCD34D;
+    background: rgba(245,158,11,.14);
+    border: 1px solid rgba(245,158,11,.34);
+}
+.kyc-chip { cursor: pointer; }
 
 .section-title {
     padding: 10px 16px;
@@ -50,6 +72,7 @@
     display: flex; justify-content: space-between; align-items: center;
 }
 .section-title .right { color: var(--brand-purple); font-size: 12px; font-weight: 500; }
+.section-title .right { cursor: pointer; }
 
 .form-card {
     margin: 0 16px 12px;
@@ -86,7 +109,10 @@
     color: var(--brand-purple);
     font-size: 12px;
     font-weight: 600;
+    margin-left: auto;
+    cursor: pointer;
 }
+.field[data-clickable="1"] { cursor: pointer; }
 
 .amount-field input {
     font-size: 24px !important;
@@ -136,6 +162,77 @@
     border-top: 0.5px solid var(--border-color);
     z-index: 20;
 }
+.ovl {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.56);
+    z-index: 90;
+    display: none;
+    align-items: flex-end;
+}
+.ovl.open { display: flex; }
+.sheet {
+    width: 100%;
+    background: #171726;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -16px 34px rgba(0,0,0,.45);
+    padding: 12px 14px 20px;
+    max-height: 78vh;
+    overflow-y: auto;
+}
+.sheet .grab { width: 42px; height: 5px; border-radius: 999px; margin: 0 auto 10px; background: rgba(255,255,255,.22); }
+.sheet-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.sheet-hd .t { font-size: 16px; font-weight: 700; }
+.sheet-hd .x { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.08); color: var(--text-secondary); cursor: pointer; }
+.sheet-list .it {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,.03);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+.sheet-list .it + .it { margin-top: 8px; }
+.sheet-list .it .sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.sheet-list .it.active { border-color: rgba(168,85,247,.55); background: rgba(168,85,247,.12); }
+.ab-actions { display: flex; gap: 8px; }
+.ab-actions .sbtn { padding: 4px 8px; border-radius: 8px; font-size: 11px; background: rgba(255,255,255,.08); color: #fff; border: 1px solid rgba(255,255,255,.12); cursor: pointer; }
+.ab-actions .danger { color: #FCA5A5; border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.15); }
+.in {
+    width: 100%;
+    height: 42px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: rgba(255,255,255,.03);
+    color: #fff;
+    padding: 0 12px;
+    outline: none;
+    margin-bottom: 8px;
+}
+.sheet-ft { margin-top: 8px; display: flex; gap: 8px; }
+.sheet-ft .btn { flex: 1; }
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 112px;
+    transform: translateX(-50%);
+    padding: 9px 14px;
+    border-radius: 999px;
+    background: rgba(20,20,30,.92);
+    border: 1px solid rgba(255,255,255,.18);
+    color: #fff;
+    font-size: 12px;
+    z-index: 120;
+    opacity: 0;
+    transition: opacity .18s;
+    pointer-events: none;
+}
+.toast.show { opacity: 1; }
 </style>
 </head>
 <body>
@@ -152,7 +249,7 @@
 <div class="nav-bar solid">
     <div class="nav-left"><div class="nav-btn"><i class="fa-solid fa-chevron-left"></i></div></div>
     <div class="nav-title">提现</div>
-    <div class="nav-right"><span style="font-size:13px; color:var(--brand-purple)">记录</span></div>
+    <div class="nav-right"><span id="wdHistoryBtn" style="font-size:13px; color:var(--brand-purple);cursor:pointer">记录</span></div>
 </div>
 
 <div class="app-content">
@@ -163,21 +260,22 @@
         <div class="info">
             <div class="label">USDT 可用余额</div>
             <div class="amount">128.56 <span style="font-size:13px; color:var(--text-secondary)">USDT</span></div>
+            <div class="kyc-chip pending" id="wdKycChip"><i class="fa-solid fa-shield"></i>KYC 未通过</div>
         </div>
-        <div class="sw">切换币种 <i class="fa-solid fa-chevron-down" style="font-size:10px"></i></div>
+        <div class="sw" id="wdCoinSwitchBtn">切换币种 <i class="fa-solid fa-chevron-down" style="font-size:10px"></i></div>
     </div>
 
     <!-- 提现表单 -->
     <div class="section-title">
         <span>提现信息</span>
-        <span class="right">切换收款方式</span>
+        <span class="right" id="wdAddressBookBtn">地址簿</span>
     </div>
     <div class="form-card">
 
-        <div class="field">
+        <div class="field" data-clickable="1" id="wdChainField">
             <div class="label">链网络</div>
             <div class="value-row">
-                <span class="val"><span style="display:inline-flex; width:20px; height:20px; border-radius:5px; background:#EF4444; color:#fff; font-size:11px; font-weight:700; align-items:center; justify-content:center; margin-right:6px">T</span> TRON (TRC20)</span>
+                <span class="val" id="wdChainText"><span style="display:inline-flex; width:20px; height:20px; border-radius:5px; background:#EF4444; color:#fff; font-size:11px; font-weight:700; align-items:center; justify-content:center; margin-right:6px">T</span> TRON (TRC20)</span>
                 <i class="fa-solid fa-chevron-down arrow"></i>
             </div>
         </div>
@@ -185,17 +283,17 @@
         <div class="field">
             <div class="label">提现地址</div>
             <div class="value-row">
-                <span class="val addr">TF9K5y8aNh29zrXqL4p8wNxk2Yn...</span>
-                <i class="fa-solid fa-qrcode arrow"></i>
+                <span class="val addr" id="wdAddressText">TF9K5y8aNh29zrXqL4p8wNxk2Yn...</span>
+                <i class="fa-solid fa-qrcode arrow" id="wdPasteBtn" title="粘贴地址"></i>
             </div>
         </div>
 
         <div class="field amount-field">
             <div class="label">提现数量</div>
             <div class="value-row">
-                <input type="text" value="80.00" placeholder="最低 10 USDT">
-                <span class="unit">USDT</span>
-                <span class="all">全部</span>
+                <input type="text" id="wdAmountInput" value="80.00" placeholder="最低 10 USDT">
+                <span class="unit" id="wdUnit">USDT</span>
+                <span class="all" id="wdAllBtn">全部</span>
             </div>
         </div>
 
@@ -204,36 +302,314 @@
     <!-- 手续费 -->
     <div class="fee-box">
         <div class="fee-row">
-            <span class="k">网络手续费</span>
-            <span class="v">1.00 USDT</span>
-        </div>
-        <div class="fee-row">
-            <span class="k">平台手续费</span>
-            <span class="v" style="color:var(--success)">0 USDT · 免手续费</span>
+            <span class="k">提现费用</span>
+            <span class="v" id="wdFeeText">1.00 USDT</span>
         </div>
         <div class="fee-row">
             <span class="k">预计到账时间</span>
-            <span class="v">≈ 1-3 分钟</span>
+            <span class="v" id="wdEtaText">≈ 1-3 分钟</span>
         </div>
         <div class="fee-row total">
             <span class="k">实际到账</span>
-            <span class="v">79.00 USDT</span>
+            <span class="v" id="wdReceiveText">79.00 USDT</span>
         </div>
     </div>
 
     <div class="notice">
         <i class="fa-solid fa-shield-halved"></i>
-        为保证你的资金安全，首次提现需进行二次验证（短信/邮箱验证码）。所有提现记录将被上链存证，可在区块浏览器查验。
+        提现前需完成 KYC 实名认证。认证通过后可直接发起提现，所有提现记录将被上链存证。
     </div>
 
 </div>
 
 <div class="submit-bar">
-    <button class="btn btn-primary btn-block">
+    <button class="btn btn-primary btn-block" id="wdSubmitBtn">
         <i class="fa-solid fa-fingerprint"></i> 验证并提现
     </button>
 </div>
 
 <div class="home-indicator"></div>
+<div class="ovl" id="wdCoinOvl">
+    <div class="sheet">
+        <div class="grab"></div>
+        <div class="sheet-hd"><div class="t">切换币种</div><div class="x" data-close="wdCoinOvl"><i class="fa-solid fa-xmark"></i></div></div>
+        <div class="sheet-list" id="wdCoinList"></div>
+    </div>
+</div>
+<div class="ovl" id="wdChainOvl">
+    <div class="sheet">
+        <div class="grab"></div>
+        <div class="sheet-hd"><div class="t">选择链网络</div><div class="x" data-close="wdChainOvl"><i class="fa-solid fa-xmark"></i></div></div>
+        <div class="sheet-list" id="wdChainList"></div>
+    </div>
+</div>
+<div class="ovl" id="wdAddrBookOvl">
+    <div class="sheet">
+        <div class="grab"></div>
+        <div class="sheet-hd"><div class="t">地址簿</div><div class="x" data-close="wdAddrBookOvl"><i class="fa-solid fa-xmark"></i></div></div>
+        <div class="sheet-ft" style="margin-bottom:8px"><button class="btn btn-secondary" id="wdAddAddrBtn"><i class="fa-solid fa-plus"></i>新增地址</button></div>
+        <div class="sheet-list" id="wdAddrList"></div>
+    </div>
+</div>
+<div class="ovl" id="wdAddrFormOvl">
+    <div class="sheet">
+        <div class="grab"></div>
+        <div class="sheet-hd"><div class="t" id="wdAddrFormTitle">新增地址</div><div class="x" data-close="wdAddrFormOvl"><i class="fa-solid fa-xmark"></i></div></div>
+        <input class="in" id="wdAddrNameInput" placeholder="地址备注（如：主钱包）">
+        <input class="in" id="wdAddrValueInput" placeholder="钱包地址">
+        <div class="sheet-ft">
+            <button class="btn btn-secondary" id="wdAddrCancelBtn">取消</button>
+            <button class="btn btn-primary" id="wdAddrSaveBtn">保存</button>
+        </div>
+    </div>
+</div>
+<div class="ovl" id="wdSuccessOvl">
+    <div class="sheet">
+        <div class="grab"></div>
+        <div class="sheet-hd"><div class="t">提现已提交</div><div class="x" data-close="wdSuccessOvl"><i class="fa-solid fa-xmark"></i></div></div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;padding:4px 2px 10px">
+            <div>币种：<span id="wdDoneCoin" style="color:#fff"></span></div>
+            <div>网络：<span id="wdDoneChain" style="color:#fff"></span></div>
+            <div>地址：<span id="wdDoneAddr" style="color:#fff"></span></div>
+            <div>数量：<span id="wdDoneAmt" style="color:#fff"></span></div>
+        </div>
+        <div class="sheet-ft">
+            <button class="btn btn-secondary" data-close="wdSuccessOvl">继续编辑</button>
+            <button class="btn btn-primary" id="wdDoneGoRecordBtn">查看记录</button>
+        </div>
+    </div>
+</div>
+<div class="toast" id="wdToast"></div>
+<script>
+(function () {
+    var state = {
+        coin: 'USDT',
+        coinBalances: { USDT: 128.56, USDC: 86.23 },
+        chain: 'TRC20',
+        chainLabel: 'TRON (TRC20)',
+        feeMap: { TRC20: 1.00, ERC20: 3.20, BSC: 0.35, SOL: 0.08 },
+        etaMap: { TRC20: '≈ 1-3 分钟', ERC20: '≈ 2-8 分钟', BSC: '≈ 1-4 分钟', SOL: '≈ 10-60 秒' },
+        addressBook: [],
+        selectedAddrId: '',
+        editingAddrId: '',
+        kycPassed: false
+    };
+    var STORAGE_KEY = 'h5_withdraw_address_book';
+    var KYC_STORAGE_KEY = 'h5_withdraw_kyc_passed';
+    function $(id) { return document.getElementById(id); }
+    function toast(msg) {
+        var el = $('wdToast'); if (!el) return;
+        el.textContent = msg; el.classList.add('show');
+        clearTimeout(el._t); el._t = setTimeout(function () { el.classList.remove('show'); }, 1800);
+    }
+    function openOvl(id) { var el = $(id); if (el) el.classList.add('open'); }
+    function closeOvl(id) { var el = $(id); if (el) el.classList.remove('open'); }
+    function shortAddr(addr) { return addr.length > 28 ? addr.slice(0, 13) + '...' + addr.slice(-8) : addr; }
+    function syncKycUI() {
+        var chip = $('wdKycChip');
+        if (!chip) return;
+        chip.className = 'kyc-chip ' + (state.kycPassed ? 'pass' : 'pending');
+        chip.innerHTML = state.kycPassed
+            ? '<i class="fa-solid fa-circle-check"></i>KYC 已认证'
+            : '<i class="fa-solid fa-shield"></i>KYC 未通过 · 去认证';
+    }
+    function loadBook() {
+        try {
+            var raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) state.addressBook = JSON.parse(raw) || [];
+        } catch (e) {}
+        if (!state.addressBook.length) {
+            state.addressBook = [
+                { id: 'a1', name: '主钱包', chain: 'TRC20', address: 'TF9K5y8aNh29zrXqL4p8wNxk2Yn6qJcV3p' },
+                { id: 'a2', name: '交易所地址', chain: 'ERC20', address: '0x7A3FfA3D9aB1C8D5338A67f42DE34be23C91fA2C' }
+            ];
+        }
+        if (!state.selectedAddrId) state.selectedAddrId = state.addressBook[0].id;
+        saveBook();
+        state.kycPassed = localStorage.getItem(KYC_STORAGE_KEY) === '1';
+    }
+    function saveBook() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.addressBook)); }
+    function currentAddr() {
+        return state.addressBook.find(function (x) { return x.id === state.selectedAddrId; }) || state.addressBook[0];
+    }
+    function renderTop() {
+        var b = state.coinBalances[state.coin] || 0;
+        document.querySelector('.balance-card .label').textContent = state.coin + ' 可用余额';
+        document.querySelector('.balance-card .amount').innerHTML = b.toFixed(2) + ' <span style="font-size:13px; color:var(--text-secondary)">' + state.coin + '</span>';
+        $('wdUnit').textContent = state.coin;
+        var fee = state.feeMap[state.chain] || 0;
+        $('wdFeeText').textContent = fee.toFixed(2) + ' ' + state.coin;
+        $('wdEtaText').textContent = state.etaMap[state.chain] || '≈ 1-3 分钟';
+        $('wdChainText').innerHTML = '<span style="display:inline-flex; width:20px; height:20px; border-radius:5px; background:#EF4444; color:#fff; font-size:11px; font-weight:700; align-items:center; justify-content:center; margin-right:6px">' + state.chain.charAt(0) + '</span> ' + state.chainLabel;
+        var ca = currentAddr();
+        if (ca) $('wdAddressText').textContent = shortAddr(ca.address);
+        var n = parseFloat(($('wdAmountInput').value || '0').replace(/[^\d.]/g, '')) || 0;
+        var recv = Math.max(0, n - fee);
+        $('wdReceiveText').textContent = recv.toFixed(2) + ' ' + state.coin;
+    }
+    function renderCoinList() {
+        var coins = ['USDT', 'USDC'];
+        $('wdCoinList').innerHTML = coins.map(function (c) {
+            var on = c === state.coin;
+            return '<div class="it' + (on ? ' active' : '') + '" data-coin="' + c + '"><div><div>' + c + '</div><div class="sub">可用 ' + (state.coinBalances[c] || 0).toFixed(2) + ' ' + c + '</div></div><i class="fa-solid ' + (on ? 'fa-check' : 'fa-chevron-right') + '"></i></div>';
+        }).join('');
+        Array.prototype.forEach.call($('wdCoinList').querySelectorAll('.it'), function (el) {
+            el.addEventListener('click', function () {
+                state.coin = el.getAttribute('data-coin') || 'USDT';
+                closeOvl('wdCoinOvl');
+                renderTop();
+            });
+        });
+    }
+    function renderChainList() {
+        var rows = [
+            { c: 'TRC20', l: 'TRON (TRC20)' },
+            { c: 'ERC20', l: 'Ethereum (ERC20)' },
+            { c: 'BSC', l: 'BSC (BEP20)' },
+            { c: 'SOL', l: 'Solana' }
+        ];
+        $('wdChainList').innerHTML = rows.map(function (r) {
+            var on = r.c === state.chain;
+            return '<div class="it' + (on ? ' active' : '') + '" data-chain="' + r.c + '" data-label="' + r.l + '"><div><div>' + r.l + '</div><div class="sub">提现费用 ' + (state.feeMap[r.c] || 0).toFixed(2) + ' ' + state.coin + '</div></div><i class="fa-solid ' + (on ? 'fa-check' : 'fa-chevron-right') + '"></i></div>';
+        }).join('');
+        Array.prototype.forEach.call($('wdChainList').querySelectorAll('.it'), function (el) {
+            el.addEventListener('click', function () {
+                state.chain = el.getAttribute('data-chain') || 'TRC20';
+                state.chainLabel = el.getAttribute('data-label') || 'TRON (TRC20)';
+                closeOvl('wdChainOvl');
+                renderTop();
+            });
+        });
+    }
+    function renderAddrBook() {
+        $('wdAddrList').innerHTML = state.addressBook.map(function (a) {
+            var on = a.id === state.selectedAddrId;
+            return '<div class="it' + (on ? ' active' : '') + '">' +
+                '<div><div>' + a.name + ' · ' + a.chain + '</div><div class="sub">' + shortAddr(a.address) + '</div></div>' +
+                '<div class="ab-actions"><button class="sbtn" data-use="' + a.id + '">使用</button><button class="sbtn" data-edit="' + a.id + '">编辑</button><button class="sbtn danger" data-del="' + a.id + '">删除</button></div></div>';
+        }).join('');
+        Array.prototype.forEach.call($('wdAddrList').querySelectorAll('[data-use]'), function (btn) {
+            btn.addEventListener('click', function (e) { e.stopPropagation(); state.selectedAddrId = btn.getAttribute('data-use'); renderTop(); renderAddrBook(); toast('已切换收款地址'); });
+        });
+        Array.prototype.forEach.call($('wdAddrList').querySelectorAll('[data-edit]'), function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var id = btn.getAttribute('data-edit');
+                var t = state.addressBook.find(function (x) { return x.id === id; });
+                if (!t) return;
+                state.editingAddrId = id;
+                $('wdAddrFormTitle').textContent = '编辑地址';
+                $('wdAddrNameInput').value = t.name;
+                $('wdAddrValueInput').value = t.address;
+                openOvl('wdAddrFormOvl');
+            });
+        });
+        Array.prototype.forEach.call($('wdAddrList').querySelectorAll('[data-del]'), function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                if (state.addressBook.length <= 1) { toast('至少保留一个地址'); return; }
+                var id = btn.getAttribute('data-del');
+                state.addressBook = state.addressBook.filter(function (x) { return x.id !== id; });
+                if (state.selectedAddrId === id) state.selectedAddrId = state.addressBook[0].id;
+                saveBook(); renderAddrBook(); renderTop(); toast('地址已删除');
+            });
+        });
+    }
+    function saveAddrForm() {
+        var name = $('wdAddrNameInput').value.trim();
+        var addr = $('wdAddrValueInput').value.trim();
+        if (!name) { toast('请输入地址备注'); return; }
+        if (addr.length < 12) { toast('请输入有效钱包地址'); return; }
+        if (state.editingAddrId) {
+            var t = state.addressBook.find(function (x) { return x.id === state.editingAddrId; });
+            if (t) { t.name = name; t.address = addr; t.chain = state.chain; }
+            toast('地址已更新');
+        } else {
+            var id = 'a' + Date.now();
+            state.addressBook.unshift({ id: id, name: name, address: addr, chain: state.chain });
+            state.selectedAddrId = id;
+            toast('地址已新增');
+        }
+        saveBook();
+        state.editingAddrId = '';
+        closeOvl('wdAddrFormOvl');
+        renderAddrBook(); renderTop();
+    }
+    function pasteAddress() {
+        if (!navigator.clipboard || !navigator.clipboard.readText) {
+            toast('当前环境不支持剪贴板读取');
+            return;
+        }
+        navigator.clipboard.readText().then(function (text) {
+            var v = (text || '').trim();
+            if (!v) { toast('剪贴板为空'); return; }
+            var ca = currentAddr();
+            if (ca) { ca.address = v; ca.chain = state.chain; saveBook(); renderTop(); toast('已粘贴到当前地址'); }
+        }).catch(function () {
+            toast('读取剪贴板失败，请手动粘贴');
+        });
+    }
+    function submitWithdraw() {
+        var ca = currentAddr();
+        if (!ca || !ca.address) { toast('请选择收款地址'); return; }
+        if (!state.kycPassed) {
+            toast('请先完成 KYC 认证');
+            location.href = 'kyc.html?from=withdraw';
+            return;
+        }
+        var amt = parseFloat(($('wdAmountInput').value || '0').replace(/[^\d.]/g, '')) || 0;
+        var bal = state.coinBalances[state.coin] || 0;
+        var fee = state.feeMap[state.chain] || 0;
+        if (amt < 10) { toast('最低提现 10 ' + state.coin); return; }
+        if (amt > bal) { toast('余额不足'); return; }
+        if (amt <= fee) { toast('金额需大于提现费用'); return; }
+        var ca = currentAddr();
+        $('wdDoneCoin').textContent = state.coin;
+        $('wdDoneChain').textContent = state.chainLabel;
+        $('wdDoneAddr').textContent = shortAddr((ca && ca.address) || '');
+        $('wdDoneAmt').textContent = ($('wdAmountInput').value || '0') + ' ' + state.coin;
+        openOvl('wdSuccessOvl');
+    }
+    loadBook();
+    renderTop();
+    renderCoinList();
+    renderChainList();
+    renderAddrBook();
+    syncKycUI();
+
+    $('wdHistoryBtn').addEventListener('click', function () { location.href = 'transactions.html'; });
+    document.querySelector('.nav-left .nav-btn').addEventListener('click', function () { if (history.length > 1) history.back(); else location.href = 'profile.html'; });
+    $('wdCoinSwitchBtn').addEventListener('click', function () { renderCoinList(); openOvl('wdCoinOvl'); });
+    $('wdChainField').addEventListener('click', function () { renderChainList(); openOvl('wdChainOvl'); });
+    $('wdAddressBookBtn').addEventListener('click', function () { renderAddrBook(); openOvl('wdAddrBookOvl'); });
+    $('wdAllBtn').addEventListener('click', function () { $('wdAmountInput').value = (state.coinBalances[state.coin] || 0).toFixed(2); renderTop(); });
+    $('wdAmountInput').addEventListener('input', renderTop);
+    $('wdPasteBtn').addEventListener('click', function (e) { e.stopPropagation(); pasteAddress(); });
+    $('wdAddAddrBtn').addEventListener('click', function () {
+        state.editingAddrId = '';
+        $('wdAddrFormTitle').textContent = '新增地址';
+        $('wdAddrNameInput').value = '';
+        $('wdAddrValueInput').value = '';
+        openOvl('wdAddrFormOvl');
+    });
+    $('wdAddrCancelBtn').addEventListener('click', function () { closeOvl('wdAddrFormOvl'); });
+    $('wdAddrSaveBtn').addEventListener('click', saveAddrForm);
+    $('wdSubmitBtn').addEventListener('click', submitWithdraw);
+    $('wdDoneGoRecordBtn').addEventListener('click', function () { location.href = 'transactions.html'; });
+    $('wdKycChip').addEventListener('click', function () { location.href = 'kyc.html?from=withdraw'; });
+
+    Array.prototype.forEach.call(document.querySelectorAll('[data-close]'), function (el) {
+        el.addEventListener('click', function () { closeOvl(el.getAttribute('data-close')); });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.ovl'), function (ovl) {
+        ovl.addEventListener('click', function (e) { if (e.target === ovl) ovl.classList.remove('open'); });
+    });
+    var q = new URLSearchParams(location.search);
+    if (q.get('resumeWithdraw') === '1' && state.kycPassed) {
+        setTimeout(function () { submitWithdraw(); }, 120);
+        if (history.replaceState) history.replaceState(null, '', 'withdraw.html');
+    }
+})();
+</script>
 </body>
 </html>

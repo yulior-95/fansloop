@@ -2,42 +2,42 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>发布图文</title>
+<title>创建直播</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
 <style>
 .nav-bar{background:var(--bg-primary)}
 .app-content{padding:calc(var(--status-bar-height) + var(--nav-bar-height)) 16px 100px}
-.upload{border:1.5px dashed var(--border-strong);border-radius:12px;background:var(--bg-card);padding:14px;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer}
-.upload .l{display:flex;align-items:center;gap:10px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
-.it{position:relative;aspect-ratio:1/1;border-radius:10px;overflow:hidden;border:1px solid var(--border-color);background:var(--bg-card)}
-.it img{width:100%;height:100%;object-fit:cover}
-.it .rm{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.66);display:grid;place-items:center;color:#fff;font-size:10px}
-.it.add{display:grid;place-items:center;font-size:24px;color:#a78bfa;border-style:dashed;cursor:pointer}
-.meta{margin-top:8px;font-size:11px;color:var(--text-tertiary);display:flex;justify-content:space-between}
+.seg{display:flex;gap:8px;margin-bottom:12px}
+.seg button{flex:1;height:36px;border-radius:999px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-secondary);font-size:13px}
+.seg button.active{background:rgba(168,85,247,.16);border-color:#a855f7;color:#fff}
+.cover{aspect-ratio:16/9;border-radius:12px;border:1.5px dashed var(--border-strong);background:var(--bg-card);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--text-tertiary);cursor:pointer}
+.cover.ok{border-style:solid;border-color:rgba(16,185,129,.5);background-size:cover;background-position:center;align-items:flex-end;justify-content:flex-end;padding:10px}
+.chg{font-size:11px;font-weight:600;padding:6px 10px;border-radius:8px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.15);color:#fff}
+.card{margin-top:12px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:12px}
 .field{margin-top:12px}
 .lb{font-size:12px;color:var(--text-secondary);margin-bottom:8px;display:flex;justify-content:space-between}
-input,textarea,select{width:100%;background:var(--bg-card);border:1px solid var(--border-color);border-radius:10px;color:#fff;font-size:13px;padding:10px 12px;outline:none}
-textarea{min-height:100px;resize:vertical}
-.tip{font-size:11px;color:var(--text-tertiary);margin-top:6px}
-.price{margin-top:12px;background:var(--bg-card);border:1px dashed var(--border-strong);border-radius:12px;padding:12px}
-.switch{width:46px;height:26px;border-radius:20px;background:#2b2b3d;position:relative;cursor:pointer}
-.switch:after{content:'';position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}
-.switch.on{background:linear-gradient(135deg,#a855f7,#ec4899)}
-.switch.on:after{left:22px}
-.price-line{margin-top:10px;display:flex;gap:8px;align-items:center}
-.price-line input{flex:1}
-.unit{font-size:12px;color:var(--text-secondary);padding:8px 10px;border-radius:8px;background:#0f1020;border:1px solid var(--border-color)}
+input,textarea,select{width:100%;background:#0f1020;border:1px solid var(--border-color);border-radius:10px;color:#fff;font-size:13px;padding:10px 12px;outline:none;box-sizing:border-box}
+textarea{min-height:68px;resize:vertical}
+.tip{font-size:11px;color:var(--text-tertiary);margin-top:6px;line-height:1.5}
+.line{display:flex;gap:8px;align-items:center}
+.line code{flex:1;background:#0f1020;border:1px solid var(--border-color);border-radius:8px;padding:8px 10px;font-size:11px;color:#c4b5fd;word-break:break-all}
+.sbtn{height:32px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-card);color:#fff;padding:0 10px;font-size:12px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hidden{display:none}
 .submit-bar{position:absolute;left:0;right:0;bottom:0;padding:10px 16px 30px;background:rgba(10,10,18,.95);border-top:.5px solid var(--border-color);display:flex;gap:10px}
 .submit-bar .btn{flex:1}.submit-bar .draft{flex:0 0 96px}
 .ovl{position:absolute;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;z-index:90}.ovl.open{display:flex}
 .sheet{width:100%;background:#171726;border-top:1px solid var(--border-color);border-top-left-radius:18px;border-top-right-radius:18px;padding:12px 14px 20px}
 .friend{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid rgba(255,255,255,.06)}.friend:last-child{border-bottom:0}.friend .av{width:34px;height:34px;border-radius:50%;background-size:cover;background-position:center}
-.cat-row{margin-top:12px;padding:12px;border:1px solid var(--border-color);border-radius:12px;background:#0f1020;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer}
-.cat-row .v{font-size:12px;color:var(--text-secondary)}
+.switch{width:44px;height:24px;border-radius:99px;background:#2b2b3d;position:relative;cursor:pointer;flex-shrink:0}
+.switch:after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
+.switch.on{background:linear-gradient(135deg,#a855f7,#ec4899)}
+.switch.on:after{left:22px}
 .set-row{margin-top:10px;padding:12px;border:1px solid var(--border-color);border-radius:12px;background:#0f1020;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .set-row .t{font-size:13px;font-weight:600}.set-row .d{font-size:11px;color:var(--text-tertiary);margin-top:2px}
+.cat-row{margin-top:12px;padding:12px;border:1px solid var(--border-color);border-radius:12px;background:#0f1020;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer}
+.cat-row .v{font-size:12px;color:var(--text-secondary)}
 .money-grid{margin-top:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .mcell{position:relative;padding:10px;border-radius:10px;border:1px solid var(--border-color);background:#0f1020;cursor:pointer}
 .mcell .ti{font-size:12px;font-weight:700}.mcell .sub{font-size:10px;color:var(--text-tertiary);margin-top:4px}
@@ -55,47 +55,78 @@ textarea{min-height:100px;resize:vertical}
 </style>
 </head>
 <body>
-<input id="fileInput" type="file" accept="image/*" multiple hidden>
+<input id="coverInput" type="file" accept="image/*" hidden>
 <div class="status-bar"><span class="time">9:41</span><span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span></div>
 <div class="nav-bar solid">
   <div class="nav-left"><div class="nav-btn" data-back="create.html"><i class="fa-solid fa-chevron-left"></i></div></div>
-  <div class="nav-title">发布图文</div>
-  <div class="nav-right"><div style="font-size:13px;color:var(--brand-purple)">预览</div></div>
+  <div class="nav-title">创建直播</div>
+  <div class="nav-right"></div>
 </div>
+
 <div class="app-content">
-  <div class="upload" id="uploadRow"><div class="l"><i class="fa-regular fa-images" style="font-size:20px;color:#c084fc"></i><div><div style="font-size:13px;font-weight:700">添加图片</div><div style="font-size:11px;color:var(--text-tertiary)">点击上传，最多10张</div></div></div><button class="btn btn-secondary btn-sm">选择图片</button></div>
-  <div class="grid" id="previewGrid"></div>
-  <div class="meta"><span id="imgCountText">已上传 0 / 10</span><span id="imgTips">当前为未上传状态</span></div>
-  <div class="field"><div class="lb"><span>标题</span><span id="titleCount">0 / 20</span></div><input id="titleInput" maxlength="20" placeholder="请输入作品标题（最多20字）"></div>
-  <div class="field"><div class="lb"><span>作品描述</span><span id="descCount">0 / 3000</span></div><textarea id="descInput" maxlength="3000" placeholder="请描述作品亮点、拍摄背景、创作灵感等（最多3000字）"></textarea></div>
-  <div class="field"><div class="lb"><span>可查看权限</span><span id="permHint">公开·所有人可见</span></div>
-    <select id="permSelect"><option value="public">公开·所有人可见</option><option value="mutual">互相关注的人可见</option><option value="partial">部分可见</option><option value="subscriber">订阅的人可见</option></select>
-    <div class="tip">选择「部分可见」后可在当前页面勾选好友。</div>
+  <div class="seg">
+    <button id="tabNow" class="active">立即开播</button>
+    <button id="tabPreview">直播预告</button>
   </div>
-  <div class="price">
+
+  <div class="cover" id="cover"><i class="fa-regular fa-image" style="font-size:28px;color:#a78bfa"></i><div>点击上传直播封面</div><div style="font-size:11px">建议 16:9（JPG / PNG / WebP）</div></div>
+
+  <div class="card">
+    <div class="lb" style="margin:0 0 8px"><span><i class="fa-solid fa-display" style="color:#c084fc"></i> OBS 推流开播</span></div>
+    <div class="tip">在 OBS、Streamlabs 填入推流地址与密钥，开始推流后平台自动开播。</div>
+    <div style="margin-top:10px">
+      <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:6px">推流地址（服务器）</div>
+      <div class="line"><code id="rtmpUrl">rtmps://push.goodfans.io/live</code><button class="sbtn" data-copy="rtmpUrl"><i class="fa-regular fa-copy"></i></button></div>
+    </div>
+    <div style="margin-top:10px">
+      <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:6px">推流码（串流密钥）</div>
+      <div class="line"><code id="streamKey">sk_live_FLP_7k2mN9pQx4vR8wY1zA3bC6dE0fG5hJ</code><button class="sbtn" data-copy="streamKey"><i class="fa-regular fa-copy"></i></button></div>
+    </div>
+  </div>
+
+  <div class="field"><div class="lb"><span>直播标题</span><span id="titleCount">0 / 20</span></div><input id="titleInput" maxlength="20" placeholder="给你的直播间起个标题（最多20字）"></div>
+  <div class="field"><div class="lb"><span>直播描述</span><span id="descCount">0 / 30</span></div><textarea id="descInput" maxlength="30" placeholder="一句话介绍本场直播（最多30字）"></textarea></div>
+  <div class="card">
     <div class="lb" style="margin:0 0 8px"><span><i class="fa-solid fa-sitemap" style="color:#93c5fd"></i> 内容类别</span><span id="catHint">未选择</span></div>
     <div class="cat-row" id="catRow"><span id="catValue" class="v">选择内容类别（需精确到三级）</span><i class="fa-solid fa-chevron-right" style="font-size:11px;color:var(--text-tertiary)"></i></div>
   </div>
-  <div class="price">
+  <div class="field"><div class="lb"><span>可查看权限</span><span id="permHint">公开·所有人可见</span></div><select id="permSelect"><option value="public">公开·所有人可见</option><option value="mutual">互相关注的人可见</option><option value="partial">部分可见</option><option value="subscriber">订阅的人可见</option></select><div class="tip">选择「部分可见」后可在当前页面勾选好友。</div></div>
+
+  <div class="card">
+    <div class="lb" style="margin:0 0 8px"><span><i class="fa-solid fa-ticket" style="color:#f59e0b"></i> 直播间门票 / 最低打赏（可选）</span></div>
+    <div class="row2">
+      <div><div style="font-size:11px;color:var(--text-tertiary);margin-bottom:6px">直播间门票</div><input id="ticketInput" type="number" min="0" step="0.01" placeholder="留空免费入场"></div>
+      <div><div style="font-size:11px;color:var(--text-tertiary);margin-bottom:6px">最低打赏</div><input id="tipInput" type="number" min="0" step="0.01" placeholder="不设门槛"></div>
+    </div>
+    <div class="tip">留空表示不设门票与礼物门槛。</div>
+  </div>
+  <div class="card">
     <div class="lb" style="margin:0 0 8px"><span><i class="fa-solid fa-coins" style="color:#f59e0b"></i> 变现设置</span></div>
     <div class="money-grid" id="moneyGrid">
-      <div class="mcell" data-mode="free"><i class="fa-solid fa-check mcheck"></i><div class="ti">免费公开</div><div class="sub">所有人可见</div></div>
-      <div class="mcell on" data-mode="sub"><i class="fa-solid fa-check mcheck"></i><div class="ti">订阅专属</div><div class="sub">仅订阅者可见</div></div>
-      <div class="mcell on" data-mode="ppv"><i class="fa-solid fa-check mcheck"></i><div class="ti">按篇购买</div><div class="sub">未订阅需付费</div></div>
+      <div class="mcell on" data-mode="free"><i class="fa-solid fa-check mcheck"></i><div class="ti">免费公开</div><div class="sub">所有人可看</div></div>
+      <div class="mcell" data-mode="sub"><i class="fa-solid fa-check mcheck"></i><div class="ti">订阅专属</div><div class="sub">仅订阅者</div></div>
+      <div class="mcell" data-mode="ppv"><i class="fa-solid fa-check mcheck"></i><div class="ti">按篇购买</div><div class="sub">未订阅需付费</div></div>
     </div>
     <div class="money-rows">
-      <div class="money-row show" id="rowSub"><label>订阅价参考</label><input id="subPrice" type="number" min="1" step="1" value="28"><span style="font-size:12px;color:var(--text-tertiary)">USDT/月</span></div>
-      <div class="money-row show" id="rowPpv"><label>单篇价格</label><input id="ppvPrice" type="number" min="0.5" step="0.01" value="5"><span style="font-size:12px;color:var(--text-tertiary)">USDT</span></div>
+      <div class="money-row" id="rowSub"><label>订阅价参考</label><input id="subPrice" type="number" min="1" step="1" value="28"><span style="font-size:12px;color:var(--text-tertiary)">USDT/月</span></div>
+      <div class="money-row" id="rowPpv"><label>单篇价格</label><input id="ppvPrice" type="number" min="0.5" step="0.01" value="5"><span style="font-size:12px;color:var(--text-tertiary)">USDT</span></div>
     </div>
-    <div class="tip">按篇购买可与订阅专属叠加；免费模式下关闭其他付费项。</div>
+    <div class="tip">可与门票/最低打赏策略并行，用于内容分发场景。</div>
   </div>
-  <div class="price">
+  <div class="card">
     <div class="lb" style="margin:0 0 8px"><span><i class="fa-solid fa-sliders" style="color:#60a5fa"></i> 高级设置</span></div>
     <div class="set-row"><div><div class="t">允许评论</div><div class="d">关闭后用户无法在此内容下评论</div></div><div class="switch on" id="allowCommentSwitch"></div></div>
     <div class="set-row"><div><div class="t">允许分享</div><div class="d">关闭后无法分享到其它平台</div></div><div class="switch on" id="allowShareSwitch"></div></div>
   </div>
+
+  <div class="card hidden" id="previewTimeCard">
+    <div class="lb" style="margin:0 0 8px"><span><i class="fa-regular fa-calendar" style="color:#60a5fa"></i> 预告开播时间</span></div>
+    <input id="scheduleInput" type="datetime-local">
+    <div class="tip">创建后将展示在订阅页和主页直播预告区域。</div>
+  </div>
 </div>
-<div class="submit-bar"><button class="btn btn-ghost draft" id="saveDraftBtn">草稿</button><button class="btn btn-primary" id="publishBtn"><i class="fa-solid fa-paper-plane"></i> 提交审核并发布</button></div>
+
+<div class="submit-bar"><button class="btn btn-ghost draft" id="draftBtn">草稿</button><button class="btn btn-primary" id="submitBtn"><i class="fa-solid fa-tower-broadcast"></i> 保存并等待 OBS 推流</button></div>
 
 <div class="ovl" id="friendOvl"><div class="sheet"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><strong>部分可见 · 选择好友</strong><button class="btn btn-secondary btn-sm" id="friendCloseBtn">关闭</button></div><div id="friendList"></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-secondary" id="friendCancelBtn">取消</button><button class="btn btn-primary" id="friendConfirmBtn">确认</button></div></div></div>
 <div class="cat-ovl" id="catOvl"><div class="cat-sheet"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><strong>选择内容类别</strong><button class="btn btn-secondary btn-sm" id="catCloseBtn">关闭</button></div><div class="cat-cols"><div class="cat-col" id="catCol1"></div><div class="cat-col" id="catCol2"></div><div class="cat-col" id="catCol3"></div></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-secondary" id="catClearBtn">清空</button><button class="btn btn-primary" id="catConfirmBtn">确认选择</button></div></div></div>
@@ -105,20 +136,26 @@ textarea{min-height:100px;resize:vertical}
 <script>
 (function(){
   function toast(m){ if(window.DigitalH5Nav&&window.DigitalH5Nav.toast) window.DigitalH5Nav.toast(m); }
-  var MAX=10, images=[], friends=[['NovaPlay','3年好友','https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80'],['Luna','互关创作者','https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80'],['Marcus','直播达人','https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80']], picked=[];
-  var file=document.getElementById('fileInput'), row=document.getElementById('uploadRow'), grid=document.getElementById('previewGrid'), cnt=document.getElementById('imgCountText'), tips=document.getElementById('imgTips');
+  var mode='now';
+  var queryMode=(new URLSearchParams(location.search)).get('mode');
+  if(queryMode==='preview') mode='preview';
+  var coverUrl='', picked=[];
+  var friends=[['NovaPlay','3年好友','https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80'],['Luna','互关创作者','https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80'],['Marcus','直播达人','https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80']];
+  var tabNow=document.getElementById('tabNow'), tabPreview=document.getElementById('tabPreview'), submitBtn=document.getElementById('submitBtn'), previewCard=document.getElementById('previewTimeCard');
+  var cover=document.getElementById('cover'), coverInput=document.getElementById('coverInput');
   var title=document.getElementById('titleInput'), desc=document.getElementById('descInput'), tc=document.getElementById('titleCount'), dc=document.getElementById('descCount');
   var perm=document.getElementById('permSelect'), hint=document.getElementById('permHint'), ovl=document.getElementById('friendOvl'), fl=document.getElementById('friendList');
   var moneyGrid=document.getElementById('moneyGrid'), rowSub=document.getElementById('rowSub'), rowPpv=document.getElementById('rowPpv');
   var catOvl=document.getElementById('catOvl'), catRow=document.getElementById('catRow'), catValue=document.getElementById('catValue'), catHint=document.getElementById('catHint');
   var allowComment=true, allowShare=true;
   var catData={
-    '视觉美学': {'写真摄影':['人像写真','胶片私房','日常街拍'],'影像叙事':['剧情短片','Vlog日记','幕后花絮']},
-    '创作者生活': {'日常分享':['学习记录','工作日常','旅行生活'],'互动内容':['粉丝问答','主题征集','抽奖活动']},
-    '知识技能': {'教程课程':['拍摄教程','剪辑教程','运营教程'],'行业洞察':['平台观察','变现方法','案例拆解']}
+    '直播内容': {'才艺直播':['唱歌直播','舞蹈直播','乐器演奏'],'互动场景':['粉丝问答','陪伴聊天','主题活动']},
+    '创作者生活': {'日常直播':['工作日常','旅行直播','幕后花絮'],'专题内容':['教学分享','经验复盘','案例解读']},
+    '付费场景': {'订阅专享':['会员直播','深度讨论','限定回放'],'单场付费':['付费房间','私享场','活动专场']}
   };
   var catPath=['','',''],catDraft=['','',''];
-  function counters(){ tc.textContent=(title.value||'').length+' / 20'; dc.textContent=(desc.value||'').length+' / 3000'; }
+  function setMode(m){ mode=m; tabNow.classList.toggle('active',m==='now'); tabPreview.classList.toggle('active',m==='preview'); previewCard.classList.toggle('hidden',m!=='preview'); submitBtn.innerHTML=m==='now'?'<i class="fa-solid fa-tower-broadcast"></i> 保存并等待 OBS 推流':'<i class="fa-regular fa-calendar-check"></i> 发布直播预告'; }
+  function counters(){ tc.textContent=(title.value||'').length+' / 20'; dc.textContent=(desc.value||'').length+' / 30'; }
   function renderFriends(){ fl.innerHTML=friends.map(function(f,i){ return '<label class="friend"><input type="checkbox" data-id="'+i+'"'+(picked.indexOf(String(i))>=0?' checked':'')+'><span class="av" style="background-image:url(\''+f[2]+'\')"></span><span style="flex:1"><b style="font-size:13px">'+f[0]+'</b><div style="font-size:11px;color:var(--text-tertiary)">'+f[1]+'</div></span></label>'; }).join(''); }
   function renderCatCols(){
     var c1=document.getElementById('catCol1'), c2=document.getElementById('catCol2'), c3=document.getElementById('catCol3');
@@ -140,16 +177,14 @@ textarea{min-height:100px;resize:vertical}
     rowSub.classList.toggle('show',hasSub);
     rowPpv.classList.toggle('show',hasPpv);
   }
-  function render(){
-    grid.innerHTML='';
-    images.forEach(function(src,i){ var n=document.createElement('div'); n.className='it'; n.innerHTML='<img src="'+src+'"><button class="rm"><i class="fa-solid fa-xmark"></i></button>'; n.querySelector('.rm').onclick=function(e){ e.stopPropagation(); images.splice(i,1); render(); }; grid.appendChild(n);});
-    if(images.length<MAX){ var add=document.createElement('div'); add.className='it add'; add.innerHTML='<i class="fa-solid fa-plus"></i>'; add.onclick=function(){ file.click(); }; grid.appendChild(add); }
-    cnt.textContent='已上传 '+images.length+' / 10'; tips.textContent=images.length?('可继续上传 '+(10-images.length)+' 张'):'当前为未上传状态';
-  }
-  function addFiles(files){ Array.prototype.slice.call(files||[]).forEach(function(f){ if(images.length>=MAX) return; if((f.type||'').indexOf('image/')!==0) return; var r=new FileReader(); r.onload=function(e){ images.push(e.target.result); render();}; r.readAsDataURL(f); }); }
-  row.onclick=function(){ file.click();}; file.onchange=function(){ addFiles(file.files); file.value=''; };
+  function applyCover(url){ coverUrl=url; if(url){ cover.classList.add('ok'); cover.style.backgroundImage='url("'+url+'")'; cover.innerHTML='<span class="chg"><i class="fa-regular fa-image"></i> 更换封面</span>'; } }
+  tabNow.onclick=function(){ setMode('now'); }; tabPreview.onclick=function(){ setMode('preview'); };
+  setMode(mode);
   title.oninput=counters; desc.oninput=counters; counters();
-  perm.onchange=function(){ var v=perm.value; if(v==='public') hint.textContent='公开·所有人可见'; else if(v==='mutual') hint.textContent='互相关注的人可见'; else if(v==='subscriber') hint.textContent='订阅的人可见'; else { hint.textContent='部分可见·请选择好友'; renderFriends(); ovl.classList.add('open'); } };
+  cover.onclick=function(){ coverInput.click(); };
+  coverInput.onchange=function(){ if(coverInput.files&&coverInput.files[0]){ var r=new FileReader(); r.onload=function(e){ applyCover(e.target.result); }; r.readAsDataURL(coverInput.files[0]); } coverInput.value=''; };
+  document.querySelectorAll('[data-copy]').forEach(function(btn){ btn.onclick=function(){ var id=btn.getAttribute('data-copy'); var txt=(document.getElementById(id)||{}).textContent||''; if(!txt) return; if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function(){toast('已复制');}); }; });
+  perm.onchange=function(){ var v=perm.value; if(v==='public') hint.textContent='公开·所有人可见'; else if(v==='mutual') hint.textContent='互相关注的人可见'; else if(v==='subscriber') hint.textContent='订阅的人可见'; else{ hint.textContent='部分可见·请选择好友'; renderFriends(); ovl.classList.add('open'); } };
   document.getElementById('friendCloseBtn').onclick=function(){ ovl.classList.remove('open'); };
   document.getElementById('friendCancelBtn').onclick=function(){ ovl.classList.remove('open'); };
   document.getElementById('friendConfirmBtn').onclick=function(){ picked=Array.prototype.slice.call(fl.querySelectorAll('input:checked')).map(function(i){return i.getAttribute('data-id');}); if(!picked.length){perm.value='public';hint.textContent='公开·所有人可见';} else hint.textContent='部分可见·'+picked.length+'人'; ovl.classList.remove('open'); };
@@ -177,9 +212,13 @@ textarea{min-height:100px;resize:vertical}
   document.getElementById('catClearBtn').onclick=function(){ catPath=['','','']; catValue.textContent='选择内容类别（需精确到三级）'; catHint.textContent='未选择'; catOvl.classList.remove('open'); };
   document.getElementById('catConfirmBtn').onclick=function(){ if(!catDraft[0]||!catDraft[1]||!catDraft[2]) return toast('请精确选择到三级类目'); catPath=[catDraft[0],catDraft[1],catDraft[2]]; catValue.textContent=catPath.join(' / '); catHint.textContent='已选择'; catOvl.classList.remove('open'); };
   catOvl.onclick=function(e){ if(e.target===catOvl) catOvl.classList.remove('open'); };
-  document.getElementById('saveDraftBtn').onclick=function(){ toast('已存草稿'); };
-  document.getElementById('publishBtn').onclick=function(){ if(!images.length) return toast('请先上传至少1张图片'); if(!catPath[2]) return toast('请先选择内容类别'); toast('图文已提交审核并发布（原型）'); };
-  render();
+  document.getElementById('draftBtn').onclick=function(){ toast('已存草稿'); };
+  document.getElementById('submitBtn').onclick=function(){
+    if(!coverUrl) return toast('请先上传直播封面');
+    if(!catPath[2]) return toast('请先选择内容类别');
+    if(mode==='preview'&&!document.getElementById('scheduleInput').value) return toast('请设置预告开播时间');
+    toast(mode==='now'?'直播设置已保存，等待 OBS 推流':'直播预告已发布');
+  };
 })();
 </script>
 </body>

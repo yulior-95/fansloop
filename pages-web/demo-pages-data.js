@@ -94,10 +94,6 @@ window.DEMO_PAGE_GROUPS = [
     ["充值 / 提现", [
         ["recharge.html", "USDT 充值"],
         ["recharge-timeout.html", "订单超时"],
-        ["recharge-fiat.html", "法币充值"],
-        ["recharge-fiat-bind.html", "绑定银行卡"],
-        ["recharge-fiat-verify.html", "支付验证"],
-        ["recharge-fiat-switch-card.html", "切换银行卡"],
         ["withdraw-fiat.html", "提现到银行卡"],
         ["withdraw-fiat-verify.html", "短信验证"],
         ["withdraw-fiat-verify-pwd.html", "资金密码"],

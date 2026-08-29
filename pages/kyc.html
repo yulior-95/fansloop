@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>KYC 实名认证</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height) + 10px);
+    padding-bottom: calc(var(--tab-bar-height) + 18px);
+}
+.kyc-wrap { padding: 0 16px; }
+.kyc-head {
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+.kyc-title { font-size: 16px; font-weight: 800; }
+.kyc-desc { margin-top: 6px; font-size: 12px; color: var(--text-secondary); line-height: 1.7; }
+.kyc-steps { display: flex; gap: 6px; margin-top: 12px; }
+.kyc-steps .k {
+    flex: 1;
+    font-size: 10px;
+    text-align: center;
+    padding: 6px 0;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    color: var(--text-tertiary);
+}
+.kyc-steps .k.on {
+    border-color: rgba(168,85,247,.6);
+    color: #fff;
+    background: rgba(168,85,247,.2);
+}
+.card {
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--bg-card);
+    padding: 12px;
+}
+.sec { display: none; }
+.sec.on { display: block; }
+.note { font-size: 12px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 10px; }
+.in {
+    width: 100%;
+    height: 42px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: rgba(255,255,255,.02);
+    color: #fff;
+    padding: 0 12px;
+    outline: none;
+    margin-bottom: 8px;
+}
+.docs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.doc {
+    border: 1px dashed rgba(255,255,255,.22);
+    border-radius: 12px;
+    padding: 10px 8px;
+    text-align: center;
+}
+.doc.ok {
+    border-color: rgba(16,185,129,.45);
+    background: rgba(16,185,129,.12);
+}
+.doc .t { font-size: 12px; color: #fff; }
+.doc .s { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; }
+.face {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+.face .ic { font-size: 28px; color: #a78bfa; }
+.face .s { margin-top: 6px; font-size: 12px; color: var(--text-secondary); }
+.face.ok .s { color: #6ee7b7; }
+.pending {
+    border: 1px solid rgba(245,158,11,.35);
+    background: rgba(245,158,11,.14);
+    border-radius: 12px;
+    color: #fcd34d;
+    font-size: 12px;
+    line-height: 1.7;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+}
+.result-pass {
+    border: 1px solid rgba(16,185,129,.35);
+    background: rgba(16,185,129,.14);
+    border-radius: 12px;
+    padding: 10px 12px;
+    color: #6ee7b7;
+    font-size: 12px;
+    line-height: 1.7;
+    margin-bottom: 10px;
+}
+.ops { margin-top: 8px; display: flex; gap: 8px; }
+.ops .btn { flex: 1; }
+</style>
+</head>
+<body>
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" id="kycBackBtn"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">身份认证</div>
+    <div class="nav-right"></div>
+</div>
+
+<div class="app-content">
+    <div class="kyc-wrap">
+        <div class="kyc-head">
+            <div class="kyc-title">KYC 实名认证</div>
+            <div class="kyc-desc">用于提现和高风险操作校验。信息仅用于合规核验，不会公开展示。</div>
+            <div class="kyc-steps" id="kycSteps">
+                <div class="k on" data-step="1">1 身份信息</div>
+                <div class="k" data-step="2">2 证件上传</div>
+                <div class="k" data-step="3">3 人脸核验</div>
+                <div class="k" data-step="4">4 审核结果</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="sec on" id="sec1">
+                <div class="note">请填写与你证件一致的实名信息。</div>
+                <input class="in" id="nameInput" placeholder="真实姓名">
+                <input class="in" id="idInput" placeholder="证件号码">
+                <input class="in" id="countryInput" placeholder="国家/地区（示例：中国大陆）">
+                <div class="ops">
+                    <button class="btn btn-secondary" id="cancelBtn1">稍后认证</button>
+                    <button class="btn btn-primary" id="next1">下一步</button>
+                </div>
+            </div>
+
+            <div class="sec" id="sec2">
+                <div class="note">请上传证件正反面（原型内点击按钮模拟上传）。</div>
+                <div class="docs">
+                    <div class="doc" id="docFront">
+                        <div class="t">证件正面</div>
+                        <div class="s" id="docFrontState">未上传</div>
+                        <button class="btn btn-secondary btn-sm" id="uploadFront" style="margin-top:8px">上传</button>
+                    </div>
+                    <div class="doc" id="docBack">
+                        <div class="t">证件反面</div>
+                        <div class="s" id="docBackState">未上传</div>
+                        <button class="btn btn-secondary btn-sm" id="uploadBack" style="margin-top:8px">上传</button>
+                    </div>
+                </div>
+                <div class="ops">
+                    <button class="btn btn-secondary" id="prev2">上一步</button>
+                    <button class="btn btn-primary" id="next2">下一步</button>
+                </div>
+            </div>
+
+            <div class="sec" id="sec3">
+                <div class="note">请进行人脸核验，确保本人操作。</div>
+                <div class="face" id="faceBox">
+                    <div class="ic"><i class="fa-solid fa-user-check"></i></div>
+                    <div class="s" id="faceState">未开始核验</div>
+                </div>
+                <div class="ops">
+                    <button class="btn btn-secondary" id="prev3">上一步</button>
+                    <button class="btn btn-secondary" id="faceBtn">开始核验</button>
+                    <button class="btn btn-primary" id="submitBtn">提交审核</button>
+                </div>
+            </div>
+
+            <div class="sec" id="sec4">
+                <div class="pending" id="pendingText">资料已提交，正在审核中（通常 10~60 秒）。</div>
+                <div class="result-pass" id="passText" style="display:none">
+    KYC 审核通过，你现在已完成认证，可正常发起提现。
+                </div>
+                <div class="ops">
+                    <button class="btn btn-secondary" id="closeBtn4">返回</button>
+                    <button class="btn btn-primary" id="checkBtn">查看审核结果</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="tab-bar">
+    <div class="tab-item"><i class="fa-solid fa-house"></i><span>首页</span></div>
+    <div class="tab-item"><i class="fa-regular fa-heart"></i><span>订阅</span></div>
+    <div class="tab-create"><div class="create-btn"><i class="fa-solid fa-plus"></i></div></div>
+    <div class="tab-item"><i class="fa-regular fa-message"></i><span>消息</span></div>
+    <div class="tab-item active"><i class="fa-solid fa-user"></i><span>我的</span></div>
+</div>
+
+<div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var KYC_STORAGE_KEY = 'h5_withdraw_kyc_passed';
+    var from = new URLSearchParams(location.search).get('from') || 'profile';
+    var step = 1;
+    var frontUploaded = false;
+    var backUploaded = false;
+    var facePassed = false;
+    var reviewReady = false;
+    var reviewPassed = false;
+
+    function $(id) { return document.getElementById(id); }
+    function toast(msg) {
+        if (window.DigitalH5Nav && typeof window.DigitalH5Nav.toast === 'function') window.DigitalH5Nav.toast(msg);
+    }
+    function showStep(n) {
+        step = n;
+        Array.prototype.forEach.call(document.querySelectorAll('#kycSteps .k'), function (el) {
+            el.classList.toggle('on', el.getAttribute('data-step') === String(n));
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('.sec'), function (el) { el.classList.remove('on'); });
+        var sec = $('sec' + n);
+        if (sec) sec.classList.add('on');
+    }
+    function goBack() {
+        if (from === 'withdraw') location.href = 'withdraw.html';
+        else if (history.length > 1) history.back();
+        else location.href = 'profile.html';
+    }
+    function finishPass() {
+        localStorage.setItem(KYC_STORAGE_KEY, '1');
+        $('pendingText').style.display = 'none';
+        $('passText').style.display = 'block';
+        $('checkBtn').textContent = from === 'withdraw' ? '返回提现并继续' : '完成';
+        reviewPassed = true;
+        toast('KYC 已认证');
+    }
+
+    $('kycBackBtn').addEventListener('click', goBack);
+    $('cancelBtn1').addEventListener('click', goBack);
+    $('closeBtn4').addEventListener('click', goBack);
+    $('next1').addEventListener('click', function () {
+        var name = $('nameInput').value.trim();
+        var id = $('idInput').value.trim();
+        var c = $('countryInput').value.trim();
+        if (!name || !id || !c) { toast('请完整填写身份信息'); return; }
+        var normalizedId = id.replace(/\s+/g, '').replace(/-/g, '');
+        if (normalizedId.length < 4) { toast('证件号码过短，请检查'); return; }
+        showStep(2);
+    });
+    $('uploadFront').addEventListener('click', function () {
+        frontUploaded = true;
+        $('docFront').classList.add('ok');
+        $('docFrontState').textContent = '已上传';
+        toast('证件正面上传成功');
+    });
+    $('uploadBack').addEventListener('click', function () {
+        backUploaded = true;
+        $('docBack').classList.add('ok');
+        $('docBackState').textContent = '已上传';
+        toast('证件反面上传成功');
+    });
+    $('prev2').addEventListener('click', function () { showStep(1); });
+    $('next2').addEventListener('click', function () {
+        if (!frontUploaded || !backUploaded) { toast('请先上传完整证件'); return; }
+        showStep(3);
+    });
+    $('prev3').addEventListener('click', function () { showStep(2); });
+    $('faceBtn').addEventListener('click', function () {
+        $('faceState').textContent = '识别中...';
+        setTimeout(function () {
+            facePassed = true;
+            $('faceBox').classList.add('ok');
+            $('faceState').textContent = '人脸核验通过';
+            toast('人脸核验通过');
+        }, 900);
+    });
+    $('submitBtn').addEventListener('click', function () {
+        if (!facePassed) { toast('请先完成人脸核验'); return; }
+        showStep(4);
+        $('pendingText').style.display = 'block';
+        $('passText').style.display = 'none';
+        $('checkBtn').textContent = '查看审核结果';
+        reviewReady = false;
+        reviewPassed = false;
+        setTimeout(function () {
+            reviewReady = true;
+            $('pendingText').textContent = '审核完成，可查看结果。';
+        }, 1200);
+    });
+    $('checkBtn').addEventListener('click', function () {
+        if (reviewPassed) {
+            if (from === 'withdraw') location.href = 'withdraw.html?resumeWithdraw=1';
+            else location.href = 'profile.html';
+            return;
+        }
+        if (!reviewReady) { toast('仍在审核中，请稍候'); return; }
+        finishPass();
+    });
+
+    if (localStorage.getItem(KYC_STORAGE_KEY) === '1') {
+        $('pendingText').style.display = 'none';
+        $('passText').style.display = 'block';
+        $('passText').textContent = '你已完成 KYC 认证（已认证），可直接发起提现。';
+        $('checkBtn').textContent = from === 'withdraw' ? '返回提现' : '返回我的';
+        reviewPassed = true;
+        showStep(4);
+    }
+})();
+</script>
+</body>
+</html>

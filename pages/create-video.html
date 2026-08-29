@@ -6,271 +6,238 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
 <style>
-.nav-bar { background: var(--bg-primary); }
-.app-content {
-    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
-    padding-bottom: 100px;
-}
-
-.video-preview {
-    margin: 12px 16px;
-    position: relative;
-    width: calc(100% - 32px);
-    aspect-ratio: 9 / 16;
-    max-height: 280px;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    background: var(--bg-card);
-}
-.video-preview img { width: 100%; height: 100%; object-fit: cover; }
-.video-preview .play-btn {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 56px; height: 56px;
-    border-radius: 50%;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(10px);
-    display: flex; align-items: center; justify-content: center;
-    color: #fff;
-    font-size: 22px;
-}
-.video-preview .duration {
-    position: absolute;
-    bottom: 10px; left: 10px;
-    background: rgba(0,0,0,0.6);
-    padding: 3px 10px;
-    border-radius: var(--radius-full);
-    font-size: 11px; color: #fff;
-    font-variant-numeric: tabular-nums;
-}
-.video-preview .edit-tools {
-    position: absolute;
-    top: 10px; right: 10px;
-    display: flex; gap: 6px;
-}
-.video-preview .edit-tools .tb {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(10px);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; color: #fff;
-}
-
-/* 时间轴缩略图 */
-.timeline {
-    margin: 0 16px;
-    height: 44px;
-    display: flex;
-    gap: 2px;
-    overflow: hidden;
-    border-radius: 8px;
-}
-.timeline img {
-    height: 100%;
-    width: calc(100% / 8);
-    object-fit: cover;
-}
-
-.form-section { padding: 16px; }
-.input-title {
-    width: 100%;
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-primary);
-    padding: 12px 0;
-    border-bottom: 0.5px solid var(--border-color);
-}
-.input-title::placeholder { color: var(--text-tertiary); }
-
-.input-desc {
-    width: 100%;
-    min-height: 60px;
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 14px;
-    color: var(--text-primary);
-    padding: 10px 0;
-    resize: none;
-    font-family: inherit;
-}
-.input-desc::placeholder { color: var(--text-tertiary); }
-
-.tag-bar {
-    display: flex; flex-wrap: wrap; gap: 6px;
-    padding: 10px 0;
-    border-bottom: 0.5px solid var(--border-color);
-}
-.tag-bar .tag.add {
-    background: transparent;
-    border: 1px dashed var(--border-strong);
-    color: var(--text-secondary);
-}
-
-.option-row {
-    display: flex; align-items: center;
-    padding: 14px 0;
-    border-bottom: 0.5px solid var(--border-color);
-    gap: 12px;
-}
-.option-row .op-icon {
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    background: var(--bg-elevated);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
-    color: var(--text-secondary);
-    flex-shrink: 0;
-}
-.option-row .op-main { flex: 1; }
-.option-row .op-title { font-size: 14px; }
-.option-row .op-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
-.option-row .op-value { font-size: 13px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
-
-.price-card {
-    padding: 14px;
-    background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(236,72,153,0.05));
-    border: 1px solid rgba(168,85,247,0.2);
-    border-radius: var(--radius-lg);
-    margin-top: 14px;
-}
-.price-card .rows { display: flex; gap: 8px; margin-top: 10px; }
-.price-card .type-pill {
-    flex: 1;
-    text-align: center;
-    padding: 10px 0;
-    background: var(--bg-card);
-    border: 1.5px solid var(--border-color);
-    border-radius: var(--radius-md);
-    font-size: 13px;
-    color: var(--text-secondary);
-}
-.price-card .type-pill.active {
-    border-color: var(--brand-purple);
-    background: rgba(168,85,247,0.1);
-    color: var(--text-primary);
-    font-weight: 600;
-}
-.price-card .type-pill i { margin-right: 4px; }
-
-.submit-bar {
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    padding: 10px 16px 30px;
-    background: rgba(10,10,18,0.95);
-    backdrop-filter: blur(20px);
-    border-top: 0.5px solid var(--border-color);
-    display: flex; gap: 10px;
-    z-index: 20;
-}
-.submit-bar .btn { flex: 1; }
-.submit-bar .draft { flex: 0 0 100px; }
+.nav-bar{background:var(--bg-primary)}
+.app-content{padding:calc(var(--status-bar-height) + var(--nav-bar-height)) 16px 100px}
+.field{margin-top:12px}
+.lb{font-size:12px;color:var(--text-secondary);margin-bottom:8px;display:flex;justify-content:space-between}
+input,textarea,select{width:100%;background:var(--bg-card);border:1px solid var(--border-color);border-radius:10px;color:#fff;font-size:13px;padding:10px 12px;outline:none}
+textarea{min-height:100px;resize:vertical}
+.zone{aspect-ratio:16/9;border-radius:12px;border:1.5px dashed var(--border-strong);background:var(--bg-card);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--text-tertiary);cursor:pointer}
+.zone.ok{border-style:solid;border-color:rgba(16,185,129,.5);background-size:cover;background-position:center;align-items:flex-end;justify-content:space-between;padding:10px}
+.oktag{font-size:11px;padding:4px 8px;border-radius:999px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);color:#6EE7B7}
+.line{display:flex;gap:8px;align-items:center}
+.line code{flex:1;background:#0f1020;border:1px solid var(--border-color);border-radius:8px;padding:8px 10px;font-size:11px;color:#c4b5fd;word-break:break-all}
+.sbtn{height:32px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-card);color:#fff;padding:0 10px;font-size:12px}
+.card{margin-top:12px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:12px}
+.tip{font-size:11px;color:var(--text-tertiary);margin-top:6px}
+.submit-bar{position:absolute;left:0;right:0;bottom:0;padding:10px 16px 30px;background:rgba(10,10,18,.95);border-top:.5px solid var(--border-color);display:flex;gap:10px}
+.submit-bar .btn{flex:1}
+.submit-bar .draft{flex:0 0 96px}
+.ovl{position:absolute;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;z-index:90}
+.ovl.open{display:flex}
+.sheet{width:100%;background:#171726;border-top:1px solid var(--border-color);border-top-left-radius:18px;border-top-right-radius:18px;padding:12px 14px 20px}
+.sheet .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.friend-list{max-height:280px;overflow:auto}
+.friend{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid rgba(255,255,255,.06)}
+.friend:last-child{border-bottom:0}
+.friend .av{width:34px;height:34px;border-radius:50%;background-size:cover;background-position:center}
+.cat-row{margin-top:12px;padding:12px;border:1px solid var(--border-color);border-radius:12px;background:var(--bg-card);display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer}
+.cat-row .v{font-size:12px;color:var(--text-secondary)}
+.set-row{margin-top:10px;padding:12px;border:1px solid var(--border-color);border-radius:12px;background:var(--bg-card);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.set-row .t{font-size:13px;font-weight:600}
+.set-row .d{font-size:11px;color:var(--text-tertiary);margin-top:2px}
+.switch{width:44px;height:24px;border-radius:99px;background:#2b2b3d;position:relative;cursor:pointer;flex-shrink:0}
+.switch:after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
+.switch.on{background:linear-gradient(135deg,#a855f7,#ec4899)}
+.switch.on:after{left:22px}
+.money-grid{margin-top:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mcell{position:relative;padding:10px;border-radius:10px;border:1px solid var(--border-color);background:#0f1020;cursor:pointer}
+.mcell .ti{font-size:12px;font-weight:700}
+.mcell .sub{font-size:10px;color:var(--text-tertiary);margin-top:4px}
+.mcell.on{border-color:#a855f7;background:rgba(168,85,247,.12)}
+.mcheck{position:absolute;right:7px;top:7px;font-size:10px;opacity:.35}
+.mcell.on .mcheck{opacity:1}
+.money-rows{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.money-row{display:none;align-items:center;gap:8px}
+.money-row.show{display:flex}
+.money-row label{font-size:12px;color:var(--text-secondary);min-width:88px}
+.money-row input{flex:1}
+.cat-ovl{position:absolute;inset:0;background:rgba(0,0,0,.64);display:none;align-items:flex-end;z-index:95}
+.cat-ovl.open{display:flex}
+.cat-sheet{width:100%;background:#171726;border-top-left-radius:18px;border-top-right-radius:18px;border-top:1px solid var(--border-color);padding:12px}
+.cat-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.cat-col{background:#0f1020;border:1px solid var(--border-color);border-radius:10px;max-height:220px;overflow:auto}
+.cat-opt{padding:8px 10px;font-size:12px;color:var(--text-secondary);cursor:pointer}
+.cat-opt.on{background:rgba(168,85,247,.18);color:#fff}
 </style>
 </head>
 <body>
-
-<div class="status-bar">
-    <span class="time">9:41</span>
-    <span class="right">
-        <i class="fa-solid fa-signal"></i>
-        <i class="fa-solid fa-wifi"></i>
-        <i class="fa-solid fa-battery-full"></i>
-    </span>
-</div>
-
+<input id="videoInput" type="file" accept="video/*" hidden>
+<div class="status-bar"><span class="time">9:41</span><span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span></div>
 <div class="nav-bar solid">
-    <div class="nav-left"><div class="nav-btn"><i class="fa-solid fa-chevron-left"></i></div></div>
-    <div class="nav-title">发布视频</div>
-    <div class="nav-right"><span style="font-size:14px;color:var(--brand-purple)">预览</span></div>
+  <div class="nav-left"><div class="nav-btn" data-back="create.html"><i class="fa-solid fa-chevron-left"></i></div></div>
+  <div class="nav-title">发布视频</div>
+  <div class="nav-right"><div style="font-size:13px;color:var(--brand-purple)">预览</div></div>
 </div>
-
 <div class="app-content">
+  <div class="zone" id="videoZone"><i class="fa-solid fa-cloud-arrow-up" style="font-size:30px;color:#a78bfa"></i><div>拖拽或点击上传视频</div><div style="font-size:11px">支持 MP4 / MOV，最大 4GB</div></div>
+  <div class="tip" id="videoStatus">当前未上传视频</div>
 
-    <div class="video-preview">
-        <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&q=80">
-        <div class="play-btn"><i class="fa-solid fa-play"></i></div>
-        <div class="edit-tools">
-            <div class="tb"><i class="fa-solid fa-music"></i></div>
-            <div class="tb"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-        </div>
-        <div class="duration">02:38</div>
+  <div class="field"><div class="lb"><span>标题</span><span id="titleCount">0 / 20</span></div><input id="titleInput" maxlength="20" placeholder="请输入视频标题（最多20字）"></div>
+  <div class="field"><div class="lb"><span>视频简介</span><span id="descCount">0 / 3000</span></div><textarea id="descInput" maxlength="3000" placeholder="请输入视频简介（最多3000字）"></textarea></div>
+  <div class="field">
+    <div class="lb"><span>可查看权限</span><span id="permHint">公开·所有人可见</span></div>
+    <select id="permSelect">
+      <option value="public">公开·所有人可见</option>
+      <option value="mutual">互相关注的人可见</option>
+      <option value="partial">部分可见</option>
+      <option value="subscriber">订阅的人可见</option>
+    </select>
+    <div class="tip">选择「部分可见」后可勾选好友。</div>
+  </div>
+
+  <div class="card">
+    <div class="lb" style="margin:0 0 8px"><span><i class="fa-solid fa-sitemap" style="color:#93c5fd"></i> 内容类别</span><span id="catHint">未选择</span></div>
+    <div class="cat-row" id="catRow"><span id="catValue" class="v">选择内容类别（需精确到三级）</span><i class="fa-solid fa-chevron-right" style="font-size:11px;color:var(--text-tertiary)"></i></div>
+  </div>
+
+  <div class="card">
+    <div class="lb" style="margin:0 0 8px"><span><i class="fa-solid fa-coins" style="color:#f59e0b"></i> 变现设置</span></div>
+    <div class="money-grid" id="moneyGrid">
+      <div class="mcell" data-mode="free"><i class="fa-solid fa-check mcheck"></i><div class="ti">免费公开</div><div class="sub">所有人可见</div></div>
+      <div class="mcell on" data-mode="sub"><i class="fa-solid fa-check mcheck"></i><div class="ti">订阅专属</div><div class="sub">仅订阅者可见</div></div>
+      <div class="mcell" data-mode="ppv"><i class="fa-solid fa-check mcheck"></i><div class="ti">按篇购买</div><div class="sub">未订阅需付费</div></div>
     </div>
-
-    <!-- 时间轴 -->
-    <div class="timeline">
-        <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=100&q=60">
-        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=100&q=60">
-        <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=100&q=60">
-        <img src="https://images.unsplash.com/photo-1520975916090-3105956dac38?w=100&q=60">
-        <img src="https://images.unsplash.com/photo-1519659528534-7fd733a832a0?w=100&q=60">
-        <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=100&q=60">
-        <img src="https://images.unsplash.com/photo-1514222709107-a180c68d72b4?w=100&q=60">
-        <img src="https://images.unsplash.com/photo-1493612276216-ee3925520721?w=100&q=60">
+    <div class="money-rows">
+      <div class="money-row show" id="rowSub"><label>订阅价参考</label><input id="subPrice" type="number" min="1" step="1" value="28"><span style="font-size:12px;color:var(--text-tertiary)">USDT/月</span></div>
+      <div class="money-row" id="rowPpv"><label>单篇价格</label><input id="ppvPrice" type="number" min="0.5" step="0.01" value="5"><span style="font-size:12px;color:var(--text-tertiary)">USDT</span></div>
     </div>
+    <div class="tip">按篇购买可与订阅专属叠加；免费模式下关闭其他付费项。</div>
+  </div>
 
-    <div class="form-section">
-        <input class="input-title" value="涩谷夜景 × 电子乐 · 新 Vlog">
-
-        <textarea class="input-desc">熬夜剪的新 vlog，东京夜色 × 电子乐，chill 到骨子里 🌆✨</textarea>
-
-        <div class="tag-bar">
-            <span class="tag">#东京夜拍</span>
-            <span class="tag">#私房vlog</span>
-            <span class="tag">#付费专享</span>
-            <span class="tag add"><i class="fa-solid fa-plus" style="font-size:10px"></i> 添加话题</span>
-        </div>
-
-        <div class="option-row">
-            <div class="op-icon"><i class="fa-solid fa-music"></i></div>
-            <div class="op-main">
-                <div class="op-title">配乐</div>
-                <div class="op-sub">Midnight in Shibuya</div>
-            </div>
-            <div class="op-value">更改 <i class="fa-solid fa-chevron-right" style="font-size:11px"></i></div>
-        </div>
-
-        <div class="option-row">
-            <div class="op-icon"><i class="fa-solid fa-image"></i></div>
-            <div class="op-main">
-                <div class="op-title">封面</div>
-                <div class="op-sub">已选定自定义封面</div>
-            </div>
-            <div class="op-value">编辑 <i class="fa-solid fa-chevron-right" style="font-size:11px"></i></div>
-        </div>
-
-        <div class="option-row">
-            <div class="op-icon"><i class="fa-solid fa-location-dot"></i></div>
-            <div class="op-main"><div class="op-title">所在位置</div></div>
-            <div class="op-value">东京 涩谷 <i class="fa-solid fa-chevron-right" style="font-size:11px"></i></div>
-        </div>
-
-        <!-- 免费/付费 -->
-        <div class="price-card">
-            <div style="font-size:14px; font-weight:600">内容类型</div>
-            <div style="font-size:11px; color:var(--text-tertiary); margin-top:2px">
-                选择免费将所有人可见，选择付费仅订阅者或单独购买后可看
-            </div>
-            <div class="rows">
-                <div class="type-pill"><i class="fa-solid fa-unlock"></i> 免费公开</div>
-                <div class="type-pill active"><i class="fa-solid fa-crown"></i> 订阅可见</div>
-                <div class="type-pill"><i class="fa-solid fa-coins"></i> 单独付费</div>
-            </div>
-        </div>
-
+  <div class="card">
+    <div class="lb" style="margin:0 0 8px"><span><i class="fa-solid fa-sliders" style="color:#60a5fa"></i> 高级设置</span></div>
+    <div class="set-row">
+      <div><div class="t">允许评论</div><div class="d">关闭后用户无法在此内容下评论</div></div>
+      <div class="switch on" id="allowCommentSwitch"></div>
     </div>
-
+    <div class="set-row">
+      <div><div class="t">允许分享</div><div class="d">关闭后无法分享到其它平台</div></div>
+      <div class="switch on" id="allowShareSwitch"></div>
+    </div>
+  </div>
 </div>
 
 <div class="submit-bar">
-    <button class="btn btn-ghost draft">存草稿</button>
-    <button class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> 发布到订阅频道</button>
+  <button class="btn btn-ghost draft" id="saveDraftBtn">草稿</button>
+  <button class="btn btn-primary" id="publishBtn"><i class="fa-solid fa-paper-plane"></i> 提交审核并发布</button>
+</div>
+
+<div class="ovl" id="friendOvl">
+  <div class="sheet">
+    <div class="hd"><strong>部分可见 · 选择好友</strong><button class="sbtn" id="friendCloseBtn">关闭</button></div>
+    <div class="friend-list" id="friendList"></div>
+    <div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-secondary" id="friendCancelBtn">取消</button><button class="btn btn-primary" id="friendConfirmBtn">确认</button></div>
+  </div>
+</div>
+<div class="cat-ovl" id="catOvl">
+  <div class="cat-sheet">
+    <div class="hd" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><strong>选择内容类别</strong><button class="sbtn" id="catCloseBtn">关闭</button></div>
+    <div class="cat-cols">
+      <div class="cat-col" id="catCol1"></div>
+      <div class="cat-col" id="catCol2"></div>
+      <div class="cat-col" id="catCol3"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-secondary" id="catClearBtn">清空</button><button class="btn btn-primary" id="catConfirmBtn">确认选择</button></div>
+  </div>
 </div>
 
 <div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function(){
+  function toast(m){ if(window.DigitalH5Nav&&window.DigitalH5Nav.toast) window.DigitalH5Nav.toast(m); }
+  var friends=[['NovaPlay','3年好友','https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80'],['Luna','互关创作者','https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80'],['Marcus','直播达人','https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80']];
+  var picked=[];
+  var zone=document.getElementById('videoZone'), input=document.getElementById('videoInput'), status=document.getElementById('videoStatus');
+  var title=document.getElementById('titleInput'), desc=document.getElementById('descInput');
+  var tc=document.getElementById('titleCount'), dc=document.getElementById('descCount');
+  var perm=document.getElementById('permSelect'), hint=document.getElementById('permHint');
+  var ovl=document.getElementById('friendOvl'), list=document.getElementById('friendList');
+  var catOvl=document.getElementById('catOvl'), catRow=document.getElementById('catRow'), catValue=document.getElementById('catValue'), catHint=document.getElementById('catHint');
+  var moneyGrid=document.getElementById('moneyGrid'), rowSub=document.getElementById('rowSub'), rowPpv=document.getElementById('rowPpv');
+  var allowComment=true, allowShare=true;
+  var catData={
+    '视觉美学': {'写真摄影':['人像写真','胶片私房','日常街拍'],'影像叙事':['剧情短片','Vlog日记','幕后花絮']},
+    '创作者生活': {'日常分享':['学习记录','工作日常','旅行生活'],'互动内容':['粉丝问答','主题征集','抽奖活动']},
+    '知识技能': {'教程课程':['拍摄教程','剪辑教程','运营教程'],'行业洞察':['平台观察','变现方法','案例拆解']}
+  };
+  var catPath=['','',''],catDraft=['','',''];
+  function counters(){ tc.textContent=(title.value||'').length+' / 20'; dc.textContent=(desc.value||'').length+' / 3000'; }
+  function renderFriends(){ list.innerHTML=friends.map(function(f,i){ return '<label class="friend"><input type="checkbox" data-id="'+i+'"'+(picked.indexOf(String(i))>=0?' checked':'')+'><span class="av" style="background-image:url(\''+f[2]+'\')"></span><span style="flex:1"><b style="font-size:13px">'+f[0]+'</b><div style="font-size:11px;color:var(--text-tertiary)">'+f[1]+'</div></span></label>'; }).join('');}
+  function renderCatCols(){
+    var c1=document.getElementById('catCol1'), c2=document.getElementById('catCol2'), c3=document.getElementById('catCol3');
+    var l1=Object.keys(catData);
+    c1.innerHTML=l1.map(function(n){return '<div class="cat-opt'+(catDraft[0]===n?' on':'')+'" data-lv="1">'+n+'</div>'}).join('');
+    var l2=catDraft[0]?Object.keys(catData[catDraft[0]]):[];
+    c2.innerHTML=l2.map(function(n){return '<div class="cat-opt'+(catDraft[1]===n?' on':'')+'" data-lv="2">'+n+'</div>'}).join('');
+    var l3=(catDraft[0]&&catDraft[1])?catData[catDraft[0]][catDraft[1]]:[];
+    c3.innerHTML=l3.map(function(n){return '<div class="cat-opt'+(catDraft[2]===n?' on':'')+'" data-lv="3">'+n+'</div>'}).join('');
+    c1.querySelectorAll('.cat-opt').forEach(function(el){ el.onclick=function(){ catDraft[0]=el.textContent; catDraft[1]=''; catDraft[2]=''; renderCatCols(); }; });
+    c2.querySelectorAll('.cat-opt').forEach(function(el){ el.onclick=function(){ catDraft[1]=el.textContent; catDraft[2]=''; renderCatCols(); }; });
+    c3.querySelectorAll('.cat-opt').forEach(function(el){ el.onclick=function(){ catDraft[2]=el.textContent; renderCatCols(); }; });
+  }
+  function syncMonetize(){
+    var hasFree=moneyGrid.querySelector('[data-mode="free"]').classList.contains('on');
+    var hasSub=moneyGrid.querySelector('[data-mode="sub"]').classList.contains('on');
+    var hasPpv=moneyGrid.querySelector('[data-mode="ppv"]').classList.contains('on');
+    if(hasFree){ hasSub=false; hasPpv=false; moneyGrid.querySelector('[data-mode="sub"]').classList.remove('on'); moneyGrid.querySelector('[data-mode="ppv"]').classList.remove('on'); }
+    rowSub.classList.toggle('show',hasSub);
+    rowPpv.classList.toggle('show',hasPpv);
+  }
+  function setUploaded(){ zone.classList.add('ok'); zone.style.backgroundImage='url("https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=900&q=80")'; zone.innerHTML='<span class="oktag"><i class="fa-solid fa-circle-check"></i> 上传成功</span><button type="button" class="sbtn" id="editCoverBtn">编辑封面</button>'; status.textContent='视频上传成功，可继续编辑标题、简介和权限'; document.getElementById('editCoverBtn').addEventListener('click',function(e){e.stopPropagation();toast('封面编辑已打开（原型）');}); }
+  zone.addEventListener('click', function(){ if(!zone.classList.contains('ok')) input.click(); });
+  input.addEventListener('change', function(){ if(input.files&&input.files[0]) setUploaded(); input.value=''; });
+  ['dragenter','dragover'].forEach(function(ev){ zone.addEventListener(ev,function(e){ e.preventDefault(); });});
+  zone.addEventListener('drop', function(e){ e.preventDefault(); if(e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]) setUploaded(); });
+  title.addEventListener('input', counters); desc.addEventListener('input', counters); counters();
+  perm.addEventListener('change', function(){
+    var v=perm.value;
+    if(v==='public') hint.textContent='公开·所有人可见';
+    else if(v==='mutual') hint.textContent='互相关注的人可见';
+    else if(v==='subscriber') hint.textContent='订阅的人可见';
+    else { hint.textContent='部分可见·请选择好友'; renderFriends(); ovl.classList.add('open'); }
+  });
+  document.getElementById('friendCloseBtn').onclick=function(){ ovl.classList.remove('open'); if(!picked.length){perm.value='public';hint.textContent='公开·所有人可见';}};
+  document.getElementById('friendCancelBtn').onclick=function(){ ovl.classList.remove('open'); if(!picked.length){perm.value='public';hint.textContent='公开·所有人可见';}};
+  document.getElementById('friendConfirmBtn').onclick=function(){ picked=Array.prototype.slice.call(list.querySelectorAll('input:checked')).map(function(i){return i.getAttribute('data-id');}); hint.textContent=picked.length?('部分可见·'+picked.length+'人'):'公开·所有人可见'; if(!picked.length)perm.value='public'; ovl.classList.remove('open'); };
+  ovl.addEventListener('click', function(e){ if(e.target===ovl) ovl.classList.remove('open'); });
+  document.getElementById('allowCommentSwitch').onclick=function(){ allowComment=!allowComment; this.classList.toggle('on',allowComment); };
+  document.getElementById('allowShareSwitch').onclick=function(){ allowShare=!allowShare; this.classList.toggle('on',allowShare); };
+  moneyGrid.querySelectorAll('.mcell').forEach(function(cell){
+    cell.onclick=function(){
+      var mode=cell.getAttribute('data-mode');
+      if(mode==='free'){
+        var on=!cell.classList.contains('on');
+        moneyGrid.querySelectorAll('.mcell').forEach(function(c){ c.classList.remove('on'); });
+        if(on) cell.classList.add('on'); else moneyGrid.querySelector('[data-mode="sub"]').classList.add('on');
+      }else{
+        cell.classList.toggle('on');
+        moneyGrid.querySelector('[data-mode="free"]').classList.remove('on');
+        if(!moneyGrid.querySelector('[data-mode="sub"]').classList.contains('on')&&!moneyGrid.querySelector('[data-mode="ppv"]').classList.contains('on')) moneyGrid.querySelector('[data-mode="free"]').classList.add('on');
+      }
+      syncMonetize();
+    };
+  });
+  syncMonetize();
+  catRow.onclick=function(){ catDraft=[catPath[0],catPath[1],catPath[2]]; renderCatCols(); catOvl.classList.add('open'); };
+  document.getElementById('catCloseBtn').onclick=function(){ catOvl.classList.remove('open'); };
+  document.getElementById('catClearBtn').onclick=function(){ catPath=['','','']; catValue.textContent='选择内容类别（需精确到三级）'; catHint.textContent='未选择'; catOvl.classList.remove('open'); };
+  document.getElementById('catConfirmBtn').onclick=function(){
+    if(!catDraft[0]||!catDraft[1]||!catDraft[2]) return toast('请精确选择到三级类目');
+    catPath=[catDraft[0],catDraft[1],catDraft[2]];
+    catValue.textContent=catPath.join(' / ');
+    catHint.textContent='已选择';
+    catOvl.classList.remove('open');
+  };
+  catOvl.onclick=function(e){ if(e.target===catOvl) catOvl.classList.remove('open'); };
+  document.getElementById('saveDraftBtn').onclick=function(){ toast('已存草稿'); };
+  document.getElementById('publishBtn').onclick=function(){
+    if(!zone.classList.contains('ok')) return toast('请先上传视频');
+    if(!catPath[2]) return toast('请先选择内容类别');
+    toast('视频已提交审核并发布（原型）');
+  };
+})();
+</script>
 </body>
 </html>

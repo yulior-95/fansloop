@@ -83,10 +83,6 @@ body { background: var(--bg-primary); }
     background: linear-gradient(135deg, #EF4444, #F59E0B);
     box-shadow: 0 4px 20px rgba(239,68,68,0.35);
 }
-.type-card.digital .cover-icon {
-    background: linear-gradient(135deg, #10B981, #06B6D4);
-    box-shadow: 0 4px 20px rgba(16,185,129,0.35);
-}
 .type-card .info { flex: 1; }
 .type-card .t {
     font-size: 17px;
@@ -121,6 +117,10 @@ body { background: var(--bg-primary); }
     left: 20px; right: 20px;
     bottom: 88px;
     z-index: 5;
+    max-height: 230px;
+    overflow: auto;
+    padding-right: 2px;
+    scrollbar-width: thin;
 }
 .drafts-section .head {
     display: flex; align-items: center; justify-content: space-between;
@@ -131,6 +131,7 @@ body { background: var(--bg-primary); }
 }
 .drafts-section .head .more {
     font-size: 12px; color: var(--text-tertiary);
+    cursor: pointer;
 }
 
 .draft-row {
@@ -166,6 +167,105 @@ body { background: var(--bg-primary); }
     font-size: 11px; color: var(--text-tertiary);
     margin-top: 2px;
 }
+.draft-row[data-preview] { cursor: pointer; }
+.draft-row[data-preview]:active { transform: scale(0.995); }
+
+.audit-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 8px 0 10px;
+    padding-top: 6px;
+}
+.audit-head .title { font-size: 13px; font-weight: 600; }
+.audit-head .badge {
+    font-size: 10px;
+    color: #FCA5A5;
+    padding: 2px 8px;
+    border: 1px solid rgba(239,68,68,.35);
+    border-radius: 999px;
+    background: rgba(239,68,68,.12);
+}
+.audit-row {
+    padding: 10px;
+    background: rgba(239,68,68,.08);
+    border: 1px solid rgba(239,68,68,.25);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+}
+.audit-row.reviewing {
+    background: rgba(251,191,36,.08);
+    border-color: rgba(251,191,36,.28);
+}
+.audit-row .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.audit-row .t {
+    font-size: 13px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.audit-row .m {
+    margin-top: 4px;
+    font-size: 11px;
+    color: #FCA5A5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.audit-row.reviewing .m { color: #FDE68A; }
+.audit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+}
+.audit-btn {
+    flex: 1;
+    height: 28px;
+    border-radius: 9px;
+    font-size: 11px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-primary);
+}
+.audit-btn.danger {
+    border-color: rgba(239,68,68,.35);
+    color: #FCA5A5;
+    background: rgba(239,68,68,.08);
+}
+
+.preview-ovl {
+    position: absolute;
+    inset: 0;
+    z-index: 90;
+    background: rgba(0,0,0,.62);
+    display: none;
+    align-items: flex-end;
+}
+.preview-ovl.open { display: flex; }
+.preview-sheet {
+    width: 100%;
+    background: #171726;
+    border-top: 1px solid var(--border-color);
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    padding: 12px 14px 20px;
+}
+.preview-cover {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 12px;
+    background: #0f1020 center/cover no-repeat;
+    margin-bottom: 10px;
+}
+.preview-title { font-size: 15px; font-weight: 700; }
+.preview-meta { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+.preview-desc { font-size: 12px; color: var(--text-tertiary); margin-top: 8px; line-height: 1.55; }
 
 .bottom-tip {
     position: absolute;
@@ -217,7 +317,7 @@ body { background: var(--bg-primary); }
         <i class="fa-solid fa-chevron-right arrow"></i>
     </div>
 
-    <div class="type-card live">
+    <div class="type-card live" data-go="create-live.html">
         <div class="cover-icon"><i class="fa-solid fa-tower-broadcast"></i></div>
         <div class="info">
             <div class="t">开启直播</div>
@@ -226,22 +326,14 @@ body { background: var(--bg-primary); }
         <span class="ribbon">Beta</span>
     </div>
 
-    <div class="type-card digital" data-go="create-digital.html">
-        <div class="cover-icon"><i class="fa-solid fa-store"></i></div>
-        <div class="info">
-            <div class="t">创建数字商品</div>
-            <div class="desc">图片合集 / 视频作品 / 图视包，上橱窗售卖</div>
-        </div>
-        <i class="fa-solid fa-chevron-right arrow"></i>
-    </div>
 </div>
 
 <div class="drafts-section">
     <div class="head">
         <span class="title">草稿箱 · 2</span>
-        <span class="more">查看全部 <i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
+        <span class="more" id="draftMoreBtn">查看全部 <i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
     </div>
-    <div class="draft-row">
+    <div class="draft-row" data-preview="1" data-type="video" data-go="create-video.html?from=draft" data-title="涩谷夜景完整版 vlog 剪辑" data-meta="视频 · 00:58 · 2 天前保存" data-desc="东京夜拍夜景合集，已完成剪辑与配乐，待补充标签后即可发布。" data-cover="https://images.unsplash.com/photo-1492288991661-058aa541ff43?w=1200&q=80">
         <div class="d-cover">
             <img src="https://images.unsplash.com/photo-1492288991661-058aa541ff43?w=200&q=80">
             <div class="play-icon"><i class="fa-solid fa-play"></i></div>
@@ -252,7 +344,7 @@ body { background: var(--bg-primary); }
         </div>
         <i class="fa-solid fa-ellipsis" style="color:var(--text-tertiary)"></i>
     </div>
-    <div class="draft-row">
+    <div class="draft-row" data-preview="1" data-type="post" data-go="create-post.html?from=draft" data-title="胶片私房摄影合集（18 张）" data-meta="图文 · 18 图 · 昨天" data-desc="胶片风主题图文草稿，已选封面与正文，待确认可见范围与价格。" data-cover="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200&q=80">
         <div class="d-cover">
             <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=200&q=80">
         </div>
@@ -262,6 +354,32 @@ body { background: var(--bg-primary); }
         </div>
         <i class="fa-solid fa-ellipsis" style="color:var(--text-tertiary)"></i>
     </div>
+
+    <div class="audit-head">
+        <span class="title">待审核与不通过</span>
+        <span class="badge" id="rejectCount">2 条</span>
+    </div>
+    <div class="audit-row reviewing" data-reject-row>
+        <div class="top">
+            <div class="t">富士山日出 · 组图</div>
+            <i class="fa-solid fa-hourglass-half" style="color:#FBBF24"></i>
+        </div>
+        <div class="m">状态：审核中，暂不支持编辑，请等待审核结果</div>
+        <div class="audit-actions">
+            <button class="audit-btn danger" data-action="cancel-reject">取消</button>
+        </div>
+    </div>
+    <div class="audit-row" data-reject-row data-edit-go="create-video.html?from=reject">
+        <div class="top">
+            <div class="t">咖啡馆问答 Vol.4</div>
+            <i class="fa-solid fa-circle-xmark" style="color:#F87171"></i>
+        </div>
+        <div class="m">原因：含未授权背景音乐片段（00:42–01:15）</div>
+        <div class="audit-actions">
+            <button class="audit-btn" data-action="edit-reject">去编辑</button>
+            <button class="audit-btn danger" data-action="cancel-reject">取消</button>
+        </div>
+    </div>
 </div>
 
 <div class="bottom-tip">
@@ -270,5 +388,89 @@ body { background: var(--bg-primary); }
 
 <div class="home-indicator"></div>
 <script src="../js/digital-h5-nav.js"></script>
+<div class="preview-ovl" id="draftPreviewOvl">
+    <div class="preview-sheet">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <strong>草稿预览</strong>
+            <button class="audit-btn" style="flex:0 0 72px" id="previewCloseBtn">关闭</button>
+        </div>
+        <div class="preview-cover" id="previewCover"></div>
+        <div class="preview-title" id="previewTitle"></div>
+        <div class="preview-meta" id="previewMeta"></div>
+        <div class="preview-desc" id="previewDesc"></div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="audit-btn" id="previewEditBtn">去编辑</button>
+        </div>
+    </div>
+</div>
+<script>
+(function(){
+    function toast(msg){
+        if (window.DigitalH5Nav && window.DigitalH5Nav.toast) window.DigitalH5Nav.toast(msg);
+    }
+    var previewOvl = document.getElementById('draftPreviewOvl');
+    var previewCover = document.getElementById('previewCover');
+    var previewTitle = document.getElementById('previewTitle');
+    var previewMeta = document.getElementById('previewMeta');
+    var previewDesc = document.getElementById('previewDesc');
+    var previewEditBtn = document.getElementById('previewEditBtn');
+    var currentPreviewGo = '';
+
+    document.querySelectorAll('.draft-row[data-preview]').forEach(function(row){
+        row.addEventListener('click', function(e){
+            if (e.target.closest('.fa-ellipsis')) return;
+            currentPreviewGo = row.getAttribute('data-go') || '';
+            previewCover.style.backgroundImage = 'url("' + (row.getAttribute('data-cover') || '') + '")';
+            previewTitle.textContent = row.getAttribute('data-title') || '';
+            previewMeta.textContent = row.getAttribute('data-meta') || '';
+            previewDesc.textContent = row.getAttribute('data-desc') || '';
+            previewOvl.classList.add('open');
+        });
+    });
+
+    document.getElementById('previewCloseBtn').addEventListener('click', function(){
+        previewOvl.classList.remove('open');
+    });
+    previewOvl.addEventListener('click', function(e){
+        if (e.target === previewOvl) previewOvl.classList.remove('open');
+    });
+    previewEditBtn.addEventListener('click', function(){
+        if (currentPreviewGo) location.href = currentPreviewGo;
+    });
+
+    document.getElementById('draftMoreBtn').addEventListener('click', function(){
+        toast('草稿箱列表已展开（原型）');
+    });
+
+    var rejectRow = document.querySelector('[data-reject-row]');
+    function syncRejectCount(){
+        var count = document.querySelectorAll('[data-reject-row]').length;
+        var badge = document.getElementById('rejectCount');
+        if (badge) badge.textContent = count + ' 条';
+    }
+    syncRejectCount();
+
+    document.querySelectorAll('[data-action="edit-reject"]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+            var row = btn.closest('[data-reject-row]');
+            if (row && row.classList.contains('reviewing')) {
+                toast('审核中暂不支持编辑');
+                return;
+            }
+            var go = row && row.getAttribute('data-edit-go');
+            if (go) location.href = go;
+        });
+    });
+    document.querySelectorAll('[data-action="cancel-reject"]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+            var row = btn.closest('[data-reject-row]');
+            if (!row) return;
+            row.remove();
+            syncRejectCount();
+            toast('已取消该条不通过内容');
+        });
+    });
+})();
+</script>
 </body>
 </html>

@@ -182,6 +182,44 @@
     background: var(--brand-gradient);
     border-color: transparent;
 }
+.wallet-kyc-row {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: rgba(255,255,255,0.04);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    cursor: pointer;
+}
+.wallet-kyc-row.pass {
+    cursor: default;
+}
+.wallet-kyc-row .left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+.wallet-kyc-row .left i { color: #fbbf24; }
+.wallet-kyc-row.pass .left i { color: #34d399; }
+.wallet-kyc-row .sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.wallet-kyc-row .st {
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 4px 9px;
+    border: 1px solid rgba(245,158,11,.35);
+    color: #fcd34d;
+    background: rgba(245,158,11,.14);
+}
+.wallet-kyc-row.pass .st {
+    border-color: rgba(16,185,129,.35);
+    color: #6ee7b7;
+    background: rgba(16,185,129,.15);
+}
 .wallet-card {
     padding: 14px;
     border-radius: var(--radius-lg);
@@ -541,9 +579,16 @@
             <div class="wallet-total-sub">≈ 5,816.40 USDT <span class="up">+$248.50 本月</span></div>
             <div class="wallet-total-actions">
                 <div class="wa primary" data-go="recharge.html"><i class="fa-solid fa-arrow-down"></i> 充值</div>
-                <div class="wa" data-go="withdraw-fiat.html"><i class="fa-solid fa-arrow-up"></i> 提现</div>
-                <div class="wa" data-go="transactions.html"><i class="fa-solid fa-clock-rotate-left"></i> 充提记录</div>
+                <div class="wa" data-go="withdraw.html"><i class="fa-solid fa-arrow-up"></i> 提现</div>
+                <div class="wa" data-go="funds-history.html"><i class="fa-solid fa-clock-rotate-left"></i> 充提记录</div>
                 <div class="wa" data-go="transactions.html"><i class="fa-solid fa-list-ul"></i> 账变</div>
+            </div>
+            <div class="wallet-kyc-row" id="pfKycEntry">
+                <div>
+                    <div class="left"><i class="fa-solid fa-id-card"></i><span>身份认证（KYC）</span></div>
+                    <div class="sub">提现前需完成实名认证，保障账户与资金安全</div>
+                </div>
+                <span class="st" id="pfKycStatus">未认证</span>
             </div>
         </div>
     </div>
@@ -581,7 +626,7 @@
             <span class="tool-label">创作者收入</span>
         </div>
         <div class="tool" data-go="transactions.html">
-            <div class="tool-icon tool-color-5"><i class="fa-solid fa-list-ul"></i><span class="notif">3</span></div>
+            <div class="tool-icon tool-color-5"><i class="fa-solid fa-list-ul"></i></div>
             <span class="tool-label">账变记录</span>
         </div>
         <div class="tool" data-go="subscriptions.html">
@@ -745,9 +790,20 @@
     var pfPointsDetailBtn = document.getElementById('pfPointsDetailBtn');
     var pfPointsMallBtn = document.getElementById('pfPointsMallBtn');
     var pfContentManage = document.getElementById('pfContentManage');
+    var pfKycEntry = document.getElementById('pfKycEntry');
+    var pfKycStatus = document.getElementById('pfKycStatus');
+    var KYC_STORAGE_KEY = 'h5_withdraw_kyc_passed';
+    var KYC_RESET_ONCE_KEY = 'h5_kyc_demo_reset_once';
 
     function open(ovl) { if (ovl) ovl.classList.add('show'); }
     function close(ovl) { if (ovl) ovl.classList.remove('show'); }
+    function syncKyc() {
+        if (!pfKycEntry || !pfKycStatus) return;
+        var passed = localStorage.getItem(KYC_STORAGE_KEY) === '1';
+        pfKycEntry.classList.toggle('pass', passed);
+        pfKycStatus.textContent = passed ? '已认证' : '未认证';
+        pfKycEntry.setAttribute('data-kyc-passed', passed ? '1' : '0');
+    }
 
     if (pfBtnBell) pfBtnBell.addEventListener('click', function () {
         open(pfNotiOvl);
@@ -773,6 +829,10 @@
     if (pfPointsDetailBtn) pfPointsDetailBtn.addEventListener('click', function () { toast('任务明细功能已打开（原型）'); });
     if (pfPointsMallBtn) pfPointsMallBtn.addEventListener('click', function () { location.href = 'goodfans-assets-legend.html'; });
     if (pfContentManage) pfContentManage.addEventListener('click', function () { location.href = 'creator-showcase-manage.html'; });
+    if (pfKycEntry) pfKycEntry.addEventListener('click', function () {
+        if (pfKycEntry.getAttribute('data-kyc-passed') === '1') return;
+        location.href = 'kyc.html?from=profile';
+    });
 
     function activateMiniTab(key) {
         var tabs = document.querySelectorAll('#pfTabsMini .t');
@@ -807,6 +867,14 @@
             if (go) location.href = go;
             else toast('已打开内容 #' + (index + 1));
         });
+    });
+    if (!localStorage.getItem(KYC_RESET_ONCE_KEY)) {
+        localStorage.setItem(KYC_STORAGE_KEY, '0');
+        localStorage.setItem(KYC_RESET_ONCE_KEY, '1');
+    }
+    syncKyc();
+    document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) syncKyc();
     });
 })();
 </script>

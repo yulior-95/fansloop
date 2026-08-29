@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>充提记录</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body {
+    background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,.12), transparent 52%), #0A0A12;
+}
+.nav-bar { background: #0A0A12; border-bottom: .5px solid rgba(255,255,255,.06); }
+.status-bar { background: #0A0A12; }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: calc(var(--tab-bar-height) + 18px);
+}
+.hero {
+    margin: 8px 16px 12px;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(59,130,246,.25);
+    background: linear-gradient(135deg, rgba(30,41,59,.95), rgba(15,23,42,.95));
+}
+.hero .t { font-size: 11px; color: rgba(255,255,255,.68); }
+.hero .row { margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.hero .cell {
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 10px;
+    padding: 9px 10px;
+    background: rgba(255,255,255,.03);
+}
+.hero .cell .k { font-size: 10px; color: var(--text-tertiary); }
+.hero .cell .v { margin-top: 4px; font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.hero .cell .v.pos { color: #6EE7B7; }
+.hero .cell .v.neg { color: #FCA5A5; }
+
+.toolbar { margin: 0 16px 10px; }
+.filters {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.filters::-webkit-scrollbar { display: none; }
+.pill {
+    flex-shrink: 0;
+    border: 1px solid var(--border-color);
+    background: rgba(255,255,255,.05);
+    color: var(--text-secondary);
+    border-radius: 999px;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.pill.on {
+    background: rgba(168,85,247,.18);
+    border-color: rgba(168,85,247,.5);
+    color: #fff;
+}
+.search {
+    margin-top: 8px;
+    height: 38px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 10px;
+}
+.search i { color: var(--text-tertiary); font-size: 12px; }
+.search input {
+    flex: 1; height: 100%;
+    border: none; background: transparent; outline: none;
+    color: #fff; font-size: 13px;
+}
+
+.list { margin: 0 16px 10px; border: 1px solid var(--border-color); border-radius: 14px; background: var(--bg-card); overflow: hidden; }
+.item {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 12px;
+    border-top: .5px solid rgba(255,255,255,.04);
+    cursor: pointer;
+}
+.item:first-child { border-top: 0; }
+.item:active { background: rgba(255,255,255,.03); }
+.ic {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 14px; flex-shrink: 0;
+}
+.ic.rc { background: linear-gradient(135deg, #10B981, #059669); }
+.ic.wd { background: linear-gradient(135deg, #EC4899, #BE185D); }
+.mid { flex: 1; min-width: 0; }
+.mid .t { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.mid .meta {
+    margin-top: 3px; font-size: 11px; color: var(--text-tertiary);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.tag {
+    font-size: 9px; font-weight: 700;
+    border-radius: 6px; padding: 2px 7px;
+}
+.tag.done { background: rgba(59,130,246,.14); color: #93C5FD; }
+.tag.proc { background: rgba(245,158,11,.15); color: #FCD34D; }
+.amt { text-align: right; flex-shrink: 0; }
+.amt .v { font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.amt .v.pos { color: #6EE7B7; }
+.amt .v.neg { color: #FCA5A5; }
+.amt .s { margin-top: 2px; font-size: 10px; color: var(--text-tertiary); font-family: ui-monospace, monospace; }
+.empty {
+    display: none;
+    margin: 0 16px;
+    text-align: center;
+    padding: 26px 12px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    border: 1px dashed var(--border-color);
+    border-radius: 12px;
+}
+</style>
+</head>
+<body>
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+</div>
+
+<div class="nav-bar">
+    <div class="nav-left"><div class="nav-btn" data-back="profile.html"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">充提记录</div>
+    <div class="nav-right"></div>
+</div>
+
+<div class="app-content">
+    <div class="hero">
+        <div class="t">汇总链上充值与钱包提现订单</div>
+        <div class="row">
+            <div class="cell">
+                <div class="k">本月充值</div>
+                <div class="v pos">+$620.00</div>
+            </div>
+            <div class="cell">
+                <div class="k">本月提现</div>
+                <div class="v neg">-$1,200.00</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <div class="filters" id="fhFilters">
+            <button type="button" class="pill on" data-filter="all">全部</button>
+            <button type="button" class="pill" data-filter="recharge">充值</button>
+            <button type="button" class="pill" data-filter="withdraw">提现</button>
+            <button type="button" class="pill" data-filter="processing">处理中</button>
+            <button type="button" class="pill" data-filter="done">已完成</button>
+        </div>
+        <div class="search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input id="fhSearchInput" placeholder="搜索订单号 / 金额">
+        </div>
+    </div>
+
+    <div class="list" id="fhList">
+        <div class="item" data-type="withdraw" data-status="processing" data-order="WD20260508141209" data-amount="200.00" onclick="location.href='transaction-detail.html?type=withdraw&order=WD20260508141209&from=funds-history'">
+            <div class="ic wd"><i class="fa-solid fa-arrow-up"></i></div>
+            <div class="mid">
+                <div class="t">提现 · TRC20 <span class="tag proc">入账中</span></div>
+                <div class="meta">订单 WD20260508141209 · 2026-05-08 14:12</div>
+            </div>
+            <div class="amt"><div class="v neg">-200.00</div><div class="s">fee 1.40</div></div>
+        </div>
+        <div class="item" data-type="recharge" data-status="done" data-order="RC20260507190844" data-amount="500.00" onclick="location.href='transaction-detail.html?type=recharge&order=RC20260507190844&from=funds-history'">
+            <div class="ic rc"><i class="fa-solid fa-arrow-down"></i></div>
+            <div class="mid">
+                <div class="t">充值 · ERC20 <span class="tag done">已到账</span></div>
+                <div class="meta">订单 RC20260507190844 · 2026-05-07 19:08</div>
+            </div>
+            <div class="amt"><div class="v pos">+500.00</div><div class="s">fee 0.00</div></div>
+        </div>
+        <div class="item" data-type="withdraw" data-status="done" data-order="WD20260506103321" data-amount="1000.00" onclick="location.href='transaction-detail.html?type=withdraw&order=WD20260506103321&from=funds-history'">
+            <div class="ic wd"><i class="fa-solid fa-arrow-up"></i></div>
+            <div class="mid">
+                <div class="t">提现 · TRC20 <span class="tag done">已到账</span></div>
+                <div class="meta">订单 WD20260506103321 · 2026-05-06 10:33</div>
+            </div>
+            <div class="amt"><div class="v neg">-1,000.00</div><div class="s">fee 1.40</div></div>
+        </div>
+        <div class="item" data-type="recharge" data-status="processing" data-order="RC20260505120001" data-amount="120.00" onclick="location.href='transaction-detail.html?type=recharge&order=RC20260505120001&from=funds-history'">
+            <div class="ic rc"><i class="fa-solid fa-arrow-down"></i></div>
+            <div class="mid">
+                <div class="t">充值 · BEP20 <span class="tag proc">入账中</span></div>
+                <div class="meta">订单 RC20260505120001 · 2026-05-05 12:00</div>
+            </div>
+            <div class="amt"><div class="v pos">+120.00</div><div class="s">fee --</div></div>
+        </div>
+    </div>
+    <div class="empty" id="fhEmpty">暂无匹配记录</div>
+</div>
+
+<div class="tab-bar">
+    <div class="tab-item"><i class="fa-solid fa-house"></i><span>首页</span></div>
+    <div class="tab-item"><i class="fa-regular fa-heart"></i><span>订阅</span></div>
+    <div class="tab-create"><div class="create-btn"><i class="fa-solid fa-plus"></i></div></div>
+    <div class="tab-item"><i class="fa-regular fa-message"></i><span>消息</span></div>
+    <div class="tab-item active"><i class="fa-solid fa-user"></i><span>我的</span></div>
+</div>
+<div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var filters = document.getElementById('fhFilters');
+    var input = document.getElementById('fhSearchInput');
+    var rows = Array.prototype.slice.call(document.querySelectorAll('#fhList .item'));
+    var empty = document.getElementById('fhEmpty');
+    var typeFilter = 'all';
+    var statusFilter = 'all';
+    function apply() {
+        var q = ((input && input.value) || '').trim().toLowerCase();
+        var shown = 0;
+        rows.forEach(function (row) {
+            var type = row.getAttribute('data-type') || '';
+            var st = row.getAttribute('data-status') || '';
+            var order = (row.getAttribute('data-order') || '').toLowerCase();
+            var amount = (row.getAttribute('data-amount') || '').toLowerCase();
+            var okType = typeFilter === 'all' || type === typeFilter;
+            var okStatus = statusFilter === 'all' || st === statusFilter;
+            var okSearch = !q || order.indexOf(q) >= 0 || amount.indexOf(q) >= 0;
+            var show = okType && okStatus && okSearch;
+            row.style.display = show ? '' : 'none';
+            if (show) shown += 1;
+        });
+        if (empty) empty.style.display = shown ? 'none' : 'block';
+    }
+    if (filters) {
+        filters.addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-filter]');
+            if (!btn) return;
+            filters.querySelectorAll('.pill').forEach(function (n) { n.classList.remove('on'); });
+            btn.classList.add('on');
+            var f = btn.getAttribute('data-filter') || 'all';
+            if (f === 'all') { typeFilter = 'all'; statusFilter = 'all'; }
+            else if (f === 'recharge' || f === 'withdraw') { typeFilter = f; statusFilter = 'all'; }
+            else if (f === 'processing') { typeFilter = 'all'; statusFilter = 'processing'; }
+            else if (f === 'done') { typeFilter = 'all'; statusFilter = 'done'; }
+            apply();
+        });
+    }
+    if (input) {
+        input.addEventListener('input', apply);
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') apply();
+        });
+    }
+    apply();
+})();
+</script>
+</body>
+</html>

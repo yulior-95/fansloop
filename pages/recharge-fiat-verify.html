@@ -249,6 +249,20 @@ body {
     font-weight: 600;
     cursor: pointer;
 }
+.otp-input-wrap {
+    padding: 0 16px 14px;
+}
+.otp-input-wrap input {
+    width: 100%;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: #fff;
+    font-size: 16px;
+    letter-spacing: 6px;
+    text-align: center;
+}
 
 /* 生物识别选项 */
 .biometric {
@@ -342,6 +356,25 @@ body {
     display: flex; align-items: center; justify-content: center; gap: 4px;
 }
 .submit-bar .hint i { color: var(--crypto-green); }
+.mob-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 108px;
+    transform: translateX(-50%);
+    padding: 10px 16px;
+    background: rgba(0,0,0,0.9);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 2147483646;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    max-width: 92vw;
+    text-align: center;
+}
+.mob-toast.show { opacity: 1; }
 </style>
 </head>
 <body>
@@ -358,7 +391,7 @@ body {
 <div class="nav-bar solid">
     <div class="nav-left"><div class="nav-btn" onclick="location.href='recharge-fiat.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
     <div class="nav-title">支付身份认证</div>
-    <div class="nav-right"><div class="nav-btn"><i class="fa-solid fa-xmark"></i></div></div>
+    <div class="nav-right"><div class="nav-btn" id="fvCloseBtn"><i class="fa-solid fa-xmark"></i></div></div>
 </div>
 
 <div class="app-content">
@@ -385,7 +418,7 @@ body {
             </div>
             <div class="order-line">
                 <span class="k">订单超时</span>
-                <span class="v" style="color:#FBBF24">14:36</span>
+                <span class="v" style="color:#FBBF24" id="fvExpire">14:36</span>
             </div>
             <div class="order-line">
                 <span class="k">服务费</span>
@@ -428,18 +461,21 @@ body {
         </div>
 
         <div class="otp-grid">
-            <div class="otp-box filled">6</div>
-            <div class="otp-box filled">8</div>
-            <div class="otp-box filled">5</div>
+            <div class="otp-box"> </div>
+            <div class="otp-box"> </div>
+            <div class="otp-box"> </div>
             <div class="otp-box active"></div>
             <div class="otp-box"></div>
             <div class="otp-box"></div>
+        </div>
+        <div class="otp-input-wrap">
+            <input id="fvOtpInput" inputmode="numeric" maxlength="6" placeholder="输入 6 位验证码">
         </div>
 
         <div class="otp-info">
             已发送至 <span class="phone">138 •••• 2025</span>
             &nbsp;·&nbsp;
-            <span class="resend">重新发送 (58s)</span>
+            <span class="resend" id="fvResendBtn">重新发送 (58s)</span>
         </div>
     </div>
 
@@ -449,7 +485,7 @@ body {
         或使用 · 备用验证
     </div>
 
-    <div class="biometric">
+    <div class="biometric" id="fvBioBtn">
         <div class="bio-ic"><i class="fa-solid fa-face-smile-beam"></i></div>
         <div class="bio-main">
             <div class="bio-t">Face ID 刷脸验证</div>
@@ -469,8 +505,8 @@ body {
     <!-- 订单号 -->
     <div class="order-num">
         <span class="num-k">订单号</span>
-        <span class="num-v">PS20260423094128A8F9E1C2D5B7</span>
-        <span class="copy"><i class="fa-regular fa-copy"></i></span>
+        <span class="num-v" id="fvOrderId">PS20260423094128A8F9E1C2D5B7</span>
+        <span class="copy" id="fvCopyOrder"><i class="fa-regular fa-copy"></i></span>
     </div>
 
 </div>
@@ -480,12 +516,123 @@ body {
         <i class="fa-solid fa-lock"></i>
         银联加密传输，信息不会被第三方截获
     </div>
-    <button class="btn btn-primary btn-block">
+    <button class="btn btn-primary btn-block" id="fvConfirmBtn">
         <i class="fa-solid fa-check"></i>
         确认支付 ¥500.00
     </button>
 </div>
 
 <div class="home-indicator"></div>
+<div id="fvToast" class="mob-toast" role="status" aria-live="polite"></div>
+<script>
+(function () {
+    function toast(msg) {
+        var t = document.getElementById('fvToast');
+        if (!t) return;
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._t);
+        t._t = setTimeout(function () { t.classList.remove('show'); }, 2200);
+    }
+    var p = new URLSearchParams(location.search);
+    var cny = p.get('cny') || '500.00';
+    var usdt = p.get('usdt') || '68.87';
+    var expireEl = document.getElementById('fvExpire');
+    var amountBig = document.querySelector('.amount-big');
+    if (amountBig) amountBig.innerHTML = '<span class="cur">¥</span>' + cny + '<span class="eq">≈ ' + usdt + ' USDT</span>';
+    var confirmBtn = document.getElementById('fvConfirmBtn');
+    if (confirmBtn) confirmBtn.innerHTML = '<i class="fa-solid fa-check"></i> 确认支付 ¥' + cny;
+    var otpInput = document.getElementById('fvOtpInput');
+    var otpBoxes = document.querySelectorAll('.otp-grid .otp-box');
+    var resendBtn = document.getElementById('fvResendBtn');
+    var copyOrder = document.getElementById('fvCopyOrder');
+    var closeBtn = document.getElementById('fvCloseBtn');
+    var bioBtn = document.getElementById('fvBioBtn');
+    var orderEl = document.getElementById('fvOrderId');
+    if (orderEl) orderEl.textContent = 'PS' + Date.now().toString().slice(-20);
+
+    function drawOtp(v) {
+        var s = String(v || '').replace(/\D/g, '').slice(0, 6);
+        otpBoxes.forEach(function (b, i) {
+            b.textContent = s[i] || '';
+            b.classList.toggle('filled', !!s[i]);
+            b.classList.toggle('active', i === s.length && s.length < 6);
+        });
+    }
+    if (otpInput) {
+        otpInput.addEventListener('input', function () { drawOtp(otpInput.value); });
+        otpInput.addEventListener('focus', function () { drawOtp(otpInput.value); });
+    }
+    drawOtp('');
+
+    var resendLeft = 58;
+    function tickResend() {
+        if (!resendBtn) return;
+        if (resendLeft <= 0) {
+            resendBtn.textContent = '重新发送';
+            resendBtn.dataset.ready = '1';
+            return;
+        }
+        resendBtn.textContent = '重新发送 (' + resendLeft + 's)';
+        resendLeft -= 1;
+        setTimeout(tickResend, 1000);
+    }
+    tickResend();
+    if (resendBtn) resendBtn.addEventListener('click', function () {
+        if (resendBtn.dataset.ready === '1') {
+            resendLeft = 58;
+            resendBtn.dataset.ready = '0';
+            toast('验证码已重新发送');
+            tickResend();
+        }
+    });
+    if (copyOrder) copyOrder.addEventListener('click', function () { toast('订单号已复制'); });
+    if (closeBtn) closeBtn.addEventListener('click', function () { location.href = 'recharge-fiat.html'; });
+    var leftBack = document.querySelector('.nav-left .nav-btn');
+    if (leftBack) leftBack.addEventListener('click', function () { location.href = 'recharge-fiat.html'; });
+    if (bioBtn) bioBtn.addEventListener('click', function () {
+        toast('Face ID 校验通过');
+        if (otpInput) {
+            otpInput.value = '123456';
+            drawOtp('123456');
+        }
+    });
+
+    var expire = 14 * 60 + 36;
+    function fmt(sec) {
+        var m = Math.floor(sec / 60);
+        var s = sec % 60;
+        return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    }
+    function tickExpire() {
+        if (expireEl) expireEl.textContent = fmt(expire);
+        if (expire <= 0) {
+            location.href = 'recharge-timeout.html?amt=' + encodeURIComponent(usdt) + '&chain=FIAT&network=' + encodeURIComponent('法币快捷支付') + '&order=' + encodeURIComponent(orderEl ? orderEl.textContent : '');
+            return;
+        }
+        expire -= 1;
+        setTimeout(tickExpire, 1000);
+    }
+    tickExpire();
+
+    if (confirmBtn) confirmBtn.addEventListener('click', function () {
+        var otp = String(otpInput && otpInput.value || '').replace(/\D/g, '').slice(0, 6);
+        if (otp.length < 6) {
+            toast('请输入完整的 6 位验证码');
+            return;
+        }
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 支付处理中...';
+        setTimeout(function () {
+            location.href = 'recharge-success.html?amt=' + encodeURIComponent(usdt) + '&chain=FIAT&network=' + encodeURIComponent('法币快捷支付') + '&order=' + encodeURIComponent(orderEl ? orderEl.textContent : '');
+        }, 1200);
+    });
+})();
+</script>
+<script>
+(function () {
+    location.replace('recharge.html');
+})();
+</script>
 </body>
 </html>

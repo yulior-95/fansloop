@@ -555,7 +555,7 @@
 <div class="nav-bar solid">
     <div class="nav-left"><div class="nav-btn" onclick="location.href='recharge.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
     <div class="nav-title">充值</div>
-    <div class="nav-right"><div class="nav-btn"><i class="fa-regular fa-clock-rotate-left"></i></div></div>
+    <div class="nav-right"><div class="nav-btn" id="fiatHistoryBtn"><i class="fa-regular fa-clock-rotate-left"></i></div></div>
 </div>
 
 <div class="app-content">
@@ -587,7 +587,7 @@
         <div class="label">充值金额</div>
         <div class="input-box">
             <span class="symbol">¥</span>
-            <input class="input" placeholder="0.00" value="500.00">
+            <input class="input" id="fiatAmountInput" placeholder="0.00" value="500.00">
         </div>
         <div class="unit-badge">
             <i class="fa-solid fa-circle" style="font-size:6px"></i>
@@ -600,10 +600,10 @@
 
     <!-- 快选 -->
     <div class="quick-amounts">
-        <div class="qa">100</div>
-        <div class="qa active">500</div>
-        <div class="qa">1000</div>
-        <div class="qa">5000</div>
+        <div class="qa" data-amt="100">100</div>
+        <div class="qa active" data-amt="500">500</div>
+        <div class="qa" data-amt="1000">1000</div>
+        <div class="qa" data-amt="5000">5000</div>
     </div>
 
     <!-- 银行卡 -->
@@ -612,7 +612,7 @@
         <span class="more" onclick="document.getElementById('bindOverlay').classList.add('open')">管理银行卡 <i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
     </div>
 
-    <div class="bank-card">
+    <div class="bank-card" id="fiatBankCard">
         <div class="bc-head">
             <div style="display:flex; gap:10px; align-items:center">
                 <div class="bc-logo">招</div>
@@ -671,8 +671,8 @@
     </div>
 
     <!-- 协议 -->
-    <div class="protocol">
-        <div class="chk"><i class="fa-solid fa-check"></i></div>
+    <div class="protocol" id="fiatProtocol">
+        <div class="chk" id="fiatProtocolChk"><i class="fa-solid fa-check"></i></div>
         <span>同意 <a href="#">《法币充值服务协议》</a> 与 <a href="#">《反洗钱风控须知》</a></span>
     </div>
 
@@ -770,11 +770,30 @@
         t._x = setTimeout(function () { t.classList.remove('show'); }, 2400);
     }
     var paySel = document.getElementById('mobPayMethod');
+    var historyBtn = document.getElementById('fiatHistoryBtn');
+    if (historyBtn) historyBtn.addEventListener('click', function () { location.href = 'transactions.html'; });
     if (paySel) {
         paySel.addEventListener('change', function () {
             if (this.value === '__add') location.href = 'recharge-fiat-bind.html';
         });
     }
+    var bankCard = document.getElementById('fiatBankCard');
+    if (bankCard) bankCard.addEventListener('click', function () { location.href = 'recharge-fiat-switch-card.html'; });
+    var protocol = document.getElementById('fiatProtocol');
+    var protocolChk = document.getElementById('fiatProtocolChk');
+    var agreed = true;
+    function syncAgree() {
+        if (!protocolChk) return;
+        protocolChk.innerHTML = agreed ? '<i class="fa-solid fa-check"></i>' : '';
+        protocolChk.style.background = agreed ? 'var(--brand-gradient)' : 'transparent';
+        protocolChk.style.border = agreed ? 'none' : '1px solid var(--border-color)';
+    }
+    if (protocol) protocol.addEventListener('click', function (e) {
+        if (e.target && e.target.tagName === 'A') return;
+        agreed = !agreed;
+        syncAgree();
+    });
+    syncAgree();
     var bind = document.getElementById('bindOverlay');
     document.getElementById('bindDismiss') && document.getElementById('bindDismiss').addEventListener('click', function () {
         if (bind) bind.classList.remove('open');
@@ -791,6 +810,27 @@
     document.getElementById('mobBtnAddPay') && document.getElementById('mobBtnAddPay').addEventListener('click', function () {
         location.href = 'recharge-fiat-bind.html';
     });
+    var fiatInput = document.getElementById('fiatAmountInput');
+    function recalcFiat() {
+        var n = parseFloat(String(fiatInput && fiatInput.value || '').replace(/,/g, '').trim());
+        if (!isFinite(n) || n <= 0) n = 0;
+        var usdt = (n / 7.26);
+        var eq = document.querySelector('.amount-card .equiv b');
+        if (eq) eq.textContent = usdt.toFixed(2) + ' USDT';
+        var rows = document.querySelectorAll('.pay-info .row .v');
+        if (rows[0]) rows[0].textContent = '¥' + n.toFixed(2);
+        if (rows[1]) rows[1].textContent = '¥' + (n * 0.006).toFixed(2);
+        if (rows[2]) rows[2].textContent = usdt.toFixed(2) + ' USDT';
+    }
+    document.querySelectorAll('.quick-amounts .qa').forEach(function (qa) {
+        qa.addEventListener('click', function () {
+            document.querySelectorAll('.quick-amounts .qa').forEach(function (x) { x.classList.remove('active'); });
+            qa.classList.add('active');
+            if (fiatInput) fiatInput.value = qa.getAttribute('data-amt') || '0';
+            recalcFiat();
+        });
+    });
+    if (fiatInput) fiatInput.addEventListener('input', recalcFiat);
     document.getElementById('mobFiatSubmit') && document.getElementById('mobFiatSubmit').addEventListener('click', function () {
         if (!paySel || !paySel.value) {
             if (payMiss) payMiss.classList.add('open');
@@ -807,8 +847,24 @@
             toast('请先输入支付金额');
             return;
         }
-        toast('校验通过（原型）');
+        if (!agreed) {
+            toast('请先同意服务协议');
+            return;
+        }
+        var n = parseFloat(raw);
+        if (n < 50) {
+            toast('法币充值最低 50 元');
+            return;
+        }
+        var usdt = (n / 7.26).toFixed(2);
+        location.href = 'recharge-fiat-verify.html?cny=' + encodeURIComponent(n.toFixed(2)) + '&usdt=' + encodeURIComponent(usdt);
     });
+    recalcFiat();
+})();
+</script>
+<script>
+(function () {
+    location.replace('recharge.html');
 })();
 </script>
 </body>

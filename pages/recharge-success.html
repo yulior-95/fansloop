@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>充值成功</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+body {
+    background:
+        radial-gradient(ellipse at 50% 8%, rgba(16,185,129,0.16), transparent 55%),
+        #0A0A12;
+}
+.nav-bar { background: rgba(10,10,18,0.85); backdrop-filter: blur(12px); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 120px;
+}
+.ok-wrap { text-align: center; padding: 30px 20px 16px; }
+.ok-ic {
+    width: 112px;
+    height: 112px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 44px;
+    box-shadow: 0 14px 40px rgba(16,185,129,0.35);
+}
+.ok-title { font-size: 23px; font-weight: 800; }
+.ok-sub { margin-top: 7px; font-size: 13px; color: var(--text-secondary); }
+.sum {
+    margin: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    padding: 12px 14px;
+}
+.sum .row {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px 0;
+    font-size: 12px;
+}
+.sum .row + .row { border-top: 0.5px solid rgba(255,255,255,0.06); }
+.sum .k { color: var(--text-tertiary); }
+.sum .v { color: #fff; font-weight: 600; font-family: ui-monospace, monospace; }
+.sum .v.ac { color: #6EE7B7; font-family: inherit; }
+.next {
+    margin: 0 16px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(16,185,129,0.08);
+    border: 1px solid rgba(16,185,129,0.2);
+    color: #a7f3d0;
+    font-size: 12px;
+    line-height: 1.6;
+}
+.submit-bar {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 10px 16px 30px;
+    background: rgba(10,10,18,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 0.5px solid var(--border-color);
+    z-index: 20;
+    display: flex;
+    gap: 10px;
+}
+.submit-bar .btn.sec {
+    flex: 0 0 110px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-secondary);
+}
+.submit-bar .btn.main { flex: 1; }
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" onclick="location.href='recharge.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">充值结果</div>
+    <div class="nav-right"></div>
+</div>
+
+<div class="app-content">
+    <div class="ok-wrap">
+        <div class="ok-ic"><i class="fa-solid fa-check"></i></div>
+        <div class="ok-title">充值成功</div>
+        <div class="ok-sub">链上确认完成，余额已自动入账</div>
+    </div>
+
+    <div class="sum">
+        <div class="row"><span class="k">充值网络</span><span class="v" id="okNetwork">TRON (TRC20)</span></div>
+        <div class="row"><span class="k">订单号</span><span class="v" id="okOrder">R20260423094128F7A9</span></div>
+        <div class="row"><span class="k">到账状态</span><span class="v ac">已到账</span></div>
+    </div>
+
+    <div class="next">
+        你可以前往「账变记录」查看链路详情，或返回钱包继续充值。若金额未更新，请下拉刷新后重试。
+    </div>
+</div>
+
+<div class="submit-bar">
+    <button class="btn sec" onclick="location.href='transactions.html'">
+        <i class="fa-solid fa-list-ul"></i> 账变记录
+    </button>
+    <button class="btn btn-primary main" onclick="location.href='wallet.html'">
+        <i class="fa-solid fa-wallet"></i> 返回钱包
+    </button>
+</div>
+
+<div class="home-indicator"></div>
+<script>
+(function () {
+    var p = new URLSearchParams(location.search);
+    var chain = p.get('chain') || 'TRC20';
+    var network = p.get('network') || 'TRON (TRC20)';
+    var order = p.get('order') || ('R' + Date.now().toString().slice(-12));
+    var okNetwork = document.getElementById('okNetwork');
+    var okOrder = document.getElementById('okOrder');
+    if (okNetwork) okNetwork.textContent = network + ' / ' + chain;
+    if (okOrder) okOrder.textContent = order;
+})();
+</script>
+</body>
+</html>

@@ -64,6 +64,7 @@ body {
     font-size: 10px;
     color: #fff;
     font-weight: 500;
+    cursor: pointer;
 }
 .tx-hero .th-top .pill i { font-size: 8px; }
 
@@ -133,8 +134,8 @@ body {
 /* ===== 筛选 & 工具条（sticky 吸附在 nav-bar 下方） ===== */
 .filter-bar {
     position: sticky;
-    /* 吸附点：距离 scroll 容器顶部 = status + nav 高度，正好贴在 nav-bar 下沿 */
-    top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    /* app-content 已经包含顶部内边距，这里吸顶到容器顶部即可 */
+    top: 0;
     z-index: 50;
     margin: 0 0 8px;
     padding: 10px 16px 10px;
@@ -175,6 +176,7 @@ body {
     border-radius: 4px;
 }
 .chip.active .cnt { background: rgba(255,255,255,0.25); }
+.chip .name { line-height: 1; }
 
 .filter-tools {
     display: flex; align-items: center; gap: 8px;
@@ -185,6 +187,7 @@ body {
     flex: 1;
     display: flex; align-items: center; gap: 4px;
 }
+.filter-tools .ft-l .sep { opacity: .5; }
 .filter-tools .ft-btn {
     padding: 4px 9px;
     background: rgba(255,255,255,0.04);
@@ -194,6 +197,7 @@ body {
     display: flex; align-items: center; gap: 4px;
     font-size: 10px;
     font-weight: 500;
+    cursor: pointer;
 }
 .filter-tools .ft-btn i { font-size: 9px; color: #60A5FA; }
 
@@ -330,35 +334,53 @@ body {
     margin: 0 8px;
 }
 
-/* 悬浮筛选按钮 */
-.fab-filter {
+.tx-ovl {
     position: absolute;
-    right: 16px;
-    bottom: calc(var(--tab-bar-height) + 30px);
-    width: 46px; height: 46px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #1A1A26, #2A2A3E);
-    border: 1px solid rgba(168,85,247,0.3);
-    display: flex; align-items: center; justify-content: center;
+    inset: 0;
+    z-index: 90;
+    background: rgba(0,0,0,.56);
+    display: none;
+    align-items: flex-end;
+}
+.tx-ovl.open { display: flex; }
+.tx-sheet {
+    width: 100%;
+    max-height: 76vh;
+    overflow-y: auto;
+    background: #171726;
+    border-top: 1px solid var(--border-color);
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    box-shadow: 0 -16px 34px rgba(0,0,0,.45);
+    padding: 12px 14px 20px;
+}
+.tx-sheet .grab { width: 42px; height: 5px; border-radius: 999px; margin: 0 auto 10px; background: rgba(255,255,255,.22); }
+.tx-sheet .hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.tx-sheet .hd .t { font-size: 16px; font-weight: 700; }
+.tx-sheet .hd .x { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.08); color: var(--text-secondary); cursor: pointer; }
+.tx-sheet .sec { margin-bottom: 12px; }
+.tx-sheet .lb { font-size: 11px; color: var(--text-tertiary); margin-bottom: 7px; text-transform: uppercase; letter-spacing: .4px; }
+.tx-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.tx-pill {
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.1);
+    color: var(--text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+}
+.tx-pill.on {
+    background: rgba(168,85,247,.2);
+    border-color: rgba(168,85,247,.5);
     color: #fff;
-    font-size: 15px;
-    box-shadow: 0 10px 24px rgba(0,0,0,0.35),
-                0 0 0 4px rgba(168,85,247,0.06);
-    z-index: 8;
 }
-.fab-filter .dot {
-    position: absolute;
-    top: 8px; right: 8px;
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: #EF4444;
-    border: 1.5px solid #1A1A26;
-    animation: dot-pulse 2s ease-in-out infinite;
-}
-@keyframes dot-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); }
-    50%      { box-shadow: 0 0 0 5px rgba(239,68,68,0); }
-}
+.tx-sheet .ops { display: flex; gap: 8px; margin-top: 8px; }
+.tx-sheet .ops .btn { flex: 1; }
 
 </style>
 </head>
@@ -374,11 +396,10 @@ body {
 </div>
 
 <div class="nav-bar">
-    <div class="nav-left"><div class="nav-btn" onclick="location.href='creator-income.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-left"><div class="nav-btn" data-back="profile.html"><i class="fa-solid fa-chevron-left"></i></div></div>
     <div class="nav-title">账变记录</div>
     <div class="nav-right">
         <div class="nav-btn" onclick="location.href='transactions-search.html'" title="搜索账变"><i class="fa-solid fa-magnifying-glass"></i></div>
-        <div class="nav-btn" onclick="location.href='transactions-export.html'" title="导出账单"><i class="fa-solid fa-file-export"></i></div>
     </div>
 </div>
 
@@ -388,9 +409,9 @@ body {
     <div class="tx-hero">
         <div class="th-top">
             <div class="lbl"><i class="fa-solid fa-circle"></i>本月资金动态 · 2026 年 4 月</div>
-            <div class="pill">
+            <div class="pill" id="txMonthPill">
                 <i class="fa-solid fa-caret-down"></i>
-                本月
+                <span id="txMonthPillText">本月</span>
             </div>
         </div>
         <div class="th-stats">
@@ -416,24 +437,27 @@ body {
 
     <!-- ===== 筛选条 ===== -->
     <div class="filter-bar">
-        <div class="filter-chips">
-            <div class="chip active">全部 <span class="cnt">237</span></div>
-            <div class="chip"><i class="fa-solid fa-arrow-down-long" style="color:#6EE7B7"></i>收入 <span class="cnt">168</span></div>
-            <div class="chip"><i class="fa-solid fa-arrow-up-long" style="color:#FCA5A5"></i>支出 <span class="cnt">42</span></div>
-            <div class="chip"><i class="fa-solid fa-wallet"></i>充值</div>
-            <div class="chip"><i class="fa-solid fa-arrow-up-right-from-square"></i>提现</div>
-            <div class="chip"><i class="fa-solid fa-gift"></i>打赏</div>
-            <div class="chip"><i class="fa-regular fa-heart"></i>订阅</div>
+        <div class="filter-chips" id="txFilterChips">
+            <div class="chip active" data-filter="all"><span class="name">全部</span> <span class="cnt">237</span></div>
+            <div class="chip" data-filter="income"><span class="name">收入</span> <span class="cnt">168</span></div>
+            <div class="chip" data-filter="expense"><span class="name">支出</span> <span class="cnt">42</span></div>
+            <div class="chip" data-filter="recharge"><span class="name">充值</span></div>
+            <div class="chip" data-filter="withdraw"><span class="name">提现</span></div>
+            <div class="chip" data-filter="chain"><span class="name">链上</span></div>
+            <div class="chip" data-filter="digital"><span class="name">数字资产</span></div>
+            <div class="chip" data-filter="affiliate"><span class="name">联盟佣金</span></div>
+            <div class="chip" data-filter="tip"><span class="name">打赏</span></div>
+            <div class="chip" data-filter="sub"><span class="name">订阅</span></div>
         </div>
         <div class="filter-tools">
             <div class="ft-l">
-                <span>当前：</span><b style="color:#fff">全部类型</b><span class="sep">·</span><span>本月</span>
+                <span>当前：</span><b style="color:#fff" id="txCurrentFilterLabel">全部类型</b><span class="sep">·</span><span>本月</span>
             </div>
-            <div class="ft-btn">
+            <div class="ft-btn" id="txTimeBtn">
                 <i class="fa-regular fa-calendar"></i>
                 时间
             </div>
-            <div class="ft-btn">
+            <div class="ft-btn" id="txAdvBtn">
                 <i class="fa-solid fa-sliders"></i>
                 高级筛选
             </div>
@@ -450,10 +474,10 @@ body {
     </div>
     <div class="tx-list">
 
-        <div class="tx-item" onclick="location.href='transaction-detail.html'">
+        <div class="tx-item" data-type="tip income" onclick="location.href='transaction-detail.html?type=tip&order=T20260423092801'">
             <div class="tx-ic tip"><i class="fa-solid fa-gift"></i></div>
             <div class="tx-m">
-                <div class="t">打赏 · Emma_Jade <span class="status ok">已结算</span></div>
+                <div class="t">打赏 · Emma_Jade <span class="status ok">已到账</span></div>
                 <div class="meta">超级火箭 🚀 · 09:28 <span class="sep">|</span> 单号 T20260423092801</div>
             </div>
             <div class="tx-r">
@@ -462,10 +486,10 @@ body {
             </div>
         </div>
 
-        <div class="tx-item">
+        <div class="tx-item" data-type="sub income" onclick="location.href='transaction-detail.html?type=sub&order=S20260423081209'">
             <div class="tx-ic sub"><i class="fa-regular fa-heart"></i></div>
             <div class="tx-m">
-                <div class="t">订阅 · MarcusBlack <span class="status ok">已结算</span></div>
+                <div class="t">订阅 · MarcusBlack <span class="status ok">已到账</span></div>
                 <div class="meta">月度订阅续费 · 08:12 <span class="sep">|</span> 自动扣款</div>
             </div>
             <div class="tx-r">
@@ -474,10 +498,10 @@ body {
             </div>
         </div>
 
-        <div class="tx-item">
+        <div class="tx-item" data-type="tip income" onclick="location.href='transaction-detail.html?type=tip&order=T20260423074516'">
             <div class="tx-ic tip"><i class="fa-solid fa-gift"></i></div>
             <div class="tx-m">
-                <div class="t">打赏 · SophiaRose <span class="status pending">结算中</span></div>
+                <div class="t">打赏 · SophiaRose <span class="status pending">入账中</span></div>
                 <div class="meta">玫瑰花束 🌹 × 3 · 07:45 <span class="sep">|</span> 预计 24 小时到账</div>
             </div>
             <div class="tx-r">
@@ -486,10 +510,10 @@ body {
             </div>
         </div>
 
-        <div class="tx-item">
+        <div class="tx-item" data-type="income" onclick="location.href='transaction-detail.html?type=live&order=L20260423021442'">
             <div class="tx-ic live"><i class="fa-solid fa-video"></i></div>
             <div class="tx-m">
-                <div class="t">直播门票 · RivenStark <span class="status ok">已结算</span></div>
+                <div class="t">直播门票 · RivenStark <span class="status ok">已到账</span></div>
                 <div class="meta">「深夜电台 · 04期」 · 02:14</div>
             </div>
             <div class="tx-r">
@@ -510,7 +534,7 @@ body {
     </div>
     <div class="tx-list">
 
-        <div class="tx-item">
+        <div class="tx-item" data-type="withdraw expense" onclick="location.href='transaction-detail.html?type=withdraw&order=W20260422235816'">
             <div class="tx-ic withdraw"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
             <div class="tx-m">
                 <div class="t">提现至银行卡 <span class="status ok">已到账</span></div>
@@ -522,10 +546,10 @@ body {
             </div>
         </div>
 
-        <div class="tx-item">
+        <div class="tx-item" data-type="sub income" onclick="location.href='transaction-detail.html?type=sub&order=S20260422234108'">
             <div class="tx-ic sub"><i class="fa-regular fa-heart"></i></div>
             <div class="tx-m">
-                <div class="t">订阅 · NoahKlein <span class="status ok">已结算</span></div>
+                <div class="t">订阅 · NoahKlein <span class="status ok">已到账</span></div>
                 <div class="meta">季度订阅 · 23:41 <span class="sep">|</span> 订单号 S202604220241</div>
             </div>
             <div class="tx-r">
@@ -534,10 +558,10 @@ body {
             </div>
         </div>
 
-        <div class="tx-item">
+        <div class="tx-item" data-type="tip income" onclick="location.href='transaction-detail.html?type=tip&order=T20260422210831'">
             <div class="tx-ic tip"><i class="fa-solid fa-gift"></i></div>
             <div class="tx-m">
-                <div class="t">打赏 · LilyBrooks <span class="status ok">已结算</span></div>
+                <div class="t">打赏 · LilyBrooks <span class="status ok">已到账</span></div>
                 <div class="meta">皇冠 👑 · 21:08</div>
             </div>
             <div class="tx-r">
@@ -546,10 +570,10 @@ body {
             </div>
         </div>
 
-        <div class="tx-item">
+        <div class="tx-item" data-type="tip income" onclick="location.href='transaction-detail.html?type=tip&order=T20260422142655'">
             <div class="tx-ic tip"><i class="fa-solid fa-gift"></i></div>
             <div class="tx-m">
-                <div class="t">打赏 · @Anonymous <span class="status ok">已结算</span></div>
+                <div class="t">打赏 · @Anonymous <span class="status ok">已到账</span></div>
                 <div class="meta">棒棒糖 🍭 × 5 · 14:26</div>
             </div>
             <div class="tx-r">
@@ -570,7 +594,7 @@ body {
     </div>
     <div class="tx-list">
 
-        <div class="tx-item">
+        <div class="tx-item" data-type="recharge income" onclick="location.href='transaction-detail.html?type=recharge&order=R20260421184200'">
             <div class="tx-ic recharge"><i class="fa-solid fa-wallet"></i></div>
             <div class="tx-m">
                 <div class="t">USDT 充值 <span class="status ok">已到账</span></div>
@@ -582,10 +606,10 @@ body {
             </div>
         </div>
 
-        <div class="tx-item">
+        <div class="tx-item" data-type="income" onclick="location.href='transaction-detail.html?type=settle&order=SET20260421120018'">
             <div class="tx-ic settle"><i class="fa-solid fa-sack-dollar"></i></div>
             <div class="tx-m">
-                <div class="t">结算释放 · 直播收入 <span class="status ok">已入账</span></div>
+                <div class="t">结算释放 · 直播收入 <span class="status ok">已到账</span></div>
                 <div class="meta">04-18 直播收益结算完成 · 12:00</div>
             </div>
             <div class="tx-r">
@@ -594,7 +618,7 @@ body {
             </div>
         </div>
 
-        <div class="tx-item">
+        <div class="tx-item" data-type="withdraw expense" onclick="location.href='transaction-detail.html?type=withdraw&order=W20260421092077'">
             <div class="tx-ic withdraw"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
             <div class="tx-m">
                 <div class="t">提现申请 <span class="status fail">已取消</span></div>
@@ -618,7 +642,7 @@ body {
     </div>
     <div class="tx-list">
 
-        <div class="tx-item">
+        <div class="tx-item" data-type="tip income" onclick="location.href='transaction-detail.html?type=tip&order=T20260420221003'">
             <div class="tx-ic tip"><i class="fa-solid fa-gift"></i></div>
             <div class="tx-m">
                 <div class="t">打赏 · Luna_77 <span class="status frozen">冻结中</span></div>
@@ -630,10 +654,10 @@ body {
             </div>
         </div>
 
-        <div class="tx-item">
+        <div class="tx-item" data-type="expense" onclick="location.href='transaction-detail.html?type=fee&order=F20260420170008'">
             <div class="tx-ic refund"><i class="fa-solid fa-rotate-left"></i></div>
             <div class="tx-m">
-                <div class="t">平台手续费 <span class="status ok">已扣除</span></div>
+                <div class="t">平台手续费 <span class="status ok">已到账</span></div>
                 <div class="meta">订阅收入 10% 分成 · 17:00</div>
             </div>
             <div class="tx-r">
@@ -642,15 +666,51 @@ body {
             </div>
         </div>
 
-        <div class="tx-item">
+        <div class="tx-item" data-type="sub income" onclick="location.href='transaction-detail.html?type=sub&order=S20260420080012'">
             <div class="tx-ic sub"><i class="fa-regular fa-heart"></i></div>
             <div class="tx-m">
-                <div class="t">订阅 · LeoDays <span class="status ok">已结算</span></div>
+                <div class="t">订阅 · LeoDays <span class="status ok">已到账</span></div>
                 <div class="meta">月度订阅 · 08:00</div>
             </div>
             <div class="tx-r">
                 <div class="v inc">+$8.00</div>
                 <div class="sub">8 USDT</div>
+            </div>
+        </div>
+
+        <div class="tx-item" data-type="digital income" onclick="location.href='transaction-detail.html?type=digital&order=D20260420061240'">
+            <div class="tx-ic settle"><i class="fa-solid fa-gem"></i></div>
+            <div class="tx-m">
+                <div class="t">数字资产销售 · 图集《东京夜拍》 <span class="status ok">已到账</span></div>
+                <div class="meta">买家 @mia_film · 06:12</div>
+            </div>
+            <div class="tx-r">
+                <div class="v inc">+$36.00</div>
+                <div class="sub">36 USDT</div>
+            </div>
+        </div>
+
+        <div class="tx-item" data-type="affiliate income" onclick="location.href='transaction-detail.html?type=affiliate&order=A20260420053015'">
+            <div class="tx-ic live"><i class="fa-solid fa-bag-shopping"></i></div>
+            <div class="tx-m">
+                <div class="t">联盟佣金回传 · 旅行稳定器 <span class="status ok">已到账</span></div>
+                <div class="meta">订单完成回传 · 05:30</div>
+            </div>
+            <div class="tx-r">
+                <div class="v inc">+$12.80</div>
+                <div class="sub">12.8 USDT</div>
+            </div>
+        </div>
+
+        <div class="tx-item" data-type="chain expense" onclick="location.href='transaction-detail.html?type=chain&order=C20260420031209'">
+            <div class="tx-ic refund"><i class="fa-solid fa-link"></i></div>
+            <div class="tx-m">
+                <div class="t">链上转账 · USDT-TRC20 <span class="status ok">已到账</span></div>
+                <div class="meta">TXID 0x8a72...f29e · 03:12</div>
+            </div>
+            <div class="tx-r">
+                <div class="v out">-$20.00</div>
+                <div class="sub">20 USDT</div>
             </div>
         </div>
 
@@ -666,9 +726,53 @@ body {
 </div>
 
 <!-- 悬浮筛选 FAB -->
-<div class="fab-filter">
-    <i class="fa-solid fa-filter"></i>
-    <span class="dot"></span>
+<div class="tx-ovl" id="txFilterOvl">
+    <div class="tx-sheet">
+        <div class="grab"></div>
+        <div class="hd">
+            <div class="t" id="txSheetTitle">筛选</div>
+            <div class="x" id="txSheetClose"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+        <div class="sec" id="txMonthSec">
+            <div class="lb">月份</div>
+            <div class="tx-pills" id="txMonthPills">
+                <button type="button" class="tx-pill on" data-month="本月">本月</button>
+                <button type="button" class="tx-pill" data-month="近30天">近30天</button>
+                <button type="button" class="tx-pill" data-month="2026-03">2026-03</button>
+                <button type="button" class="tx-pill" data-month="2026-02">2026-02</button>
+            </div>
+        </div>
+        <div class="sec" id="txTimeSec">
+            <div class="lb">时间范围</div>
+            <div class="tx-pills" id="txTimePills">
+                <button type="button" class="tx-pill on" data-time="本月">本月</button>
+                <button type="button" class="tx-pill" data-time="今天">今天</button>
+                <button type="button" class="tx-pill" data-time="近7天">近7天</button>
+                <button type="button" class="tx-pill" data-time="近30天">近30天</button>
+            </div>
+        </div>
+        <div class="sec" id="txAdvSec">
+            <div class="lb">交易状态</div>
+            <div class="tx-pills" id="txStatusPills">
+                <button type="button" class="tx-pill on" data-status="all">全部状态</button>
+                <button type="button" class="tx-pill" data-status="ok">已到账</button>
+                <button type="button" class="tx-pill" data-status="pending">入账中</button>
+                <button type="button" class="tx-pill" data-status="frozen">冻结中</button>
+                <button type="button" class="tx-pill" data-status="fail">已取消</button>
+            </div>
+            <div class="lb" style="margin-top:10px">金额区间</div>
+            <div class="tx-pills" id="txAmountPills">
+                <button type="button" class="tx-pill on" data-amt="all">不限</button>
+                <button type="button" class="tx-pill" data-amt="0-10">0-10 USDT</button>
+                <button type="button" class="tx-pill" data-amt="10-50">10-50 USDT</button>
+                <button type="button" class="tx-pill" data-amt="50+">50+ USDT</button>
+            </div>
+        </div>
+        <div class="ops">
+            <button type="button" class="btn btn-secondary" id="txFilterResetBtn">重置</button>
+            <button type="button" class="btn btn-primary" id="txFilterApplyBtn">应用筛选</button>
+        </div>
+    </div>
 </div>
 
 <!-- Tab Bar -->
@@ -681,5 +785,166 @@ body {
 
 <div class="home-indicator"></div>
 <script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var chipsWrap = document.getElementById('txFilterChips');
+    var currentLabel = document.getElementById('txCurrentFilterLabel');
+    var labelMap = {
+        all: '全部类型',
+        income: '收入',
+        expense: '支出',
+        recharge: '充值',
+        withdraw: '提现',
+        chain: '链上',
+        digital: '数字资产',
+        affiliate: '联盟佣金',
+        tip: '打赏',
+        sub: '订阅'
+    };
+    var state = {
+        type: 'all',
+        time: '本月',
+        month: '本月',
+        status: 'all',
+        amount: 'all'
+    };
+    var monthPillText = document.getElementById('txMonthPillText');
+    var timeBtn = document.getElementById('txTimeBtn');
+    var advBtn = document.getElementById('txAdvBtn');
+    var monthPill = document.getElementById('txMonthPill');
+    var filterOvl = document.getElementById('txFilterOvl');
+    var sheetClose = document.getElementById('txSheetClose');
+    var sheetTitle = document.getElementById('txSheetTitle');
+    var monthSec = document.getElementById('txMonthSec');
+    var timeSec = document.getElementById('txTimeSec');
+    var advSec = document.getElementById('txAdvSec');
+    var resetBtn = document.getElementById('txFilterResetBtn');
+    var applyBtn = document.getElementById('txFilterApplyBtn');
+    function toast(msg) {
+        if (window.DigitalH5Nav && typeof window.DigitalH5Nav.toast === 'function') window.DigitalH5Nav.toast(msg);
+    }
+    function selectSingle(containerId, valueKey, value) {
+        var wrap = document.getElementById(containerId);
+        if (!wrap) return;
+        wrap.querySelectorAll('.tx-pill').forEach(function (el) {
+            el.classList.toggle('on', el.getAttribute(valueKey) === value);
+        });
+    }
+    function setPanelMode(mode) {
+        if (!sheetTitle || !monthSec || !timeSec || !advSec) return;
+        monthSec.style.display = mode === 'month' ? '' : 'none';
+        timeSec.style.display = mode === 'time' ? '' : 'none';
+        advSec.style.display = mode === 'advanced' ? '' : 'none';
+        sheetTitle.textContent = mode === 'month' ? '选择月份' : (mode === 'time' ? '选择时间' : '高级筛选');
+    }
+    function openPanel(mode) {
+        setPanelMode(mode);
+        if (filterOvl) filterOvl.classList.add('open');
+    }
+    function closePanel() {
+        if (filterOvl) filterOvl.classList.remove('open');
+    }
+    function parseAmount(row) {
+        var vEl = row.querySelector('.tx-r .v');
+        if (!vEl) return 0;
+        var txt = (vEl.textContent || '').replace(/[^\d.-]/g, '');
+        return Math.abs(parseFloat(txt) || 0);
+    }
+    function amountMatch(amt, range) {
+        if (range === 'all') return true;
+        if (range === '0-10') return amt >= 0 && amt <= 10;
+        if (range === '10-50') return amt > 10 && amt <= 50;
+        if (range === '50+') return amt > 50;
+        return true;
+    }
+    function statusMatch(row, status) {
+        if (status === 'all') return true;
+        var st = row.querySelector('.status');
+        if (!st) return false;
+        return st.classList.contains(status);
+    }
+    function applyFilter(type) {
+        state.type = type || 'all';
+        var rows = document.querySelectorAll('.tx-item[data-type]');
+        var dayBlocks = document.querySelectorAll('.tx-day');
+        var listBlocks = document.querySelectorAll('.tx-list');
+        rows.forEach(function (row) {
+            var types = (row.getAttribute('data-type') || '').split(/\s+/);
+            var byType = state.type === 'all' || types.indexOf(state.type) >= 0;
+            var byStatus = statusMatch(row, state.status);
+            var byAmount = amountMatch(parseAmount(row), state.amount);
+            var show = byType && byStatus && byAmount;
+            row.style.display = show ? '' : 'none';
+        });
+        for (var i = 0; i < listBlocks.length; i += 1) {
+            var list = listBlocks[i];
+            var day = dayBlocks[i];
+            var any = !!list.querySelector('.tx-item[style=""], .tx-item:not([style])');
+            list.style.display = any ? '' : 'none';
+            if (day) day.style.display = any ? '' : 'none';
+        }
+        if (currentLabel) currentLabel.textContent = labelMap[state.type] || '全部类型';
+        if (monthPillText) monthPillText.textContent = state.month;
+    }
+    if (chipsWrap) {
+        chipsWrap.addEventListener('click', function (e) {
+            var chip = e.target.closest('.chip');
+            if (!chip) return;
+            var type = chip.getAttribute('data-filter') || 'all';
+            chipsWrap.querySelectorAll('.chip').forEach(function (node) {
+                node.classList.toggle('active', node === chip);
+            });
+            applyFilter(type);
+        });
+    }
+    function bindPills(containerId, keyAttr, setter) {
+        var wrap = document.getElementById(containerId);
+        if (!wrap) return;
+        wrap.addEventListener('click', function (e) {
+            var p = e.target.closest('.tx-pill');
+            if (!p) return;
+            setter(p.getAttribute(keyAttr) || '');
+        });
+    }
+    bindPills('txMonthPills', 'data-month', function (v) {
+        state.month = v || '本月';
+        selectSingle('txMonthPills', 'data-month', state.month);
+    });
+    bindPills('txTimePills', 'data-time', function (v) {
+        state.time = v || '本月';
+        selectSingle('txTimePills', 'data-time', state.time);
+    });
+    bindPills('txStatusPills', 'data-status', function (v) {
+        state.status = v || 'all';
+        selectSingle('txStatusPills', 'data-status', state.status);
+    });
+    bindPills('txAmountPills', 'data-amt', function (v) {
+        state.amount = v || 'all';
+        selectSingle('txAmountPills', 'data-amt', state.amount);
+    });
+    if (monthPill) monthPill.addEventListener('click', function () { openPanel('month'); });
+    if (timeBtn) timeBtn.addEventListener('click', function () { openPanel('time'); });
+    if (advBtn) advBtn.addEventListener('click', function () { openPanel('advanced'); });
+    if (sheetClose) sheetClose.addEventListener('click', closePanel);
+    if (filterOvl) filterOvl.addEventListener('click', function (e) { if (e.target === filterOvl) closePanel(); });
+    if (resetBtn) resetBtn.addEventListener('click', function () {
+        state.time = '本月';
+        state.month = '本月';
+        state.status = 'all';
+        state.amount = 'all';
+        selectSingle('txMonthPills', 'data-month', state.month);
+        selectSingle('txTimePills', 'data-time', state.time);
+        selectSingle('txStatusPills', 'data-status', state.status);
+        selectSingle('txAmountPills', 'data-amt', state.amount);
+        toast('已重置筛选');
+    });
+    if (applyBtn) applyBtn.addEventListener('click', function () {
+        applyFilter(state.type);
+        closePanel();
+        toast('筛选已应用');
+    });
+    applyFilter('all');
+})();
+</script>
 </body>
 </html>

@@ -19,6 +19,7 @@
     background: var(--bg-card);
     border-radius: var(--radius-full);
     padding: 4px;
+    position: relative;
 }
 .currency-switch .s {
     flex: 1;
@@ -37,90 +38,32 @@
     color: #fff; font-weight: 700;
     box-shadow: 0 4px 12px rgba(168,85,247,0.3);
 }
-
-/* 金额输入 */
-.amount-card {
-    margin: 0 16px 12px;
-    padding: 20px;
-    background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.04));
-    border: 1px solid rgba(168,85,247,0.22);
-    border-radius: var(--radius-lg);
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-}
-.amount-card::before {
-    content: ''; position: absolute;
-    top: -40px; right: -40px;
-    width: 120px; height: 120px;
-    background: radial-gradient(circle, rgba(168,85,247,0.18), transparent 70%);
-}
-.amount-card .label {
-    font-size: 11px; color: var(--text-tertiary);
-    text-transform: uppercase; letter-spacing: 0.5px;
-    font-weight: 600;
-    position: relative;
-}
-.amount-card .input-box {
-    display: flex; align-items: baseline; justify-content: center;
-    gap: 4px;
-    margin-top: 8px;
-    position: relative;
-}
-.amount-card .symbol { font-size: 22px; color: var(--text-secondary); font-weight: 600; }
-.amount-card .input {
-    font-size: 42px; font-weight: 800;
-    color: var(--text-primary);
-    min-width: 160px; max-width: 220px;
-    outline: none;
-    background: transparent;
-    border: none;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-    font-family: inherit;
-    letter-spacing: -1px;
-}
-.amount-card .input::placeholder { color: var(--text-tertiary); }
-.amount-card .unit-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 4px 10px;
-    background: rgba(16,185,129,0.15);
-    border: 1px solid rgba(16,185,129,0.25);
-    border-radius: 999px;
-    font-size: 11px; color: var(--crypto-green);
-    font-weight: 600;
-    margin-top: 6px;
-    position: relative;
-}
-.amount-card .rate {
-    font-size: 11px; color: var(--text-tertiary);
-    margin-top: 6px;
-    position: relative;
-}
-
-/* 快选 */
-.quick-amounts {
-    margin: 0 16px 16px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-}
-.quick-amounts .qa {
-    padding: 10px 0;
-    text-align: center;
-    border-radius: var(--radius-md);
-    background: var(--bg-card);
+.coin-menu {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    top: calc(100% + 8px);
+    background: #171726;
     border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    z-index: 30;
+    display: none;
+    box-shadow: 0 14px 30px rgba(0,0,0,0.35);
+}
+.coin-menu.open { display: block; }
+.coin-opt {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 12px;
     font-size: 13px;
     color: var(--text-secondary);
     cursor: pointer;
 }
-.quick-amounts .qa.active {
-    background: rgba(168,85,247,0.12);
-    border-color: var(--brand-purple);
-    color: var(--text-primary);
-    font-weight: 600;
-}
+.coin-opt + .coin-opt { border-top: 1px solid rgba(255,255,255,0.06); }
+.coin-opt.active { color: #fff; background: rgba(168,85,247,0.12); }
+.coin-opt i { color: var(--brand-purple); }
 
 /* 链选择 */
 .section-title {
@@ -263,25 +206,6 @@
                 0 0 0 4px #fff;
 }
 
-/* 金额提示带 */
-.amount-highlight {
-    text-align: center;
-    font-size: 13px;
-    color: var(--text-secondary);
-    margin-bottom: 12px;
-    position: relative;
-}
-.amount-highlight b {
-    color: #fff;
-    font-weight: 700;
-    font-size: 15px;
-    font-variant-numeric: tabular-nums;
-}
-.amount-highlight .unit {
-    color: var(--crypto-green);
-    font-weight: 600;
-}
-
 /* 地址行 */
 .addr-row {
     background: rgba(0,0,0,0.35);
@@ -349,23 +273,6 @@
 }
 .order-preview .op-line .k { color: var(--text-tertiary); font-size: 12px; }
 .order-preview .op-line .v { color: #fff; font-weight: 500; }
-.order-preview .op-amount {
-    font-size: 18px;
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.3px;
-    background: linear-gradient(135deg, #fff, #C084FC);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-.order-preview .op-amount .unit {
-    background: none;
-    -webkit-text-fill-color: #6EE7B7;
-    font-size: 12px;
-    font-weight: 600;
-    margin-left: 3px;
-}
 .order-preview .op-line.total {
     border-top: 1px dashed rgba(255,255,255,0.1);
     margin-top: 4px;
@@ -492,15 +399,92 @@
 .info-row .line .v { color: #fff; font-weight: 500; }
 .info-row .line .v.ok { color: var(--crypto-green); }
 
-.submit-bar {
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    padding: 10px 16px 30px;
-    background: rgba(10,10,18,0.95);
-    backdrop-filter: blur(20px);
-    border-top: 0.5px solid var(--border-color);
-    z-index: 20;
+.mob-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 108px;
+    transform: translateX(-50%);
+    padding: 10px 16px;
+    background: rgba(0,0,0,0.9);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 2147483646;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    max-width: 92vw;
+    text-align: center;
 }
+.mob-toast.show { opacity: 1; }
+
+.wallet-ovl {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.56);
+    z-index: 80;
+    display: none;
+    align-items: flex-end;
+}
+.wallet-ovl.open { display: flex; }
+.wallet-sheet {
+    width: 100%;
+    background: #141421;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -20px 36px rgba(0,0,0,0.45);
+    padding: 10px 14px 22px;
+}
+.wallet-sheet .grab {
+    width: 42px; height: 5px; border-radius: 999px;
+    margin: 0 auto 10px;
+    background: rgba(255,255,255,0.2);
+}
+.wallet-sheet .hd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+.wallet-sheet .hd .t { font-size: 16px; font-weight: 700; }
+.wallet-sheet .hd .sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.wallet-close {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: rgba(255,255,255,0.08);
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+.wallet-list {
+    max-height: 48vh;
+    overflow-y: auto;
+    margin-top: 8px;
+}
+.wallet-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    padding: 11px 12px;
+    cursor: pointer;
+}
+.wallet-item + .wallet-item { margin-top: 8px; }
+.wallet-item .l { display: flex; align-items: center; gap: 10px; }
+.wallet-item .ic {
+    width: 30px; height: 30px; border-radius: 9px;
+    display: grid; place-items: center;
+    background: rgba(168,85,247,0.2);
+    color: #fff;
+}
+.wallet-item .nm { font-size: 13px; font-weight: 600; color: #fff; }
+.wallet-item .st { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; }
+.wallet-item.detected { border-color: rgba(16,185,129,0.55); }
+.wallet-item.detected .st { color: #6EE7B7; }
 </style>
 </head>
 <body>
@@ -517,37 +501,18 @@
 <div class="nav-bar solid">
     <div class="nav-left"><div class="nav-btn"><i class="fa-solid fa-chevron-left"></i></div></div>
     <div class="nav-title">充值</div>
-    <div class="nav-right"><div class="nav-btn"><i class="fa-regular fa-clock-rotate-left"></i></div></div>
+    <div class="nav-right"><div class="nav-btn" id="rcHistoryBtn"><i class="fa-solid fa-clock-rotate-left"></i></div></div>
 </div>
 
 <div class="app-content">
 
     <!-- 币种切换 -->
-    <div class="currency-switch">
-        <div class="s active"><i class="fa-brands fa-bitcoin"></i> USDT</div>
-        <div class="s" onclick="location.href='recharge-fiat.html'"><i class="fa-solid fa-yen-sign"></i> 法币 (¥)</div>
-    </div>
-
-    <!-- 金额 -->
-    <div class="amount-card">
-        <div class="label">充值金额</div>
-        <div class="input-box">
-            <span class="symbol">$</span>
-            <input class="input" placeholder="0.00" value="100.00">
+    <div class="currency-switch" id="rcCoinSwitch">
+        <div class="s active" id="rcCoinToggle"><i class="fa-brands fa-bitcoin"></i> <span id="rcCoinLabel">USDT</span> <i class="fa-solid fa-chevron-down" style="font-size:10px;opacity:.9"></i></div>
+        <div class="coin-menu" id="rcCoinMenu">
+            <div class="coin-opt active" data-coin="USDT"><span><i class="fa-brands fa-bitcoin"></i> USDT</span><i class="fa-solid fa-check"></i></div>
+            <div class="coin-opt" data-coin="USDC"><span><i class="fa-solid fa-coins"></i> USDC</span><i class="fa-solid fa-check"></i></div>
         </div>
-        <div class="unit-badge">
-            <i class="fa-solid fa-circle" style="font-size:6px"></i>
-            USDT
-        </div>
-        <div class="rate">当前参考汇率 1 USDT ≈ ¥7.26</div>
-    </div>
-
-    <!-- 快选 -->
-    <div class="quick-amounts">
-        <div class="qa">10</div>
-        <div class="qa">50</div>
-        <div class="qa active">100</div>
-        <div class="qa">500</div>
     </div>
 
     <!-- 链选择 -->
@@ -556,28 +521,28 @@
         <span class="tip"><i class="fa-solid fa-circle-info"></i> 地址按网络不同</span>
     </div>
     <div class="chain-scroll">
-        <div class="chain-chip active">
+        <div class="chain-chip active" data-chain="TRC20" data-network="TRON (TRC20)" data-fee="0 USDT · 免费" data-arrive="1 区块确认 · ≈ 1 分钟">
             <div class="logo trc">T</div>
             <div class="info">
                 <div class="n">TRC20</div>
                 <div class="d">0 手续费 · 推荐</div>
             </div>
         </div>
-        <div class="chain-chip">
+        <div class="chain-chip" data-chain="ERC20" data-network="Ethereum (ERC20)" data-fee="≈ 2.5 USDT" data-arrive="2-8 分钟（拥堵时更长）">
             <div class="logo erc">E</div>
             <div class="info">
                 <div class="n">ERC20</div>
                 <div class="d">手续费较高</div>
             </div>
         </div>
-        <div class="chain-chip">
+        <div class="chain-chip" data-chain="BSC" data-network="BSC (BEP20)" data-fee="≈ 0.1 USDT" data-arrive="≈ 1-3 分钟">
             <div class="logo bsc">B</div>
             <div class="info">
                 <div class="n">BSC</div>
                 <div class="d">≈ 0.1 USDT</div>
             </div>
         </div>
-        <div class="chain-chip">
+        <div class="chain-chip" data-chain="SOL" data-network="Solana" data-fee="≈ 0.01 USDT" data-arrive="极速到账 · 秒级确认">
             <div class="logo sol">S</div>
             <div class="info">
                 <div class="n">Solana</div>
@@ -586,42 +551,28 @@
         </div>
     </div>
 
-    <!-- 订单汇总（替代原 QR 大卡） -->
     <div class="section-title">
-        <span>订单预览</span>
-        <span class="tip"><i class="fa-solid fa-circle-info"></i> 确认后生成地址</span>
+        <span>充值地址与二维码</span>
+        <span class="tip"><i class="fa-solid fa-circle-info"></i> 直接在钱包转账</span>
     </div>
-    <div class="order-preview">
-        <div class="op-line">
-            <span class="k">充值数量</span>
-            <span class="v op-amount">100.00 <span class="unit">USDT</span></span>
+    <div class="deposit-main">
+        <div class="deposit-header">
+            <span class="chain-badge" id="rcChainBadge"><span class="dot"></span> TRON (TRC20)</span>
+            <div class="scan-tip"><i class="fa-solid fa-circle"></i> 使用钱包扫码/复制地址</div>
         </div>
-        <div class="op-line">
-            <span class="k">到账币种</span>
-            <span class="v">
-                <span class="coin-badge"><i class="fa-brands fa-bitcoin"></i> USDT</span>
-            </span>
+        <div class="qr-box-large">
+            <img id="rcQrImg" src="https://api.qrserver.com/v1/create-qr-code/?size=340x340&margin=0&data=tron%3ATF9K5y8aNh29zrXqL4p8wNxk2Yn6qJcV3p" alt="Recharge QR">
+            <span class="c1"></span>
+            <span class="c2"></span>
+            <div class="qr-center"><i class="fa-solid fa-qrcode"></i></div>
         </div>
-        <div class="op-line">
-            <span class="k">转账网络</span>
-            <span class="v">
-                <span class="chain-inline">
-                    <span class="ci-dot"></span>
-                    TRON (TRC20)
-                </span>
-            </span>
+        <div class="addr-row">
+            <div class="addr" id="rcAddrText">TF9K5y8aNh29zrXqL4p8wNxk2Yn6qJcV3p</div>
+            <div class="copy-btn" id="rcCopyBtn"><i class="fa-regular fa-copy"></i>复制</div>
         </div>
-        <div class="op-line">
-            <span class="k">平台手续费</span>
-            <span class="v" style="color:var(--crypto-green)">0 USDT · 免费</span>
-        </div>
-        <div class="op-line">
-            <span class="k">预计到账</span>
-            <span class="v" style="color:var(--crypto-green)">1 区块确认 · ≈ 1 分钟</span>
-        </div>
-        <div class="op-line total">
-            <span class="k">最小充值金额</span>
-            <span class="v">1 USDT</span>
+        <div class="action-row">
+            <div class="btn-mini" id="rcOpenWalletBtn"><i class="fa-solid fa-wallet"></i>去钱包转账</div>
+            <div class="btn-mini" id="rcRefreshBtn"><i class="fa-solid fa-rotate"></i>刷新地址</div>
         </div>
     </div>
 
@@ -630,22 +581,22 @@
         <div class="fg-step done">
             <div class="fg-num">1</div>
             <div class="fg-txt">
-                <div class="fg-t">填写充值信息</div>
-                <div class="fg-s">金额与转账网络已确认</div>
+                <div class="fg-t">选择网络</div>
+                <div class="fg-s">生成地址后，在钱包内填写金额并转账</div>
             </div>
         </div>
         <div class="fg-step active">
             <div class="fg-num">2</div>
             <div class="fg-txt">
-                <div class="fg-t">确认并生成收款地址</div>
-                <div class="fg-s">点击下方按钮，创建充值订单</div>
+                <div class="fg-t">生成充值地址</div>
+                <div class="fg-s">可随时刷新，按所选网络转账</div>
             </div>
         </div>
         <div class="fg-step">
             <div class="fg-num">3</div>
             <div class="fg-txt">
                 <div class="fg-t">扫码或复制地址转账</div>
-                <div class="fg-s">15 分钟内完成，超时订单自动取消</div>
+                <div class="fg-s">无倒计时，按需充值</div>
             </div>
         </div>
         <div class="fg-step">
@@ -661,19 +612,223 @@
     <div class="warn-box">
         <div class="ic"><i class="fa-solid fa-triangle-exclamation"></i></div>
         <div class="txt">
-            <b>仅支持所选网络的 USDT</b><br>
+            <b>仅支持所选网络的稳定币</b><br>
             跨网络转账（如 ERC20 转到 TRC20）将造成资产丢失且无法追回
         </div>
     </div>
 
 </div>
 
-<div class="submit-bar">
-    <button class="btn btn-primary btn-block" onclick="location.href='recharge-qr-modal.html'">
-        <i class="fa-solid fa-check"></i> 确认充值
-    </button>
-</div>
-
 <div class="home-indicator"></div>
+<div id="rcToast" class="mob-toast" role="status" aria-live="polite"></div>
+<div class="wallet-ovl" id="rcWalletOvl">
+    <div class="wallet-sheet">
+        <div class="grab"></div>
+        <div class="hd">
+            <div>
+                <div class="t">选择钱包</div>
+                <div class="sub" id="rcWalletHint">检测可用钱包中...</div>
+            </div>
+            <div class="wallet-close" id="rcWalletClose"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+        <div class="wallet-list" id="rcWalletList"></div>
+    </div>
+</div>
+<script>
+(function () {
+    function toast(msg) {
+        var t = document.getElementById('rcToast');
+        if (!t) return;
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._t);
+        t._t = setTimeout(function () { t.classList.remove('show'); }, 2200);
+    }
+    var historyBtn = document.getElementById('rcHistoryBtn');
+    if (historyBtn) historyBtn.addEventListener('click', function () { location.href = 'transactions.html'; });
+    var navBack = document.querySelector('.nav-left .nav-btn');
+    if (navBack) navBack.addEventListener('click', function () {
+        if (history.length > 1) history.back();
+        else location.href = 'wallet.html';
+    });
+    var coinSwitch = document.getElementById('rcCoinSwitch');
+    var coinToggle = document.getElementById('rcCoinToggle');
+    var coinLabel = document.getElementById('rcCoinLabel');
+    var coinMenu = document.getElementById('rcCoinMenu');
+    var coinOptions = document.querySelectorAll('.coin-opt');
+    var chainList = document.querySelectorAll('.chain-chip');
+    var chainBadge = document.getElementById('rcChainBadge');
+    var qrImg = document.getElementById('rcQrImg');
+    var addrText = document.getElementById('rcAddrText');
+    var copyBtn = document.getElementById('rcCopyBtn');
+    var refreshBtn = document.getElementById('rcRefreshBtn');
+    var openWalletBtn = document.getElementById('rcOpenWalletBtn');
+    var walletOvl = document.getElementById('rcWalletOvl');
+    var walletClose = document.getElementById('rcWalletClose');
+    var walletList = document.getElementById('rcWalletList');
+    var walletHint = document.getElementById('rcWalletHint');
+    var currentCoin = 'USDT';
+    var currentChainCode = 'TRC20';
+    var currentAddress = '';
+
+    function selectedChain() { return document.querySelector('.chain-chip.active'); }
+    function getAddress(coin, chain) {
+        var table = {
+            USDT: {
+                TRC20: 'TF9K5y8aNh29zrXqL4p8wNxk2Yn6qJcV3p',
+                ERC20: '0x7A3FfA3D9aB1C8D5338A67f42DE34be23C91fA2C',
+                BSC: '0x6CbEf7194fD8C27b4e4F1Ee5B3dA9a106F0D5a2B',
+                SOL: '9xQeWvG816bUx9EPjHmaT23yvVMgM8aX7FXQfY6fK5cP'
+            },
+            USDC: {
+                TRC20: 'TQ8kmYr6N3x4UoWjafJsE2DqQzQb4Mc7sP',
+                ERC20: '0x9cB3f2a4dA4E4A9Ca9919F4D0A0aF2AeeA4E7F9B',
+                BSC: '0x4DcF2C57B5A4D5e4F73AeaD4eF6A1282d2B57f6B',
+                SOL: '5N9YwW8zA2hS6rPf2qNwQd4tPLjJ7KmR9mT9pQa4C3Dg'
+            }
+        };
+        return (table[coin] && table[coin][chain]) || table.USDT.TRC20;
+    }
+    function renderAddress(showToast) {
+        var ch = selectedChain();
+        if (!ch) return;
+        var chainCode = (ch.getAttribute('data-chain') || 'TRC20').toUpperCase();
+        var network = ch.getAttribute('data-network') || 'TRON (TRC20)';
+        var addr = getAddress(currentCoin, chainCode);
+        currentChainCode = chainCode;
+        currentAddress = addr;
+        if (chainBadge) chainBadge.innerHTML = '<span class="dot"></span> ' + network + ' · ' + currentCoin;
+        if (addrText) addrText.textContent = addr;
+        if (qrImg) {
+            var uri = chainCode.toLowerCase() + ':' + addr;
+            qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=340x340&margin=0&data=' + encodeURIComponent(uri);
+        }
+        if (showToast) toast('充值地址已更新');
+    }
+    function transferUri() {
+        var scheme = (currentChainCode || 'TRC20').toLowerCase();
+        return scheme + ':' + currentAddress;
+    }
+    function walletCatalog() {
+        return [
+            { id: 'metamask', name: 'MetaMask', icon: 'fa-brands fa-ethereum', deeplink: 'https://metamask.app.link/send/' },
+            { id: 'okx', name: 'OKX Wallet', icon: 'fa-solid fa-wallet', deeplink: 'okx://wallet/dapp/url?dappUrl=' },
+            { id: 'trust', name: 'Trust Wallet', icon: 'fa-solid fa-shield-halved', deeplink: 'trust://open_url?coin_id=60&url=' },
+            { id: 'tokenpocket', name: 'TokenPocket', icon: 'fa-solid fa-t', deeplink: 'tpoutside://pull.activity?param=' },
+            { id: 'bitget', name: 'Bitget Wallet', icon: 'fa-solid fa-bolt', deeplink: 'bitkeep://bkconnect?action=dapp&url=' }
+        ];
+    }
+    function detectWallets() {
+        var ua = (navigator.userAgent || '').toLowerCase();
+        var detected = [];
+        var provider = window.ethereum || null;
+        if (provider && provider.isMetaMask) detected.push('metamask');
+        if (provider && provider.isOkxWallet) detected.push('okx');
+        if (provider && provider.isTrust) detected.push('trust');
+        if (ua.indexOf('metamask') >= 0) detected.push('metamask');
+        if (ua.indexOf('okx') >= 0) detected.push('okx');
+        if (ua.indexOf('trust') >= 0) detected.push('trust');
+        if (ua.indexOf('tokenpocket') >= 0 || ua.indexOf('tp/') >= 0) detected.push('tokenpocket');
+        if (ua.indexOf('bitkeep') >= 0 || ua.indexOf('bitget') >= 0) detected.push('bitget');
+        var uniq = {};
+        return detected.filter(function (id) {
+            if (uniq[id]) return false;
+            uniq[id] = true;
+            return true;
+        });
+    }
+    function launchWallet(wallet) {
+        var uri = transferUri();
+        if (!uri || !currentAddress) {
+            toast('地址准备中，请稍后重试');
+            return;
+        }
+        if (wallet.id === 'metamask') {
+            location.href = wallet.deeplink + encodeURIComponent(uri);
+            toast('正在唤起 MetaMask...');
+            return;
+        }
+        if (wallet.id === 'tokenpocket') {
+            location.href = wallet.deeplink + encodeURIComponent(JSON.stringify({
+                url: 'https://goodfans.io/recharge',
+                title: 'GOODFANS Recharge'
+            }));
+            toast('正在唤起 TokenPocket...');
+            return;
+        }
+        location.href = wallet.deeplink + encodeURIComponent('https://goodfans.io/recharge?to=' + encodeURIComponent(currentAddress));
+        toast('正在唤起 ' + wallet.name + '...');
+    }
+    function renderWalletList() {
+        if (!walletList) return;
+        var catalog = walletCatalog();
+        var detected = detectWallets();
+        if (walletHint) {
+            if (detected.length > 1) walletHint.textContent = '检测到多个钱包，请选择一个继续';
+            else if (detected.length === 1) walletHint.textContent = '检测到 1 个钱包，可直接打开或切换';
+            else walletHint.textContent = '未检测到明确钱包环境，可手动选择';
+        }
+        walletList.innerHTML = catalog.map(function (w) {
+            var on = detected.indexOf(w.id) >= 0;
+            return '<div class="wallet-item' + (on ? ' detected' : '') + '" data-wallet-id="' + w.id + '">' +
+                '<div class="l"><div class="ic"><i class="' + w.icon + '"></i></div><div><div class="nm">' + w.name + '</div><div class="st">' + (on ? '已检测到' : '点击尝试打开') + '</div></div></div>' +
+                '<i class="fa-solid fa-chevron-right" style="font-size:12px;color:#8f8fa3"></i></div>';
+        }).join('');
+        var itemMap = {};
+        catalog.forEach(function (w) { itemMap[w.id] = w; });
+        Array.prototype.forEach.call(walletList.querySelectorAll('.wallet-item'), function (el) {
+            el.addEventListener('click', function () {
+                var id = el.getAttribute('data-wallet-id');
+                if (walletOvl) walletOvl.classList.remove('open');
+                launchWallet(itemMap[id]);
+            });
+        });
+        if (detected.length === 1 && itemMap[detected[0]]) {
+            launchWallet(itemMap[detected[0]]);
+        } else if (walletOvl) {
+            walletOvl.classList.add('open');
+        }
+    }
+    chainList.forEach(function (chip) {
+        chip.addEventListener('click', function () {
+            chainList.forEach(function (x) { x.classList.remove('active'); });
+            chip.classList.add('active');
+            renderAddress(false);
+        });
+    });
+    if (coinToggle && coinMenu) {
+        coinToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            coinMenu.classList.toggle('open');
+        });
+    }
+    coinOptions.forEach(function (opt) {
+        opt.addEventListener('click', function () {
+            currentCoin = opt.getAttribute('data-coin') || 'USDT';
+            coinOptions.forEach(function (x) { x.classList.remove('active'); });
+            opt.classList.add('active');
+            if (coinLabel) coinLabel.textContent = currentCoin;
+            if (coinMenu) coinMenu.classList.remove('open');
+            renderAddress(true);
+        });
+    });
+    document.addEventListener('click', function (e) {
+        if (!coinSwitch || !coinMenu) return;
+        if (!coinSwitch.contains(e.target)) coinMenu.classList.remove('open');
+    });
+    if (copyBtn) copyBtn.addEventListener('click', function () {
+        toast('地址已复制');
+    });
+    if (refreshBtn) refreshBtn.addEventListener('click', function () { renderAddress(true); });
+    if (openWalletBtn) openWalletBtn.addEventListener('click', function () {
+        renderWalletList();
+    });
+    if (walletClose && walletOvl) walletClose.addEventListener('click', function () { walletOvl.classList.remove('open'); });
+    if (walletOvl) walletOvl.addEventListener('click', function (e) {
+        if (e.target === walletOvl) walletOvl.classList.remove('open');
+    });
+    renderAddress(false);
+})();
+</script>
 </body>
 </html>
