@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>邀请拉新数据</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.nav-bar{background:var(--bg-primary)}
+.app-content{padding:calc(var(--status-bar-height) + var(--nav-bar-height)) 14px 94px;overflow:auto}
+.head h2{font-size:20px;font-weight:800;display:flex;gap:8px;align-items:center}
+.head p{font-size:12px;color:var(--text-secondary);line-height:1.55;margin-top:8px}
+.actions{display:flex;gap:8px;margin-top:12px}
+.actions .btn{flex:1}
+.code-banner{margin-top:12px;padding:12px;border-radius:12px;background:linear-gradient(135deg,rgba(168,85,247,.16),rgba(59,130,246,.08));border:1px solid rgba(168,85,247,.35)}
+.code-banner .k{font-size:11px;color:var(--text-tertiary);font-weight:700}
+.code-banner .code{font-size:20px;font-weight:900;letter-spacing:.6px;margin-top:4px}
+.code-banner .hint{font-size:11px;color:#ddd;margin-top:6px;line-height:1.45}
+.cap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stat{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:10px}
+.stat .lb{font-size:11px;color:var(--text-tertiary)}
+.stat .v{font-size:22px;font-weight:800;margin-top:6px}
+.stat .sub{font-size:10px;color:var(--text-secondary);margin-top:4px;line-height:1.4}
+.panel{margin-top:12px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:12px}
+.panel h3{font-size:14px;font-weight:800;display:flex;align-items:center;gap:6px}
+.lead{font-size:12px;color:var(--text-secondary);line-height:1.55;margin-top:6px}
+.cap-row{margin-top:10px}
+.cap-row .meta{display:flex;justify-content:space-between;font-size:12px}
+.bar{height:8px;border-radius:999px;background:#0f1020;border:1px solid var(--border-color);margin-top:6px;overflow:hidden}
+.bar span{display:block;height:100%;background:linear-gradient(135deg,#a855f7,#ec4899)}
+.note{font-size:11px;color:var(--text-tertiary);margin-top:8px}
+.cool{display:flex;gap:10px;align-items:flex-start}
+.cool .ico{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(251,191,36,.16);color:#fbbf24;flex-shrink:0}
+.cool .title{font-size:13px;font-weight:700}
+.cool .desc{font-size:12px;color:var(--text-secondary);line-height:1.55;margin-top:4px}
+.cool-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.cool-cell{background:#0f1020;border:1px solid var(--border-color);border-radius:10px;padding:8px}
+.cool-cell .k{font-size:11px;color:var(--text-tertiary)}
+.cool-cell .v{font-size:15px;font-weight:800;margin-top:4px}
+.tabs{margin-top:12px;display:flex;gap:8px}
+.tabs .t{flex:1;height:34px;border-radius:999px;border:1px solid var(--border-color);background:#0f1020;color:var(--text-secondary);font-size:12px}
+.tabs .t.active{border-color:#a855f7;background:rgba(168,85,247,.15);color:#fff}
+.search{margin-top:10px;display:flex;align-items:center;gap:8px;padding:10px 12px;background:#0f1020;border:1px solid var(--border-color);border-radius:10px}
+.search input{flex:1;background:transparent;border:none;outline:none;color:#fff;font-size:12px}
+.list{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.row{padding:10px;background:#0f1020;border:1px solid var(--border-color);border-radius:10px}
+.row .top{display:flex;justify-content:space-between;gap:8px;font-size:12px}
+.row .sub{font-size:11px;color:var(--text-tertiary);margin-top:4px}
+.pill{font-size:10px;padding:2px 7px;border-radius:999px;border:1px solid}
+.ok{color:#86efac;border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.12)}
+.wait{color:#fcd34d;border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.12)}
+.bad{color:#fca5a5;border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.12)}
+.table{margin-top:10px;border:1px solid var(--border-color);border-radius:10px;overflow:hidden}
+.tr{display:grid;grid-template-columns:1.25fr 1fr .8fr .7fr;gap:6px;padding:9px 10px;font-size:11px}
+.tr:nth-child(odd){background:#0f1020}
+.tr.head{background:rgba(255,255,255,.03);font-weight:700;color:var(--text-secondary)}
+.rules{margin-top:10px;padding-left:18px;font-size:12px;line-height:1.6;color:var(--text-secondary)}
+.rules li{margin-bottom:8px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="status-bar"><span class="time">9:41</span><span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span></div>
+<div class="nav-bar solid">
+  <div class="nav-left"><div class="nav-btn" data-back="profile.html"><i class="fa-solid fa-chevron-left"></i></div></div>
+  <div class="nav-title">邀请拉新数据</div>
+  <div class="nav-right"></div>
+</div>
+<div class="app-content">
+  <div class="head">
+    <h2><i class="fa-solid fa-gift" style="color:#fbbf24"></i>邀请拉新数据</h2>
+    <p>通过你的邀请码注册的用户与每一笔奖励。<strong style="color:#E9D5FF">邀请人数不设上限</strong>，积分发放受后台额度控制。</p>
+  </div>
+  <div class="actions">
+    <button class="btn btn-secondary" id="btnShare"><i class="fa-solid fa-qrcode"></i> 分享邀请码</button>
+    <button class="btn btn-primary" data-go="goodfans-assets-legend.html"><i class="fa-solid fa-coins"></i> 积分商城</button>
+  </div>
+
+  <div class="code-banner">
+    <div class="k">我的邀请码</div>
+    <div class="code" id="inviteCode">LUNA-8K3F</div>
+    <div class="hint">每邀请 1 位新用户完成注册并通过风控，奖励 200 积分（受日/累计额度限制）</div>
+    <div style="margin-top:10px"><button class="btn btn-secondary btn-sm" id="btnCopy"><i class="fa-regular fa-copy"></i> 复制</button></div>
+  </div>
+
+  <div class="cap-grid">
+    <div class="stat"><div class="lb">累计邀请注册</div><div class="v">128</div><div class="sub"><i class="fa-solid fa-infinity" style="color:#a855f7"></i> 邀请人数无上限</div></div>
+    <div class="stat"><div class="lb">本月有效邀请</div><div class="v">24</div><div class="sub">完成注册且通过风控</div></div>
+    <div class="stat"><div class="lb">累计邀请奖励积分</div><div class="v" style="color:#fbbf24">25,600</div><div class="sub">仅统计邀请相关发放</div></div>
+  </div>
+
+  <div class="panel">
+    <h3><i class="fa-solid fa-gauge-high" style="color:#a855f7"></i> 奖励额度（防薅策略）</h3>
+    <p class="lead">达到上限后当日/累计不再发放邀请类积分；邀请注册次数仍不限。</p>
+    <div class="cap-row"><div class="meta"><span>今日总积分获取上限</span><strong>320 / 480</strong></div><div class="bar"><span style="width:67%"></span></div></div>
+    <div class="cap-row"><div class="meta"><span>今日邀请奖励上限</span><strong>400 / 600</strong></div><div class="bar"><span style="width:66%"></span></div></div>
+    <div class="cap-row"><div class="meta"><span>累计邀请奖励上限</span><strong>25,600 / 12,000</strong></div><div class="bar"><span style="width:100%"></span></div></div>
+    <div class="note"><i class="fa-solid fa-circle-info"></i> 邀请注册不受次数限制；额度仅约束积分发放。</div>
+  </div>
+
+  <div class="panel">
+    <div class="cool">
+      <div class="ico"><i class="fa-solid fa-hourglass-half"></i></div>
+      <div style="flex:1">
+        <div class="title">积分冷静期 · 7 天</div>
+        <p class="desc">邀请等渠道发放的积分先入「冷静池」，期满后才转入可用积分，方可在积分商城兑换消耗。</p>
+        <div class="cool-stats">
+          <div class="cool-cell"><div class="k">冷静中</div><div class="v" style="color:#fbbf24">1,200</div></div>
+          <div class="cool-cell"><div class="k">可用积分</div><div class="v" style="color:#86efac">8,940</div></div>
+        </div>
+        <div class="note">最近 24 小时新增冻结 400 积分，预计 6 天后可转可用。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="t active" data-tab="invitees">邀请用户 <span style="opacity:.8">6</span></button>
+    <button class="t" data-tab="rewards">奖励明细</button>
+    <button class="t" data-tab="rules">规则说明</button>
+  </div>
+
+  <section data-panel="invitees">
+    <div class="search"><i class="fa-solid fa-magnifying-glass" style="font-size:12px;color:var(--text-tertiary)"></i><input id="userSearch" type="search" placeholder="搜索昵称或 UID…"></div>
+    <div class="list" id="inviteUserList"></div>
+  </section>
+
+  <section data-panel="rewards" hidden>
+    <div class="table" id="rewardTable"></div>
+  </section>
+
+  <section data-panel="rules" hidden>
+    <ol class="rules">
+      <li>新用户注册时可选填邀请码；填写有效码后与邀请人永久关联，不可自行解除。</li>
+      <li>注册成功即建立永久关联；积分进入风控队列，通过后发放（待风控 / 已发放 / 风控未通过）。</li>
+      <li>风控场景：批量注册、可疑身份、设备风险、邀请人异常等。</li>
+      <li>邀请人数无上限；积分发放受日/累计上限约束。</li>
+      <li>积分到账后进入 7 天冷静期，期满转入可用积分池方可兑换。</li>
+      <li>被邀请人可在「设置 → 我的邀请人」只读查看关联。</li>
+    </ol>
+  </section>
+</div>
+<div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function(){
+  function toast(m){ if(window.DigitalH5Nav&&window.DigitalH5Nav.toast) window.DigitalH5Nav.toast(m); }
+  var users=[
+    {name:'Mika',uid:'UID10293',time:'今天 10:28',status:'wait',txt:'待风控，预计 24h 内完成',pts:'待发放'},
+    {name:'Ken',uid:'UID09231',time:'今天 09:10',status:'ok',txt:'风控通过 · 已发放 200 积分',pts:'+200'},
+    {name:'Nova',uid:'UID08345',time:'昨天 22:46',status:'ok',txt:'风控通过 · 已发放 200 积分',pts:'+200'},
+    {name:'spam_bot',uid:'UID05592',time:'昨天 15:22',status:'bad',txt:'风控未通过：同 IP 批量注册',pts:'拒绝'},
+    {name:'LunaFan',uid:'UID04129',time:'3 天前',status:'ok',txt:'风控通过 · 已发放 200 积分',pts:'+200'},
+    {name:'Riku',uid:'UID02014',time:'6 天前',status:'ok',txt:'风控通过 · 已发放 200 积分',pts:'+200'}
+  ];
+  var rewards=[
+    ['08-29 10:31','Ken','邀请奖励','+200','风控通过'],
+    ['08-28 22:48','Nova','邀请奖励','+200','风控通过'],
+    ['08-28 15:22','spam_bot','邀请奖励','0','风控拒绝'],
+    ['08-26 20:11','LunaFan','邀请奖励','+200','风控通过']
+  ];
+  function renderUsers(q){
+    var list=document.getElementById('inviteUserList');
+    var key=(q||'').trim().toLowerCase();
+    var rows=users.filter(function(u){ return !key||u.name.toLowerCase().indexOf(key)>=0||u.uid.toLowerCase().indexOf(key)>=0; });
+    list.innerHTML=rows.map(function(u){
+      var cls=u.status==='ok'?'ok':(u.status==='wait'?'wait':'bad');
+      var txt=u.status==='ok'?'已发放':(u.status==='wait'?'待风控':'风控未通过');
+      return '<div class="row"><div class="top"><span><strong>'+u.name+'</strong> · '+u.uid+'</span><span class="pill '+cls+'">'+txt+'</span></div><div class="sub">'+u.time+' · '+u.txt+' · '+u.pts+'</div></div>';
+    }).join('') || '<div class="row"><div class="top"><strong>无匹配用户</strong></div><div class="sub">请更换关键词后重试</div></div>';
+  }
+  function renderRewards(){
+    var box=document.getElementById('rewardTable');
+    box.innerHTML='<div class="tr head"><span>时间</span><span>关联用户</span><span>类型</span><span>积分</span></div>' + rewards.map(function(r){ return '<div class="tr"><span>'+r[0]+'</span><span>'+r[1]+'</span><span>'+r[2]+'</span><span>'+r[3]+'</span></div>'; }).join('');
+  }
+  document.getElementById('btnCopy').onclick=function(){
+    var code=document.getElementById('inviteCode').textContent;
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(code).then(function(){ toast('邀请码已复制：'+code); }); return; }
+    toast('邀请码已复制：'+code);
+  };
+  document.getElementById('btnShare').onclick=function(){ toast('分享邀请码功能已打开（原型）'); };
+  document.getElementById('userSearch').addEventListener('input',function(){ renderUsers(this.value); });
+  document.querySelectorAll('#tabs .t').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var tab=btn.getAttribute('data-tab');
+      document.querySelectorAll('#tabs .t').forEach(function(b){ b.classList.toggle('active',b===btn); });
+      document.querySelectorAll('[data-panel]').forEach(function(p){ p.hidden=p.getAttribute('data-panel')!==tab; });
+    });
+  });
+  renderUsers('');
+  renderRewards();
+})();
+</script>
+</body>
+</html>
