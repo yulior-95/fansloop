@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>外观与语言</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content { padding-top: calc(var(--status-bar-height) + var(--nav-bar-height)); padding-bottom: 22px; }
+.head {
+    margin: 10px 16px 12px;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: linear-gradient(135deg, rgba(59,130,246,.14), rgba(168,85,247,.08));
+}
+.crumb { font-size: 11px; color: var(--text-tertiary); display: flex; gap: 6px; align-items: center; }
+.title { margin-top: 8px; font-size: 18px; font-weight: 800; }
+.sub { margin-top: 4px; font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+.head-btn {
+    margin-top: 10px;
+    height: 32px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: #fff;
+    font-size: 12px;
+    padding: 0 12px;
+}
+.card {
+    margin: 0 16px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    overflow: hidden;
+}
+.hd { padding: 12px; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 13px; font-weight: 700; }
+.row { padding: 12px; border-bottom: 1px solid rgba(255,255,255,.05); }
+.row:last-child { border-bottom: 0; }
+.row .t { font-size: 12px; font-weight: 700; }
+.row .d { margin-top: 4px; font-size: 11px; color: var(--text-tertiary); line-height: 1.45; }
+.opt-grid { margin-top: 8px; display: grid; gap: 8px; }
+.opt {
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+}
+.opt.active {
+    border-color: rgba(168,85,247,.5);
+    background: rgba(168,85,247,.16);
+}
+.opt .name { font-size: 12px; font-weight: 700; }
+.opt .desc { margin-top: 3px; font-size: 11px; color: var(--text-tertiary); }
+.sw {
+    margin-top: 8px;
+    width: 46px;
+    height: 26px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.2);
+    position: relative;
+    cursor: pointer;
+}
+.sw::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    transition: .2s;
+}
+.sw.on { background: rgba(16,185,129,.45); border-color: rgba(16,185,129,.5); }
+.sw.on::after { left: 22px; }
+.font-seg {
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+.font-seg button {
+    height: 32px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    font-size: 11px;
+}
+.font-seg button.active {
+    color: #fff;
+    border-color: rgba(168,85,247,.5);
+    background: rgba(168,85,247,.2);
+}
+.info-banner {
+    margin: 0 16px 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    display: flex;
+    gap: 8px;
+}
+.info-banner i { color: #93c5fd; margin-top: 2px; }
+.mini-tools {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.mini-tools button {
+    height: 28px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    font-size: 11px;
+    padding: 0 10px;
+}
+.pulse { box-shadow: 0 0 0 2px rgba(59,130,246,.35) inset; }
+</style>
+</head>
+<body>
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+</div>
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" data-back="settings.html"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">外观与语言</div>
+    <div class="nav-right"></div>
+</div>
+
+<div class="app-content">
+    <div class="head">
+        <div class="crumb"><span>设置</span><i class="fa-solid fa-chevron-right" style="font-size:10px"></i><span>外观与语言</span></div>
+        <div class="title">外观与语言</div>
+        <div class="sub">根据自己的喜好定制 GOODFANS 的视觉效果与本地化体验。所有更改即刻生效。</div>
+        <button type="button" class="head-btn" id="btnResetDisplay"><i class="fa-solid fa-rotate-left"></i> 恢复默认</button>
+    </div>
+
+    <div class="card">
+        <div class="hd">主题</div>
+        <div class="row">
+            <div class="t">选择最适合你眼睛的色彩模式</div>
+            <div class="opt-grid" id="themeGrid">
+                <div class="opt" data-theme="dark">
+                    <div class="name">深色 Dark</div>
+                    <div class="desc">护眼舒适，适合夜晚 · 当前主题</div>
+                </div>
+                <div class="opt" data-theme="light">
+                    <div class="name">浅色 Light</div>
+                    <div class="desc">明亮清新，适合日间办公</div>
+                </div>
+                <div class="opt" data-theme="system">
+                    <div class="name">跟随系统 Auto</div>
+                    <div class="desc">自动随系统昼夜模式切换</div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="t">高对比模式</div>
+            <div class="d">提升文字与背景的对比度，符合 WCAG AAA。</div>
+            <div class="sw" id="swContrast"></div>
+        </div>
+        <div class="row">
+            <div class="t">字体</div>
+            <div class="d">调整全站文字基准大小，不影响布局。</div>
+            <div class="font-seg" id="fontSeg">
+                <button type="button" data-font="small">小</button>
+                <button type="button" data-font="medium">中</button>
+                <button type="button" data-font="large">大</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" id="ga-global-access">
+        <div class="hd">跨国界无障碍</div>
+        <div class="row">
+            <div class="d"><strong>界面语言</strong>仅影响菜单和按钮；以下配置用于直播弹幕、字幕和私信内容翻译，与你的界面语言独立。</div>
+        </div>
+        <div class="row">
+            <div class="t">我的沟通语言</div>
+            <div class="d">观看直播与阅读聊天时，优先显示此语言的译文，可与界面语言不同。</div>
+            <div class="font-seg" id="gaCommLangSeg">
+                <button type="button" data-lang="zh-CN">简体中文</button>
+                <button type="button" data-lang="zh-TW">繁體中文</button>
+                <button type="button" data-lang="en">English</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="t">默认开启弹幕翻译</div>
+            <div class="d">新进入直播间时自动翻译聊天弹幕。</div>
+            <div class="sw on" id="swSubtitle"></div>
+        </div>
+        <div class="row">
+            <div class="t">自动双向翻译</div>
+            <div class="d">母语输入，对方看到其语言版本；收到消息自动翻译。</div>
+            <div class="sw on" id="swChatBoth"></div>
+        </div>
+        <div class="row">
+            <div class="t">发送前预览译文</div>
+            <div class="d">发送私信前确认对方将看到的译文。</div>
+            <div class="sw" id="swChatPreview"></div>
+        </div>
+        <div class="row">
+            <div class="t">显示偏好</div>
+            <div class="d">决定聊天中原文与译文的展示方式。</div>
+            <div class="font-seg" id="gaDisplaySeg">
+                <button type="button" data-mode="both">原文+译文</button>
+                <button type="button" data-mode="translated">仅译文</button>
+                <button type="button" data-mode="origin">仅原文</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="t">仅在 Wi‑Fi 下翻译</div>
+            <div class="d">开启后，移动网络环境下仅显示原文。</div>
+            <div class="sw" id="swWifiOnly"></div>
+        </div>
+        <div class="row">
+            <div class="t">时区本地化</div>
+            <div class="d">自动按本地时区显示直播预约与账单时间。</div>
+            <div class="sw on" id="swTimezone"></div>
+        </div>
+        <div class="row">
+            <div class="t">翻译演示</div>
+            <div class="d">快速验证直播和私信翻译在你当前设置下的展示效果。</div>
+            <div class="mini-tools">
+                <button type="button" id="btnDemoLive"><i class="fa-solid fa-tower-broadcast"></i> 直播演示</button>
+                <button type="button" id="btnDemoMsg"><i class="fa-regular fa-message"></i> 私信演示</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var LS_THEME = 'h5_settings_theme';
+    var LS_LANG = 'h5_settings_lang';
+    var LS_GA_COMM_LANG = 'h5_ga_comm_lang';
+    var LS_FONT = 'h5_settings_font';
+    var LS_CONTRAST = 'h5_settings_contrast';
+    var LS_SUBTITLE = 'h5_settings_subtitle_i18n';
+    var LS_CHAT_BOTH = 'h5_ga_chat_both_i18n';
+    var LS_CHAT_PREVIEW = 'h5_ga_chat_preview';
+    var LS_GA_DISPLAY = 'h5_ga_display_mode';
+    var LS_GA_WIFI_ONLY = 'h5_ga_wifi_only';
+    var LS_TIMEZONE = 'h5_settings_timezone_local';
+
+    function toast(msg) {
+        if (window.DigitalH5Nav && typeof window.DigitalH5Nav.toast === 'function') window.DigitalH5Nav.toast(msg);
+    }
+    function setSwitch(id, value) {
+        var el = document.getElementById(id);
+        if (el) el.classList.toggle('on', !!value);
+    }
+    function bindSwitch(id, key, def, onText, offText) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var on = localStorage.getItem(key);
+        on = on === null ? def : on === '1';
+        setSwitch(id, on);
+        el.addEventListener('click', function () {
+            on = !on;
+            localStorage.setItem(key, on ? '1' : '0');
+            setSwitch(id, on);
+            toast(on ? onText : offText);
+        });
+    }
+    function bindOptionGroup(wrapId, attr, key, def, textPrefix) {
+        var wrap = document.getElementById(wrapId);
+        if (!wrap) return;
+        var val = localStorage.getItem(key) || def;
+        function paint() {
+            wrap.querySelectorAll('[' + attr + ']').forEach(function (el) {
+                el.classList.toggle('active', el.getAttribute(attr) === val);
+            });
+        }
+        paint();
+        wrap.querySelectorAll('[' + attr + ']').forEach(function (el) {
+            el.addEventListener('click', function () {
+                val = el.getAttribute(attr);
+                localStorage.setItem(key, val);
+                paint();
+                if (key === LS_THEME && window.DigitalH5Nav && typeof window.DigitalH5Nav.applyTheme === 'function') {
+                    window.DigitalH5Nav.applyTheme();
+                }
+                toast(textPrefix + '：' + (el.querySelector('.name') ? el.querySelector('.name').textContent : el.textContent.trim()));
+            });
+        });
+    }
+
+    bindOptionGroup('themeGrid', 'data-theme', LS_THEME, 'dark', '主题已切换');
+    bindOptionGroup('fontSeg', 'data-font', LS_FONT, 'medium', '字体已切换');
+    bindOptionGroup('langSeg', 'data-lang', LS_LANG, 'zh-CN', '语言已切换');
+    bindOptionGroup('gaCommLangSeg', 'data-lang', LS_GA_COMM_LANG, 'zh-CN', '沟通语言已切换');
+    bindOptionGroup('gaDisplaySeg', 'data-mode', LS_GA_DISPLAY, 'both', '显示偏好已更新');
+    bindSwitch('swContrast', LS_CONTRAST, false, '高对比模式已开启', '高对比模式已关闭');
+    bindSwitch('swSubtitle', LS_SUBTITLE, true, '弹幕翻译默认开启', '弹幕翻译默认关闭');
+    bindSwitch('swChatBoth', LS_CHAT_BOTH, true, '自动双向翻译已开启', '自动双向翻译已关闭');
+    bindSwitch('swChatPreview', LS_CHAT_PREVIEW, false, '发送前预览已开启', '发送前预览已关闭');
+    bindSwitch('swWifiOnly', LS_GA_WIFI_ONLY, false, '仅 Wi‑Fi 翻译已开启', '仅 Wi‑Fi 翻译已关闭');
+    bindSwitch('swTimezone', LS_TIMEZONE, true, '时区本地化已开启', '时区本地化已关闭');
+
+    var btnDemoLive = document.getElementById('btnDemoLive');
+    if (btnDemoLive) btnDemoLive.addEventListener('click', function () {
+        toast('直播翻译演示已打开（原型）');
+    });
+    var btnDemoMsg = document.getElementById('btnDemoMsg');
+    if (btnDemoMsg) btnDemoMsg.addEventListener('click', function () {
+        toast('私信翻译演示已打开（原型）');
+    });
+
+    var btnResetDisplay = document.getElementById('btnResetDisplay');
+    if (btnResetDisplay) btnResetDisplay.addEventListener('click', function () {
+        localStorage.setItem(LS_THEME, 'dark');
+        localStorage.setItem(LS_LANG, 'zh-CN');
+        localStorage.setItem(LS_GA_COMM_LANG, 'zh-CN');
+        localStorage.setItem(LS_FONT, 'medium');
+        localStorage.setItem(LS_CONTRAST, '0');
+        localStorage.setItem(LS_SUBTITLE, '1');
+        localStorage.setItem(LS_CHAT_BOTH, '1');
+        localStorage.setItem(LS_CHAT_PREVIEW, '0');
+        localStorage.setItem(LS_GA_DISPLAY, 'both');
+        localStorage.setItem(LS_GA_WIFI_ONLY, '0');
+        localStorage.setItem(LS_TIMEZONE, '1');
+        if (window.DigitalH5Nav && typeof window.DigitalH5Nav.applyTheme === 'function') {
+            window.DigitalH5Nav.applyTheme();
+        }
+        toast('已恢复默认');
+        setTimeout(function () { location.reload(); }, 160);
+    });
+
+    if (location.hash === '#ga-global-access') {
+        var sec = document.getElementById('ga-global-access');
+        if (sec) {
+            sec.classList.add('pulse');
+            setTimeout(function () { sec.classList.remove('pulse'); }, 1800);
+            sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+})();
+</script>
+</body>
+</html>

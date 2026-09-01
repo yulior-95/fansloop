@@ -266,6 +266,66 @@ body { background: var(--bg-primary); }
 .preview-title { font-size: 15px; font-weight: 700; }
 .preview-meta { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
 .preview-desc { font-size: 12px; color: var(--text-tertiary); margin-top: 8px; line-height: 1.55; }
+.draft-list-ovl {
+    position: absolute;
+    inset: 0;
+    z-index: 95;
+    background: rgba(0,0,0,.62);
+    display: none;
+    align-items: flex-end;
+}
+.draft-list-ovl.open { display: flex; }
+.draft-list-sheet {
+    width: 100%;
+    max-height: 78%;
+    background: #171726;
+    border-top: 1px solid var(--border-color);
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    padding: 12px 14px 18px;
+    overflow: auto;
+}
+.draft-filter {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.draft-filter button {
+    flex: 1;
+    height: 30px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: #0f1020;
+    color: var(--text-secondary);
+    font-size: 11px;
+}
+.draft-filter button.active {
+    color: #fff;
+    border-color: rgba(168,85,247,.45);
+    background: rgba(168,85,247,.18);
+}
+.draft-full-row {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: #0f1020;
+    margin-bottom: 8px;
+}
+.draft-full-row .thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: center/cover no-repeat;
+    flex-shrink: 0;
+}
+.draft-full-row .main { flex: 1; min-width: 0; }
+.draft-full-row .tt { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.draft-full-row .mm { margin-top: 3px; font-size: 10px; color: var(--text-tertiary); }
+.draft-full-row .ops { margin-top: 8px; display: flex; gap: 8px; }
+.draft-full-row .ops button { height: 26px; padding: 0 10px; border-radius: 999px; font-size: 11px; border: 1px solid var(--border-color); background: var(--bg-card); color: #fff; }
+.draft-full-row .ops .danger { color: #FCA5A5; border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.08); }
 
 .bottom-tip {
     position: absolute;
@@ -403,6 +463,21 @@ body { background: var(--bg-primary); }
         </div>
     </div>
 </div>
+<div class="draft-list-ovl" id="draftListOvl">
+    <div class="draft-list-sheet">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <strong>草稿箱（全部）</strong>
+            <button class="audit-btn" style="flex:0 0 72px" id="draftListCloseBtn">关闭</button>
+        </div>
+        <div class="draft-filter" id="draftFilter">
+            <button class="active" data-filter="all">全部</button>
+            <button data-filter="video">视频</button>
+            <button data-filter="post">图文</button>
+            <button data-filter="live">直播</button>
+        </div>
+        <div id="draftFullList"></div>
+    </div>
+</div>
 <script>
 (function(){
     function toast(msg){
@@ -414,7 +489,33 @@ body { background: var(--bg-primary); }
     var previewMeta = document.getElementById('previewMeta');
     var previewDesc = document.getElementById('previewDesc');
     var previewEditBtn = document.getElementById('previewEditBtn');
+    var draftListOvl = document.getElementById('draftListOvl');
+    var draftFullList = document.getElementById('draftFullList');
     var currentPreviewGo = '';
+    var currentDraftFilter = 'all';
+    var draftsData = [
+        { type: 'video', title: '涩谷夜景完整版 vlog 剪辑', meta: '视频 · 00:58 · 2 天前保存', desc: '东京夜拍夜景合集，已完成剪辑与配乐，待补充标签后即可发布。', cover: 'https://images.unsplash.com/photo-1492288991661-058aa541ff43?w=1200&q=80', go: 'create-video.html?from=draft' },
+        { type: 'post', title: '胶片私房摄影合集（18 张）', meta: '图文 · 18 图 · 昨天', desc: '胶片风主题图文草稿，已选封面与正文，待确认可见范围与价格。', cover: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200&q=80', go: 'create-post.html?from=draft' },
+        { type: 'live', title: '周末爵士夜 · 直播预告', meta: '直播预告 · 3 天后开播 · 今天', desc: '已设置直播封面与预告文案，待确认门票和可见范围。', cover: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1200&q=80', go: 'create-live.html?mode=preview&from=draft' }
+    ];
+
+    function renderDraftFullList() {
+        var rows = draftsData.filter(function (item) {
+            return currentDraftFilter === 'all' ? true : item.type === currentDraftFilter;
+        });
+        draftFullList.innerHTML = rows.map(function (item, idx) {
+            return '<div class="draft-full-row" data-idx="' + idx + '">' +
+                '<div class="thumb" style="background-image:url(\'' + item.cover + '\')"></div>' +
+                '<div class="main">' +
+                '<div class="tt">' + item.title + '</div>' +
+                '<div class="mm">' + item.meta + '</div>' +
+                '<div class="ops">' +
+                '<button data-op="preview">预览</button>' +
+                '<button data-op="edit">去编辑</button>' +
+                '<button class="danger" data-op="delete">删除</button>' +
+                '</div></div></div>';
+        }).join('') || '<div style="text-align:center;color:var(--text-tertiary);font-size:12px;padding:20px 0">暂无草稿</div>';
+    }
 
     document.querySelectorAll('.draft-row[data-preview]').forEach(function(row){
         row.addEventListener('click', function(e){
@@ -439,7 +540,49 @@ body { background: var(--bg-primary); }
     });
 
     document.getElementById('draftMoreBtn').addEventListener('click', function(){
-        toast('草稿箱列表已展开（原型）');
+        renderDraftFullList();
+        draftListOvl.classList.add('open');
+    });
+    document.getElementById('draftListCloseBtn').addEventListener('click', function () {
+        draftListOvl.classList.remove('open');
+    });
+    draftListOvl.addEventListener('click', function (e) {
+        if (e.target === draftListOvl) draftListOvl.classList.remove('open');
+    });
+    document.getElementById('draftFilter').addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-filter]');
+        if (!btn) return;
+        currentDraftFilter = btn.getAttribute('data-filter');
+        document.querySelectorAll('#draftFilter button').forEach(function (b) { b.classList.toggle('active', b === btn); });
+        renderDraftFullList();
+    });
+    draftFullList.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-op]');
+        if (!btn) return;
+        var row = btn.closest('.draft-full-row');
+        if (!row) return;
+        var rowIdx = Number(row.getAttribute('data-idx'));
+        var item = draftsData.filter(function (d) { return currentDraftFilter === 'all' ? true : d.type === currentDraftFilter; })[rowIdx];
+        if (!item) return;
+        var op = btn.getAttribute('data-op');
+        if (op === 'preview') {
+            currentPreviewGo = item.go;
+            previewCover.style.backgroundImage = 'url("' + item.cover + '")';
+            previewTitle.textContent = item.title;
+            previewMeta.textContent = item.meta;
+            previewDesc.textContent = item.desc;
+            previewOvl.classList.add('open');
+            return;
+        }
+        if (op === 'edit') {
+            location.href = item.go;
+            return;
+        }
+        if (op === 'delete') {
+            draftsData = draftsData.filter(function (d) { return d !== item; });
+            renderDraftFullList();
+            toast('草稿已删除');
+        }
     });
 
     var rejectRow = document.querySelector('[data-reject-row]');

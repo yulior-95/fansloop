@@ -6,7 +6,137 @@
 <title>GOODFANS · 账户与安全</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
-<link rel="stylesheet" href="../css/goodfans-auth.css">
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: calc(var(--tab-bar-height) + 18px);
+}
+.sec-card {
+    margin: 10px 16px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    overflow: hidden;
+}
+.sec-head {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.sec-head .ic {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg,#a855f7,#ec4899);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+.sec-head .ti { font-size: 13px; font-weight: 700; }
+.sec-head .sub { margin-top: 2px; font-size: 11px; color: var(--text-tertiary); line-height: 1.45; }
+.score-wrap {
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.score-wrap .l b { font-size: 24px; }
+.score-wrap .l { font-size: 12px; }
+.score-wrap .l .s { color: var(--text-tertiary); margin-top: 4px; font-size: 11px; }
+.score-wrap .btn {
+    height: 32px;
+    padding: 0 11px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: #fff;
+    font-size: 11px;
+}
+.row {
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.row:last-child { border-bottom: 0; }
+.row .ric {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: rgba(255,255,255,.06);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.row .main { flex: 1; min-width: 0; }
+.row .main .t { font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.row .main .d { margin-top: 3px; font-size: 11px; color: var(--text-tertiary); line-height: 1.45; }
+.row .rv { font-size: 11px; color: var(--text-secondary); text-align: right; white-space: nowrap; }
+.row.click { cursor: pointer; }
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+}
+.badge.ok { background: rgba(16,185,129,.16); color: #6ee7b7; border: 1px solid rgba(16,185,129,.35); }
+.badge.warn { background: rgba(245,158,11,.16); color: #fcd34d; border: 1px solid rgba(245,158,11,.35); }
+.sheet-ovl {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(0,0,0,.55);
+    z-index: 260;
+}
+.sheet-ovl.show { display: flex; }
+.sheet {
+    width: 100%;
+    max-width: var(--phone-width);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-bottom: 0;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+}
+.sheet .hd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+.sheet .hd .t { font-size: 14px; font-weight: 800; }
+.sheet .hd .x {
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+}
+.sheet .bd { display: grid; gap: 8px; }
+.sheet .btn {
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: #fff;
+    font-size: 12px;
+}
+.sheet .btn.pri { background: var(--brand-gradient); border-color: transparent; }
+</style>
 </head>
 <body>
 <div class="status-bar dark-mode">
@@ -14,40 +144,110 @@
     <span class="right"><i class="fa-solid fa-signal"></i> <i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-battery-full"></i></span>
 </div>
 <div class="nav-bar solid" style="top:var(--status-bar-height)">
-    <div class="nav-left"><div class="nav-btn"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-left"><div class="nav-btn" data-back="settings.html"><i class="fa-solid fa-chevron-left"></i></div></div>
     <div class="nav-title">账户与安全</div>
     <div class="nav-right"></div>
 </div>
-<div class="app-content content-with-nav content-with-tab goodfans-app">
-    <div class="fl-bg" style="background: var(--bg-primary)"></div>
-    <div class="fl-scroll" style="position: relative; z-index: 1; padding-top: 4px">
-        <div class="fl-card" style="display:flex; align-items:center; gap:12px; margin-top:4px; background: linear-gradient(135deg, rgba(168,85,247,0.12) 0%, rgba(10,10,18,0.3) 100%)">
-            <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200&h=200&fit=crop" alt="">
-            <div style="flex:1; min-width:0">
-                <div style="font-weight:600">Ava · 创作者</div>
-                <div style="font-size:12px; color:var(--text-tertiary)">ID FL-204-115 · 已实名（可选）</div>
+<div class="app-content">
+    <div class="sec-card">
+        <div class="sec-head">
+            <div class="ic"><i class="fa-solid fa-shield-halved"></i></div>
+            <div style="flex:1;min-width:0">
+                <div class="ti">账户安全</div>
+                <div class="sub">管理你的密码、二次验证、登录设备和恢复方式。强烈建议同时开启「2FA」与「生物识别」。</div>
             </div>
         </div>
-        <div class="fl-section-h" style="margin-top:8px">安全与绑定</div>
-        <div class="fl-card" style="padding:0 16px">
-            <div class="fl-list-row" style="cursor:pointer">
-                <span>手机号</span>
-                <span class="r">138****6688 <i class="fa-solid fa-chevron-right fl-chevron"></i></span>
-            </div>
-            <div class="fl-list-row" style="cursor:pointer">
-                <span>登录邮箱</span>
-                <span class="r">a***@gmail.com <i class="fa-solid fa-chevron-right fl-chevron"></i></span>
-            </div>
-            <div class="fl-list-row" style="border-bottom:none; cursor:pointer">
-                <span><i class="fa-solid fa-link" style="color:var(--brand-purple); margin-right:6px"></i>钱包管理</span>
-                <span class="r" style="color:var(--brand-purple); font-weight:500">2 个钱包 <i class="fa-solid fa-chevron-right fl-chevron" style="color:var(--brand-purple)"></i></span>
-            </div>
+        <div class="score-wrap">
+            <div class="l"><b id="secScore">30</b> / 100 · 安全等级：<span id="secLevel">较弱</span><div class="s">请尽快完善安全设置，降低账号被盗风险。</div></div>
+            <button type="button" class="btn" id="btnScoreRule">计分规则</button>
         </div>
-        <div class="fl-section-h">安全策略</div>
-        <div class="fl-card" style="font-size:13px; color:var(--text-secondary); line-height:1.6">
-            <i class="fa-solid fa-robot" style="color:var(--crypto-cyan)"></i> 设备指纹与异常登录检测；验证码错误将累计限制。<br><br>
-            <i class="fa-solid fa-ban" style="color:var(--danger)"></i> 解绑钱包后 24h 内生效，短期内不可改绑到他人账号，防薅防滥用。
+    </div>
+
+    <div class="sec-card">
+        <div class="sec-head">
+            <div class="ic" style="background:linear-gradient(135deg,#06b6d4,#3b82f6)"><i class="fa-solid fa-id-badge"></i></div>
+            <div><div class="ti">账户验证方式</div><div class="sub">验证邮箱用于密码找回与重要操作通知</div></div>
         </div>
+        <div class="row click" id="rowPrimaryEmail">
+            <div class="ric"><i class="fa-regular fa-envelope"></i></div>
+            <div class="main">
+                <div class="t">主邮箱 <span class="badge ok">已验证</span></div>
+                <div class="d">l***@goodfans.io · 注册时绑定 · 用于密码找回与重要登录通知</div>
+            </div>
+            <div class="rv">修改 <i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+        <div class="row click" id="rowBackupEmail">
+            <div class="ric"><i class="fa-regular fa-envelope-open"></i></div>
+            <div class="main">
+                <div class="t">备用邮箱 <span class="badge warn" id="backupTag">未设置</span></div>
+                <div class="d" id="backupSub">推荐使用与主邮箱不同的服务商，避免单点故障</div>
+            </div>
+            <div class="rv" id="backupAction">添加 <i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+    </div>
+
+    <div class="sec-card">
+        <div class="row click" id="rowPassword">
+            <div class="ric"><i class="fa-solid fa-key"></i></div>
+            <div class="main">
+                <div class="t">登录密码</div>
+                <div class="d">上次修改：38 天前</div>
+            </div>
+            <div class="rv">修改 <i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+        <div class="row click" id="row2fa">
+            <div class="ric"><i class="fa-solid fa-lock"></i></div>
+            <div class="main">
+                <div class="t">双因素验证（2FA）</div>
+                <div class="d" id="twofaSub">认证器 APP：未开启 · 生物识别：未注册</div>
+            </div>
+            <div class="rv"><span class="badge warn" id="twofaTag">建议开启</span></div>
+        </div>
+        <div class="row click" id="rowWithdrawSafe">
+            <div class="ric"><i class="fa-solid fa-coins"></i></div>
+            <div class="main">
+                <div class="t">提现安全</div>
+                <div class="d">USDT 链上提现与站内消费资金保护</div>
+            </div>
+            <div class="rv">设置 <i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+    </div>
+
+    <div class="sec-card">
+        <div class="sec-head">
+            <div class="ic" style="background:linear-gradient(135deg,#3b82f6,#a855f7)"><i class="fa-solid fa-laptop"></i></div>
+            <div><div class="ti">登录设备</div><div class="sub">查看登录设备并随时强制下线</div></div>
+        </div>
+        <div class="row click" id="rowDevice1">
+            <div class="ric"><i class="fa-brands fa-apple"></i></div>
+            <div class="main"><div class="t">MacBook Pro 16" · Chrome</div><div class="d">日本 · 东京 · 最近活跃 1 分钟前</div></div>
+            <div class="rv">本设备</div>
+        </div>
+        <div class="row click" id="rowDevice2">
+            <div class="ric"><i class="fa-solid fa-mobile-screen-button"></i></div>
+            <div class="main"><div class="t">iPhone 17 Pro · App</div><div class="d">日本 · 横滨 · 最近活跃 2 小时前</div></div>
+            <div class="rv">下线</div>
+        </div>
+        <div class="row click" id="rowDevice3">
+            <div class="ric"><i class="fa-brands fa-windows"></i></div>
+            <div class="main"><div class="t">Windows 11 · Edge</div><div class="d">中国 · 上海 · 异地登录提醒</div></div>
+            <div class="rv">下线</div>
+        </div>
+        <div class="row click" id="rowDeviceAll">
+            <div class="ric"><i class="fa-solid fa-power-off"></i></div>
+            <div class="main"><div class="t">全部下线（除当前）</div><div class="d">不在你信任范围内的设备请立即下线</div></div>
+            <div class="rv"><i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+    </div>
+
+    <div class="sec-card">
+        <div class="sec-head">
+            <div class="ic" style="background:linear-gradient(135deg,#64748b,#475569)"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            <div><div class="ti">近期安全活动</div><div class="sub">过去 30 天关键安全事件</div></div>
+        </div>
+        <div class="row click" id="rowLog1"><div class="ric"><i class="fa-solid fa-right-to-bracket"></i></div><div class="main"><div class="t">新设备登录</div><div class="d">今天 20:31 · Windows 11 · 中国上海</div></div><div class="rv">详情</div></div>
+        <div class="row click" id="rowLog2"><div class="ric"><i class="fa-solid fa-key"></i></div><div class="main"><div class="t">修改登录密码</div><div class="d">昨天 23:12 · MacBook Pro</div></div><div class="rv">详情</div></div>
+        <div class="row click" id="rowLogAll"><div class="ric"><i class="fa-solid fa-list"></i></div><div class="main"><div class="t">查看全部安全日志</div><div class="d">支持按类型筛选与导出 CSV</div></div><div class="rv"><i class="fa-solid fa-chevron-right"></i></div></div>
     </div>
 </div>
 <div class="tab-bar">
@@ -58,6 +258,209 @@
     <div class="tab-item active"><i class="fa-regular fa-user"></i><span>我的</span></div>
 </div>
 <div class="home-indicator"></div>
+
+<div class="sheet-ovl" id="sheetOvl">
+    <div class="sheet">
+        <div class="hd">
+            <div class="t" id="sheetTitle">设置</div>
+            <button type="button" class="x" id="sheetClose"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="bd" id="sheetBody"></div>
+    </div>
+</div>
+
 <script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var LS_TOTP = 'h5_security_totp';
+    var LS_BIO = 'h5_security_bio';
+    var LS_PAYPWD = 'h5_security_paypwd';
+    var LS_MAILCFM = 'h5_security_mailcfm';
+    var LS_BACKUP = 'h5_security_backup_mail';
+    var LS_WEAK = 'h5_security_weak_pwd';
+    var scoreEl = document.getElementById('secScore');
+    var levelEl = document.getElementById('secLevel');
+    var backupTag = document.getElementById('backupTag');
+    var backupSub = document.getElementById('backupSub');
+    var backupAction = document.getElementById('backupAction');
+    var twofaSub = document.getElementById('twofaSub');
+    var twofaTag = document.getElementById('twofaTag');
+    var ovl = document.getElementById('sheetOvl');
+    var closeBtn = document.getElementById('sheetClose');
+    var titleEl = document.getElementById('sheetTitle');
+    var bodyEl = document.getElementById('sheetBody');
+
+    function readBool(key, fallback) {
+        var v = localStorage.getItem(key);
+        if (v === null) return fallback;
+        return v === '1';
+    }
+    function setBool(key, value) {
+        localStorage.setItem(key, value ? '1' : '0');
+    }
+    function toast(msg) {
+        if (window.DigitalH5Nav && typeof window.DigitalH5Nav.toast === 'function') window.DigitalH5Nav.toast(msg);
+    }
+    function score() {
+        var v = 30;
+        if (readBool(LS_TOTP, false)) v += 25;
+        if (readBool(LS_BIO, false)) v += 20;
+        if (readBool(LS_PAYPWD, false)) v += 15;
+        if (readBool(LS_MAILCFM, true)) v += 5;
+        if (readBool(LS_BACKUP, false)) v += 5;
+        if (!readBool(LS_WEAK, true)) v += 10;
+        return Math.min(v, 100);
+    }
+    function level(v) {
+        if (v >= 80) return '较强';
+        if (v >= 50) return '中等';
+        return '较弱';
+    }
+    function sync() {
+        var s = score();
+        var backup = readBool(LS_BACKUP, false);
+        var totp = readBool(LS_TOTP, false);
+        var bio = readBool(LS_BIO, false);
+        if (scoreEl) scoreEl.textContent = String(s);
+        if (levelEl) levelEl.textContent = level(s);
+        if (backupTag) {
+            backupTag.className = 'badge ' + (backup ? 'ok' : 'warn');
+            backupTag.textContent = backup ? '已设置' : '未设置';
+        }
+        if (backupSub) backupSub.textContent = backup ? 'b***@mail.com · 可用于账号恢复与安全确认' : '推荐使用与主邮箱不同的服务商，避免单点故障';
+        if (backupAction) backupAction.innerHTML = (backup ? '管理' : '添加') + ' <i class="fa-solid fa-chevron-right"></i>';
+        if (twofaSub) twofaSub.textContent = '认证器 APP：' + (totp ? '已开启' : '未开启') + ' · 生物识别：' + (bio ? '已注册' : '未注册');
+        if (twofaTag) {
+            twofaTag.className = 'badge ' + (totp ? 'ok' : 'warn');
+            twofaTag.textContent = totp ? '已开启' : '建议开启';
+        }
+    }
+    function openSheet(title, html) {
+        titleEl.textContent = title;
+        bodyEl.innerHTML = html;
+        ovl.classList.add('show');
+    }
+    function closeSheet() {
+        ovl.classList.remove('show');
+    }
+    function bind(selector, fn) {
+        var el = bodyEl.querySelector(selector);
+        if (el) el.addEventListener('click', fn);
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', closeSheet);
+    if (ovl) ovl.addEventListener('click', function (e) { if (e.target === ovl) closeSheet(); });
+
+    document.getElementById('btnScoreRule').addEventListener('click', function () {
+        openSheet('计分规则',
+            '<button class="btn">主邮箱验证 +30</button>' +
+            '<button class="btn">认证器 APP +25</button>' +
+            '<button class="btn">生物识别 +20</button>' +
+            '<button class="btn">支付密码 +15</button>' +
+            '<button class="btn">提现邮件确认 +5</button>' +
+            '<button class="btn">备用邮箱 +5</button>'
+        );
+    });
+
+    document.getElementById('rowPrimaryEmail').addEventListener('click', function () {
+        openSheet('主邮箱',
+            '<button class="btn">当前：l***@goodfans.io</button>' +
+            '<button class="btn pri" id="btnEmailMock">发送验证码并修改</button>'
+        );
+        bind('#btnEmailMock', function () { closeSheet(); toast('主邮箱修改流程已启动（原型）'); });
+    });
+
+    document.getElementById('rowBackupEmail').addEventListener('click', function () {
+        var has = readBool(LS_BACKUP, false);
+        openSheet('备用邮箱',
+            '<button class="btn">' + (has ? '当前：b***@mail.com' : '当前未设置') + '</button>' +
+            '<button class="btn pri" id="btnBackupToggle">' + (has ? '移除备用邮箱' : '添加备用邮箱') + '</button>'
+        );
+        bind('#btnBackupToggle', function () {
+            setBool(LS_BACKUP, !has);
+            closeSheet();
+            sync();
+            toast(has ? '备用邮箱已移除' : '备用邮箱已添加');
+        });
+    });
+
+    document.getElementById('rowPassword').addEventListener('click', function () {
+        openSheet('登录密码',
+            '<button class="btn">密码强度：较弱</button>' +
+            '<button class="btn pri" id="btnPwdDone">完成改密（模拟）</button>'
+        );
+        bind('#btnPwdDone', function () {
+            setBool(LS_WEAK, false);
+            closeSheet();
+            sync();
+            toast('登录密码已修改');
+        });
+    });
+
+    document.getElementById('row2fa').addEventListener('click', function () {
+        var totp = readBool(LS_TOTP, false);
+        var bio = readBool(LS_BIO, false);
+        openSheet('双因素验证（2FA）',
+            '<button class="btn" id="btnTotp">认证器 APP：' + (totp ? '已开启' : '未开启') + '</button>' +
+            '<button class="btn" id="btnBio">生物识别：' + (bio ? '已注册' : '未注册') + '</button>' +
+            '<button class="btn pri" id="btn2faDone">完成</button>'
+        );
+        bind('#btnTotp', function () {
+            setBool(LS_TOTP, !totp);
+            closeSheet();
+            sync();
+            toast(totp ? '认证器 APP 已关闭' : '认证器 APP 已开启');
+        });
+        bind('#btnBio', function () {
+            setBool(LS_BIO, !bio);
+            closeSheet();
+            sync();
+            toast(bio ? '生物识别已移除' : '生物识别已注册');
+        });
+        bind('#btn2faDone', function () { closeSheet(); });
+    });
+
+    document.getElementById('rowWithdrawSafe').addEventListener('click', function () {
+        var payPwd = readBool(LS_PAYPWD, false);
+        var mail = readBool(LS_MAILCFM, true);
+        openSheet('提现安全',
+            '<button class="btn" id="btnPayPwd">支付密码：' + (payPwd ? '已设置' : '未设置') + '</button>' +
+            '<button class="btn" id="btnMailCfm">提现邮件确认：' + (mail ? '已开启' : '已关闭') + '</button>'
+        );
+        bind('#btnPayPwd', function () {
+            setBool(LS_PAYPWD, !payPwd);
+            closeSheet();
+            sync();
+            toast(payPwd ? '支付密码已清除（原型）' : '支付密码已设置（原型）');
+        });
+        bind('#btnMailCfm', function () {
+            setBool(LS_MAILCFM, !mail);
+            closeSheet();
+            sync();
+            toast(mail ? '提现邮件确认已关闭' : '提现邮件确认已开启');
+        });
+    });
+
+    document.getElementById('rowDevice1').addEventListener('click', function () { toast('当前设备不可下线'); });
+    document.getElementById('rowDevice2').addEventListener('click', function () { toast('iPhone 设备已下线（原型）'); });
+    document.getElementById('rowDevice3').addEventListener('click', function () { toast('Windows 设备已下线（原型）'); });
+    document.getElementById('rowDeviceAll').addEventListener('click', function () { toast('已全部下线（除当前）'); });
+
+    document.getElementById('rowLog1').addEventListener('click', function () { toast('已展开：新设备登录详情'); });
+    document.getElementById('rowLog2').addEventListener('click', function () { toast('已展开：修改密码详情'); });
+    document.getElementById('rowLogAll').addEventListener('click', function () {
+        openSheet('全部安全日志',
+            '<button class="btn">登录与会话（12）</button>' +
+            '<button class="btn">资金与提现（7）</button>' +
+            '<button class="btn">账号与验证（5）</button>' +
+            '<button class="btn">设备管理（4）</button>' +
+            '<button class="btn pri" id="btnExportLog">导出 CSV</button>'
+        );
+        bind('#btnExportLog', function () { closeSheet(); toast('安全日志已导出（原型）'); });
+    });
+
+    sync();
+})();
+</script>
 </body>
 </html>

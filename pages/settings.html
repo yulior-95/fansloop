@@ -9,26 +9,53 @@
 .nav-bar { background: var(--bg-primary); }
 .app-content {
     padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
-    padding-bottom: 40px;
-    background: var(--bg-primary);
+    padding-bottom: 24px;
 }
-
-.logout-btn {
-    margin: 24px 16px 8px;
-    padding: 16px;
-    border-radius: var(--radius-lg);
-    background: var(--bg-card);
-    text-align: center;
-    color: var(--danger);
-    font-weight: 600;
+.set-head {
+    margin: 10px 16px 12px;
+    padding: 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(168,85,247,.12), rgba(59,130,246,.08));
 }
-
-.version {
-    text-align: center;
+.set-head .t { font-size: 16px; font-weight: 800; }
+.set-head .s { margin-top: 6px; font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+.list-group-title {
+    padding: 6px 16px;
+    font-size: 12px;
     color: var(--text-tertiary);
-    font-size: 11px;
-    padding: 20px 0;
 }
+.list-group {
+    margin: 0 16px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.list-item {
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    cursor: pointer;
+}
+.list-item:last-child{border-bottom:none}
+.icon-box{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);color:var(--text-secondary)}
+.main{flex:1;min-width:0}
+.title{font-size:13px;font-weight:700}
+.subtitle{font-size:11px;color:var(--text-tertiary);margin-top:3px;line-height:1.45}
+.value{font-size:11px;color:var(--text-secondary)}
+.logout-row { color: #fca5a5; }
+.set-ovl{position:fixed;inset:0;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5);z-index:250}
+.set-ovl.show{display:flex}
+.set-sheet{width:100%;max-width:var(--phone-width);border-top-left-radius:16px;border-top-right-radius:16px;border:1px solid var(--border-color);border-bottom:0;background:var(--bg-primary);padding:12px 12px calc(12px + env(safe-area-inset-bottom))}
+.set-sheet .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.set-sheet .hd .t{font-size:14px;font-weight:800}
+.set-sheet .hd .x{width:30px;height:30px;border:0;border-radius:50%;background:var(--bg-card);color:var(--text-secondary)}
+.set-sheet .bd{display:grid;gap:8px}
+.set-btn{height:40px;padding:0 10px;border-radius:10px;border:1px solid var(--border-color);background:var(--bg-card);color:#fff;font-size:12px}
+.set-btn.pri{background:var(--brand-gradient);border-color:transparent}
 </style>
 </head>
 <body>
@@ -43,130 +70,201 @@
 </div>
 
 <div class="nav-bar solid">
-    <div class="nav-left"><div class="nav-btn"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-left"><div class="nav-btn" data-back="profile.html"><i class="fa-solid fa-chevron-left"></i></div></div>
     <div class="nav-title">设置</div>
     <div class="nav-right"></div>
 </div>
 
 <div class="app-content">
+    <div class="set-head">
+        <div class="t">设置中心</div>
+        <div class="s">与 Web 端一致的设置信息架构：账户、体验、创作者、关于。</div>
+    </div>
 
-    <div class="list-group-title">账户与钱包</div>
+    <div class="list-group-title">账户</div>
     <div class="list-group">
-        <div class="list-item">
-            <div class="icon-box" style="background:rgba(6,182,212,0.15); color:var(--crypto-cyan)"><i class="fa-solid fa-wallet"></i></div>
-            <div class="main">
-                <div class="title">账户</div>
-                <div class="subtitle">USDT · 法币余额管理</div>
-            </div>
-            <div class="value"><span class="gradient-text" style="font-weight:600">128.56 U</span></div>
-            <i class="fa-solid fa-chevron-right chevron"></i>
+        <div class="list-item" id="stAccountProfile">
+            <div class="icon-box"><i class="fa-regular fa-user"></i></div>
+            <div class="main"><div class="title">账户资料</div></div>
+            <i class="fa-solid fa-chevron-right"></i>
         </div>
-        <div class="list-item">
-            <div class="icon-box" style="background:rgba(245,158,11,0.15); color:var(--crypto-gold)"><i class="fa-solid fa-coins"></i></div>
-            <div class="main">
-                <div class="title">支付方式</div>
-                <div class="subtitle">管理扣款方式</div>
-            </div>
-            <div class="value">4 种</div>
-            <i class="fa-solid fa-chevron-right chevron"></i>
+        <div class="list-item" id="stAccountSecurity">
+            <div class="icon-box"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="main"><div class="title">账户安全</div></div>
+            <i class="fa-solid fa-chevron-right"></i>
         </div>
-        <div class="list-item">
-            <div class="icon-box" style="background:rgba(16,185,129,0.15); color:var(--crypto-green)"><i class="fa-solid fa-circle-dollar-to-slot"></i></div>
-            <div class="main">
-                <div class="title">收款方式</div>
-                <div class="subtitle">创作收益结算账户</div>
-            </div>
-            <div class="value" style="color:var(--warning)">未绑定</div>
-            <i class="fa-solid fa-chevron-right chevron"></i>
-        </div>
-        <div class="list-item">
-            <div class="icon-box"><i class="fa-solid fa-link"></i></div>
-            <div class="main">
-                <div class="title">链上钱包</div>
-                <div class="subtitle">0x8A...f2E6</div>
-            </div>
-            <i class="fa-solid fa-chevron-right chevron"></i>
+        <div class="list-item" id="stWalletPay">
+            <div class="icon-box"><i class="fa-solid fa-wallet"></i></div>
+            <div class="main"><div class="title">钱包与支付</div></div>
+            <i class="fa-solid fa-chevron-right"></i>
         </div>
     </div>
 
-    <div class="list-group-title">通用</div>
+    <div class="list-group-title">体验</div>
     <div class="list-group">
-        <div class="list-item">
+        <div class="list-item" id="stNotify">
             <div class="icon-box"><i class="fa-regular fa-bell"></i></div>
-            <div class="main"><div class="title">通知设置</div></div>
-            <i class="fa-solid fa-chevron-right chevron"></i>
+            <div class="main"><div class="title">通知偏好</div></div>
+            <i class="fa-solid fa-chevron-right"></i>
         </div>
-        <div class="list-item">
-            <div class="icon-box" style="background:rgba(59,130,246,0.15); color:var(--info)"><i class="fa-regular fa-message"></i></div>
-            <div class="main"><div class="title">聊天设置</div></div>
-            <i class="fa-solid fa-chevron-right chevron"></i>
+        <div class="list-item" id="stPrivacy">
+            <div class="icon-box"><i class="fa-solid fa-user-shield"></i></div>
+            <div class="main"><div class="title">隐私设置</div></div>
+            <i class="fa-solid fa-chevron-right"></i>
         </div>
-        <div class="list-item">
-            <div class="icon-box" style="background:rgba(239,68,68,0.15); color:var(--danger)"><i class="fa-solid fa-user-secret"></i></div>
-            <div class="main">
-                <div class="title">隐私</div>
-                <div class="subtitle">屏蔽 · 黑名单 · 防截屏</div>
-            </div>
-            <i class="fa-solid fa-chevron-right chevron"></i>
-        </div>
-        <div class="list-item">
-            <div class="icon-box" style="background:rgba(16,185,129,0.15); color:var(--crypto-green)"><i class="fa-solid fa-shield-halved"></i></div>
-            <div class="main">
-                <div class="title">安全</div>
-                <div class="subtitle">密码 · 二次验证 · 设备管理</div>
-            </div>
-            <div class="value"><span class="badge badge-brand" style="padding:1px 6px; font-size:9px">2FA</span></div>
-            <i class="fa-solid fa-chevron-right chevron"></i>
-        </div>
-        <div class="list-item">
-            <div class="icon-box"><i class="fa-solid fa-gear"></i></div>
-            <div class="main"><div class="title">通用</div></div>
-            <i class="fa-solid fa-chevron-right chevron"></i>
-        </div>
-        <div class="list-item">
-            <div class="icon-box" style="background:rgba(236,72,153,0.15); color:var(--brand-pink)"><i class="fa-solid fa-language"></i></div>
-            <div class="main"><div class="title">语言</div></div>
-            <div class="value">简体中文</div>
-            <i class="fa-solid fa-chevron-right chevron"></i>
-        </div>
-        <div class="list-item">
+        <div class="list-item" id="stDisplay">
             <div class="icon-box"><i class="fa-solid fa-palette"></i></div>
-            <div class="main"><div class="title">外观</div></div>
-            <div class="value">深色</div>
-            <i class="fa-solid fa-chevron-right chevron"></i>
+            <div class="main"><div class="title">外观语言</div></div>
+            <div class="value" id="stDisplayVal">深色 · 简体中文</div>
+            <i class="fa-solid fa-chevron-right"></i>
+        </div>
+        <div class="list-item" id="stGlobalAccess">
+            <div class="icon-box"><i class="fa-solid fa-earth-americas"></i></div>
+            <div class="main"><div class="title">跨国界无障碍</div></div>
+            <i class="fa-solid fa-chevron-right"></i>
+        </div>
+    </div>
+
+    <div class="list-group-title">创作者</div>
+    <div class="list-group">
+        <div class="list-item" id="stSubSetting">
+            <div class="icon-box"><i class="fa-solid fa-crown"></i></div>
+            <div class="main"><div class="title">会员订阅设置</div></div>
+            <i class="fa-solid fa-chevron-right"></i>
         </div>
     </div>
 
     <div class="list-group-title">关于</div>
     <div class="list-group">
-        <div class="list-item">
+        <div class="list-item" id="stAbout">
             <div class="icon-box"><i class="fa-solid fa-circle-info"></i></div>
-            <div class="main"><div class="title">关于 VaultX</div></div>
-            <i class="fa-solid fa-chevron-right chevron"></i>
+            <div class="main"><div class="title">关于 GOODFANS</div></div>
+            <i class="fa-solid fa-chevron-right"></i>
         </div>
-        <div class="list-item">
-            <div class="icon-box"><i class="fa-solid fa-file-contract"></i></div>
-            <div class="main"><div class="title">用户协议 & 隐私政策</div></div>
-            <i class="fa-solid fa-chevron-right chevron"></i>
+        <div class="list-item" id="stTerms">
+            <div class="icon-box"><i class="fa-solid fa-file-lines"></i></div>
+            <div class="main"><div class="title">条款与协议</div></div>
+            <i class="fa-solid fa-chevron-right"></i>
         </div>
-        <div class="list-item">
-            <div class="icon-box"><i class="fa-solid fa-headset"></i></div>
-            <div class="main"><div class="title">帮助与反馈</div></div>
-            <i class="fa-solid fa-chevron-right chevron"></i>
-        </div>
-        <div class="list-item">
-            <div class="icon-box"><i class="fa-solid fa-database"></i></div>
-            <div class="main"><div class="title">清除缓存</div></div>
-            <div class="value">248.3 MB</div>
+        <div class="list-item logout-row" id="stLogoutBtn">
+            <div class="icon-box" style="color:#fca5a5"><i class="fa-solid fa-right-from-bracket"></i></div>
+            <div class="main"><div class="title">退出登录</div></div>
+            <i class="fa-solid fa-chevron-right"></i>
         </div>
     </div>
-
-    <div class="logout-btn">退出登录</div>
-
-    <div class="version">VaultX v1.0.2 (build 1024)</div>
 
 </div>
 
 <div class="home-indicator"></div>
+<div class="set-ovl" id="settingsOvl">
+    <div class="set-sheet">
+        <div class="hd">
+            <div class="t" id="settingsSheetTitle">设置</div>
+            <button type="button" class="x" id="settingsSheetClose"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="bd" id="settingsSheetBody"></div>
+    </div>
+</div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var ovl = document.getElementById('settingsOvl');
+    var closeBtn = document.getElementById('settingsSheetClose');
+    var titleEl = document.getElementById('settingsSheetTitle');
+    var bodyEl = document.getElementById('settingsSheetBody');
+    var stDisplayVal = document.getElementById('stDisplayVal');
+    var LS_LANG = 'h5_settings_lang';
+    var LS_THEME = 'h5_settings_theme';
+
+    function toast(msg) {
+        if (window.DigitalH5Nav && typeof window.DigitalH5Nav.toast === 'function') window.DigitalH5Nav.toast(msg);
+    }
+    function openSheet(title, html) {
+        titleEl.textContent = title;
+        bodyEl.innerHTML = html;
+        ovl.classList.add('show');
+    }
+    function closeSheet() { ovl.classList.remove('show'); }
+    function bindSheetAction(selector, fn) {
+        var el = bodyEl.querySelector(selector);
+        if (el) el.addEventListener('click', fn);
+    }
+    function langLabel(v) {
+        if (v === 'en') return 'English';
+        if (v === 'zh-TW') return '繁體中文';
+        return '简体中文';
+    }
+    function themeLabel(v) {
+        if (v === 'light') return '浅色';
+        if (v === 'system') return '跟随系统';
+        return '深色';
+    }
+    function syncDisplayMeta() {
+        var lang = localStorage.getItem(LS_LANG) || 'zh-CN';
+        var theme = localStorage.getItem(LS_THEME) || 'dark';
+        if (stDisplayVal) stDisplayVal.textContent = themeLabel(theme) + ' · ' + langLabel(lang);
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', closeSheet);
+    if (ovl) ovl.addEventListener('click', function (e) { if (e.target === ovl) closeSheet(); });
+
+    var stAccountProfile = document.getElementById('stAccountProfile');
+    var stAccountSecurity = document.getElementById('stAccountSecurity');
+    var stWalletPay = document.getElementById('stWalletPay');
+    var stNotify = document.getElementById('stNotify');
+    var stPrivacy = document.getElementById('stPrivacy');
+    var stDisplay = document.getElementById('stDisplay');
+    var stGlobalAccess = document.getElementById('stGlobalAccess');
+    var stSubSetting = document.getElementById('stSubSetting');
+    var stAbout = document.getElementById('stAbout');
+    var stTerms = document.getElementById('stTerms');
+    var stLogoutBtn = document.getElementById('stLogoutBtn');
+
+    if (stAccountProfile) stAccountProfile.addEventListener('click', function () { location.href = 'settings-account.html'; });
+    if (stAccountSecurity) stAccountSecurity.addEventListener('click', function () { location.href = 'goodfans-account-security.html'; });
+    if (stWalletPay) stWalletPay.addEventListener('click', function () { location.href = 'settings-wallet.html'; });
+    if (stNotify) stNotify.addEventListener('click', function () {
+        openSheet('通知偏好',
+            '<button class="set-btn">私聊消息：开启</button>' +
+            '<button class="set-btn">群聊消息：开启</button>' +
+            '<button class="set-btn">订阅与开播提醒：开启</button>' +
+            '<button class="set-btn pri" id="stNotifySave">保存</button>'
+        );
+        bindSheetAction('#stNotifySave', function () { closeSheet(); toast('通知偏好已保存'); });
+    });
+    if (stPrivacy) stPrivacy.addEventListener('click', function () { location.href = 'settings-privacy.html'; });
+    if (stDisplay) stDisplay.addEventListener('click', function () { location.href = 'settings-display.html'; });
+    if (stGlobalAccess) stGlobalAccess.addEventListener('click', function () { location.href = 'settings-display.html#ga-global-access'; });
+    if (stSubSetting) stSubSetting.addEventListener('click', function () { location.href = 'subscriptions.html?tab=paid'; });
+    if (stAbout) stAbout.addEventListener('click', function () {
+        openSheet('关于 GOODFANS',
+            '<button class="set-btn">版本：v1.0.2 (build 1024)</button>' +
+            '<button class="set-btn" id="stCheckUpdate">检查更新</button>'
+        );
+        bindSheetAction('#stCheckUpdate', function () { toast('当前已是最新版本'); });
+    });
+    if (stTerms) stTerms.addEventListener('click', function () {
+        openSheet('条款与协议',
+            '<button class="set-btn">用户协议</button>' +
+            '<button class="set-btn">隐私政策</button>' +
+            '<button class="set-btn">社区规范</button>'
+        );
+    });
+
+    if (stLogoutBtn) stLogoutBtn.addEventListener('click', function () {
+        openSheet('退出登录',
+            '<button class="set-btn">退出后将返回登录页</button>' +
+            '<button class="set-btn pri" id="stConfirmLogout">确认退出</button>'
+        );
+        bindSheetAction('#stConfirmLogout', function () {
+            closeSheet();
+            toast('已退出登录');
+            setTimeout(function () { location.href = 'login.html'; }, 220);
+        });
+    });
+
+    syncDisplayMeta();
+})();
+</script>
 </body>
 </html>

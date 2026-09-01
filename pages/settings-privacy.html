@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>隐私设置</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content { padding-top: calc(var(--status-bar-height) + var(--nav-bar-height)); padding-bottom: 22px; }
+.head {
+    margin: 10px 16px 12px;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: linear-gradient(135deg, rgba(239,68,68,.12), rgba(168,85,247,.08));
+}
+.crumb { font-size: 11px; color: var(--text-tertiary); display: flex; gap: 6px; align-items: center; }
+.title { margin-top: 8px; font-size: 18px; font-weight: 800; }
+.sub { margin-top: 4px; font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+.head-btn {
+    margin-top: 10px;
+    height: 32px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: #fff;
+    font-size: 12px;
+    padding: 0 12px;
+}
+.card {
+    margin: 0 16px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    overflow: hidden;
+}
+.card .hd {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    font-size: 13px;
+    font-weight: 700;
+}
+.row { padding: 12px; border-bottom: 1px solid rgba(255,255,255,.05); }
+.row:last-child { border-bottom: 0; }
+.row .t { font-size: 12px; font-weight: 700; }
+.row .d { margin-top: 4px; font-size: 11px; color: var(--text-tertiary); line-height: 1.45; }
+.seg {
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+.seg button {
+    height: 32px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    font-size: 11px;
+}
+.seg button.active {
+    color: #fff;
+    border-color: rgba(168,85,247,.5);
+    background: rgba(168,85,247,.2);
+}
+.sw {
+    margin-top: 8px;
+    width: 46px;
+    height: 26px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.2);
+    position: relative;
+    cursor: pointer;
+}
+.sw::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    transition: .2s;
+}
+.sw.on { background: rgba(16,185,129,.45); border-color: rgba(16,185,129,.5); }
+.sw.on::after { left: 22px; }
+</style>
+</head>
+<body>
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+</div>
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" data-back="settings.html"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">隐私设置</div>
+    <div class="nav-right"></div>
+</div>
+
+<div class="app-content">
+    <div class="head">
+        <div class="crumb"><span>设置</span><i class="fa-solid fa-chevron-right" style="font-size:10px"></i><span>隐私设置</span></div>
+        <div class="title">隐私设置</div>
+        <div class="sub">管理谁可以查看你的内容、与你互动以及如何使用你的数据。我们认真对待每一项你的隐私选择。</div>
+        <button type="button" class="head-btn" id="btnExportData"><i class="fa-solid fa-download"></i> 导出我的数据</button>
+    </div>
+
+    <div class="card">
+        <div class="hd">公开可见性</div>
+        <div class="row">
+            <div class="t">主页可见性</div>
+            <div class="d">控制谁能查看你的主页和动态。私密账户的关注请求需要审核。</div>
+            <div class="seg" id="profileVisSeg">
+                <button type="button" data-vis="public">公开</button>
+                <button type="button" data-vis="subs">仅订阅者</button>
+                <button type="button" data-vis="private">私密</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="t">允许搜索引擎收录</div>
+            <div class="d">关闭后，Google、Bing 等搜索引擎将不会索引你的主页。</div>
+            <div class="sw" id="swIndexable"></div>
+        </div>
+        <div class="row">
+            <div class="t">允许出现在推荐位</div>
+            <div class="d">是否允许你出现在「发现页」「猜你喜欢」等推荐场景。</div>
+            <div class="sw" id="swRecommend"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="hd">互动权限</div>
+        <div class="row">
+            <div class="t">陌生人私信</div>
+            <div class="d">新会话进入「消息请求」，可在消息页统一处理。</div>
+            <div class="sw on" id="swMsgReq"></div>
+        </div>
+        <div class="row">
+            <div class="t">评论可见范围</div>
+            <div class="d">仅自己可见 / 粉丝可见 / 所有人可见。</div>
+            <div class="seg" id="commentVisSeg">
+                <button type="button" data-cv="self">仅自己</button>
+                <button type="button" data-cv="fans">粉丝</button>
+                <button type="button" data-cv="all">所有人</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var LS_VIS = 'h5_privacy_profile_vis';
+    var LS_INDEX = 'h5_privacy_indexable';
+    var LS_REC = 'h5_privacy_recommend';
+    var LS_MSG = 'h5_privacy_msg_req';
+    var LS_COMMENT = 'h5_privacy_comment_vis';
+
+    function toast(msg) {
+        if (window.DigitalH5Nav && typeof window.DigitalH5Nav.toast === 'function') window.DigitalH5Nav.toast(msg);
+    }
+    function setSwitch(el, on) { if (el) el.classList.toggle('on', !!on); }
+    function bindSwitch(id, key, def, textOn, textOff) {
+        var el = document.getElementById(id);
+        var on = localStorage.getItem(key);
+        on = on === null ? def : on === '1';
+        setSwitch(el, on);
+        if (!el) return;
+        el.addEventListener('click', function () {
+            on = !on;
+            localStorage.setItem(key, on ? '1' : '0');
+            setSwitch(el, on);
+            toast(on ? textOn : textOff);
+        });
+    }
+    function bindSegment(wrapId, key, def, toastPrefix) {
+        var wrap = document.getElementById(wrapId);
+        if (!wrap) return;
+        var val = localStorage.getItem(key) || def;
+        function paint() {
+            wrap.querySelectorAll('button').forEach(function (b) {
+                b.classList.toggle('active', b.getAttribute('data-vis') === val || b.getAttribute('data-cv') === val);
+            });
+        }
+        paint();
+        wrap.querySelectorAll('button').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                val = btn.getAttribute('data-vis') || btn.getAttribute('data-cv');
+                localStorage.setItem(key, val);
+                paint();
+                toast(toastPrefix + '：' + btn.textContent.trim());
+            });
+        });
+    }
+
+    var btnExportData = document.getElementById('btnExportData');
+    if (btnExportData) btnExportData.addEventListener('click', function () {
+        toast('数据导出任务已创建（原型）');
+    });
+
+    bindSegment('profileVisSeg', LS_VIS, 'public', '主页可见性已更新');
+    bindSegment('commentVisSeg', LS_COMMENT, 'all', '评论可见范围已更新');
+    bindSwitch('swIndexable', LS_INDEX, true, '已开启搜索引擎收录', '已关闭搜索引擎收录');
+    bindSwitch('swRecommend', LS_REC, true, '已允许出现在推荐位', '已关闭推荐位曝光');
+    bindSwitch('swMsgReq', LS_MSG, true, '陌生人私信已开启请求箱', '陌生人私信已关闭');
+})();
+</script>
+</body>
+</html>

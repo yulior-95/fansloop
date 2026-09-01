@@ -434,6 +434,32 @@
     color: var(--text-secondary);
 }
 .pf-panel .bd { padding: 12px; }
+.pf-edit-form {
+    display: grid;
+    gap: 10px;
+}
+.pf-edit-form .field {
+    display: grid;
+    gap: 6px;
+}
+.pf-edit-form .field label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+.pf-edit-form .field input,
+.pf-edit-form .field textarea {
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-card);
+    color: #fff;
+    font-size: 13px;
+    padding: 10px 12px;
+}
+.pf-edit-form .field textarea {
+    min-height: 72px;
+    resize: none;
+}
 .pf-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -506,6 +532,126 @@
     color: #fff;
     border-color: transparent;
 }
+.hp-mini-boost {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(251,191,36,.3);
+    background: rgba(251,191,36,.1);
+    color: #FDE68A;
+    font-size: 11px;
+    line-height: 1.5;
+}
+.hp-mini-head h3 {
+    font-size: 14px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.hp-mini-head p {
+    margin-top: 6px;
+    color: var(--text-secondary);
+    font-size: 11px;
+    line-height: 1.45;
+}
+.hp-mini-summary {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+.hp-mini-summary .cell {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 8px;
+}
+.hp-mini-summary .cell .k { font-size: 10px; color: var(--text-tertiary); }
+.hp-mini-summary .cell .v { margin-top: 4px; font-size: 14px; font-weight: 800; }
+.hp-mini-tabs {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+}
+.hp-mini-tabs button {
+    flex: 1;
+    height: 32px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+.hp-mini-tabs button.active {
+    background: rgba(168,85,247,.18);
+    border-color: rgba(168,85,247,.45);
+    color: #fff;
+}
+.hp-mini-panel { margin-top: 10px; }
+.hp-task {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 8px;
+}
+.hp-task .r1 {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+}
+.hp-task .t { font-size: 12px; font-weight: 700; }
+.hp-task .s { margin-top: 4px; font-size: 11px; color: var(--text-tertiary); }
+.hp-task .op {
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: #fff;
+}
+.hp-task .op.pri {
+    background: var(--brand-gradient);
+    border-color: transparent;
+}
+.hp-ledger-row {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 8px;
+    font-size: 11px;
+}
+.hp-ledger-row .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+.hp-ledger-row .amt.plus { color: #6EE7B7; font-weight: 800; }
+.hp-ledger-row .amt.minus { color: #FCA5A5; font-weight: 800; }
+.hp-mini-foot {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+.hp-mini-foot button {
+    height: 34px;
+    border-radius: 10px;
+    font-size: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+}
+.hp-mini-foot button.pri {
+    background: var(--brand-gradient);
+    color: #fff;
+    border-color: transparent;
+}
 </style>
 </head>
 <body>
@@ -536,7 +682,7 @@
             </div>
             <div class="info">
                 <div class="name">
-                    Alex_K
+                    <span id="pfNameText">Alex_K</span>
                     <i class="fa-solid fa-circle-check" style="color:var(--info); font-size:14px"></i>
                 </div>
                 <div style="font-size:12px; color:var(--text-secondary); margin-top:4px">
@@ -545,6 +691,7 @@
                 <div class="id-row">
                     <span class="badge badge-crypto"><i class="fa-solid fa-bolt"></i> Lv.5 资深用户</span>
                 </div>
+                <div id="pfBioText" style="margin-top:6px;font-size:12px;color:var(--text-secondary)">Web3 创作者 / 每晚 20:30 直播</div>
             </div>
             <div class="tool-btn" id="pfEditProfileBtn"><i class="fa-solid fa-pen"></i></div>
         </div>
@@ -629,20 +776,11 @@
             <div class="tool-icon tool-color-5"><i class="fa-solid fa-list-ul"></i></div>
             <span class="tool-label">账变记录</span>
         </div>
-        <div class="tool" data-go="subscriptions.html">
-            <div class="tool-icon tool-color-1"><i class="fa-regular fa-heart"></i></div>
-            <span class="tool-label">我的订阅</span>
-        </div>
-        <div class="tool" data-go="digital-store.html">
-            <div class="tool-icon tool-color-2"><i class="fa-solid fa-bag-shopping"></i></div>
-            <span class="tool-label">创作者商店</span>
-        </div>
     </div>
 
     <!-- 我的动态 -->
     <div class="section-head2">
         <span class="t">我的内容</span>
-        <span class="m" id="pfContentManage">管理 <i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
     </div>
 
     <div class="tabs-mini" id="pfTabsMini">
@@ -683,9 +821,9 @@
         <div class="hd"><div class="t">通知中心</div><button type="button" class="x" id="pfNotiClose"><i class="fa-solid fa-xmark"></i></button></div>
         <div class="bd">
             <div class="pf-list">
-                <div class="row"><div class="ti">订阅提醒</div><div class="sub">你关注的 Luna 今晚 20:30 开播，已为你保留提醒。</div></div>
-                <div class="row"><div class="ti">钱包通知</div><div class="sub">昨日到账 10 USDT，来自直播打赏分账。</div></div>
-                <div class="row"><div class="ti">系统公告</div><div class="sub">消息模块已支持「新建私聊 / 创建群聊」完整闭环。</div></div>
+                <div class="row" data-noti-go="subscriptions.html?tab=live"><div class="ti">订阅提醒</div><div class="sub">你关注的 Luna 今晚 20:30 开播，已为你保留提醒。</div></div>
+                <div class="row" data-noti-go="funds-history.html"><div class="ti">钱包通知</div><div class="sub">昨日到账 10 USDT，来自直播打赏分账。</div></div>
+                <div class="row" data-noti-go="messages.html"><div class="ti">系统公告</div><div class="sub">消息模块已支持「新建私聊 / 创建群聊」完整闭环。</div></div>
             </div>
         </div>
     </div>
@@ -708,16 +846,87 @@
 </div>
 <div class="pf-ovl" id="pfPointsOvl">
     <div class="pf-panel">
-        <div class="hd"><div class="t">积分任务</div><button type="button" class="x" id="pfPointsClose"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="hd"><div class="t">积分中心</div><button type="button" class="x" id="pfPointsClose"><i class="fa-solid fa-xmark"></i></button></div>
         <div class="bd">
-            <div class="pf-list">
-                <div class="row"><div class="ti">每日签到</div><div class="sub">已完成，+20 积分。</div></div>
-                <div class="row"><div class="ti">发布内容 1 次</div><div class="sub">进行中，完成后 +60 积分。</div></div>
-                <div class="row"><div class="ti">邀请新用户</div><div class="sub">每人 +200 积分，受风控上限保护。</div></div>
+            <div class="hp-mini-boost">每日上限提升卡生效中 · 今日获取上限 50 → 100 · 次日 0 点恢复</div>
+            <div class="hp-mini-head">
+                <h3><i class="fa-solid fa-coins" style="color:#FBBF24"></i> 积分中心</h3>
+                <p>查看可用/冷静积分、今日进度，以及各任务获取与消耗记录</p>
+            </div>
+            <div class="hp-mini-summary">
+                <div class="cell"><div class="k">可用积分</div><div class="v" style="color:#FDE68A">12,580</div></div>
+                <div class="cell"><div class="k">冷静中</div><div class="v" style="color:#93C5FD">1,400</div></div>
+                <div class="cell"><div class="k">今日已获</div><div class="v" style="color:#C084FC">310</div></div>
+            </div>
+            <div class="hp-mini-tabs" id="hpMiniTabs">
+                <button type="button" class="active" data-tab="tasks">赚积分任务</button>
+                <button type="button" data-tab="ledger">获取明细</button>
+            </div>
+            <div class="hp-mini-panel" id="hpMiniTasks">
+                <div class="hp-task">
+                    <div class="r1">
+                        <div class="t">连续签到翻倍卡待使用</div>
+                        <button type="button" class="op" data-task-act="detail">详情</button>
+                    </div>
+                    <div class="s">下一次签到奖励 ×2</div>
+                </div>
+                <div class="hp-task">
+                    <div class="r1">
+                        <div class="t">观看直播满 30 分钟</div>
+                        <button type="button" class="op pri" data-task-act="go-live">去完成</button>
+                    </div>
+                    <div class="s">今日已领 1 / 可领 3 次 · +50</div>
+                </div>
+                <div class="hp-task">
+                    <div class="r1">
+                        <div class="t">每日签到</div>
+                        <button type="button" class="op" data-task-act="checkin">去完成</button>
+                    </div>
+                    <div class="s">预估加成 ×1 · 以领取结算为准</div>
+                </div>
+                <p style="font-size:11px;color:var(--text-tertiary);line-height:1.5;margin-top:10px">
+                    <i class="fa-solid fa-snowflake"></i> 邀请类奖励进入 7 天冷静期，期满转入可用积分方可兑换。
+                </p>
+            </div>
+            <div class="hp-mini-panel" id="hpMiniLedger" style="display:none">
+                <div class="hp-ledger-row">
+                    <div class="top"><strong>每日签到</strong><span class="amt plus">+20</span></div>
+                    <div class="s">今天 08:12 · 可用积分</div>
+                </div>
+                <div class="hp-ledger-row">
+                    <div class="top"><strong>邀请奖励</strong><span class="amt plus">+200</span></div>
+                    <div class="s">昨天 22:46 · 冷静中（7天后可用）</div>
+                </div>
+                <div class="hp-ledger-row">
+                    <div class="top"><strong>积分商城兑换</strong><span class="amt minus">-1,600</span></div>
+                    <div class="s">昨天 21:03 · 付费内容试看券</div>
+                </div>
+                <button type="button" class="op" id="pfPointsLedgerBtn" style="width:100%;height:30px">查看完整流水页</button>
+            </div>
+            <div class="hp-mini-foot">
+                <button type="button" id="pfPointsCloseFoot"><i class="fa-solid fa-xmark"></i> 关闭</button>
+                <button type="button" class="pri" id="pfPointsMallBtn"><i class="fa-solid fa-store"></i> 积分商城</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="pf-ovl" id="pfEditOvl">
+    <div class="pf-panel">
+        <div class="hd"><div class="t">编辑资料</div><button type="button" class="x" id="pfEditClose"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="bd">
+            <div class="pf-edit-form">
+                <div class="field">
+                    <label for="pfEditName">昵称</label>
+                    <input id="pfEditName" type="text" maxlength="24" placeholder="输入昵称">
+                </div>
+                <div class="field">
+                    <label for="pfEditBio">个性签名</label>
+                    <textarea id="pfEditBio" maxlength="80" placeholder="介绍一下你正在做的内容"></textarea>
+                </div>
             </div>
             <div class="pf-actions">
-                <button type="button" class="btn" id="pfPointsDetailBtn">任务明细</button>
-                <button type="button" class="btn pri" id="pfPointsMallBtn">去积分商城</button>
+                <button type="button" class="btn" id="pfEditCancel">取消</button>
+                <button type="button" class="btn pri" id="pfEditSave">保存</button>
             </div>
         </div>
     </div>
@@ -765,15 +974,23 @@
     var pfCopyIdBtn = document.getElementById('pfCopyIdBtn');
     var pfShareQrBtn = document.getElementById('pfShareQrBtn');
     var pfEditProfileBtn = document.getElementById('pfEditProfileBtn');
+    var pfEditOvl = document.getElementById('pfEditOvl');
+    var pfEditClose = document.getElementById('pfEditClose');
+    var pfEditCancel = document.getElementById('pfEditCancel');
+    var pfEditSave = document.getElementById('pfEditSave');
+    var pfEditName = document.getElementById('pfEditName');
+    var pfEditBio = document.getElementById('pfEditBio');
+    var pfNameText = document.getElementById('pfNameText');
+    var pfBioText = document.getElementById('pfBioText');
     var pfInviteOvl = document.getElementById('pfInviteOvl');
     var pfPointsOvl = document.getElementById('pfPointsOvl');
     var pfToolInvite = document.getElementById('pfToolInvite');
     var pfToolPoints = document.getElementById('pfToolPoints');
     var pfInviteCopyBtn = document.getElementById('pfInviteCopyBtn');
     var pfInviteGotoBtn = document.getElementById('pfInviteGotoBtn');
-    var pfPointsDetailBtn = document.getElementById('pfPointsDetailBtn');
     var pfPointsMallBtn = document.getElementById('pfPointsMallBtn');
-    var pfContentManage = document.getElementById('pfContentManage');
+    var pfPointsCloseFoot = document.getElementById('pfPointsCloseFoot');
+    var pfPointsLedgerBtn = document.getElementById('pfPointsLedgerBtn');
     var pfKycEntry = document.getElementById('pfKycEntry');
     var pfKycStatus = document.getElementById('pfKycStatus');
     var KYC_STORAGE_KEY = 'h5_withdraw_kyc_passed';
@@ -802,17 +1019,61 @@
     if (pfQrOvl) pfQrOvl.addEventListener('click', function (e) { if (e.target === pfQrOvl) close(pfQrOvl); });
     if (pfInviteOvl) pfInviteOvl.addEventListener('click', function (e) { if (e.target === pfInviteOvl) close(pfInviteOvl); });
     if (pfPointsOvl) pfPointsOvl.addEventListener('click', function (e) { if (e.target === pfPointsOvl) close(pfPointsOvl); });
+    if (pfEditOvl) pfEditOvl.addEventListener('click', function (e) { if (e.target === pfEditOvl) close(pfEditOvl); });
+    document.querySelectorAll('#pfNotiOvl .pf-list .row').forEach(function (row) {
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', function () {
+            var go = row.getAttribute('data-noti-go');
+            close(pfNotiOvl);
+            if (go) location.href = go;
+        });
+    });
     if (pfCopyAddr) pfCopyAddr.addEventListener('click', function () { toast('链上地址已复制'); });
     if (pfCopyIdBtn) pfCopyIdBtn.addEventListener('click', function () { toast('ID 已复制'); });
     if (pfShareQrBtn) pfShareQrBtn.addEventListener('click', function () { toast('二维码分享成功'); });
-    if (pfEditProfileBtn) pfEditProfileBtn.addEventListener('click', function () { location.href = 'settings.html'; });
+    if (pfEditClose) pfEditClose.addEventListener('click', function () { close(pfEditOvl); });
+    if (pfEditCancel) pfEditCancel.addEventListener('click', function () { close(pfEditOvl); });
+    if (pfEditProfileBtn) pfEditProfileBtn.addEventListener('click', function () {
+        if (pfEditName) pfEditName.value = (pfNameText ? pfNameText.textContent : '').trim();
+        if (pfEditBio) pfEditBio.value = (pfBioText ? pfBioText.textContent : '').trim();
+        open(pfEditOvl);
+    });
+    if (pfEditSave) pfEditSave.addEventListener('click', function () {
+        var name = pfEditName ? pfEditName.value.trim() : '';
+        var bio = pfEditBio ? pfEditBio.value.trim() : '';
+        if (!name) return toast('请输入昵称');
+        if (pfNameText) pfNameText.textContent = name;
+        if (pfBioText) pfBioText.textContent = bio || '这个人很神秘，还没有填写签名。';
+        close(pfEditOvl);
+        toast('资料已更新');
+    });
     if (pfToolInvite) pfToolInvite.addEventListener('click', function () { location.href = 'invite-data.html'; });
     if (pfToolPoints) pfToolPoints.addEventListener('click', function () { open(pfPointsOvl); });
     if (pfInviteCopyBtn) pfInviteCopyBtn.addEventListener('click', function () { toast('邀请码已复制：ALEX-8K3F'); });
     if (pfInviteGotoBtn) pfInviteGotoBtn.addEventListener('click', function () { location.href = 'transactions.html'; });
-    if (pfPointsDetailBtn) pfPointsDetailBtn.addEventListener('click', function () { toast('任务明细功能已打开（原型）'); });
     if (pfPointsMallBtn) pfPointsMallBtn.addEventListener('click', function () { location.href = 'goodfans-assets-legend.html'; });
-    if (pfContentManage) pfContentManage.addEventListener('click', function () { location.href = 'creator-showcase-manage.html'; });
+    if (pfPointsCloseFoot) pfPointsCloseFoot.addEventListener('click', function () { close(pfPointsOvl); });
+    if (pfPointsLedgerBtn) pfPointsLedgerBtn.addEventListener('click', function () { location.href = 'home-points-ledger.html'; });
+    document.querySelectorAll('#hpMiniTabs button').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var tab = btn.getAttribute('data-tab');
+            document.querySelectorAll('#hpMiniTabs button').forEach(function (b) { b.classList.toggle('active', b === btn); });
+            var task = document.getElementById('hpMiniTasks');
+            var ledger = document.getElementById('hpMiniLedger');
+            if (task && ledger) {
+                task.style.display = tab === 'tasks' ? '' : 'none';
+                ledger.style.display = tab === 'ledger' ? '' : 'none';
+            }
+        });
+    });
+    document.querySelectorAll('[data-task-act]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var act = btn.getAttribute('data-task-act');
+            if (act === 'detail') return toast('该任务详情已打开（原型）');
+            if (act === 'go-live') return location.href = 'home.html';
+            if (act === 'checkin') return toast('签到成功，+20 积分（原型）');
+        });
+    });
     if (pfKycEntry) pfKycEntry.addEventListener('click', function () {
         if (pfKycEntry.getAttribute('data-kyc-passed') === '1') return;
         location.href = 'kyc.html?from=profile';

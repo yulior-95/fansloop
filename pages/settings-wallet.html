@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>钱包与支付</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 20px;
+}
+.head {
+    margin: 10px 16px 12px;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: linear-gradient(135deg, rgba(168,85,247,.14), rgba(59,130,246,.08));
+}
+.head .crumb {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+.head .title { margin-top: 8px; font-size: 18px; font-weight: 800; }
+.head .sub { margin-top: 4px; font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+.head .act {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    height: 32px;
+    border-radius: 999px;
+    background: var(--brand-gradient);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+}
+.card {
+    margin: 0 16px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    overflow: hidden;
+}
+.card .hd {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.card .hd .ic {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: linear-gradient(135deg,#a855f7,#3b82f6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+.card .hd .t { font-size: 13px; font-weight: 700; }
+.card .hd .s { margin-top: 2px; font-size: 11px; color: var(--text-tertiary); }
+.wallet {
+    margin: 10px 12px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(168,85,247,.35);
+    background: linear-gradient(135deg, rgba(168,85,247,.2), rgba(59,130,246,.12));
+}
+.wallet .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.wallet .name { font-size: 12px; font-weight: 700; }
+.wallet .badge {
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 2px 8px;
+    border: 1px solid rgba(16,185,129,.35);
+    background: rgba(16,185,129,.15);
+    color: #6ee7b7;
+}
+.wallet .addr {
+    margin-top: 6px;
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    color: #d1d5db;
+}
+.wallet .bal {
+    margin-top: 8px;
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+}
+.wallet .bal b { font-size: 16px; color: #fff; margin-right: 4px; }
+.wallet .op {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+}
+.wallet .op button {
+    height: 30px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: rgba(10,10,18,.45);
+    color: #fff;
+    font-size: 11px;
+    padding: 0 10px;
+}
+.row {
+    padding: 12px;
+    border-top: 1px solid rgba(255,255,255,.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    cursor: pointer;
+}
+.row .left { display: flex; gap: 8px; align-items: center; font-size: 12px; }
+.row .left i { color: #c4b5fd; }
+.row .right { font-size: 11px; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" data-back="settings.html"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">钱包与支付</div>
+    <div class="nav-right"></div>
+</div>
+
+<div class="app-content">
+    <div class="head">
+        <div class="crumb"><span>设置</span><i class="fa-solid fa-chevron-right" style="font-size:10px"></i><span>钱包与支付</span></div>
+        <div class="title">钱包与支付</div>
+        <div class="sub">统一管理链上钱包与 USDT 充提偏好（平台仅支持 USDT）。</div>
+        <div class="act" id="goWallet"><i class="fa-solid fa-wallet"></i> 进入钱包</div>
+    </div>
+
+    <div class="card">
+        <div class="hd">
+            <div class="ic"><i class="fa-brands fa-ethereum"></i></div>
+            <div>
+                <div class="t">链上钱包</div>
+                <div class="s">当前已连接 2 个 Web3 钱包，可设置主钱包用于默认收款</div>
+            </div>
+        </div>
+
+        <div class="wallet" id="walletPrimary">
+            <div class="top">
+                <div class="name">Ethereum 主钱包 · MetaMask</div>
+                <span class="badge">默认</span>
+            </div>
+            <div class="addr">0x7Bf2...c3D9</div>
+            <div class="bal"><span><b>2,485.32</b>USDT</span><span><b>0.42</b>ETH</span></div>
+            <div class="op">
+                <button type="button" data-op="copy">复制地址</button>
+                <button type="button" data-op="qr">收款二维码</button>
+                <button type="button" data-op="edit">编辑备注</button>
+            </div>
+        </div>
+
+        <div class="wallet" id="walletBackup" style="border-color:var(--border-color);background:rgba(255,255,255,.04)">
+            <div class="top">
+                <div class="name">Polygon 备用钱包 · WalletConnect</div>
+            </div>
+            <div class="addr">0xA9c1...F7e2</div>
+            <div class="bal"><span><b>126.80</b>USDT</span><span><b>38.20</b>MATIC</span></div>
+            <div class="op">
+                <button type="button" data-op="copy">复制地址</button>
+                <button type="button" data-op="set-primary">设为主钱包</button>
+                <button type="button" data-op="unbind">解绑</button>
+            </div>
+        </div>
+
+        <div class="row" id="rowConnectWallet">
+            <div class="left"><i class="fa-solid fa-plus"></i><span>连接新钱包</span></div>
+            <div class="right">支持 MetaMask / WalletConnect <i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="hd">
+            <div class="ic" style="background:linear-gradient(135deg,#a855f7,#ec4899)"><i class="fa-solid fa-sliders"></i></div>
+            <div>
+                <div class="t">默认 USDT 充提偏好</div>
+                <div class="s">充值与提现均仅支持 USDT 链上，可在操作时修改网络</div>
+            </div>
+        </div>
+        <div class="row" id="rowRechargeAsset">
+            <div class="left"><i class="fa-solid fa-circle-dollar-to-slot"></i><span>充值资产</span></div>
+            <div class="right">USDT 链上充值 <i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+        <div class="row" id="rowRechargeNetwork">
+            <div class="left"><i class="fa-solid fa-link"></i><span>默认充值链网络</span></div>
+            <div class="right" id="networkVal">Ethereum Mainnet <i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+        <div class="row" id="rowWithdrawWay">
+            <div class="left"><i class="fa-solid fa-arrow-up-right-from-square"></i><span>默认提现方式</span></div>
+            <div class="right">USDT 链上 · 主钱包 <i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    function toast(msg) {
+        if (window.DigitalH5Nav && typeof window.DigitalH5Nav.toast === 'function') window.DigitalH5Nav.toast(msg);
+    }
+    var networkVal = document.getElementById('networkVal');
+    var NETWORK_KEY = 'h5_wallet_default_network';
+
+    function syncNetwork() {
+        var n = localStorage.getItem(NETWORK_KEY) || 'Ethereum Mainnet';
+        if (networkVal) networkVal.innerHTML = n + ' <i class="fa-solid fa-chevron-right"></i>';
+    }
+
+    var goWallet = document.getElementById('goWallet');
+    if (goWallet) goWallet.addEventListener('click', function () { location.href = 'wallet.html'; });
+
+    document.querySelectorAll('#walletPrimary [data-op], #walletBackup [data-op]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var op = btn.getAttribute('data-op');
+            if (op === 'copy') return toast('地址已复制');
+            if (op === 'qr') return toast('收款二维码已打开（原型）');
+            if (op === 'edit') return toast('钱包备注编辑已打开（原型）');
+            if (op === 'set-primary') return toast('已切换为主钱包（原型）');
+            if (op === 'unbind') return toast('解绑流程已打开（原型）');
+        });
+    });
+
+    var rowConnectWallet = document.getElementById('rowConnectWallet');
+    if (rowConnectWallet) rowConnectWallet.addEventListener('click', function () {
+        toast('连接钱包流程已打开（原型）');
+    });
+
+    var rowRechargeAsset = document.getElementById('rowRechargeAsset');
+    if (rowRechargeAsset) rowRechargeAsset.addEventListener('click', function () {
+        toast('平台当前仅支持 USDT 充值');
+    });
+
+    var rowRechargeNetwork = document.getElementById('rowRechargeNetwork');
+    if (rowRechargeNetwork) rowRechargeNetwork.addEventListener('click', function () {
+        var cur = localStorage.getItem(NETWORK_KEY) || 'Ethereum Mainnet';
+        var next = cur === 'Ethereum Mainnet' ? 'Polygon' : 'Ethereum Mainnet';
+        localStorage.setItem(NETWORK_KEY, next);
+        syncNetwork();
+        toast('默认网络已切换：' + next);
+    });
+
+    var rowWithdrawWay = document.getElementById('rowWithdrawWay');
+    if (rowWithdrawWay) rowWithdrawWay.addEventListener('click', function () {
+        toast('默认提现方式：USDT 链上 · 主钱包');
+    });
+
+    syncNetwork();
+})();
+</script>
+</body>
+</html>

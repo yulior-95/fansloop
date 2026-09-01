@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>账户资料</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 20px;
+}
+.head {
+    margin: 10px 16px 12px;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: linear-gradient(135deg, rgba(168,85,247,.14), rgba(236,72,153,.08));
+}
+.head .crumb {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.head .title { margin-top: 8px; font-size: 18px; font-weight: 800; }
+.head .sub { margin-top: 4px; font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+.head .act {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: var(--brand-gradient);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+}
+.profile-card {
+    margin: 0 16px 12px;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    display: flex;
+    gap: 12px;
+}
+.profile-card img {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.18);
+    object-fit: cover;
+}
+.profile-card .name {
+    font-size: 17px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+.badge-ok {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(16,185,129,.35);
+    background: rgba(16,185,129,.15);
+    color: #6ee7b7;
+    font-size: 10px;
+    font-weight: 700;
+}
+.profile-card .meta {
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+.section {
+    margin: 0 16px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    overflow: hidden;
+}
+.section .sh {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.section .sh .ic {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(168,85,247,.18);
+    color: #c4b5fd;
+}
+.section .sh .ti { font-size: 13px; font-weight: 700; }
+.section .sh .sub { margin-top: 2px; font-size: 11px; color: var(--text-tertiary); }
+.row {
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.row:last-child { border-bottom: none; }
+.row .ric {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,.06);
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+.row .main { flex: 1; min-width: 0; }
+.row .main .t { font-size: 12px; font-weight: 700; }
+.row .main .d { margin-top: 3px; font-size: 11px; color: var(--text-tertiary); }
+.row .rv { font-size: 11px; color: var(--text-secondary); text-align: right; }
+.row.click { cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+</div>
+
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" data-back="settings.html"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">账户资料</div>
+    <div class="nav-right"></div>
+</div>
+
+<div class="app-content">
+    <div class="head">
+        <div class="crumb"><span>设置</span><i class="fa-solid fa-chevron-right" style="font-size:10px"></i><span>账户资料</span></div>
+        <div class="title">账户资料</div>
+        <div class="sub">查看你的公开资料与 KYC 状态；修改资料请使用「编辑资料」。</div>
+        <div class="act" id="btnEditProfile"><i class="fa-solid fa-pen"></i> 编辑资料</div>
+    </div>
+
+    <div class="profile-card">
+        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80" alt="">
+        <div style="flex:1;min-width:0">
+            <div class="name">Luna 🌙 <span class="badge-ok"><i class="fa-solid fa-circle-check"></i> 身份验证通过</span></div>
+            <div class="meta">认证创作者 · LV 7</div>
+            <div class="meta">UID: 882910 · 加入于 2024 年 3 月</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="sh">
+            <div class="ic"><i class="fa-regular fa-user"></i></div>
+            <div>
+                <div class="ti">账户资料</div>
+                <div class="sub">管理你的昵称、简介、地区等公开资料</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="ric"><i class="fa-solid fa-signature"></i></div>
+            <div class="main">
+                <div class="t">昵称</div>
+                <div class="d">公开显示在你的主页和动态</div>
+            </div>
+            <div class="rv">Luna 🌙</div>
+        </div>
+        <div class="row">
+            <div class="ric"><i class="fa-solid fa-quote-left"></i></div>
+            <div class="main">
+                <div class="t">个人简介</div>
+                <div class="d">摄影 · 旅行 · 把云朵装进口袋</div>
+            </div>
+            <div class="rv"></div>
+        </div>
+        <div class="row">
+            <div class="ric"><i class="fa-solid fa-location-dot"></i></div>
+            <div class="main">
+                <div class="t">所在地区</div>
+                <div class="d">影响推荐内容与本地货币</div>
+            </div>
+            <div class="rv">日本 · 东京</div>
+        </div>
+        <div class="row">
+            <div class="ric"><i class="fa-solid fa-tag"></i></div>
+            <div class="main">
+                <div class="t">兴趣标签</div>
+                <div class="d">最多 6 个，影响推荐与发现</div>
+            </div>
+            <div class="rv">摄影 / 旅行 / 音乐</div>
+        </div>
+        <div class="row click" id="rowKyc">
+            <div class="ric"><i class="fa-solid fa-id-card"></i></div>
+            <div class="main">
+                <div class="t">KYC 身份验证</div>
+                <div class="d" id="kycSub">用于提现与合规要求</div>
+            </div>
+            <div class="rv" id="kycAction">已通过 <i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+        <div class="row">
+            <div class="ric"><i class="fa-solid fa-link"></i></div>
+            <div class="main">
+                <div class="t">外链账号</div>
+                <div class="d">绑定 Twitter / Instagram / YouTube 等</div>
+            </div>
+            <div class="rv">3 个已绑定</div>
+        </div>
+        <div class="row click" data-go="invite-data.html">
+            <div class="ric"><i class="fa-solid fa-gift"></i></div>
+            <div class="main">
+                <div class="t">邀请拉新数据</div>
+                <div class="d">邀请码、邀请用户列表、奖励明细与额度进度</div>
+            </div>
+            <div class="rv">128 人 <i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    function toast(msg) {
+        if (window.DigitalH5Nav && typeof window.DigitalH5Nav.toast === 'function') window.DigitalH5Nav.toast(msg);
+    }
+    var btnEditProfile = document.getElementById('btnEditProfile');
+    var rowKyc = document.getElementById('rowKyc');
+    var kycSub = document.getElementById('kycSub');
+    var kycAction = document.getElementById('kycAction');
+    var KYC_STORAGE_KEY = 'h5_withdraw_kyc_passed';
+
+    function syncKyc() {
+        var passed = localStorage.getItem(KYC_STORAGE_KEY) === '1';
+        if (kycSub) kycSub.textContent = passed ? '用于提现与合规要求 · 已通过' : '用于提现与合规要求 · 尚未提交认证';
+        if (kycAction) kycAction.innerHTML = (passed ? '已通过' : '未验证') + ' <i class="fa-solid fa-chevron-right"></i>';
+    }
+
+    if (btnEditProfile) btnEditProfile.addEventListener('click', function () {
+        location.href = 'profile.html';
+    });
+    if (rowKyc) rowKyc.addEventListener('click', function () {
+        location.href = 'kyc.html?from=settings-account';
+    });
+    syncKyc();
+    document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) syncKyc();
+    });
+})();
+</script>
+</body>
+</html>
