@@ -95,14 +95,13 @@ textarea{min-height:100px;resize:vertical}
     <div class="lb" style="margin:0 0 8px"><span><i class="fa-solid fa-coins" style="color:#f59e0b"></i> 变现设置</span></div>
     <div class="money-grid" id="moneyGrid">
       <div class="mcell" data-mode="free"><i class="fa-solid fa-check mcheck"></i><div class="ti">免费公开</div><div class="sub">所有人可见</div></div>
-      <div class="mcell on" data-mode="sub"><i class="fa-solid fa-check mcheck"></i><div class="ti">订阅专属</div><div class="sub">仅订阅者可见</div></div>
+      <div class="mcell on" data-mode="sub"><i class="fa-solid fa-check mcheck"></i><div class="ti">订阅专属</div><div class="sub">仅订阅者 · 价格在会员设置</div></div>
       <div class="mcell" data-mode="ppv"><i class="fa-solid fa-check mcheck"></i><div class="ti">按篇购买</div><div class="sub">未订阅需付费</div></div>
     </div>
     <div class="money-rows">
-      <div class="money-row show" id="rowSub"><label>订阅价参考</label><input id="subPrice" type="number" min="1" step="1" value="28"><span style="font-size:12px;color:var(--text-tertiary)">USDT/月</span></div>
       <div class="money-row" id="rowPpv"><label>单篇价格</label><input id="ppvPrice" type="number" min="0.5" step="0.01" value="5"><span style="font-size:12px;color:var(--text-tertiary)">USDT</span></div>
     </div>
-    <div class="tip">按篇购买可与订阅专属叠加；免费模式下关闭其他付费项。</div>
+    <div class="tip">「订阅专属」只控制可见范围；订阅价格在会员设置中配置。按篇购买可在此设置本篇解锁价。</div>
   </div>
 
   <div class="card">
@@ -155,7 +154,7 @@ textarea{min-height:100px;resize:vertical}
   var perm=document.getElementById('permSelect'), hint=document.getElementById('permHint');
   var ovl=document.getElementById('friendOvl'), list=document.getElementById('friendList');
   var catOvl=document.getElementById('catOvl'), catRow=document.getElementById('catRow'), catValue=document.getElementById('catValue'), catHint=document.getElementById('catHint');
-  var moneyGrid=document.getElementById('moneyGrid'), rowSub=document.getElementById('rowSub'), rowPpv=document.getElementById('rowPpv');
+  var moneyGrid=document.getElementById('moneyGrid'), rowPpv=document.getElementById('rowPpv');
   var allowComment=true, allowShare=true;
   var catData={
     '视觉美学': {'写真摄影':['人像写真','胶片私房','日常街拍'],'影像叙事':['剧情短片','Vlog日记','幕后花絮']},
@@ -182,7 +181,6 @@ textarea{min-height:100px;resize:vertical}
     var hasSub=moneyGrid.querySelector('[data-mode="sub"]').classList.contains('on');
     var hasPpv=moneyGrid.querySelector('[data-mode="ppv"]').classList.contains('on');
     if(hasFree){ hasSub=false; hasPpv=false; moneyGrid.querySelector('[data-mode="sub"]').classList.remove('on'); moneyGrid.querySelector('[data-mode="ppv"]').classList.remove('on'); }
-    rowSub.classList.toggle('show',hasSub);
     rowPpv.classList.toggle('show',hasPpv);
   }
   function setUploaded(){ zone.classList.add('ok'); zone.style.backgroundImage='url("https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=900&q=80")'; zone.innerHTML='<span class="oktag"><i class="fa-solid fa-circle-check"></i> 上传成功</span><button type="button" class="sbtn" id="editCoverBtn">编辑封面</button>'; status.textContent='视频上传成功，可继续编辑标题、简介和权限'; document.getElementById('editCoverBtn').addEventListener('click',function(e){e.stopPropagation();toast('封面编辑已打开（原型）');}); }

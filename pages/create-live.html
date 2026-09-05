@@ -111,14 +111,13 @@ textarea{min-height:68px;resize:vertical}
     <div class="lb" style="margin:0 0 8px"><span><i class="fa-solid fa-coins" style="color:#f59e0b"></i> 变现设置</span></div>
     <div class="money-grid" id="moneyGrid">
       <div class="mcell on" data-mode="free"><i class="fa-solid fa-check mcheck"></i><div class="ti">免费公开</div><div class="sub">所有人可看</div></div>
-      <div class="mcell" data-mode="sub"><i class="fa-solid fa-check mcheck"></i><div class="ti">订阅专属</div><div class="sub">仅订阅者</div></div>
+      <div class="mcell" data-mode="sub"><i class="fa-solid fa-check mcheck"></i><div class="ti">订阅专属</div><div class="sub">仅订阅者 · 价格在会员设置</div></div>
       <div class="mcell" data-mode="ppv"><i class="fa-solid fa-check mcheck"></i><div class="ti">按篇购买</div><div class="sub">未订阅需付费</div></div>
     </div>
     <div class="money-rows">
-      <div class="money-row" id="rowSub"><label>订阅价参考</label><input id="subPrice" type="number" min="1" step="1" value="28"><span style="font-size:12px;color:var(--text-tertiary)">USDT/月</span></div>
       <div class="money-row" id="rowPpv"><label>单篇价格</label><input id="ppvPrice" type="number" min="0.5" step="0.01" value="5"><span style="font-size:12px;color:var(--text-tertiary)">USDT</span></div>
     </div>
-    <div class="tip">可与门票/最低打赏策略并行，用于内容分发场景。</div>
+    <div class="tip">「订阅专属」只控制可见范围；订阅价格在会员设置中配置。按篇购买可在此设置本篇解锁价。</div>
   </div>
   <div class="card">
     <div class="lb" style="margin:0 0 8px"><span><i class="fa-solid fa-sliders" style="color:#60a5fa"></i> 高级设置</span></div>
@@ -152,7 +151,7 @@ textarea{min-height:68px;resize:vertical}
   var cover=document.getElementById('cover'), coverInput=document.getElementById('coverInput');
   var title=document.getElementById('titleInput'), desc=document.getElementById('descInput'), tc=document.getElementById('titleCount'), dc=document.getElementById('descCount');
   var perm=document.getElementById('permSelect'), hint=document.getElementById('permHint'), ovl=document.getElementById('friendOvl'), fl=document.getElementById('friendList');
-  var moneyGrid=document.getElementById('moneyGrid'), rowSub=document.getElementById('rowSub'), rowPpv=document.getElementById('rowPpv');
+  var moneyGrid=document.getElementById('moneyGrid'), rowPpv=document.getElementById('rowPpv');
   var catOvl=document.getElementById('catOvl'), catRow=document.getElementById('catRow'), catValue=document.getElementById('catValue'), catHint=document.getElementById('catHint');
   var allowComment=true, allowShare=true;
   var catData={
@@ -191,7 +190,6 @@ textarea{min-height:68px;resize:vertical}
     var hasSub=moneyGrid.querySelector('[data-mode="sub"]').classList.contains('on');
     var hasPpv=moneyGrid.querySelector('[data-mode="ppv"]').classList.contains('on');
     if(hasFree){ hasSub=false; hasPpv=false; moneyGrid.querySelector('[data-mode="sub"]').classList.remove('on'); moneyGrid.querySelector('[data-mode="ppv"]').classList.remove('on'); }
-    rowSub.classList.toggle('show',hasSub);
     rowPpv.classList.toggle('show',hasPpv);
   }
   function applyCover(url){ coverUrl=url; if(url){ cover.classList.add('ok'); cover.style.backgroundImage='url("'+url+'")'; cover.innerHTML='<span class="chg"><i class="fa-regular fa-image"></i> 更换封面</span>'; } }

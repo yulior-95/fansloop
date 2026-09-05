@@ -52,17 +52,16 @@
 
     var priceGrid = document.getElementById('priceGrid');
 
-    var rowSubPrice = document.getElementById('rowSubPrice');
-
     var rowPpvPrice = document.getElementById('rowPpvPrice');
-
-    var inputSubPrice = document.getElementById('inputSubPrice');
 
     var inputPpvPrice = document.getElementById('inputPpvPrice');
 
     var priceSubDisplay = document.getElementById('priceSubDisplay');
 
     var pricePpvDisplay = document.getElementById('pricePpvDisplay');
+
+    /** 订阅价来自创作者会员档位，创建页不可改 */
+    var PLAN_SUB_PRICE = '28';
 
     var createMonetizeCard = document.getElementById('createMonetizeCard');
 
@@ -226,7 +225,7 @@
 
     function getSubPrice() {
 
-        return inputSubPrice?.value || '28';
+        return PLAN_SUB_PRICE;
 
     }
 
@@ -969,13 +968,11 @@
 
 
 
-        if (rowSubPrice) rowSubPrice.classList.toggle('show', pricing.sub);
-
         if (rowPpvPrice) rowPpvPrice.classList.toggle('show', pricing.ppv);
 
 
 
-        if (priceSubDisplay && inputSubPrice) priceSubDisplay.textContent = inputSubPrice.value || '28';
+        if (priceSubDisplay) priceSubDisplay.textContent = PLAN_SUB_PRICE;
 
         if (pricePpvDisplay && inputPpvPrice) pricePpvDisplay.textContent = inputPpvPrice.value || '5';
 
@@ -1050,8 +1047,6 @@
         });
 
 
-
-        inputSubPrice?.addEventListener('input', syncPriceUI);
 
         inputPpvPrice?.addEventListener('input', syncPriceUI);
 
