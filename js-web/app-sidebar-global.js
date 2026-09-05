@@ -1053,6 +1053,20 @@
         renderLivePip(null);
     };
 
+    function ensurePageBackNav() {
+        if (global.FL_pageBack || global.__FL_PAGE_BACK_BOUND__) return;
+        if (global.__flPageBackLoading) return;
+        global.__flPageBackLoading = true;
+        var base = detectScriptBase();
+        var s = document.createElement('script');
+        s.src = base + 'page-back-nav.js';
+        s.onload = function () { global.__flPageBackLoading = false; };
+        s.onerror = function () { global.__flPageBackLoading = false; };
+        document.head.appendChild(s);
+    }
+
+    ensurePageBackNav();
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initLivePip);
     } else {
