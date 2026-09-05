@@ -42,7 +42,10 @@
         if (!user) return null;
         if (user.userId === DEMO_UID) return LUNA_PROFILE_STATS;
         var h = hashEmail(user.email);
-        if (user.role !== 'Creator') {
+        var creator = global.FLIdentity && global.FLIdentity.isCreator
+            ? global.FLIdentity.isCreator(user)
+            : user.role === 'Creator';
+        if (!creator) {
             return {
                 works: '0', fans: '0', following: String(h % 12), subscribers: '0', income: '$0',
                 worksTab: '0', paidTab: '0', liveTab: '0'
@@ -125,7 +128,9 @@
     function applyProfileMeta(user) {
         var roleLine = document.getElementById('profileRoleLine');
         if (roleLine) {
-            roleLine.textContent = (user.role || 'Fan') + ' · ' + (user.walletShort || '0x----...----');
+            var roleLabel = global.FLIdentity && global.FLIdentity.isCreator && global.FLIdentity.isCreator(user)
+                ? 'Creator' : 'Fan';
+            roleLine.textContent = roleLabel + ' · ' + (user.walletShort || '0x----...----');
         }
         var bio = document.querySelector('.profile-head .bio');
         if (bio && user.bio) bio.textContent = user.bio;

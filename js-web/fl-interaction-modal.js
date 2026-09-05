@@ -70,6 +70,7 @@
     return loadScriptOnce(base + 'mall-vouchers-store.js')
       .then(function () { return loadScriptOnce(base + 'gift-modal-context.js'); })
       .then(function () { return loadScriptOnce(base + 'gift-tip-bonus.js'); })
+      .then(function () { return loadScriptOnce(base + 'tip-events-store.js'); })
       .then(function () { return loadScriptOnce(base + 'gift-modal-inline.js'); });
   }
 

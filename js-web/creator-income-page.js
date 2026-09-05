@@ -14,41 +14,41 @@
 
     var DIST_BY_PERIOD = {
         '7': {
-            total: '291.18',
-            sub: { am: '148.40 USDT', pc: '52.0%', pct: 52 },
-            tip: { am: '79.96 USDT', pc: '28.0%', pct: 28 },
-            live: { am: '39.98 USDT', pc: '14.0%', pct: 14 },
-            ppv: { am: '17.13 USDT', pc: '6.0%', pct: 6 },
-            gift: { am: '5.71 USDT', pc: '2.0%', pct: 2 }
+            total: '0',
+            sub: { am: '0 USDT', pc: '0%', pct: 0 },
+            tip: { am: '0 USDT', pc: '0%', pct: 0 },
+            live: { am: '0 USDT', pc: '0%', pct: 0 },
+            ppv: { am: '0 USDT', pc: '0%', pct: 0 },
+            gift: { am: '0 USDT', pc: '0%', pct: 0 }
         },
         '30': {
-            total: '1,280.50',
-            sub: { am: '640.25 USDT', pc: '50.0%', pct: 50 },
-            tip: { am: '358.54 USDT', pc: '28.0%', pct: 28 },
-            live: { am: '179.27 USDT', pc: '14.0%', pct: 14 },
-            ppv: { am: '76.83 USDT', pc: '6.0%', pct: 6 },
-            gift: { am: '25.61 USDT', pc: '2.0%', pct: 2 }
+            total: '0',
+            sub: { am: '0 USDT', pc: '0%', pct: 0 },
+            tip: { am: '0 USDT', pc: '0%', pct: 0 },
+            live: { am: '0 USDT', pc: '0%', pct: 0 },
+            ppv: { am: '0 USDT', pc: '0%', pct: 0 },
+            gift: { am: '0 USDT', pc: '0%', pct: 0 }
         },
         '90': {
-            total: '3,899.03',
-            sub: { am: '1,920.75 USDT', pc: '48.5%', pct: 48.5 },
-            tip: { am: '1,107.84 USDT', pc: '28.0%', pct: 28 },
-            live: { am: '553.92 USDT', pc: '14.0%', pct: 14 },
-            ppv: { am: '237.39 USDT', pc: '6.0%', pct: 6 },
-            gift: { am: '79.13 USDT', pc: '2.5%', pct: 2.5 }
+            total: '0',
+            sub: { am: '0 USDT', pc: '0%', pct: 0 },
+            tip: { am: '0 USDT', pc: '0%', pct: 0 },
+            live: { am: '0 USDT', pc: '0%', pct: 0 },
+            ppv: { am: '0 USDT', pc: '0%', pct: 0 },
+            gift: { am: '0 USDT', pc: '0%', pct: 0 }
         }
     };
 
     var CHART_PATHS = {
-        '7': 'M0,150 Q40,130 80,118 T160,95 T240,70 T320,58 L320,180 L0,180 Z',
-        '30': 'M0,140 Q30,120 60,108 T120,90 T180,72 T240,54 T320,36 L320,180 L0,180 Z',
-        '90': 'M0,155 Q25,145 50,138 T100,120 T200,88 T280,62 T320,48 L320,180 L0,180 Z'
+        '7': 'M0,180 L320,180 L320,180 L0,180 Z',
+        '30': 'M0,180 L320,180 L320,180 L0,180 Z',
+        '90': 'M0,180 L320,180 L320,180 L0,180 Z'
     };
 
     var CHART_LINES = {
-        '7': 'M0,150 Q40,130 80,118 T160,95 T240,70 T320,58',
-        '30': 'M0,140 Q30,120 60,108 T120,90 T180,72 T240,54 T320,36',
-        '90': 'M0,155 Q25,145 50,138 T100,120 T200,88 T280,62 T320,48'
+        '7': 'M0,180 L320,180',
+        '30': 'M0,180 L320,180',
+        '90': 'M0,180 L320,180'
     };
 
     var CHART_X = {
@@ -75,7 +75,6 @@
     var toastEl;
     var currentPeriod = '30';
     var currentFilter = 'all';
-    var DEMO_UID = 'demo_uid_882910';
 
     function fmtUsdt(n) {
         return Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -93,15 +92,14 @@
 
     function applyCreatorIncomeForUser(user) {
         user = user || resolveIncomeUser();
-        if (!user || user.userId === DEMO_UID) {
-            syncDistPeriod(currentPeriod);
-            return;
-        }
+        if (!user) user = { role: 'Fan' };
 
         var monthly = window.FLCreatorIncomeStore && window.FLCreatorIncomeStore.getMonthlyUsdt
             ? window.FLCreatorIncomeStore.getMonthlyUsdt()
             : 0;
-        var isCreator = user.role === 'Creator';
+        var isCreator = global.FLIdentity && global.FLIdentity.isCreator
+            ? global.FLIdentity.isCreator(user)
+            : user.role === 'Creator';
         var hasIncome = isCreator && monthly > 0;
 
         var total = hasIncome ? monthly * 4.28 : 0;
@@ -127,11 +125,18 @@
         if (pieTotal) pieTotal.textContent = fmtUsdt(hasIncome ? monthly : 0);
 
         if (!hasIncome) {
+            if (totalNum) totalNum.textContent = '--';
+            if (wd) wd.textContent = '--';
+            if (pend) pend.textContent = '--';
+            if (pieTotal) pieTotal.textContent = '--';
+            if (deltas[0]) deltas[0].textContent = '--';
+            if (deltas[1]) deltas[1].textContent = '--';
+            if (deltas[2]) deltas[2].textContent = '--';
             document.querySelectorAll('.dist-legend .dist-row .am').forEach(function (el) {
-                el.textContent = '0.00 USDT';
+                el.textContent = '--';
             });
             document.querySelectorAll('.dist-legend .dist-row .pcc').forEach(function (el) {
-                el.textContent = '0%';
+                el.textContent = '--';
             });
             var svg = document.getElementById('distPieSvg');
             if (svg) svg.innerHTML = '';
@@ -222,6 +227,7 @@
             return s + (base[k] ? parseAmt(base[k].am) : 0);
         }, 0);
         var newTotal = baseSum + mallAmt;
+        if (newTotal <= 0) return null;
         var out = { total: fmtUsdt(newTotal) };
         baseKeys.forEach(function (k) {
             var amt = base[k] ? parseAmt(base[k].am) : 0;
@@ -281,7 +287,13 @@
     function syncDistPeriod(period) {
         currentPeriod = period;
         var data = buildPeriodData(period);
-        if (!data) return;
+        if (!data) {
+            var emptySvg = document.getElementById('distPieSvg');
+            if (emptySvg) emptySvg.innerHTML = '';
+            var emptyX = document.querySelector('.chart-x');
+            if (emptyX) emptyX.innerHTML = '<span>--</span><span>--</span><span>--</span><span>--</span><span>--</span>';
+            return;
+        }
         DIST_KEYS.forEach(function (key) {
             var row = document.querySelector('.dist-legend .dist-row.' + key);
             if (!row || !data[key]) return;
@@ -296,8 +308,10 @@
         if (area && CHART_PATHS[period]) area.setAttribute('d', CHART_PATHS[period]);
         if (line && CHART_LINES[period]) line.setAttribute('d', CHART_LINES[period]);
         var xWrap = document.querySelector('.chart-x');
-        if (xWrap && CHART_X[period]) {
-            xWrap.innerHTML = CHART_X[period].map(function (x) { return '<span>' + x + '</span>'; }).join('');
+        if (xWrap) {
+            xWrap.innerHTML = parseAmt(data.total) > 0 && CHART_X[period]
+                ? CHART_X[period].map(function (x) { return '<span>' + x + '</span>'; }).join('')
+                : '<span>--</span><span>--</span><span>--</span><span>--</span><span>--</span>';
         }
         var periodLabel = document.getElementById('chartPeriodLabel');
         if (periodLabel) periodLabel.textContent = CHART_PERIOD_LABELS[period] || '近 30 天';
@@ -392,6 +406,26 @@
                 '<div class="meta">数字资产成交与联盟佣金回传后将显示在此</div></div></div>';
         }
         host.innerHTML = html;
+    }
+
+    function renderTipIncomeRows() {
+        var host = document.getElementById('ciTipIncomeRows');
+        if (!host || !window.FLTipEvents) return;
+        var empty = document.getElementById('ciIncomeEmpty');
+        var events = window.FLTipEvents.getLatest(20);
+        if (empty) empty.style.display = events.length ? 'none' : '';
+        host.innerHTML = events.map(function (event) {
+            var sender = escHtml(event.sender || '匿名用户');
+            var creator = escHtml(event.creator || '创作者');
+            var gift = escHtml(event.gift || '心意');
+            var time = event.createdAt ? new Date(event.createdAt).toLocaleString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : '刚刚';
+            return '<div class="income-row" data-cat="tip" data-tx="' + escHtml(event.id) + '">' +
+                '<div class="av" style="background:linear-gradient(135deg,#F59E0B,#EC4899);display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-gift" style="color:#fff"></i></div>' +
+                '<div class="info"><div class="nm">' + sender + ' <span class="tag tip">打赏</span></div>' +
+                '<div class="meta">' + creator + ' · ' + gift + ' · ' + time + '</div></div>' +
+                '<div class="right"><div class="am">+' + fmtUsdt(event.amount) + ' USDT</div><div class="stt"><i class="fa-solid fa-clock"></i> 结算中</div></div>' +
+                '</div>';
+        }).join('');
     }
 
     function bindIncomeRows() {
@@ -492,7 +526,7 @@
         if (pending) {
             pending.style.cursor = 'pointer';
             pending.addEventListener('click', function () {
-                showToast('148.20 USDT 处于 1–3 天结算锁定期，到期后自动进入可提现余额');
+                showToast('当前暂无可用的结算数据');
             });
         }
     }
@@ -582,15 +616,16 @@
         var cnt = document.getElementById('ciDigitalCnt');
         var el2 = document.getElementById('ciAffiliateEarn');
         var cnt2 = document.getElementById('ciAffiliateCnt');
-        if (el) el.textContent = fmtUsdt(live.dig) + ' USDT';
-        if (cnt) cnt.textContent = digCnt + ' 笔';
-        if (el2) el2.textContent = fmtUsdt(live.aff) + ' USDT';
-        if (cnt2) cnt2.textContent = affCnt + ' 笔';
+        if (el) el.textContent = live.dig > 0 ? fmtUsdt(live.dig) + ' USDT' : '--';
+        if (cnt) cnt.textContent = digCnt > 0 ? digCnt + ' 笔' : '--';
+        if (el2) el2.textContent = live.aff > 0 ? fmtUsdt(live.aff) + ' USDT' : '--';
+        if (cnt2) cnt2.textContent = affCnt > 0 ? affCnt + ' 笔' : '--';
     }
 
     function init() {
         bindPeriodTabs();
         bindListTabs();
+        renderTipIncomeRows();
         renderMallIncomeRows();
         bindIncomeRows();
         bindHeaderActions();
@@ -603,6 +638,11 @@
         syncDistPeriod(currentPeriod);
         applyCreatorIncomeForUser();
         applyDeepLinks();
+        window.addEventListener('fl-tip-sent', function () {
+            renderTipIncomeRows();
+            bindIncomeRows();
+            applyListFilter(currentFilter);
+        });
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

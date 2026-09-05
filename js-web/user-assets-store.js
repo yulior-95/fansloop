@@ -1,6 +1,6 @@
 /**
  * 用户资产 · 按账号隔离（余额 / KYC / 支付密码 / 安全设置）
- * 新注册用户默认为空；Luna 演示账号保留高保真数据
+ * 新注册用户默认为空，资产只来自当前账号的持久化数据
  */
 (function (global) {
     var DEMO_UID = 'demo_uid_882910';
@@ -28,44 +28,6 @@
         };
     }
 
-    function lunaDemoAssets() {
-        return {
-            walletUsd: 5824.32,
-            usdtBalance: 5816.4,
-            liveUsdt: 12,
-            monthlyRecharge: 1200,
-            monthlyWithdraw: 640,
-            monthlyDelta: 248.5,
-            kyc: {
-                authStatus: 'approved',
-                status: 'approved',
-                authSource: 'document',
-                zkpStatus: 'unknown',
-                walletAddress: '0x7A3F8b2C91e4F3a2C8d1E6b9F0a2D3F2C',
-                lastId: 'KYC-LUNA-DEMO',
-                submittedAt: '2024-03-12T08:00:00.000Z'
-            },
-            kycAudit: [],
-            payPassword: '123456',
-            security: {
-                twoFa: true,
-                withdrawPwdSet: true,
-                securityScore: 88
-            }
-        };
-    }
-
-    function fanDemoAssets(usdt, live) {
-        var a = newUserAssets();
-        a.usdtBalance = usdt || 0;
-        a.walletUsd = usdt || 0;
-        a.liveUsdt = live || 0;
-        a.monthlyRecharge = usdt > 0 ? 200 : 0;
-        a.monthlyWithdraw = 0;
-        a.monthlyDelta = 0;
-        return a;
-    }
-
     function userId() {
         if (global.GoodfansAuth && global.GoodfansAuth.getUserId) {
             return global.GoodfansAuth.getUserId();
@@ -82,13 +44,10 @@
     function ensureAssets(account) {
         if (!account) return null;
         if (!account.assets) {
-            if (account.userId === DEMO_UID) {
-                account.assets = lunaDemoAssets();
-            } else if (account.isNewUser) {
-                account.assets = newUserAssets();
-            } else {
-                account.assets = fanDemoAssets(0, 0);
-            }
+            account.assets = newUserAssets();
+            global.FLUserRegistry.persistAccount(account);
+        } else if (account.email === 'luna@goodfans.io' && account.assets.kyc && account.assets.kyc.lastId === 'KYC-LUNA-DEMO') {
+            account.assets = newUserAssets();
             global.FLUserRegistry.persistAccount(account);
         } else if (account.isNewUser) {
             var a = account.assets;
@@ -234,7 +193,6 @@
     global.FLUserAssets = {
         DEMO_UID: DEMO_UID,
         newUserAssets: newUserAssets,
-        lunaDemoAssets: lunaDemoAssets,
         ensureAssets: ensureAssets,
         getAssets: assets,
         persistAssets: persistAssets,

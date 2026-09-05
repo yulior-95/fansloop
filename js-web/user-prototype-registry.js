@@ -5,6 +5,52 @@
     var LS_REGISTRY = 'fl_user_registry_v1';
     var DEMO_USER_ID = 'demo_uid_882910';
 
+    /* Identity model: account identity is separate from creator eligibility and
+       subscription relationships. `role` remains as a compatibility alias for
+       older prototype pages. */
+    var IDENTITY = {
+        ACCOUNT_TYPE_USER: 'user',
+        ACCOUNT_TYPE_PLATFORM: 'platform',
+        CREATOR_NONE: 'none',
+        CREATOR_PENDING: 'pending',
+        CREATOR_APPROVED: 'approved'
+    };
+
+    function isCreator(account) {
+        return !!account && (account.creatorStatus === IDENTITY.CREATOR_APPROVED || account.role === 'Creator');
+    }
+
+    function normalizeIdentity(account) {
+        if (!account) return account;
+        if (!account.accountType) account.accountType = IDENTITY.ACCOUNT_TYPE_USER;
+        if (!account.creatorStatus) {
+            account.creatorStatus = account.role === 'Creator'
+                ? IDENTITY.CREATOR_APPROVED
+                : IDENTITY.CREATOR_NONE;
+        }
+        if (!account.subscriptionRelations) account.subscriptionRelations = [];
+        return account;
+    }
+
+    function isSubscribedTo(account, creatorId) {
+        normalizeIdentity(account);
+        return account.subscriptionRelations.some(function (r) {
+            return r.creatorId === creatorId && r.status === 'active';
+        });
+    }
+
+    function setSubscription(account, creatorId, status, plan) {
+        normalizeIdentity(account);
+        var relation = account.subscriptionRelations.filter(function (r) { return r.creatorId === creatorId; })[0];
+        if (!relation) {
+            relation = { creatorId: creatorId, status: 'inactive', plan: plan || null };
+            account.subscriptionRelations.push(relation);
+        }
+        relation.status = status === 'active' ? 'active' : 'inactive';
+        if (plan != null) relation.plan = plan;
+        return relation;
+    }
+
     var AVATARS = [
         'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200',
         'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=200',
@@ -71,6 +117,9 @@
             name: 'Luna 🌙',
             avatar: AVATARS[0],
             role: 'Creator',
+            accountType: IDENTITY.ACCOUNT_TYPE_USER,
+            creatorStatus: IDENTITY.CREATOR_APPROVED,
+            subscriptionRelations: [],
             bio: '📷 旅行 / 美食 / 慢生活 摄影师｜📍现居东京｜35mm 定焦执着患者｜合作请私信',
             walletAddress: '0x7A3F8b2C91e4F3a2C8d1E6b9F0a2D3F2C',
             joinedAt: '2024 年 3 月',
@@ -135,6 +184,8 @@
         var maya = buildAccount('maya@example.com', { isNewUser: false, registerDays: 12 });
         maya.name = 'Maya ✨';
         maya.role = 'Fan';
+        maya.accountType = IDENTITY.ACCOUNT_TYPE_USER;
+        maya.creatorStatus = IDENTITY.CREATOR_NONE;
         maya.avatar = AVATARS[2];
         maya.pointsWallet = { available: 2460, frozen: 0, frozenHint: '', todayEarned: 80, todayCap: 480 };
         maya.isNewUser = false;
@@ -144,6 +195,8 @@
         var kira = buildAccount('kira@example.com', { isNewUser: false, registerDays: 45 });
         kira.name = 'Kira 🎬';
         kira.role = 'Creator';
+        kira.accountType = IDENTITY.ACCOUNT_TYPE_USER;
+        kira.creatorStatus = IDENTITY.CREATOR_APPROVED;
         kira.avatar = AVATARS[3];
         kira.bio = '独立导演 · Vlog / 幕后花絮 · 合作 DM';
         kira.pointsWallet = { available: 5820, frozen: 400, frozenHint: '1 笔邀请奖励冷静中', todayEarned: 150, todayCap: 480 };
@@ -173,6 +226,9 @@
             name: formatDisplayName(local, hash),
             avatar: AVATARS[parseInt(hash.slice(0, 2), 16) % AVATARS.length],
             role: isNew ? 'Fan' : (parseInt(hash.slice(1, 2), 16) % 3 === 0 ? 'Creator' : 'Fan'),
+            accountType: IDENTITY.ACCOUNT_TYPE_USER,
+            creatorStatus: isNew ? IDENTITY.CREATOR_NONE : (parseInt(hash.slice(1, 2), 16) % 3 === 0 ? IDENTITY.CREATOR_APPROVED : IDENTITY.CREATOR_NONE),
+            subscriptionRelations: [],
             bio: isNew ? '欢迎来到 GOODFANS！完善资料后开始探索吧。' : BIOS[parseInt(hash.slice(2, 3), 16) % BIOS.length],
             walletAddress: '0x' + hash.slice(0, 4).toUpperCase() + hash.slice(4, 8) + 'a1b2c3d4e5f6789012345678' + hash.slice(8, 12),
             joinedAt: isNew ? '刚刚' : (2024 + (parseInt(hash.slice(3, 4), 16) % 2)) + ' 年 ' + ((parseInt(hash.slice(5, 6), 16) % 12) + 1) + ' 月',
@@ -208,14 +264,14 @@
         email = normalizeEmail(email);
         if (!email) return null;
         var store = seedIfEmpty(readStore());
-        return store.accounts[email] || null;
+        return normalizeIdentity(store.accounts[email] || null);
     }
 
     function getByUserId(userId) {
         if (!userId) return null;
         var store = seedIfEmpty(readStore());
         var email = store.byUserId[userId];
-        return email ? store.accounts[email] : null;
+        return email ? normalizeIdentity(store.accounts[email]) : null;
     }
 
     function registerEmail(email, opts) {
@@ -266,6 +322,7 @@
 
     function toSessionUser(account) {
         if (!account) return null;
+        normalizeIdentity(account);
         return {
             userId: account.userId,
             publicUid: resolvePublicUid(account),
@@ -273,6 +330,9 @@
             name: account.name,
             avatar: account.avatar,
             role: account.role,
+            accountType: account.accountType,
+            creatorStatus: account.creatorStatus,
+            subscriptionRelations: account.subscriptionRelations || [],
             bio: account.bio,
             walletAddress: account.walletAddress,
             walletShort: walletShort(account.walletAddress),
@@ -311,5 +371,20 @@
         resolvePublicUid: resolvePublicUid,
         ensureTierProfile: ensureTierProfile,
         walletShort: walletShort
+    };
+
+    global.FLIdentity = {
+        values: IDENTITY,
+        isCreator: isCreator,
+        isPlatform: function (actor) {
+            return !!actor && actor.accountType === IDENTITY.ACCOUNT_TYPE_PLATFORM;
+        },
+        normalize: normalizeIdentity,
+        isSubscribedTo: isSubscribedTo,
+        setSubscription: setSubscription,
+        displayRole: function (actor) {
+            if (global.FLIdentity.isPlatform(actor)) return '平台';
+            return isCreator(actor) ? '创作者' : '用户';
+        }
     };
 })(typeof window !== 'undefined' ? window : this);

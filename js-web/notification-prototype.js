@@ -7,6 +7,7 @@
     var initItems = [
         { id: "n_live_001", type: "live", unread: true, title: "开播提醒：夜雨听弦 已开播", desc: "你关注的创作者「夜雨听弦」正在直播《周末爵士夜》，当前在线 2.1k。", time: "刚刚", img: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=120" },
         { id: "n_sub_001", type: "subscription", unread: true, title: "订阅提醒：NeoMaster 已完成续费", desc: "你的月度订阅方案续费成功，续费金额 28 USDT，下一次扣费日 2026-06-27。", time: "3 分钟前", img: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=120" },
+        { id: "n_tip_001", type: "income", unread: true, title: "收益通知：收到打赏", desc: "BlockTrader 给你的动态打赏了 50 USDT，并附言：画面太美了，期待下一组！", time: "5 分钟前", img: "https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=120" },
         { id: "n_income_001", type: "income", unread: true, title: "收益通知：本日收益已到账", desc: "今日创作收益 186.40 USDT 已入账至钱包余额，可前往资产页查看流水明细。", time: "9 分钟前", img: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=120" },
         { id: "n_system_001", type: "system", unread: false, title: "系统通知：创作者增长活动已开启", desc: "参与 5 月创作者增长计划，完成目标可额外获得平台激励。", time: "昨天 20:16", img: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=120" },
         { id: "n_expiry_001", type: "expiry", unread: true, title: "到期提醒：你的订阅将于 24 小时后到期", desc: "你订阅的「山野食光·月度会员」即将到期，请及时续费避免权益中断。", time: "昨天 18:06", img: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=120" },

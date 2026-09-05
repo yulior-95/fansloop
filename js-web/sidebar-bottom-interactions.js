@@ -18,7 +18,8 @@
         '<div class="info">' +
         '  <div class="name-row">' +
         '    <span class="n"></span>' +
-        '    <span class="s-member-tag" data-fl-member-tag hidden><i class="fa-solid fa-crown"></i> 会员</span>' +
+        '    <span class="s-role-tag" data-fl-role-tag></span>' +
+        '    <span class="s-member-tag" data-fl-member-tag hidden><i class="fa-solid fa-crown"></i> 创作者 Pro</span>' +
         '  </div>' +
         '</div>';
 
@@ -90,7 +91,8 @@
         if (!info) {
             userRow.insertAdjacentHTML('beforeend', '<div class="info">' +
                 '<div class="name-row"><span class="n"></span>' +
-                '<span class="s-member-tag" data-fl-member-tag hidden><i class="fa-solid fa-crown"></i> 会员</span></div></div>');
+                '<span class="s-role-tag" data-fl-role-tag></span>' +
+                '<span class="s-member-tag" data-fl-member-tag hidden><i class="fa-solid fa-crown"></i> 创作者 Pro</span></div></div>');
             info = userRow.querySelector('.info');
         }
 
@@ -102,10 +104,21 @@
             nameRow.className = 'name-row';
             nameRow.innerHTML =
                 '<span class="n"></span>' +
-                '<span class="s-member-tag" data-fl-member-tag hidden><i class="fa-solid fa-crown"></i> 会员</span>';
+                '<span class="s-role-tag" data-fl-role-tag></span>' +
+                '<span class="s-member-tag" data-fl-member-tag hidden><i class="fa-solid fa-crown"></i> 创作者 Pro</span>';
             if (nameText) nameRow.querySelector('.n').textContent = nameText;
             info.querySelectorAll('.e').forEach(function (el) { el.remove(); });
             info.appendChild(nameRow);
+        }
+
+        if (!info.querySelector('[data-fl-role-tag]')) {
+            var row = info.querySelector('.name-row');
+            var member = row && row.querySelector('[data-fl-member-tag]');
+            var roleTag = document.createElement('span');
+            roleTag.className = 's-role-tag';
+            roleTag.setAttribute('data-fl-role-tag', '');
+            if (member) row.insertBefore(roleTag, member);
+            else if (row) row.appendChild(roleTag);
         }
 
         if (!userRow.querySelector('.av')) {
@@ -124,13 +137,14 @@
     }
 
     function applySidebarUserDisplay(user) {
-        user = user || getUser();
+        user = user || getUser() || { role: 'Creator', creatorStatus: 'approved' };
         normalizeSidebarUserRow();
 
         document.querySelectorAll('.app-sidebar .s-user').forEach(function (row) {
             row.querySelectorAll('.more, [data-fl-user-more], .info .e').forEach(function (el) { el.remove(); });
 
             var nameEl = row.querySelector('.info .name-row .n');
+            var roleEl = row.querySelector('[data-fl-role-tag]');
             var tagEl = row.querySelector('[data-fl-member-tag]');
             var avEl = row.querySelector('.av');
 
@@ -148,6 +162,18 @@
                 var showTag = isProMember();
                 tagEl.hidden = !showTag;
                 tagEl.style.display = showTag ? 'inline-flex' : 'none';
+            }
+
+            if (roleEl) {
+                var creator = global.FLIdentity && global.FLIdentity.isCreator
+                    ? global.FLIdentity.isCreator(user)
+                    : !!(user && user.role === 'Creator');
+                var roleKey = creator ? 'role_creator' : 'role_member';
+                var roleText = global.FLI18n && global.FLI18n.t
+                    ? global.FLI18n.t(global.FLI18n.getLangCode(), roleKey)
+                    : (creator ? 'Creator' : 'Fan');
+                roleEl.textContent = roleText;
+                roleEl.className = 's-role-tag ' + (creator ? 'is-creator' : 'is-member');
             }
 
             if (avEl && user && user.avatar) {

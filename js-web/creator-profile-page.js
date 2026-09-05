@@ -219,7 +219,23 @@
     function renderTipRankList() {
         var list = document.getElementById('cpTipRankList');
         if (!list) return;
-        list.innerHTML = TIP_RANK_FULL.map(function (row) {
+        var rows = TIP_RANK_FULL.slice();
+        if (global.FLTipEvents) {
+            var creator = getCreatorName();
+            var totals = {};
+            global.FLTipEvents.getForCreator(creator).forEach(function (event) {
+                var key = event.sender || '匿名用户';
+                totals[key] = (totals[key] || 0) + (Number(event.amount) || 0);
+            });
+            Object.keys(totals).forEach(function (name) {
+                var existing = rows.find(function (row) { return row.name === name; });
+                if (existing) existing.amount += totals[name];
+                else rows.push({ name: name, av: 'photo-1535713875002-d1d0cf377fde', amount: totals[name], sub: '刚刚打赏' });
+            });
+            rows.sort(function (a, b) { return b.amount - a.amount; });
+            rows = rows.slice(0, 10).map(function (row, idx) { return Object.assign({}, row, { rank: idx + 1 }); });
+        }
+        list.innerHTML = rows.map(function (row) {
             return '<div class="cp-tip-rank-row">' +
                 '<span class="rk ' + rankClass(row.rank) + '">' + String(row.rank).padStart(2, '0') + '</span>' +
                 '<div class="av" style="background-image:url(\'https://images.unsplash.com/' + row.av + '?w=80\')"></div>' +
@@ -227,6 +243,20 @@
                 '<div class="am">' + row.amount + ' USDT</div>' +
                 '</div>';
         }).join('');
+    }
+
+    function syncTipStats() {
+        if (!global.FLTipEvents) return;
+        var totalEl = Array.prototype.slice.call(document.querySelectorAll('.cp-stats .st')).find(function (el) {
+            return (el.querySelector('.k')?.textContent || '').indexOf('累计打赏') >= 0;
+        });
+        var creator = getCreatorName();
+        var extra = global.FLTipEvents.getForCreator(creator).reduce(function (sum, event) { return sum + (Number(event.amount) || 0); }, 0);
+        if (totalEl && extra > 0) {
+            var value = totalEl.querySelector('.v');
+            if (value) value.textContent = (12840 + extra).toLocaleString('en-US', { maximumFractionDigits: 2 });
+        }
+        renderTipRankList();
     }
 
     function openTipRankOverlay() {
@@ -396,6 +426,8 @@
         var levelData = initCreatorLevel();
         initTabs();
         initTipRank();
+        syncTipStats();
+        global.addEventListener('fl-tip-sent', syncTipStats);
 
         var btnDm = document.getElementById('cpBtnDm');
         if (btnDm) {

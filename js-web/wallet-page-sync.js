@@ -1,9 +1,63 @@
-/**
- * 钱包页 · 按当前登录用户同步余额与连接信息
- */
+/** Wallet page values come from the current account only. */
 (function (global) {
     function getUser() {
-        return global.GoodfansAuth && global.GoodfansAuth.getUser ? global.GoodfansAuth.getUser() : null;
+        return global.GoodfansAuth && global.GoodfansAuth.getUser
+            ? global.GoodfansAuth.getUser()
+            : null;
+    }
+
+    function text(id, value) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = value;
+    }
+
+    function renderTokenRows(balance, fmtUsdt, fmtUsd) {
+        var host = document.getElementById('walletTokenRows');
+        var empty = document.getElementById('walletTokenEmpty');
+        var count = document.getElementById('walletAssetCount');
+        var section = document.getElementById('walletAssetsSection');
+        if (section) {
+            section.querySelectorAll('.token-row').forEach(function (row) { row.remove(); });
+        }
+        if (!host && section) {
+            host = document.createElement('div');
+            host.id = 'walletTokenRows';
+            section.appendChild(host);
+            empty = document.createElement('div');
+            empty.id = 'walletTokenEmpty';
+            empty.style.cssText = 'padding:24px 12px;text-align:center;color:var(--t-tertiary)';
+            empty.textContent = '暂无资产数据';
+            section.appendChild(empty);
+        }
+        if (!count && section) count = section.querySelector('.sh .cnt');
+        if (!host) return;
+        host.innerHTML = '';
+        var hasBalance = balance > 0;
+        if (empty) empty.style.display = hasBalance ? 'none' : '';
+        if (count) count.textContent = hasBalance ? '1' : '0';
+        if (!hasBalance) return;
+        var row = document.createElement('div');
+        row.className = 'token-row';
+        row.setAttribute('role', 'button');
+        row.setAttribute('tabindex', '0');
+        row.style.cursor = 'pointer';
+        row.onclick = function () { location.href = 'recharge.html'; };
+        row.innerHTML = '<div class="tk-ic usdt">₮</div>' +
+            '<div class="info"><div class="n">USDT 账户 <span class="net-tag">多链</span></div>' +
+            '<div class="price">可用余额 · 可充值/提现</div></div>' +
+            '<div class="amt"><div class="v">' + fmtUsdt(balance) + ' <span style="color:var(--t-tertiary);font-weight:600">USDT</span></div>' +
+            '<div class="vu">≈ $' + fmtUsd(balance) + '</div></div>';
+        host.appendChild(row);
+    }
+
+    function clearRecentTransactions() {
+        var body = document.querySelector('.section-card .table tbody');
+        if (!body) return;
+        body.hidden = false;
+        var section = body.closest('.section-card');
+        var count = section && section.querySelector('.sh .cnt');
+        if (count) count.textContent = '0';
+        body.innerHTML = '<tr><td colspan="5" style="padding:24px;text-align:center;color:var(--t-tertiary)">暂无账变数据</td></tr>';
     }
 
     function apply() {
@@ -12,57 +66,29 @@
         var w = global.FLUserAssets.getWalletSummary();
         var fmtUsd = global.FLUserAssets.formatUsd;
         var fmtUsdt = global.FLUserAssets.formatUsdt;
+        var hasBalance = w.walletUsd > 0 || w.usdtBalance > 0;
 
-        var balV = document.querySelector('.bal-amt .v');
-        if (balV) {
-            var usd = w.walletUsd || 0;
-            var whole = Math.floor(usd);
-            var cents = Math.round((usd - whole) * 100);
-            var centsStr = cents < 10 ? '0' + cents : '' + cents;
-            balV.innerHTML = '<span class="currency">$</span>' + fmtUsd(whole).replace('.00', '') +
-                '<span class="cents">.' + centsStr + '</span>';
-        }
+        text('walletTotalUsd', hasBalance ? '$' + fmtUsd(w.walletUsd) : '--');
+        text('walletBalanceSub', hasBalance ? fmtUsdt(w.usdtBalance) + ' USDT' : '--');
+        text('walletNetwork', user && user.walletNetwork ? user.walletNetwork : '--');
+        text('walletNetworkDetail', user && user.walletNetwork ? user.walletNetwork : '--');
+        text('walletAddressName', user && user.walletShort ? 'Wallet · ' + (user.name || 'User') : '--');
+        text('walletAddressValue', user && user.walletShort ? user.walletShort : '--');
+        text('walletSession', '--');
+        text('walletSecurity', '--');
+        text('walletMonthlyRecharge', w.monthlyRecharge > 0 ? '$' + fmtUsd(w.monthlyRecharge) : '--');
+        text('walletMonthlyWithdraw', w.monthlyWithdraw > 0 ? '$' + fmtUsd(w.monthlyWithdraw) : '--');
 
-        var balSub = document.querySelector('.bal-amt .sub');
-        if (balSub) {
-            var deltaHtml = w.monthlyDelta > 0
-                ? ' <span class="delta"><i class="fa-solid fa-arrow-up"></i>+$' + fmtUsd(w.monthlyDelta) + ' 本月</span>'
-                : '';
-            balSub.innerHTML = '≈ ' + fmtUsdt(w.usdtBalance) + ' USDT' + deltaHtml;
-        }
+        var income = global.FLCreatorIncomeStore && global.FLCreatorIncomeStore.getMonthlyUsdt
+            ? global.FLCreatorIncomeStore.getMonthlyUsdt()
+            : 0;
+        text('walletCreatorIncome', income > 0 ? '$' + fmtUsd(income) : '--');
+        text('walletMonthlyRechargeDelta', '--');
+        text('walletMonthlyWithdrawDelta', '--');
+        text('walletCreatorIncomeDelta', '--');
 
-        document.querySelectorAll('.quick-stats .qs-card').forEach(function (card, idx) {
-            var vEl = card.querySelector('.v');
-            if (!vEl) return;
-            if (idx === 0) vEl.textContent = '$' + fmtUsd(w.monthlyRecharge);
-            if (idx === 1) vEl.textContent = '$' + fmtUsd(w.monthlyWithdraw);
-        });
-
-        var addrName = document.querySelector('.addr-row .info .n');
-        var addrLine = document.querySelector('.addr-row .info .a');
-        if (user && addrName) {
-            addrName.textContent = 'MetaMask · ' + (user.name || '用户');
-        }
-        if (user && addrLine && user.walletShort) {
-            addrLine.textContent = user.walletShort;
-        }
-
-        var tokenUsdt = document.querySelector('.token-row .info .bal, .token-row .tk-bal');
-        if (tokenUsdt) tokenUsdt.textContent = fmtUsdt(w.usdtBalance);
-
-        var emptyHint = document.getElementById('walletEmptyHint');
-        if (w.usdtBalance <= 0 && w.walletUsd <= 0) {
-            if (!emptyHint && document.querySelector('.bal-card')) {
-                emptyHint = document.createElement('p');
-                emptyHint.id = 'walletEmptyHint';
-                emptyHint.style.cssText = 'font-size:12px;color:var(--t-tertiary);margin-top:10px;line-height:1.5';
-                emptyHint.innerHTML = '<i class="fa-solid fa-circle-info"></i> 新账户暂无余额，<a href="recharge.html" style="color:var(--brand-purple)">去充值</a> 后即可消费或提现。';
-                var balAmt = document.querySelector('.bal-amt');
-                if (balAmt) balAmt.appendChild(emptyHint);
-            }
-        } else if (emptyHint) {
-            emptyHint.remove();
-        }
+        renderTokenRows(w.usdtBalance, fmtUsdt, fmtUsd);
+        clearRecentTransactions();
     }
 
     global.FLWalletPageSync = { apply: apply };
@@ -75,4 +101,5 @@
 
     global.addEventListener('goodfans-auth-change', apply);
     global.addEventListener('fl-user-assets-change', apply);
+    global.addEventListener('fl-creator-income-change', apply);
 })(typeof window !== 'undefined' ? window : this);

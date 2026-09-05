@@ -2,7 +2,6 @@
  * 创作者收入 · 侧栏 chip / 收入页共享（按账号 + 自然月）
  */
 (function (global) {
-    var DEMO_UID = 'demo_uid_882910';
     var LS_KEY = 'fl_creator_income_v1';
 
     function currentMonthKey() {
@@ -29,31 +28,24 @@
         }
     }
 
-    function demoMonthlyUsdt() {
-        return 298.4;
-    }
-
     function getMonthlyUsdt() {
         var uid = userId();
-        if (!uid) return demoMonthlyUsdt();
+        if (!uid) return 0;
 
-        if (uid === DEMO_UID) {
-            var storedDemo = readStored(uid);
-            if (storedDemo && typeof storedDemo.monthlyUsdt === 'number' && storedDemo.monthlyUsdt > 0) {
-                return storedDemo.monthlyUsdt;
-            }
-            return demoMonthlyUsdt();
-        }
+        var acc = global.FLUserRegistry && global.FLUserRegistry.getByUserId
+            ? global.FLUserRegistry.getByUserId(uid)
+            : null;
+        if (acc && acc.email === 'luna@goodfans.io') return 0;
 
         var stored = readStored(uid);
         if (stored && typeof stored.monthlyUsdt === 'number') {
             return stored.monthlyUsdt > 0 ? stored.monthlyUsdt : 0;
         }
 
-        var acc = global.FLUserRegistry && global.FLUserRegistry.getByUserId
-            ? global.FLUserRegistry.getByUserId(uid)
-            : null;
-        if (!acc || acc.role !== 'Creator') return 0;
+        var isCreator = global.FLIdentity && global.FLIdentity.isCreator
+            ? global.FLIdentity.isCreator(acc)
+            : acc && acc.role === 'Creator';
+        if (!acc || !isCreator) return 0;
 
         return 0;
     }
