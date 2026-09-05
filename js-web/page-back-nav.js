@@ -227,7 +227,7 @@
         for (var j = 0; j < limit; j++) {
             var el = candidates[j];
             var t = String((el.textContent || '')).replace(/\s+/g, '');
-            if (t.indexOf('返回') >= 0 || t.indexOf('上一步') >= 0) return true;
+            if (t.indexOf('返回') >= 0 || t.indexOf('上一步') >= 0 || t.indexOf('回到') >= 0) return true;
         }
         return false;
     }
@@ -238,10 +238,11 @@
         var css = doc.createElement('style');
         css.id = 'flPageBackStyle';
         css.textContent = [
-            '.fl-page-back{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--border);background:var(--bg-elevated,rgba(255,255,255,.06));color:var(--t-secondary,#A0A0B0);font-size:12.5px;font-weight:600;cursor:pointer;text-decoration:none;transition:.15s;white-space:nowrap}',
+            '.fl-page-back{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--border);background:var(--bg-elevated,rgba(255,255,255,.06));color:var(--t-secondary,#A0A0B0);font-size:12.5px;font-weight:600;cursor:pointer;text-decoration:none;transition:.15s;white-space:nowrap;width:auto;max-width:max-content;flex:0 0 auto;align-self:flex-start;box-sizing:border-box}',
             '.fl-page-back:hover{color:#fff;border-color:rgba(168,85,247,.45);background:rgba(168,85,247,.14)}',
             '.fl-page-back i{font-size:12px}',
-            '.page-head.page-head--detail .ph-l .fl-page-back{margin-bottom:10px}',
+            '.page-head.page-head--detail .ph-l .fl-page-back{margin-bottom:10px;align-self:flex-start;width:auto}',
+            '.page-head .ph-l .fl-page-back{align-self:flex-start;width:auto;max-width:max-content}',
             '.fl-page-back-wrap{display:flex;align-items:center;gap:10px;margin-bottom:14px}',
             '.fl-page-back-float{position:fixed;top:78px;left:88px;z-index:120}',
             'html.sidebar-collapsed-pre .fl-page-back-float,html.sidebar-collapsed .fl-page-back-float{left:24px}',
@@ -347,6 +348,23 @@
                 e.preventDefault();
                 goBack(fallback);
             });
+        }
+
+        // Wire header "返回*" buttons that have no navigation handler yet
+        var headerBtns = doc.querySelectorAll('.h-actions button, .page-head button, .ph-r button');
+        for (var k = 0; k < headerBtns.length; k++) {
+            (function (el) {
+                if (el.getAttribute('data-fl-back-bound') === '1') return;
+                if (el.getAttribute('onclick')) return;
+                var t = String(el.textContent || '').replace(/\s+/g, '');
+                if (t.indexOf('返回') < 0 && t.indexOf('上一步') < 0 && t.indexOf('回到') < 0) return;
+                el.setAttribute('data-fl-back-bound', '1');
+                el.setAttribute('data-fl-page-back', '1');
+                el.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    goBack(fallback);
+                });
+            })(headerBtns[k]);
         }
     }
 

@@ -71,8 +71,10 @@ for (const page of pages) {
     const fn = new Function(
       'window',
       code +
-        ';var el=window.document.querySelector("[data-fl-page-back],#flPageBackBtn,a.back,#linkBack,.pti-back,.ld-ab-back");' +
-        'return {has:!!el, text: el ? (el.textContent||"").trim() : "", fallback: window.FL_pageBackFallback ? window.FL_pageBackFallback() : "", page: (window.location.pathname||"").split("/").pop()};'
+        ';var el=window.document.querySelector("[data-fl-page-back],#flPageBackBtn,a.back,#linkBack,.pti-back,.ld-ab-back,#daBackShowcase,#csBackProfile,a[href*=\\"messages.html\\"].btn,button[title*=\\"返回\\"],.page-head button, .h-actions a.btn, .h-actions button");' +
+        'if(el){var t=(el.textContent||el.getAttribute("title")||""); if(t.indexOf("返回")<0 && t.indexOf("上一步")<0 && !el.getAttribute("data-fl-page-back") && el.id!=="daBackShowcase" && el.id!=="csBackProfile" && !el.classList.contains("back") && !el.classList.contains("pti-back") && !el.classList.contains("ld-ab-back") && el.id!=="linkBack" && el.id!=="flPageBackBtn"){el=null;}}' +
+        'if(!el){var all=window.document.querySelectorAll("a,button"); for(var i=0;i<all.length;i++){var x=all[i]; var tx=((x.textContent||"")+(x.getAttribute("title")||"")).replace(/\\s+/g,""); if(tx.indexOf("返回")>=0||tx.indexOf("上一步")>=0){el=x;break;}}}' +
+        'return {has:!!el, text: el ? ((el.textContent||el.getAttribute("title")||"")).trim() : "", fallback: window.FL_pageBackFallback ? window.FL_pageBackFallback() : "", page: (window.location.pathname||"").split("/").pop()};'
     );
     const out = fn(window);
     const ok = !!out.has;
