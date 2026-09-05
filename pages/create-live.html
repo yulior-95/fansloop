@@ -23,6 +23,13 @@ textarea{min-height:68px;resize:vertical}
 .line{display:flex;gap:8px;align-items:center}
 .line code{flex:1;background:#0f1020;border:1px solid var(--border-color);border-radius:8px;padding:8px 10px;font-size:11px;color:#c4b5fd;word-break:break-all}
 .sbtn{height:32px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-card);color:#fff;padding:0 10px;font-size:12px}
+.cam-preview{position:relative;aspect-ratio:9/14;max-height:280px;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,#1a1030 0%,#0f1020 45%,#1c1630 100%);border:1px solid rgba(168,85,247,.35);display:flex;align-items:center;justify-content:center}
+.cam-preview::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(168,85,247,.28),transparent 45%),radial-gradient(circle at 70% 80%,rgba(236,72,153,.18),transparent 40%);pointer-events:none}
+.cam-preview .cam-hint{position:relative;z-index:1;text-align:center;color:rgba(255,255,255,.85);font-size:12px;line-height:1.5;padding:0 16px}
+.cam-preview .cam-live-badge{position:absolute;top:10px;left:10px;z-index:2;display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.14);font-size:10px;color:#fff}
+.cam-tools{position:absolute;left:0;right:0;bottom:10px;z-index:2;display:flex;justify-content:center;align-items:center;gap:8px;padding:0 10px;flex-wrap:nowrap;white-space:nowrap}
+.cam-tool{height:32px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(10,10,18,.55);color:#fff;font-size:11px;padding:0 10px;backdrop-filter:blur(8px);flex:0 0 auto;white-space:nowrap}
+.cam-tool.on{border-color:rgba(168,85,247,.6);background:rgba(168,85,247,.28)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .hidden{display:none}
 .submit-bar{position:absolute;left:0;right:0;bottom:0;padding:10px 16px 30px;background:rgba(10,10,18,.95);border-top:.5px solid var(--border-color);display:flex;gap:10px}
@@ -71,16 +78,16 @@ textarea{min-height:68px;resize:vertical}
 
   <div class="cover" id="cover"><i class="fa-regular fa-image" style="font-size:28px;color:#a78bfa"></i><div>点击上传直播封面</div><div style="font-size:11px">建议 16:9（JPG / PNG / WebP）</div></div>
 
-  <div class="card">
-    <div class="lb" style="margin:0 0 8px"><span><i class="fa-solid fa-display" style="color:#c084fc"></i> OBS 推流开播</span></div>
-    <div class="tip">在 OBS、Streamlabs 填入推流地址与密钥，开始推流后平台自动开播。</div>
-    <div style="margin-top:10px">
-      <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:6px">推流地址（服务器）</div>
-      <div class="line"><code id="rtmpUrl">rtmps://push.goodfans.io/live</code><button class="sbtn" data-copy="rtmpUrl"><i class="fa-regular fa-copy"></i></button></div>
-    </div>
-    <div style="margin-top:10px">
-      <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:6px">推流码（串流密钥）</div>
-      <div class="line"><code id="streamKey">sk_live_FLP_7k2mN9pQx4vR8wY1zA3bC6dE0fG5hJ</code><button class="sbtn" data-copy="streamKey"><i class="fa-regular fa-copy"></i></button></div>
+  <div class="card" id="camCard">
+    <div class="lb" style="margin:0 0 8px"><span><i class="fa-solid fa-mobile-screen" style="color:#c084fc"></i> 本机摄像头开播</span></div>
+    <div class="cam-preview" id="camPreview">
+      <div class="cam-live-badge"><i class="fa-solid fa-circle" style="font-size:7px"></i> 预览中</div>
+      <div class="cam-hint"><i class="fa-solid fa-video" style="font-size:22px;color:#c4b5fd"></i><div>使用手机前后置摄像头直接开播</div><div style="font-size:11px;opacity:.8">无需 OBS · 点击下方开始直播即可推流</div></div>
+      <div class="cam-tools">
+        <button type="button" class="cam-tool" id="camFlipBtn"><i class="fa-solid fa-camera-rotate"></i> 翻转</button>
+        <button type="button" class="cam-tool" id="camBeautyBtn"><i class="fa-solid fa-wand-magic-sparkles"></i> 美颜</button>
+        <button type="button" class="cam-tool" id="camMicBtn"><i class="fa-solid fa-microphone"></i> 麦克风</button>
+      </div>
     </div>
   </div>
 
@@ -126,7 +133,7 @@ textarea{min-height:68px;resize:vertical}
   </div>
 </div>
 
-<div class="submit-bar"><button class="btn btn-ghost draft" id="draftBtn">草稿</button><button class="btn btn-primary" id="submitBtn"><i class="fa-solid fa-tower-broadcast"></i> 保存并等待 OBS 推流</button></div>
+<div class="submit-bar"><button class="btn btn-ghost draft" id="draftBtn">草稿</button><button class="btn btn-primary" id="submitBtn"><i class="fa-solid fa-tower-broadcast"></i> 开始直播</button></div>
 
 <div class="ovl" id="friendOvl"><div class="sheet"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><strong>部分可见 · 选择好友</strong><button class="btn btn-secondary btn-sm" id="friendCloseBtn">关闭</button></div><div id="friendList"></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-secondary" id="friendCancelBtn">取消</button><button class="btn btn-primary" id="friendConfirmBtn">确认</button></div></div></div>
 <div class="cat-ovl" id="catOvl"><div class="cat-sheet"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><strong>选择内容类别</strong><button class="btn btn-secondary btn-sm" id="catCloseBtn">关闭</button></div><div class="cat-cols"><div class="cat-col" id="catCol1"></div><div class="cat-col" id="catCol2"></div><div class="cat-col" id="catCol3"></div></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-secondary" id="catClearBtn">清空</button><button class="btn btn-primary" id="catConfirmBtn">确认选择</button></div></div></div>
@@ -154,7 +161,17 @@ textarea{min-height:68px;resize:vertical}
     '付费场景': {'订阅专享':['会员直播','深度讨论','限定回放'],'单场付费':['付费房间','私享场','活动专场']}
   };
   var catPath=['','',''],catDraft=['','',''];
-  function setMode(m){ mode=m; tabNow.classList.toggle('active',m==='now'); tabPreview.classList.toggle('active',m==='preview'); previewCard.classList.toggle('hidden',m!=='preview'); submitBtn.innerHTML=m==='now'?'<i class="fa-solid fa-tower-broadcast"></i> 保存并等待 OBS 推流':'<i class="fa-regular fa-calendar-check"></i> 发布直播预告'; }
+  function setMode(m){
+    mode=m;
+    tabNow.classList.toggle('active',m==='now');
+    tabPreview.classList.toggle('active',m==='preview');
+    previewCard.classList.toggle('hidden',m!=='preview');
+    var camCard=document.getElementById('camCard');
+    if(camCard) camCard.classList.toggle('hidden',m==='preview');
+    submitBtn.innerHTML=m==='now'
+      ?'<i class="fa-solid fa-tower-broadcast"></i> 开始直播'
+      :'<i class="fa-regular fa-calendar-check"></i> 发布直播预告';
+  }
   function counters(){ tc.textContent=(title.value||'').length+' / 20'; dc.textContent=(desc.value||'').length+' / 30'; }
   function renderFriends(){ fl.innerHTML=friends.map(function(f,i){ return '<label class="friend"><input type="checkbox" data-id="'+i+'"'+(picked.indexOf(String(i))>=0?' checked':'')+'><span class="av" style="background-image:url(\''+f[2]+'\')"></span><span style="flex:1"><b style="font-size:13px">'+f[0]+'</b><div style="font-size:11px;color:var(--text-tertiary)">'+f[1]+'</div></span></label>'; }).join(''); }
   function renderCatCols(){
@@ -183,7 +200,22 @@ textarea{min-height:68px;resize:vertical}
   title.oninput=counters; desc.oninput=counters; counters();
   cover.onclick=function(){ coverInput.click(); };
   coverInput.onchange=function(){ if(coverInput.files&&coverInput.files[0]){ var r=new FileReader(); r.onload=function(e){ applyCover(e.target.result); }; r.readAsDataURL(coverInput.files[0]); } coverInput.value=''; };
-  document.querySelectorAll('[data-copy]').forEach(function(btn){ btn.onclick=function(){ var id=btn.getAttribute('data-copy'); var txt=(document.getElementById(id)||{}).textContent||''; if(!txt) return; if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function(){toast('已复制');}); }; });
+  var camFacing='front', beautyOn=false, micOn=true;
+  document.getElementById('camFlipBtn').onclick=function(){
+    camFacing=camFacing==='front'?'back':'front';
+    toast(camFacing==='front'?'已切换前置摄像头':'已切换后置摄像头');
+  };
+  document.getElementById('camBeautyBtn').onclick=function(){
+    beautyOn=!beautyOn;
+    this.classList.toggle('on',beautyOn);
+    toast(beautyOn?'美颜已开启':'美颜已关闭');
+  };
+  document.getElementById('camMicBtn').onclick=function(){
+    micOn=!micOn;
+    this.classList.toggle('on',!micOn);
+    this.innerHTML=micOn?'<i class="fa-solid fa-microphone"></i> 麦克风':'<i class="fa-solid fa-microphone-slash"></i> 已静音';
+    toast(micOn?'麦克风已开启':'麦克风已静音');
+  };
   perm.onchange=function(){ var v=perm.value; if(v==='public') hint.textContent='公开·所有人可见'; else if(v==='mutual') hint.textContent='互相关注的人可见'; else if(v==='subscriber') hint.textContent='订阅的人可见'; else{ hint.textContent='部分可见·请选择好友'; renderFriends(); ovl.classList.add('open'); } };
   document.getElementById('friendCloseBtn').onclick=function(){ ovl.classList.remove('open'); };
   document.getElementById('friendCancelBtn').onclick=function(){ ovl.classList.remove('open'); };
@@ -217,7 +249,12 @@ textarea{min-height:68px;resize:vertical}
     if(!coverUrl) return toast('请先上传直播封面');
     if(!catPath[2]) return toast('请先选择内容类别');
     if(mode==='preview'&&!document.getElementById('scheduleInput').value) return toast('请设置预告开播时间');
-    toast(mode==='now'?'直播设置已保存，等待 OBS 推流':'直播预告已发布');
+    if(mode==='preview'){
+      toast('直播预告已发布');
+      return;
+    }
+    toast('正在开启本机摄像头直播…');
+    setTimeout(function(){ location.href='home.html'; }, 500);
   };
 })();
 </script>
