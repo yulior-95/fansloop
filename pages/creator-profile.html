@@ -229,20 +229,20 @@
 <div class="app-content">
     <!-- Banner -->
     <div class="banner">
-        <img src="https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=900&q=80" alt="">
+        <img id="cpBanner" src="https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=900&q=80" alt="">
     </div>
 
     <!-- 个人资料 -->
     <div class="profile-head">
         <div class="avatar-wrap">
-            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=80">
+            <img id="cpAvatar" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=80">
         </div>
         <div class="name-row">
-            <span class="name">Luna</span>
+            <span class="name" id="cpName">Luna</span>
             <i class="fa-solid fa-circle-check verified"></i>
             <span class="badge badge-brand"><i class="fa-solid fa-crown"></i> Pro 创作者</span>
         </div>
-        <div class="handle">@luna_web3</div>
+        <div class="handle" id="cpHandle">@luna_web3</div>
         <div class="wallet-chip">
             <i class="fa-solid fa-wallet"></i>
             0x7F...a3B9
@@ -397,5 +397,32 @@
 
 <div class="home-indicator"></div>
 <script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var params = new URLSearchParams(location.search);
+    var handle = params.get('u') || '';
+    var preview = null;
+    try {
+        preview = JSON.parse(sessionStorage.getItem('gf_creator_preview') || 'null');
+    } catch (e) { preview = null; }
+    if (!handle && preview && preview.handle) handle = preview.handle;
+    if (!handle) return;
+
+    var raw = String(handle).trim();
+    var withAt = raw.charAt(0) === '@' ? raw : ('@' + raw);
+    var display = withAt.replace(/^@/, '').replace(/_/g, ' ');
+    display = display.replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+
+    var nameEl = document.getElementById('cpName');
+    var handleEl = document.getElementById('cpHandle');
+    var avatarEl = document.getElementById('cpAvatar');
+    var bannerEl = document.getElementById('cpBanner');
+    if (nameEl) nameEl.textContent = display || withAt;
+    if (handleEl) handleEl.textContent = withAt;
+    if (preview && preview.avatar && avatarEl) avatarEl.src = preview.avatar;
+    if (preview && preview.cover && bannerEl) bannerEl.src = preview.cover;
+    document.title = withAt + ' · 创作者详情';
+})();
+</script>
 </body>
 </html>

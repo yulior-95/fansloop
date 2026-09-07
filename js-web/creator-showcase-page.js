@@ -100,24 +100,17 @@
     function renderStats(root, cid) {
         if (!root) return;
         var Orders = global.DigitalAssetOrdersStore;
-        var Aff = global.AffiliateShowcaseStore;
         var digEarn = Orders ? Orders.sumCreatorEarnings(cid) : 0;
         var digOrders = Orders ? Orders.listOrders({ creatorId: cid }).length : 0;
-        var affEarn = Aff ? Aff.sumCreatorCommissions(cid) : 0;
-        var affOrders = Aff ? Aff.listCommissions({ creatorId: cid }).length : 0;
         root.innerHTML =
             '<div class="cs-stats">' +
             '<div class="cs-stat"><div class="lb">数字商品</div><div class="v">' + digitalList(cid).length + '</div><div class="sub">橱窗在架 / 管理中</div></div>' +
-            '<div class="cs-stat"><div class="lb">实体选品</div><div class="v">' + affiliateList(cid).length + '</div><div class="sub">推广件数</div></div>' +
             '<div class="cs-stat cs-stat-link" role="link" tabindex="0" data-cs-earn="digital" title="查看数字资产账变">' +
             '<div class="lb">数字销售实得</div><div class="v gold">' + fmt(digEarn) + '</div><div class="sub">' + digOrders + ' 笔订单 · 查看账变</div></div>' +
-            '<div class="cs-stat cs-stat-link" role="link" tabindex="0" data-cs-earn="affiliate" title="查看联盟佣金账变">' +
-            '<div class="lb">联盟佣金实得</div><div class="v green">' + fmt(affEarn) + '</div><div class="sub">' + affOrders + ' 笔回传 · 查看账变</div></div>' +
             '</div>';
         qsa('[data-cs-earn]', root).forEach(function (el) {
             function go() {
-                var kind = el.getAttribute('data-cs-earn');
-                location.href = 'transactions.html?type=' + encodeURIComponent(kind === 'affiliate' ? 'affiliate' : 'digital');
+                location.href = 'transactions.html?type=digital';
             }
             el.addEventListener('click', go);
             el.addEventListener('keydown', function (e) {
@@ -426,21 +419,12 @@
         var root = qs('#csPanelRoot');
         if (!root) return;
         var dig = digitalList(cid);
-        var aff = affiliateList(cid);
         var digCnt = qs('#csTabDigCnt');
-        var affCnt = qs('#csTabAffCnt');
         if (digCnt) digCnt.textContent = String(dig.length);
-        if (affCnt) affCnt.textContent = String(aff.length);
-
-        if (activeTab === 'digital') {
-            root.innerHTML = dig.length
-                ? '<div class="cs-grid">' + dig.map(function (p) { return digitalCard(p, manage); }).join('') + '</div>'
-                : '<div class="cs-empty">暂无数字商品' + (manage ? ' · 点击上方「创建数字商品」发布' : '') + '</div>';
-        } else {
-            root.innerHTML = aff.length
-                ? '<div class="cs-grid">' + aff.map(function (it) { return affiliateCard(it, manage); }).join('') + '</div>'
-                : '<div class="cs-empty">暂无实体选品' + (manage ? ' · 点击上方「从商品中心选品」添加' : '') + '</div>';
-        }
+        activeTab = 'digital';
+        root.innerHTML = dig.length
+            ? '<div class="cs-grid">' + dig.map(function (p) { return digitalCard(p, manage); }).join('') + '</div>'
+            : '<div class="cs-empty">暂无数字商品' + (manage ? ' · 点击上方「创建数字商品」发布' : '') + '</div>';
         bindActions(root, cid);
     }
 
@@ -523,15 +507,20 @@
     }
 
     function applyTabFromQuery() {
-        var tab = (param('tab') || '').toLowerCase();
-        if (tab === 'aff' || tab === 'physical') tab = 'affiliate';
-        if (tab !== 'digital' && tab !== 'affiliate') return;
-        activeTab = tab;
+        // 实体选品暂未开放：强制数字商品
+        activeTab = 'digital';
         qsa('#csTabs .tt[data-cs-tab], #csTabs .chip[data-cs-tab]').forEach(function (c) {
-            var on = c.getAttribute('data-cs-tab') === tab;
+            var on = c.getAttribute('data-cs-tab') === 'digital';
             c.classList.toggle('active', on);
             c.setAttribute('aria-selected', on ? 'true' : 'false');
         });
+        try {
+            var u = new URL(location.href);
+            if (u.searchParams.get('tab') === 'affiliate' || u.searchParams.get('tab') === 'aff' || u.searchParams.get('tab') === 'physical') {
+                u.searchParams.delete('tab');
+                history.replaceState(null, '', u.pathname + u.search + u.hash);
+            }
+        } catch (e) { /* ignore */ }
     }
 
     function syncTabInUrl() {
@@ -600,8 +589,8 @@
                 location.href = 'create-digital-asset.html?from=showcase';
             });
         }
-        if (!skipToast && manage && param('from') === 'catalog' && activeTab === 'affiliate') {
-            toast('已回到橱窗 · 实体选品');
+        if (!skipToast && manage && param('from') === 'catalog') {
+            toast('实体选品暂未开放 · 已进入数字商品橱窗');
         }
 
         var openId = param('open');

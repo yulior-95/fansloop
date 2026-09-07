@@ -136,6 +136,8 @@
         inlineHost.appendChild(document.importNode(modal, true));
         var poster = doc.querySelector('.poster-inline-overlay');
         if (poster) inlineHost.appendChild(document.importNode(poster, true));
+        var dmOvl = doc.querySelector('.share-dm-overlay');
+        if (dmOvl) inlineHost.appendChild(document.importNode(dmOvl, true));
         inlineHost.removeAttribute('hidden');
         if (iframeEl) iframeEl.style.display = 'none';
         root.classList.remove('fl-modal--comment', 'fl-modal--danmaku', 'fl-modal--gift', 'fl-modal--default');

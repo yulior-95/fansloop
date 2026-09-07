@@ -337,7 +337,7 @@ body {
 .tx-ovl {
     position: absolute;
     inset: 0;
-    z-index: 90;
+    z-index: 1100; /* 高于 tab-bar(100) / nav(110) / home-indicator(1001) */
     background: rgba(0,0,0,.56);
     display: none;
     align-items: flex-end;
@@ -352,7 +352,9 @@ body {
     border-top-left-radius: 18px;
     border-top-right-radius: 18px;
     box-shadow: 0 -16px 34px rgba(0,0,0,.45);
-    padding: 12px 14px 20px;
+    padding: 12px 14px calc(20px + env(safe-area-inset-bottom, 0px));
+    position: relative;
+    z-index: 1;
 }
 .tx-sheet .grab { width: 42px; height: 5px; border-radius: 999px; margin: 0 auto 10px; background: rgba(255,255,255,.22); }
 .tx-sheet .hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
@@ -381,6 +383,59 @@ body {
 }
 .tx-sheet .ops { display: flex; gap: 8px; margin-top: 8px; }
 .tx-sheet .ops .btn { flex: 1; }
+
+.tx-custom-range {
+    display: none;
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.1);
+}
+.tx-custom-range.show { display: block; }
+.tx-custom-range .cr-hint {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+.tx-custom-range .cr-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 8px;
+    align-items: end;
+}
+.tx-custom-range .cr-field label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-bottom: 5px;
+}
+.tx-custom-range .cr-field input[type="date"] {
+    width: 100%;
+    height: 40px;
+    padding: 0 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.28);
+    color: #fff;
+    font-size: 13px;
+    font-family: inherit;
+    color-scheme: dark;
+}
+.tx-custom-range .cr-sep {
+    padding-bottom: 10px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    text-align: center;
+}
+.tx-custom-range .cr-err {
+    display: none;
+    margin-top: 8px;
+    font-size: 11px;
+    color: #FCA5A5;
+}
+.tx-custom-range .cr-err.show { display: block; }
 
 </style>
 </head>
@@ -451,7 +506,7 @@ body {
         </div>
         <div class="filter-tools">
             <div class="ft-l">
-                <span>当前：</span><b style="color:#fff" id="txCurrentFilterLabel">全部类型</b><span class="sep">·</span><span>本月</span>
+                <span>当前：</span><b style="color:#fff" id="txCurrentFilterLabel">全部类型</b><span class="sep">·</span><span id="txTimeFilterLabel">本月</span>
             </div>
             <div class="ft-btn" id="txTimeBtn">
                 <i class="fa-regular fa-calendar"></i>
@@ -465,7 +520,7 @@ body {
     </div>
 
     <!-- ===== 4-23 今天 ===== -->
-    <div class="tx-day">
+    <div class="tx-day" data-date="2026-04-23">
         <span>今天 · 2026-04-23 周四</span>
         <div class="day-summary">
             <span class="inc">+$42.80</span>
@@ -525,7 +580,7 @@ body {
     </div>
 
     <!-- ===== 4-22 昨天 ===== -->
-    <div class="tx-day">
+    <div class="tx-day" data-date="2026-04-22">
         <span>昨天 · 2026-04-22 周三</span>
         <div class="day-summary">
             <span class="inc">+$55.00</span>
@@ -585,7 +640,7 @@ body {
     </div>
 
     <!-- ===== 4-21 ===== -->
-    <div class="tx-day">
+    <div class="tx-day" data-date="2026-04-21">
         <span>2026-04-21 周二</span>
         <div class="day-summary">
             <span class="inc">+$100.00</span>
@@ -633,7 +688,7 @@ body {
     </div>
 
     <!-- ===== 4-20 ===== -->
-    <div class="tx-day">
+    <div class="tx-day" data-date="2026-04-20">
         <span>2026-04-20 周一</span>
         <div class="day-summary">
             <span class="inc">+$38.00</span>
@@ -749,6 +804,22 @@ body {
                 <button type="button" class="tx-pill" data-time="今天">今天</button>
                 <button type="button" class="tx-pill" data-time="近7天">近7天</button>
                 <button type="button" class="tx-pill" data-time="近30天">近30天</button>
+                <button type="button" class="tx-pill" data-time="自定义">自定义</button>
+            </div>
+            <div class="tx-custom-range" id="txCustomRange">
+                <div class="cr-hint"><i class="fa-regular fa-calendar" style="margin-right:4px"></i>选择起止日期（含当天），最长可跨 365 天</div>
+                <div class="cr-row">
+                    <div class="cr-field">
+                        <label for="txDateFrom">开始日期</label>
+                        <input type="date" id="txDateFrom" value="2026-04-01" min="2025-01-01" max="2026-04-23">
+                    </div>
+                    <div class="cr-sep">至</div>
+                    <div class="cr-field">
+                        <label for="txDateTo">结束日期</label>
+                        <input type="date" id="txDateTo" value="2026-04-23" min="2025-01-01" max="2026-04-23">
+                    </div>
+                </div>
+                <div class="cr-err" id="txCustomRangeErr">结束日期不能早于开始日期</div>
             </div>
         </div>
         <div class="sec" id="txAdvSec">
@@ -806,7 +877,9 @@ body {
         time: '本月',
         month: '本月',
         status: 'all',
-        amount: 'all'
+        amount: 'all',
+        dateFrom: '2026-04-01',
+        dateTo: '2026-04-23'
     };
     var monthPillText = document.getElementById('txMonthPillText');
     var timeBtn = document.getElementById('txTimeBtn');
@@ -820,6 +893,13 @@ body {
     var advSec = document.getElementById('txAdvSec');
     var resetBtn = document.getElementById('txFilterResetBtn');
     var applyBtn = document.getElementById('txFilterApplyBtn');
+    var timeFilterLabel = document.getElementById('txTimeFilterLabel');
+    var customRangeBox = document.getElementById('txCustomRange');
+    var dateFromInput = document.getElementById('txDateFrom');
+    var dateToInput = document.getElementById('txDateTo');
+    var customRangeErr = document.getElementById('txCustomRangeErr');
+    var DEMO_TODAY = '2026-04-23';
+
     function toast(msg) {
         if (window.DigitalH5Nav && typeof window.DigitalH5Nav.toast === 'function') window.DigitalH5Nav.toast(msg);
     }
@@ -830,12 +910,62 @@ body {
             el.classList.toggle('on', el.getAttribute(valueKey) === value);
         });
     }
+    function syncCustomRangeUi() {
+        var on = state.time === '自定义';
+        if (customRangeBox) customRangeBox.classList.toggle('show', on);
+        if (dateFromInput) dateFromInput.value = state.dateFrom;
+        if (dateToInput) dateToInput.value = state.dateTo;
+        if (customRangeErr) customRangeErr.classList.remove('show');
+    }
+    function formatShort(ymd) {
+        if (!ymd || ymd.length < 10) return ymd || '';
+        return ymd.slice(5).replace('-', '/');
+    }
+    function timeLabelText() {
+        if (state.time === '自定义') {
+            return formatShort(state.dateFrom) + ' ~ ' + formatShort(state.dateTo);
+        }
+        return state.time || '本月';
+    }
+    function resolveTimeRange() {
+        var today = DEMO_TODAY;
+        if (state.time === '今天') return { from: today, to: today };
+        if (state.time === '近7天') return { from: '2026-04-17', to: today };
+        if (state.time === '近30天') return { from: '2026-03-25', to: today };
+        if (state.time === '自定义') return { from: state.dateFrom, to: state.dateTo };
+        // 本月
+        return { from: '2026-04-01', to: today };
+    }
+    function validateCustomRange() {
+        if (state.time !== '自定义') return true;
+        var from = (dateFromInput && dateFromInput.value) || state.dateFrom;
+        var to = (dateToInput && dateToInput.value) || state.dateTo;
+        if (!from || !to) {
+            if (customRangeErr) {
+                customRangeErr.textContent = '请选择完整的起止日期';
+                customRangeErr.classList.add('show');
+            }
+            return false;
+        }
+        if (from > to) {
+            if (customRangeErr) {
+                customRangeErr.textContent = '结束日期不能早于开始日期';
+                customRangeErr.classList.add('show');
+            }
+            return false;
+        }
+        state.dateFrom = from;
+        state.dateTo = to;
+        if (customRangeErr) customRangeErr.classList.remove('show');
+        return true;
+    }
     function setPanelMode(mode) {
         if (!sheetTitle || !monthSec || !timeSec || !advSec) return;
         monthSec.style.display = mode === 'month' ? '' : 'none';
         timeSec.style.display = mode === 'time' ? '' : 'none';
         advSec.style.display = mode === 'advanced' ? '' : 'none';
         sheetTitle.textContent = mode === 'month' ? '选择月份' : (mode === 'time' ? '选择时间' : '高级筛选');
+        if (mode === 'time') syncCustomRangeUi();
     }
     function openPanel(mode) {
         setPanelMode(mode);
@@ -863,8 +993,15 @@ body {
         if (!st) return false;
         return st.classList.contains(status);
     }
+    function dayInRange(dayEl, range) {
+        if (!dayEl || !range) return true;
+        var d = dayEl.getAttribute('data-date') || '';
+        if (!d) return true;
+        return d >= range.from && d <= range.to;
+    }
     function applyFilter(type) {
-        state.type = type || 'all';
+        state.type = type || state.type || 'all';
+        var range = resolveTimeRange();
         var rows = document.querySelectorAll('.tx-item[data-type]');
         var dayBlocks = document.querySelectorAll('.tx-day');
         var listBlocks = document.querySelectorAll('.tx-list');
@@ -879,12 +1016,25 @@ body {
         for (var i = 0; i < listBlocks.length; i += 1) {
             var list = listBlocks[i];
             var day = dayBlocks[i];
-            var any = !!list.querySelector('.tx-item[style=""], .tx-item:not([style])');
+            var inRange = dayInRange(day, range);
+            var visibleItem = null;
+            if (inRange) {
+                list.querySelectorAll('.tx-item[data-type]').forEach(function (item) {
+                    if (item.style.display !== 'none') visibleItem = item;
+                });
+            }
+            var any = !!(inRange && visibleItem);
             list.style.display = any ? '' : 'none';
             if (day) day.style.display = any ? '' : 'none';
         }
         if (currentLabel) currentLabel.textContent = labelMap[state.type] || '全部类型';
         if (monthPillText) monthPillText.textContent = state.month;
+        if (timeFilterLabel) timeFilterLabel.textContent = timeLabelText();
+        if (timeBtn) {
+            timeBtn.innerHTML = state.time === '自定义'
+                ? '<i class="fa-regular fa-calendar"></i> ' + timeLabelText()
+                : '<i class="fa-regular fa-calendar"></i> 时间';
+        }
     }
     if (chipsWrap) {
         chipsWrap.addEventListener('click', function (e) {
@@ -913,6 +1063,7 @@ body {
     bindPills('txTimePills', 'data-time', function (v) {
         state.time = v || '本月';
         selectSingle('txTimePills', 'data-time', state.time);
+        syncCustomRangeUi();
     });
     bindPills('txStatusPills', 'data-status', function (v) {
         state.status = v || 'all';
@@ -922,6 +1073,18 @@ body {
         state.amount = v || 'all';
         selectSingle('txAmountPills', 'data-amt', state.amount);
     });
+    function onCustomDateChange() {
+        if (state.time !== '自定义') {
+            state.time = '自定义';
+            selectSingle('txTimePills', 'data-time', '自定义');
+            syncCustomRangeUi();
+        }
+        if (dateFromInput) state.dateFrom = dateFromInput.value || state.dateFrom;
+        if (dateToInput) state.dateTo = dateToInput.value || state.dateTo;
+        if (customRangeErr) customRangeErr.classList.remove('show');
+    }
+    if (dateFromInput) dateFromInput.addEventListener('change', onCustomDateChange);
+    if (dateToInput) dateToInput.addEventListener('change', onCustomDateChange);
     if (monthPill) monthPill.addEventListener('click', function () { openPanel('month'); });
     if (timeBtn) timeBtn.addEventListener('click', function () { openPanel('time'); });
     if (advBtn) advBtn.addEventListener('click', function () { openPanel('advanced'); });
@@ -932,17 +1095,25 @@ body {
         state.month = '本月';
         state.status = 'all';
         state.amount = 'all';
+        state.dateFrom = '2026-04-01';
+        state.dateTo = DEMO_TODAY;
         selectSingle('txMonthPills', 'data-month', state.month);
         selectSingle('txTimePills', 'data-time', state.time);
         selectSingle('txStatusPills', 'data-status', state.status);
         selectSingle('txAmountPills', 'data-amt', state.amount);
+        syncCustomRangeUi();
         toast('已重置筛选');
     });
     if (applyBtn) applyBtn.addEventListener('click', function () {
+        if (!validateCustomRange()) {
+            toast('请修正自定义时间范围');
+            return;
+        }
         applyFilter(state.type);
         closePanel();
-        toast('筛选已应用');
+        toast(state.time === '自定义' ? ('已筛选 ' + timeLabelText()) : '筛选已应用');
     });
+    syncCustomRangeUi();
     applyFilter('all');
 })();
 </script>

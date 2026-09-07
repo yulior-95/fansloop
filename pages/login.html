@@ -2,149 +2,218 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>登录</title>
+<title>登录 / 注册 · GOODFANS</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
 <style>
 .login-bg {
     position: absolute;
-    top: 0; left: 0; right: 0; height: 55%;
+    top: 0; left: 0; right: 0; height: 48%;
     background:
-        radial-gradient(circle at 20% 20%, rgba(168,85,247,0.4), transparent 50%),
-        radial-gradient(circle at 80% 30%, rgba(236,72,153,0.35), transparent 55%),
-        radial-gradient(circle at 50% 70%, rgba(6,182,212,0.25), transparent 50%),
+        radial-gradient(circle at 18% 22%, rgba(168,85,247,0.38), transparent 52%),
+        radial-gradient(circle at 82% 28%, rgba(236,72,153,0.28), transparent 55%),
+        radial-gradient(circle at 50% 72%, rgba(6,182,212,0.2), transparent 50%),
         var(--bg-primary);
     z-index: 0;
 }
 .login-bg::after {
     content: '';
     position: absolute; inset: 0;
-    background: linear-gradient(to bottom, transparent 50%, var(--bg-primary) 100%);
+    background: linear-gradient(to bottom, transparent 45%, var(--bg-primary) 100%);
 }
 .login-wrap {
     position: relative; z-index: 2;
-    padding: 80px 24px 0;
+    padding: 56px 20px 100px;
     min-height: 100%;
 }
-.brand-logo {
-    width: 72px; height: 72px;
-    border-radius: 20px;
+.aw-brand {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 22px;
+}
+.aw-logo {
+    width: 52px; height: 52px;
+    border-radius: 16px;
     background: var(--brand-gradient);
     display: flex; align-items: center; justify-content: center;
-    font-size: 32px; color: #fff;
-    box-shadow: 0 10px 40px rgba(168,85,247,0.45);
-    margin-bottom: 24px;
+    font-size: 22px; color: #fff;
+    box-shadow: 0 8px 28px rgba(168,85,247,0.4);
 }
-.brand-title {
-    font-size: 32px; font-weight: 800; letter-spacing: -0.5px;
-    margin-bottom: 8px;
-}
-.brand-subtitle { color: var(--text-secondary); font-size: 14px; margin-bottom: 40px; }
+.aw-title { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; }
+.aw-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
 
-.tab-switch {
-    display: flex; gap: 24px;
+.auth-tabs {
+    display: flex; gap: 0;
     border-bottom: 1px solid var(--border-color);
-    margin-bottom: 24px;
+    margin-bottom: 16px;
 }
-.tab-switch-item {
-    padding: 10px 0;
-    font-size: 15px;
+.auth-tabs .tab {
+    flex: 1;
+    text-align: center;
+    padding: 12px 4px;
+    font-size: 14px;
     color: var(--text-tertiary);
+    background: none; border: none;
     position: relative;
     cursor: pointer;
 }
-.tab-switch-item.active {
+.auth-tabs .tab.active {
     color: var(--text-primary);
-    font-weight: 600;
+    font-weight: 700;
 }
-.tab-switch-item.active::after {
+.auth-tabs .tab.active::after {
     content: '';
     position: absolute;
-    bottom: -1px; left: 0; right: 0;
+    left: 12%; right: 12%; bottom: -1px;
     height: 2px;
     background: var(--brand-gradient);
     border-radius: 2px;
 }
 
-.auth-mode {
+.toggle-sub {
     display: flex; gap: 6px;
     background: var(--bg-card);
     padding: 4px;
     border-radius: var(--radius-full);
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
-.auth-mode-item {
+.toggle-sub button {
     flex: 1;
-    text-align: center;
-    padding: 8px 0;
-    font-size: 13px;
+    border: none;
+    background: transparent;
     color: var(--text-secondary);
+    font-size: 13px;
+    padding: 8px 0;
     border-radius: var(--radius-full);
     cursor: pointer;
 }
-.auth-mode-item.active {
+.toggle-sub button.on {
     background: var(--brand-gradient);
     color: #fff;
     font-weight: 600;
 }
 
-.terms {
-    font-size: 11px;
-    color: var(--text-tertiary);
-    text-align: center;
-    margin-top: 20px;
-    line-height: 1.6;
-}
-.terms a { color: var(--brand-purple); text-decoration: none; }
-
-.divider-text {
+.wallet-card {
     display: flex; align-items: center; gap: 12px;
-    margin: 28px 0 20px;
-    color: var(--text-tertiary);
-    font-size: 12px;
-}
-.divider-text::before, .divider-text::after {
-    content: ''; flex: 1; height: 1px;
-    background: var(--border-color);
-}
-
-.third-party {
-    display: flex; justify-content: center; gap: 20px;
-}
-.third-party .tp-btn {
-    width: 48px; height: 48px;
-    border-radius: 50%;
+    width: 100%;
+    padding: 14px 14px;
+    margin-bottom: 10px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
     background: var(--bg-card);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
     color: var(--text-primary);
     cursor: pointer;
+    text-align: left;
 }
-.third-party .tp-btn.wallet {
-    background: var(--brand-gradient-soft);
-    color: var(--brand-purple);
+.wallet-card .ic {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
 }
+.wallet-card .ic.mm { background: rgba(245,158,11,0.15); color: #F59E0B; }
+.wallet-card .ic.wc { background: rgba(59,130,246,0.15); color: #3B82F6; }
+.wallet-card .ic.more { background: var(--brand-gradient-soft); color: var(--brand-purple); }
+.wallet-card .grow { flex: 1; min-width: 0; }
+.wallet-card .grow > span:first-child { display: block; font-size: 14px; font-weight: 700; }
+.wallet-card .sub { display: block; font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.wallet-card .chev { opacity: 0.35; font-size: 12px; }
 
-.bottom-link {
-    position: absolute;
-    bottom: 40px; left: 0; right: 0;
-    text-align: center;
-    font-size: 13px;
+.reg-banner {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    background: rgba(251,191,36,0.1);
+    border: 1px solid rgba(251,191,36,0.25);
+    font-size: 12px;
     color: var(--text-secondary);
+    line-height: 1.45;
 }
-.bottom-link a {
-    color: var(--brand-purple);
-    font-weight: 600;
-    text-decoration: none;
-    margin-left: 4px;
+.reg-banner strong { color: var(--text-primary); }
+
+.foot-note {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 16px;
+    line-height: 1.5;
 }
+.hint {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+    line-height: 1.4;
+}
+.demo-tip {
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--text-quaternary, var(--text-tertiary));
+    text-align: center;
+    line-height: 1.45;
+}
+.demo-tip code { color: #FBBF24; }
+.wiz-panel { display: none; }
+.wiz-panel.active { display: block; }
+.spinner {
+    width: 36px; height: 36px;
+    margin: 20px auto;
+    border: 3px solid rgba(255,255,255,0.12);
+    border-top-color: var(--brand-purple);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.success-box { text-align: center; padding: 12px 0 8px; }
+.success-box .ok {
+    width: 52px; height: 52px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    background: rgba(16,185,129,0.15);
+    display: flex; align-items: center; justify-content: center;
+    color: #34D399; font-size: 26px;
+}
+.unreg-sheet {
+    display: none;
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,0.55);
+    align-items: flex-end; justify-content: center;
+}
+.unreg-sheet.open { display: flex; }
+.unreg-sheet .sheet {
+    width: 100%; max-width: 430px;
+    background: var(--bg-elevated, var(--bg-card));
+    border-radius: 20px 20px 0 0;
+    padding: 20px 18px calc(20px + env(safe-area-inset-bottom, 0px));
+}
+.unreg-sheet h3 { font-size: 16px; margin-bottom: 8px; }
+.unreg-sheet p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px; }
+.dialog-actions { display: flex; gap: 10px; }
+.dialog-actions .btn { flex: 1; }
+.risk-on {
+    display: none;
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(251,191,36,0.12);
+    border: 1px solid rgba(251,191,36,0.3);
+    font-size: 11px;
+    color: #FBBF24;
+}
+.risk-on.show { display: block; }
+.auth-risk-sim-link {
+    background: none; border: none; color: var(--brand-purple);
+    font-size: inherit; padding: 0; cursor: pointer; text-decoration: underline;
+}
+[data-wallet-reg-only] { display: none; }
+body[data-wallet-mode="register"] [data-wallet-reg-only] { display: block; }
+body[data-wallet-mode="register"] [data-wallet-login-only] { display: none; }
 </style>
 </head>
-<body>
+<body data-auth-tab="wallet" data-wallet-mode="login">
 
 <div class="login-bg"></div>
 
-<!-- 状态栏 -->
 <div class="status-bar">
     <span class="time">9:41</span>
     <span class="right">
@@ -157,61 +226,323 @@
 <div class="app-content">
 <div class="login-wrap">
 
-    <div class="brand-logo">
-        <i class="fa-solid fa-bolt"></i>
-    </div>
-    <h1 class="brand-title">欢迎来到 <span class="gradient-text">VaultX</span></h1>
-    <p class="brand-subtitle">去中心化的私密内容社交平台</p>
-
-    <!-- 验证码/密码 切换 -->
-    <div class="auth-mode">
-        <div class="auth-mode-item active">验证码登录</div>
-        <div class="auth-mode-item">密码登录</div>
-    </div>
-
-    <!-- 手机号/邮箱切换 -->
-    <div class="tab-switch">
-        <div class="tab-switch-item active"><i class="fa-solid fa-mobile-screen" style="margin-right:6px"></i>手机号</div>
-        <div class="tab-switch-item"><i class="fa-solid fa-envelope" style="margin-right:6px"></i>邮箱</div>
-    </div>
-
-    <div class="form-group">
-        <div class="form-input-group">
-            <span class="prefix">+86 <i class="fa-solid fa-chevron-down" style="font-size:10px"></i></span>
-            <input class="form-input" placeholder="请输入手机号">
+    <div class="aw-brand">
+        <div class="aw-logo"><i class="fa-solid fa-infinity"></i></div>
+        <div>
+            <div class="aw-title">GOODFANS</div>
+            <p class="aw-sub">登录与注册同一入口 · 钱包或邮箱</p>
         </div>
     </div>
 
-    <div class="form-group">
-        <div class="form-input-group">
-            <input class="form-input" placeholder="请输入验证码">
-            <span class="suffix"><span class="get-code">获取验证码</span></span>
+    <nav class="auth-tabs" aria-label="登录方式">
+        <button type="button" class="tab active" id="tabAuthWallet">钱包登录 / 注册</button>
+        <button type="button" class="tab" id="tabAuthEmail">邮箱登录 / 注册</button>
+    </nav>
+
+    <!-- 钱包 -->
+    <div id="walletAuthWrap">
+        <div class="toggle-sub">
+            <button type="button" class="on" id="btnWalletModeLogin">钱包登录</button>
+            <button type="button" id="btnWalletModeRegister">钱包注册</button>
+        </div>
+
+        <div id="walletStep0" class="wiz-panel active">
+            <div class="reg-banner" data-wallet-reg-only>
+                <i class="fa-solid fa-user-plus" style="color:#FBBF24;margin-top:2px"></i>
+                <div><strong>钱包注册</strong>：首次连接该钱包将创建账号。可先填写邀请码（选填）。</div>
+            </div>
+            <p data-wallet-login-only class="hint" style="margin-bottom:12px">选择钱包并签名，登录已有账号。</p>
+            <p data-wallet-reg-only class="hint" style="margin-bottom:12px">选择钱包完成注册；邀请码可在下方填写（选填）。</p>
+
+            <div class="form-group" data-wallet-reg-only>
+                <label class="form-label" style="font-size:12px">邀请码 <span style="color:var(--text-tertiary)">(选填)</span></label>
+                <input class="form-input" type="text" id="walletInviteCode" placeholder="例如 LUNA-8K3F" autocomplete="off" style="text-transform:uppercase;letter-spacing:1px;font-family:ui-monospace,monospace">
+            </div>
+
+            <button type="button" class="wallet-card" data-wallet-go="sign">
+                <span class="ic mm"><i class="fa-brands fa-ethereum"></i></span>
+                <span class="grow"><span>MetaMask</span><span class="sub">浏览器 / App 签名</span></span>
+                <i class="fa-solid fa-chevron-right chev"></i>
+            </button>
+            <button type="button" class="wallet-card" data-wallet-go="wc">
+                <span class="ic wc"><i class="fa-solid fa-qrcode"></i></span>
+                <span class="grow"><span>WalletConnect</span><span class="sub">移动端扫码</span></span>
+                <i class="fa-solid fa-chevron-right chev"></i>
+            </button>
+            <button type="button" class="wallet-card" data-wallet-go="sign">
+                <span class="ic more"><i class="fa-solid fa-wallet"></i></span>
+                <span class="grow"><span>更多钱包</span><span class="sub">OKX / Coinbase 等</span></span>
+                <i class="fa-solid fa-chevron-right chev"></i>
+            </button>
+            <div class="foot-note">继续即表示同意服务条款与隐私政策</div>
+        </div>
+
+        <div id="walletStepWc" class="wiz-panel">
+            <p style="font-size:14px;font-weight:700;text-align:center;margin-bottom:8px">WalletConnect</p>
+            <p class="hint" style="text-align:center;margin-bottom:16px">使用手机钱包扫码</p>
+            <div style="height:160px;border-radius:16px;border:1px dashed var(--border-color);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text-tertiary);margin-bottom:16px">
+                <i class="fa-solid fa-qrcode" style="font-size:48px"></i>
+                <span style="font-size:12px">二维码区域</span>
+            </div>
+            <button type="button" class="btn btn-primary btn-block" id="btnWcContinue">已扫码 · 继续</button>
+            <button type="button" class="btn btn-ghost btn-block mt-2" data-wallet-back="0">返回</button>
+        </div>
+
+        <div id="walletStepSign" class="wiz-panel">
+            <p style="font-size:14px;font-weight:700;text-align:center;margin-bottom:8px">签名请求</p>
+            <div style="font-size:11px;font-family:ui-monospace,monospace;padding:12px;border-radius:12px;background:var(--bg-card);border:1px solid var(--border-color);color:var(--text-secondary);line-height:1.5;margin-bottom:14px">
+                goodfans.io wants you to sign in with your Ethereum account…<br>URI: https://goodfans.io<br>Version: 1 · Chain ID: 1
+            </div>
+            <button type="button" class="btn btn-primary btn-block" id="btnWalletSign">签名并继续</button>
+            <button type="button" class="btn btn-ghost btn-block mt-2" data-wallet-back="0">返回</button>
+        </div>
+
+        <div id="walletStepWait" class="wiz-panel">
+            <p style="font-size:14px;font-weight:700;text-align:center">等待签名</p>
+            <div class="spinner"></div>
+            <button type="button" class="btn btn-primary btn-block" id="btnWalletSigned">模拟 · 签名完成</button>
+        </div>
+
+        <div id="walletStepOk" class="wiz-panel">
+            <div class="success-box">
+                <div class="ok"><i class="fa-solid fa-circle-check"></i></div>
+                <p style="font-size:16px;font-weight:800" id="walletSuccessTitle">登录成功</p>
+                <p class="hint" id="walletSuccessSub">欢迎回来</p>
+            </div>
+            <a href="home.html" class="btn btn-primary btn-block" style="text-decoration:none;margin-top:12px">进入首页</a>
         </div>
     </div>
 
-    <button class="btn btn-primary btn-block mt-4">登录</button>
+    <!-- 邮箱 -->
+    <div id="emailAuthPanel" style="display:none">
+        <div class="toggle-sub">
+            <button type="button" class="on" id="btnAuthModeLogin">登录</button>
+            <button type="button" id="btnAuthModeRegister">注册</button>
+        </div>
 
-    <p class="terms">
-        登录即表示同意 <a>《用户协议》</a> 和 <a>《隐私政策》</a><br>
-        您的内容数据将通过链上加密存储
-    </p>
+        <div id="emailLoginPanel">
+            <div class="form-group">
+                <label class="form-label" style="font-size:12px">邮箱</label>
+                <input class="form-input" type="email" id="emailLoginInput" placeholder="name@company.com" value="creator@example.com">
+            </div>
+            <div class="form-group">
+                <label class="form-label" style="font-size:12px">验证码</label>
+                <div class="form-input-group">
+                    <input class="form-input" type="text" id="loginOtp" placeholder="6 位验证码" maxlength="6">
+                    <span class="suffix"><span class="get-code" id="btnLoginSendOtp">获取验证码</span></span>
+                </div>
+                <div class="hint">已注册用户使用验证码登录（原型：非 new-user 邮箱直接登录）</div>
+            </div>
+            <button type="button" class="btn btn-primary btn-block" id="btnEmailLogin"><i class="fa-solid fa-right-to-bracket"></i> 登录</button>
+            <p class="demo-tip">试用未注册邮箱 <code>new-user@example.com</code> 将提示转入注册</p>
+            <p class="demo-tip">
+                体验二次验证：<button type="button" class="auth-risk-sim-link" id="btnSimRiskLogin">关闭风险模拟</button>
+                <span>（新设备 / 异地）</span>
+            </p>
+            <div class="risk-on show" id="authRiskSimOn"><i class="fa-solid fa-triangle-exclamation"></i> 风险模拟已开启 · 下次登录将要求动态码</div>
+        </div>
 
-    <div class="divider-text">其他登录方式</div>
-
-    <div class="third-party">
-        <div class="tp-btn wallet" title="钱包登录"><i class="fa-solid fa-wallet"></i></div>
-        <div class="tp-btn" title="Apple"><i class="fa-brands fa-apple"></i></div>
-        <div class="tp-btn" title="Google"><i class="fa-brands fa-google"></i></div>
-        <div class="tp-btn" title="Telegram"><i class="fa-brands fa-telegram"></i></div>
+        <div id="emailRegisterPanel" style="display:none">
+            <div class="form-group">
+                <label class="form-label" style="font-size:12px">邮箱</label>
+                <input class="form-input" type="email" id="regEmail" placeholder="name@company.com" value="new-user@example.com">
+            </div>
+            <div class="form-group">
+                <label class="form-label" style="font-size:12px">验证码 <span style="color:var(--danger)">*</span></label>
+                <div class="form-input-group">
+                    <input class="form-input" type="text" id="regOtp" placeholder="6 位验证码" maxlength="6">
+                    <span class="suffix"><span class="get-code" id="btnRegSendOtp">获取验证码</span></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label" style="font-size:12px">登录密码 <span style="color:var(--text-tertiary)">(选填)</span></label>
+                <input class="form-input" type="password" id="regPwd" placeholder="不设密码则后续仅用验证码登录">
+            </div>
+            <div class="form-group">
+                <label class="form-label" style="font-size:12px">邀请码 <span style="color:var(--text-tertiary)">(选填)</span></label>
+                <input class="form-input" type="text" id="regInviteCode" placeholder="例如 LUNA-8K3F" autocomplete="off" style="text-transform:uppercase;letter-spacing:1px;font-family:ui-monospace,monospace">
+            </div>
+            <button type="button" class="btn btn-primary btn-block" id="btnEmailRegDone"><i class="fa-solid fa-user-plus"></i> 注册并登录</button>
+            <p class="demo-tip">原型：验证码填 <code>123456</code> 完成注册</p>
+        </div>
     </div>
 
 </div>
 </div>
 
-<div class="bottom-link">
-    还没有账号？<a>立即注册</a>
+<div class="unreg-sheet" id="emailUnregOverlay" aria-hidden="true">
+    <div class="sheet">
+        <h3><i class="fa-solid fa-circle-exclamation" style="color:#FBBF24;margin-right:6px"></i>账号未注册</h3>
+        <p>该邮箱尚未注册，是否使用当前邮箱<strong style="color:var(--text-primary)">注册并登录</strong>？注册时可填写邀请码（选填）。</p>
+        <div class="dialog-actions">
+            <button type="button" class="btn btn-ghost" id="btnUnregCancel">取消</button>
+            <button type="button" class="btn btn-primary" id="btnUnregToRegister">去注册</button>
+        </div>
+    </div>
 </div>
 
 <div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var tabWallet = document.getElementById('tabAuthWallet');
+    var tabEmail = document.getElementById('tabAuthEmail');
+    var walletWrap = document.getElementById('walletAuthWrap');
+    var emailPanel = document.getElementById('emailAuthPanel');
+    var riskOn = true;
+
+    function toast(msg) {
+        if (window.DigitalH5Nav && DigitalH5Nav.toast) DigitalH5Nav.toast(msg);
+        else alert(msg);
+    }
+
+    function showAuthTab(which) {
+        var isWallet = which === 'wallet';
+        document.body.setAttribute('data-auth-tab', which);
+        tabWallet.classList.toggle('active', isWallet);
+        tabEmail.classList.toggle('active', !isWallet);
+        walletWrap.style.display = isWallet ? '' : 'none';
+        emailPanel.style.display = isWallet ? 'none' : '';
+    }
+    tabWallet.addEventListener('click', function () { showAuthTab('wallet'); });
+    tabEmail.addEventListener('click', function () { showAuthTab('email'); });
+
+    // Wallet mode
+    var btnWLogin = document.getElementById('btnWalletModeLogin');
+    var btnWReg = document.getElementById('btnWalletModeRegister');
+    function setWalletMode(mode) {
+        document.body.setAttribute('data-wallet-mode', mode);
+        btnWLogin.classList.toggle('on', mode === 'login');
+        btnWReg.classList.toggle('on', mode === 'register');
+        showWalletStep('0');
+        var title = document.getElementById('walletSuccessTitle');
+        var sub = document.getElementById('walletSuccessSub');
+        if (title) title.textContent = mode === 'register' ? '注册成功' : '登录成功';
+        if (sub) sub.textContent = mode === 'register' ? '账号已创建，欢迎加入 GOODFANS' : '欢迎回来';
+    }
+    btnWLogin.addEventListener('click', function () { setWalletMode('login'); });
+    btnWReg.addEventListener('click', function () { setWalletMode('register'); });
+
+    var walletSteps = {
+        '0': document.getElementById('walletStep0'),
+        'wc': document.getElementById('walletStepWc'),
+        'sign': document.getElementById('walletStepSign'),
+        'wait': document.getElementById('walletStepWait'),
+        'ok': document.getElementById('walletStepOk')
+    };
+    function showWalletStep(key) {
+        Object.keys(walletSteps).forEach(function (k) {
+            walletSteps[k].classList.toggle('active', k === key);
+        });
+    }
+    document.querySelectorAll('[data-wallet-go]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            showWalletStep(btn.getAttribute('data-wallet-go'));
+        });
+    });
+    document.querySelectorAll('[data-wallet-back]').forEach(function (btn) {
+        btn.addEventListener('click', function () { showWalletStep('0'); });
+    });
+    document.getElementById('btnWcContinue').addEventListener('click', function () {
+        showWalletStep('sign');
+    });
+    document.getElementById('btnWalletSign').addEventListener('click', function () {
+        showWalletStep('wait');
+    });
+    document.getElementById('btnWalletSigned').addEventListener('click', function () {
+        showWalletStep('ok');
+    });
+
+    // Email mode
+    var btnELogin = document.getElementById('btnAuthModeLogin');
+    var btnEReg = document.getElementById('btnAuthModeRegister');
+    var loginPanel = document.getElementById('emailLoginPanel');
+    var regPanel = document.getElementById('emailRegisterPanel');
+    var unreg = document.getElementById('emailUnregOverlay');
+
+    function setEmailMode(mode) {
+        btnELogin.classList.toggle('on', mode === 'login');
+        btnEReg.classList.toggle('on', mode === 'register');
+        loginPanel.style.display = mode === 'login' ? '' : 'none';
+        regPanel.style.display = mode === 'register' ? '' : 'none';
+    }
+    btnELogin.addEventListener('click', function () { setEmailMode('login'); });
+    btnEReg.addEventListener('click', function () { setEmailMode('register'); });
+
+    function bindOtp(btnId) {
+        var btn = document.getElementById(btnId);
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+            toast('验证码已发送（原型：123456）');
+            var left = 60;
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.5';
+            var t = setInterval(function () {
+                left -= 1;
+                btn.textContent = left + 's';
+                if (left <= 0) {
+                    clearInterval(t);
+                    btn.textContent = '获取验证码';
+                    btn.style.pointerEvents = '';
+                    btn.style.opacity = '';
+                }
+            }, 1000);
+        });
+    }
+    bindOtp('btnLoginSendOtp');
+    bindOtp('btnRegSendOtp');
+
+    var riskBtn = document.getElementById('btnSimRiskLogin');
+    var riskBanner = document.getElementById('authRiskSimOn');
+    function syncRiskUi() {
+        riskBtn.textContent = riskOn ? '关闭风险模拟' : '模拟风险环境登录';
+        riskBanner.classList.toggle('show', riskOn);
+    }
+    riskBtn.addEventListener('click', function () {
+        riskOn = !riskOn;
+        syncRiskUi();
+        toast(riskOn ? '风险模拟已开启' : '风险模拟已关闭');
+    });
+
+    document.getElementById('btnEmailLogin').addEventListener('click', function () {
+        var email = (document.getElementById('emailLoginInput').value || '').trim().toLowerCase();
+        if (!email) { toast('请输入邮箱'); return; }
+        if (email === 'new-user@example.com') {
+            unreg.classList.add('open');
+            unreg.setAttribute('aria-hidden', 'false');
+            return;
+        }
+        if (riskOn) {
+            toast('二次验证通过（原型）');
+        }
+        toast('登录成功');
+        setTimeout(function () { location.href = 'home.html'; }, 400);
+    });
+
+    document.getElementById('btnUnregCancel').addEventListener('click', function () {
+        unreg.classList.remove('open');
+        unreg.setAttribute('aria-hidden', 'true');
+    });
+    document.getElementById('btnUnregToRegister').addEventListener('click', function () {
+        unreg.classList.remove('open');
+        var email = document.getElementById('emailLoginInput').value;
+        document.getElementById('regEmail').value = email;
+        setEmailMode('register');
+    });
+
+    document.getElementById('btnEmailRegDone').addEventListener('click', function () {
+        var otp = (document.getElementById('regOtp').value || '').trim();
+        if (otp !== '123456') {
+            toast('请填写验证码 123456');
+            return;
+        }
+        toast('注册成功');
+        setTimeout(function () { location.href = 'home.html'; }, 400);
+    });
+
+    setWalletMode('login');
+    showAuthTab('wallet');
+})();
+</script>
 </body>
 </html>

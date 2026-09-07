@@ -129,6 +129,7 @@ body { touch-action: pan-y; }
     width: 48px; height: 48px;
     border-radius: 50%;
     border: 2px solid #fff;
+    cursor: pointer;
 }
 .action-bar .creator-avatar .follow-btn {
     position: absolute;
@@ -162,6 +163,7 @@ body { touch-action: pan-y; }
 }
 .feed-info .creator .name {
     font-size: 16px; font-weight: 700;
+    cursor: pointer;
 }
 .feed-info .creator .badge {
     padding: 2px 8px;
@@ -604,6 +606,9 @@ body { touch-action: pan-y; }
     display: flex; align-items: center; justify-content: center;
     font-size: 17px;
 }
+.share-item .ic.dm {
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+}
 .share-item .lb { font-size: 11px; color: rgba(255,255,255,0.8); }
 .share-link-card {
     border: 1px solid rgba(168,85,247,0.35);
@@ -625,6 +630,54 @@ body { touch-action: pan-y; }
     border: 0; border-radius: 6px; padding: 4px 8px;
     background: var(--brand-gradient); color: #fff; font-size: 11px; font-weight: 700;
 }
+.share-dm-sheet { height: 72%; z-index: 150; }
+.share-dm-search {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; margin-bottom: 10px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.share-dm-search i { color: rgba(255,255,255,0.45); font-size: 12px; }
+.share-dm-search input {
+    flex: 1; border: 0; background: transparent; color: #fff; font-size: 13px; outline: none;
+}
+.share-dm-list {
+    max-height: calc(72% - 160px);
+    overflow-y: auto;
+    display: flex; flex-direction: column; gap: 4px;
+    margin-bottom: 12px;
+}
+.share-dm-row {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 8px 10px;
+    border: 1px solid transparent; border-radius: 10px;
+    background: transparent; color: #fff; text-align: left; cursor: pointer;
+}
+.share-dm-row.on {
+    background: rgba(168,85,247,0.18);
+    border-color: rgba(168,85,247,0.45);
+}
+.share-dm-row img {
+    width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+}
+.share-dm-row .meta { flex: 1; min-width: 0; }
+.share-dm-row .nm { font-size: 13px; font-weight: 700; }
+.share-dm-row .sub { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+.share-dm-row .chk {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.28);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; color: transparent; flex-shrink: 0;
+}
+.share-dm-row.on .chk {
+    background: var(--brand-gradient); border-color: transparent; color: #fff;
+}
+.share-dm-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.share-dm-sel { font-size: 12px; color: rgba(255,255,255,0.6); }
+.share-dm-foot .btn:disabled { opacity: 0.45; }
 
 .subscribe-sheet { height: 68%; }
 .sub-step { display: none; }
@@ -1373,6 +1426,10 @@ body { touch-action: pan-y; }
                 <div class="stats"><span id="shareLike">2.4K</span><span id="shareComment">186</span><span id="shareSave">412</span><span id="shareView">18.6K</span></div>
             </div>
         </div>
+        <div style="color:rgba(255,255,255,0.64);font-size:11px;font-weight:700;margin:0 0 10px;">站内分享</div>
+        <div class="share-grid" style="grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:14px">
+            <button class="share-item" type="button" data-share="dm"><span class="ic dm"><i class="fa-regular fa-comment-dots"></i></span><span class="lb">私信</span></button>
+        </div>
         <div style="color:rgba(255,255,255,0.64);font-size:11px;font-weight:700;margin:0 0 10px;">分享到第三方平台</div>
         <div class="share-grid" id="shareGrid">
             <button class="share-item" data-share="x"><span class="ic"><i class="fa-brands fa-x-twitter"></i></span><span class="lb">X</span></button>
@@ -1391,6 +1448,22 @@ body { touch-action: pan-y; }
                 <span class="url" id="shareUrl">https://goodfans.io/p/luna-mt-fuji-sunrise</span>
                 <button type="button" class="copy-btn" id="shareCopyBtn">复制</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="home-sheet share-dm-sheet" id="shareDmSheet">
+    <div class="hs-head"><div class="t">分享到私信</div><button class="x" type="button" id="shareDmClose"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="hs-body">
+        <p style="color:rgba(255,255,255,0.62);font-size:11px;line-height:1.45;margin:0 0 10px">选择互关好友，将当前内容以卡片形式发送到私信</p>
+        <div class="share-dm-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" id="shareDmSearch" placeholder="搜索好友昵称" autocomplete="off">
+        </div>
+        <div class="share-dm-list" id="shareDmList"></div>
+        <div class="share-dm-foot">
+            <span class="share-dm-sel" id="shareDmSelHint">未选择</span>
+            <button type="button" class="btn btn-primary btn-sm" id="shareDmSendBtn" disabled><i class="fa-solid fa-paper-plane"></i> 发送</button>
         </div>
     </div>
 </div>
@@ -1530,6 +1603,10 @@ body { touch-action: pan-y; }
                         <div class="by" id="liveShareBy">luna_web3 🌙</div>
                         <div class="stats"><span id="liveShareLike">3.2K</span><span id="liveShareComment">1.1K</span><span id="liveShareSave">602</span><span id="liveShareView">18.6K</span></div>
                     </div>
+                </div>
+                <div style="color:rgba(255,255,255,0.64);font-size:11px;font-weight:700;margin:0 0 10px;">站内分享</div>
+                <div class="share-grid" style="grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:14px">
+                    <button class="share-item" type="button" data-share="dm"><span class="ic dm"><i class="fa-regular fa-comment-dots"></i></span><span class="lb">私信</span></button>
                 </div>
                 <div style="color:rgba(255,255,255,0.64);font-size:11px;font-weight:700;margin:0 0 10px;">分享到第三方平台</div>
                 <div class="share-grid" id="liveShareGrid">
@@ -1930,7 +2007,7 @@ body { touch-action: pan-y; }
                 ) : '') +
                 '<div class="action-bar">' +
                     '<div class="creator-avatar' + followCls + '">' +
-                        '<img src="' + esc(f.avatar || '') + '" alt="">' +
+                        '<img src="' + esc(f.avatar || '') + '" alt="" data-action="creator-profile">' +
                         '<div class="follow-btn" data-action="follow"><i class="' + followIcon + '"></i></div>' +
                     '</div>' +
                     '<div class="action action-like' + likeCls + '" data-action="like"><i class="fa-solid fa-heart"></i><span class="count">' + esc(f.like) + '</span></div>' +
@@ -1940,7 +2017,7 @@ body { touch-action: pan-y; }
                     liveSettingsAction +
                 '</div>' +
                 '<div class="feed-info">' +
-                    '<div class="creator"><span class="name">' + esc(f.creator) + '</span><span class="badge badge-brand"><i class="fa-solid fa-crown"></i> Pro</span></div>' +
+                    '<div class="creator"><span class="name" data-action="creator-profile">' + esc(f.creator) + '</span><span class="badge badge-brand"><i class="fa-solid fa-crown"></i> Pro</span></div>' +
                     '<div class="title expandable' + titleCls + '" data-action="toggle-title">' + esc(f.title) + '</div>' +
                     '<div class="tags">' + tagsHtml + '</div>' +
                     '<div class="music-info"><i class="fa-solid fa-music"></i><span>' + esc(f.music) + '</span></div>' +
@@ -1971,6 +2048,7 @@ body { touch-action: pan-y; }
     var overlay = document.getElementById('homeOverlay');
     var commentSheet = document.getElementById('commentSheet');
     var shareSheet = document.getElementById('shareSheet');
+    var shareDmSheet = document.getElementById('shareDmSheet');
     var subscribeSheet = document.getElementById('subscribeSheet');
     var commentList = document.getElementById('commentList');
     var commentInput = document.getElementById('commentInput');
@@ -2079,7 +2157,7 @@ body { touch-action: pan-y; }
     }
     function closeAllSheets() {
         if (overlay) overlay.classList.remove('show');
-        [commentSheet, shareSheet, subscribeSheet].forEach(function (el) {
+        [commentSheet, shareSheet, shareDmSheet, subscribeSheet].forEach(function (el) {
             if (el) el.classList.remove('show');
         });
     }
@@ -2372,6 +2450,7 @@ body { touch-action: pan-y; }
         if (overlay) overlay.classList.add('show');
         if (kind === 'comment' && commentSheet) commentSheet.classList.add('show');
         if (kind === 'share' && shareSheet) shareSheet.classList.add('show');
+        if (kind === 'share-dm' && shareDmSheet) shareDmSheet.classList.add('show');
         if (kind === 'subscribe' && subscribeSheet) subscribeSheet.classList.add('show');
     }
     function switchSubStep(id) {
@@ -2551,6 +2630,19 @@ body { touch-action: pan-y; }
             buildTrack();
             return;
         }
+        if (action === 'creator-profile') {
+            var handle = item.creator || '';
+            try {
+                sessionStorage.setItem('gf_creator_preview', JSON.stringify({
+                    handle: handle,
+                    avatar: item.avatar || '',
+                    cover: item.cover || '',
+                    title: item.title || ''
+                }));
+            } catch (err) {}
+            location.href = 'creator-profile.html?u=' + encodeURIComponent(handle);
+            return;
+        }
         if (action === 'subscribe') {
             openSubscribe(feedIndex);
         }
@@ -2585,6 +2677,7 @@ body { touch-action: pan-y; }
             var btn = e.target.closest('[data-share]');
             if (!btn) return;
             var type = btn.getAttribute('data-share');
+            if (type === 'dm') return;
             var map = {
                 wechat: '微信',
                 x: 'X',
@@ -2601,9 +2694,103 @@ body { touch-action: pan-y; }
             closeAllSheets();
         });
     }
+    if (shareSheet) {
+        shareSheet.addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-share="dm"]');
+            if (!btn) return;
+            openShareDmPicker('feed');
+        });
+    }
     if (shareCopyBtn) {
         shareCopyBtn.addEventListener('click', function () {
             showToast('链接已复制');
+        });
+    }
+
+    var SHARE_DM_FRIENDS = [
+        { id: 'f1', name: 'Ken', handle: '@ken_film', av: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=80' },
+        { id: 'f2', name: 'Nova', handle: '@nova_room', av: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80' },
+        { id: 'f3', name: 'Yuki', handle: '@yuki_shot', av: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80' },
+        { id: 'f4', name: 'Mika', handle: '@mika_daily', av: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80' },
+        { id: 'f5', name: 'River', handle: '@river_vlog', av: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80' },
+        { id: 'f6', name: 'Sora', handle: '@sora_light', av: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80' }
+    ];
+    var shareDmSelected = {};
+    var shareDmFromLive = false;
+    var shareDmList = document.getElementById('shareDmList');
+    var shareDmSearch = document.getElementById('shareDmSearch');
+    var shareDmSendBtn = document.getElementById('shareDmSendBtn');
+    var shareDmSelHint = document.getElementById('shareDmSelHint');
+    var shareDmClose = document.getElementById('shareDmClose');
+
+    function shareDmNames() {
+        return SHARE_DM_FRIENDS.filter(function (f) { return shareDmSelected[f.id]; }).map(function (f) { return f.name; });
+    }
+    function syncShareDmFoot() {
+        var names = shareDmNames();
+        if (shareDmSelHint) shareDmSelHint.textContent = names.length ? ('已选 ' + names.length + ' 人：' + names.join('、')) : '未选择';
+        if (shareDmSendBtn) shareDmSendBtn.disabled = !names.length;
+    }
+    function renderShareDmList(filter) {
+        if (!shareDmList) return;
+        var q = (filter || '').toLowerCase().trim();
+        shareDmList.innerHTML = SHARE_DM_FRIENDS.filter(function (f) {
+            return !q || f.name.toLowerCase().indexOf(q) >= 0 || f.handle.toLowerCase().indexOf(q) >= 0;
+        }).map(function (f) {
+            var on = shareDmSelected[f.id] ? ' on' : '';
+            return '<button type="button" class="share-dm-row' + on + '" data-id="' + f.id + '">' +
+                '<img src="' + f.av + '" alt="">' +
+                '<span class="meta"><span class="nm">' + f.name + '</span><span class="sub">' + f.handle + ' · 互关</span></span>' +
+                '<span class="chk"><i class="fa-solid fa-check"></i></span></button>';
+        }).join('') || '<div style="padding:20px;text-align:center;color:rgba(255,255,255,0.5);font-size:12px">无匹配好友</div>';
+    }
+    function openShareDmPicker(from) {
+        shareDmFromLive = from === 'live';
+        shareDmSelected = {};
+        if (shareDmSearch) shareDmSearch.value = '';
+        renderShareDmList('');
+        syncShareDmFoot();
+        if (shareDmFromLive) {
+            if (liveShareSheet) liveShareSheet.classList.remove('show');
+            if (shareDmSheet) shareDmSheet.classList.add('show');
+        } else {
+            if (shareSheet) shareSheet.classList.remove('show');
+            openSheet('share-dm');
+        }
+    }
+    if (shareDmList) {
+        shareDmList.addEventListener('click', function (e) {
+            var row = e.target.closest('.share-dm-row');
+            if (!row) return;
+            var id = row.getAttribute('data-id');
+            if (shareDmSelected[id]) delete shareDmSelected[id];
+            else shareDmSelected[id] = true;
+            renderShareDmList(shareDmSearch ? shareDmSearch.value : '');
+            syncShareDmFoot();
+        });
+    }
+    if (shareDmSearch) {
+        shareDmSearch.addEventListener('input', function () {
+            renderShareDmList(shareDmSearch.value);
+        });
+    }
+    if (shareDmClose) {
+        shareDmClose.addEventListener('click', function () {
+            if (shareDmSheet) shareDmSheet.classList.remove('show');
+            if (shareDmFromLive) {
+                if (liveShareSheet) liveShareSheet.classList.add('show');
+            } else {
+                openSheet('share');
+            }
+        });
+    }
+    if (shareDmSendBtn) {
+        shareDmSendBtn.addEventListener('click', function () {
+            var names = shareDmNames();
+            if (!names.length) return;
+            showToast('已分享到私信：' + names.join('、'));
+            closeAllSheets();
+            if (liveShareSheet) liveShareSheet.classList.remove('show');
         });
     }
 
@@ -2836,7 +3023,14 @@ body { touch-action: pan-y; }
         liveToolSheet.addEventListener('click', function (e) { e.stopPropagation(); });
     }
     if (liveShareSheet) {
-        liveShareSheet.addEventListener('click', function (e) { e.stopPropagation(); });
+        liveShareSheet.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var dmBtn = e.target.closest('[data-share="dm"]');
+            if (dmBtn) {
+                openShareDmPicker('live');
+                return;
+            }
+        });
     }
     if (liveGiftSheet) {
         liveGiftSheet.addEventListener('click', function (e) { e.stopPropagation(); });
@@ -2856,6 +3050,7 @@ body { touch-action: pan-y; }
             var btn = e.target.closest('[data-share]');
             if (!btn) return;
             var type = btn.getAttribute('data-share');
+            if (type === 'dm') return;
             var map = {
                 wechat: '微信',
                 x: 'X',
