@@ -211,7 +211,8 @@
         '    <div class="info">' +
         '      <div class="name-row">' +
         '        <span class="n">Luna 🌙</span>' +
-        '        <span class="s-member-tag" data-fl-member-tag hidden><i class="fa-solid fa-crown"></i> 会员</span>' +
+        '        <span class="s-role-tag" data-fl-role-tag></span>' +
+        '        <span class="s-member-tag" data-fl-member-tag hidden><i class="fa-solid fa-crown"></i> 创作者 Pro</span>' +
         '      </div>' +
         '    </div>' +
         '  </div>' +
@@ -523,7 +524,7 @@
             var icon = memberTag.querySelector('i');
             memberTag.textContent = '';
             if (icon) memberTag.appendChild(icon);
-            memberTag.appendChild(document.createTextNode(' ' + t('member_tag', '会员')));
+            memberTag.appendChild(document.createTextNode(' ' + t('member_tag', '创作者 Pro')));
         }
         var toggle = sidebar.querySelector('.s-toggle');
         if (toggle) {

@@ -124,6 +124,21 @@
     margin-bottom: 4px;
 }
 .nf-item .nf-body .nf-text b { color: #fff; font-weight: 700; }
+.nf-actor-tag {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 6px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1.35;
+    vertical-align: 1px;
+}
+.nf-actor-tag.creator { color: #D8B4FE; background: rgba(168,85,247,0.16); border: 1px solid rgba(168,85,247,0.32); }
+.nf-actor-tag.member { color: #CBD5E1; background: rgba(255,255,255,0.06); border: 1px solid var(--border); }
+.nf-actor-tag.subscriber { color: #FDE68A; background: rgba(245,158,11,0.14); border: 1px solid rgba(245,158,11,0.32); }
+.nf-actor-tag.platform { color: #BFDBFE; background: rgba(59,130,246,0.14); border: 1px solid rgba(59,130,246,0.3); }
 .nf-item .nf-body .nf-text .amt {
     color: var(--warning-light);
     font-weight: 700;
@@ -190,6 +205,7 @@
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/ui-i18n.js" defer></script>
 <script src="../js-web/global-lang-switch.js" defer></script>
+<script src="../js-web/tip-events-store.js"></script>
 </head>
 <body data-mac-notify-auto="tip">
 
@@ -270,7 +286,7 @@
                     <div class="ck" data-tab="unread">未读 <span class="cnt" id="nfCntUnread">16</span></div>
                     <div class="ck" data-tab="live">开播提醒 <span class="cnt" id="nfCntLive">7</span></div>
                     <div class="ck" data-tab="subscription">订阅提醒</div>
-                    <div class="ck" data-tab="income">收益通知</div>
+                    <div class="ck" data-tab="income">收益通知 <span class="cnt" id="nfCntIncome">3</span></div>
                     <div class="ck" data-tab="system">系统通知</div>
                     <div class="ck" data-tab="expiry">到期提醒</div>
                 </div>
@@ -285,7 +301,7 @@
                 <div class="nf-list" id="nfListRoot">
                     <div class="nf-day" data-day="today">今天 · 2026年5月27日</div>
 
-                    <div class="nf-item unread" id="nfLivePreviewRemind">
+                    <div class="nf-item unread" id="nfLivePreviewRemind" data-actor-type="user" data-actor-role="creator">
                         <div class="nf-ic t-preview"><i class="fa-regular fa-calendar-check"></i>
                             <div class="av-mini" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
                         </div>
@@ -300,7 +316,7 @@
                         <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&q=80')"></div>
                     </div>
 
-                    <div class="nf-item unread">
+                    <div class="nf-item unread" data-nf-type="income">
                         <div class="nf-ic t-tip"><i class="fa-solid fa-gift"></i>
                             <div class="av-mini" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></div>
                         </div>
@@ -315,7 +331,7 @@
                         <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=200')"></div>
                     </div>
 
-                    <div class="nf-item unread">
+                    <div class="nf-item unread" data-actor-type="user" data-actor-role="subscriber">
                         <div class="nf-ic t-sub">
                             <i class="fa-solid fa-crown"></i>
                             <div class="av-mini" style="background-image: url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=80')"></div>
@@ -330,7 +346,7 @@
                         </div>
                     </div>
 
-                    <div class="nf-item unread">
+                    <div class="nf-item unread" data-actor-type="user" data-actor-role="member">
                         <div class="nf-ic t-comment">
                             <i class="fa-solid fa-comment"></i>
                             <div class="av-mini" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></div>
@@ -347,7 +363,7 @@
                         <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=200')"></div>
                     </div>
 
-                    <div class="nf-item unread">
+                    <div class="nf-item unread" data-actor-type="user" data-actor-role="member">
                         <div class="nf-ic t-like">
                             <i class="fa-solid fa-heart"></i>
                         </div>
@@ -438,7 +454,7 @@
                         <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=200')"></div>
                     </div>
 
-                    <div class="nf-item unread" data-nf-type="system" data-nf-announcement-id="growth-plan">
+                    <div class="nf-item unread" data-nf-type="system" data-nf-announcement-id="growth-plan" data-actor-type="platform" data-actor-role="platform">
                         <div class="nf-ic t-system"><i class="fa-solid fa-bullhorn"></i></div>
                         <div class="nf-body">
                             <div class="nf-text"><b>平台活动</b> 创作者增长计划已开启 · 完成目标可获流量加权与专属徽章</div>
@@ -450,7 +466,7 @@
                         <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=200')"></div>
                     </div>
 
-                    <div class="nf-item unread" data-nf-type="system" data-nf-announcement-id="spring-festival">
+                    <div class="nf-item unread" data-nf-type="system" data-nf-announcement-id="spring-festival" data-actor-type="platform" data-actor-role="platform">
                         <div class="nf-ic t-system"><i class="fa-solid fa-gift"></i></div>
                         <div class="nf-body">
                             <div class="nf-text"><b>平台活动</b> 春季创作者节 · 投稿即有机会获得首页推荐位与 500 USDT 奖池</div>
@@ -462,7 +478,7 @@
                         <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=200')"></div>
                     </div>
 
-                    <div class="nf-item unread" data-nf-type="system" data-nf-announcement-id="maintenance-notice">
+                    <div class="nf-item unread" data-nf-type="system" data-nf-announcement-id="maintenance-notice" data-actor-type="platform" data-actor-role="platform">
                         <div class="nf-ic t-system"><i class="fa-solid fa-screwdriver-wrench"></i></div>
                         <div class="nf-body">
                             <div class="nf-text"><b>平台公告</b> 5 月 28 日 02:00–04:00 将进行钱包与结算模块维护，期间暂停充提</div>
@@ -491,7 +507,7 @@
 
                     <div class="nf-day" data-day="yesterday">昨天 · 2026年5月26日</div>
 
-                    <div class="nf-item">
+                    <div class="nf-item" data-nf-type="income">
                         <div class="nf-ic t-tip"><i class="fa-solid fa-gift"></i>
                             <div class="av-mini" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></div>
                         </div>
@@ -606,7 +622,7 @@
                 <div class="aside-card">
                     <h4><span class="dt"></span>本周概览</h4>
                     <div class="kv-list">
-                        <div class="kv-row"><div class="k"><i class="fa-solid fa-gift" style="color: var(--warning-light)"></i> 收到打赏</div><div class="v num">412 USDT</div></div>
+                        <div class="kv-row"><div class="k"><i class="fa-solid fa-gift" style="color: var(--warning-light)"></i> 收到打赏</div><div class="v num" id="nfTipTotal" data-base-tips="412">412 USDT</div></div>
                         <div class="kv-row"><div class="k"><i class="fa-solid fa-heart" style="color: #F472B6"></i> 获得点赞</div><div class="v num">2,184</div></div>
                         <div class="kv-row"><div class="k"><i class="fa-solid fa-comment" style="color: var(--info-light)"></i> 收到评论</div><div class="v num">186</div></div>
                         <div class="kv-row"><div class="k"><i class="fa-solid fa-crown" style="color: #C084FC"></i> 新增订阅</div><div class="v num success">+38</div></div>
@@ -679,6 +695,30 @@
     }
     var allItems = [];
     refreshItems();
+    function actorLabel(role) {
+        var key = role === 'creator' ? 'role_creator'
+            : role === 'subscriber' ? 'role_subscriber'
+            : role === 'platform' ? 'role_platform' : 'role_member';
+        if (window.FLI18n && window.FLI18n.t) {
+            var localized = window.FLI18n.t(window.FLI18n.getLangCode(), key);
+            if (localized) return localized;
+        }
+        return role === 'creator' ? '创作者'
+            : role === 'subscriber' ? '订阅者'
+            : role === 'platform' ? '平台' : '用户';
+    }
+    function applyActorTags() {
+        allItems.forEach(function (item) {
+            var role = item.getAttribute('data-actor-role');
+            if (!role) return;
+            var name = item.querySelector('.nf-text b');
+            if (!name || name.nextElementSibling?.classList.contains('nf-actor-tag')) return;
+            var tag = document.createElement('span');
+            tag.className = 'nf-actor-tag ' + role;
+            tag.textContent = actorLabel(role);
+            name.insertAdjacentElement('afterend', tag);
+        });
+    }
     function resolveType(item) {
         var explicit = item.getAttribute("data-nf-type");
         if (explicit) return explicit;
@@ -704,6 +744,65 @@
             } catch (e) { /* ignore */ }
             window.dispatchEvent(new CustomEvent('fl-nf-unread-changed'));
         }
+    }
+    function tipContextLabel(context) {
+        return context === 'live' ? '直播打赏' : context === 'message' ? '私信打赏' : context === 'profile' ? '主页打赏' : '动态打赏';
+    }
+    function appendTipEvent(event) {
+        if (!event || !event.id || !event.amount) return null;
+        if (document.querySelector('.nf-item[data-tip-event-id="' + event.id + '"]')) return null;
+        var day = document.querySelector('.nf-day[data-day="today"]');
+        if (!day) return null;
+        var item = document.createElement('div');
+        item.className = 'nf-item unread';
+        item.setAttribute('data-nf-type', 'income');
+        item.setAttribute('data-tip-event-id', event.id);
+        var icon = document.createElement('div');
+        icon.className = 'nf-ic t-tip';
+        icon.innerHTML = '<i class="fa-solid fa-gift"></i>';
+        var body = document.createElement('div');
+        body.className = 'nf-body';
+        var text = document.createElement('div');
+        text.className = 'nf-text';
+        var sender = document.createElement('b');
+        sender.textContent = event.sender || '匿名用户';
+        var amount = document.createElement('span');
+        amount.className = 'amt';
+        amount.textContent = '+' + window.FLTipEvents.formatAmount(event.amount) + ' USDT';
+        text.append(sender, document.createTextNode(' 给你打赏了「' + (event.gift || '心意') + '」 '), amount);
+        if (event.message) text.append(document.createTextNode(' · 「' + event.message + '」'));
+        var meta = document.createElement('div');
+        meta.className = 'nf-meta';
+        meta.innerHTML = '<span><i class="fa-regular fa-clock"></i> 刚刚</span><span class="dot"></span><span>' + tipContextLabel(event.context) + '</span>';
+        var actions = document.createElement('div');
+        actions.className = 'nf-act';
+        actions.innerHTML = '<button type="button" class="primary"><i class="fa-solid fa-wallet"></i> 前往钱包</button>';
+        body.append(text, meta, actions);
+        item.append(icon, body);
+        day.parentNode.insertBefore(item, day.nextElementSibling);
+        item.addEventListener('click', function () {
+            if (!item.classList.contains('unread')) return;
+            item.classList.remove('unread');
+            updateUnreadCount();
+            var active = filterHost.querySelector('.ck.active');
+            if (active && active.getAttribute('data-tab') === 'unread') applyTab('unread');
+        });
+        return item;
+    }
+    function syncTipEvents() {
+        if (!window.FLTipEvents) return;
+        window.FLTipEvents.getAll().forEach(appendTipEvent);
+        var total = document.getElementById('nfTipTotal');
+        if (total) {
+            var base = Number(total.getAttribute('data-base-tips') || 0);
+            var extra = window.FLTipEvents.getAll().reduce(function (sum, event) { return sum + (Number(event.amount) || 0); }, 0);
+            total.textContent = (base + extra).toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' USDT';
+        }
+        refreshItems();
+        applyActorTags();
+        var incomeCount = document.getElementById('nfCntIncome');
+        if (incomeCount) incomeCount.textContent = String(allItems.filter(function (item) { return resolveType(item) === 'income'; }).length);
+        updateUnreadCount();
     }
     function applyTab(tab) {
         filterHost.querySelectorAll(".ck").forEach(function (ck) {
@@ -750,6 +849,9 @@
         updateUnreadCount();
     });
     updateUnreadCount();
+    syncTipEvents();
+    applyActorTags();
+    window.addEventListener('fl-tip-sent', syncTipEvents);
     var q = new URLSearchParams(location.search);
     applyTab(q.get("tab") || "unread");
     window.addEventListener("fl-notification-focus-unread", function () {

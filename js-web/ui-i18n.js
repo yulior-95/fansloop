@@ -60,7 +60,13 @@
         pro_title: L('升级 Creator Pro', '升級 Creator Pro', 'Upgrade Creator Pro', 'Creator Pro upgraden'),
         pro_desc: L('解锁高级数据 / 优先推流', '解鎖進階數據 / 優先推流', 'Advanced analytics & priority streaming', 'Erweiterte Daten & Prioritäts-Streaming'),
         pro_upgrade: L('立即升级', '立即升級', 'Upgrade now', 'Jetzt upgraden'),
-        member_tag: L('会员', '會員', 'Member', 'Mitglied'),
+        member_tag: L('创作者 Pro', '創作者 Pro', 'Creator Pro', 'Creator Pro'),
+        role_creator: L('创作者', '創作者', 'Creator', 'Creator'),
+        role_member: L('普通用户', '普通用戶', 'Fan', 'Fan'),
+        role_user: L('普通用户', '普通用戶', 'Fan', 'Fan'),
+        role_fan: L('普通用户', '普通用戶', 'Fan', 'Fan'),
+        role_subscriber: L('订阅者', '訂閱者', 'Subscriber', 'Abonnent'),
+        role_platform: L('平台', '平台', 'Platform', 'Plattform'),
 
         set_nav_aria: L('设置导航', '設定導航', 'Settings navigation', 'Einstellungsnavigation'),
         set_grp_account: L('账户', '帳戶', 'Account', 'Konto'),
@@ -542,6 +548,7 @@
         LANGS: LANGS,
         t: t,
         tByZh: tByZh,
+        getLangCode: getLangCode,
         applyAll: applyAll,
         isExcluded: isExcluded
     };
