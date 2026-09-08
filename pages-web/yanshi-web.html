@@ -5,6 +5,7 @@
 <title>GOODFANS Web · 交互演示</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/reward-dock.css">
 <style>
 html, body { height: 100%; overflow: hidden; }
 body { display: grid; grid-template-rows: auto 1fr; }
@@ -176,129 +177,7 @@ body { display: grid; grid-template-rows: auto 1fr; }
 .stage.tablet { max-width: 1024px; }
 .stage.mobile { max-width: 480px; }
 
-/* ===== 全局悬浮 · 积分奖励倒计时（覆盖演示框架，始终可见） ===== */
-.reward-dock {
-    position: fixed;
-    right: 22px;
-    bottom: 22px;
-    z-index: 10050;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 14px 10px 12px;
-    background: rgba(17,17,28,0.92);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(251,191,36,0.35);
-    border-radius: var(--r-pill);
-    box-shadow: 0 14px 40px rgba(0,0,0,0.45), 0 0 28px rgba(245,158,11,0.18);
-    cursor: pointer;
-    text-align: left;
-    color: #fff;
-    max-width: calc(100vw - 40px);
-    transition: transform 0.15s, border-color 0.15s;
-    animation: dockIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-@keyframes dockIn {
-    from { transform: translateY(16px) scale(0.92); opacity: 0; }
-    to { transform: translateY(0) scale(1); opacity: 1; }
-}
-.reward-dock:hover {
-    border-color: rgba(251,191,36,0.55);
-    transform: translateY(-2px);
-}
-.reward-dock:active { transform: scale(0.98); }
-.reward-dock .rd-ring {
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    --rd-progress: 100;
-    background: conic-gradient(from -90deg,
-        #FBBF24 0%,
-        #F59E0B calc(var(--rd-progress) * 1%),
-        rgba(255,255,255,0.12) calc(var(--rd-progress) * 1%));
-    padding: 3px;
-    position: relative;
-}
-.reward-dock .rd-ring::after {
-    content: '';
-    position: absolute;
-    inset: 3px;
-    border-radius: 50%;
-    background: linear-gradient(145deg, #FEF3C7, #F59E0B 50%, #B45309);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
-}
-.reward-dock .rd-ring i {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 2;
-    font-size: 15px;
-    color: #78350F;
-}
-.reward-dock .rd-txt .lb { font-size: 10px; font-weight: 700; color: #FDE68A; letter-spacing: 0.3px; text-transform: uppercase; }
-.reward-dock .rd-txt .tm { font-size: 17px; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; margin-top: 2px; }
-.reward-dock .rd-hint { font-size: 10px; color: var(--t-tertiary); margin-top: 2px; }
-
-.reward-dock.wait-payout .rd-ring {
-    animation: ringPulse 1.2s ease-in-out infinite;
-}
-.reward-dock.just-paid {
-    border-color: rgba(52, 211, 153, 0.55);
-    box-shadow: 0 14px 40px rgba(0,0,0,0.45), 0 0 32px rgba(52, 211, 153, 0.25);
-}
-@keyframes ringPulse {
-    0%, 100% { filter: brightness(1); }
-    50% { filter: brightness(1.15); }
-}
-
-/* 非首次领取 · 积分上浮（自 dock 向上飘） */
-#rewardFloatLayer {
-    position: fixed;
-    right: 22px;
-    bottom: 96px;
-    z-index: 10055;
-    width: 220px;
-    height: 100px;
-    pointer-events: none;
-    overflow: visible;
-}
-.reward-float-burst {
-    position: absolute;
-    right: 8px;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: 999px;
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.95), rgba(234, 88, 12, 0.9));
-    border: 1px solid rgba(253, 230, 138, 0.6);
-    box-shadow: 0 8px 28px rgba(245, 158, 11, 0.45);
-    font-size: 20px;
-    font-weight: 900;
-    color: #fff;
-    letter-spacing: -0.3px;
-    white-space: nowrap;
-    animation: rewardFloatUp 1.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-.reward-float-burst i {
-    font-size: 16px;
-    color: #FEF3C7;
-}
-@keyframes rewardFloatUp {
-    0% {
-        opacity: 0;
-        transform: translateY(12px) scale(0.88);
-    }
-    12% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(-78px) scale(1.06);
-    }
-}
+/* 积分气泡样式见 css-web/reward-dock.css · 可拖拽 / 侧边收起 */
 
 #rewardModalRoot {
     position: fixed;
@@ -457,16 +336,17 @@ body { display: grid; grid-template-rows: auto 1fr; }
     </div>
 </div>
 
-<button type="button" class="reward-dock" id="rewardDock" title="点击进入积分商城；倒计时结束自动发放奖励">
+<div class="reward-dock" id="rewardDock" role="button" tabindex="0" title="拖拽移动 · 箭头收起侧边 · 点击进积分商城" aria-expanded="true">
     <div class="rd-ring" id="rewardRing" style="--rd-progress:100">
         <i class="fa-solid fa-coins"></i>
     </div>
     <div class="rd-txt">
         <div class="lb"><i class="fa-solid fa-gift" style="margin-right:4px;color:#FBBF24"></i>积分奖励</div>
         <div class="tm" id="rewardTime">00:45</div>
-        <div class="rd-hint" id="rewardHint">点击进商城 · 结束弹出奖励</div>
+        <div class="rd-hint" id="rewardHint">拖拽定位 · 收起侧边 · 点击进商城</div>
     </div>
-</button>
+    <button type="button" class="rd-fold" title="收起到侧边" aria-label="收起到侧边"><i class="fa-solid fa-chevron-right"></i></button>
+</div>
 
 <div id="rewardFloatLayer" aria-live="polite"></div>
 
@@ -495,6 +375,7 @@ body { display: grid; grid-template-rows: auto 1fr; }
 </div>
 
 <script src="demo-pages-data.js"></script>
+<script src="../js-web/reward-dock-interact.js"></script>
 <script>
 const frame = document.getElementById('frame');
 const urlPage = document.getElementById('urlPage');
@@ -545,10 +426,14 @@ function syncRewardDockForPage(page) {
     const embedOpen = document.getElementById('embedModalRoot')?.classList.contains('show');
     rewardSuppressed = isRewardSuppressedPage(page) || !!embedOpen;
     dock.style.display = rewardSuppressed ? 'none' : '';
+    if (rewardFloatLayer) rewardFloatLayer.style.display = rewardSuppressed ? 'none' : '';
     if (rewardSuppressed) {
         pauseRewardCountdown();
         if (rewardModalRoot) hideRewardModal();
         return;
+    }
+    if (window.__rewardDockCtl && typeof window.__rewardDockCtl.refreshAvoidFab === 'function') {
+        setTimeout(function () { window.__rewardDockCtl.refreshAvoidFab(); }, 80);
     }
     if (rewardDeferredPayout) {
         rewardDeferredPayout = false;
@@ -819,9 +704,23 @@ function startRewardCountdown() {
     resumeRewardCountdown();
 }
 
-rewardDock.addEventListener('click', () => {
-    navigate('points-mall.html', '积分兑换商城');
+rewardDock.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        navigate('points-mall.html', '积分兑换商城');
+    }
 });
+
+if (window.RewardDockInteract) {
+    window.__rewardDockCtl = RewardDockInteract.bind(rewardDock, {
+        iframeSelector: '#frame',
+        floatLayer: rewardFloatLayer,
+        defaultRight: true,
+        onActivate: function () {
+            navigate('points-mall.html', '积分兑换商城');
+        }
+    });
+}
 
 rmGoMall.addEventListener('click', () => {
     hideRewardModal();

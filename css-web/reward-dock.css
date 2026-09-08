@@ -1,0 +1,200 @@
+/* Web · 积分奖励悬浮气泡（可拖拽 / 侧边收起） */
+.reward-dock {
+    position: fixed;
+    z-index: 10050;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px 10px 12px;
+    background: rgba(17, 17, 28, 0.92);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(251, 191, 36, 0.35);
+    border-radius: 999px;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45), 0 0 28px rgba(245, 158, 11, 0.18);
+    cursor: grab;
+    text-align: left;
+    color: #fff;
+    max-width: min(280px, calc(100vw - 24px));
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: box-shadow 0.15s, border-color 0.15s;
+    will-change: left, top;
+}
+.reward-dock:active { cursor: grabbing; }
+.reward-dock.is-dragging {
+    transition: none;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.55), 0 0 32px rgba(245, 158, 11, 0.28);
+}
+.reward-dock:hover {
+    border-color: rgba(251, 191, 36, 0.55);
+}
+.reward-dock .rd-ring {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    --rd-progress: 100;
+    background: conic-gradient(
+        from -90deg,
+        #fbbf24 0%,
+        #f59e0b calc(var(--rd-progress) * 1%),
+        rgba(255, 255, 255, 0.12) calc(var(--rd-progress) * 1%)
+    );
+    padding: 3px;
+    position: relative;
+}
+.reward-dock .rd-ring::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #fef3c7, #f59e0b 50%, #b45309);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.reward-dock .rd-ring i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    font-size: 15px;
+    color: #78350f;
+}
+.reward-dock .rd-txt {
+    min-width: 0;
+    flex: 1;
+}
+.reward-dock .rd-txt .lb {
+    font-size: 10px;
+    font-weight: 700;
+    color: #fde68a;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+.reward-dock .rd-txt .tm {
+    font-size: 17px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
+    margin-top: 2px;
+}
+.reward-dock .rd-hint {
+    font-size: 10px;
+    color: var(--t-tertiary, #94a3b8);
+    margin-top: 2px;
+}
+.reward-dock .rd-fold {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fde68a;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+}
+.reward-dock .rd-fold:hover {
+    background: rgba(251, 191, 36, 0.2);
+}
+
+/* 收起到侧边：只露进度环 */
+.reward-dock.is-collapsed {
+    gap: 0;
+    padding: 8px;
+    max-width: none;
+}
+.reward-dock.is-collapsed .rd-txt,
+.reward-dock.is-collapsed .rd-fold {
+    display: none;
+}
+.reward-dock.is-collapsed .rd-ring {
+    width: 40px;
+    height: 40px;
+}
+.reward-dock.is-collapsed.is-side-right {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: 0;
+}
+.reward-dock.is-collapsed.is-side-left {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: 0;
+}
+
+.reward-dock.wait-payout .rd-ring {
+    animation: rdRingPulse 1.2s ease-in-out infinite;
+}
+.reward-dock.just-paid {
+    border-color: rgba(52, 211, 153, 0.55);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45), 0 0 32px rgba(52, 211, 153, 0.25);
+}
+@keyframes rdRingPulse {
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+    50% {
+        filter: brightness(1.15);
+    }
+}
+
+#rewardFloatLayer {
+    position: fixed;
+    z-index: 10055;
+    width: 220px;
+    height: 100px;
+    pointer-events: none;
+    overflow: visible;
+}
+.reward-float-burst {
+    position: absolute;
+    right: 8px;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.95), rgba(234, 88, 12, 0.9));
+    border: 1px solid rgba(253, 230, 138, 0.6);
+    box-shadow: 0 8px 28px rgba(245, 158, 11, 0.45);
+    font-size: 20px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+    animation: rewardFloatUp 1.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.reward-float-burst i {
+    font-size: 16px;
+    color: #fef3c7;
+}
+@keyframes rewardFloatUp {
+    0% {
+        opacity: 0;
+        transform: translateY(12px) scale(0.88);
+    }
+    12% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-78px) scale(1.06);
+    }
+}
+
+/* 页面内嵌（非演示壳）时层级略低于全局壳，但高于主内容 */
+body .reward-dock.reward-dock--page {
+    z-index: 95;
+}
+body .reward-dock.reward-dock--page + #rewardFloatLayer,
+#rewardFloatLayer.reward-float-layer--page {
+    z-index: 96;
+}

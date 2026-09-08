@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>会员订阅设置</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<style>
+.app-content { padding: calc(var(--status-bar-height) + var(--nav-bar-height) + 12px) 16px 100px; }
+.card {
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+}
+.card h3 { font-size: 14px; margin: 0 0 6px; }
+.card p { font-size: 11px; color: var(--text-tertiary); margin: 0 0 12px; line-height: 1.5; }
+.tier {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; padding: 10px 0;
+    border-top: 0.5px solid var(--border-color);
+}
+.tier:first-of-type { border-top: 0; }
+.tier .n { font-size: 13px; font-weight: 600; }
+.tier .d { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
+.tier input {
+    width: 88px; height: 34px; border-radius: 10px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 0 8px; text-align: right; font-size: 13px; font-weight: 700;
+}
+.unit { font-size: 11px; color: var(--text-tertiary); }
+.hint { font-size: 11px; color: #FBBF24; margin-top: 8px; display: none; }
+.hint.show { display: block; }
+.foot {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, transparent, var(--bg-primary) 28%);
+}
+.foot .btn { width: 100%; height: 44px; border: 0; border-radius: 22px; font-weight: 700; color: #fff; background: var(--brand-gradient); }
+</style>
+</head>
+<body>
+<div class="status-bar"><span class="time">9:41</span><span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span></div>
+<div class="nav-bar solid">
+    <div class="nav-left" data-go="settings.html"><i class="fa-solid fa-chevron-left"></i></div>
+    <div class="nav-title">会员订阅设置</div>
+    <div class="nav-right"></div>
+</div>
+<div class="app-content">
+    <div class="card">
+        <h3>订阅周期与定价</h3>
+        <p>须满足月付 &lt; 季付 &lt; 年付；最低 5 USDT。保存后创建内容才可勾选「订阅专属」。</p>
+        <div class="tier">
+            <div><div class="n">月付</div><div class="d">主推档位</div></div>
+            <div style="display:flex;align-items:center;gap:6px"><input id="priceMonthly" type="number" min="5" step="1" placeholder="未设置"><span class="unit">USDT</span></div>
+        </div>
+        <div class="tier">
+            <div><div class="n">季付</div><div class="d">约省 11%</div></div>
+            <div style="display:flex;align-items:center;gap:6px"><input id="priceQuarterly" type="number" min="5" step="1" placeholder="未设置"><span class="unit">USDT</span></div>
+        </div>
+        <div class="tier">
+            <div><div class="n">年付</div><div class="d">约省 20%</div></div>
+            <div style="display:flex;align-items:center;gap:6px"><input id="priceAnnual" type="number" min="5" step="1" placeholder="未设置"><span class="unit">USDT</span></div>
+        </div>
+        <div class="hint" id="priceHint"></div>
+    </div>
+</div>
+<div class="foot"><button type="button" class="btn" id="saveBtn">保存会员订阅价格</button></div>
+<div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script src="../js/creator-subscription-store.js"></script>
+<script>
+(function () {
+    var m = document.getElementById('priceMonthly');
+    var q = document.getElementById('priceQuarterly');
+    var a = document.getElementById('priceAnnual');
+    var hint = document.getElementById('priceHint');
+    var saved = window.CreatorSubscriptionStore && CreatorSubscriptionStore.getTiers();
+    if (saved && saved.configured) {
+        if (saved.monthly) m.value = saved.monthly;
+        if (saved.quarterly) q.value = saved.quarterly;
+        if (saved.annual) a.value = saved.annual;
+    }
+    function toast(msg) {
+        if (window.DigitalH5Nav && DigitalH5Nav.toast) DigitalH5Nav.toast(msg);
+        else alert(msg);
+    }
+    document.getElementById('saveBtn').onclick = function () {
+        var monthly = parseFloat(m.value);
+        var quarterly = parseFloat(q.value) || 0;
+        var annual = parseFloat(a.value) || 0;
+        if (!(monthly >= 5)) {
+            hint.textContent = '请设置有效月付价格（最低 5 USDT）';
+            hint.classList.add('show');
+            return;
+        }
+        if (quarterly > 0 && !(monthly < quarterly)) {
+            hint.textContent = '月付须低于季付';
+            hint.classList.add('show');
+            return;
+        }
+        if (annual > 0 && quarterly > 0 && !(quarterly < annual)) {
+            hint.textContent = '季付须低于年付';
+            hint.classList.add('show');
+            return;
+        }
+        if (annual > 0 && !(monthly < annual)) {
+            hint.textContent = '月付须低于年付';
+            hint.classList.add('show');
+            return;
+        }
+        hint.classList.remove('show');
+        CreatorSubscriptionStore.saveTiers({ monthly: monthly, quarterly: quarterly || monthly * 3, annual: annual || monthly * 12 }, true);
+        toast('会员订阅价格已保存');
+    };
+    document.querySelector('[data-go]').onclick = function () {
+        if (window.DigitalH5Nav && DigitalH5Nav.go) DigitalH5Nav.go('settings.html');
+        else location.href = 'settings.html';
+    };
+})();
+</script>
+</body>
+</html>

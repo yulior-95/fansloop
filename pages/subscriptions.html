@@ -21,21 +21,26 @@
 
 /* Top tabs */
 .sub-tabs {
-    display: flex; gap: 20px;
+    display: flex; gap: 14px;
     padding: 0 16px;
-    margin-top: 8px;
+    margin-top: 4px;
     border-bottom: 0.5px solid var(--border-color);
     background: var(--bg-primary);
     position: sticky;
     top: 0;
     z-index: 20;
+    overflow-x: auto;
+    scrollbar-width: none;
 }
+.sub-tabs::-webkit-scrollbar { display: none; }
 .sub-tabs .tab {
     padding: 10px 0;
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text-tertiary);
     position: relative;
     cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 .sub-tabs .tab.active { color: var(--text-primary); font-weight: 600; }
 .sub-tabs .tab.active::after {
@@ -57,20 +62,26 @@
     color: #fff;
     background: linear-gradient(135deg, #ef4444, #f97316);
 }
+.sub-tabs .tab .num.is-zero {
+    display: none;
+}
 .sub-stats {
     margin: 10px 16px 0;
     padding: 10px 12px;
     border-radius: 12px;
     background: var(--bg-card);
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px 10px;
+    grid-template-columns: 1fr;
+    gap: 0;
 }
 .sub-stats--compact {
     margin-bottom: 14px;
 }
 .sub-stats .item {
     min-width: 0;
+}
+.sub-stats .item[hidden] {
+    display: none !important;
 }
 .sub-stats .k {
     font-size: 10px;
@@ -168,14 +179,31 @@
     align-items: center;
     gap: 6px;
     cursor: pointer;
+    position: relative;
 }
-.creator-strip .ci.active .avatar-ring {
+.creator-strip .ci.has-new .avatar-ring {
     background: var(--brand-gradient);
 }
 .creator-strip .ci .avatar-ring {
     padding: 2px;
     background: var(--border-strong);
     border-radius: 50%;
+    position: relative;
+}
+.creator-strip .ci .new-dot {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ef4444;
+    border: 2px solid var(--bg-primary);
+    z-index: 1;
+}
+.creator-strip .ci.has-new .new-dot {
+    display: block;
 }
 .creator-strip .ci img {
     width: 56px; height: 56px;
@@ -191,13 +219,15 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.creator-strip .ci.active .name { color: var(--text-primary); font-weight: 600; }
+.creator-strip .ci.has-new .name { color: var(--text-primary); font-weight: 600; }
 .creator-strip .ci[hidden] {
     display: none !important;
 }
 
+.sub-panel { display: none; }
+.sub-panel.active { display: block; }
 .sub-creator-col-foot {
-    margin: 0 16px 14px;
+    margin: 12px 16px 8px;
     padding: 12px;
     background: var(--bg-card);
     border-radius: 12px;
@@ -216,6 +246,11 @@
     font-size: 11px;
     color: var(--brand-primary);
     cursor: pointer;
+}
+.sub-creator-col-foot .hd .hint {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 500;
 }
 .sub-exp-item {
     display: flex;
@@ -532,159 +567,101 @@
         </div>
     </div>
 
-    <!-- 创作者横滑条 -->
+    <!-- 创作者横滑条：有更新 = 头像环 + 红点（对齐抖音关注） -->
     <div class="creator-strip">
-        <div class="ci active" data-go="creator-profile.html">
-            <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80"></div>
+        <div class="ci has-new" data-creator="Luna" data-has-new="1">
+            <div class="avatar-ring"><span class="new-dot"></span><img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80"></div>
             <span class="name">Luna</span>
         </div>
-        <div class="ci active" data-go="creator-profile.html">
-            <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80"></div>
+        <div class="ci has-new" data-creator="Mila" data-has-new="1">
+            <div class="avatar-ring"><span class="new-dot"></span><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80"></div>
             <span class="name">Mila</span>
         </div>
-        <div class="ci" data-go="creator-profile.html">
-            <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=80"></div>
+        <div class="ci" data-creator="Nova" data-has-new="0">
+            <div class="avatar-ring"><span class="new-dot"></span><img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=80"></div>
             <span class="name">Nova</span>
         </div>
-        <div class="ci active" data-go="creator-profile.html">
-            <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80"></div>
+        <div class="ci has-new" data-creator="Ryo" data-has-new="1">
+            <div class="avatar-ring"><span class="new-dot"></span><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80"></div>
             <span class="name">Ryo</span>
         </div>
-        <div class="ci" data-go="creator-profile.html">
-            <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&q=80"></div>
+        <div class="ci" data-creator="Aria" data-has-new="0">
+            <div class="avatar-ring"><span class="new-dot"></span><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&q=80"></div>
             <span class="name">Aria</span>
         </div>
-        <div class="ci active" data-go="creator-profile.html">
-            <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&q=80"></div>
+        <div class="ci has-new" data-creator="Kenji" data-has-new="1">
+            <div class="avatar-ring"><span class="new-dot"></span><img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&q=80"></div>
             <span class="name">Kenji</span>
         </div>
-        <div class="ci" data-go="creator-profile.html">
-            <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1521119989659-a83eee488004?w=120&q=80"></div>
+        <div class="ci" data-creator="Noah" data-has-new="0">
+            <div class="avatar-ring"><span class="new-dot"></span><img src="https://images.unsplash.com/photo-1521119989659-a83eee488004?w=120&q=80"></div>
             <span class="name">Noah</span>
         </div>
-        <div class="ci" data-go="creator-profile.html">
-            <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=120&q=80"></div>
+        <div class="ci" data-creator="Saki" data-has-new="0">
+            <div class="avatar-ring"><span class="new-dot"></span><img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=120&q=80"></div>
             <span class="name">Saki</span>
         </div>
     </div>
-    <div class="sub-creator-col-foot">
-        <div class="hd">
-            <div class="t">即将到期</div>
-            <div class="bill" data-go="transactions.html">账变明细</div>
-        </div>
-        <div class="sub-exp-item">
-            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80" alt="">
-            <div class="info">
-                <div class="name">夜雨听弦</div>
-                <div class="sub">3 天后到期</div>
-            </div>
-            <button type="button" class="renew" data-renew-name="夜雨听弦">续费</button>
-        </div>
-        <div class="sub-exp-item">
-            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80" alt="">
-            <div class="info">
-                <div class="name">山野食光</div>
-                <div class="sub">12 天后到期</div>
-            </div>
-            <button type="button" class="renew" data-renew-name="山野食光">续费</button>
-        </div>
-        <div class="sub-spend">订阅支出：本月 <b>68 USDT</b></div>
-    </div>
-    <!-- 子 Tabs -->
+
+    <!-- 子 Tabs：动态 / 直播 / 付费 / 即将到期 -->
     <div class="sub-tabs">
         <div class="tab active" data-sub-tab="feed">动态<span class="num">0</span></div>
         <div class="tab" data-sub-tab="live">直播<span class="num">0</span></div>
         <div class="tab" data-sub-tab="paid">付费独享<span class="num">0</span></div>
-    </div>
-    <div class="sub-stats sub-stats--compact">
-        <div class="item"><div class="k">正在直播</div><div class="v">4 场 <span class="sub">2 场你感兴趣</span></div></div>
-        <div class="item"><div class="k">未读动态</div><div class="v">28 条 <span class="sub">12 条付费帖</span></div></div>
-        <div class="item"><div class="k">To 研发</div><div class="v">待同步</div></div>
-        <div class="item"><div class="k">本月已付</div><div class="v">68 USDT <span class="sub">≈ ¥495</span></div></div>
+        <div class="tab" data-sub-tab="expire">即将到期<span class="num">0</span></div>
     </div>
 
-    <!-- Feed -->
-    <div class="feed-list" id="subFeedList">
-        <!-- 视频卡 -->
-        <div class="feed-card" data-sub-type="paid" data-item-id="sub_paid_luna_001" data-unread="1" data-detail-go="digital-detail-owned.html">
-            <div class="feed-head">
-                <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80">
-                <div class="info">
-                    <div class="name-row">
-                        Luna
-                        <i class="fa-solid fa-circle-check" style="color:var(--info); font-size:12px"></i>
-                        <span class="badge badge-brand" style="padding:1px 6px; font-size:9px">Pro</span>
-                    </div>
-                    <div class="time">2 小时前 · 已订阅</div>
-                </div>
-            </div>
-            <div class="title">东京深夜 · 涩谷十字路口的呼吸感 🌃</div>
-            <div class="media">
-                <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&q=80">
-                <div class="tag-bl"><i class="fa-solid fa-play"></i> 02:38</div>
-                <div class="paywall-mini"><i class="fa-solid fa-unlock"></i> 已解锁</div>
-            </div>
-            <div class="actions">
-                <div class="act liked"><i class="fa-solid fa-heart"></i> 12.4K</div>
-                <div class="act"><i class="fa-regular fa-comment"></i> 832</div>
-                <div class="act"><i class="fa-regular fa-bookmark"></i> 256</div>
-                <div class="sp"></div>
-                <div class="act"><i class="fa-solid fa-share"></i></div>
-            </div>
+    <!-- Feed 面板 -->
+    <div class="sub-panel active" id="subPanelFeed" data-sub-panel="feed">
+    <div class="sub-stats sub-stats--compact" id="subStatsBar">
+        <div class="item" data-stats-for="feed">
+            <div class="k">未读动态</div>
+            <div class="v"><span id="statFeedUnread">27</span> 条</div>
         </div>
-
-        <!-- 图文卡 -->
-        <div class="feed-card" data-sub-type="feed" data-item-id="sub_post_mila_001" data-unread="1" data-detail-go="creator-profile.html">
-            <div class="feed-head">
-                <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80">
-                <div class="info">
-                    <div class="name-row">Mila <i class="fa-solid fa-circle-check" style="color:var(--info); font-size:12px"></i></div>
-                    <div class="time">5 小时前</div>
-                </div>
-            </div>
-            <div class="post-text">
-                <div class="content">
-                    今天的光线太爱了，整组胶片风私房，上了三张，完整版（18 张）已更新到订阅频道 🎞️
-                </div>
-                <div class="img-grid">
-                    <img src="https://images.unsplash.com/photo-1492288991661-058aa541ff43?w=300&q=80">
-                    <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=300&q=80">
-                    <img src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300&q=80">
-                </div>
-            </div>
-            <div class="actions">
-                <div class="act"><i class="fa-regular fa-heart"></i> 6.2K</div>
-                <div class="act"><i class="fa-regular fa-comment"></i> 312</div>
-                <div class="act"><i class="fa-regular fa-bookmark"></i> 128</div>
-                <div class="sp"></div>
-                <div class="act"><i class="fa-solid fa-share"></i></div>
-            </div>
+        <div class="item" data-stats-for="live" hidden>
+            <div class="k">未读直播</div>
+            <div class="v"><span id="statLiveUnread">3</span> 场 <span class="sub">已预约提醒 2 场</span></div>
         </div>
-
-        <!-- 视频卡 2 -->
-        <div class="feed-card" data-sub-type="live" data-item-id="sub_live_ryo_001" data-unread="1" data-detail-go="home.html">
-            <div class="feed-head">
-                <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80">
-                <div class="info">
-                    <div class="name-row">Ryo</div>
-                    <div class="time">1 天前 · 直播预告</div>
-                </div>
-            </div>
-            <div class="title">新宿后巷の居酒屋探店 · 今晚 20:30 开播</div>
-            <div class="media">
-                <img src="https://images.unsplash.com/photo-1554797589-7241bb691973?w=800&q=80">
-                <div class="tag-bl"><i class="fa-regular fa-calendar"></i> 预约直播</div>
-            </div>
-            <div class="actions">
-                <div class="act liked"><i class="fa-solid fa-heart"></i> 3.8K</div>
-                <div class="act"><i class="fa-regular fa-comment"></i> 156</div>
-                <div class="act"><i class="fa-regular fa-bookmark"></i> 78</div>
-                <div class="sp"></div>
-                <button type="button" class="preview-book" data-preview-book="1"><i class="fa-regular fa-bell"></i><span>预约提醒</span></button>
-            </div>
+        <div class="item" data-stats-for="paid" hidden>
+            <div class="k">付费独享未读</div>
+            <div class="v"><span id="statPaidUnread">11</span> 条 <span class="sub">本月已付 68 USDT</span></div>
         </div>
     </div>
+
+    <!-- Feed：由脚本按未读数补齐 -->
+    <div class="feed-list" id="subFeedList"></div>
     <div class="feed-empty" id="subFeedEmpty"><i class="fa-regular fa-folder-open"></i> 当前分类暂无内容</div>
+    </div>
+
+    <!-- 即将到期面板 -->
+    <div class="sub-panel" id="subPanelExpire" data-sub-panel="expire">
+        <div class="sub-creator-col-foot">
+            <div class="hd">
+                <div>
+                    <div class="t">订阅即将到期</div>
+                    <div class="hint" style="margin-top:4px">到期前续费可保留专属内容与优惠</div>
+                </div>
+                <div class="bill" data-go="transactions.html">账变明细</div>
+            </div>
+            <div class="sub-exp-item">
+                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80" alt="">
+                <div class="info">
+                    <div class="name">夜雨听弦</div>
+                    <div class="sub">3 天后到期 · 月度 28 USDT</div>
+                </div>
+                <button type="button" class="renew" data-renew-name="夜雨听弦">续费</button>
+            </div>
+            <div class="sub-exp-item">
+                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80" alt="">
+                <div class="info">
+                    <div class="name">山野食光</div>
+                    <div class="sub">12 天后到期 · 月度 28 USDT</div>
+                </div>
+                <button type="button" class="renew" data-renew-name="山野食光">续费</button>
+            </div>
+            <div class="sub-spend">订阅支出：本月 <b>68 USDT</b> · 约 ¥495</div>
+        </div>
+    </div>
 
 </div>
 <div class="iol-overlay" id="ovlSubscribe">
@@ -760,6 +737,8 @@
     var tabs = Array.prototype.slice.call(document.querySelectorAll('.sub-tabs .tab[data-sub-tab]'));
     var feedList = document.getElementById('subFeedList');
     var empty = document.getElementById('subFeedEmpty');
+    var panelFeed = document.getElementById('subPanelFeed');
+    var panelExpire = document.getElementById('subPanelExpire');
     var creatorSearchToggle = document.getElementById('creatorSearchToggle');
     var creatorSearchInline = document.getElementById('creatorSearchInline');
     var creatorSearchInput = document.getElementById('creatorSearchInput');
@@ -838,20 +817,226 @@
         return 'paid';
     }
 
-    function updateTabCounts() {
-        var countMap = { feed: 28, live: 4, paid: 12 };
-        tabs.forEach(function (tab) {
-            var key = tab.getAttribute('data-sub-tab');
-            var num = tab.querySelector('.num');
-            if (num) num.textContent = String(countMap[key] || 0);
+    var CREATORS = [
+        { name: 'Luna', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80', pro: true },
+        { name: 'Mila', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80', pro: true },
+        { name: 'Nova', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=80', pro: false },
+        { name: 'Ryo', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80', pro: false },
+        { name: 'Aria', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&q=80', pro: false },
+        { name: 'Kenji', avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&q=80', pro: true },
+        { name: 'Noah', avatar: 'https://images.unsplash.com/photo-1521119989659-a83eee488004?w=120&q=80', pro: false },
+        { name: 'Saki', avatar: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=120&q=80', pro: false }
+    ];
+    var MEDIA = [
+        'https://images.unsplash.com/photo-1492288991661-058aa541ff43?w=800&q=80',
+        'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80',
+        'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=800&q=80',
+        'https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&q=80',
+        'https://images.unsplash.com/photo-1554797589-7241bb691973?w=800&q=80',
+        'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&q=80',
+        'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&q=80',
+        'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80'
+    ];
+    var FEED_LINES = [
+        '今天的光线太爱了，整组胶片风私房，上了三张，完整版已更新到订阅频道 🎞️',
+        '夜景街拍随手拍，后期偏青调，评论区点想看的下一站',
+        '周末咖啡馆写生，画到一半被猫抢笔 🐱',
+        '新妆容试色：哑光唇 + 水光眼，教程稍后放付费合集',
+        '雨天窗边 BGM 推荐三首，适合专注工作',
+        '健身房打卡 Day 12，肩背发力感终于找回来了',
+        '厨房实验失败吐槽：戚风塌了，但味道还行',
+        '旅行手账第 4 页：浅草寺清晨人很少',
+        '订阅专属：未公开花絮 6 张，已同步到动态',
+        '直播预热：今晚聊选品与定价，记得开提醒'
+    ];
+    var LIVE_TITLES = [
+        '新宿后巷の居酒屋探店 · 今晚 20:30 开播',
+        '胶片暗房现场连麦 · 问答',
+        '深夜电台：创作者收益拆解'
+    ];
+    var PAID_TITLES = [
+        '东京深夜 · 涩谷十字路口的呼吸感',
+        '会员专享写真合集 Vol.',
+        '付费解锁：幕后成片 4K',
+        '仅订阅可见 · 私房分镜讲解'
+    ];
+
+    var TARGET = { feed: 27, live: 3, paid: 11 };
+    var unreadCounts = { feed: 0, live: 0, paid: 0, expire: 2 };
+    var statFeedUnread = document.getElementById('statFeedUnread');
+    var statLiveUnread = document.getElementById('statLiveUnread');
+    var statPaidUnread = document.getElementById('statPaidUnread');
+    var seenObs = null;
+
+    function formatUnread(n) {
+        return n > 99 ? '99+' : String(n);
+    }
+
+    function pickCreator(i) {
+        return CREATORS[i % CREATORS.length];
+    }
+
+    function esc(s) {
+        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+    }
+
+    function buildCardHtml(item) {
+        var c = item.creator;
+        var nameHtml = esc(c.name)
+            + (c.pro ? ' <i class="fa-solid fa-circle-check" style="color:var(--info); font-size:12px"></i>' : '')
+            + (item.type === 'paid' ? ' <span class="badge badge-brand" style="padding:1px 6px; font-size:9px">独享</span>' : '');
+        var body = '';
+        if (item.type === 'feed') {
+            var imgs = [MEDIA[item.i % MEDIA.length], MEDIA[(item.i + 1) % MEDIA.length], MEDIA[(item.i + 2) % MEDIA.length]];
+            body = '<div class="post-text"><div class="content">' + esc(item.title) + '</div>'
+                + '<div class="img-grid"><img src="' + imgs[0] + '"><img src="' + imgs[1] + '"><img src="' + imgs[2] + '"></div></div>';
+        } else if (item.type === 'live') {
+            body = '<div class="title">' + esc(item.title) + '</div>'
+                + '<div class="media"><img src="' + MEDIA[item.i % MEDIA.length] + '">'
+                + '<div class="tag-bl"><i class="fa-solid fa-tower-broadcast"></i> 直播中</div></div>'
+                + '<div class="actions"><div class="act liked"><i class="fa-solid fa-heart"></i> ' + item.likes + '</div>'
+                + '<div class="act"><i class="fa-regular fa-comment"></i> ' + item.comments + '</div>'
+                + '<div class="sp"></div>'
+                + '<button type="button" class="preview-book" data-preview-book="1"><i class="fa-regular fa-bell"></i><span>预约提醒</span></button></div>';
+        } else {
+            body = '<div class="title">' + esc(item.title) + '</div>'
+                + '<div class="media"><img src="' + MEDIA[item.i % MEDIA.length] + '">'
+                + '<div class="tag-bl"><i class="fa-solid fa-play"></i> 0' + ((item.i % 5) + 1) + ':' + String(10 + (item.i % 50)).padStart(2, '0') + '</div>'
+                + '<div class="paywall-mini"><i class="fa-solid fa-unlock"></i> 已解锁</div></div>'
+                + '<div class="actions"><div class="act liked"><i class="fa-solid fa-heart"></i> ' + item.likes + '</div>'
+                + '<div class="act"><i class="fa-regular fa-comment"></i> ' + item.comments + '</div>'
+                + '<div class="act"><i class="fa-regular fa-bookmark"></i> ' + item.saves + '</div>'
+                + '<div class="sp"></div><div class="act"><i class="fa-solid fa-share"></i></div></div>';
+        }
+        if (item.type === 'feed') {
+            body += '<div class="actions"><div class="act"><i class="fa-regular fa-heart"></i> ' + item.likes + '</div>'
+                + '<div class="act"><i class="fa-regular fa-comment"></i> ' + item.comments + '</div>'
+                + '<div class="act"><i class="fa-regular fa-bookmark"></i> ' + item.saves + '</div>'
+                + '<div class="sp"></div><div class="act"><i class="fa-solid fa-share"></i></div></div>';
+        }
+        var detail = item.type === 'paid' ? 'digital-detail-owned.html'
+            : (item.type === 'live' ? 'home.html' : 'creator-profile.html');
+        return '<div class="feed-card" data-sub-type="' + item.type + '" data-creator="' + esc(c.name) + '" data-item-id="' + esc(item.id) + '" data-unread="1" data-detail-go="' + detail + '">'
+            + '<div class="feed-head"><img class="avatar avatar-md" src="' + c.avatar + '"><div class="info">'
+            + '<div class="name-row">' + nameHtml + '</div>'
+            + '<div class="time">' + esc(item.time) + '</div></div></div>'
+            + body + '</div>';
+    }
+
+    function seedFeed() {
+        var list = [];
+        var i;
+        for (i = 0; i < TARGET.feed; i++) {
+            var c = pickCreator(i);
+            list.push({
+                type: 'feed',
+                i: i,
+                id: 'sub_feed_' + (i + 1),
+                creator: c,
+                title: FEED_LINES[i % FEED_LINES.length],
+                time: (i % 12) + 1 + ' 小时前',
+                likes: (1.2 + (i % 9) * 0.7).toFixed(1) + 'K',
+                comments: 80 + i * 7,
+                saves: 20 + i * 3
+            });
+        }
+        for (i = 0; i < TARGET.live; i++) {
+            list.push({
+                type: 'live',
+                i: i,
+                id: 'sub_live_' + (i + 1),
+                creator: pickCreator(i + 3),
+                title: LIVE_TITLES[i % LIVE_TITLES.length],
+                time: '正在直播 · ' + (1200 + i * 340) + ' 人气',
+                likes: (2 + i) + '.' + (i + 3) + 'K',
+                comments: 100 + i * 40,
+                saves: 10
+            });
+        }
+        for (i = 0; i < TARGET.paid; i++) {
+            list.push({
+                type: 'paid',
+                i: i,
+                id: 'sub_paid_' + (i + 1),
+                creator: pickCreator(i + 1),
+                title: PAID_TITLES[i % PAID_TITLES.length] + (i > 0 && i % 4 !== 0 ? ' ' + (i + 1) : ''),
+                time: (i % 8) + 1 + ' 小时前 · 已订阅',
+                likes: (3 + i * 0.8).toFixed(1) + 'K',
+                comments: 60 + i * 11,
+                saves: 30 + i * 5
+            });
+        }
+        feedList.innerHTML = list.map(buildCardHtml).join('');
+    }
+
+    function recountUnread() {
+        unreadCounts = { feed: 0, live: 0, paid: 0, expire: document.querySelectorAll('#subPanelExpire .sub-exp-item').length };
+        cards().forEach(function (card) {
+            if (String(card.getAttribute('data-unread')) !== '1') return;
+            var key = tabGroup(card.getAttribute('data-sub-type'));
+            unreadCounts[key] += 1;
         });
     }
 
+    function syncAllCreatorDots() {
+        var unreadByCreator = {};
+        cards().forEach(function (card) {
+            if (String(card.getAttribute('data-unread')) !== '1') return;
+            var n = card.getAttribute('data-creator');
+            if (n) unreadByCreator[n] = true;
+        });
+        creatorItems.forEach(function (item) {
+            var name = item.getAttribute('data-creator');
+            var has = !!unreadByCreator[name];
+            item.classList.toggle('has-new', has);
+            item.setAttribute('data-has-new', has ? '1' : '0');
+        });
+    }
+
+    function updateTabCounts() {
+        recountUnread();
+        tabs.forEach(function (tab) {
+            var key = tab.getAttribute('data-sub-tab');
+            var num = tab.querySelector('.num');
+            if (!num) return;
+            var n = unreadCounts[key] || 0;
+            num.textContent = formatUnread(n);
+            num.classList.toggle('is-zero', n <= 0);
+        });
+        if (statFeedUnread) statFeedUnread.textContent = String(unreadCounts.feed);
+        if (statLiveUnread) statLiveUnread.textContent = String(unreadCounts.live);
+        if (statPaidUnread) statPaidUnread.textContent = String(unreadCounts.paid);
+        document.querySelectorAll('#subStatsBar .item[data-stats-for]').forEach(function (item) {
+            var key = item.getAttribute('data-stats-for');
+            if (item.hidden) return;
+            var n = unreadCounts[key] || 0;
+            item.style.display = n <= 0 ? 'none' : '';
+        });
+        syncAllCreatorDots();
+    }
+
+    function setPanel(tabKey) {
+        var isExpire = tabKey === 'expire';
+        if (panelFeed) panelFeed.classList.toggle('active', !isExpire);
+        if (panelExpire) panelExpire.classList.toggle('active', isExpire);
+    }
+
     function applyTab(tabKey) {
-        var shown = 0;
         tabs.forEach(function (tab) {
             tab.classList.toggle('active', tab.getAttribute('data-sub-tab') === tabKey);
         });
+        setPanel(tabKey);
+        document.querySelectorAll('#subStatsBar .item[data-stats-for]').forEach(function (item) {
+            var forKey = item.getAttribute('data-stats-for');
+            var show = forKey === tabKey;
+            item.hidden = !show;
+            if (show) item.style.display = (unreadCounts[forKey] || 0) <= 0 ? 'none' : '';
+        });
+        if (tabKey === 'expire') {
+            if (empty) empty.style.display = 'none';
+            return;
+        }
+        var shown = 0;
         cards().forEach(function (card) {
             var type = card.getAttribute('data-sub-type');
             var show = tabGroup(type) === tabKey;
@@ -869,6 +1054,32 @@
         updateTabCounts();
     }
 
+    function markCreatorFeedSeen(creatorName) {
+        if (!creatorName) return;
+        cards().forEach(function (card) {
+            if (card.getAttribute('data-creator') === creatorName) markAsRead(card);
+        });
+    }
+
+    function bindSeenObserver() {
+        if (typeof IntersectionObserver !== 'function') return;
+        if (seenObs) seenObs.disconnect();
+        // 露出过再滑过（顶出视口）才已读，避免首屏自动清未读
+        seenObs = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                var el = entry.target;
+                if (entry.isIntersecting && entry.intersectionRatio >= 0.45) {
+                    el.setAttribute('data-seen-armed', '1');
+                    return;
+                }
+                if (el.getAttribute('data-seen-armed') === '1' && entry.boundingClientRect.top < 80) {
+                    markAsRead(el);
+                }
+            });
+        }, { root: null, threshold: [0, 0.45, 0.75] });
+        cards().forEach(function (card) { seenObs.observe(card); });
+    }
+
     tabs.forEach(function (tab) {
         tab.addEventListener('click', function () {
             applyTab(tab.getAttribute('data-sub-tab'));
@@ -877,12 +1088,16 @@
 
     creatorItems.forEach(function (item) {
         item.addEventListener('click', function () {
-            creatorItems.forEach(function (i) { i.classList.remove('active'); });
-            item.classList.add('active');
-            var name = item.querySelector('.name') ? item.querySelector('.name').textContent : '创作者';
-            toast('查看创作者：' + name);
+            var name = item.getAttribute('data-creator')
+                || (item.querySelector('.name') ? item.querySelector('.name').textContent : '创作者');
+            markCreatorFeedSeen(name);
+            toast('已查看 ' + name + ' 的更新');
+            if (window.DigitalH5Nav && typeof window.DigitalH5Nav.go === 'function') {
+                window.DigitalH5Nav.go('creator-profile.html');
+            }
         });
     });
+
     if (creatorSearchToggle && creatorSearchInline) {
         creatorSearchToggle.addEventListener('click', function () {
             creatorSearchToggle.style.display = 'none';
@@ -1008,7 +1223,9 @@
         });
     }
 
+    seedFeed();
     updateTabCounts();
+    bindSeenObserver();
     applyTab('feed');
     applyCreatorFilter('');
 })();

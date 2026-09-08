@@ -63,6 +63,26 @@
     /** 订阅价来自创作者会员档位，创建页不可改 */
     var PLAN_SUB_PRICE = '28';
 
+    function hasSubscriptionPriceConfigured() {
+        return !!(window.CreatorSubscriptionStore && CreatorSubscriptionStore.hasConfiguredPrice());
+    }
+
+    function refreshPlanSubPrice() {
+        var m = window.CreatorSubscriptionStore && CreatorSubscriptionStore.getMonthlyPrice
+            ? CreatorSubscriptionStore.getMonthlyPrice()
+            : null;
+        PLAN_SUB_PRICE = m != null ? String(m) : '28';
+    }
+
+    function promptSetSubscriptionPrice() {
+        showToast('请先前往设置页面设置会员订阅价格');
+        setTimeout(function () {
+            if (window.confirm('尚未设置会员订阅价格，是否前往「会员订阅设置」？')) {
+                location.href = 'settings-subscription.html';
+            }
+        }, 320);
+    }
+
     var createMonetizeCard = document.getElementById('createMonetizeCard');
 
     var pvBadges = document.getElementById('pvBadges');
@@ -89,7 +109,10 @@
 
 
 
-    var pricing = { free: false, sub: true, ppv: false };
+    refreshPlanSubPrice();
+    var pricing = hasSubscriptionPriceConfigured()
+        ? { free: false, sub: true, ppv: false }
+        : { free: true, sub: false, ppv: false };
 
 
 
@@ -962,7 +985,20 @@
 
         }
 
-        if (subEl) subEl.classList.toggle('checked', pricing.sub);
+        if (subEl) {
+            subEl.classList.toggle('checked', pricing.sub);
+            var locked = !hasSubscriptionPriceConfigured();
+            subEl.classList.toggle('is-locked', locked);
+            subEl.setAttribute('aria-disabled', locked ? 'true' : 'false');
+            var subHint = subEl.querySelector('.sub');
+            if (subHint && locked) {
+                subHint.setAttribute('data-locked-hint', '1');
+                subHint.textContent = '未设置会员价 · 请先到设置页配置';
+            } else if (subHint && subHint.getAttribute('data-locked-hint') === '1') {
+                subHint.removeAttribute('data-locked-hint');
+                subHint.textContent = '仅订阅者可见 · 价格在会员档位设置';
+            }
+        }
 
         if (ppvEl) ppvEl.classList.toggle('checked', pricing.ppv);
 
@@ -990,6 +1026,11 @@
 
         } else if (mode === 'sub') {
 
+            if (!pricing.sub && !hasSubscriptionPriceConfigured()) {
+                promptSetSubscriptionPrice();
+                return;
+            }
+
             pricing.free = false;
 
             pricing.sub = !pricing.sub;
@@ -1015,6 +1056,11 @@
     function initPricing() {
 
         if (!priceGrid) return;
+
+        refreshPlanSubPrice();
+        if (!hasSubscriptionPriceConfigured() && pricing.sub) {
+            pricing = { free: true, sub: false, ppv: false };
+        }
 
         syncPriceUI();
 
@@ -1488,6 +1534,10 @@
         else if (p === 'sub+ppv' || p === 'sub_ppv') pricing = { free: false, sub: true, ppv: true };
 
         else if (p === 'sub') pricing = { free: false, sub: true, ppv: false };
+
+        if (pricing.sub && !hasSubscriptionPriceConfigured()) {
+            pricing = { free: true, sub: false, ppv: false };
+        }
 
         var ppvVal = params.get('ppvPrice');
 

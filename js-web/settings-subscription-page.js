@@ -168,5 +168,47 @@
         sw.addEventListener('click', function () { sw.classList.toggle('on'); });
     });
 
+    function persistTiers(configured) {
+        if (!window.CreatorSubscriptionStore) return;
+        CreatorSubscriptionStore.saveTiers(getPrices(), configured !== false);
+    }
+
+    var _setTierPrice = setTierPrice;
+    setTierPrice = function (tier, value) {
+        _setTierPrice(tier, value);
+        var cur = CreatorSubscriptionStore && CreatorSubscriptionStore.getTiers();
+        if (cur && cur.configured) persistTiers(true);
+    };
+
+    var saveBtn = document.querySelector('.page-head .btn-primary');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function () {
+            var prices = getPrices();
+            if (!(prices.monthly >= 5)) {
+                if (hint) {
+                    hint.textContent = '请先设置有效的月付价格（最低 5 USDT）后再保存';
+                    hint.hidden = false;
+                }
+                if (inp) inp.focus();
+                return;
+            }
+            persistTiers(true);
+            var t = document.createElement('div');
+            t.textContent = '会员订阅价格已保存';
+            t.style.cssText = 'position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:9999;padding:10px 16px;border-radius:10px;background:rgba(20,20,30,.92);color:#fff;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.35)';
+            document.body.appendChild(t);
+            setTimeout(function () { t.remove(); }, 2200);
+        });
+    }
+
+    (function hydrateFromStore() {
+        if (!window.CreatorSubscriptionStore) return;
+        var saved = CreatorSubscriptionStore.getTiers();
+        if (!saved) return;
+        ['monthly', 'quarterly', 'annual'].forEach(function (k) {
+            if (saved[k] > 0) _setTierPrice(k, saved[k]);
+        });
+    })();
+
     selectTier('monthly');
 })();

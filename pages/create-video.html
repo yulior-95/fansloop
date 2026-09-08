@@ -45,6 +45,8 @@ textarea{min-height:100px;resize:vertical}
 .mcell .ti{font-size:12px;font-weight:700}
 .mcell .sub{font-size:10px;color:var(--text-tertiary);margin-top:4px}
 .mcell.on{border-color:#a855f7;background:rgba(168,85,247,.12)}
+.mcell.is-locked{border-style:dashed;opacity:.85}
+.mcell.is-locked .sub{color:#FBBF24}
 .mcheck{position:absolute;right:7px;top:7px;font-size:10px;opacity:.35}
 .mcell.on .mcheck{opacity:1}
 .money-rows{margin-top:10px;display:flex;flex-direction:column;gap:8px}
@@ -143,6 +145,8 @@ textarea{min-height:100px;resize:vertical}
 
 <div class="home-indicator"></div>
 <script src="../js/digital-h5-nav.js"></script>
+<script src="../js/creator-subscription-store.js"></script>
+<script src="../js/create-monetize-gate.js"></script>
 <script>
 (function(){
   function toast(m){ if(window.DigitalH5Nav&&window.DigitalH5Nav.toast) window.DigitalH5Nav.toast(m); }
@@ -205,18 +209,24 @@ textarea{min-height:100px;resize:vertical}
   moneyGrid.querySelectorAll('.mcell').forEach(function(cell){
     cell.onclick=function(){
       var mode=cell.getAttribute('data-mode');
+      if(mode==='sub' && window.CreateMonetizeGate && !CreateMonetizeGate.guardEnableSub(cell, toast)) return;
       if(mode==='free'){
         var on=!cell.classList.contains('on');
         moneyGrid.querySelectorAll('.mcell').forEach(function(c){ c.classList.remove('on'); });
-        if(on) cell.classList.add('on'); else moneyGrid.querySelector('[data-mode="sub"]').classList.add('on');
+        if(on) cell.classList.add('on'); else {
+          if(window.CreateMonetizeGate && CreateMonetizeGate.hasSubPrice()) moneyGrid.querySelector('[data-mode="sub"]').classList.add('on');
+          else moneyGrid.querySelector('[data-mode="free"]').classList.add('on');
+        }
       }else{
         cell.classList.toggle('on');
         moneyGrid.querySelector('[data-mode="free"]').classList.remove('on');
         if(!moneyGrid.querySelector('[data-mode="sub"]').classList.contains('on')&&!moneyGrid.querySelector('[data-mode="ppv"]').classList.contains('on')) moneyGrid.querySelector('[data-mode="free"]').classList.add('on');
       }
       syncMonetize();
+      if(window.CreateMonetizeGate) CreateMonetizeGate.syncSubCell(moneyGrid);
     };
   });
+  if(window.CreateMonetizeGate) CreateMonetizeGate.syncSubCell(moneyGrid);
   syncMonetize();
   catRow.onclick=function(){ catDraft=[catPath[0],catPath[1],catPath[2]]; renderCatCols(); catOvl.classList.add('open'); };
   document.getElementById('catCloseBtn').onclick=function(){ catOvl.classList.remove('open'); };
