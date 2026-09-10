@@ -26,7 +26,7 @@
         '<div class="rd-txt">' +
         '<div class="lb"><i class="fa-solid fa-gift" style="margin-right:4px;color:#FBBF24"></i>积分奖励</div>' +
         '<div class="tm" id="rewardTime">00:45</div>' +
-        '<div class="rd-hint" id="rewardHint">避开创作按钮 · 可收起侧边</div>' +
+        '<div class="rd-hint" id="rewardHint">拖拽 · 收起 · 点进商城</div>' +
         '</div>' +
         '<button type="button" class="rd-fold" title="收起到侧边" aria-label="收起到侧边"><i class="fa-solid fa-chevron-right"></i></button>';
 

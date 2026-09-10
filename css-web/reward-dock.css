@@ -1,25 +1,36 @@
 /* Web · 积分奖励悬浮气泡（可拖拽 / 侧边收起） */
 .reward-dock {
+    --rd-h: 64px;
     position: fixed;
     z-index: 10050;
-    display: flex;
+    box-sizing: border-box;
+    display: inline-flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 14px 10px 12px;
-    background: rgba(17, 17, 28, 0.92);
+    justify-content: flex-start;
+    gap: 10px;
+    height: var(--rd-h);
+    min-height: var(--rd-h);
+    max-height: var(--rd-h);
+    padding: 0 10px 0 8px;
+    background: rgba(17, 17, 28, 0.94);
     backdrop-filter: blur(16px);
-    border: 1px solid rgba(251, 191, 36, 0.35);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(251, 191, 36, 0.38);
     border-radius: 999px;
     box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45), 0 0 28px rgba(245, 158, 11, 0.18);
     cursor: grab;
     text-align: left;
     color: #fff;
-    max-width: min(280px, calc(100vw - 24px));
+    width: max-content;
+    max-width: min(340px, calc(100vw - 24px));
+    overflow: hidden;
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
     transition: box-shadow 0.15s, border-color 0.15s;
     will-change: left, top;
+    line-height: 1.2;
+    font-size: 12px;
 }
 .reward-dock:active { cursor: grabbing; }
 .reward-dock.is-dragging {
@@ -30,10 +41,14 @@
     border-color: rgba(251, 191, 36, 0.55);
 }
 .reward-dock .rd-ring {
-    width: 44px;
-    height: 44px;
+    box-sizing: border-box;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    aspect-ratio: 1 / 1;
     border-radius: 50%;
-    flex-shrink: 0;
+    flex: 0 0 48px;
     --rd-progress: 100;
     background: conic-gradient(
         from -90deg,
@@ -43,6 +58,7 @@
     );
     padding: 3px;
     position: relative;
+    overflow: hidden;
 }
 .reward-dock .rd-ring::after {
     content: '';
@@ -58,36 +74,58 @@
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 2;
-    font-size: 15px;
+    font-size: 16px;
     color: #78350f;
+    line-height: 1;
 }
 .reward-dock .rd-txt {
+    flex: 1 1 auto;
     min-width: 0;
-    flex: 1;
+    max-width: 210px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 2px 0;
+    overflow: hidden;
 }
 .reward-dock .rd-txt .lb {
     font-size: 10px;
     font-weight: 700;
     color: #fde68a;
     letter-spacing: 0.3px;
-    text-transform: uppercase;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .reward-dock .rd-txt .tm {
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 900;
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.5px;
-    margin-top: 2px;
+    letter-spacing: -0.4px;
+    line-height: 1.1;
+    margin: 0;
+    white-space: nowrap;
 }
 .reward-dock .rd-hint {
     font-size: 10px;
     color: var(--t-tertiary, #94a3b8);
-    margin-top: 2px;
+    margin: 0;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .reward-dock .rd-fold {
-    flex-shrink: 0;
+    box-sizing: border-box;
+    flex: 0 0 28px;
     width: 28px;
     height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    margin: 0;
+    padding: 0;
     border: 0;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.08);
@@ -97,34 +135,46 @@
     align-items: center;
     justify-content: center;
     font-size: 11px;
+    line-height: 1;
 }
 .reward-dock .rd-fold:hover {
     background: rgba(251, 191, 36, 0.2);
 }
 
-/* 收起到侧边：只露进度环 */
+/* 收起到侧边：只露圆形进度环，保持正圆 */
 .reward-dock.is-collapsed {
     gap: 0;
-    padding: 8px;
-    max-width: none;
+    width: 56px;
+    min-width: 56px;
+    max-width: 56px;
+    height: 56px;
+    min-height: 56px;
+    max-height: 56px;
+    padding: 4px;
+    justify-content: center;
 }
 .reward-dock.is-collapsed .rd-txt,
 .reward-dock.is-collapsed .rd-fold {
-    display: none;
+    display: none !important;
 }
 .reward-dock.is-collapsed .rd-ring {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    flex: 0 0 48px;
 }
 .reward-dock.is-collapsed.is-side-right {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     border-right: 0;
+    padding-right: 0;
 }
 .reward-dock.is-collapsed.is-side-left {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     border-left: 0;
+    padding-left: 0;
 }
 
 .reward-dock.wait-payout .rd-ring {
@@ -190,7 +240,6 @@
     }
 }
 
-/* 页面内嵌（非演示壳）时层级略低于全局壳，但高于主内容 */
 body .reward-dock.reward-dock--page {
     z-index: 95;
 }
