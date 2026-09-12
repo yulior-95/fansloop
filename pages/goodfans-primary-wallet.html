@@ -6,7 +6,9 @@
 <title>GOODFANS · 设为主钱包</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
+<script src="../js/h5-theme-boot.js"></script>
 <link rel="stylesheet" href="../css/goodfans-auth.css">
+<link rel="stylesheet" href="../css/h5-light-theme.css">
 </head>
 <body>
 <div class="status-bar dark-mode">
@@ -45,8 +47,8 @@
             主钱包 <strong>切换</strong> 需用户确认，并可在风控场景要求二次验证。
         </div>
         <div style="display: flex; gap: 8px; margin: 16px 0 0">
-            <button class="btn btn-secondary btn-block" type="button" style="flex:1">取消</button>
-            <button class="btn btn-primary btn-block" type="button" style="flex:1">确认切换主钱包</button>
+            <button class="btn btn-secondary btn-block" type="button" style="flex:1" id="pwCancel">取消</button>
+            <button class="btn btn-primary btn-block" type="button" style="flex:1" id="pwConfirm">确认切换主钱包</button>
         </div>
         </div>
     </div>
@@ -60,5 +62,20 @@
 </div>
 <div class="home-indicator"></div>
 <script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var cancel = document.getElementById('pwCancel');
+    var confirm = document.getElementById('pwConfirm');
+    if (cancel) cancel.onclick = function () {
+        if (history.length > 1) history.back();
+        else location.href = 'settings-wallet.html';
+    };
+    if (confirm) confirm.onclick = function () {
+        localStorage.setItem('h5_wallet_primary', 'backup');
+        if (window.DigitalH5Nav && DigitalH5Nav.toast) DigitalH5Nav.toast('主钱包已切换');
+        setTimeout(function () { location.href = 'settings-wallet.html'; }, 400);
+    };
+})();
+</script>
 </body>
 </html>

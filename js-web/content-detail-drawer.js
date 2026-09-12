@@ -104,8 +104,14 @@
             btn.classList.toggle('saved');
             toast(btn.classList.contains('saved') ? '已收藏' : '已取消收藏');
         }
-        if (act === 'share') toast('链接已复制，可分享给好友');
-        if (act === 'forward') toast('已打开转发面板（原型）');
+        if (act === 'share' || act === 'forward') {
+            if (window.FL_openInteractionModal) {
+                window.FL_openInteractionModal('share-modal.html');
+            } else {
+                toast(act === 'share' ? '链接已复制，可分享给好友' : '已打开转发面板（原型）');
+            }
+            return;
+        }
         if (act === 'report') {
             var R = global.FL_ContentReport;
             if (!R) {

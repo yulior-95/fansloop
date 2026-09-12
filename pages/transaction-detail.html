@@ -5,11 +5,12 @@
 <title>账变详情</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
+<script src="../js/h5-theme-boot.js"></script>
 <style>
 body {
-    background: radial-gradient(ellipse at 50% 10%, rgba(59,130,246,0.12), transparent 55%), #0A0A12;
+    background: radial-gradient(ellipse at 50% 10%, rgba(59,130,246,0.12), transparent 55%), var(--bg-primary);
 }
-.nav-bar { background: rgba(10,10,18,.76); backdrop-filter: blur(16px); }
+.nav-bar { background: var(--bg-primary); backdrop-filter: blur(16px); }
 .app-content { padding-top: calc(var(--status-bar-height) + var(--nav-bar-height)); padding-bottom: 112px; }
 .hero { text-align: center; padding: 24px 16px 18px; }
 .hero-ic {
@@ -55,13 +56,13 @@ body {
 .kv { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; font-size: 12px; }
 .kv + .kv { border-top: .5px solid rgba(255,255,255,.05); }
 .kv .k { color: var(--text-tertiary); }
-.kv .v { color: #fff; font-weight: 500; text-align: right; max-width: 70%; word-break: break-all; }
+.kv .v { color: var(--text-primary); font-weight: 500; text-align: right; max-width: 70%; word-break: break-all; }
 .kv .v.mono { font-family: ui-monospace, monospace; font-size: 11.5px; }
 .copy { color: var(--brand-purple); margin-left: 5px; cursor: pointer; }
 
 .calc .row { display: flex; justify-content: space-between; padding: 7px 0; font-size: 12px; }
 .calc .row .k { color: var(--text-secondary); }
-.calc .row .v { color: #fff; font-weight: 500; font-variant-numeric: tabular-nums; }
+.calc .row .v { color: var(--text-primary); font-weight: 500; font-variant-numeric: tabular-nums; }
 .calc .row.total { border-top: 1px dashed rgba(255,255,255,.12); margin-top: 4px; padding-top: 10px; }
 .calc .row.total .v { font-size: 16px; font-weight: 800; }
 
@@ -86,10 +87,11 @@ body {
 .actions {
     position: absolute; left: 0; right: 0; bottom: 0; z-index: 20;
     display: flex; gap: 8px; padding: 10px 12px 30px;
-    background: rgba(10,10,18,.95); border-top: .5px solid var(--border-color); backdrop-filter: blur(20px);
+    background: var(--bg-secondary); border-top: .5px solid var(--border-color); backdrop-filter: blur(20px);
 }
-.actions .btn { flex: 1; height: 46px; }
+.actions .btn { flex: 1; height: 46px; font-size: 13px; white-space: nowrap; }
 </style>
+<link rel="stylesheet" href="../css/h5-light-theme.css">
 </head>
 <body>
 <div class="status-bar">
@@ -250,6 +252,54 @@ body {
             note: '数字资产销售已结算，可在橱窗管理查看对应订单。',
             primary: ['查看橱窗订单', 'creator-showcase-manage.html', 'fa-store']
         },
+        subpay: {
+            iconBg: 'linear-gradient(135deg,#A855F7,#7C3AED)',
+            icon: 'fa-crown', heroType: 'SUBSCRIPTION · 订阅支出', amountClass: 'out',
+            amount: '-$79.90', sub: '79.90 USDT · 订阅 @luna_web3 · 季付', statusText: '已支付', statusClass: 'ok',
+            cp: { name: 'Luna', meta: '@luna_web3 · 创作者', action: '主页', go: 'creator-profile.html', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=160&h=160&fit=crop&crop=faces' },
+            info: [['交易单号', order, true], ['交易类型', '订阅支付 · 季付'], ['交易时间', '2026-04-23 14:32:01'], ['订阅周期', '2026-04-23 ~ 2026-07-23'], ['结算状态', '链上已确认']],
+            calc: [['订阅原价', '$90.00'], ['优惠', '-$10.10'], ['通道手续费', '-$0.00'], ['实付', '-$79.90', true]],
+            timeline: [['发起订阅支付', '14:32:01', true], ['链上确认', '14:32:18', true], ['权益已开通', '14:32:20', true]],
+            chain: [['结算币种', 'USDT (TRC20)'], ['订单流水', 'S-20260423-1432-01', true], ['扣款账户', 'Primary Wallet']],
+            note: '订阅已生效。如未开通权益可在 72 小时内申诉。',
+            primary: ['查看订阅', 'subscriptions.html', 'fa-crown']
+        },
+        tipout: {
+            iconBg: 'linear-gradient(135deg,#EC4899,#BE185D)',
+            icon: 'fa-gift', heroType: 'TIP · 打赏支出', amountClass: 'out',
+            amount: '-$10.00', sub: '10.00 USDT · 打赏 @mila_studio', statusText: '已支付', statusClass: 'ok',
+            cp: { name: 'Mila Studio', meta: '@mila_studio · 创作者', action: '主页', go: 'creator-profile.html', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&h=160&fit=crop&crop=faces' },
+            info: [['交易单号', order, true], ['交易类型', '礼物打赏'], ['交易时间', '2026-04-21 15:42:00'], ['来源场景', '直播间打赏'], ['结算状态', '已确认']],
+            calc: [['打赏金额', '-$10.00'], ['通道手续费', '-$0.00'], ['实付', '-$10.00', true]],
+            timeline: [['发起打赏', '15:42:00', true], ['创作者已收款', '15:42:03', true]],
+            chain: [['结算币种', 'USDT'], ['订单流水', 'T-20260421-1542', true]],
+            note: '打赏已送达创作者。如有争议可发起申诉。',
+            primary: ['再打赏', 'creator-profile.html', 'fa-gift']
+        },
+        fiat: {
+            iconBg: 'linear-gradient(135deg,#10B981,#059669)',
+            icon: 'fa-yen-sign', heroType: 'FIAT RECHARGE · 法币充值', amountClass: 'inc',
+            amount: '+¥500.00', sub: '500.00 CNY · 支付宝充值', statusText: '已到账', statusClass: 'ok',
+            cp: { hide: true },
+            info: [['交易单号', order, true], ['交易类型', '法币充值'], ['交易时间', '2026-04-20 10:28:00'], ['支付方式', '支付宝'], ['结算状态', '已到账']],
+            calc: [['充值金额', '¥500.00'], ['通道手续费', '¥0.00'], ['最终到账', '+¥500.00', true]],
+            timeline: [['发起支付', '10:27:40', true], ['通道确认', '10:27:55', true], ['余额到账', '10:28:00', true]],
+            chain: [['通道单号', 'ALI-20260420-1028', true], ['入账账户', '法币账户']],
+            note: '法币余额可用于订阅与打赏。',
+            primary: ['继续充值', 'recharge-fiat.html', 'fa-arrow-down']
+        },
+        unlock: {
+            iconBg: 'linear-gradient(135deg,#A855F7,#7C3AED)',
+            icon: 'fa-unlock', heroType: 'UNLOCK · 按篇解锁', amountClass: 'out',
+            amount: '-$5.00', sub: '5.00 USDT · 图文《胶片合集》', statusText: '已支付', statusClass: 'ok',
+            cp: { name: '胶片工作室', meta: '按篇购买', action: '查看作品', go: 'digital-detail.html', avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=160&h=160&fit=crop&crop=faces' },
+            info: [['交易单号', order, true], ['交易类型', '单独解锁'], ['交易时间', '2026-04-18 22:18:00'], ['商品名称', '图文《胶片合集》'], ['结算状态', '已解锁']],
+            calc: [['解锁价', '-$5.00'], ['通道手续费', '-$0.00'], ['实付', '-$5.00', true]],
+            timeline: [['发起购买', '22:18:00', true], ['支付确认', '22:18:04', true], ['内容已解锁', '22:18:05', true]],
+            chain: [['结算币种', 'USDT'], ['订单流水', 'U-20260418-2218', true]],
+            note: '内容已永久解锁，可在已购资产中查看。',
+            primary: ['查看作品', 'digital-detail.html', 'fa-image']
+        },
         affiliate: {
             iconBg: 'linear-gradient(135deg,#F59E0B,#D97706)',
             icon: 'fa-bag-shopping', heroType: 'AFFILIATE COMMISSION · 联盟佣金', amountClass: 'inc',
@@ -276,6 +326,7 @@ body {
         var backTo = 'transactions.html';
         if (from === 'search') backTo = 'transactions-search.html';
         if (from === 'funds-history') backTo = 'funds-history.html';
+        if (from === 'wallet') backTo = 'wallet.html';
         backBtn.setAttribute('data-back', backTo);
     }
     function kvRows(rows) {

@@ -5,16 +5,27 @@
 <title>私聊</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
+<script src="../js/h5-theme-boot.js"></script>
 <style>
-body { background: var(--bg-primary); }
-.mob-chat { min-height: 100vh; display: flex; flex-direction: column; }
+.nav-bar { background: var(--bg-primary); }
+.mob-chat {
+    position: absolute;
+    top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-primary);
+}
 .mob-chat-msgs {
     flex: 1;
-    padding: 12px 14px 80px;
+    padding: 12px 14px 108px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 10px;
+    -webkit-overflow-scrolling: touch;
 }
 .mob-bub {
     max-width: 78%;
@@ -22,31 +33,54 @@ body { background: var(--bg-primary); }
     border-radius: 16px;
     font-size: 14px;
     background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
     align-self: flex-start;
     line-height: 1.45;
+    word-break: break-word;
 }
-.mob-bub.me { align-self: flex-end; background: var(--brand-gradient); color: #fff; }
+.mob-bub.me {
+    align-self: flex-end;
+    background: var(--brand-gradient);
+    color: #fff;
+    border-color: transparent;
+}
 .dm-limit-banner {
     margin: 0 14px 10px;
     padding: 10px 12px;
     border-radius: 10px;
     background: linear-gradient(135deg, rgba(245,158,11,0.18), rgba(236,72,153,0.1));
     border: 1px solid rgba(245,158,11,0.3);
-    color: #fcd34d;
+    color: #fbbf24;
     font-size: 11px;
     line-height: 1.45;
 }
+:root[data-theme='light'] .dm-limit-banner {
+    color: #92400e;
+    background: linear-gradient(135deg, rgba(245,158,11,0.14), rgba(236,72,153,0.08));
+    border-color: rgba(180,83,9,0.28);
+}
 .dm-limit-banner[hidden] { display: none !important; }
 .dm-limit-banner .t { font-weight: 700; color: #fde68a; margin-bottom: 3px; }
+:root[data-theme='light'] .dm-limit-banner .t { color: #78350f; }
 .mob-chat-bar {
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-    background: var(--bg-primary);
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 10px 12px 28px;
+    background: var(--bg-secondary);
     border-top: 0.5px solid var(--border-color);
+    z-index: 20;
 }
 .mob-chat-bar .tools { display: flex; gap: 12px; margin-bottom: 8px; padding: 0 4px; }
-.mob-chat-bar .tools button { font-size: 17px; color: var(--text-secondary); }
+.mob-chat-bar .tools button {
+    font-size: 17px;
+    color: var(--text-secondary);
+    background: none;
+    border: 0;
+    padding: 0;
+}
 .mob-chat-bar .row { display: flex; gap: 8px; align-items: flex-end; }
 .mob-chat-bar textarea {
     flex: 1;
@@ -63,6 +97,7 @@ body { background: var(--bg-primary); }
 }
 .mob-chat-bar .send-btn {
     min-width: 56px; height: 36px;
+    border: 0;
     border-radius: 18px;
     background: var(--brand-gradient);
     color: #fff;
@@ -71,19 +106,26 @@ body { background: var(--bg-primary); }
     font-weight: 700;
 }
 </style>
+<link rel="stylesheet" href="../css/h5-light-theme.css">
 </head>
 <body data-page="messages-chat">
 
 <div class="status-bar">
     <span class="time">9:41</span>
-    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+    <span class="right">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+    </span>
 </div>
 
 <div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" data-back="messages.html"><i class="fa-solid fa-chevron-left"></i></div></div>
     <div class="nav-title" id="chatTitle">Luna</div>
+    <div class="nav-right"></div>
 </div>
 
-<div class="mob-chat" style="padding-top: calc(var(--status-bar-height) + var(--nav-bar-height))">
+<div class="mob-chat">
     <div class="dm-limit-banner" id="mobDmLimitBanner" hidden>
         <div class="t"><i class="fa-solid fa-lock"></i> 私信限制提示</div>
         <div id="mobDmLimitText">未互关且未订阅时，仅可发送首条私信；互关、订阅或对方回复后解除限制。</div>
@@ -107,5 +149,6 @@ body { background: var(--bg-primary); }
 
 <div class="home-indicator"></div>
 <script src="../js/messages-mobile.js"></script>
+<script src="../js/digital-h5-nav.js"></script>
 </body>
 </html>

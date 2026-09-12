@@ -5,6 +5,7 @@
 <title>登录 / 注册 · GOODFANS</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
+<script src="../js/h5-theme-boot.js"></script>
 <style>
 .login-bg {
     position: absolute;
@@ -175,13 +176,15 @@
 }
 .unreg-sheet {
     display: none;
-    position: fixed; inset: 0; z-index: 100;
+    position: absolute; inset: 0; z-index: 100;
     background: rgba(0,0,0,0.55);
     align-items: flex-end; justify-content: center;
 }
 .unreg-sheet.open { display: flex; }
 .unreg-sheet .sheet {
     width: 100%; max-width: 430px;
+    max-height: 86%;
+    overflow-y: auto;
     background: var(--bg-elevated, var(--bg-card));
     border-radius: 20px 20px 0 0;
     padding: 20px 18px calc(20px + env(safe-area-inset-bottom, 0px));
@@ -209,6 +212,7 @@
 body[data-wallet-mode="register"] [data-wallet-reg-only] { display: block; }
 body[data-wallet-mode="register"] [data-wallet-login-only] { display: none; }
 </style>
+<link rel="stylesheet" href="../css/h5-light-theme.css">
 </head>
 <body data-auth-tab="wallet" data-wallet-mode="login">
 
@@ -321,17 +325,29 @@ body[data-wallet-mode="register"] [data-wallet-login-only] { display: none; }
         </div>
 
         <div id="emailLoginPanel">
-            <div class="form-group">
-                <label class="form-label" style="font-size:12px">邮箱</label>
-                <input class="form-input" type="email" id="emailLoginInput" placeholder="name@company.com" value="creator@example.com">
+            <div class="toggle-sub login-method-toggle">
+                <button type="button" class="on" id="btnLoginByOtp">验证码登录</button>
+                <button type="button" id="btnLoginByPwd">密码登录</button>
             </div>
             <div class="form-group">
+                <label class="form-label" style="font-size:12px">邮箱</label>
+                <input class="form-input" type="email" id="emailLoginInput" placeholder="name@company.com" value="creator@example.com" autocomplete="username">
+            </div>
+            <div class="form-group" id="loginOtpField">
                 <label class="form-label" style="font-size:12px">验证码</label>
                 <div class="form-input-group">
                     <input class="form-input" type="text" id="loginOtp" placeholder="6 位验证码" maxlength="6">
                     <span class="suffix"><span class="get-code" id="btnLoginSendOtp">获取验证码</span></span>
                 </div>
                 <div class="hint">已注册用户使用验证码登录（原型：非 new-user 邮箱直接登录）</div>
+            </div>
+            <div class="form-group" id="loginPwdField" style="display:none">
+                <label class="form-label" style="font-size:12px">登录密码</label>
+                <input class="form-input" type="password" id="emailLoginPwd" placeholder="输入登录密码" autocomplete="current-password">
+                <div class="hint" style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+                    <span>原型演示密码 <code style="color:#FBBF24">123456</code></span>
+                    <button type="button" class="auth-risk-sim-link" id="btnForgotPwd">忘记密码</button>
+                </div>
             </div>
             <button type="button" class="btn btn-primary btn-block" id="btnEmailLogin"><i class="fa-solid fa-right-to-bracket"></i> 登录</button>
             <p class="demo-tip">试用未注册邮箱 <code>new-user@example.com</code> 将提示转入注册</p>
@@ -356,7 +372,7 @@ body[data-wallet-mode="register"] [data-wallet-login-only] { display: none; }
             </div>
             <div class="form-group">
                 <label class="form-label" style="font-size:12px">登录密码 <span style="color:var(--text-tertiary)">(选填)</span></label>
-                <input class="form-input" type="password" id="regPwd" placeholder="不设密码则后续仅用验证码登录">
+                <input class="form-input" type="password" id="regPwd" placeholder="不设密码则后续仅用验证码登录" autocomplete="new-password">
             </div>
             <div class="form-group">
                 <label class="form-label" style="font-size:12px">邀请码 <span style="color:var(--text-tertiary)">(选填)</span></label>
@@ -377,6 +393,36 @@ body[data-wallet-mode="register"] [data-wallet-login-only] { display: none; }
         <div class="dialog-actions">
             <button type="button" class="btn btn-ghost" id="btnUnregCancel">取消</button>
             <button type="button" class="btn btn-primary" id="btnUnregToRegister">去注册</button>
+        </div>
+    </div>
+</div>
+
+<div class="unreg-sheet" id="forgotPwdOverlay" aria-hidden="true">
+    <div class="sheet">
+        <h3><i class="fa-solid fa-key" style="color:var(--brand-purple);margin-right:6px"></i>重置登录密码</h3>
+        <p>验证邮箱后设置新密码。原型验证码 <code style="color:#FBBF24">123456</code>。</p>
+        <div class="form-group">
+            <label class="form-label" style="font-size:12px">邮箱</label>
+            <input class="form-input" type="email" id="fpEmail" placeholder="注册时使用的邮箱">
+        </div>
+        <div class="form-group">
+            <label class="form-label" style="font-size:12px">验证码</label>
+            <div class="form-input-group">
+                <input class="form-input" type="text" id="fpOtp" placeholder="6 位验证码" maxlength="6">
+                <span class="suffix"><span class="get-code" id="btnFpSendOtp">获取验证码</span></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label" style="font-size:12px">新密码</label>
+            <input class="form-input" type="password" id="fpNew1" placeholder="不少于 8 位" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+            <label class="form-label" style="font-size:12px">确认新密码</label>
+            <input class="form-input" type="password" id="fpNew2" placeholder="再次输入" autocomplete="new-password">
+        </div>
+        <div class="dialog-actions">
+            <button type="button" class="btn btn-ghost" id="btnFpCancel">取消</button>
+            <button type="button" class="btn btn-primary" id="btnFpSubmit">确认重置</button>
         </div>
     </div>
 </div>
@@ -466,8 +512,42 @@ body[data-wallet-mode="register"] [data-wallet-login-only] { display: none; }
         loginPanel.style.display = mode === 'login' ? '' : 'none';
         regPanel.style.display = mode === 'register' ? '' : 'none';
     }
+    function setLoginMethod(method) {
+        var isPwd = method === 'password';
+        var btnOtp = document.getElementById('btnLoginByOtp');
+        var btnPwd = document.getElementById('btnLoginByPwd');
+        var otpField = document.getElementById('loginOtpField');
+        var pwdField = document.getElementById('loginPwdField');
+        if (btnOtp) btnOtp.classList.toggle('on', !isPwd);
+        if (btnPwd) btnPwd.classList.toggle('on', isPwd);
+        if (otpField) otpField.style.display = isPwd ? 'none' : '';
+        if (pwdField) pwdField.style.display = isPwd ? '' : 'none';
+        document.body.setAttribute('data-email-login-method', isPwd ? 'password' : 'otp');
+    }
+    function saveEmailPwd(email, pwd) {
+        if (!email || !pwd) return;
+        try {
+            var map = JSON.parse(localStorage.getItem('fl_email_pwds') || '{}');
+            map[String(email).toLowerCase()] = pwd;
+            localStorage.setItem('fl_email_pwds', JSON.stringify(map));
+        } catch (e) {}
+    }
+    function checkEmailPwd(email, pwd) {
+        if (!pwd) return false;
+        if (pwd === '123456') return true;
+        try {
+            var map = JSON.parse(localStorage.getItem('fl_email_pwds') || '{}');
+            return map[String(email).toLowerCase()] === pwd;
+        } catch (e) {
+            return false;
+        }
+    }
     btnELogin.addEventListener('click', function () { setEmailMode('login'); });
     btnEReg.addEventListener('click', function () { setEmailMode('register'); });
+    var btnLoginByOtp = document.getElementById('btnLoginByOtp');
+    var btnLoginByPwd = document.getElementById('btnLoginByPwd');
+    if (btnLoginByOtp) btnLoginByOtp.addEventListener('click', function () { setLoginMethod('otp'); });
+    if (btnLoginByPwd) btnLoginByPwd.addEventListener('click', function () { setLoginMethod('password'); });
 
     function bindOtp(btnId) {
         var btn = document.getElementById(btnId);
@@ -491,6 +571,7 @@ body[data-wallet-mode="register"] [data-wallet-login-only] { display: none; }
     }
     bindOtp('btnLoginSendOtp');
     bindOtp('btnRegSendOtp');
+    bindOtp('btnFpSendOtp');
 
     var riskBtn = document.getElementById('btnSimRiskLogin');
     var riskBanner = document.getElementById('authRiskSimOn');
@@ -512,6 +593,15 @@ body[data-wallet-mode="register"] [data-wallet-login-only] { display: none; }
             unreg.setAttribute('aria-hidden', 'false');
             return;
         }
+        var usePwd = document.body.getAttribute('data-email-login-method') === 'password';
+        if (usePwd) {
+            var pwd = (document.getElementById('emailLoginPwd') && document.getElementById('emailLoginPwd').value) || '';
+            if (!pwd) { toast('请输入登录密码'); return; }
+            if (!checkEmailPwd(email, pwd)) { toast('邮箱或密码不正确'); return; }
+        } else {
+            var otp = (document.getElementById('loginOtp') && document.getElementById('loginOtp').value || '').trim();
+            if (otp && otp !== '123456') { toast('验证码不正确'); return; }
+        }
         if (riskOn) {
             toast('二次验证通过（原型）');
         }
@@ -532,16 +622,51 @@ body[data-wallet-mode="register"] [data-wallet-login-only] { display: none; }
 
     document.getElementById('btnEmailRegDone').addEventListener('click', function () {
         var otp = (document.getElementById('regOtp').value || '').trim();
+        var email = (document.getElementById('regEmail').value || '').trim();
+        var pwd = (document.getElementById('regPwd') && document.getElementById('regPwd').value) || '';
         if (otp !== '123456') {
             toast('请填写验证码 123456');
             return;
         }
+        saveEmailPwd(email, pwd);
         toast('注册成功');
         setTimeout(function () { location.href = 'home.html'; }, 400);
     });
 
+    var forgot = document.getElementById('forgotPwdOverlay');
+    function openForgot() {
+        var email = (document.getElementById('emailLoginInput').value || '').trim();
+        document.getElementById('fpEmail').value = email;
+        forgot.classList.add('open');
+        forgot.setAttribute('aria-hidden', 'false');
+    }
+    function closeForgot() {
+        forgot.classList.remove('open');
+        forgot.setAttribute('aria-hidden', 'true');
+    }
+    var btnForgotPwd = document.getElementById('btnForgotPwd');
+    if (btnForgotPwd) btnForgotPwd.addEventListener('click', openForgot);
+    document.getElementById('btnFpCancel').addEventListener('click', closeForgot);
+    document.getElementById('btnFpSubmit').addEventListener('click', function () {
+        var em = (document.getElementById('fpEmail').value || '').trim().toLowerCase();
+        var otp = (document.getElementById('fpOtp').value || '').trim();
+        var p1 = document.getElementById('fpNew1').value;
+        var p2 = document.getElementById('fpNew2').value;
+        if (!em) { toast('请输入邮箱'); return; }
+        if (em === 'new-user@example.com') { toast('该邮箱未注册'); return; }
+        if (otp !== '123456') { toast('请填写验证码 123456'); return; }
+        if (!p1 || p1.length < 8) { toast('密码不少于 8 位'); return; }
+        if (p1 !== p2) { toast('两次密码不一致'); return; }
+        saveEmailPwd(em, p1);
+        document.getElementById('emailLoginInput').value = em;
+        closeForgot();
+        setLoginMethod('password');
+        toast('密码已重置，请用新密码登录');
+    });
+
     setWalletMode('login');
-    showAuthTab('wallet');
+    showAuthTab(location.hash === '#pwd' || location.search.indexOf('tab=email') >= 0 ? 'email' : 'wallet');
+    setLoginMethod(location.hash === '#pwd' ? 'password' : 'otp');
 })();
 </script>
 </body>

@@ -5,6 +5,7 @@
 <title>钱包与支付</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
+<script src="../js/h5-theme-boot.js"></script>
 <style>
 .nav-bar { background: var(--bg-primary); }
 .app-content {
@@ -85,23 +86,24 @@
     font-weight: 700;
     border-radius: 999px;
     padding: 2px 8px;
-    border: 1px solid rgba(16,185,129,.35);
-    background: rgba(16,185,129,.15);
-    color: #6ee7b7;
+    border: 1px solid rgba(5, 150, 105, 0.32);
+    background: rgba(16, 185, 129, 0.14);
+    color: #047857;
 }
 .wallet .addr {
     margin-top: 6px;
     font-family: ui-monospace, monospace;
     font-size: 12px;
-    color: #d1d5db;
+    color: var(--text-secondary);
 }
 .wallet .bal {
     margin-top: 8px;
     display: flex;
     gap: 16px;
     font-size: 12px;
+    color: var(--text-secondary);
 }
-.wallet .bal b { font-size: 16px; color: #fff; margin-right: 4px; }
+.wallet .bal b { font-size: 16px; color: var(--text-primary); margin-right: 4px; }
 .wallet .op {
     margin-top: 10px;
     display: flex;
@@ -111,10 +113,15 @@
     height: 30px;
     border-radius: 999px;
     border: 1px solid var(--border-color);
-    background: rgba(10,10,18,.45);
-    color: #fff;
+    background: var(--bg-elevated);
+    color: var(--text-primary);
     font-size: 11px;
     padding: 0 10px;
+    white-space: nowrap;
+}
+.wallet.is-backup {
+    border-color: var(--border-color);
+    background: var(--bg-inset);
 }
 .row {
     padding: 12px;
@@ -128,7 +135,22 @@
 .row .left { display: flex; gap: 8px; align-items: center; font-size: 12px; }
 .row .left i { color: #c4b5fd; }
 .row .right { font-size: 11px; color: var(--text-secondary); }
+.ovl { position: absolute; inset: 0; z-index: 80; background: var(--bg-overlay); display: none; align-items: flex-end; }
+.ovl.open { display: flex; }
+.sheet { width: 100%; background: var(--bg-sheet); border-top: 1px solid var(--border-color); border-radius: 18px 18px 0 0; padding: 12px 16px 28px; }
+.sheet .grab { width: 40px; height: 4px; border-radius: 99px; background: rgba(15,18,32,.18); margin: 0 auto 12px; }
+.sheet .hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.sheet .hd .t { font-size: 15px; font-weight: 700; }
+.qr-box { width: 168px; height: 168px; margin: 8px auto 12px; border-radius: 12px; background:
+    repeating-linear-gradient(90deg, #0F1220 0 8px, #fff 8px 16px),
+    repeating-linear-gradient(0deg, #0F1220 0 8px, #fff 8px 16px);
+    background-blend-mode: multiply; border: 8px solid #fff; box-shadow: 0 8px 24px rgba(15,18,32,.12); }
+.sheet .addr-full { font-family: ui-monospace, monospace; font-size: 12px; color: var(--text-secondary); text-align: center; word-break: break-all; margin-bottom: 12px; }
+.sheet input { width: 100%; height: 44px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-inset); color: var(--text-primary); padding: 0 12px; outline: none; }
+.sheet-bar { display: flex; gap: 8px; margin-top: 14px; }
+.sheet-bar .btn { flex: 1; }
 </style>
+<link rel="stylesheet" href="../css/h5-light-theme.css">
 </head>
 <body>
 <div class="status-bar">
@@ -173,7 +195,7 @@
             </div>
         </div>
 
-        <div class="wallet" id="walletBackup" style="border-color:var(--border-color);background:rgba(255,255,255,.04)">
+        <div class="wallet is-backup" id="walletBackup">
             <div class="top">
                 <div class="name">Polygon 备用钱包 · WalletConnect</div>
             </div>
@@ -216,19 +238,66 @@
 </div>
 
 <div class="home-indicator"></div>
+<div class="ovl" id="qrOvl">
+    <div class="sheet">
+        <div class="grab"></div>
+        <div class="hd"><div class="t">收款二维码</div><div class="nav-btn" data-close="qrOvl"><i class="fa-solid fa-xmark"></i></div></div>
+        <div class="qr-box" aria-hidden="true"></div>
+        <div class="addr-full" id="qrAddr">0x7Bf21a9c8e44d0b1c3D9</div>
+        <div class="sheet-bar">
+            <button type="button" class="btn btn-secondary" id="qrCopyBtn">复制地址</button>
+            <button type="button" class="btn btn-primary" id="qrRechargeBtn">去充值</button>
+        </div>
+    </div>
+</div>
+<div class="ovl" id="editOvl">
+    <div class="sheet">
+        <div class="grab"></div>
+        <div class="hd"><div class="t">编辑备注</div><div class="nav-btn" data-close="editOvl"><i class="fa-solid fa-xmark"></i></div></div>
+        <input id="editRemarkInput" maxlength="24" placeholder="例如：日常收款">
+        <div class="sheet-bar">
+            <button type="button" class="btn btn-secondary" data-close="editOvl">取消</button>
+            <button type="button" class="btn btn-primary" id="editSaveBtn">保存</button>
+        </div>
+    </div>
+</div>
 <script src="../js/digital-h5-nav.js"></script>
 <script>
 (function () {
     function toast(msg) {
         if (window.DigitalH5Nav && typeof window.DigitalH5Nav.toast === 'function') window.DigitalH5Nav.toast(msg);
     }
+    function copyText(val, ok) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(val).then(function () { toast(ok || '已复制'); }).catch(function () { toast('复制失败'); });
+        } else toast(ok || '已复制');
+    }
+    var ADDR = {
+        primary: '0x7Bf21a9c8e44d0b1c3D9',
+        backup: '0xA9c14e82b0d91cF7e2'
+    };
     var networkVal = document.getElementById('networkVal');
     var NETWORK_KEY = 'h5_wallet_default_network';
+    var REMARK_KEY = 'h5_wallet_primary_remark';
+    var primaryName = document.querySelector('#walletPrimary .name');
 
     function syncNetwork() {
         var n = localStorage.getItem(NETWORK_KEY) || 'Ethereum Mainnet';
         if (networkVal) networkVal.innerHTML = n + ' <i class="fa-solid fa-chevron-right"></i>';
     }
+    function syncRemark() {
+        var r = localStorage.getItem(REMARK_KEY);
+        if (primaryName) primaryName.textContent = r ? ('Ethereum 主钱包 · ' + r) : 'Ethereum 主钱包 · MetaMask';
+    }
+    function openOvl(id) { var el = document.getElementById(id); if (el) el.classList.add('open'); }
+    function closeOvl(id) { var el = document.getElementById(id); if (el) el.classList.remove('open'); }
+
+    document.querySelectorAll('[data-close]').forEach(function (el) {
+        el.addEventListener('click', function () { closeOvl(el.getAttribute('data-close')); });
+    });
+    document.querySelectorAll('.ovl').forEach(function (ovl) {
+        ovl.addEventListener('click', function (e) { if (e.target === ovl) ovl.classList.remove('open'); });
+    });
 
     var goWallet = document.getElementById('goWallet');
     if (goWallet) goWallet.addEventListener('click', function () { location.href = 'wallet.html'; });
@@ -236,22 +305,43 @@
     document.querySelectorAll('#walletPrimary [data-op], #walletBackup [data-op]').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var op = btn.getAttribute('data-op');
-            if (op === 'copy') return toast('地址已复制');
-            if (op === 'qr') return toast('收款二维码已打开（原型）');
-            if (op === 'edit') return toast('钱包备注编辑已打开（原型）');
-            if (op === 'set-primary') return toast('已切换为主钱包（原型）');
-            if (op === 'unbind') return toast('解绑流程已打开（原型）');
+            var fromBackup = !!btn.closest('#walletBackup');
+            var addr = fromBackup ? ADDR.backup : ADDR.primary;
+            if (op === 'copy') return copyText(addr, '地址已复制');
+            if (op === 'qr') {
+                document.getElementById('qrAddr').textContent = addr;
+                return openOvl('qrOvl');
+            }
+            if (op === 'edit') {
+                document.getElementById('editRemarkInput').value = localStorage.getItem(REMARK_KEY) || '';
+                return openOvl('editOvl');
+            }
+            if (op === 'set-primary') return location.href = 'goodfans-primary-wallet.html';
+            if (op === 'unbind') return location.href = 'goodfans-unbind-wallet.html';
         });
     });
 
+    document.getElementById('qrCopyBtn').onclick = function () {
+        copyText(document.getElementById('qrAddr').textContent, '地址已复制');
+    };
+    document.getElementById('qrRechargeBtn').onclick = function () { location.href = 'recharge.html'; };
+    document.getElementById('editSaveBtn').onclick = function () {
+        var v = (document.getElementById('editRemarkInput').value || '').trim();
+        if (v) localStorage.setItem(REMARK_KEY, v);
+        else localStorage.removeItem(REMARK_KEY);
+        syncRemark();
+        closeOvl('editOvl');
+        toast(v ? '备注已保存' : '已清除备注');
+    };
+
     var rowConnectWallet = document.getElementById('rowConnectWallet');
     if (rowConnectWallet) rowConnectWallet.addEventListener('click', function () {
-        toast('连接钱包流程已打开（原型）');
+        location.href = 'goodfans-bind-wallet.html';
     });
 
     var rowRechargeAsset = document.getElementById('rowRechargeAsset');
     if (rowRechargeAsset) rowRechargeAsset.addEventListener('click', function () {
-        toast('平台当前仅支持 USDT 充值');
+        location.href = 'recharge.html';
     });
 
     var rowRechargeNetwork = document.getElementById('rowRechargeNetwork');
@@ -265,10 +355,11 @@
 
     var rowWithdrawWay = document.getElementById('rowWithdrawWay');
     if (rowWithdrawWay) rowWithdrawWay.addEventListener('click', function () {
-        toast('默认提现方式：USDT 链上 · 主钱包');
+        location.href = 'withdraw.html';
     });
 
     syncNetwork();
+    syncRemark();
 })();
 </script>
 </body>

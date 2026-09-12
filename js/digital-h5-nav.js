@@ -76,6 +76,8 @@
             if (el.children.length && el.textContent.trim().length <= 1) return;
             var cs = global.getComputedStyle(el);
             if (cs.display === 'none' || cs.visibility === 'hidden') return;
+            if (el.closest('.num, .cnt, .unread, .badge-num, .create-btn, .st, .btn-primary, .tab-bar, .da-buybar, .home-overlay, .home-sheet, .live-modal-sheet, .creator-search-inline, .tag, .status')) return;
+            if (cs.backgroundImage && cs.backgroundImage !== 'none') return;
             var fg = parseRgbColor(cs.color);
             if (!fg || fg.a <= 0.1) return;
             var bg = getEffectiveBackgroundColor(el);
@@ -185,7 +187,7 @@
             el.className = 'da-toast';
             document.body.appendChild(el);
         }
-        el.style.position = 'fixed';
+        el.style.position = 'absolute';
         el.style.left = '50%';
         el.style.bottom = 'calc(var(--tab-bar-height, 64px) + 22px)';
         el.style.transform = 'translateX(-50%) translateY(6px)';
@@ -198,7 +200,7 @@
         el.style.fontSize = '12px';
         el.style.lineHeight = '1.35';
         el.style.whiteSpace = 'nowrap';
-        el.style.maxWidth = 'calc(100vw - 32px)';
+        el.style.maxWidth = 'calc(var(--phone-width, 375px) - 32px)';
         el.style.overflow = 'hidden';
         el.style.textOverflow = 'ellipsis';
         el.style.backdropFilter = 'blur(8px)';
@@ -221,8 +223,27 @@
         }, 1600);
     }
 
+    function watchOverlaysForLightTheme() {
+        if (document.documentElement.getAttribute('data-theme') !== 'light') return;
+        if (document.body && document.body.dataset.lightOvlWatch === '1') return;
+        if (document.body) document.body.dataset.lightOvlWatch = '1';
+        var timer = null;
+        var obs = new MutationObserver(function () {
+            if (document.documentElement.getAttribute('data-theme') !== 'light') return;
+            clearTimeout(timer);
+            timer = setTimeout(ensureReadableTextInLightTheme, 80);
+        });
+        obs.observe(document.body || document.documentElement, {
+            subtree: true,
+            childList: true,
+            attributes: true,
+            attributeFilter: ['class', 'style', 'open']
+        });
+    }
+
     function init() {
         applyTheme();
+        watchOverlaysForLightTheme();
         bindClicks();
         bindDefaultBackButtons();
         bindTabs();

@@ -55,6 +55,19 @@
         } catch (e) {}
     }
 
+    function setLoginMethod(method) {
+        var isPwd = method === 'password';
+        var btnOtp = document.getElementById('btnLoginByOtp');
+        var btnPwd = document.getElementById('btnLoginByPwd');
+        var otpField = document.getElementById('loginOtpField');
+        var pwdField = document.getElementById('loginPwdField');
+        if (btnOtp) btnOtp.classList.toggle('on', !isPwd);
+        if (btnPwd) btnPwd.classList.toggle('on', isPwd);
+        if (otpField) otpField.style.display = isPwd ? 'none' : '';
+        if (pwdField) pwdField.style.display = isPwd ? '' : 'none';
+        document.body.setAttribute('data-email-login-method', isPwd ? 'password' : 'otp');
+    }
+
     function setEmailMode(mode) {
         var isReg = mode === 'register';
         btnModeLogin.classList.toggle('on', !isReg);
@@ -71,6 +84,10 @@
     tabEmail.addEventListener('click', function () { setAuthTab('email'); });
     btnModeLogin.addEventListener('click', function () { setEmailMode('login'); });
     btnModeReg.addEventListener('click', function () { setEmailMode('register'); });
+    var btnLoginByOtp = document.getElementById('btnLoginByOtp');
+    var btnLoginByPwd = document.getElementById('btnLoginByPwd');
+    if (btnLoginByOtp) btnLoginByOtp.addEventListener('click', function () { setLoginMethod('otp'); });
+    if (btnLoginByPwd) btnLoginByPwd.addEventListener('click', function () { setLoginMethod('password'); });
     if (btnWalletLogin) btnWalletLogin.addEventListener('click', function () { setWalletMode('login'); });
     if (btnWalletReg) btnWalletReg.addEventListener('click', function () { setWalletMode('register'); });
 
@@ -138,6 +155,12 @@
                 return;
             }
         }
+        var pwd = (document.getElementById('regPwd') && document.getElementById('regPwd').value) || '';
+        try {
+            var map = JSON.parse(localStorage.getItem('fl_email_pwds') || '{}');
+            if (pwd) map[email.toLowerCase()] = pwd;
+            localStorage.setItem('fl_email_pwds', JSON.stringify(map));
+        } catch (e) {}
         if (window.GoodfansAuth) window.GoodfansAuth.register({ email: email });
         location.href = 'onboarding-profile-complete.html?source=email';
     });
@@ -153,6 +176,17 @@
         next();
     }
 
+    function checkEmailPwd(email, pwd) {
+        if (!pwd) return false;
+        if (pwd === '123456') return true;
+        try {
+            var map = JSON.parse(localStorage.getItem('fl_email_pwds') || '{}');
+            return map[String(email).toLowerCase()] === pwd;
+        } catch (e) {
+            return false;
+        }
+    }
+
     document.getElementById('btnEmailLogin').addEventListener('click', function () {
         var email = (document.getElementById('emailLoginInput').value || '').trim();
         if (!email) {
@@ -162,6 +196,24 @@
         if (email.indexOf('new-user') >= 0 || email === 'new-user@example.com') {
             document.getElementById('emailUnregOverlay').classList.add('show');
             return;
+        }
+        var usePwd = document.body.getAttribute('data-email-login-method') === 'password';
+        if (usePwd) {
+            var pwd = (document.getElementById('emailLoginPwd') && document.getElementById('emailLoginPwd').value) || '';
+            if (!pwd) {
+                showLoginHint('请输入登录密码');
+                return;
+            }
+            if (!checkEmailPwd(email, pwd)) {
+                showLoginHint('邮箱或密码不正确');
+                return;
+            }
+        } else {
+            var otp = (document.getElementById('loginOtp') && document.getElementById('loginOtp').value || '').trim();
+            if (otp && otp !== '123456') {
+                showLoginHint('验证码不正确');
+                return;
+            }
         }
         finishEmailLogin(email);
     });
@@ -291,12 +343,14 @@
     var mode = params.get('mode');
     var ref = params.get('ref');
     var isRegister = mode === 'register' || !!ref;
+    var wantPwd = location.hash === '#pwd';
 
-    if (tab === 'email') {
+    if (tab === 'email' || wantPwd) {
         setAuthTab('email');
-        setEmailMode(isRegister ? 'register' : 'login');
+        setEmailMode(isRegister && !wantPwd ? 'register' : 'login');
     } else {
         setAuthTab(tab === 'wallet' ? 'wallet' : 'wallet');
         setWalletMode(isRegister ? 'register' : 'login');
     }
+    setLoginMethod(wantPwd ? 'password' : 'otp');
 })();

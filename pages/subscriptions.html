@@ -5,6 +5,7 @@
 <title>我的订阅</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
+<script src="../js/h5-theme-boot.js"></script>
 <style>
 .status-bar {
     isolation: isolate;
@@ -59,7 +60,7 @@
     font-size: 10px;
     font-weight: 700;
     line-height: 1;
-    color: #fff;
+    color: #fff !important;
     background: linear-gradient(135deg, #ef4444, #f97316);
 }
 .sub-tabs .tab .num.is-zero {
@@ -130,20 +131,32 @@
     min-width: 62px;
     display: flex;
     justify-content: flex-end;
+    align-items: center;
 }
 .creator-search-inline {
     display: none;
     align-items: center;
-    gap: 6px;
-    width: 220px;
-    height: 30px;
-    border: 1px solid var(--border-strong);
-    border-radius: 15px;
-    background: var(--bg-card);
-    padding: 0 8px;
+    gap: 8px;
+    width: 248px;
+    height: 32px;
+    border: 0;
+    background: transparent;
+    padding: 0;
 }
 .creator-search-inline.show {
     display: flex;
+}
+.creator-search-inline .field {
+    flex: 1;
+    min-width: 0;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    background: var(--bg-inset);
 }
 .creator-search-inline i {
     font-size: 12px;
@@ -158,12 +171,17 @@
     color: var(--text-primary);
     font-size: 12px;
 }
-.creator-search-inline .cancel {
+.creator-search-inline .cancel,
+.creator-search-inline #creatorSearchCancel {
+    flex-shrink: 0;
     border: 0;
-    background: transparent;
-    color: var(--text-tertiary);
-    font-size: 11px;
-    padding: 0;
+    background: none;
+    color: var(--brand-purple);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 0 2px;
+    height: 32px;
+    line-height: 32px;
 }
 .creator-strip {
     padding: 16px 0 12px 16px;
@@ -301,49 +319,49 @@
     color: var(--text-primary);
 }
 .iol-overlay {
-    position: fixed;
+    position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.52);
+    background: var(--bg-overlay);
     z-index: 70;
     display: none;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
-    padding: 12px;
+    padding: 0;
 }
 .iol-overlay.show {
     display: flex;
 }
 .iol-panel {
     width: 100%;
-    max-width: var(--phone-width);
-    max-height: calc(100vh - 120px);
+    max-width: 100%;
+    max-height: 78%;
     overflow-y: auto;
-    border-radius: 16px;
-    background: #13131d;
-    border: 1px solid rgba(255,255,255,0.12);
-    color: #fff;
+    border-radius: 18px 18px 0 0;
+    background: var(--bg-sheet);
+    border: 1px solid var(--border-strong);
+    color: var(--text-primary);
 }
 .iol-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 14px;
-    border-bottom: 0.5px solid rgba(255,255,255,0.1);
+    border-bottom: 0.5px solid var(--border-color);
 }
 .iol-head .t { font-size: 14px; font-weight: 700; }
 .iol-close {
     width: 28px; height: 28px; border: 0; border-radius: 50%;
-    background: rgba(255,255,255,0.08); color: #fff;
+    background: var(--bg-elevated); color: var(--text-primary);
 }
 .iol-body { padding: 12px 14px 14px; }
-.iol-kv { font-size: 12px; color: rgba(255,255,255,0.78); margin-bottom: 10px; line-height: 1.5; }
-.iol-kv b { color: #fff; }
+.iol-kv { font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.5; }
+.iol-kv b { color: var(--text-primary); }
 .iol-plan-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
 .iol-plan-btn {
-    border: 1px solid rgba(255,255,255,0.14);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
-    background: rgba(255,255,255,0.04);
-    color: #fff;
+    background: var(--bg-inset);
+    color: var(--text-primary);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -355,17 +373,17 @@
     box-shadow: inset 0 0 0 1px rgba(168,85,247,0.36);
     background: rgba(168,85,247,0.14);
 }
-.iol-plan-btn small { display:block; font-size:10px; color: rgba(255,255,255,0.62); margin-top: 2px; }
+.iol-plan-btn small { display:block; font-size:10px; color: var(--text-tertiary); margin-top: 2px; }
 .iol-promo { margin-bottom: 10px; }
-.iol-promo .hd { display:flex; justify-content:space-between; font-size:11px; color: rgba(255,255,255,0.68); margin-bottom: 6px; }
+.iol-promo .hd { display:flex; justify-content:space-between; font-size:11px; color: var(--text-secondary); margin-bottom: 6px; }
 .iol-promo .row { display:flex; gap: 8px; }
 .iol-promo input {
-    flex:1; min-width:0; height:32px; border-radius:16px; border:1px solid rgba(255,255,255,0.16);
-    background: rgba(255,255,255,0.04); color:#fff; padding:0 12px; font-size:12px;
+    flex:1; min-width:0; height:32px; border-radius:16px; border:1px solid var(--border-color);
+    background: var(--bg-inset); color: var(--text-primary); padding:0 12px; font-size:12px;
 }
 .iol-promo button {
     height:32px; border:0; border-radius:16px; padding:0 12px; font-size:11px;
-    background: rgba(255,255,255,0.12); color:#fff;
+    background: var(--bg-elevated); color: var(--text-primary);
 }
 .iol-step { display: none; }
 .iol-step.active { display: block; }
@@ -373,19 +391,19 @@
 .iol-quick button {
     flex: 1;
     height: 30px;
-    border: 1px solid rgba(255,255,255,0.16);
+    border: 1px solid var(--border-color);
     border-radius: 15px;
-    background: rgba(255,255,255,0.05);
-    color: #fff;
+    background: var(--bg-inset);
+    color: var(--text-primary);
     font-size: 11px;
 }
 .iol-pwd {
     width: 100%;
     height: 34px;
-    border: 1px solid rgba(255,255,255,0.16);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    background: rgba(255,255,255,0.05);
-    color: #fff;
+    background: var(--bg-inset);
+    color: var(--text-primary);
     padding: 0 10px;
     margin-bottom: 10px;
 }
@@ -482,9 +500,147 @@
 .feed-card .actions .act {
     display: flex; align-items: center; gap: 5px;
     font-size: 13px; color: var(--text-secondary);
+    cursor: pointer; user-select: none;
 }
 .feed-card .actions .act.liked { color: #ff3b5c; }
+.feed-card .actions .act.saved { color: var(--crypto-gold, #f5c16c); }
 .feed-card .actions .sp { flex: 1; }
+.comment-sheet { height: 75%; }
+.comment-sheet .hs-body { display: flex; flex-direction: column; }
+.comment-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+.cm-item { display: flex; gap: 10px; }
+.cm-item img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.cm-item .nm { color: #fff; font-size: 12px; font-weight: 700; }
+.cm-item .tx { color: rgba(255,255,255,0.88); font-size: 12px; line-height: 1.45; margin-top: 2px; }
+.cm-item .tm { color: rgba(255,255,255,0.45); font-size: 11px; margin-top: 3px; }
+.cm-compose { display: flex; gap: 8px; margin-top: 10px; flex-shrink: 0; }
+.cm-compose input {
+    flex: 1; height: 38px; border: 0; border-radius: 19px;
+    padding: 0 12px; color: #fff; background: rgba(255,255,255,0.08);
+}
+
+.home-overlay {
+    position: absolute; inset: 0; z-index: 120;
+    background: rgba(0,0,0,0.55);
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s ease;
+}
+.home-overlay.show { opacity: 1; pointer-events: auto; }
+.home-sheet {
+    position: absolute; left: 0; bottom: 0; width: 100%;
+    display: flex; flex-direction: column;
+    max-height: 82%; overflow: hidden;
+    background: #12121b;
+    border-radius: 18px 18px 0 0;
+    z-index: 121;
+    transform: translateY(100%);
+    transition: transform .24s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.home-sheet.show { transform: translateY(0); }
+.home-sheet .hs-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; flex-shrink: 0;
+    border-bottom: 0.5px solid rgba(255,255,255,0.08);
+}
+.home-sheet .hs-head .t { color: #fff; font-size: 15px; font-weight: 700; }
+.home-sheet .hs-head .x {
+    width: 28px; height: 28px; border-radius: 50%; border: 0;
+    background: rgba(255,255,255,0.08); color: #fff;
+}
+.home-sheet .hs-body {
+    flex: 1; min-height: 0; overflow-y: auto;
+    padding: 12px 16px 22px;
+}
+.share-sheet { height: auto; max-height: 82%; }
+.share-bonus {
+    margin-bottom: 12px; padding: 10px 12px; border-radius: 10px;
+    border: 1px solid rgba(251,191,36,0.28);
+    background: rgba(251,191,36,0.12); color: #fde68a; font-size: 12px;
+}
+.share-preview {
+    display: flex; gap: 10px; margin-bottom: 12px; padding: 10px;
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+}
+.share-preview .thumb { width: 76px; height: 76px; border-radius: 10px; object-fit: cover; }
+.share-preview .info .ti { color: #fff; font-size: 12px; font-weight: 700; line-height: 1.4; }
+.share-preview .info .by { color: rgba(255,255,255,0.7); font-size: 11px; margin: 4px 0 0; }
+.share-sec-label { color: rgba(255,255,255,0.64); font-size: 11px; font-weight: 700; margin: 0 0 10px; }
+.share-dm-entry {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    padding: 11px 12px; margin-bottom: 14px; text-align: left;
+    border: 1px solid rgba(168,85,247,0.4); border-radius: 12px;
+    background: rgba(168,85,247,0.14); color: #fff;
+}
+.share-dm-entry .ic {
+    width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    display: flex; align-items: center; justify-content: center;
+}
+.share-dm-entry .txt { flex: 1; min-width: 0; }
+.share-dm-entry .ti { font-size: 13px; font-weight: 800; }
+.share-dm-entry .sub { font-size: 11px; color: rgba(255,255,255,0.62); margin-top: 2px; }
+.share-grid {
+    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px 8px; margin-bottom: 12px;
+}
+.share-item {
+    border: 0; background: transparent; color: #fff;
+    display: flex; flex-direction: column; align-items: center; gap: 7px;
+}
+.share-item .ic {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center; font-size: 17px;
+}
+.share-item .lb { font-size: 11px; color: rgba(255,255,255,0.8); }
+.share-link-card {
+    border: 1px solid rgba(168,85,247,0.35);
+    background: rgba(168,85,247,0.1);
+    border-radius: 10px; padding: 10px;
+}
+.share-link-row {
+    display: flex; gap: 8px; align-items: center;
+    background: rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 10px;
+}
+.share-link-row .url {
+    flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    color: #c084fc; font-size: 11px;
+}
+.share-link-row .copy-btn {
+    border: 0; border-radius: 6px; padding: 4px 8px;
+    background: var(--brand-gradient); color: #fff; font-size: 11px; font-weight: 700;
+}
+.share-dm-sheet { height: 72%; z-index: 150; }
+.share-dm-sheet .hs-body { display: flex; flex-direction: column; }
+.share-dm-hint { color: rgba(255,255,255,0.62); font-size: 11px; line-height: 1.45; margin: 0 0 10px; }
+.share-dm-search {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; margin-bottom: 10px; border-radius: 10px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+}
+.share-dm-search input { flex: 1; border: 0; background: transparent; color: #fff; outline: none; }
+.share-dm-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.share-dm-row {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    padding: 8px 10px; border: 1px solid transparent; border-radius: 10px;
+    background: transparent; color: #fff; text-align: left;
+}
+.share-dm-row.on { background: rgba(168,85,247,0.18); border-color: rgba(168,85,247,0.45); }
+.share-dm-row img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+.share-dm-row .meta { flex: 1; min-width: 0; }
+.share-dm-row .nm { font-size: 13px; font-weight: 700; }
+.share-dm-row .sub { font-size: 11px; color: rgba(255,255,255,0.55); }
+.share-dm-row .chk {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.28);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; color: transparent;
+}
+.share-dm-row.on .chk { background: var(--brand-gradient); border-color: transparent; color: #fff; }
+.share-dm-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0; }
+.share-dm-sel { font-size: 12px; color: rgba(255,255,255,0.6); }
+.share-dm-empty { padding: 20px; text-align: center; color: rgba(255,255,255,0.5); font-size: 12px; }
 .feed-card.is-read { opacity: 0.68; }
 .feed-card {
     cursor: pointer;
@@ -536,6 +692,7 @@
     border-radius: 6px;
 }
 </style>
+<link rel="stylesheet" href="../css/h5-light-theme.css">
 </head>
 <body>
 
@@ -560,8 +717,10 @@
         <div class="creator-search-slot">
             <button type="button" class="creator-search-btn" id="creatorSearchToggle"><i class="fa-solid fa-magnifying-glass"></i>查找</button>
             <div class="creator-search-inline" id="creatorSearchInline">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input id="creatorSearchInput" placeholder="搜索创作者" />
+                <div class="field">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input id="creatorSearchInput" placeholder="搜索创作者" />
+                </div>
                 <button type="button" class="cancel" id="creatorSearchCancel">取消</button>
             </div>
         </div>
@@ -730,6 +889,73 @@
     </div>
 </div>
 
+<div class="home-overlay" id="subShareOverlay"></div>
+<div class="home-sheet share-sheet" id="subShareSheet">
+    <div class="hs-head"><div class="t">分享到</div><button class="x" type="button" id="subShareClose"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="hs-body">
+        <div class="share-bonus"><i class="fa-solid fa-coins"></i> 分享后，每完成 1 次有效访问，你可获得 <b>0.2 USDT</b> 推广奖励</div>
+        <div class="share-preview">
+            <img class="thumb" id="subShareThumb" src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=220&q=80" alt="">
+            <div class="info">
+                <div class="ti" id="subShareTitle">订阅内容</div>
+                <div class="by" id="subShareBy">创作者</div>
+            </div>
+        </div>
+        <button class="share-dm-entry" type="button" id="subShareToDm">
+            <span class="ic"><i class="fa-regular fa-comment-dots"></i></span>
+            <span class="txt">
+                <span class="ti">分享到私信</span>
+                <span class="sub">选择互关好友，以卡片形式发送</span>
+            </span>
+            <i class="fa-solid fa-chevron-right" style="opacity:.45"></i>
+        </button>
+        <div class="share-sec-label">分享到第三方平台</div>
+        <div class="share-grid" id="subShareGrid">
+            <button class="share-item" type="button" data-share="x"><span class="ic"><i class="fa-brands fa-x-twitter"></i></span><span class="lb">X</span></button>
+            <button class="share-item" type="button" data-share="facebook"><span class="ic"><i class="fa-brands fa-facebook-f"></i></span><span class="lb">Facebook</span></button>
+            <button class="share-item" type="button" data-share="instagram"><span class="ic"><i class="fa-brands fa-instagram"></i></span><span class="lb">Instagram</span></button>
+            <button class="share-item" type="button" data-share="telegram"><span class="ic"><i class="fa-brands fa-telegram"></i></span><span class="lb">Telegram</span></button>
+            <button class="share-item" type="button" data-share="discord"><span class="ic"><i class="fa-brands fa-discord"></i></span><span class="lb">Discord</span></button>
+            <button class="share-item" type="button" data-share="wechat"><span class="ic"><i class="fa-brands fa-weixin"></i></span><span class="lb">微信</span></button>
+            <button class="share-item" type="button" data-share="qq"><span class="ic"><i class="fa-brands fa-qq"></i></span><span class="lb">QQ</span></button>
+            <button class="share-item" type="button" data-share="weibo"><span class="ic"><i class="fa-brands fa-weibo"></i></span><span class="lb">微博</span></button>
+            <button class="share-item" type="button" data-share="reddit"><span class="ic"><i class="fa-brands fa-reddit"></i></span><span class="lb">Reddit</span></button>
+            <button class="share-item" type="button" data-share="line"><span class="ic"><i class="fa-brands fa-line"></i></span><span class="lb">LINE</span></button>
+        </div>
+        <div class="share-link-card">
+            <div class="share-link-row">
+                <span class="url" id="subShareUrl">https://goodfans.io/p/share</span>
+                <button type="button" class="copy-btn" id="subShareCopy">复制</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="home-sheet share-dm-sheet" id="subShareDmSheet">
+    <div class="hs-head"><div class="t">分享到私信</div><button class="x" type="button" id="subShareDmClose"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="hs-body">
+        <p class="share-dm-hint">选择互关好友，将当前内容以卡片形式发送到私信</p>
+        <div class="share-dm-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" id="subShareDmSearch" placeholder="搜索好友昵称" autocomplete="off">
+        </div>
+        <div class="share-dm-list" id="subShareDmList"></div>
+        <div class="share-dm-foot">
+            <span class="share-dm-sel" id="subShareDmHint">未选择</span>
+            <button type="button" class="btn btn-primary btn-sm" id="subShareDmSend" disabled><i class="fa-solid fa-paper-plane"></i> 发送</button>
+        </div>
+    </div>
+</div>
+<div class="home-sheet comment-sheet" id="subCommentSheet">
+    <div class="hs-head"><div class="t" id="subCommentHead">评论</div><button class="x" type="button" id="subCommentClose"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="hs-body">
+        <div class="comment-list" id="subCommentList"></div>
+        <div class="cm-compose">
+            <input id="subCommentInput" placeholder="说点什么..." />
+            <button class="btn btn-primary btn-sm" type="button" id="subCommentSend">发送</button>
+        </div>
+    </div>
+</div>
+
 <div class="home-indicator"></div>
 <script src="../js/digital-h5-nav.js"></script>
 <script>
@@ -894,8 +1120,8 @@
             body = '<div class="title">' + esc(item.title) + '</div>'
                 + '<div class="media"><img src="' + MEDIA[item.i % MEDIA.length] + '">'
                 + '<div class="tag-bl"><i class="fa-solid fa-tower-broadcast"></i> 直播中</div></div>'
-                + '<div class="actions"><div class="act liked"><i class="fa-solid fa-heart"></i> ' + item.likes + '</div>'
-                + '<div class="act"><i class="fa-regular fa-comment"></i> ' + item.comments + '</div>'
+                + '<div class="actions"><div class="act liked" data-act="like"><i class="fa-solid fa-heart"></i><span>' + item.likes + '</span></div>'
+                + '<div class="act" data-act="comment"><i class="fa-regular fa-comment"></i><span>' + item.comments + '</span></div>'
                 + '<div class="sp"></div>'
                 + '<button type="button" class="preview-book" data-preview-book="1"><i class="fa-regular fa-bell"></i><span>预约提醒</span></button></div>';
         } else {
@@ -903,16 +1129,16 @@
                 + '<div class="media"><img src="' + MEDIA[item.i % MEDIA.length] + '">'
                 + '<div class="tag-bl"><i class="fa-solid fa-play"></i> 0' + ((item.i % 5) + 1) + ':' + String(10 + (item.i % 50)).padStart(2, '0') + '</div>'
                 + '<div class="paywall-mini"><i class="fa-solid fa-unlock"></i> 已解锁</div></div>'
-                + '<div class="actions"><div class="act liked"><i class="fa-solid fa-heart"></i> ' + item.likes + '</div>'
-                + '<div class="act"><i class="fa-regular fa-comment"></i> ' + item.comments + '</div>'
-                + '<div class="act"><i class="fa-regular fa-bookmark"></i> ' + item.saves + '</div>'
-                + '<div class="sp"></div><div class="act"><i class="fa-solid fa-share"></i></div></div>';
+                + '<div class="actions"><div class="act liked" data-act="like"><i class="fa-solid fa-heart"></i><span>' + item.likes + '</span></div>'
+                + '<div class="act" data-act="comment"><i class="fa-regular fa-comment"></i><span>' + item.comments + '</span></div>'
+                + '<div class="act" data-act="save"><i class="fa-regular fa-bookmark"></i><span>' + item.saves + '</span></div>'
+                + '<div class="sp"></div><div class="act" data-act="share"><i class="fa-solid fa-share"></i></div></div>';
         }
         if (item.type === 'feed') {
-            body += '<div class="actions"><div class="act"><i class="fa-regular fa-heart"></i> ' + item.likes + '</div>'
-                + '<div class="act"><i class="fa-regular fa-comment"></i> ' + item.comments + '</div>'
-                + '<div class="act"><i class="fa-regular fa-bookmark"></i> ' + item.saves + '</div>'
-                + '<div class="sp"></div><div class="act"><i class="fa-solid fa-share"></i></div></div>';
+            body += '<div class="actions"><div class="act" data-act="like"><i class="fa-regular fa-heart"></i><span>' + item.likes + '</span></div>'
+                + '<div class="act" data-act="comment"><i class="fa-regular fa-comment"></i><span>' + item.comments + '</span></div>'
+                + '<div class="act" data-act="save"><i class="fa-regular fa-bookmark"></i><span>' + item.saves + '</span></div>'
+                + '<div class="sp"></div><div class="act" data-act="share"><i class="fa-solid fa-share"></i></div></div>';
         }
         var detail = item.type === 'paid' ? 'digital-detail-owned.html'
             : (item.type === 'live' ? 'home.html' : 'creator-profile.html');
@@ -1126,6 +1352,218 @@
         });
     }
 
+    var shareOverlay = document.getElementById('subShareOverlay');
+    var shareSheet = document.getElementById('subShareSheet');
+    var shareDmSheet = document.getElementById('subShareDmSheet');
+    var commentSheet = document.getElementById('subCommentSheet');
+    var commentList = document.getElementById('subCommentList');
+    var commentInput = document.getElementById('subCommentInput');
+    var commentSend = document.getElementById('subCommentSend');
+    var commentHead = document.getElementById('subCommentHead');
+    var commentCard = null;
+    var SAMPLE_COMMENTS = [
+        { user: 'Aria', av: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80', text: '这个角度太绝了！能出一期后期教程吗？', time: '18 分钟前' },
+        { user: 'Neo', av: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=80', text: '已收藏，期待下一组 🙌', time: '32 分钟前' },
+        { user: 'BlockTrader', av: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80', text: '画面太美了，打赏支持！', time: '1 小时前' }
+    ];
+    var commentStore = {};
+    var SHARE_DM_FRIENDS = [
+        { id: 'f1', name: 'Ken', handle: '@ken_film', av: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=80' },
+        { id: 'f2', name: 'Nova', handle: '@nova_room', av: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80' },
+        { id: 'f3', name: 'Yuki', handle: '@yuki_shot', av: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80' },
+        { id: 'f4', name: 'Mika', handle: '@mika_daily', av: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80' },
+        { id: 'f5', name: 'River', handle: '@river_vlog', av: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80' }
+    ];
+    var shareDmSelected = {};
+
+    function closeShareSheets() {
+        if (shareOverlay) shareOverlay.classList.remove('show');
+        if (shareSheet) shareSheet.classList.remove('show');
+        if (shareDmSheet) shareDmSheet.classList.remove('show');
+        if (commentSheet) commentSheet.classList.remove('show');
+        commentCard = null;
+    }
+    function parseCount(raw) {
+        if (typeof raw === 'number' && isFinite(raw)) return Math.max(0, Math.floor(raw));
+        var txt = String(raw == null ? '' : raw).trim().toLowerCase();
+        if (!txt) return 0;
+        var k = txt.match(/^(\d+(?:\.\d+)?)\s*k$/);
+        if (k) return Math.round(Number(k[1]) * 1000);
+        var n = Number(txt.replace(/[^\d.]/g, ''));
+        return isFinite(n) ? Math.max(0, Math.floor(n)) : 0;
+    }
+    function formatCount(n) {
+        n = Math.max(0, Number(n) || 0);
+        if (n >= 1000) {
+            var k = n / 1000;
+            return (k % 1 === 0 ? k.toFixed(0) : k.toFixed(1)) + 'K';
+        }
+        return String(n);
+    }
+    function setActCount(act, n) {
+        var span = act && act.querySelector('span');
+        if (span) span.textContent = formatCount(n);
+    }
+    function renderCommentItems(items) {
+        if (!commentList) return;
+        commentList.innerHTML = items.map(function (c) {
+            return '<div class="cm-item"><img src="' + esc(c.av) + '" alt=""><div>'
+                + '<div class="nm">' + esc(c.user) + '</div>'
+                + '<div class="tx">' + esc(c.text) + '</div>'
+                + '<div class="tm">' + esc(c.time || '刚刚') + '</div></div></div>';
+        }).join('') || '<div class="share-dm-empty">还没有评论，来说两句吧</div>';
+    }
+    function openCommentSheet(card) {
+        commentCard = card;
+        var id = card.getAttribute('data-item-id') || 'sub';
+        var act = card.querySelector('[data-act="comment"]');
+        var seedCount = parseCount(act && act.querySelector('span') ? act.querySelector('span').textContent : '0');
+        if (!commentStore[id]) {
+            commentStore[id] = SAMPLE_COMMENTS.map(function (c) { return { user: c.user, av: c.av, text: c.text, time: c.time }; });
+        }
+        var items = commentStore[id];
+        if (commentHead) commentHead.textContent = Math.max(items.length, seedCount) + ' 条评论';
+        renderCommentItems(items);
+        if (commentInput) commentInput.value = '';
+        if (shareSheet) shareSheet.classList.remove('show');
+        if (shareDmSheet) shareDmSheet.classList.remove('show');
+        if (shareOverlay) shareOverlay.classList.add('show');
+        if (commentSheet) commentSheet.classList.add('show');
+    }
+    function sendComment() {
+        var val = (commentInput && commentInput.value || '').trim();
+        if (!val) {
+            toast('请输入评论内容');
+            return;
+        }
+        if (!commentCard) return;
+        var id = commentCard.getAttribute('data-item-id') || 'sub';
+        if (!commentStore[id]) commentStore[id] = [];
+        commentStore[id].unshift({
+            user: '我',
+            av: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80',
+            text: val,
+            time: '刚刚'
+        });
+        if (commentInput) commentInput.value = '';
+        renderCommentItems(commentStore[id]);
+        var act = commentCard.querySelector('[data-act="comment"]');
+        if (act) {
+            var next = parseCount(act.querySelector('span') ? act.querySelector('span').textContent : '0') + 1;
+            setActCount(act, next);
+            if (commentHead) commentHead.textContent = next + ' 条评论';
+        }
+        toast('评论成功');
+    }
+    function openShareSheet(card) {
+        var titleEl = card.querySelector('.content, .title');
+        var imgEl = card.querySelector('.img-grid img, .media img');
+        var name = card.getAttribute('data-creator') || '创作者';
+        var title = (titleEl && titleEl.textContent.trim()) || '订阅内容';
+        var thumb = document.getElementById('subShareThumb');
+        var titleBox = document.getElementById('subShareTitle');
+        var byBox = document.getElementById('subShareBy');
+        var urlBox = document.getElementById('subShareUrl');
+        if (thumb) thumb.src = (imgEl && imgEl.getAttribute('src')) || thumb.src;
+        if (titleBox) titleBox.textContent = title;
+        if (byBox) byBox.textContent = name;
+        if (urlBox) urlBox.textContent = 'https://goodfans.io/p/' + encodeURIComponent(name) + '-' + (card.getAttribute('data-item-id') || 'share');
+        if (shareDmSheet) shareDmSheet.classList.remove('show');
+        if (commentSheet) commentSheet.classList.remove('show');
+        if (shareOverlay) shareOverlay.classList.add('show');
+        if (shareSheet) shareSheet.classList.add('show');
+    }
+    function renderShareDmList(filter) {
+        var list = document.getElementById('subShareDmList');
+        if (!list) return;
+        var q = (filter || '').toLowerCase().trim();
+        list.innerHTML = SHARE_DM_FRIENDS.filter(function (f) {
+            return !q || f.name.toLowerCase().indexOf(q) >= 0 || f.handle.toLowerCase().indexOf(q) >= 0;
+        }).map(function (f) {
+            var on = shareDmSelected[f.id] ? ' on' : '';
+            return '<button type="button" class="share-dm-row' + on + '" data-id="' + f.id + '">'
+                + '<img src="' + f.av + '" alt=""><span class="meta"><span class="nm">' + f.name + '</span>'
+                + '<span class="sub">' + f.handle + ' · 互关</span></span>'
+                + '<span class="chk"><i class="fa-solid fa-check"></i></span></button>';
+        }).join('') || '<div class="share-dm-empty">无匹配好友</div>';
+    }
+    function syncShareDmFoot() {
+        var names = SHARE_DM_FRIENDS.filter(function (f) { return shareDmSelected[f.id]; }).map(function (f) { return f.name; });
+        var hint = document.getElementById('subShareDmHint');
+        var send = document.getElementById('subShareDmSend');
+        if (hint) hint.textContent = names.length ? ('已选 ' + names.length + ' 人：' + names.join('、')) : '未选择';
+        if (send) send.disabled = !names.length;
+    }
+    function openShareDm() {
+        shareDmSelected = {};
+        var search = document.getElementById('subShareDmSearch');
+        if (search) search.value = '';
+        renderShareDmList('');
+        syncShareDmFoot();
+        if (shareSheet) shareSheet.classList.remove('show');
+        if (shareOverlay) shareOverlay.classList.add('show');
+        if (shareDmSheet) shareDmSheet.classList.add('show');
+    }
+
+    if (shareOverlay) shareOverlay.addEventListener('click', closeShareSheets);
+    var subShareClose = document.getElementById('subShareClose');
+    if (subShareClose) subShareClose.addEventListener('click', closeShareSheets);
+    var subShareToDm = document.getElementById('subShareToDm');
+    if (subShareToDm) subShareToDm.addEventListener('click', openShareDm);
+    var subShareGrid = document.getElementById('subShareGrid');
+    if (subShareGrid) {
+        subShareGrid.addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-share]');
+            if (!btn) return;
+            var map = { x: 'X', facebook: 'Facebook', instagram: 'Instagram', telegram: 'Telegram', discord: 'Discord', wechat: '微信', qq: 'QQ', weibo: '微博', reddit: 'Reddit', line: 'LINE' };
+            toast((map[btn.getAttribute('data-share')] || '分享') + '成功');
+            closeShareSheets();
+        });
+    }
+    var subShareCopy = document.getElementById('subShareCopy');
+    if (subShareCopy) subShareCopy.addEventListener('click', function () { toast('链接已复制'); });
+    var dmList = document.getElementById('subShareDmList');
+    if (dmList) {
+        dmList.addEventListener('click', function (e) {
+            var row = e.target.closest('.share-dm-row');
+            if (!row) return;
+            var id = row.getAttribute('data-id');
+            if (shareDmSelected[id]) delete shareDmSelected[id];
+            else shareDmSelected[id] = true;
+            renderShareDmList(document.getElementById('subShareDmSearch') ? document.getElementById('subShareDmSearch').value : '');
+            syncShareDmFoot();
+        });
+    }
+    var dmSearch = document.getElementById('subShareDmSearch');
+    if (dmSearch) dmSearch.addEventListener('input', function () { renderShareDmList(dmSearch.value); });
+    var dmClose = document.getElementById('subShareDmClose');
+    if (dmClose) {
+        dmClose.addEventListener('click', function () {
+            if (shareDmSheet) shareDmSheet.classList.remove('show');
+            if (shareSheet) shareSheet.classList.add('show');
+        });
+    }
+    var dmSend = document.getElementById('subShareDmSend');
+    if (dmSend) {
+        dmSend.addEventListener('click', function () {
+            var names = SHARE_DM_FRIENDS.filter(function (f) { return shareDmSelected[f.id]; }).map(function (f) { return f.name; });
+            if (!names.length) return;
+            toast('已分享到私信：' + names.join('、'));
+            closeShareSheets();
+        });
+    }
+    var commentClose = document.getElementById('subCommentClose');
+    if (commentClose) commentClose.addEventListener('click', closeShareSheets);
+    if (commentSend) commentSend.addEventListener('click', sendComment);
+    if (commentInput) {
+        commentInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendComment();
+            }
+        });
+    }
+
     feedList.addEventListener('click', function (e) {
         var previewBtn = e.target.closest('[data-preview-book]');
         if (previewBtn) {
@@ -1136,6 +1574,44 @@
             if (icon) icon.className = booked ? 'fa-solid fa-bell' : 'fa-regular fa-bell';
             if (label) label.textContent = booked ? '已预约' : '预约提醒';
             toast(booked ? '已预约直播提醒' : '已取消预约提醒');
+            return;
+        }
+
+        var actBtn = e.target.closest('.act[data-act]');
+        if (actBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            var act = actBtn.getAttribute('data-act');
+            var actCard = actBtn.closest('.feed-card');
+            if (!actCard) return;
+            if (act === 'like') {
+                var liked = actBtn.classList.toggle('liked');
+                var likeIcon = actBtn.querySelector('i');
+                if (likeIcon) likeIcon.className = liked ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+                var likeSpan = actBtn.querySelector('span');
+                var likeN = parseCount(likeSpan ? likeSpan.textContent : '0');
+                setActCount(actBtn, liked ? likeN + 1 : Math.max(0, likeN - 1));
+                toast(liked ? '已点赞' : '已取消点赞');
+                return;
+            }
+            if (act === 'save') {
+                var saved = actBtn.classList.toggle('saved');
+                var saveIcon = actBtn.querySelector('i');
+                if (saveIcon) saveIcon.className = saved ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark';
+                var saveSpan = actBtn.querySelector('span');
+                var saveN = parseCount(saveSpan ? saveSpan.textContent : '0');
+                setActCount(actBtn, saved ? saveN + 1 : Math.max(0, saveN - 1));
+                toast(saved ? '已收藏' : '已取消收藏');
+                return;
+            }
+            if (act === 'comment') {
+                openCommentSheet(actCard);
+                return;
+            }
+            if (act === 'share') {
+                openShareSheet(actCard);
+                return;
+            }
             return;
         }
 

@@ -637,7 +637,12 @@
     }
 
     document.querySelectorAll('.sfc-footer button, .sfc-footer .a-btn, .sub-preview-book-wrap').forEach(function (el) {
-        el.addEventListener('click', function (e) { e.stopPropagation(); });
+        el.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (el.getAttribute('data-sub-share') === '1' && window.FL_openInteractionModal) {
+                window.FL_openInteractionModal('share-modal.html');
+            }
+        });
     });
 
     initUnreadReadState();
