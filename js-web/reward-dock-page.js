@@ -20,15 +20,24 @@
     dock.setAttribute('role', 'button');
     dock.setAttribute('tabindex', '0');
     dock.setAttribute('aria-expanded', 'true');
-    dock.title = '拖拽移动 · 箭头收起侧边 · 点击进积分商城';
+    var pointsReward = '积分奖励';
+    var pointsHint = '避开创作按钮 · 可收起侧边';
+    var pointsFold = '收起到侧边';
+    if (window.FLI18n && window.FLI18n.t) {
+        var code = window.FLI18n.getLangCode ? window.FLI18n.getLangCode() : 'zh-CN';
+        pointsReward = window.FLI18n.t(code, 'home_points_reward') || pointsReward;
+        pointsHint = window.FLI18n.t(code, 'home_points_hint') || pointsHint;
+        pointsFold = window.FLI18n.t(code, 'home_points_fold') || pointsFold;
+    }
+    dock.title = pointsFold;
     dock.innerHTML =
         '<div class="rd-ring" id="rewardRing" style="--rd-progress:100"><i class="fa-solid fa-coins"></i></div>' +
         '<div class="rd-txt">' +
-        '<div class="lb"><i class="fa-solid fa-gift" style="margin-right:4px;color:#FBBF24"></i>积分奖励</div>' +
+        '<div class="lb"><i class="fa-solid fa-gift" style="margin-right:4px;color:#FBBF24"></i>' + pointsReward + '</div>' +
         '<div class="tm" id="rewardTime">00:45</div>' +
-        '<div class="rd-hint" id="rewardHint">拖拽 · 收起 · 点进商城</div>' +
+        '<div class="rd-hint" id="rewardHint">' + pointsHint + '</div>' +
         '</div>' +
-        '<button type="button" class="rd-fold" title="收起到侧边" aria-label="收起到侧边"><i class="fa-solid fa-chevron-right"></i></button>';
+        '<button type="button" class="rd-fold" title="' + pointsFold + '" aria-label="' + pointsFold + '"><i class="fa-solid fa-chevron-right"></i></button>';
 
     var layer = document.createElement('div');
     layer.id = 'rewardFloatLayer';

@@ -47,6 +47,14 @@
         return d.innerHTML;
     }
 
+    function tr(zh) {
+        if (global.FLI18n && global.FLI18n.tByZh) {
+            var code = global.FLI18n.getLangCode ? global.FLI18n.getLangCode() : 'zh-CN';
+            return global.FLI18n.tByZh(code, zh) || zh;
+        }
+        return zh;
+    }
+
     function pick(arr, i) {
         return arr[i % arr.length];
     }
@@ -163,22 +171,22 @@
         } else if (isLive) {
             metaLive = '<span style="color:#fca5a5;font-weight:600">正在直播</span><span class="dot">·</span><i class="fa-regular fa-eye"></i> ' + formatNum(800 + i * 37) + ' 人实时观看';
         } else {
-            metaLive = '<span class="meta-online"><i class="fa-solid fa-circle"></i>在线</span><span class="dot">·</span>创作者 LV ' + c.lv + '<span class="dot">·</span>' + hours + ' 小时前';
+            metaLive = '<span class="meta-online"><i class="fa-solid fa-circle"></i>' + tr('在线') + '</span><span class="dot">·</span>' + tr('创作者') + ' LV ' + c.lv + '<span class="dot">·</span>' + hours + ' ' + tr('小时前');
         }
         var tagHtml = (c.tags || []).map(function (t) {
-            return '<span class="meta-tag">' + esc(t) + '</span>';
+            return '<span class="meta-tag">' + esc(tr(t)) + '</span>';
         }).join('');
         var metaGlass = buildDevGlass(tipId, metaGlassTip(type, previewVariant, liveStatus));
         var followBtn = guest
-            ? '<button type="button" class="follow-btn" onclick="location.href=\'modal-login-main.html\'">+ 关注</button>'
-            : '<button type="button" class="follow-btn follow-dynamic" data-following="' + (i % 3 === 0 ? 'true' : 'false') + '">' + (i % 3 === 0 ? '已关注' : '+ 关注') + '</button>';
+            ? '<button type="button" class="follow-btn" onclick="location.href=\'modal-login-main.html\'">' + tr('+ 关注') + '</button>'
+            : '<button type="button" class="follow-btn follow-dynamic" data-following="' + (i % 3 === 0 ? 'true' : 'false') + '">' + (i % 3 === 0 ? tr('已关注') : tr('+ 关注')) + '</button>';
         var subBtn = guest || isLive
             ? ''
             : (type === 'subscribe-locked' || i % 4 === 0
-                ? '<button type="button" class="sub-btn btn-open-subscribe" data-creator="' + esc(c.name) + '" data-plan="16" data-av="https://images.unsplash.com/' + c.av + '?w=100">订阅</button>'
+                ? '<button type="button" class="sub-btn btn-open-subscribe" data-creator="' + esc(c.name) + '" data-plan="16" data-av="https://images.unsplash.com/' + c.av + '?w=100">' + tr('订阅') + '</button>'
                 : '');
         var verified = c.verified
-            ? ' <span class="fl-badge fl-badge--creator" title="认证创作者" aria-label="认证创作者"><i class="fa-solid fa-palette"></i></span>'
+            ? ' <span class="fl-badge fl-badge--creator" title="' + tr('认证创作者') + '" aria-label="' + tr('认证创作者') + '"><i class="fa-solid fa-palette"></i></span>'
             : '';
 
         var avInner =
@@ -198,7 +206,7 @@
     }
 
     function feedImg(src, alt) {
-        return '<img class="feed-img-zoom" src="' + src + '" alt="' + (alt || '') + '" title="点击放大 · 右键可保存">';
+        return '<img class="feed-img-zoom" src="' + src + '" alt="' + (alt || '') + '" title="' + tr('点击放大 · 右键可保存') + '">';
     }
 
     function resolveSlideType(i, stackKind) {
@@ -383,10 +391,10 @@
         var guestCls = guest ? ' guest-act' : '';
         var liveOngoing = type === 'live' && liveStatus !== 'ended';
         var liveExtra = liveOngoing
-            ? '<span class="a-btn' + guestCls + '" onclick="' + (guest ? "location.href='modal-login-main.html'" : 'FL_openDanmakuModal()') + '"><i class="fa-regular fa-comment"></i>实时弹幕</span>' +
-              '<span class="a-btn tip-cta' + guestCls + '" onclick="' + (guest ? "location.href='modal-login-main.html'" : 'FL_openGiftModal(this)') + '"><i class="fa-solid fa-gift"></i>送礼</span>'
-            : '<span class="a-btn tip-cta' + guestCls + '" onclick="' + (guest ? "location.href='modal-login-main.html'" : 'FL_openGiftModal(this)') + '"><i class="fa-solid fa-gift"></i>打赏</span>' +
-              '<span class="a-btn bookmark-act' + guestCls + '" role="button"><i class="fa-regular fa-bookmark"></i><span>收藏</span></span>';
+            ? '<span class="a-btn' + guestCls + '" onclick="' + (guest ? "location.href='modal-login-main.html'" : 'FL_openDanmakuModal()') + '"><i class="fa-regular fa-comment"></i>' + tr('实时弹幕') + '</span>' +
+              '<span class="a-btn tip-cta' + guestCls + '" onclick="' + (guest ? "location.href='modal-login-main.html'" : 'FL_openGiftModal(this)') + '"><i class="fa-solid fa-gift"></i>' + tr('送礼') + '</span>'
+            : '<span class="a-btn tip-cta' + guestCls + '" onclick="' + (guest ? "location.href='modal-login-main.html'" : 'FL_openGiftModal(this)') + '"><i class="fa-solid fa-gift"></i>' + tr('打赏') + '</span>' +
+              '<span class="a-btn bookmark-act' + guestCls + '" role="button"><i class="fa-regular fa-bookmark"></i><span>' + tr('收藏') + '</span></span>';
         var commentClick = guest ? '' : ' onclick="FL_openInteractionModal(\'comment-modal.html\')"';
         var shareClick = guest ? " onclick=\"location.href='modal-login-main.html'\"" : ' onclick="FL_openInteractionModal(\'share-modal.html\')"';
 
@@ -394,9 +402,9 @@
             '<div class="post-actions">' +
             '<span class="a-btn like-act' + guestCls + '" role="button"><i class="fa-regular fa-heart"></i><span class="lc">' + formatNum(likes) + '</span></span>' +
             '<span class="a-btn' + guestCls + '"' + commentClick + '><i class="fa-regular fa-comment"></i>' + comments + '</span>' +
-            '<span class="a-btn' + guestCls + '"' + shareClick + '><i class="fa-solid fa-arrow-up-right-from-square"></i>分享</span>' +
+            '<span class="a-btn' + guestCls + '"' + shareClick + '><i class="fa-solid fa-arrow-up-right-from-square"></i>' + tr('分享') + '</span>' +
             liveExtra +
-            '<span class="a-btn report-act' + guestCls + '" role="button" title="举报"><i class="fa-regular fa-flag"></i><span>举报</span></span>' +
+            '<span class="a-btn report-act' + guestCls + '" role="button" title="' + tr('举报') + '"><i class="fa-regular fa-flag"></i><span>' + tr('举报') + '</span></span>' +
             '</div>'
         );
     }
@@ -482,7 +490,18 @@
         fillTrack('feedStackTrack', 'rec', { guest: guest });
         fillTrack('feedFollowStackTrack', 'follow', { guest: guest });
         fillTrack('feedLiveStackTrack', 'live', { guest: guest });
+        if (global.FLI18n && typeof global.FLI18n.applyAll === 'function') {
+            global.FLI18n.applyAll();
+        }
     };
+
+    document.addEventListener('goodfans-lang-change', function () {
+        if (document.getElementById('feedStackTrack')) {
+            global.FL_buildFeedStacks({
+                guest: document.body && document.body.classList.contains('is-guest-home')
+            });
+        }
+    });
 
     function autoBuild() {
         var track = document.getElementById('feedStackTrack');
