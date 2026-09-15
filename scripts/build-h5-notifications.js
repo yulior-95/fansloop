@@ -90,7 +90,7 @@ ${inlineStyles}
 <div class="nav-bar solid">
     <div class="nav-left"><div class="nav-btn" data-back="profile.html"><i class="fa-solid fa-chevron-left"></i></div></div>
     <div class="nav-title">通知中心</div>
-    <div class="nav-right"><div class="nav-btn" id="btnGoMessages" title="私信"><i class="fa-regular fa-comments"></i></div></div>
+    <div class="nav-right"></div>
 </div>
 <div class="app-content">
 ${headActions}
@@ -106,7 +106,6 @@ ${overlays}
 <script src="../js-web/notifications-interactions.js"></script>
 ${inlineScript}
 <script>
-document.getElementById('btnGoMessages')?.addEventListener('click', function () { location.href = 'messages.html'; });
 document.getElementById('btnNfWalletGo')?.addEventListener('click', function () { location.href = 'wallet.html'; });
 </script>
 </body>
