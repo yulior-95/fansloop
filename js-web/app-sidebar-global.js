@@ -1053,6 +1053,19 @@
         renderLivePip(null);
     };
 
+    function ensureResponsiveLayout() {
+        var html = document.documentElement;
+        if (global.FL_responsiveLayout || (html && html.getAttribute('data-fl-responsive-ready') === '1')) return;
+        if (global.__flResponsiveLoading) return;
+        global.__flResponsiveLoading = true;
+        var base = detectScriptBase();
+        var s = document.createElement('script');
+        s.src = base + 'responsive-layout.js';
+        s.onload = function () { global.__flResponsiveLoading = false; };
+        s.onerror = function () { global.__flResponsiveLoading = false; };
+        document.head.appendChild(s);
+    }
+
     function ensurePageBackNav() {
         if (global.FL_pageBack || global.__FL_PAGE_BACK_BOUND__) return;
         if (global.__flPageBackLoading) return;
@@ -1065,6 +1078,7 @@
         document.head.appendChild(s);
     }
 
+    ensureResponsiveLayout();
     ensurePageBackNav();
 
     if (document.readyState === 'loading') {

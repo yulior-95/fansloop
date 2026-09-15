@@ -1,0 +1,257 @@
+/**
+ * GOODFANS Web · 全局响应式（笔记本 / 1080p / 1440p / 2K 等）
+ * 通过 common-web.css 引入，覆盖所有引用设计系统的页面。
+ */
+
+:root {
+    --main-padding-x: clamp(16px, 2.2vw, 48px);
+    --main-padding-y: clamp(16px, 1.8vh, 28px);
+    --main-padding-bottom: clamp(40px, 5vh, 72px);
+    --content-max: min(1720px, calc(100vw - var(--sidebar-w) - 64px));
+    --modal-pad: clamp(12px, 2vw, 24px);
+}
+
+/* ---------- 超宽屏（如 2560×1400 · 24 寸）主内容区居中，避免行宽过长 ---------- */
+@media (min-width: 1920px) {
+    :root {
+        --header-h: 68px;
+        --content-max: min(1760px, calc(100vw - var(--sidebar-w) - 80px));
+    }
+
+    body:has(> .app-shell) .app-main:not(.app-main--full) {
+        max-width: var(--content-max);
+        margin-inline: auto;
+        width: 100%;
+    }
+}
+
+@media (min-width: 2560px) {
+    :root {
+        --sidebar-w: 252px;
+        --content-max: min(1840px, calc(100vw - var(--sidebar-w) - 120px));
+    }
+
+    html {
+        font-size: calc(14px * var(--fl-font-scale, 1) * var(--fl-responsive-font-boost, 1));
+    }
+}
+
+/* ---------- 大屏笔记本 / 小桌面 ---------- */
+@media (max-width: 1536px) {
+    :root {
+        --content-max: min(1280px, calc(100vw - var(--sidebar-w) - 48px));
+    }
+
+    .page-head .ph-l h1 {
+        font-size: clamp(20px, 2.2vw, 26px);
+    }
+
+    .grid-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1279px) {
+    :root {
+        --sidebar-w: 220px;
+        --content-max: calc(100vw - var(--sidebar-w) - 32px);
+    }
+
+    .app-header {
+        padding: 0 16px;
+        gap: 12px;
+    }
+
+    .app-header .h-search {
+        max-width: min(360px, 42vw);
+    }
+
+    .app-main {
+        padding: var(--main-padding-y) 20px var(--main-padding-bottom);
+    }
+
+    .page-head {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .page-head .ph-r {
+        flex-wrap: wrap;
+    }
+
+    .grid-4,
+    .grid-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-12 {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .col-8 { grid-column: span 6; }
+    .col-7 { grid-column: span 6; }
+    .col-6 { grid-column: span 6; }
+    .col-5 { grid-column: span 6; }
+    .col-4 { grid-column: span 3; }
+    .col-3 { grid-column: span 3; }
+}
+
+/* ---------- 窄屏 / 小窗口（仍按桌面 Web 处理，侧栏由 JS 建议收起） ---------- */
+@media (max-width: 1100px) {
+    .app-header .h-search .kbd {
+        display: none;
+    }
+
+    .grid-4,
+    .grid-3,
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .col-3,
+    .col-4,
+    .col-5,
+    .col-6,
+    .col-7,
+    .col-8,
+    .col-9,
+    .col-12 {
+        grid-column: span 1;
+    }
+
+    .detail-grid,
+    [class*="detail-grid"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 720px) {
+    .app-header .h-search {
+        max-width: none;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .app-header .h-cta span,
+    .app-header .h-cta .lb {
+        display: none;
+    }
+
+    .table-wrap,
+    .tx-table,
+    .card.tx-table {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table {
+        min-width: 640px;
+    }
+
+    .modal.modal-side {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+
+/* ---------- 模态 / 认证页 ---------- */
+.modal-mask {
+    padding: var(--modal-pad);
+    align-items: safe center;
+}
+
+.modal {
+    max-width: min(540px, calc(100vw - var(--modal-pad) * 2));
+    max-height: min(90vh, calc(100dvh - var(--modal-pad) * 2));
+}
+
+.modal.modal-md {
+    max-width: min(640px, calc(100vw - var(--modal-pad) * 2));
+}
+
+.modal.modal-lg {
+    max-width: min(840px, calc(100vw - var(--modal-pad) * 2));
+}
+
+.modal.modal-xl {
+    max-width: min(1100px, calc(100vw - var(--modal-pad) * 2));
+}
+
+@media (max-width: 900px) {
+    .auth-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-stage {
+        display: none;
+    }
+
+    .auth-form {
+        min-height: 100vh;
+        padding: clamp(24px, 5vw, 48px) clamp(20px, 4vw, 32px);
+    }
+}
+
+/* ---------- 常见页面内联布局模式（无单独 CSS 文件时） ---------- */
+.tx-summary {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 1400px) {
+    .tx-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .tx-summary {
+        grid-template-columns: 1fr;
+    }
+}
+
+.tx-toolbar {
+    flex-wrap: wrap;
+}
+
+.tx-toolbar .search-mini {
+    min-width: min(100%, 240px);
+}
+
+/* 双栏详情（交易详情等） */
+.detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+    gap: clamp(16px, 2vw, 22px);
+    max-width: 100%;
+}
+
+@media (max-width: 1100px) {
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 工具：全宽主区（首页 Feed 等不走 content-max 居中） */
+.app-main.app-main--full {
+    max-width: none !important;
+    margin-inline: 0 !important;
+}
+
+.fl-page-inner {
+    max-width: var(--content-max);
+    margin-inline: auto;
+    width: 100%;
+}
+
+/* 减少 motion 偏好 */
+@media (prefers-reduced-motion: reduce) {
+    .app-shell,
+    .app-sidebar,
+    .s-sidebar-toggle i {
+        transition: none !important;
+    }
+}

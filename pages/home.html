@@ -2134,9 +2134,6 @@ body { touch-action: pan-y; }
             ? '<div class="feed-live-badge" data-action="enter-live"><i class="fa-solid fa-circle"></i><span>' + esc(f.liveBadge) + '</span></div>'
             : '';
         var videoCls = f.liveHref ? 'feed-video clickable' : 'feed-video';
-        var liveSettingsAction = f.liveHref
-            ? '<div class="action action-live-settings" data-action="open-live-settings"><i class="fa-solid fa-gear"></i><span class="count">设置</span></div>'
-            : '';
         return '' +
             '<section class="feed-page" data-feed-index="' + i + '" style="transform:translateY(' + (i * 100) + '%)">' +
                 '<div class="' + videoCls + '" ' + (f.liveHref ? 'data-action="enter-live"' : '') + '>' +
@@ -2163,7 +2160,6 @@ body { touch-action: pan-y; }
                     '<div class="action action-comment" data-action="comment"><i class="fa-solid fa-comment-dots"></i><span class="count">' + esc(f.comment) + '</span></div>' +
                     '<div class="action action-save' + saveCls + '" data-action="save"><i class="fa-solid fa-bookmark"></i><span class="count">' + esc(f.save) + '</span></div>' +
                     '<div class="action action-share" data-action="share"><i class="fa-solid fa-share"></i><span class="count">分享</span></div>' +
-                    liveSettingsAction +
                 '</div>' +
                 '<div class="feed-info">' +
                     '<div class="creator"><span class="name" data-action="creator-profile">' + esc(f.creator) + '</span><span class="badge badge-brand"><i class="fa-solid fa-crown"></i> Pro</span></div>' +
@@ -2766,12 +2762,6 @@ body { touch-action: pan-y; }
             } else {
                 showToast('该内容暂不支持进入直播间');
             }
-            return;
-        }
-        if (action === 'open-live-settings') {
-            if (!item.liveHref) return;
-            openLiveRoom(item);
-            if (liveSettingsPop) liveSettingsPop.classList.add('open');
             return;
         }
         if (action === 'toggle-title') {

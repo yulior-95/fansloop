@@ -55,10 +55,10 @@
     function initInbox() {
         var chips = Array.prototype.slice.call(document.querySelectorAll('#imlTabs .t[data-filter]'));
         var searchInput = document.getElementById('msgSearchInput');
-        var unreadCountEl = document.getElementById('msgUnreadCount');
-        var reqCountEl = document.getElementById('msgReqCount');
         var chatItems = Array.prototype.slice.call(document.querySelectorAll('.chat-item'));
-        var quickItems = Array.prototype.slice.call(document.querySelectorAll('.quick-grid .q[data-cat]'));
+        var cntAll = document.getElementById('imlCntAll');
+        var cntDm = document.getElementById('imlCntDm');
+        var cntGroup = document.getElementById('imlCntGroup');
         var curFilter = 'all';
         var ovlAddContact = document.getElementById('ovlAddContact');
         var ovlCreateGroup = document.getElementById('ovlCreateGroup');
@@ -121,16 +121,26 @@
             groupMemberList.innerHTML = renderContactList(CONTACTS, groupMemberSearch && groupMemberSearch.value, false);
         }
 
-        function updateUnreadCount() {
-            if (!unreadCountEl) return;
-            var unread = 0;
+        function unreadSumByType(type) {
+            var sum = 0;
             chatItems.forEach(function (row) {
-                if (row.style.display === 'none') return;
+                var cat = row.getAttribute('data-chat-type') || 'dm';
+                if (type !== 'all' && cat !== type) return;
                 var b = row.querySelector('.unread');
                 var n = b ? Number((b.textContent || '').trim()) : 0;
-                if (n > 0) unread += 1;
+                if (n > 0) sum += n;
             });
-            unreadCountEl.textContent = String(unread);
+            return sum;
+        }
+        function setTabCnt(el, n) {
+            if (!el) return;
+            el.textContent = String(n);
+            el.style.display = n > 0 ? '' : 'none';
+        }
+        function updateTabUnreadCounts() {
+            setTabCnt(cntAll, unreadSumByType('all'));
+            setTabCnt(cntDm, unreadSumByType('dm'));
+            setTabCnt(cntGroup, unreadSumByType('group'));
         }
         function applyFilter() {
             var q = String(searchInput && searchInput.value || '').trim().toLowerCase();
@@ -142,25 +152,12 @@
                 var qOk = !q || name.indexOf(q) >= 0 || msg.indexOf(q) >= 0;
                 row.style.display = (catOk && qOk) ? '' : 'none';
             });
-            quickItems.forEach(function (qItem) {
-                qItem.style.opacity = (curFilter === 'all') ? '1' : '0.78';
-            });
-            updateUnreadCount();
-            var allBadge = document.querySelector('#imlTabs .t[data-filter="all"] .cnt');
-            if (allBadge && curFilter === 'all') {
-                allBadge.textContent = String(unreadCountEl ? unreadCountEl.textContent : '0');
-            }
+            updateTabUnreadCounts();
         }
         document.querySelectorAll('.chat-item[data-peer]').forEach(function (item) {
             item.style.cursor = 'pointer';
             item.addEventListener('click', function () {
                 location.href = 'messages-chat.html?peer=' + encodeURIComponent(item.getAttribute('data-peer'));
-            });
-        });
-        document.querySelectorAll('.quick-grid .q[data-href]').forEach(function (q) {
-            q.style.cursor = 'pointer';
-            q.addEventListener('click', function () {
-                location.href = q.getAttribute('data-href');
             });
         });
         var composeBtn = document.querySelector('.nav-right .nav-btn');
@@ -181,8 +178,6 @@
         if (searchInput) {
             searchInput.addEventListener('input', applyFilter);
         }
-        var reqLink = document.querySelector('.section-title a');
-        if (reqLink && reqCountEl) reqCountEl.textContent = ((reqLink.textContent || '').match(/\d+/) || ['3'])[0];
         if (btnAddContact) {
             btnAddContact.addEventListener('click', function () {
                 openOverlay(ovlAddContact);
@@ -236,13 +231,23 @@
 
     function initChat() {
         var m = /[?&]peer=([^&]+)/.exec(location.search);
+        var gm = /[?&]group=([^&]+)/.exec(location.search);
         var name = m ? decodeURIComponent(m[1]) : 'Luna';
-        var data = PEERS[name] || { av: '', messages: [{ from: 'them', text: '开始新对话', time: '刚刚' }] };
-        var rel = DM_REL[name] || { mutual: false, subscribed: false };
-        var dmLimited = !rel.mutual && !rel.subscribed;
+        var groupSlug = gm ? decodeURIComponent(gm[1]) : '';
+        var groupTitles = {
+            'kyoto-creators': '京都创作交流群',
+            'gf-creators': 'GOODFANS 创作者互助',
+            'luna-fans': 'Luna 粉丝后援会'
+        };
+        var isGroup = !!groupSlug;
+        var data = isGroup
+            ? { av: '', messages: [{ from: 'them', text: '欢迎加入群聊', time: '刚刚' }] }
+            : (PEERS[name] || { av: '', messages: [{ from: 'them', text: '开始新对话', time: '刚刚' }] });
+        var rel = isGroup ? { mutual: true, subscribed: false } : (DM_REL[name] || { mutual: false, subscribed: false });
+        var dmLimited = !isGroup && !rel.mutual && !rel.subscribed;
 
         var title = document.getElementById('chatTitle');
-        if (title) title.textContent = name;
+        if (title) title.textContent = isGroup ? (groupTitles[groupSlug] || '群聊') : name;
         var limitBanner = document.getElementById('mobDmLimitBanner');
         var limitText = document.getElementById('mobDmLimitText');
         var sentCount = 0;
@@ -274,6 +279,28 @@
             if (msg.image) return '<div class="' + cls + '"><img src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=400" style="max-width:200px;border-radius:12px;display:block"><div style="font-size:11px;margin-top:4px;opacity:0.7">' + msg.time + '</div></div>';
             return '<div class="' + cls + '">' + msg.text + '<div style="font-size:11px;margin-top:4px;opacity:0.7">' + msg.time + '</div></div>';
         }).join('');
+
+        if (/[?&]shared=creator(?:&|$)/.test(location.search)) {
+            var preview = null;
+            try { preview = JSON.parse(sessionStorage.getItem('gf_creator_preview') || 'null'); } catch (e) { preview = null; }
+            var cardTitle = (preview && preview.title) || '创作者主页';
+            var cardHandle = (preview && preview.handle) ? ('@' + String(preview.handle).replace(/^@/, '')) : '@luna_web3';
+            var cardCover = (preview && preview.cover) || (preview && preview.avatar) || 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=400&q=80';
+            var cardAv = (preview && preview.avatar) || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80';
+            var card = document.createElement('div');
+            card.className = 'mob-bub me';
+            card.innerHTML =
+                '<div style="border:1px solid var(--border-color);border-radius:12px;overflow:hidden;max-width:240px;background:var(--bg-card)">' +
+                '<div style="height:72px;background-size:cover;background-position:center;background-image:url(\'' + cardCover + '\')"></div>' +
+                '<div style="padding:8px 10px;display:flex;gap:8px;align-items:center">' +
+                '<img src="' + cardAv + '" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover">' +
+                '<div style="min-width:0"><div style="font-size:12px;font-weight:700">' + cardTitle + '</div>' +
+                '<div style="font-size:10px;color:var(--text-tertiary)">' + cardHandle + '</div></div></div></div>' +
+                '<div style="font-size:11px;margin-top:4px;opacity:0.7">刚刚 · 已分享卡片</div>';
+            list.appendChild(card);
+            list.scrollTop = list.scrollHeight;
+            sentCount += 1;
+        }
 
         var input = document.getElementById('mobChatInput');
         var send = document.getElementById('mobChatSend');
@@ -319,12 +346,8 @@
         document.getElementById('mobBtnGift')?.addEventListener('click', function () {
             alert('打开送礼（移动端演示）');
         });
-        document.getElementById('mobBtnShare')?.addEventListener('click', function () {
-            var card = document.createElement('div');
-            card.className = 'mob-bub me';
-            card.innerHTML = '<div style="background:var(--bg-card);border-radius:12px;overflow:hidden;max-width:220px"><img src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=300" style="width:100%;height:100px;object-fit:cover"><div style="padding:8px;font-size:12px">分享作品 · 晨雾富士</div></div>';
-            list.appendChild(card);
-            list.scrollTop = list.scrollHeight;
+        document.getElementById('mobBtnVoice')?.addEventListener('click', function () {
+            toast('按住说话（原型演示）');
         });
         syncLimitBanner();
     }

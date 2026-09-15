@@ -40,6 +40,7 @@
 
     function profileStatsForUser(user) {
         if (!user) return null;
+        if (document.getElementById('profileViewHome')) return LUNA_PROFILE_STATS;
         if (user.userId === DEMO_UID) return LUNA_PROFILE_STATS;
         var h = hashEmail(user.email);
         var creator = global.FLIdentity && global.FLIdentity.isCreator
@@ -119,9 +120,12 @@
             deltas = psts[3].querySelector('.delta');
             if (deltas && user.userId !== DEMO_UID) deltas.style.display = 'none';
         }
-        document.querySelectorAll('#profileTabs .tb .cnt').forEach(function (cnt, i) {
-            var keys = ['worksTab', 'paidTab', 'liveTab'];
-            if (keys[i] && stats[keys[i]] != null) cnt.textContent = stats[keys[i]];
+        var tabKeys = { works: 'worksTab', paid: 'paidTab', live: 'liveTab' };
+        document.querySelectorAll('#profileTabs .tb').forEach(function (tb) {
+            var pane = tb.getAttribute('data-pane');
+            var cnt = tb.querySelector('.cnt');
+            var key = tabKeys[pane];
+            if (cnt && key && stats[key] != null) cnt.textContent = stats[key];
         });
     }
 

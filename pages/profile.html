@@ -346,29 +346,8 @@
 .tool-color-7 { background: rgba(236,72,153,0.15); color: var(--brand-pink); }
 .tool-color-8 { background: rgba(168,85,247,0.15); color: var(--brand-purple); }
 
-/* 创作者中心卡 */
-.creator-cta {
-    margin: 0 16px 12px;
-    padding: 14px 16px;
-    border-radius: var(--radius-lg);
-    background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(236,72,153,0.1));
-    border: 1px solid rgba(168,85,247,0.25);
-    display: flex; align-items: center; gap: 12px;
-}
-.creator-cta .c-icon {
-    width: 44px; height: 44px;
-    border-radius: 12px;
-    background: var(--brand-gradient);
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 20px;
-    box-shadow: 0 4px 14px rgba(168,85,247,0.4);
-}
-.creator-cta .c-main { flex: 1; }
-.creator-cta .c-title { font-size: 14px; font-weight: 700; }
-.creator-cta .c-desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
-.creator-cta .c-arrow { color: var(--brand-purple); font-size: 15px; }
-
 /* 标签页 */
+#pfSectionMyContent { scroll-margin-top: 8px; }
 .section-head2 {
     padding: 4px 16px 10px;
     display: flex; justify-content: space-between; align-items: center;
@@ -420,6 +399,36 @@
     background: rgba(0,0,0,0.5);
     border-radius: 6px;
     color: #fff;
+}
+.grid-small .item .corner.paid {
+    background: rgba(168,85,247,0.85);
+    font-weight: 700;
+}
+.grid-small .item .corner.live {
+    background: rgba(239,68,68,0.85);
+}
+.pf-tab-pane { display: none; }
+.pf-tab-pane.active { display: block; }
+.pf-tab-foot {
+    margin: 0 16px 12px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--text-tertiary);
+}
+.pf-about-card {
+    margin: 8px 16px 16px;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+}
+.pf-about-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+.pf-about-card p { font-size: 12px; line-height: 1.65; color: var(--text-secondary); margin: 0 0 8px; }
+.pf-tab-empty {
+    margin: 24px 16px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-tertiary);
 }
 .pf-ovl {
     position: absolute;
@@ -609,7 +618,24 @@
 .hp-mini-tabs button.active {
     background: rgba(168,85,247,.18);
     border-color: rgba(168,85,247,.45);
-    color: #fff;
+    color: var(--text-primary);
+    font-weight: 700;
+}
+.hp-mini-summary .v.hp-v-gold { color: #FDE68A; }
+.hp-mini-summary .v.hp-v-blue { color: #93C5FD; }
+.hp-mini-summary .v.hp-v-purple { color: #C084FC; }
+:root[data-theme='light'] .hp-mini-boost {
+    color: #92400E;
+    background: rgba(245, 158, 11, 0.14);
+    border-color: rgba(217, 119, 6, 0.32);
+}
+:root[data-theme='light'] .hp-mini-summary .v.hp-v-gold { color: #B45309; }
+:root[data-theme='light'] .hp-mini-summary .v.hp-v-blue { color: #1D4ED8; }
+:root[data-theme='light'] .hp-mini-summary .v.hp-v-purple { color: #7C3AED; }
+:root[data-theme='light'] .hp-mini-tabs button.active {
+    color: #6D28D9;
+    background: rgba(168, 85, 247, 0.12);
+    border-color: rgba(124, 58, 237, 0.35);
 }
 .hp-mini-panel { margin-top: 10px; }
 .hp-task {
@@ -695,7 +721,6 @@
 
     <div class="top-tools">
         <div class="tool-btn" id="pfBtnBell"><i class="fa-regular fa-bell"></i><span class="dot"></span></div>
-        <div class="tool-btn" id="pfBtnQr"><i class="fa-solid fa-qrcode"></i></div>
         <div class="tool-btn" data-go="settings.html"><i class="fa-solid fa-gear"></i></div>
     </div>
 
@@ -764,16 +789,6 @@
         </div>
     </div>
 
-    <!-- 成为创作者 CTA -->
-    <div class="creator-cta" data-go="creator-showcase-manage.html">
-        <div class="c-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-        <div class="c-main">
-            <div class="c-title">开启创作，零抽成到账</div>
-            <div class="c-desc">USDT 秒到 · 无跨境手续费 · 链上透明</div>
-        </div>
-        <i class="fa-solid fa-chevron-right c-arrow"></i>
-    </div>
-
     <!-- 工具 grid -->
     <div class="tools-grid">
         <div class="tool" data-go="creator-showcase-manage.html">
@@ -788,6 +803,10 @@
             <div class="tool-icon tool-color-3"><i class="fa-solid fa-list-check"></i></div>
             <span class="tool-label">积分任务</span>
         </div>
+        <div class="tool" id="pfToolMall" data-go="points-mall.html">
+            <div class="tool-icon tool-color-2"><i class="fa-solid fa-coins"></i></div>
+            <span class="tool-label">积分商城</span>
+        </div>
         <div class="tool" data-go="my-digital-assets.html">
             <div class="tool-icon tool-color-8"><i class="fa-solid fa-images"></i></div>
             <span class="tool-label">已购作品</span>
@@ -796,14 +815,14 @@
             <div class="tool-icon tool-color-4"><i class="fa-solid fa-chart-line"></i></div>
             <span class="tool-label">创作者收入</span>
         </div>
-        <div class="tool" data-go="transactions.html">
-            <div class="tool-icon tool-color-5"><i class="fa-solid fa-list-ul"></i></div>
-            <span class="tool-label">账变记录</span>
+        <div class="tool" data-go="my-appeals.html">
+            <div class="tool-icon tool-color-5"><i class="fa-solid fa-gavel"></i></div>
+            <span class="tool-label">我的申诉</span>
         </div>
     </div>
 
     <!-- 我的动态 -->
-    <div class="section-head2">
+    <div class="section-head2" id="pfSectionMyContent">
         <span class="t">我的内容</span>
     </div>
 
@@ -816,26 +835,112 @@
         <div class="t" data-tab="about">关于</div>
     </div>
 
-    <div class="grid-small">
-        <div class="item" data-media-type="image" data-go="digital-detail-owned.html">
-            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&q=80">
+    <div id="pfTabBody">
+        <div class="pf-tab-pane active" data-pane="works">
+            <div class="grid-small">
+                <div class="item" data-go="digital-detail-owned.html">
+                    <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&q=80" alt="">
+                </div>
+                <div class="item" data-go="digital-detail-video.html">
+                    <img src="https://images.unsplash.com/photo-1512070679279-c7e7efd83c57?w=300&q=80" alt="">
+                    <div class="corner"><i class="fa-solid fa-play" style="font-size:8px"></i> 01:12</div>
+                </div>
+                <div class="item" data-go="digital-detail-owned.html">
+                    <img src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300&q=80" alt="">
+                </div>
+                <div class="item" data-go="digital-detail-video.html">
+                    <img src="https://images.unsplash.com/photo-1514222709107-a180c68d72b4?w=300&q=80" alt="">
+                    <div class="corner"><i class="fa-solid fa-play" style="font-size:8px"></i> 00:45</div>
+                </div>
+                <div class="item" data-go="digital-detail-owned.html">
+                    <img src="https://images.unsplash.com/photo-1519659528534-7fd733a832a0?w=300&q=80" alt="">
+                </div>
+                <div class="item" data-go="digital-detail-owned.html">
+                    <img src="https://images.unsplash.com/photo-1554797589-7241bb691973?w=300&q=80" alt="">
+                </div>
+            </div>
         </div>
-        <div class="item" data-media-type="video" data-go="digital-detail-video.html">
-            <img src="https://images.unsplash.com/photo-1512070679279-c7e7efd83c57?w=300&q=80">
-            <div class="corner"><i class="fa-solid fa-play" style="font-size:8px"></i> 01:12</div>
+        <div class="pf-tab-pane" data-pane="paid">
+            <div class="grid-small">
+                <div class="item" data-go="digital-detail.html">
+                    <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=300&q=80" alt="">
+                    <div class="corner paid"><i class="fa-solid fa-crown"></i> $5</div>
+                </div>
+                <div class="item" data-go="digital-detail.html">
+                    <img src="https://images.unsplash.com/photo-1542435503-956c469947f6?w=300&q=80" alt="">
+                    <div class="corner paid"><i class="fa-solid fa-crown"></i> $9</div>
+                </div>
+                <div class="item" data-go="digital-detail-bundle.html">
+                    <img src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=300&q=80" alt="">
+                    <div class="corner paid"><i class="fa-solid fa-crown"></i> 合集</div>
+                </div>
+                <div class="item" data-go="digital-detail.html">
+                    <img src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=300&q=80" alt="">
+                    <div class="corner paid"><i class="fa-solid fa-crown"></i> $3</div>
+                </div>
+            </div>
+            <p class="pf-tab-foot">按篇购买与付费专栏；结算规则见创作者协议。</p>
         </div>
-        <div class="item" data-media-type="image" data-go="digital-detail-owned.html">
-            <img src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300&q=80">
+        <div class="pf-tab-pane" data-pane="live">
+            <div class="grid-small">
+                <div class="item" data-go="video-detail.html">
+                    <img src="https://images.pexels.com/photos/3945683/pexels-photo-3945683.jpeg?auto=compress&cs=tinysrgb&w=300" alt="">
+                    <div class="corner live"><i class="fa-solid fa-circle" style="font-size:6px"></i> 回放</div>
+                </div>
+                <div class="item" data-go="video-detail.html">
+                    <img src="https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=300&q=80" alt="">
+                    <div class="corner"><i class="fa-solid fa-play" style="font-size:8px"></i> 1:24:08</div>
+                </div>
+                <div class="item" data-go="video-detail.html">
+                    <img src="https://images.pexels.com/photos/3379949/pexels-photo-3379949.jpeg?auto=compress&cs=tinysrgb&w=300" alt="">
+                    <div class="corner live">直播</div>
+                </div>
+            </div>
+            <p class="pf-tab-foot">回放保留 30 天；打赏明细见创作者收入。</p>
         </div>
-        <div class="item" data-media-type="video" data-go="digital-detail-video.html">
-            <img src="https://images.unsplash.com/photo-1514222709107-a180c68d72b4?w=300&q=80">
-            <div class="corner"><i class="fa-solid fa-play" style="font-size:8px"></i> 00:45</div>
+        <div class="pf-tab-pane" data-pane="likes">
+            <div class="grid-small">
+                <div class="item" data-go="video-detail.html">
+                    <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=300&q=80" alt="">
+                </div>
+                <div class="item" data-go="video-detail.html">
+                    <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=300&q=80" alt="">
+                </div>
+                <div class="item" data-go="digital-detail.html">
+                    <img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=300&q=80" alt="">
+                </div>
+                <div class="item" data-go="video-detail.html">
+                    <img src="https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=300&q=80" alt="">
+                </div>
+                <div class="item" data-go="video-detail.html">
+                    <img src="https://images.unsplash.com/photo-1418065469457-577268464de0?w=300&q=80" alt="">
+                </div>
+                <div class="item" data-go="video-detail.html">
+                    <img src="https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=300&q=80" alt="">
+                </div>
+            </div>
         </div>
-        <div class="item" data-media-type="image" data-go="digital-detail-owned.html">
-            <img src="https://images.unsplash.com/photo-1519659528534-7fd733a832a0?w=300&q=80">
+        <div class="pf-tab-pane" data-pane="bookmarks">
+            <div class="grid-small">
+                <div class="item" data-go="video-detail.html">
+                    <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=300&q=80" alt="">
+                </div>
+                <div class="item" data-go="digital-detail.html">
+                    <img src="https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=300&q=80" alt="">
+                </div>
+                <div class="item" data-go="video-detail.html">
+                    <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=300&q=80" alt="">
+                </div>
+            </div>
+            <p class="pf-tab-foot">收藏夹仅自己可见。</p>
         </div>
-        <div class="item" data-media-type="image" data-go="digital-detail-owned.html">
-            <img src="https://images.unsplash.com/photo-1554797589-7241bb691973?w=300&q=80">
+        <div class="pf-tab-pane" data-pane="about">
+            <div class="pf-about-card">
+                <h3>关于 Alex_K</h3>
+                <p>Web3 创作者 · 旅行摄影与付费专栏。作品涵盖航拍、图集与直播回放，支持 USDT 订阅与按篇解锁。</p>
+                <p><strong style="color:var(--text-secondary)">合作</strong>：hello@goodfans.io</p>
+                <p><strong style="color:var(--text-secondary)">设备</strong>：Leica Q3 · DJI Pocket 3</p>
+            </div>
         </div>
     </div>
 
@@ -852,22 +957,6 @@
         </div>
     </div>
 </div>
-<div class="pf-ovl" id="pfQrOvl">
-    <div class="pf-panel">
-        <div class="hd"><div class="t">我的二维码</div><button type="button" class="x" id="pfQrClose"><i class="fa-solid fa-xmark"></i></button></div>
-        <div class="bd">
-            <div class="qr-card">
-                <img class="qr-real" id="pfQrImg" width="180" height="180" alt="我的二维码" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data=https%3A%2F%2Fgoodfans.io%2Fu%2Falex_k">
-                <div class="qr-name">Alex_K</div>
-                <div class="qr-sub">@alex_k · ID 0x8A...f2E6</div>
-                <div class="qr-actions">
-                    <button type="button" id="pfCopyIdBtn">复制ID</button>
-                    <button type="button" class="pri" id="pfShareQrBtn">分享二维码</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <div class="pf-ovl" id="pfPointsOvl">
     <div class="pf-panel">
         <div class="hd"><div class="t">积分中心</div><button type="button" class="x" id="pfPointsClose"><i class="fa-solid fa-xmark"></i></button></div>
@@ -878,9 +967,9 @@
                 <p>查看可用/冷静积分、今日进度，以及各任务获取与消耗记录</p>
             </div>
             <div class="hp-mini-summary">
-                <div class="cell"><div class="k">可用积分</div><div class="v" style="color:#FDE68A">12,580</div></div>
-                <div class="cell"><div class="k">冷静中</div><div class="v" style="color:#93C5FD">1,400</div></div>
-                <div class="cell"><div class="k">今日已获</div><div class="v" style="color:#C084FC">310</div></div>
+                <div class="cell"><div class="k">可用积分</div><div class="v hp-v-gold">12,580</div></div>
+                <div class="cell"><div class="k">冷静中</div><div class="v hp-v-blue">1,400</div></div>
+                <div class="cell"><div class="k">今日已获</div><div class="v hp-v-purple">310</div></div>
             </div>
             <div class="hp-mini-tabs" id="hpMiniTabs">
                 <button type="button" class="active" data-tab="tasks">赚积分任务</button>
@@ -987,16 +1076,11 @@
         if (window.DigitalH5Nav && typeof window.DigitalH5Nav.toast === 'function') window.DigitalH5Nav.toast(msg);
     }
     var pfBtnBell = document.getElementById('pfBtnBell');
-    var pfBtnQr = document.getElementById('pfBtnQr');
     var pfNotiOvl = document.getElementById('pfNotiOvl');
-    var pfQrOvl = document.getElementById('pfQrOvl');
     var pfNotiClose = document.getElementById('pfNotiClose');
-    var pfQrClose = document.getElementById('pfQrClose');
     var pfInviteClose = document.getElementById('pfInviteClose');
     var pfPointsClose = document.getElementById('pfPointsClose');
     var pfCopyAddr = document.getElementById('pfCopyAddr');
-    var pfCopyIdBtn = document.getElementById('pfCopyIdBtn');
-    var pfShareQrBtn = document.getElementById('pfShareQrBtn');
     var pfEditProfileBtn = document.getElementById('pfEditProfileBtn');
     var pfEditOvl = document.getElementById('pfEditOvl');
     var pfEditClose = document.getElementById('pfEditClose');
@@ -1031,16 +1115,12 @@
     }
 
     if (pfBtnBell) pfBtnBell.addEventListener('click', function () {
-        open(pfNotiOvl);
-        pfBtnBell.querySelector('.dot') && (pfBtnBell.querySelector('.dot').style.display = 'none');
+        location.href = 'notifications.html?tab=unread';
     });
-    if (pfBtnQr) pfBtnQr.addEventListener('click', function () { open(pfQrOvl); });
     if (pfNotiClose) pfNotiClose.addEventListener('click', function () { close(pfNotiOvl); });
-    if (pfQrClose) pfQrClose.addEventListener('click', function () { close(pfQrOvl); });
     if (pfInviteClose) pfInviteClose.addEventListener('click', function () { close(pfInviteOvl); });
     if (pfPointsClose) pfPointsClose.addEventListener('click', function () { close(pfPointsOvl); });
     if (pfNotiOvl) pfNotiOvl.addEventListener('click', function (e) { if (e.target === pfNotiOvl) close(pfNotiOvl); });
-    if (pfQrOvl) pfQrOvl.addEventListener('click', function (e) { if (e.target === pfQrOvl) close(pfQrOvl); });
     if (pfInviteOvl) pfInviteOvl.addEventListener('click', function (e) { if (e.target === pfInviteOvl) close(pfInviteOvl); });
     if (pfPointsOvl) pfPointsOvl.addEventListener('click', function (e) { if (e.target === pfPointsOvl) close(pfPointsOvl); });
     if (pfEditOvl) pfEditOvl.addEventListener('click', function (e) { if (e.target === pfEditOvl) close(pfEditOvl); });
@@ -1053,8 +1133,6 @@
         });
     });
     if (pfCopyAddr) pfCopyAddr.addEventListener('click', function () { toast('链上地址已复制'); });
-    if (pfCopyIdBtn) pfCopyIdBtn.addEventListener('click', function () { toast('ID 已复制'); });
-    if (pfShareQrBtn) pfShareQrBtn.addEventListener('click', function () { toast('二维码分享成功'); });
     if (pfEditClose) pfEditClose.addEventListener('click', function () { close(pfEditOvl); });
     if (pfEditCancel) pfEditCancel.addEventListener('click', function () { close(pfEditOvl); });
     if (pfEditProfileBtn) pfEditProfileBtn.addEventListener('click', function () {
@@ -1103,17 +1181,14 @@
         location.href = 'kyc.html?from=profile';
     });
 
-    function activateMiniTab(key) {
+    function activateMiniTab(key, silent) {
         var tabs = document.querySelectorAll('#pfTabsMini .t');
         tabs.forEach(function (tab) {
             tab.classList.toggle('active', tab.getAttribute('data-tab') === key);
         });
-        if (key === 'works') toast('已切换到作品');
-        if (key === 'paid') toast('已切换到付费内容');
-        if (key === 'live') toast('已切换到直播');
-        if (key === 'likes') toast('已切换到喜欢');
-        if (key === 'bookmarks') toast('已切换到收藏');
-        if (key === 'about') toast('已切换到关于');
+        document.querySelectorAll('#pfTabBody .pf-tab-pane').forEach(function (pane) {
+            pane.classList.toggle('active', pane.getAttribute('data-pane') === key);
+        });
     }
     document.querySelectorAll('#pfTabsMini .t').forEach(function (tab) {
         tab.addEventListener('click', function () { activateMiniTab(tab.getAttribute('data-tab')); });
@@ -1124,19 +1199,25 @@
     var statFollowing = document.getElementById('pfStatFollowing');
     var statSubs = document.getElementById('pfStatSubs');
     var statIncome = document.getElementById('pfStatIncome');
-    if (statWorks) statWorks.addEventListener('click', function () { activateMiniTab('works'); });
-    if (statFans) statFans.addEventListener('click', function () { toast('粉丝列表已打开（原型）'); });
-    if (statFollowing) statFollowing.addEventListener('click', function () { toast('关注列表已打开（原型）'); });
-    if (statSubs) statSubs.addEventListener('click', function () { location.href = 'subscriptions.html'; });
+    if (statWorks) statWorks.addEventListener('click', function () {
+        activateMiniTab('works', true);
+        var anchor = document.getElementById('pfSectionMyContent');
+        if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    if (statFans) statFans.addEventListener('click', function () { location.href = 'profile-social-list.html?type=fans'; });
+    if (statFollowing) statFollowing.addEventListener('click', function () { location.href = 'profile-social-list.html?type=following'; });
+    if (statSubs) statSubs.addEventListener('click', function () { location.href = 'profile-social-list.html?type=subscribers'; });
     if (statIncome) statIncome.addEventListener('click', function () { location.href = 'creator-income.html'; });
 
-    document.querySelectorAll('.grid-small .item').forEach(function (item, index) {
-        item.addEventListener('click', function () {
+    var pfTabBody = document.getElementById('pfTabBody');
+    if (pfTabBody) {
+        pfTabBody.addEventListener('click', function (e) {
+            var item = e.target.closest('.item[data-go]');
+            if (!item) return;
             var go = item.getAttribute('data-go');
             if (go) location.href = go;
-            else toast('已打开内容 #' + (index + 1));
         });
-    });
+    }
     if (!localStorage.getItem(KYC_RESET_ONCE_KEY)) {
         localStorage.setItem(KYC_STORAGE_KEY, '0');
         localStorage.setItem(KYC_RESET_ONCE_KEY, '1');

@@ -496,7 +496,11 @@
     align-items: center;
     justify-content: space-between;
 }
-.schedule-panel .sp-head h3 { font-size: 16px; font-weight: 800; }
+.schedule-panel .sp-head h3 { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+.schedule-panel .sp-head button {
+    width: 32px; height: 32px; border: 0; border-radius: 8px;
+    background: var(--bg-input); color: var(--t-secondary); cursor: pointer;
+}
 .schedule-panel .sp-body { padding: 14px 18px 18px; }
 .schedule-opt {
     display: flex;
@@ -1089,7 +1093,7 @@
         </div>
     </header>
 
-    <main class="app-main">
+    <main class="app-main app-main--full">
         <div class="page-head">
             <div class="ph-l">
                 <h1>创建内容 <span class="chip-pro">创作者工作室</span></h1>
@@ -1393,10 +1397,10 @@
                 <div class="setting-card" style="margin-top: 16px">
                     <div class="editor-head"><h3><span class="ic" style="background: linear-gradient(135deg,#3B82F6,#06B6D4)"><i class="fa-solid fa-sliders"></i></span> 高级设置</h3></div>
                     <div>
-                        <div class="setting-row">
+                        <div class="setting-row clickable" id="rowAudienceVisibility" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="crAudienceOverlay">
                             <div class="ic-cell"><i class="fa-solid fa-eye"></i></div>
                             <div class="info"><div class="ti">谁可以看</div><div class="sub">所有人 / 仅粉丝 / 仅订阅者</div></div>
-                            <span style="font-size: 12px; color: var(--t-secondary)">所有人 <i class="fa-solid fa-chevron-right" style="font-size: 10px; margin-left: 6px"></i></span>
+                            <span id="crAudienceVal" style="font-size: 12px; color: var(--t-secondary)">所有人 <i class="fa-solid fa-chevron-right" style="font-size: 10px; margin-left: 6px"></i></span>
                         </div>
                         <div class="setting-row">
                             <div class="ic-cell"><i class="fa-solid fa-comments"></i></div>
@@ -1593,6 +1597,42 @@
     </div>
 </div>
 
+<div class="schedule-overlay" id="crAudienceOverlay" aria-hidden="true">
+    <div class="schedule-panel" role="dialog" aria-modal="true" aria-labelledby="crAudienceTitle">
+        <div class="sp-head">
+            <h3 id="crAudienceTitle"><i class="fa-solid fa-eye" style="color:#60A5FA"></i> 谁可以看</h3>
+            <button type="button" id="crAudienceClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="sp-body">
+            <label class="schedule-opt selected" data-audience="public">
+                <input type="radio" name="crAudience" value="public" checked>
+                <div>
+                    <div class="so-ti">所有人</div>
+                    <div class="so-sub">对平台访客与粉丝公开展示（仍受付费/订阅档位约束）</div>
+                </div>
+            </label>
+            <label class="schedule-opt" data-audience="fans">
+                <input type="radio" name="crAudience" value="fans">
+                <div>
+                    <div class="so-ti">仅粉丝</div>
+                    <div class="so-sub">仅关注你的用户可在动态流与个人主页看到</div>
+                </div>
+            </label>
+            <label class="schedule-opt" data-audience="subscribers">
+                <input type="radio" name="crAudience" value="subscribers">
+                <div>
+                    <div class="so-ti">仅订阅者</div>
+                    <div class="so-sub">仅有效订阅会员可见；与「订阅专属」定价可同时生效</div>
+                </div>
+            </label>
+        </div>
+        <div class="sp-foot">
+            <button type="button" class="btn btn-secondary btn-sm" id="crAudienceCancel">取消</button>
+            <button type="button" class="btn btn-primary btn-sm" id="crAudienceConfirm"><i class="fa-solid fa-check"></i> 确定</button>
+        </div>
+    </div>
+</div>
+
 <div class="obs-guide-overlay" id="crObsGuideOverlay"><iframe src="modal-live-obs-guide.html" title="OBS 配置说明"></iframe></div>
 
 <script src="../js-web/fl-live-reservation.js"></script>
@@ -1601,6 +1641,7 @@
 <script src="../js-web/create-category-select.js"></script>
 <script src="../js/creator-subscription-store.js"></script>
 <script src="../js-web/create-studio.js"></script>
+<script src="../js-web/create-audience-visibility.js"></script>
 <script src="../js-web/create-studio-live.js"></script>
 <script src="../js-web/home-feed-v2.js"></script>
 <script>

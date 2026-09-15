@@ -217,8 +217,6 @@
         const unl = countCards(gridUnlisted);
         if (cntPublished) cntPublished.textContent = String(pub);
         if (cntUnlisted) cntUnlisted.textContent = String(unl);
-        const worksTabCnt = document.querySelector('#profileTabs .tb[data-pane="works"] .cnt');
-        if (worksTabCnt) worksTabCnt.textContent = String(pub);
         updateEmptyStates();
     }
 

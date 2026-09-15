@@ -176,7 +176,7 @@
                     </tr>
                 </thead>
                 <tbody id="txTodayBody">
-                    <tr data-tx-type="income" onclick="location.href='transaction-detail.html'" style="cursor:pointer">
+                    <tr data-tx-type="income" data-tx-kind="sub" data-order="TXN20260425190832" data-row-link style="cursor:pointer">
                         <td>
                             <div class="tx-cell-info">
                                 <div class="ic in"><i class="fa-solid fa-arrow-down"></i></div>
@@ -188,7 +188,7 @@
                         <td><span class="t-ter fs-12">19:08:32</span></td>
                         <td><div class="row-action"><button><i class="fa-solid fa-eye"></i></button><button><i class="fa-solid fa-share-nodes"></i></button></div></td>
                     </tr>
-                    <tr data-tx-type="income">
+                    <tr data-tx-type="income" data-tx-kind="tip" data-order="T20260425185108">
                         <td>
                             <div class="tx-cell-info">
                                 <div class="ic in"><i class="fa-solid fa-heart"></i></div>
@@ -200,7 +200,7 @@
                         <td><span class="t-ter fs-12">18:51:08</span></td>
                         <td><div class="row-action"><button><i class="fa-solid fa-eye"></i></button></div></td>
                     </tr>
-                    <tr data-tx-type="withdraw expense">
+                    <tr data-tx-type="withdraw expense" data-tx-kind="withdraw" data-order="WD20260425142218">
                         <td>
                             <div class="tx-cell-info">
                                 <div class="ic out"><i class="fa-solid fa-arrow-up"></i></div>
@@ -212,7 +212,7 @@
                         <td><span class="t-ter fs-12">14:22:18</span></td>
                         <td><div class="row-action"><button><i class="fa-solid fa-eye"></i></button><button><i class="fa-solid fa-rotate-right"></i></button></div></td>
                     </tr>
-                    <tr data-tx-type="income">
+                    <tr data-tx-type="income" data-tx-kind="live" data-order="L20260425120845">
                         <td>
                             <div class="tx-cell-info">
                                 <div class="ic swap"><i class="fa-solid fa-video"></i></div>
@@ -232,8 +232,17 @@
 
         <div class="card tx-table" style="padding: 0">
             <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width: 38%">类型 / 备注</th>
+                        <th>金额</th>
+                        <th>状态</th>
+                        <th>时间</th>
+                        <th style="text-align: right">操作</th>
+                    </tr>
+                </thead>
                 <tbody id="txYdayBody">
-                    <tr data-tx-type="income">
+                    <tr data-tx-type="income" data-tx-kind="sub" data-order="S20260424221408">
                         <td style="width: 38%">
                             <div class="tx-cell-info">
                                 <div class="ic in"><i class="fa-solid fa-star"></i></div>
@@ -245,7 +254,7 @@
                         <td><span class="t-ter fs-12">22:14:08</span></td>
                         <td style="text-align: right"><div class="row-action"><button><i class="fa-solid fa-eye"></i></button></div></td>
                     </tr>
-                    <tr data-tx-type="chain expense">
+                    <tr data-tx-type="chain expense" data-tx-kind="chain" data-order="C20260424163208">
                         <td>
                             <div class="tx-cell-info">
                                 <div class="ic out"><i class="fa-solid fa-link"></i></div>
@@ -255,9 +264,9 @@
                         <td><span class="amt-neg">- 199.00</span></td>
                         <td><span class="tag tag-success">已确认</span></td>
                         <td><span class="t-ter fs-12">16:32:08</span></td>
-                        <td style="text-align: right"><div class="row-action"><button><i class="fa-solid fa-up-right-from-square"></i></button></div></td>
+                        <td style="text-align: right"><div class="row-action"><button type="button" title="查看详情"><i class="fa-solid fa-eye"></i></button></div></td>
                     </tr>
-                    <tr data-tx-type="recharge">
+                    <tr data-tx-type="recharge" data-tx-kind="recharge" data-order="RC20260424101846">
                         <td>
                             <div class="tx-cell-info">
                                 <div class="ic in"><i class="fa-solid fa-credit-card"></i></div>
@@ -296,84 +305,6 @@
 <script src="../js-web/digital-asset-orders-store.js"></script>
 <script src="../js-web/affiliate-catalog-store.js"></script>
 <script src="../js-web/affiliate-showcase-store.js"></script>
-<script>
-(function () {
-    function esc(s) {
-        return String(s == null ? '' : s)
-            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
-    function fmt(n) {
-        return Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-    function injectMallRows() {
-        var body = document.getElementById('txTodayBody');
-        if (!body) return;
-        var html = '';
-        try {
-            if (window.DigitalAssetOrdersStore) {
-                window.DigitalAssetOrdersStore.listEarnings().slice(0, 10).forEach(function (e) {
-                    html +=
-                        '<tr data-tx-type="digital income">' +
-                        '<td><div class="tx-cell-info"><div class="ic in"><i class="fa-solid fa-gem"></i></div>' +
-                        '<div><div class="nm">数字资产销售</div><div class="meta">「' + esc(e.productTitle || '数字商品') + '」创作者实得</div></div></div></td>' +
-                        '<td><span class="amt-pos">+ $' + fmt(e.amount) + '</span></td>' +
-                        '<td><span class="tag tag-success">已结算</span></td>' +
-                        '<td><span class="t-ter fs-12">' + esc((e.createdAt || '').slice(5) || '—') + '</span></td>' +
-                        '<td><div class="row-action"><button type="button"><i class="fa-solid fa-eye"></i></button></div></td></tr>';
-                });
-            }
-            if (window.AffiliateShowcaseStore) {
-                window.AffiliateShowcaseStore.listCommissions({
-                    creatorId: window.AffiliateShowcaseStore.DEMO_CREATOR
-                }).slice(0, 10).forEach(function (c) {
-                    html +=
-                        '<tr data-tx-type="affiliate income">' +
-                        '<td><div class="tx-cell-info"><div class="ic in"><i class="fa-solid fa-bag-shopping"></i></div>' +
-                        '<div><div class="nm">联盟佣金回传</div><div class="meta">「' + esc(c.productTitle || '实体选品') + '」分成实得</div></div></div></td>' +
-                        '<td><span class="amt-pos">+ $' + fmt(c.creatorShare) + '</span></td>' +
-                        '<td><span class="tag tag-success">已结算</span></td>' +
-                        '<td><span class="t-ter fs-12">' + esc((c.createdAt || '').slice(5) || '—') + '</span></td>' +
-                        '<td><div class="row-action"><button type="button"><i class="fa-solid fa-eye"></i></button></div></td></tr>';
-                });
-            }
-        } catch (e) { /* ignore */ }
-        if (html) body.insertAdjacentHTML('afterbegin', html);
-    }
-    function applyFilter(type) {
-        type = type || 'all';
-        document.querySelectorAll('#txFilterChips .fc').forEach(function (c) {
-            c.classList.toggle('active', c.getAttribute('data-tx-type') === type);
-        });
-        document.querySelectorAll('tr[data-tx-type]').forEach(function (tr) {
-            var types = (tr.getAttribute('data-tx-type') || '').split(/\s+/);
-            var show = type === 'all' || types.indexOf(type) >= 0;
-            tr.style.display = show ? '' : 'none';
-        });
-        document.querySelectorAll('.section-pill').forEach(function (pill) {
-            var table = pill.nextElementSibling;
-            if (!table || !table.classList.contains('tx-table')) return;
-            var any = false;
-            table.querySelectorAll('tr[data-tx-type]').forEach(function (tr) {
-                if (tr.style.display !== 'none') any = true;
-            });
-            pill.style.display = any || type === 'all' ? '' : 'none';
-            table.style.display = any || type === 'all' ? '' : 'none';
-        });
-    }
-    injectMallRows();
-    var chips = document.getElementById('txFilterChips');
-    if (chips) {
-        chips.addEventListener('click', function (e) {
-            var fc = e.target.closest('.fc');
-            if (!fc) return;
-            applyFilter(fc.getAttribute('data-tx-type') || 'all');
-        });
-    }
-    var type = 'all';
-    try { type = new URLSearchParams(location.search).get('type') || 'all'; } catch (e) { /* ignore */ }
-    if (type === 'digital' || type === 'affiliate') applyFilter(type);
-})();
-</script>
+<script src="../js-web/transactions-list-page.js"></script>
 </body>
 </html>

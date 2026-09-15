@@ -264,11 +264,38 @@
         init();
     }
 
+    /** 数字商品详情页：预览 / 本人视角 / 购买栏 */
+    function initDaProductDetail(opts) {
+        opts = opts || {};
+        var params = new URLSearchParams(location.search);
+        var preview = params.get('preview') === '1';
+        var owner = params.get('owner') === '1';
+        var navTitle = document.querySelector('.nav-bar .nav-title');
+        if (navTitle) {
+            if (preview) navTitle.textContent = '预览';
+            else if (owner) navTitle.textContent = '商品详情';
+        }
+        var shareBtn = document.getElementById('btnShare');
+        if (shareBtn) shareBtn.parentNode.removeChild(shareBtn);
+        var btn = document.getElementById('btnBuy');
+        if (btn && (preview || owner)) {
+            btn.disabled = true;
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-secondary');
+            btn.textContent = preview ? '预览不可购买' : '本人不可购买';
+            return;
+        }
+        if (btn && typeof opts.onBuy === 'function') {
+            btn.addEventListener('click', opts.onBuy);
+        }
+    }
+
     global.DigitalH5Nav = {
         go: go,
         toast: toast,
         bindChips: bindChips,
         bindClicks: bindClicks,
-        applyTheme: applyTheme
+        applyTheme: applyTheme,
+        initDaProductDetail: initDaProductDetail
     };
 })(window);

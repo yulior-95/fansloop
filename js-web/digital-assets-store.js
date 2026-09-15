@@ -446,6 +446,12 @@
     function removeFromShowcase(id) {
         var p = getById(id);
         if (!p) return { ok: false, error: '商品不存在' };
+        if (p.status === 'rejected') {
+            p.removedFromShowcase = true;
+            p.pinned = false;
+            upsert(p);
+            return { ok: true };
+        }
         if (p.status !== 'delisted') return { ok: false, error: '请先下架后再移除橱窗' };
         p.removedFromShowcase = true;
         p.pinned = false;

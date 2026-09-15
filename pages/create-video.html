@@ -64,6 +64,7 @@ textarea{min-height:100px;resize:vertical}
 .cat-opt.on{background:rgba(168,85,247,.18);color:var(--text-primary)}
 </style>
 <link rel="stylesheet" href="../css/h5-light-theme.css">
+<link rel="stylesheet" href="../css/h5-audience-perm.css">
 </head>
 <body>
 <input id="videoInput" type="file" accept="video/*" hidden>
@@ -80,14 +81,17 @@ textarea{min-height:100px;resize:vertical}
   <div class="field"><div class="lb"><span>标题</span><span id="titleCount">0 / 20</span></div><input id="titleInput" maxlength="20" placeholder="请输入视频标题（最多20字）"></div>
   <div class="field"><div class="lb"><span>视频简介</span><span id="descCount">0 / 3000</span></div><textarea id="descInput" maxlength="3000" placeholder="请输入视频简介（最多3000字）"></textarea></div>
   <div class="field">
-    <div class="lb"><span>可查看权限</span><span id="permHint">公开·所有人可见</span></div>
+    <div class="lb"><span>谁可以看</span><span id="permHint">所有人</span></div>
     <select id="permSelect">
-      <option value="public">公开·所有人可见</option>
-      <option value="mutual">互相关注的人可见</option>
-      <option value="partial">部分可见</option>
-      <option value="subscriber">订阅的人可见</option>
+      <option value="public" selected>所有人</option>
+      <option value="fans">仅粉丝</option>
+      <option value="subscribers">仅订阅者</option>
     </select>
-    <div class="tip">选择「部分可见」后可勾选好友。</div>
+    <button type="button" class="perm-trigger" id="permTrigger" aria-haspopup="dialog" aria-controls="permAudienceOvl">
+      <span class="perm-trigger-label" id="permTriggerLabel">所有人</span>
+      <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+    </button>
+    <div class="tip">与 Web 创建页「高级设置 · 谁可以看」选项一致。</div>
   </div>
 
   <div class="card">
@@ -126,13 +130,6 @@ textarea{min-height:100px;resize:vertical}
   <button class="btn btn-primary" id="publishBtn"><i class="fa-solid fa-paper-plane"></i> 提交审核并发布</button>
 </div>
 
-<div class="ovl" id="friendOvl">
-  <div class="sheet">
-    <div class="hd"><strong>部分可见 · 选择好友</strong><button class="sbtn" id="friendCloseBtn">关闭</button></div>
-    <div class="friend-list" id="friendList"></div>
-    <div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-secondary" id="friendCancelBtn">取消</button><button class="btn btn-primary" id="friendConfirmBtn">确认</button></div>
-  </div>
-</div>
 <div class="cat-ovl" id="catOvl">
   <div class="cat-sheet">
     <div class="hd" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><strong>选择内容类别</strong><button class="sbtn" id="catCloseBtn">关闭</button></div>
@@ -147,18 +144,15 @@ textarea{min-height:100px;resize:vertical}
 
 <div class="home-indicator"></div>
 <script src="../js/digital-h5-nav.js"></script>
+<script src="../js/h5-audience-perm-picker.js"></script>
 <script src="../js/creator-subscription-store.js"></script>
 <script src="../js/create-monetize-gate.js"></script>
 <script>
 (function(){
   function toast(m){ if(window.DigitalH5Nav&&window.DigitalH5Nav.toast) window.DigitalH5Nav.toast(m); }
-  var friends=[['NovaPlay','3年好友','https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80'],['Luna','互关创作者','https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80'],['Marcus','直播达人','https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80']];
-  var picked=[];
   var zone=document.getElementById('videoZone'), input=document.getElementById('videoInput'), status=document.getElementById('videoStatus');
   var title=document.getElementById('titleInput'), desc=document.getElementById('descInput');
   var tc=document.getElementById('titleCount'), dc=document.getElementById('descCount');
-  var perm=document.getElementById('permSelect'), hint=document.getElementById('permHint');
-  var ovl=document.getElementById('friendOvl'), list=document.getElementById('friendList');
   var catOvl=document.getElementById('catOvl'), catRow=document.getElementById('catRow'), catValue=document.getElementById('catValue'), catHint=document.getElementById('catHint');
   var moneyGrid=document.getElementById('moneyGrid'), rowPpv=document.getElementById('rowPpv');
   var allowComment=true, allowShare=true;
@@ -169,7 +163,6 @@ textarea{min-height:100px;resize:vertical}
   };
   var catPath=['','',''],catDraft=['','',''];
   function counters(){ tc.textContent=(title.value||'').length+' / 20'; dc.textContent=(desc.value||'').length+' / 3000'; }
-  function renderFriends(){ list.innerHTML=friends.map(function(f,i){ return '<label class="friend"><input type="checkbox" data-id="'+i+'"'+(picked.indexOf(String(i))>=0?' checked':'')+'><span class="av" style="background-image:url(\''+f[2]+'\')"></span><span style="flex:1"><b style="font-size:13px">'+f[0]+'</b><div style="font-size:11px;color:var(--text-tertiary)">'+f[1]+'</div></span></label>'; }).join('');}
   function renderCatCols(){
     var c1=document.getElementById('catCol1'), c2=document.getElementById('catCol2'), c3=document.getElementById('catCol3');
     var l1=Object.keys(catData);
@@ -195,17 +188,6 @@ textarea{min-height:100px;resize:vertical}
   ['dragenter','dragover'].forEach(function(ev){ zone.addEventListener(ev,function(e){ e.preventDefault(); });});
   zone.addEventListener('drop', function(e){ e.preventDefault(); if(e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]) setUploaded(); });
   title.addEventListener('input', counters); desc.addEventListener('input', counters); counters();
-  perm.addEventListener('change', function(){
-    var v=perm.value;
-    if(v==='public') hint.textContent='公开·所有人可见';
-    else if(v==='mutual') hint.textContent='互相关注的人可见';
-    else if(v==='subscriber') hint.textContent='订阅的人可见';
-    else { hint.textContent='部分可见·请选择好友'; renderFriends(); ovl.classList.add('open'); }
-  });
-  document.getElementById('friendCloseBtn').onclick=function(){ ovl.classList.remove('open'); if(!picked.length){perm.value='public';hint.textContent='公开·所有人可见';}};
-  document.getElementById('friendCancelBtn').onclick=function(){ ovl.classList.remove('open'); if(!picked.length){perm.value='public';hint.textContent='公开·所有人可见';}};
-  document.getElementById('friendConfirmBtn').onclick=function(){ picked=Array.prototype.slice.call(list.querySelectorAll('input:checked')).map(function(i){return i.getAttribute('data-id');}); hint.textContent=picked.length?('部分可见·'+picked.length+'人'):'公开·所有人可见'; if(!picked.length)perm.value='public'; ovl.classList.remove('open'); };
-  ovl.addEventListener('click', function(e){ if(e.target===ovl) ovl.classList.remove('open'); });
   document.getElementById('allowCommentSwitch').onclick=function(){ allowComment=!allowComment; this.classList.toggle('on',allowComment); };
   document.getElementById('allowShareSwitch').onclick=function(){ allowShare=!allowShare; this.classList.toggle('on',allowShare); };
   moneyGrid.querySelectorAll('.mcell').forEach(function(cell){

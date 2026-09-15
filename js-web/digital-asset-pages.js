@@ -437,14 +437,6 @@
         syncSupplyUI();
         syncListUI();
 
-        qs('#btnDaSaveDraft').addEventListener('click', function () {
-            var data = collect();
-            if (!data.title) return toast('请填写作品名称', true);
-            var p = Store.create(Object.assign(data, { status: 'draft' }));
-            toast('草稿已保存');
-            setTimeout(function () { afterSaveRedirect(p, false); }, 700);
-        });
-
         qs('#btnDaSubmit').addEventListener('click', function () {
             var data = collect();
             var err = validate(data);

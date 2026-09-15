@@ -213,6 +213,8 @@
 }
 </style>
 <link rel="stylesheet" href="../css/h5-light-theme.css">
+<link rel="stylesheet" href="../css/digital-h5.css">
+<link rel="stylesheet" href="../css/h5-share-sheets.css">
 </head>
 <body>
 
@@ -228,8 +230,7 @@
 <div class="nav-bar" style="position:absolute">
     <div class="nav-left"><div class="ctrl-btn" data-back="home.html"><i class="fa-solid fa-chevron-left"></i></div></div>
     <div class="nav-right">
-        <div class="ctrl-btn"><i class="fa-solid fa-share-nodes"></i></div>
-        <div class="ctrl-btn"><i class="fa-solid fa-ellipsis"></i></div>
+        <div class="ctrl-btn" id="cpBtnShare" role="button" tabindex="0" aria-label="分享"><i class="fa-solid fa-share-nodes"></i></div>
     </div>
 </div>
 
@@ -325,24 +326,39 @@
         <div class="c-tab">喜欢</div>
     </div>
 
-    <div class="da-grid" style="padding:12px 12px 8px">
-        <div class="da-card" data-go="digital-detail.html" style="background:#1A1A26;border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;cursor:pointer">
-            <div style="position:relative;aspect-ratio:1">
-                <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=400&q=80" alt="" style="width:100%;height:100%;object-fit:cover">
+    <div class="da-grid">
+        <div class="da-card" data-go="digital-detail.html">
+            <div class="cover">
+                <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=400&q=80" alt="">
+                <span class="kind">图片合集</span>
+                <span class="price">4.5 U</span>
             </div>
-            <div style="padding:8px 10px 10px;font-size:12px;font-weight:700">富士山日出 · 4K 写真</div>
+            <div class="meta">
+                <div class="title">富士山日出 · 4K 写真</div>
+                <div class="sub">不限 · 已售 86</div>
+            </div>
         </div>
-        <div class="da-card" data-go="digital-detail-video.html" style="background:#1A1A26;border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;cursor:pointer">
-            <div style="position:relative;aspect-ratio:1">
-                <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&q=80" alt="" style="width:100%;height:100%;object-fit:cover">
+        <div class="da-card" data-go="digital-detail-video.html">
+            <div class="cover">
+                <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&q=80" alt="">
+                <span class="kind">视频</span>
+                <span class="price">6.0 U</span>
             </div>
-            <div style="padding:8px 10px 10px;font-size:12px;font-weight:700">城市夜色 · 延时短片</div>
+            <div class="meta">
+                <div class="title">城市夜色 · 延时短片</div>
+                <div class="sub">剩余 158</div>
+            </div>
         </div>
-        <div class="da-card" data-go="digital-detail-bundle.html" style="background:#1A1A26;border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;cursor:pointer">
-            <div style="position:relative;aspect-ratio:1">
-                <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&q=80" alt="" style="width:100%;height:100%;object-fit:cover">
+        <div class="da-card" data-go="digital-detail-bundle.html">
+            <div class="cover">
+                <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&q=80" alt="">
+                <span class="kind">图视包</span>
+                <span class="price">9.9 U</span>
             </div>
-            <div style="padding:8px 10px 10px;font-size:12px;font-weight:700">旅拍花絮 · 图视包</div>
+            <div class="meta">
+                <div class="title">旅拍花絮 · 图视包</div>
+                <div class="sub">限量 · 剩余 68</div>
+            </div>
         </div>
     </div>
     <p style="padding:0 16px 16px;font-size:11px;color:#6B6B7B;cursor:pointer" data-go="creator-showcase.html">进入完整橱窗可购买图片合集 / 视频 / 图视作品包 →</p>
@@ -402,8 +418,79 @@
     </div>
 </div>
 
+<div class="home-overlay" id="cpShareOverlay"></div>
+<div class="home-sheet share-sheet" id="cpShareSheet">
+    <div class="hs-head"><div class="t">分享到</div><button type="button" class="x" id="cpShareClose"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="hs-body">
+        <div class="share-preview">
+            <img class="thumb" id="cpShareThumb" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=80" alt="">
+            <div class="info">
+                <div class="ti" id="cpShareTitle">Luna</div>
+                <div class="by" id="cpShareBy">@luna_web3</div>
+            </div>
+        </div>
+        <button type="button" class="share-dm-entry" id="cpShareOpenDm">
+            <span class="ic"><i class="fa-regular fa-comment-dots"></i></span>
+            <span class="txt">
+                <span class="ti">分享到私聊</span>
+                <span class="sub">选择互关好友，以创作者卡片发送</span>
+            </span>
+            <i class="fa-solid fa-chevron-right chev"></i>
+        </button>
+        <button type="button" class="share-dm-entry" id="cpShareOpenGroup">
+            <span class="ic grp"><i class="fa-solid fa-user-group"></i></span>
+            <span class="txt">
+                <span class="ti">分享到群聊</span>
+                <span class="sub">选择群聊，发送主页卡片给群成员</span>
+            </span>
+            <i class="fa-solid fa-chevron-right chev"></i>
+        </button>
+        <div class="share-sec-label">分享到第三方平台</div>
+        <div class="share-grid" id="cpShareGrid">
+            <button type="button" class="share-item" data-share="x"><span class="ic"><i class="fa-brands fa-x-twitter"></i></span><span class="lb">X</span></button>
+            <button type="button" class="share-item" data-share="telegram"><span class="ic"><i class="fa-brands fa-telegram"></i></span><span class="lb">Telegram</span></button>
+            <button type="button" class="share-item" data-share="discord"><span class="ic"><i class="fa-brands fa-discord"></i></span><span class="lb">Discord</span></button>
+            <button type="button" class="share-item" data-share="wechat"><span class="ic"><i class="fa-brands fa-weixin"></i></span><span class="lb">微信</span></button>
+            <button type="button" class="share-item" data-share="qq"><span class="ic"><i class="fa-brands fa-qq"></i></span><span class="lb">QQ</span></button>
+            <button type="button" class="share-item" data-share="weibo"><span class="ic"><i class="fa-brands fa-weibo"></i></span><span class="lb">微博</span></button>
+            <button type="button" class="share-item" data-share="line"><span class="ic"><i class="fa-brands fa-line"></i></span><span class="lb">LINE</span></button>
+        </div>
+        <div class="share-link-card">
+            <div class="share-link-row">
+                <span class="url" id="cpShareUrl">https://goodfans.io/u/luna_web3</span>
+                <button type="button" class="copy-btn" id="cpShareCopy">复制</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="home-sheet share-dm-sheet" id="cpShareDmSheet">
+    <div class="hs-head"><div class="t">分享到私聊</div><button type="button" class="x" id="cpShareDmClose"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="hs-body">
+        <p class="share-dm-hint">选择互关好友，将创作者主页以卡片形式发送到私聊</p>
+        <div class="share-dm-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" id="cpShareDmSearch" placeholder="搜索好友昵称" autocomplete="off"></div>
+        <div class="share-dm-list" id="cpShareDmList"></div>
+        <div class="share-dm-foot">
+            <span class="share-dm-sel" id="cpShareDmHint">未选择</span>
+            <button type="button" class="btn btn-primary btn-sm" id="cpShareDmSend" disabled><i class="fa-solid fa-paper-plane"></i> 发送</button>
+        </div>
+    </div>
+</div>
+<div class="home-sheet share-dm-sheet" id="cpShareGroupSheet">
+    <div class="hs-head"><div class="t">分享到群聊</div><button type="button" class="x" id="cpShareGroupClose"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="hs-body">
+        <p class="share-dm-hint">选择一个群聊，发送创作者主页卡片（成员可见）</p>
+        <div class="share-dm-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" id="cpShareGroupSearch" placeholder="搜索群名称" autocomplete="off"></div>
+        <div class="share-dm-list" id="cpShareGroupList"></div>
+        <div class="share-dm-foot">
+            <span class="share-dm-sel" id="cpShareGroupHint">未选择群聊</span>
+            <button type="button" class="btn btn-primary btn-sm" id="cpShareGroupSend" disabled><i class="fa-solid fa-paper-plane"></i> 发送</button>
+        </div>
+    </div>
+</div>
+
 <div class="home-indicator"></div>
 <script src="../js/digital-h5-nav.js"></script>
+<script src="../js/h5-share-sheets.js"></script>
 <script>
 (function () {
     var params = new URLSearchParams(location.search);
@@ -413,10 +500,10 @@
         preview = JSON.parse(sessionStorage.getItem('gf_creator_preview') || 'null');
     } catch (e) { preview = null; }
     if (!handle && preview && preview.handle) handle = preview.handle;
-    if (!handle) return;
 
-    var raw = String(handle).trim();
+    var raw = String(handle || 'luna_web3').trim();
     var withAt = raw.charAt(0) === '@' ? raw : ('@' + raw);
+    var slug = withAt.replace(/^@/, '');
     var display = withAt.replace(/^@/, '').replace(/_/g, ' ');
     display = display.replace(/\b\w/g, function (c) { return c.toUpperCase(); });
 
@@ -429,6 +516,82 @@
     if (preview && preview.avatar && avatarEl) avatarEl.src = preview.avatar;
     if (preview && preview.cover && bannerEl) bannerEl.src = preview.cover;
     document.title = withAt + ' · 创作者详情';
+
+    var shareMeta = function () {
+        return {
+            title: (nameEl && nameEl.textContent) || display,
+            by: (handleEl && handleEl.textContent) || withAt,
+            thumb: (avatarEl && avatarEl.src) || '',
+            url: 'https://goodfans.io/u/' + encodeURIComponent(slug)
+        };
+    };
+
+    if (window.H5ShareSheets) {
+        H5ShareSheets.init({
+            openBtn: document.getElementById('cpBtnShare'),
+            overlayId: 'cpShareOverlay',
+            mainSheetId: 'cpShareSheet',
+            dmSheetId: 'cpShareDmSheet',
+            groupSheetId: 'cpShareGroupSheet',
+            mainCloseId: 'cpShareClose',
+            openDmId: 'cpShareOpenDm',
+            openGroupId: 'cpShareOpenGroup',
+            thumbId: 'cpShareThumb',
+            titleId: 'cpShareTitle',
+            byId: 'cpShareBy',
+            urlId: 'cpShareUrl',
+            copyId: 'cpShareCopy',
+            gridId: 'cpShareGrid',
+            dmListId: 'cpShareDmList',
+            dmSearchId: 'cpShareDmSearch',
+            dmSendId: 'cpShareDmSend',
+            dmHintId: 'cpShareDmHint',
+            dmCloseId: 'cpShareDmClose',
+            groupListId: 'cpShareGroupList',
+            groupSearchId: 'cpShareGroupSearch',
+            groupSendId: 'cpShareGroupSend',
+            groupHintId: 'cpShareGroupHint',
+            groupCloseId: 'cpShareGroupClose',
+            getMeta: shareMeta,
+            friends: [
+                { id: 'f1', name: 'Ken', handle: '@ken_film', av: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=80', chatUrl: 'messages-chat.html?peer=Ken&shared=creator' },
+                { id: 'f2', name: 'Nova', handle: '@nova_room', av: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80', chatUrl: 'messages-chat.html?peer=Nova&shared=creator' },
+                { id: 'f3', name: 'Yuki', handle: '@yuki_shot', av: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80', chatUrl: 'messages-chat.html?peer=Yuki&shared=creator' },
+                { id: 'f4', name: 'Mika', handle: '@mika_daily', av: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80', chatUrl: 'messages-chat.html?peer=Mika&shared=creator' }
+            ],
+            groups: [
+                { id: 'g1', name: '京都创作交流群', members: 128, chatUrl: 'messages-chat.html?group=kyoto-creators&shared=creator' },
+                { id: 'g2', name: 'GOODFANS 创作者互助', members: 56, chatUrl: 'messages-chat.html?group=gf-creators&shared=creator' },
+                { id: 'g3', name: 'Luna 粉丝后援会', members: 342, chatUrl: 'messages-chat.html?group=luna-fans&shared=creator' }
+            ],
+            onDmSend: function (picked) {
+                try {
+                    var m = shareMeta();
+                    sessionStorage.setItem('gf_creator_preview', JSON.stringify({
+                        handle: slug,
+                        title: m.title,
+                        avatar: m.thumb,
+                        cover: (bannerEl && bannerEl.src) || m.thumb
+                    }));
+                } catch (e) {}
+                if (picked[0] && picked.length === 1 && picked[0].chatUrl) {
+                    location.href = picked[0].chatUrl;
+                }
+            },
+            onGroupSend: function (g) {
+                try {
+                    var m = shareMeta();
+                    sessionStorage.setItem('gf_creator_preview', JSON.stringify({
+                        handle: slug,
+                        title: m.title,
+                        avatar: m.thumb,
+                        cover: (bannerEl && bannerEl.src) || m.thumb
+                    }));
+                } catch (e) {}
+                if (g && g.chatUrl) location.href = g.chatUrl;
+            }
+        });
+    }
 })();
 </script>
 </body>

@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>积分商城</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css-web/points-mall.css">
+<script src="../js/h5-theme-boot.js"></script>
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 28px;
+    overflow-x: hidden;
+}
+.pm-h5-wrap {
+    padding: 0 12px;
+    --border: var(--border-color);
+    --t-primary: var(--text-primary);
+    --t-secondary: var(--text-secondary);
+    --t-tertiary: var(--text-tertiary);
+    --bg-card: var(--bg-card);
+    --bg-input: var(--bg-inset);
+}
+.pm-h5-wrap .pm-hero { margin-left: 0; margin-right: 0; }
+.pm-h5-wrap .pm-hero-in { flex-direction: column; }
+.pm-h5-wrap .goods-grid { grid-template-columns: 1fr !important; }
+.pm-h5-wrap .pm-tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+.pm-h5-wrap .usage-scroll-wrap { margin: 0 -4px; }
+.pm-h5-wrap .wheel-banner { flex-direction: column; align-items: flex-start; gap: 10px; }
+.pm-overlay { position: absolute !important; inset: 0; z-index: 500; }
+.pm-modal { max-width: calc(100% - 24px); }
+.pm-modal--history, .pm-modal--wheel { max-width: calc(100vw - 24px); margin: 12px auto; }
+.history-toolbar { flex-wrap: wrap; }
+.history-table { font-size: 11px; }
+.toast { z-index: 600; position: absolute; left: 50%; transform: translateX(-50%); bottom: 72px; }
+:root[data-theme='light'] .pm-h5-wrap .pm-hero,
+:root[data-theme='light'] .pm-h5-wrap .goods-card,
+:root[data-theme='light'] .pm-h5-wrap .pm-balance,
+:root[data-theme='light'] .pm-h5-wrap .usage-section .usage-card {
+    background: var(--bg-card);
+    color: var(--text-primary);
+}
+</style>
+<link rel="stylesheet" href="../css/h5-light-theme.css">
+</head>
+<body>
+<div class="status-bar"><span class="time">9:41</span><span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span></div>
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" data-back="profile.html"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">积分商城</div>
+    <div class="nav-right"></div>
+</div>
+<div class="app-content">
+<div class="pm-h5-wrap">
+<div class="pm-hero">
+            <h1 class="pm-hero-title"><i class="fa-solid fa-coins" style="color:#FBBF24;margin-right:10px"></i>积分兑换商城</h1>
+            <div class="pm-hero-in">
+                <div class="pm-hero-main">
+                    <p class="pm-hero-desc">使用积分在本商城兑换各类站内权益，兑换成功后权益将下发至你的账户。</p>
+                    <div class="pm-benefit-slot pm-hero-glass" id="pmBenefitSlot">
+                        <div class="bh">
+                            <span class="bh-title" id="benefitPanelTitle"><i class="fa-solid fa-ticket" style="color:#C084FC"></i>当前兑换权益</span>
+                        </div>
+                        <div class="bb" id="benefitViewCurrent">
+                            <!-- 由 mall-benefits-sync.js 动态渲染当前权益 -->
+                        </div>
+                    </div>
+                </div>
+                <div class="pm-balance" id="pmBalanceCard">
+                    <div class="lb-row">
+                        <div class="lb">积分账户</div>
+                        <button type="button" class="bp-history-btn pm-balance-history" id="btnHistoryToggle" title="历史兑换记录" aria-expanded="false" aria-label="查看历史兑换记录" aria-controls="historyOverlay">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </button>
+                    </div>
+                    <div class="val"><i class="fa-solid fa-bolt"></i><span id="pmAvailVal">12,580</span></div>
+                    <div class="pm-balance-grid">
+                        <div class="cell">
+                            <div class="k">可用（可兑换）</div>
+                            <div class="v avail" id="pmAvailDup">12,580</div>
+                        </div>
+                        <div class="cell">
+                            <div class="k">
+                                冷静中
+                                <span class="pm-tip-wrap" tabindex="0">
+                                    <i class="fa-solid fa-circle-question pm-tip-icon" aria-hidden="true"></i>
+                                    <span class="pm-tip-pop" role="tooltip">
+                                        <strong>积分冷静期说明</strong>：邀请、活动等渠道获得的积分不会立刻可兑换，需经过 <span id="pmCoolingDaysTip">7</span> 天冷静期后进入<strong>可用积分池</strong>，方可于本商城消耗。计时任务等日常奖励可按后台配置即时可用或同步冷静。
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="v frozen" id="pmFrozenVal">1,400</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="usage-section">
+            <span class="dev-glass-wrap dev-glass-wrap--pop-left dev-glass-wrap--layer-top usage-glass">
+                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devPmUsageTip">
+                    <span class="dev-glass-sphere-shine"></span>
+                    <span class="dev-glass-sphere-txt">To 研发</span>
+                </span>
+                <span class="dev-glass-pop dev-glass-pop--wide" id="devPmUsageTip" role="tooltip">
+                    <strong>后台支持配置展示内容</strong>
+                    <ol>
+                        <li>上传 ICON，标题，说明</li>
+                        <li>支持鼠标滚轮上下滑动来进行左右切换</li>
+                    </ol>
+                </span>
+            </span>
+            <div class="usage-scroll-wrap" id="usageScrollWrap">
+                <div class="usage-grid" id="usageGrid">
+                    <div class="usage-card"><div class="ic p1"><i class="fa-solid fa-lock-open"></i></div><div><h3>付费内容试看券</h3><p>1 次解锁 · 24 小时内观看整篇付费内容。</p></div></div>
+                    <div class="usage-card"><div class="ic p2"><i class="fa-solid fa-percent"></i></div><div><h3>订阅折扣券</h3><p>9 折 / 8 折 · 限时使用，结账自动抵扣。</p></div></div>
+                    <div class="usage-card"><div class="ic p3"><i class="fa-solid fa-gift"></i></div><div><h3>打赏加成卡</h3><p>按次数补贴 · 打赏 100 → 创作者实收 110（平台额外 +10%）。</p></div></div>
+                    <div class="usage-card"><div class="ic p4"><i class="fa-solid fa-chart-line"></i></div><div><h3>积分加速卡</h3><p>积分获取收益 +20% · 持续 24 小时。</p></div></div>
+                    <div class="usage-card"><div class="ic p5"><i class="fa-solid fa-coins"></i></div><div><h3>SFL / NFT 牵引</h3><p>限量兑换资格、空投抽奖券、NFT 折扣与质押加成。</p></div></div>
+                    <div class="usage-card"><div class="ic p6"><i class="fa-solid fa-broadcast-tower"></i></div><div><h3>直播互动加成</h3><p>直播间打赏 / 礼物积分收益 +15% · 单场有效。</p></div></div>
+                    <div class="usage-card"><div class="ic p7"><i class="fa-solid fa-thumbtack"></i></div><div><h3>私信置顶权益</h3><p>向创作者发送的私信在对方收件箱置顶 24h。</p></div></div>
+                    <div class="usage-card"><div class="ic p8"><i class="fa-solid fa-chart-pie"></i></div><div><h3>数据洞察卡</h3><p>解锁 7 日粉丝画像与内容转化分析面板。</p></div></div>
+                    <div class="usage-card"><div class="ic p1"><i class="fa-solid fa-headset"></i></div><div><h3>专属客服通道</h3><p>优先接入人工客服 · 48h 内响应账户与兑换问题。</p></div></div>
+                </div>
+            </div>
+            <div class="usage-scroll-fade usage-scroll-fade--left" id="usageFadeL" aria-hidden="true"></div>
+            <div class="usage-scroll-fade usage-scroll-fade--right" id="usageFadeR" aria-hidden="true"></div>
+        </div>
+
+        <div class="wheel-banner">
+            <div>
+                <h3><i class="fa-solid fa-dharmachakra" style="color:#FBBF24"></i>幸运转盘</h3>
+                <p>每次消耗 <b style="color:#FBBF24">500</b> 积分参与抽奖，有机会获得少量 USDT、会员天数、NFT 碎片或「谢谢参与」。</p>
+            </div>
+            <button type="button" class="wb-go" id="btnWheel"><i class="fa-solid fa-rotate"></i> 去转盘</button>
+        </div>
+
+        <div class="pm-tabs-wrap">
+            <span class="dev-glass-wrap dev-glass-wrap--pop-left dev-glass-wrap--layer-top pm-tabs-glass">
+                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devMallTabsTip">
+                    <span class="dev-glass-sphere-shine"></span>
+                    <span class="dev-glass-sphere-txt">To 研发</span>
+                </span>
+                <span class="dev-glass-pop dev-glass-pop--wide" id="devMallTabsTip" role="tooltip">
+                    <strong>商城分类 Tab · 后台配置</strong>
+                    <ol>
+                        <li>这里的分类，由后台积分活动管理配置展示</li>
+                    </ol>
+                </span>
+            </span>
+            <div class="pm-tabs" role="tablist" id="mallTabs">
+                <button type="button" class="active" data-tab="hot">热门推荐</button>
+                <button type="button" data-tab="pay">付费权益</button>
+                <button type="button" data-tab="grow">加速成长</button>
+                <button type="button" data-tab="vip">会员&amp;装扮</button>
+                <button type="button" data-tab="asset">资产专区</button>
+            </div>
+        </div>
+
+        <div class="goods-grid" id="goodsGrid">
+
+            <article class="goods-card" data-cats="hot,pay">
+                <div class="thumb" style="background-image:url('https://images.pexels.com/photos/7688336/pexels-photo-7688336.jpeg?auto=compress&cs=tinysrgb&w=800')">
+                    <span class="tag"><i class="fa-solid fa-fire-flame-curved"></i> 核心</span>
+                </div>
+                <div class="bd">
+                    <h4>付费内容试看券</h4>
+                    <div class="goods-rules">
+                        <div class="gr-row"><span class="gr-k">用途</span><span class="gr-v">免费解锁 1 篇付费帖 / 图集</span></div>
+                        <div class="gr-row"><span class="gr-k">用法</span><span class="gr-v">付费弹窗选「试看券」消耗 1 次</span></div>
+                        <div class="gr-row"><span class="gr-k">有效期</span><span class="gr-v">持券 7 天 · 解锁后 24h 可反复看</span></div>
+                    </div>
+                    <p class="gr-note">不可与折扣券叠加</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 3 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 1,240</span></div>
+                    <div class="row">
+                        <div class="price">1,600 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="付费内容试看券" data-points="1600" data-img="https://images.pexels.com/photos/7688336/pexels-photo-7688336.jpeg?auto=compress&cs=tinysrgb&w=400">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="hot,pay">
+                <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80')">
+                    <span class="tag">5 折</span>
+                </div>
+                <div class="bd">
+                    <h4>单篇 5 折券</h4>
+                    <div class="goods-rules">
+                        <div class="gr-row"><span class="gr-k">用途</span><span class="gr-v">单篇付费内容享 5 折</span></div>
+                        <div class="gr-row"><span class="gr-k">用法</span><span class="gr-v">按篇购买结账时选券消耗 1 次</span></div>
+                        <div class="gr-row"><span class="gr-k">有效期</span><span class="gr-v">持券 14 天 · 每张限用 1 次</span></div>
+                    </div>
+                    <p class="gr-note">不可与试看券叠加</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 3 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 240</span></div>
+                    <div class="row">
+                        <div class="price">3,200 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="单篇 5 折券" data-points="3200" data-img="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400&q=80">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="hot,pay">
+                <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80')">
+                    <span class="tag">9 折</span>
+                </div>
+                <div class="bd">
+                    <h4>订阅 9 折券</h4>
+                    <div class="goods-rules">
+                        <div class="gr-row"><span class="gr-k">用途</span><span class="gr-v">订阅月 / 季档位减 10%</span></div>
+                        <div class="gr-row"><span class="gr-k">用法</span><span class="gr-v">订阅收银台选券 · 单笔限 1 张</span></div>
+                        <div class="gr-row"><span class="gr-k">有效期</span><span class="gr-v">持券 7 天 · 到期未用作废</span></div>
+                    </div>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 5 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 620</span></div>
+                    <div class="row">
+                        <div class="price">2,200 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="订阅 9 折券" data-points="2200" data-img="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="pay">
+                <div class="thumb" style="background-image:url('https://images.pexels.com/photos/4386321/pexels-photo-4386321.jpeg?auto=compress&cs=tinysrgb&w=800')">
+                    <span class="tag">8 折</span>
+                </div>
+                <div class="bd">
+                    <h4>订阅 8 折券</h4>
+                    <div class="goods-rules">
+                        <div class="gr-row"><span class="gr-k">用途</span><span class="gr-v">订阅享 8 折（减 20%）</span></div>
+                        <div class="gr-row"><span class="gr-k">用法</span><span class="gr-v">订阅结账时选券消耗 1 次</span></div>
+                        <div class="gr-row"><span class="gr-k">有效期</span><span class="gr-v">持券 48 小时内须使用</span></div>
+                    </div>
+                    <p class="gr-note">不可与其它满减叠加</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 1 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 88</span></div>
+                    <div class="row">
+                        <div class="price">6,800 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="订阅 8 折券" data-points="6800" data-img="https://images.pexels.com/photos/4386321/pexels-photo-4386321.jpeg?auto=compress&cs=tinysrgb&w=400">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="hot,pay">
+                <div class="thumb" style="background-image:url('https://images.pexels.com/photos/3945683/pexels-photo-3945683.jpeg?auto=compress&cs=tinysrgb&w=800')">
+                    <span class="tag"><i class="fa-solid fa-heart"></i> 打赏</span>
+                </div>
+                <div class="bd">
+                    <h4>打赏加成卡 · 3 次</h4>
+                    <div class="goods-rules">
+                        <div class="gr-row"><span class="gr-k">用途</span><span class="gr-v">打赏时平台额外补贴创作者</span></div>
+                        <div class="gr-row"><span class="gr-k">用法</span><span class="gr-v">直播 / 帖子打赏自动消耗 1 次</span></div>
+                        <div class="gr-row"><span class="gr-k">有效期</span><span class="gr-v">共 3 次 · 14 天内用完</span></div>
+                    </div>
+                    <p class="gr-note">补贴 10% · 上限 50 USDT · 打赏 ≥10 USDT 生效</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 2 / 周</span><span><i class="fa-solid fa-box-open"></i>剩余 410</span></div>
+                    <div class="row">
+                        <div class="price">3,500 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="打赏加成卡 · 3 次" data-points="3500" data-img="https://images.pexels.com/photos/3945683/pexels-photo-3945683.jpeg?auto=compress&cs=tinysrgb&w=400">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="hot,grow">
+                <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80')">
+                    <span class="tag"><i class="fa-solid fa-bolt"></i> 核心</span>
+                </div>
+                <div class="bd">
+                    <h4>积分加速卡 · 24h</h4>
+                    <div class="goods-rules">
+                        <div class="gr-row"><span class="gr-k">用途</span><span class="gr-v">提升任务类积分获取</span></div>
+                        <div class="gr-row"><span class="gr-k">用法</span><span class="gr-v">兑换后立即生效 · 积分 ×1.2</span></div>
+                        <div class="gr-row"><span class="gr-k">有效期</span><span class="gr-v">持续 24 小时 · 不限次数</span></div>
+                    </div>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 3 / 周</span><span><i class="fa-solid fa-box-open"></i>剩余 2,050</span></div>
+                    <div class="row">
+                        <div class="price">1,200 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="积分加速卡 · 24h" data-points="1200" data-img="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&q=80">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="grow">
+                <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80')">
+                    <span class="tag">上限</span>
+                </div>
+                <div class="bd">
+                    <h4>每日上限提升卡</h4>
+                    <div class="goods-rules">
+                        <div class="gr-row"><span class="gr-k">用途</span><span class="gr-v">当日提高积分获取上限</span></div>
+                        <div class="gr-row"><span class="gr-k">用法</span><span class="gr-v">兑换后当日上限 50 → 100</span></div>
+                        <div class="gr-row"><span class="gr-k">有效期</span><span class="gr-v">仅兑换当日 · 次日 0 点恢复</span></div>
+                    </div>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 1 / 日</span><span><i class="fa-solid fa-box-open"></i>剩余 999+</span></div>
+                    <div class="row">
+                        <div class="price">2,800 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="每日上限提升卡" data-points="2800" data-img="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&q=80">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="grow">
+                <div class="thumb" style="background-image:url('https://cdn.pixabay.com/photo/2016/11/29/09/16/architecture-1868667_1280.jpg')">
+                    <span class="tag">签到</span>
+                </div>
+                <div class="bd">
+                    <h4>连续签到翻倍卡</h4>
+                    <div class="goods-rules">
+                        <div class="gr-row"><span class="gr-k">用途</span><span class="gr-v">下次签到奖励翻倍</span></div>
+                        <div class="gr-row"><span class="gr-k">用法</span><span class="gr-v">7 天内签到时消耗 · 奖励 ×2</span></div>
+                        <div class="gr-row"><span class="gr-k">有效期</span><span class="gr-v">持券 7 天 · 过期未用作废</span></div>
+                    </div>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 7 / 周</span><span><i class="fa-solid fa-box-open"></i>剩余 720</span></div>
+                    <div class="row">
+                        <div class="price">450 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="连续签到翻倍卡" data-points="450" data-img="https://cdn.pixabay.com/photo/2016/11/29/09/16/architecture-1868667_640.jpg">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="grow">
+                <div class="thumb" style="background-image:url('https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=800')">
+                    <span class="tag">邀请</span>
+                </div>
+                <div class="bd">
+                    <h4>邀请加成卡 · 7 日</h4>
+                    <div class="goods-rules">
+                        <div class="gr-row"><span class="gr-k">用途</span><span class="gr-v">提升邀请返利收益</span></div>
+                        <div class="gr-row"><span class="gr-k">用法</span><span class="gr-v">好友注册 / 返利积分与现金 +10%</span></div>
+                        <div class="gr-row"><span class="gr-k">有效期</span><span class="gr-v">兑换后 7 日 · 不限邀请次数</span></div>
+                    </div>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 1 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 156</span></div>
+                    <div class="row">
+                        <div class="price">4,200 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="邀请加成卡 · 7 日" data-points="4200" data-img="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=400">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="hot,vip">
+                <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=800&q=80')">
+                    <span class="tag">会员</span>
+                </div>
+                <div class="bd">
+                    <h4>会员身份 · 7 天</h4>
+                    <div class="goods-rules">
+                        <div class="gr-row"><span class="gr-k">用途</span><span class="gr-v">开通 7 天平台会员体验</span></div>
+                        <div class="gr-row"><span class="gr-k">用法</span><span class="gr-v">兑换后 30 天内激活 · 可排队叠加</span></div>
+                        <div class="gr-row"><span class="gr-k">有效期</span><span class="gr-v">激活后享 7 天会员权益</span></div>
+                    </div>
+                    <p class="gr-note">含高清画质、专属客服等 · 持券期与会员期独立</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 1 / 季</span><span><i class="fa-solid fa-box-open"></i>剩余 320</span></div>
+                    <div class="row">
+                        <div class="price">5,500 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="会员身份 · 7 天" data-points="5500" data-img="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=400&q=80">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="vip">
+                <div class="thumb" style="background-image:url('https://images.pexels.com/photos/3785079/pexels-photo-3785079.jpeg?auto=compress&cs=tinysrgb&w=800')">
+                    <span class="tag">30 天</span>
+                </div>
+                <div class="bd">
+                    <h4>会员身份 · 30 天</h4>
+                    <div class="goods-rules">
+                        <div class="gr-row"><span class="gr-k">用途</span><span class="gr-v">开通 30 天完整会员权益</span></div>
+                        <div class="gr-row"><span class="gr-k">用法</span><span class="gr-v">兑换后 45 天内激活</span></div>
+                        <div class="gr-row"><span class="gr-k">有效期</span><span class="gr-v">激活后连续 30 天有效</span></div>
+                    </div>
+                    <p class="gr-note">可与当前会员时长排队叠加</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 2 / 年</span><span><i class="fa-solid fa-box-open"></i>剩余 96</span></div>
+                    <div class="row">
+                        <div class="price">18,000 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="会员身份 · 30 天" data-points="18000" data-img="https://images.pexels.com/photos/3785079/pexels-photo-3785079.jpeg?auto=compress&cs=tinysrgb&w=400">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="vip">
+                <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1567446535009-f035fce46156?w=800&q=80')">
+                    <span class="tag">VIP</span>
+                </div>
+                <div class="bd">
+                    <h4>昵称徽章 · VIP / OG</h4>
+                    <div class="goods-rules">
+                        <div class="gr-row"><span class="gr-k">用途</span><span class="gr-v">主页与评论区展示限定徽章</span></div>
+                        <div class="gr-row"><span class="gr-k">用法</span><span class="gr-v">兑换后二选一（VIP / OG）佩戴</span></div>
+                        <div class="gr-row"><span class="gr-k">有效期</span><span class="gr-v">全站展示 30 天 · 到期自动卸下</span></div>
+                    </div>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 1 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 540</span></div>
+                    <div class="row">
+                        <div class="price">2,400 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="昵称徽章 · VIP / OG" data-points="2400" data-img="https://images.unsplash.com/photo-1567446535009-f035fce46156?w=400&q=80">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="vip">
+                <div class="thumb" style="background-image:url('https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=800')">
+                    <span class="tag">评论</span>
+                </div>
+                <div class="bd">
+                    <h4>评论高亮 · 7 日</h4>
+                    <div class="goods-rules">
+                        <div class="gr-row"><span class="gr-k">用途</span><span class="gr-v">评论昵称与正文专属高亮色</span></div>
+                        <div class="gr-row"><span class="gr-k">用法</span><span class="gr-v">兑换后发帖评论自动高亮</span></div>
+                        <div class="gr-row"><span class="gr-k">有效期</span><span class="gr-v">7 日内不限评论条数</span></div>
+                    </div>
+                    <p class="gr-note">仅装扮效果 · 不含置顶权益</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 4 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 288</span></div>
+                    <div class="row">
+                        <div class="price">900 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="评论高亮 · 7 日" data-points="900" data-img="https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=400">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="vip">
+                <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=800&q=80')">
+                    <span class="tag">装扮</span>
+                </div>
+                <div class="bd">
+                    <h4>专属头像框 · 霓虹</h4>
+                    <div class="goods-rules">
+                        <div class="gr-row"><span class="gr-k">用途</span><span class="gr-v">全站头像霓虹外框装扮</span></div>
+                        <div class="gr-row"><span class="gr-k">用法</span><span class="gr-v">兑换后自动佩戴 · 全站同步展示</span></div>
+                        <div class="gr-row"><span class="gr-k">有效期</span><span class="gr-v">持续 30 天 · 到期恢复默认</span></div>
+                    </div>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 2 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 128</span></div>
+                    <div class="row">
+                        <div class="price">3,100 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="专属头像框 · 霓虹" data-points="3100" data-img="https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=400&q=80">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <!-- MVP 隐藏：SFL / 空投 / NFT / 质押，下版本开放 -->
+            <article class="goods-card" data-cats="hot,asset" data-mvp-hidden="1">
+                <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&q=80')">
+                    <span class="tag">限量资格</span>
+                </div>
+                <div class="bd">
+                    <h4>SFL 兑换资格（非 Token）</h4>
+                    <p class="desc">获得下一阶段 SFL 公募 / 兑换窗口的抽签资格，非直接到账代币。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 1 / 人</span><span><i class="fa-solid fa-box-open"></i>剩余 42</span></div>
+                    <div class="row">
+                        <div class="price">9,900 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="SFL 兑换资格" data-points="9900" data-img="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="asset" data-mvp-hidden="1">
+                <div class="thumb" style="background-image:url('https://images.pexels.com/photos/8370752/pexels-photo-8370752.jpeg?auto=compress&cs=tinysrgb&w=800')">
+                    <span class="tag">空投</span>
+                </div>
+                <div class="bd">
+                    <h4>空投抽奖券 ×1</h4>
+                    <p class="desc">参与当期 SFL / 纪念 NFT 空投抽奖（规则详见活动页）。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 10 / 期</span><span><i class="fa-solid fa-box-open"></i>剩余 1,800</span></div>
+                    <div class="row">
+                        <div class="price">800 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="空投抽奖券 ×1" data-points="800" data-img="https://images.pexels.com/photos/8370752/pexels-photo-8370752.jpeg?auto=compress&cs=tinysrgb&w=400">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="asset" data-mvp-hidden="1">
+                <div class="thumb" style="background-image:url('https://cdn.pixabay.com/photo/2021/12/06/04/33/nft-6848611_1280.jpg')">
+                    <span class="tag">NFT</span>
+                </div>
+                <div class="bd">
+                    <h4>NFT 铸造 / 交易手续费折扣券</h4>
+                    <p class="desc">指定合集 Mint 或二级市场手续费 85 折，单笔封顶见券说明。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 3 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 210</span></div>
+                    <div class="row">
+                        <div class="price">4,400 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="NFT 手续费折扣券" data-points="4400" data-img="https://cdn.pixabay.com/photo/2021/12/06/04/33/nft-6848611_640.jpg">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="goods-card" data-cats="asset" data-mvp-hidden="1">
+                <div class="thumb" style="background-image:url('https://images.unsplash.com/photo-1640340434855-6084b1db14fb?w=800&q=80')">
+                    <span class="tag">质押</span>
+                </div>
+                <div class="bd">
+                    <h4>质押加成券 · 30 日</h4>
+                    <p class="desc">GOODFANS 质押池收益加成 +5%（链上活动期可用）。</p>
+                    <div class="meta-row"><span><i class="fa-solid fa-store"></i>限购 1 / 月</span><span><i class="fa-solid fa-box-open"></i>剩余 75</span></div>
+                    <div class="row">
+                        <div class="price">12,000 <small>积分</small></div>
+                        <button type="button" class="btn-redeem" data-title="质押加成券 · 30 日" data-points="12000" data-img="https://images.unsplash.com/photo-1640340434855-6084b1db14fb?w=400&q=80">立即兑换</button>
+                    </div>
+                </div>
+            </article>
+
+        </div>
+
+        <footer style="margin-top:40px;padding-top:22px;border-top:1px solid var(--border);font-size:12px;color:var(--t-tertiary);text-align:center">
+            GOODFANS · 积分规则以站内公告为准 · 兑换完成将写入账变（积分）· 客服与申诉入口见设置中心
+        </footer>
+    </main>
+</div>
+
+
+</div>
+</div>
+<div class="home-indicator"></div>
+<div class="pm-overlay" id="redeemOverlay" aria-hidden="true">
+    <div class="pm-modal" role="dialog" aria-modal="true" aria-labelledby="redeemTitle">
+        <div class="mh">
+            <h3 id="redeemTitle">确认兑换</h3>
+            <button type="button" id="redeemClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="mb">
+            <div class="preview">
+                <div class="preview-hero">
+                    <div class="img" id="redeemImg" aria-hidden="true"></div>
+                    <div class="preview-meta">
+                        <h4 id="redeemName">—</h4>
+                        <p class="preview-delivery" id="redeemDesc"><i class="fa-solid fa-bolt" aria-hidden="true"></i>兑换成功后权益立即下发至「当前兑换权益」，请在有效期内使用。</p>
+                    </div>
+                </div>
+                <div class="preview-rules" id="redeemRules" hidden></div>
+            </div>
+            <div class="cost">
+                <div class="cost-main">
+                    <span class="cost-label">本次消耗</span>
+                    <span class="cost-val" id="redeemCost">—</span>
+                </div>
+                <div class="cost-foot">扣除后可用余额 <strong id="redeemAfter">—</strong></div>
+            </div>
+            <div class="mf-btns">
+                <button type="button" class="cancel" id="redeemCancel">取消</button>
+                <button type="button" class="ok" id="redeemOk"><i class="fa-solid fa-check"></i> 确认兑换</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pm-overlay pm-overlay--history" id="historyOverlay" aria-hidden="true">
+    <div class="pm-modal pm-modal--history" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
+        <div class="mh">
+            <h3 id="historyTitle"><i class="fa-solid fa-clock-rotate-left" style="color:#C084FC;margin-right:8px"></i>历史兑换记录</h3>
+            <button type="button" id="historyClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="history-modal-body">
+            <div class="history-summary" id="historySummary">
+                <div class="hs-item"><span class="k">累计兑换</span><strong class="v" id="histSumCount">—</strong><span class="u">笔</span></div>
+                <div class="hs-item"><span class="k">消耗积分</span><strong class="v pts" id="histSumPoints">—</strong></div>
+                <div class="hs-item"><span class="k">使用中</span><strong class="v" id="histSumActive">—</strong><span class="u">项</span></div>
+                <div class="hs-item"><span class="k">筛选结果</span><strong class="v" id="histSumFiltered">—</strong><span class="u">条</span></div>
+            </div>
+            <div class="history-toolbar">
+                <div class="ht-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="search" id="histSearch" placeholder="搜索商品名、订单号…" autocomplete="off" />
+                </div>
+                <select id="histStatus" class="ht-select" aria-label="状态筛选">
+                    <option value="">全部状态</option>
+                    <option value="using">使用中</option>
+                    <option value="used">已使用</option>
+                    <option value="expired">已过期</option>
+                    <option value="drawn">已开奖</option>
+                    <option value="none">谢谢参与</option>
+                </select>
+                <select id="histCategory" class="ht-select" aria-label="分类筛选">
+                    <option value="">全部分类</option>
+                    <option value="pay">付费权益</option>
+                    <option value="grow">加速成长</option>
+                    <option value="vip">会员装扮</option>
+                    <option value="asset">资产专区</option>
+                    <option value="wheel">幸运转盘</option>
+                </select>
+                <input type="date" id="histDateFrom" class="ht-date" aria-label="开始日期" />
+                <span class="ht-sep">至</span>
+                <input type="date" id="histDateTo" class="ht-date" aria-label="结束日期" />
+                <button type="button" class="ht-reset" id="histReset"><i class="fa-solid fa-rotate-left"></i> 重置</button>
+            </div>
+            <div class="history-table-wrap">
+                <table class="history-table history-table--modal">
+                    <thead>
+                        <tr>
+                            <th>兑换时间</th>
+                            <th>订单号</th>
+                            <th>商品</th>
+                            <th>分类</th>
+                            <th>消耗积分</th>
+                            <th>状态</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody"></tbody>
+                </table>
+                <div class="history-empty is-hidden" id="historyEmpty">
+                    <i class="fa-solid fa-inbox"></i>
+                    <p>暂无符合条件的兑换记录</p>
+                </div>
+            </div>
+            <div class="history-pagination">
+                <span class="hp-info" id="histPageInfo">—</span>
+                <div class="hp-btns">
+                    <button type="button" class="hp-btn" id="histPrev" disabled><i class="fa-solid fa-chevron-left"></i></button>
+                    <button type="button" class="hp-btn" id="histNext" disabled><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="globalToast"><i class="fa-solid fa-circle-check" style="color:var(--success);margin-right:8px"></i><span id="toastMsg">已保存</span></div>
+
+<div class="pm-overlay pm-overlay--wheel" id="wheelOverlay" aria-hidden="true">
+    <div class="pm-modal pm-modal--wheel" role="dialog" aria-modal="true" aria-labelledby="wheelTitle">
+        <span class="dev-glass-wrap dev-glass-wrap--pop-left dev-glass-wrap--layer-top wheel-dev-glass">
+            <span class="dev-glass-sphere" tabindex="0" aria-describedby="devWheelCostTip">
+                <span class="dev-glass-sphere-shine"></span>
+                <span class="dev-glass-sphere-txt">To 研发</span>
+            </span>
+            <span class="dev-glass-pop dev-glass-pop--wide" id="devWheelCostTip" role="tooltip">
+                这里每次转盘消耗的积分是后台可以配置的
+            </span>
+        </span>
+        <div class="mh">
+            <h3 id="wheelTitle"><i class="fa-solid fa-dharmachakra" style="color:#FBBF24;margin-right:8px"></i>幸运转盘</h3>
+            <button type="button" id="wheelClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="wheel-modal-body">
+            <div class="wheel-balance-bar">
+                <span>可用积分 <strong id="wheelAvail">12,580</strong></span>
+                <span>今日已消耗 <span id="wheelSpentToday">0</span> / <span id="wheelDailyCap">2,500</span></span>
+            </div>
+            <div class="wheel-stage">
+                <div class="wheel-pointer" aria-hidden="true"></div>
+                <div class="wheel-disk-wrap">
+                    <div class="wheel-rotor" id="wheelRotor">
+                        <div class="wheel-disk" id="wheelDisk"></div>
+                        <div class="wheel-labels" id="wheelLabels"></div>
+                    </div>
+                    <span class="dev-glass-wrap dev-glass-wrap--pop-left dev-glass-wrap--layer-top wheel-prize-glass">
+                        <span class="dev-glass-sphere" tabindex="0" aria-describedby="devWheelPrizeTip">
+                            <span class="dev-glass-sphere-shine"></span>
+                            <span class="dev-glass-sphere-txt">To 研发</span>
+                        </span>
+                        <span class="dev-glass-pop dev-glass-pop--wide" id="devWheelPrizeTip" role="tooltip">
+                            这里面的奖励内容，目前都是研发写死，后台可以开启或关闭
+                        </span>
+                    </span>
+                </div>
+                <div class="wheel-hub" aria-hidden="true"><i class="fa-solid fa-star"></i></div>
+            </div>
+            <div class="wheel-cost-row">每次转动消耗 <b id="wheelCostDisplay">500</b> 积分</div>
+            <div class="wheel-quota-row">每日转盘积分上限 <span class="js-wheel-daily-cap">2,500</span>，超额将无法继续转动</div>
+            <button type="button" class="btn-wheel-spin" id="btnSpin"><i class="fa-solid fa-rotate"></i> 开始转动</button>
+            <div class="wheel-result" id="wheelResult" role="status"></div>
+        </div>
+    </div>
+</div>
+
+
+<script src="../js/digital-h5-nav.js"></script>
+<script src="../js-web/invite-reward-config.js"></script>
+<script src="../js-web/mall-vouchers-store.js"></script>
+<script src="../js-web/mall-benefits-sync.js"></script>
+<script src="../js-web/points-mall.js"></script>
+</body>
+</html>

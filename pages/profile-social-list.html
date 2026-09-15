@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>社交列表</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<script src="../js/h5-theme-boot.js"></script>
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 24px;
+}
+.psl-search {
+    margin: 10px 16px;
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 12px; height: 40px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+}
+.psl-search input { flex: 1; border: 0; background: transparent; color: var(--text-primary); outline: none; font-size: 13px; }
+.psl-list { margin: 0 16px; }
+.psl-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 0;
+    border-bottom: 0.5px solid var(--border-color);
+}
+.psl-av {
+    position: relative; border: 0; padding: 0; background: transparent; flex-shrink: 0;
+}
+.psl-av img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; display: block; }
+.psl-av .live-dot {
+    position: absolute; right: -2px; bottom: -2px;
+    font-size: 8px; font-weight: 700; color: #fff;
+    background: #ef4444; padding: 1px 4px; border-radius: 4px;
+}
+.psl-meta { flex: 1; min-width: 0; }
+.psl-meta .nm { font-size: 14px; font-weight: 700; }
+.psl-remark { margin-left: 6px; font-size: 11px; color: var(--text-tertiary); font-weight: 500; }
+.psl-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.psl-sub.live { color: #f472b6; }
+.psl-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.psl-act {
+    height: 30px; padding: 0 10px; border-radius: 15px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card); color: var(--text-secondary);
+    font-size: 11px; font-weight: 700;
+}
+.psl-act.primary { border-color: rgba(168,85,247,0.5); color: #c084fc; background: rgba(168,85,247,0.12); }
+.psl-act.mutual { border-color: rgba(16,185,129,0.4); color: #6ee7b7; background: rgba(16,185,129,0.1); }
+.psl-act.following { color: var(--text-tertiary); }
+.psl-more {
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 1px solid var(--border-color); background: var(--bg-card);
+    color: var(--text-secondary);
+}
+.psl-empty { padding: 40px 12px; text-align: center; color: var(--text-tertiary); font-size: 13px; }
+#pslMenu {
+    display: none; position: fixed; z-index: 200;
+    min-width: 140px; padding: 6px;
+    background: var(--bg-sheet); border: 1px solid var(--border-color);
+    border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+}
+#pslMenu.show { display: block; }
+#pslMenu button {
+    display: flex; align-items: center; gap: 8px; width: 100%;
+    padding: 10px 12px; border: 0; background: transparent;
+    color: var(--text-primary); font-size: 12px; font-weight: 600;
+    border-radius: 8px; text-align: left;
+}
+#pslMenu button:active { background: var(--bg-hover); }
+</style>
+<link rel="stylesheet" href="../css/h5-light-theme.css">
+</head>
+<body>
+<div class="status-bar"><span class="time">9:41</span><span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span></div>
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" data-back="profile.html"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title" id="pslTitle">粉丝</div>
+    <div class="nav-right"></div>
+</div>
+<div class="app-content">
+    <div class="psl-search">
+        <i class="fa-solid fa-magnifying-glass" style="color:var(--text-tertiary);font-size:12px"></i>
+        <input type="search" id="pslSearch" placeholder="搜索昵称" autocomplete="off">
+    </div>
+    <div class="psl-list" id="pslList"></div>
+</div>
+<div id="pslMenu" role="menu"></div>
+<div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script src="../js/profile-social-lists-h5.js"></script>
+</body>
+</html>

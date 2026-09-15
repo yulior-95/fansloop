@@ -162,7 +162,8 @@
             var actions = '<button type="button" class="btn btn-sm js-cs-da-view" data-id="' + esc(p.id) + '">查看</button>';
             if (rejected) {
                 actions += '<button type="button" class="btn btn-sm js-cs-da-edit" data-id="' + esc(p.id) + '">修改</button>' +
-                    '<button type="button" class="btn btn-sm btn-primary js-cs-da-resubmit" data-id="' + esc(p.id) + '">重新提交</button>';
+                    '<button type="button" class="btn btn-sm btn-primary js-cs-da-resubmit" data-id="' + esc(p.id) + '">重新提交</button>' +
+                    '<button type="button" class="btn btn-sm js-cs-da-remove" data-id="' + esc(p.id) + '" data-rejected="1">删除</button>';
             } else if (pending) {
                 actions += '<span class="chip sm">待审核</span>';
             } else {
@@ -360,15 +361,18 @@
                 e.stopPropagation();
                 var id = btn.getAttribute('data-id');
                 var p = global.DigitalAssetsStore.getById(id);
+                var isRejected = btn.getAttribute('data-rejected') === '1' || (p && p.status === 'rejected');
                 confirmAct({
-                    title: '移除橱窗',
-                    message: '确定将「' + (p && p.title || '该商品') + '」从橱窗移除吗？移除后不再出现在橱窗列表中。',
-                    okText: '确认移除',
+                    title: isRejected ? '删除商品' : '移除橱窗',
+                    message: isRejected
+                        ? '确定删除被驳回的「' + (p && p.title || '该商品') + '」吗？删除后将从橱窗列表中移除，不可恢复。'
+                        : '确定将「' + (p && p.title || '该商品') + '」从橱窗移除吗？移除后不再出现在橱窗列表中。',
+                    okText: isRejected ? '确认删除' : '确认移除',
                     danger: true,
                     onConfirm: function () {
                         var res = global.DigitalAssetsStore.removeFromShowcase(id);
-                        if (!res.ok) return toast(res.error || '移除失败', true);
-                        toast('已从橱窗移除');
+                        if (!res.ok) return toast(res.error || (isRejected ? '删除失败' : '移除失败'), true);
+                        toast(isRejected ? '已删除' : '已从橱窗移除');
                         reload();
                     }
                 });

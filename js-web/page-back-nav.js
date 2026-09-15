@@ -13,6 +13,27 @@
         doc.documentElement.setAttribute('data-fl-page-back-ready', '1');
     }
 
+    (function ensureResponsiveLayout() {
+        var html = doc.documentElement;
+        if (!html || global.FL_responsiveLayout || html.getAttribute('data-fl-responsive-ready') === '1') return;
+        if (global.__flResponsiveLoading) return;
+        global.__flResponsiveLoading = true;
+        var scripts = doc.getElementsByTagName('script');
+        var base = '../js-web/';
+        for (var i = 0; i < scripts.length; i++) {
+            var src = scripts[i].src || '';
+            if (src.indexOf('page-back-nav') >= 0) {
+                base = src.replace(/\/js-web\/page-back-nav\.js.*$/, '/js-web/');
+                break;
+            }
+        }
+        var s = doc.createElement('script');
+        s.src = base + 'responsive-layout.js';
+        s.onload = function () { global.__flResponsiveLoading = false; };
+        s.onerror = function () { global.__flResponsiveLoading = false; };
+        doc.head.appendChild(s);
+    })();
+
     var MAIN_PAGES = {
         'home.html': 1,
         'guest-home.html': 1,

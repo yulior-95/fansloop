@@ -84,7 +84,7 @@ body { background: var(--bg-app); }
             <h2 style="font-size: 16px"><span class="ic"><i class="fa-solid fa-gavel"></i></span>充提订单申诉
                 <span class="sub">到账金额不符、支付参考号不匹配、超时未入账等 · 48h 内响应（示意）</span>
             </h2>
-            <button class="close" onclick="location.href='transaction-detail.html'"><i class="fa-solid fa-xmark"></i></button>
+            <button type="button" class="close" id="appealCloseBtn"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <div class="modal-body">
@@ -148,7 +148,7 @@ body { background: var(--bg-app); }
         </div>
 
         <div class="modal-foot">
-            <button class="btn" onclick="location.href='transaction-detail.html'">取消</button>
+            <button type="button" class="btn" id="appealCancelBtn">取消</button>
             <button type="button" class="btn btn-primary" id="btnAppealSubmit">
                 <i class="fa-solid fa-paper-plane"></i>提交申诉
             </button>
@@ -158,13 +158,22 @@ body { background: var(--bg-app); }
 
 <script>
 (function () {
-    var q = new URLSearchParams(location.search).get('order');
+    var params = new URLSearchParams(location.search);
+    var q = params.get('order');
     var el = document.getElementById('orderRef');
     if (el && q) {
         el.value = q;
         el.style.color = '#fff';
         el.style.fontWeight = '700';
     }
+    function backToDetail() {
+        var ord = q || (el && el.value) || 'TXN20260425190832';
+        location.href = 'transaction-detail.html?order=' + encodeURIComponent(ord);
+    }
+    ['appealCloseBtn', 'appealCancelBtn'].forEach(function (id) {
+        var node = document.getElementById(id);
+        if (node) node.addEventListener('click', backToDetail);
+    });
     var btn = document.getElementById('btnAppealSubmit');
     if (btn) {
         btn.addEventListener('click', function () {

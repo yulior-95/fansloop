@@ -2,10 +2,11 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>通知 · GOODFANS</title>
+<title>通知中心</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link rel="stylesheet" href="../css-web/common-web.css">
-<script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css-web/notifications-interactions.css">
+<script src="../js/h5-theme-boot.js"></script>
 <style>
 .nf-shell { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
 @media (max-width: 1280px) { .nf-shell { grid-template-columns: 1fr; } .nf-aside { display: none; } }
@@ -197,91 +198,71 @@
 .aside-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 7px; }
 .aside-card h4 .dt { width: 3px; height: 14px; background: var(--brand-grad); border-radius: 2px; }
 </style>
-
-<link rel="stylesheet" href="../css-web/content-detail-drawer.css">
-<link rel="stylesheet" href="../css-web/content-report.css">
-<link rel="stylesheet" href="../css-web/mac-notification-banner.css">
-<link rel="stylesheet" href="../css-web/notifications-interactions.css">
-<link rel="stylesheet" href="../css-web/global-lang-switch.css">
-<script src="../js-web/ui-i18n.js" defer></script>
-<script src="../js-web/global-lang-switch.js" defer></script>
-<script src="../js-web/tip-events-store.js"></script>
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 28px;
+}
+.nf-h5-head { margin: 0 16px 10px; }
+.nf-h5-sub { font-size: 11px; color: var(--text-tertiary); margin: 0 0 8px; line-height: 1.45; }
+.nf-h5-btns { display: flex; gap: 8px; }
+.nf-h5-btn {
+    flex: 1; height: 34px; border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card); color: var(--text-secondary);
+    font-size: 11px; font-weight: 600;
+}
+.nf-h5-wrap {
+    padding: 0 12px;
+    --border: var(--border-color);
+    --border-strong: var(--border-color);
+    --bg-hover: rgba(168, 85, 247, 0.06);
+    --t-primary: var(--text-primary);
+    --t-secondary: var(--text-secondary);
+    --t-tertiary: var(--text-tertiary);
+    --t-quaternary: var(--text-tertiary);
+    --brand-grad: var(--brand-gradient);
+    --brand-purple: #a855f7;
+    --r-md: 12px;
+    --r-lg: 14px;
+    --r-xl: 16px;
+    --success-light: #6ee7b7;
+    --warning-light: #fbbf24;
+    --info-light: #93c5fd;
+}
+.nf-h5-wrap .nf-filter { width: 100%; max-width: 100%; overflow-x: auto; flex-wrap: nowrap; }
+.nf-h5-wrap .nf-list { border-radius: 14px; }
+.nf-h5-wrap .nf-item { padding: 14px 14px 14px 18px; }
+.nf-h5-wrap .nf-thumb { width: 44px; height: 44px; }
+.nf-overlay { position: absolute !important; z-index: 500; padding: 12px; align-items: flex-end; }
+.nf-overlay.show { display: flex; }
+.nf-modal { max-width: 100%; max-height: 88%; border-radius: 16px 16px 0 0; margin: 0; }
+.nf-toast-host { position: absolute; z-index: 600; pointer-events: none; }
+:root[data-theme='light'] .nf-list,
+:root[data-theme='light'] .nf-filter,
+:root[data-theme='light'] .nf-bulk { background: var(--bg-card); }
+</style>
+<link rel="stylesheet" href="../css/h5-light-theme.css">
 </head>
-<body data-mac-notify-auto="tip">
+<body>
+<div class="status-bar"><span class="time">9:41</span><span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span></div>
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" data-back="profile.html"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">通知中心</div>
+    <div class="nav-right"><div class="nav-btn" id="btnGoMessages" title="私信"><i class="fa-regular fa-comments"></i></div></div>
+</div>
+<div class="app-content">
 
-<div class="app-shell">
-
-    <aside class="app-sidebar">
-        <div class="s-brand">
-            <div class="logo"><i class="fa-solid fa-infinity"></i></div>
-            <div class="name">GOODFANS<span>Web3 Creator</span></div>
-        </div>
-        <div class="s-section">主导航</div>
-        <div class="s-item" onclick="location.href='home.html'"><span class="ic"><i class="fa-solid fa-house"></i></span><span class="lb">首页</span></div>
-        <div class="s-item" onclick="location.href='subscriptions.html'"><span class="ic"><i class="fa-solid fa-crown"></i></span><span class="lb">订阅</span></div>
-        <div class="s-item" onclick="location.href='discover.html'"><span class="ic"><i class="fa-solid fa-compass"></i></span><span class="lb">发现</span></div>
-        <div class="s-item" onclick="location.href='create.html'"><span class="ic"><i class="fa-solid fa-pen-to-square"></i></span><span class="lb">创建内容</span></div>
-        <div class="s-section">互动</div>
-        <div class="s-item" onclick="location.href='messages.html'"><span class="ic"><i class="fa-regular fa-comments"></i></span><span class="lb">消息</span><span class="badge">8</span></div>
-        <div class="s-item active" onclick="location.href='notifications.html?tab=unread'"><span class="ic"><i class="fa-regular fa-bell"></i></span><span class="lb">通知</span><span class="badge">12</span></div>
-        <div class="s-section">资产</div>
-        <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
-        <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span></div>
-        <div class="s-item" onclick="location.href='points-mall.html'"><span class="ic"><i class="fa-solid fa-store"></i></span><span class="lb">积分商城</span></div>
-        <div class="s-item" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
-        <div class="s-section">个人</div>
-        <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
-        <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
-
-        <div class="s-bottom">
-            <div class="s-pro-card">
-                <div class="crown"><i class="fa-solid fa-crown"></i></div>
-                <h4>升级 Creator Pro</h4>
-                <p>解锁高级数据 / 优先推流</p>
-                <button>立即升级</button>
-            </div>
-            <div class="s-user">
-                <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
-                <div class="info"><div class="n">Luna 🌙</div><div class="e">Creator</div></div>
-                <i class="fa-solid fa-ellipsis-vertical more"></i>
-            </div>
-        </div>
-    </aside>
-
-    <header class="app-header">
-        <div class="h-search h-search-live h-search-unified">
-            <div class="hs-inner">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="search" placeholder="搜索创作者、内容或话题…" autocomplete="off" />
-            </div>
-            <div class="gs-drop"></div>
-        </div>
-        <div class="h-actions">
-            <button class="h-icon"><i class="fa-solid fa-pen-to-square"></i></button>
-            <button class="h-icon"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
-            <button class="h-icon" onclick="location.href='messages.html'"><i class="fa-regular fa-comments"></i><span class="dot"></span></button>
-            <button class="h-cta" onclick="location.href='wallet.html'"><i class="fa-solid fa-bolt"></i>充值</button>
-            <div class="h-avatar" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')" onclick="location.href='profile.html'"></div>
-        </div>
-    </header>
-
-    <main class="app-main">
-        <div class="page-head">
-            <div class="ph-l">
-                <h1>通知中心 <span class="chip-pro">13 NEW</span></h1>
-            </div>
-            <div class="ph-r">
-                <button type="button" class="btn" id="btnMarkAllReadTop"><i class="fa-solid fa-check-double"></i> 全部标为已读</button>
-                <button type="button" class="btn" id="btnNfSettings"><i class="fa-solid fa-gear"></i> 通知设置</button>
-                <button type="button" class="btn" id="btnMacNotifyDemo" title="模拟 macOS 侧边通知"><i class="fa-brands fa-apple"></i> 模拟推送</button>
-            </div>
-        </div>
-
-        <div class="nf-shell">
-
-            <div>
-                <!-- 过滤栏 -->
-                <div class="nf-filter" id="nfFilter">
+<div class="nf-h5-head">
+    <p class="nf-h5-sub">未读与互动提醒 · 与 Web 通知中心一致</p>
+    <div class="nf-h5-btns">
+        <button type="button" class="nf-h5-btn" id="btnMarkAllReadTop"><i class="fa-solid fa-check-double"></i> 全部已读</button>
+        <button type="button" class="nf-h5-btn" id="btnNfSettings"><i class="fa-solid fa-gear"></i> 设置</button>
+    </div>
+</div>
+<div class="nf-h5-wrap">
+<div class="nf-filter" id="nfFilter">
                     <div class="ck active" data-tab="all">全部</div>
                     <div class="ck" data-tab="unread">未读 <span class="cnt" id="nfCntUnread">16</span></div>
                     <div class="ck" data-tab="live">开播提醒 <span class="cnt" id="nfCntLive">7</span></div>
@@ -559,269 +540,10 @@
                 </div>
             </div>
 
-            <!-- 右侧 -->
-            <aside class="nf-aside">
-                <div class="aside-card">
-                    <h4><span class="dt"></span>本周概览</h4>
-                    <div class="kv-list">
-                        <div class="kv-row"><div class="k"><i class="fa-solid fa-gift" style="color: var(--warning-light)"></i> 收到打赏</div><div class="v num" id="nfTipTotal" data-base-tips="412">412 USDT</div></div>
-                        <div class="kv-row"><div class="k"><i class="fa-solid fa-heart" style="color: #F472B6"></i> 获得点赞</div><div class="v num">2,184</div></div>
-                        <div class="kv-row"><div class="k"><i class="fa-solid fa-comment" style="color: var(--info-light)"></i> 收到评论</div><div class="v num">186</div></div>
-                        <div class="kv-row"><div class="k"><i class="fa-solid fa-crown" style="color: #C084FC"></i> 新增订阅</div><div class="v num success">+38</div></div>
-                        <div class="kv-row"><div class="k"><i class="fa-solid fa-at" style="color: #6EE7B7"></i> 提及次数</div><div class="v num">12</div></div>
-                    </div>
-                </div>
-
-                <div class="aside-card">
-                    <h4><span class="dt"></span>快捷设置</h4>
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border)">
-                        <div style="font-size: 12.5px"><i class="fa-solid fa-gift" style="color: var(--warning-light); margin-right: 6px"></i> 打赏通知</div>
-                        <div class="switch on"></div>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border)">
-                        <div style="font-size: 12.5px"><i class="fa-solid fa-comment" style="color: var(--info-light); margin-right: 6px"></i> 评论提醒</div>
-                        <div class="switch on"></div>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border)">
-                        <div style="font-size: 12.5px"><i class="fa-solid fa-crown" style="color: #C084FC; margin-right: 6px"></i> 订阅提醒</div>
-                        <div class="switch on"></div>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border)">
-                        <div style="font-size: 12.5px"><i class="fa-solid fa-tower-broadcast" style="color: #F87171; margin-right: 6px"></i> 直播开播</div>
-                        <div class="switch on"></div>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border)">
-                        <div style="font-size: 12.5px"><i class="fa-regular fa-calendar-check" style="color: #93c5fd; margin-right: 6px"></i> 直播预告开播提醒</div>
-                        <div class="switch on"></div>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 0">
-                        <div style="font-size: 12.5px"><i class="fa-regular fa-envelope" style="color: var(--t-tertiary); margin-right: 6px"></i> 邮件摘要</div>
-                        <div class="switch"></div>
-                    </div>
-                </div>
-
-                <div class="aside-card" style="background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.04)); border-color: rgba(168,85,247,0.18)">
-                    <h4><span class="dt"></span>免打扰</h4>
-                    <p style="font-size: 12px; color: var(--t-tertiary); margin-bottom: 12px; line-height: 1.55">在指定时间段静音所有非紧急通知</p>
-                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px">
-                        <input class="input" style="flex: 1; height: 36px; font-size: 12px" value="22:00" />
-                        <span style="color: var(--t-tertiary); font-size: 12px">至</span>
-                        <input class="input" style="flex: 1; height: 36px; font-size: 12px" value="08:00" />
-                    </div>
-                    <button class="btn btn-primary" style="width: 100%"><i class="fa-solid fa-moon"></i> 启用免打扰</button>
-                </div>
-            </aside>
-        </div>
-
-    </main>
-
+            
 </div>
-
-<script>
-(function () {
-    var typeMap = {
-        "t-tip": "income",
-        "t-comment": "interaction",
-        "t-like": "interaction",
-        "t-sub": "subscription",
-        "t-mention": "interaction",
-        "t-system": "system",
-        "t-live": "live",
-        "t-preview": "live",
-        "t-expiry": "expiry"
-    };
-    var filterHost = document.getElementById("nfFilter");
-    if (!filterHost) return;
-    function refreshItems() {
-        allItems = Array.prototype.slice.call(document.querySelectorAll(".nf-list .nf-item"));
-    }
-    var allItems = [];
-    refreshItems();
-    function actorLabel(role) {
-        var key = role === 'creator' ? 'role_creator'
-            : role === 'subscriber' ? 'role_subscriber'
-            : role === 'platform' ? 'role_platform' : 'role_member';
-        if (window.FLI18n && window.FLI18n.t) {
-            var localized = window.FLI18n.t(window.FLI18n.getLangCode(), key);
-            if (localized) return localized;
-        }
-        return role === 'creator' ? '创作者'
-            : role === 'subscriber' ? '订阅者'
-            : role === 'platform' ? '平台' : '用户';
-    }
-    function applyActorTags() {
-        allItems.forEach(function (item) {
-            var role = item.getAttribute('data-actor-role');
-            if (!role) return;
-            var name = item.querySelector('.nf-text b');
-            if (!name || name.nextElementSibling?.classList.contains('nf-actor-tag')) return;
-            var tag = document.createElement('span');
-            tag.className = 'nf-actor-tag ' + role;
-            tag.textContent = actorLabel(role);
-            name.insertAdjacentElement('afterend', tag);
-        });
-    }
-    function resolveType(item) {
-        var explicit = item.getAttribute("data-nf-type");
-        if (explicit) return explicit;
-        var ic = item.querySelector(".nf-ic");
-        if (!ic) return "interaction";
-        for (var key in typeMap) {
-            if (ic.classList.contains(key)) return typeMap[key];
-        }
-        return "interaction";
-    }
-    function updateUnreadCount() {
-        var unread = allItems.filter(function (x) { return x.classList.contains("unread"); }).length;
-        var bulk = document.getElementById("nfBulkUnreadCount");
-        var chip = document.getElementById("nfCntUnread");
-        if (bulk) bulk.textContent = String(unread);
-        if (chip) chip.textContent = String(unread);
-        if (window.FL_setSidebarUnread) {
-            window.FL_setSidebarUnread('notifications', unread);
-        } else {
-            try {
-                if (unread > 0) localStorage.setItem('fl_nf_unread_count', String(unread));
-                else localStorage.removeItem('fl_nf_unread_count');
-            } catch (e) { /* ignore */ }
-            window.dispatchEvent(new CustomEvent('fl-nf-unread-changed'));
-        }
-    }
-    function tipContextLabel(context) {
-        return context === 'live' ? '直播打赏' : context === 'message' ? '私信打赏' : context === 'profile' ? '主页打赏' : '动态打赏';
-    }
-    function appendTipEvent(event) {
-        if (!event || !event.id || !event.amount) return null;
-        if (document.querySelector('.nf-item[data-tip-event-id="' + event.id + '"]')) return null;
-        var day = document.querySelector('.nf-day[data-day="today"]');
-        if (!day) return null;
-        var item = document.createElement('div');
-        item.className = 'nf-item unread';
-        item.setAttribute('data-nf-type', 'income');
-        item.setAttribute('data-tip-event-id', event.id);
-        var icon = document.createElement('div');
-        icon.className = 'nf-ic t-tip';
-        icon.innerHTML = '<i class="fa-solid fa-gift"></i>';
-        var body = document.createElement('div');
-        body.className = 'nf-body';
-        var text = document.createElement('div');
-        text.className = 'nf-text';
-        var sender = document.createElement('b');
-        sender.textContent = event.sender || '匿名用户';
-        var amount = document.createElement('span');
-        amount.className = 'amt';
-        amount.textContent = '+' + window.FLTipEvents.formatAmount(event.amount) + ' USDT';
-        text.append(sender, document.createTextNode(' 给你打赏了「' + (event.gift || '心意') + '」 '), amount);
-        if (event.message) text.append(document.createTextNode(' · 「' + event.message + '」'));
-        var meta = document.createElement('div');
-        meta.className = 'nf-meta';
-        meta.innerHTML = '<span><i class="fa-regular fa-clock"></i> 刚刚</span><span class="dot"></span><span>' + tipContextLabel(event.context) + '</span>';
-        body.append(text, meta);
-        item.append(icon, body);
-        day.parentNode.insertBefore(item, day.nextElementSibling);
-        item.addEventListener('click', function () {
-            if (!item.classList.contains('unread')) return;
-            item.classList.remove('unread');
-            updateUnreadCount();
-            var active = filterHost.querySelector('.ck.active');
-            if (active && active.getAttribute('data-tab') === 'unread') applyTab('unread');
-        });
-        return item;
-    }
-    function syncTipEvents() {
-        if (!window.FLTipEvents) return;
-        window.FLTipEvents.getAll().forEach(appendTipEvent);
-        var total = document.getElementById('nfTipTotal');
-        if (total) {
-            var base = Number(total.getAttribute('data-base-tips') || 0);
-            var extra = window.FLTipEvents.getAll().reduce(function (sum, event) { return sum + (Number(event.amount) || 0); }, 0);
-            total.textContent = (base + extra).toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' USDT';
-        }
-        refreshItems();
-        applyActorTags();
-        var incomeCount = document.getElementById('nfCntIncome');
-        if (incomeCount) incomeCount.textContent = String(allItems.filter(function (item) { return resolveType(item) === 'income'; }).length);
-        updateUnreadCount();
-    }
-    function applyTab(tab) {
-        filterHost.querySelectorAll(".ck").forEach(function (ck) {
-            ck.classList.toggle("active", ck.getAttribute("data-tab") === tab);
-        });
-        allItems.forEach(function (item) {
-            var type = resolveType(item);
-            var show = tab === "all"
-                || (tab === "unread" && item.classList.contains("unread"))
-                || (tab === "expiry" && item.id === "nfLivePreviewRemind")
-                || type === tab;
-            item.style.display = show ? "" : "none";
-        });
-    }
-    filterHost.addEventListener("click", function (e) {
-        var ck = e.target.closest(".ck[data-tab]");
-        if (!ck) return;
-        applyTab(ck.getAttribute("data-tab"));
-    });
-    allItems.forEach(function (item) {
-        item.addEventListener("click", function () {
-            if (!item.classList.contains("unread")) return;
-            item.classList.remove("unread");
-            updateUnreadCount();
-            var active = filterHost.querySelector(".ck.active");
-            if (active && active.getAttribute("data-tab") === "unread") applyTab("unread");
-        });
-    });
-    function markAllRead() {
-        refreshItems();
-        allItems.forEach(function (x) { x.classList.remove("unread"); });
-        updateUnreadCount();
-        var active = filterHost.querySelector(".ck.active");
-        if (active && active.getAttribute("data-tab") === "unread") applyTab("unread");
-        if (window.FL_nfToast) window.FL_nfToast("已全部标记为已读", "ok");
-    }
-    document.getElementById("nfMarkAllRead")?.addEventListener("click", function (e) {
-        e.preventDefault();
-        markAllRead();
-    });
-    document.getElementById("btnMarkAllReadTop")?.addEventListener("click", markAllRead);
-    window.addEventListener("fl-nf-unread-changed", function () {
-        refreshItems();
-        updateUnreadCount();
-    });
-    updateUnreadCount();
-    syncTipEvents();
-    applyActorTags();
-    window.addEventListener('fl-tip-sent', syncTipEvents);
-    var q = new URLSearchParams(location.search);
-    applyTab(q.get("tab") || "unread");
-    window.addEventListener("fl-notification-focus-unread", function () {
-        applyTab("unread");
-    });
-})();
-
-(function () {
-    var LS_KEY = 'fl_live_preview_reminds';
-    var PREVIEW_ID = 'yeyu-jazz-0523';
-    function loadReminds() {
-        try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch (e) { return []; }
-    }
-    function saveReminds(list) {
-        try { localStorage.setItem(LS_KEY, JSON.stringify(list)); } catch (e) {}
-    }
-    var item = document.getElementById('nfLivePreviewRemind');
-    if (item && loadReminds().indexOf(PREVIEW_ID) === -1) {
-        item.remove();
-    }
-    document.getElementById('btnCancelPreviewRemind')?.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var list = loadReminds().filter(function (id) { return id !== PREVIEW_ID; });
-        saveReminds(list);
-        item?.remove();
-        window.dispatchEvent(new CustomEvent('fl-nf-unread-changed'));
-        if (window.FL_nfToast) window.FL_nfToast('已取消直播预告提醒', 'ok');
-    });
-})();
-</script>
-
+</div>
+<div class="home-indicator"></div>
 <div class="nf-toast-host" id="nfToastHost"></div>
 
 <!-- 通知设置 -->
@@ -1025,70 +747,15 @@
     </div>
 </div>
 
-<div class="cdd-root" id="contentDetailDrawer" aria-hidden="true" role="dialog" aria-label="内容详情">
-    <div class="cdd-backdrop"></div>
-    <aside class="cdd-panel">
-        <header class="cdd-head">
-            <div class="cdd-author">
-                <div class="av" id="cddAuthorAv"></div>
-                <div class="meta">
-                    <div class="n" id="cddAuthorName">Luna 🌙</div>
-                    <div class="s">创作者</div>
-                </div>
-            </div>
-            <button type="button" class="cdd-close" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
-        </header>
-        <div class="cdd-scroll">
-            <div class="cdd-media">
-                <img id="cddMediaImg" src="" alt="内容配图">
-            </div>
-            <div class="cdd-body">
-                <h2 class="cdd-title" id="cddTitle">—</h2>
-                <p class="cdd-desc" id="cddDesc">—</p>
-                <div class="cdd-tags">#摄影 #富士山 #创作者日常</div>
-            </div>
-            <div class="cdd-actions">
-                <button type="button" data-cdd-act="like"><i class="fa-regular fa-heart"></i><span id="cddLikeCount">0</span></button>
-                <button type="button" data-cdd-act="forward"><i class="fa-solid fa-share"></i>转发</button>
-                <button type="button" data-cdd-act="share"><i class="fa-solid fa-link"></i>分享</button>
-                <button type="button" data-cdd-act="save"><i class="fa-regular fa-bookmark"></i>收藏</button>
-                <button type="button" data-cdd-act="report"><i class="fa-regular fa-flag"></i>举报</button>
-            </div>
-            <div class="cdd-comments-head">
-                <span>评论</span>
-                <span id="cddCommentsTotal">0 条评论</span>
-            </div>
-            <div class="cdd-comments" id="cddCommentList"></div>
-        </div>
-        <div class="cdd-compose">
-            <input type="text" id="cddCommentInput" placeholder="说点什么…" autocomplete="off">
-            <button type="button" id="cddSendComment">发送</button>
-        </div>
-        <div class="cdd-toast"></div>
-    </aside>
-</div>
 
-<link rel="stylesheet" href="../css-web/host-live-pip-global.css">
-<script src="../js-web/global-search.js"></script>
-<script src="../js-web/host-live-pip-global.js"></script>
-<script src="../js-web/content-report.js"></script>
-<script src="../js-web/content-detail-drawer.js"></script>
-<script src="../js-web/mac-notification-banner.js" data-fl-mac-notify="1"></script>
+<script src="../js/digital-h5-nav.js"></script>
+<script src="../js-web/tip-events-store.js"></script>
 <script src="../js-web/notification-system-announcements.js"></script>
 <script src="../js-web/notifications-interactions.js"></script>
+
 <script>
-document.getElementById('btnMacNotifyDemo')?.addEventListener('click', function () {
-    var P = window.FL_macNotifyPresets;
-    if (!P) return;
-    [P.tip, P.live, P.mention].forEach(function (fn, i) { setTimeout(fn, i * 700); });
-});
-(function () {
-    var id = new URLSearchParams(location.search).get('announcement');
-    if (id && window.FL_nfOpenAnnouncement) {
-        setTimeout(function () { window.FL_nfOpenAnnouncement(id); }, 500);
-    }
-})();
+document.getElementById('btnGoMessages')?.addEventListener('click', function () { location.href = 'messages.html'; });
+document.getElementById('btnNfWalletGo')?.addEventListener('click', function () { location.href = 'wallet.html'; });
 </script>
-<script src="../js-web/app-sidebar-global.js"></script>
 </body>
 </html>

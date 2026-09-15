@@ -54,7 +54,7 @@ body { background: var(--bg-app); }
             <h2 style="font-size: 16px"><span class="ic"><i class="fa-solid fa-ellipsis"></i></span>更多操作
                 <span class="sub">订单 TXN20260425190832</span>
             </h2>
-            <button class="close" onclick="location.href='transaction-detail.html'"><i class="fa-solid fa-xmark"></i></button>
+            <button type="button" class="close" data-td-detail-back><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <div class="modal-body">
@@ -90,9 +90,9 @@ body { background: var(--bg-app); }
                     <i class="fa-solid fa-chevron-right arrow"></i>
                 </div>
 
-                <div class="m-row appeal" onclick="location.href='transaction-detail.html'">
+                <div class="m-row appeal" id="txMenuAppealRow" role="button" tabindex="0">
                     <div class="ic-m"><i class="fa-solid fa-gavel"></i></div>
-                    <div class="info"><div class="nm">申诉入口</div><div class="desc">发起申诉请在本页返回详情，使用「发起申诉」按钮</div></div>
+                    <div class="info"><div class="nm">申诉入口</div><div class="desc">打开申诉表单，填写原因并上传证据</div></div>
                     <i class="fa-solid fa-chevron-right arrow"></i>
                 </div>
 
@@ -111,11 +111,45 @@ body { background: var(--bg-app); }
         </div>
 
         <div class="modal-foot">
-            <button class="btn" style="flex: 1" onclick="location.href='transaction-detail.html'">关闭</button>
+            <button type="button" class="btn" style="flex: 1" data-td-detail-back>关闭</button>
         </div>
     </div>
 </div>
 
+<script>
+(function () {
+    var params = new URLSearchParams(location.search);
+    var order = params.get('order') || 'TXN20260425190832';
+    var type = params.get('type') || 'sub';
+    var from = params.get('from') || '';
+
+    function detailUrl() {
+        var u = 'transaction-detail.html?type=' + encodeURIComponent(type) + '&order=' + encodeURIComponent(order);
+        if (from) u += '&from=' + encodeURIComponent(from);
+        return u;
+    }
+
+    function appealUrl() {
+        return 'transaction-appeal.html?order=' + encodeURIComponent(order);
+    }
+
+    var sub = document.querySelector('.modal-head .sub');
+    if (sub) sub.textContent = '订单 ' + order;
+
+    document.querySelectorAll('[data-td-detail-back]').forEach(function (el) {
+        el.addEventListener('click', function () { location.href = detailUrl(); });
+    });
+
+    var appealRow = document.getElementById('txMenuAppealRow');
+    if (appealRow) {
+        function goAppeal() { location.href = appealUrl(); }
+        appealRow.addEventListener('click', goAppeal);
+        appealRow.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goAppeal(); }
+        });
+    }
+})();
+</script>
 <script src="../js-web/page-back-nav.js"></script>
 </body>
 </html>
