@@ -117,6 +117,37 @@
         });
     }
 
+    var TAB_BAR_ICON_STYLES = {
+        house: ['fa-solid fa-house', 'fa-regular fa-house'],
+        heart: ['fa-solid fa-heart', 'fa-regular fa-heart'],
+        message: ['fa-solid fa-message', 'fa-regular fa-message'],
+        user: ['fa-solid fa-user', 'fa-regular fa-user'],
+        compass: ['fa-solid fa-compass', 'fa-regular fa-compass']
+    };
+
+    function tabBarIconKind(icon) {
+        var c = icon.className;
+        if (/\bfa-house\b/.test(c)) return 'house';
+        if (/\bfa-heart\b/.test(c)) return 'heart';
+        if (/\bfa-message\b/.test(c) || /\bfa-comment\b/.test(c)) return 'message';
+        if (/\bfa-user\b/.test(c)) return 'user';
+        if (/\bfa-compass\b/.test(c)) return 'compass';
+        return null;
+    }
+
+    function syncTabBarIcons() {
+        var bar = document.querySelector('.tab-bar');
+        if (!bar) return;
+        bar.querySelectorAll('.tab-item').forEach(function (item) {
+            var icon = item.querySelector('i[class*="fa-"]');
+            if (!icon) return;
+            var kind = tabBarIconKind(icon);
+            var pair = kind && TAB_BAR_ICON_STYLES[kind];
+            if (!pair) return;
+            icon.className = item.classList.contains('active') ? pair[0] : pair[1];
+        });
+    }
+
     function bindTabs() {
         var map = {
             '首页': 'home.html',
@@ -150,11 +181,12 @@
                 go('create.html');
             });
         }
+        syncTabBarIcons();
     }
 
     function bindDefaultBackButtons() {
         document.querySelectorAll('.nav-bar .nav-left .nav-btn').forEach(function (btn) {
-            if (btn.getAttribute('data-back') || btn.getAttribute('data-go')) return;
+            if (btn.getAttribute('data-back') || btn.getAttribute('data-go') || btn.getAttribute('data-nav-search')) return;
             if (btn.dataset.autoBackBound === '1') return;
             btn.dataset.autoBackBound = '1';
             btn.style.cursor = btn.style.cursor || 'pointer';

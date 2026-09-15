@@ -143,10 +143,46 @@ body { touch-action: pan-y; }
     color: #fff; font-size: 10px;
     box-shadow: 0 2px 6px rgba(168,85,247,0.5);
 }
-.action-bar .creator-avatar.following .follow-btn {
-    background: linear-gradient(135deg, #10b981, #059669);
-}
 .action-bar .action { cursor: pointer; }
+.feed-video.cover-press-hold {
+    transform: scale(0.985);
+    transition: transform 0.15s ease;
+}
+.feed-more-sheet { height: auto; max-height: 52%; }
+.feed-more-list { display: flex; flex-direction: column; gap: 8px; }
+.feed-more-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 14px;
+    border: 0;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 600;
+}
+.feed-more-row .ic {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.08);
+}
+.feed-more-row.danger { color: #fca5a5; }
+.feed-more-row.danger .ic { background: rgba(239,68,68,0.18); color: #f87171; }
+.feed-more-hint {
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.45;
+    margin: 0 0 12px;
+}
 .action-bar .action.action-like.is-on i { color: #ff3b5c; }
 .action-bar .action.action-save.is-on i { color: var(--crypto-gold); }
 
@@ -1635,6 +1671,19 @@ body { touch-action: pan-y; }
     </div>
 </div>
 
+<div class="home-sheet feed-more-sheet" id="feedMoreSheet">
+    <div class="hs-head"><div class="t">更多操作</div><button class="x" type="button" data-close-sheet="feed-more"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="hs-body">
+        <p class="feed-more-hint" id="feedMoreHint">长按内容区域可快速打开本菜单</p>
+        <div class="feed-more-list">
+            <button type="button" class="feed-more-row danger" data-feed-more="report"><span class="ic"><i class="fa-solid fa-flag"></i></span>举报</button>
+            <button type="button" class="feed-more-row" data-feed-more="not-interested"><span class="ic"><i class="fa-solid fa-circle-minus"></i></span>不感兴趣</button>
+            <button type="button" class="feed-more-row" data-feed-more="hide-creator"><span class="ic"><i class="fa-solid fa-user-slash"></i></span>不看该创作者</button>
+            <button type="button" class="feed-more-row" data-feed-more="reduce-similar"><span class="ic"><i class="fa-solid fa-sliders"></i></span>减少此类内容</button>
+        </div>
+    </div>
+</div>
+
 <div class="home-sheet subscribe-sheet" id="subscribeSheet">
     <div class="hs-head"><div class="t">订阅创作者</div><button class="x" type="button" data-close-sheet="subscribe"><i class="fa-solid fa-xmark"></i></button></div>
     <div class="hs-body">
@@ -2146,10 +2195,11 @@ body { touch-action: pan-y; }
 
     function pageHtml(f, i) {
         var st = f.__state || { followed: false, liked: false, saved: false, titleExpanded: false };
-        var followIcon = st.followed ? 'fa-solid fa-check' : 'fa-solid fa-plus';
         var likeCls = st.liked ? ' is-on' : '';
         var saveCls = st.saved ? ' is-on' : '';
-        var followCls = st.followed ? ' following' : '';
+        var followBtnHtml = st.followed
+            ? ''
+            : '<div class="follow-btn" data-action="follow"><i class="fa-solid fa-plus"></i></div>';
         var titleCls = st.titleExpanded ? ' expanded' : '';
         var tagsHtml = (f.tags || []).map(function (t) { return '<span class="hash">' + esc(t) + '</span>'; }).join('');
         var liveBadgeHtml = f.liveBadge
@@ -2174,9 +2224,9 @@ body { touch-action: pan-y; }
                     '</div>'
                 ) : '') +
                 '<div class="action-bar">' +
-                    '<div class="creator-avatar' + followCls + '">' +
+                    '<div class="creator-avatar">' +
                         '<img src="' + esc(f.avatar || '') + '" alt="" data-action="creator-profile">' +
-                        '<div class="follow-btn" data-action="follow"><i class="' + followIcon + '"></i></div>' +
+                        followBtnHtml +
                     '</div>' +
                     '<div class="action action-like' + likeCls + '" data-action="like"><i class="fa-solid fa-heart"></i><span class="count">' + esc(f.like) + '</span></div>' +
                     '<div class="action action-comment" data-action="comment"><i class="fa-solid fa-comment-dots"></i><span class="count">' + esc(f.comment) + '</span></div>' +
@@ -2217,6 +2267,8 @@ body { touch-action: pan-y; }
     var shareSheet = document.getElementById('shareSheet');
     var shareDmSheet = document.getElementById('shareDmSheet');
     var subscribeSheet = document.getElementById('subscribeSheet');
+    var feedMoreSheet = document.getElementById('feedMoreSheet');
+    var feedMoreHint = document.getElementById('feedMoreHint');
     var commentList = document.getElementById('commentList');
     var commentInput = document.getElementById('commentInput');
     var commentSendBtn = document.getElementById('commentSendBtn');
@@ -2324,8 +2376,11 @@ body { touch-action: pan-y; }
     }
     function closeAllSheets() {
         if (overlay) overlay.classList.remove('show');
-        [commentSheet, shareSheet, shareDmSheet, subscribeSheet].forEach(function (el) {
+        [commentSheet, shareSheet, shareDmSheet, subscribeSheet, feedMoreSheet].forEach(function (el) {
             if (el) el.classList.remove('show');
+        });
+        track.querySelectorAll('.feed-video.cover-press-hold').forEach(function (el) {
+            el.classList.remove('cover-press-hold');
         });
     }
     function stopDanmu() {
@@ -2619,6 +2674,15 @@ body { touch-action: pan-y; }
         if (kind === 'share' && shareSheet) shareSheet.classList.add('show');
         if (kind === 'share-dm' && shareDmSheet) shareDmSheet.classList.add('show');
         if (kind === 'subscribe' && subscribeSheet) subscribeSheet.classList.add('show');
+        if (kind === 'feed-more' && feedMoreSheet) feedMoreSheet.classList.add('show');
+    }
+    function openFeedMore(feedIndex) {
+        activeFeedIndex = feedIndex;
+        var item = currentFeeds()[feedIndex] || {};
+        if (feedMoreHint) {
+            feedMoreHint.textContent = '针对「' + (item.creator || '该创作者').replace(/^@/, '') + '」的内容';
+        }
+        openSheet('feed-more');
     }
     function switchSubStep(id) {
         document.querySelectorAll('#subscribeSheet .sub-step').forEach(function (el) {
@@ -2687,6 +2751,22 @@ body { touch-action: pan-y; }
         setTimeout(function () { lock = false; }, 320);
     }
 
+    var feedLongPressTimer = null;
+    var feedLongPressIndex = null;
+    var feedLongPressEl = null;
+
+    function clearFeedLongPress() {
+        if (feedLongPressTimer) {
+            clearTimeout(feedLongPressTimer);
+            feedLongPressTimer = null;
+        }
+        if (feedLongPressEl) {
+            feedLongPressEl.classList.remove('cover-press-hold');
+            feedLongPressEl = null;
+        }
+        feedLongPressIndex = null;
+    }
+
     viewport.addEventListener('touchstart', function (e) {
         if (anySheetOpen()) return;
         if (lock) return;
@@ -2696,9 +2776,33 @@ body { touch-action: pan-y; }
         dragging = true;
         dragY = 0;
         applyTrack(false);
+
+        clearFeedLongPress();
+        var videoEl = e.target.closest('.feed-video');
+        if (!videoEl || e.target.closest('.action-bar, .feed-info, .paywall, .feed-live-badge')) return;
+        var section = e.target.closest('.feed-page');
+        if (!section) return;
+        feedLongPressIndex = Number(section.getAttribute('data-feed-index') || 0);
+        feedLongPressEl = videoEl;
+        feedLongPressTimer = setTimeout(function () {
+            feedLongPressTimer = null;
+            dragging = false;
+            dragY = 0;
+            applyTrack(false);
+            lock = true;
+            if (feedLongPressEl) feedLongPressEl.classList.add('cover-press-hold');
+            openFeedMore(feedLongPressIndex);
+            setTimeout(function () { lock = false; }, 320);
+            try { if (navigator.vibrate) navigator.vibrate(10); } catch (err) { /* ignore */ }
+        }, 520);
     }, { passive: true });
 
     viewport.addEventListener('touchmove', function (e) {
+        if (feedLongPressTimer && e.touches && e.touches[0]) {
+            var dy = e.touches[0].clientY - startY;
+            var dx = e.touches[0].clientX - startX;
+            if (Math.abs(dy) > 12 || Math.abs(dx) > 12) clearFeedLongPress();
+        }
         if (anySheetOpen()) return;
         if (!dragging || lock) return;
         if (!e.touches || !e.touches[0]) return;
@@ -2707,12 +2811,14 @@ body { touch-action: pan-y; }
         var dy = y - startY;
         var dx = x - startX;
         if (Math.abs(dy) < Math.abs(dx)) return;
+        clearFeedLongPress();
         e.preventDefault();
         dragY = dy;
         applyTrack(false);
     }, { passive: false });
 
     viewport.addEventListener('touchend', function (e) {
+        clearFeedLongPress();
         if (anySheetOpen()) return;
         if (!dragging || lock) return;
         lock = true;
@@ -2720,6 +2826,16 @@ body { touch-action: pan-y; }
         if (!e.changedTouches || !e.changedTouches[0]) return;
         settleByDrag();
     }, { passive: true });
+
+    track.addEventListener('contextmenu', function (e) {
+        var videoEl = e.target.closest('.feed-video');
+        if (!videoEl) return;
+        if (e.target.closest('.action-bar, .feed-info, .paywall')) return;
+        var section = e.target.closest('.feed-page');
+        if (!section) return;
+        e.preventDefault();
+        openFeedMore(Number(section.getAttribute('data-feed-index') || 0));
+    });
 
     var wheelTimer = null;
     viewport.addEventListener('wheel', function (e) {
@@ -2751,9 +2867,11 @@ body { touch-action: pan-y; }
         var action = actionEl.getAttribute('data-action');
 
         if (action === 'follow') {
-            state.followed = !state.followed;
-            showToast(state.followed ? '已关注' : '已取消关注');
-            buildTrack();
+            if (!state.followed) {
+                state.followed = true;
+                showToast('已关注');
+                buildTrack();
+            }
             return;
         }
         if (action === 'like') {
@@ -2812,6 +2930,24 @@ body { touch-action: pan-y; }
     if (overlay) overlay.addEventListener('click', closeAllSheets);
     document.querySelectorAll('[data-close-sheet]').forEach(function (btn) {
         btn.addEventListener('click', closeAllSheets);
+    });
+    document.querySelectorAll('[data-feed-more]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var kind = btn.getAttribute('data-feed-more');
+            var item = currentFeeds()[activeFeedIndex] || {};
+            var creator = (item.creator || '该创作者').replace(/^@/, '');
+            var msgMap = {
+                report: '已提交举报，我们会尽快处理',
+                'not-interested': '将减少推荐类似内容',
+                'hide-creator': '已屏蔽 ' + creator + ' 的内容',
+                'reduce-similar': '已记录偏好，将减少此类内容'
+            };
+            showToast(msgMap[kind] || '已处理');
+            closeAllSheets();
+            if (kind === 'not-interested' || kind === 'hide-creator') {
+                switchFeed(1);
+            }
+        });
     });
     if (commentSendBtn) {
         commentSendBtn.addEventListener('click', function () {

@@ -1,34 +1,52 @@
 /**
- * GOODFANS Web · 全局响应式（笔记本 / 1080p / 1440p / 2K 等）
- * 通过 common-web.css 引入，覆盖所有引用设计系统的页面。
+ * GOODFANS Web · 全局响应式（笔记本 / 1080p / 1440p / 2K 2560×1400 等）
+ * 原则：app-shell 始终铺满视口宽度；不在大屏上把主内容收窄居中。
  */
 
 :root {
-    --main-padding-x: clamp(16px, 2.2vw, 48px);
-    --main-padding-y: clamp(16px, 1.8vh, 28px);
-    --main-padding-bottom: clamp(40px, 5vh, 72px);
-    --content-max: min(1720px, calc(100vw - var(--sidebar-w) - 64px));
+    --main-padding-x: clamp(16px, 2vw, 40px);
+    --main-padding-y: clamp(16px, 1.6vh, 28px);
+    --main-padding-bottom: clamp(40px, 4vh, 64px);
+    --content-max: none;
     --modal-pad: clamp(12px, 2vw, 24px);
+    --live-chat-col: clamp(320px, 22vw, 440px);
 }
 
-/* ---------- 超宽屏（如 2560×1400 · 24 寸）主内容区居中，避免行宽过长 ---------- */
+html,
+body {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+}
+
+.app-shell {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+}
+
+.app-main {
+    max-width: none !important;
+    margin-inline: 0 !important;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* ---------- 2K / 超宽：略增可读性，布局仍全宽 ---------- */
 @media (min-width: 1920px) {
     :root {
         --header-h: 68px;
-        --content-max: min(1760px, calc(100vw - var(--sidebar-w) - 80px));
-    }
-
-    body:has(> .app-shell) .app-main:not(.app-main--full) {
-        max-width: var(--content-max);
-        margin-inline: auto;
-        width: 100%;
+        --main-padding-x: clamp(24px, 2.2vw, 48px);
+        --live-chat-col: clamp(360px, 20vw, 480px);
     }
 }
 
 @media (min-width: 2560px) {
     :root {
         --sidebar-w: 252px;
-        --content-max: min(1840px, calc(100vw - var(--sidebar-w) - 120px));
+        --main-padding-x: clamp(28px, 2.5vw, 56px);
+        --live-chat-col: clamp(400px, 18vw, 520px);
+        --fl-responsive-font-boost: 1.04;
     }
 
     html {
@@ -38,10 +56,6 @@
 
 /* ---------- 大屏笔记本 / 小桌面 ---------- */
 @media (max-width: 1536px) {
-    :root {
-        --content-max: min(1280px, calc(100vw - var(--sidebar-w) - 48px));
-    }
-
     .page-head .ph-l h1 {
         font-size: clamp(20px, 2.2vw, 26px);
     }
@@ -58,7 +72,6 @@
 @media (max-width: 1279px) {
     :root {
         --sidebar-w: 220px;
-        --content-max: calc(100vw - var(--sidebar-w) - 32px);
     }
 
     .app-header {
@@ -100,7 +113,6 @@
     .col-3 { grid-column: span 3; }
 }
 
-/* ---------- 窄屏 / 小窗口（仍按桌面 Web 处理，侧栏由 JS 建议收起） ---------- */
 @media (max-width: 1100px) {
     .app-header .h-search .kbd {
         display: none;
@@ -158,6 +170,29 @@
     }
 }
 
+/* ---------- 直播详情 · 宽屏拉满（覆盖页内固定 360px 侧栏） ---------- */
+.live-grid {
+    grid-template-columns: minmax(0, 1fr) var(--live-chat-col) !important;
+    gap: clamp(16px, 1.4vw, 28px) !important;
+}
+
+@media (max-width: 1280px) {
+    .live-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+.ld-ab-stage {
+    grid-template-columns: minmax(0, 1fr) var(--live-chat-col) !important;
+}
+
+@media (max-width: 1100px) {
+    .ld-ab-stage {
+        grid-template-columns: 1fr !important;
+        grid-template-rows: 1fr min(38vh, 320px) !important;
+    }
+}
+
 /* ---------- 模态 / 认证页 ---------- */
 .modal-mask {
     padding: var(--modal-pad);
@@ -196,7 +231,6 @@
     }
 }
 
-/* ---------- 常见页面内联布局模式（无单独 CSS 文件时） ---------- */
 .tx-summary {
     grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -221,7 +255,6 @@
     min-width: min(100%, 240px);
 }
 
-/* 双栏详情（交易详情等） */
 .detail-grid {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
@@ -235,19 +268,13 @@
     }
 }
 
-/* 工具：全宽主区（首页 Feed 等不走 content-max 居中） */
-.app-main.app-main--full {
-    max-width: none !important;
-    margin-inline: 0 !important;
-}
-
+/* 可选：仅表单/文章页内层限宽（默认全宽） */
 .fl-page-inner {
-    max-width: var(--content-max);
+    max-width: min(1200px, 100%);
     margin-inline: auto;
     width: 100%;
 }
 
-/* 减少 motion 偏好 */
 @media (prefers-reduced-motion: reduce) {
     .app-shell,
     .app-sidebar,

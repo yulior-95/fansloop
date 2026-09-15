@@ -55,6 +55,7 @@
     function initInbox() {
         var chips = Array.prototype.slice.call(document.querySelectorAll('#imlTabs .t[data-filter]'));
         var searchInput = document.getElementById('msgSearchInput');
+        var btnMsgNavSearch = document.getElementById('btnMsgNavSearch');
         var chatItems = Array.prototype.slice.call(document.querySelectorAll('.chat-item'));
         var cntAll = document.getElementById('imlCntAll');
         var cntDm = document.getElementById('imlCntDm');
@@ -121,11 +122,18 @@
             groupMemberList.innerHTML = renderContactList(CONTACTS, groupMemberSearch && groupMemberSearch.value, false);
         }
 
+        function chatTypeMatchesTab(cat, tab) {
+            if (tab === 'all') return true;
+            if (tab === 'dm') return cat === 'dm';
+            if (tab === 'group') return cat === 'group';
+            return cat === tab;
+        }
+
         function unreadSumByType(type) {
             var sum = 0;
             chatItems.forEach(function (row) {
                 var cat = row.getAttribute('data-chat-type') || 'dm';
-                if (type !== 'all' && cat !== type) return;
+                if (!chatTypeMatchesTab(cat, type)) return;
                 var b = row.querySelector('.unread');
                 var n = b ? Number((b.textContent || '').trim()) : 0;
                 if (n > 0) sum += n;
@@ -148,7 +156,7 @@
                 var cat = row.getAttribute('data-chat-type') || 'dm';
                 var name = (row.querySelector('.name') ? row.querySelector('.name').textContent : '').toLowerCase();
                 var msg = (row.getAttribute('data-text') || row.querySelector('.msg') && row.querySelector('.msg').textContent || '').toLowerCase();
-                var catOk = curFilter === 'all' || cat === curFilter;
+                var catOk = chatTypeMatchesTab(cat, curFilter);
                 var qOk = !q || name.indexOf(q) >= 0 || msg.indexOf(q) >= 0;
                 row.style.display = (catOk && qOk) ? '' : 'none';
             });
@@ -177,6 +185,13 @@
         });
         if (searchInput) {
             searchInput.addEventListener('input', applyFilter);
+        }
+        if (btnMsgNavSearch && searchInput) {
+            btnMsgNavSearch.addEventListener('click', function (e) {
+                e.preventDefault();
+                searchInput.focus();
+                try { searchInput.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (err) { /* noop */ }
+            });
         }
         if (btnAddContact) {
             btnAddContact.addEventListener('click', function () {
