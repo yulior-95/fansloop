@@ -113,6 +113,10 @@
     }
 
     /* —— 聊天文件 —— */
+    window.FL_openChatMedia = function () {
+        openMediaGallery();
+    };
+
     function openMediaGallery() {
         var t = activeThread();
         var a = api();

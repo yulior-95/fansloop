@@ -646,6 +646,46 @@
 .preview-mock .pm-badge.free { background: rgba(16,185,129,0.15); color: #6EE7B7; }
 .preview-mock .pm-badge.cat { background: rgba(59,130,246,0.16); color: #BFDBFE; }
 #createMonetizeCard.is-hidden { display: none; }
+/* 变现卡 · 研发气泡改向右展开，避免 pop-below 挡住下方价格选项 */
+#createMonetizeCard {
+    overflow: visible;
+}
+#createMonetizeCard .editor-head {
+    position: relative;
+    z-index: 3;
+}
+#createMonetizeCard .editor-body {
+    position: relative;
+    z-index: 1;
+}
+#createMonetizeCard .dev-glass-wrap--monetize-tip .dev-glass-pop {
+    max-width: min(300px, calc(100vw - 48px));
+}
+@media (max-width: 1280px) {
+    #createMonetizeCard .dev-glass-wrap--monetize-tip.dev-glass-wrap--pop-right .dev-glass-pop {
+        left: auto;
+        right: 0;
+        top: calc(100% + 10px);
+        bottom: auto;
+        transform: translateX(0) translateY(-4px);
+    }
+    #createMonetizeCard .dev-glass-wrap--monetize-tip.dev-glass-wrap--pop-right:hover .dev-glass-pop,
+    #createMonetizeCard .dev-glass-wrap--monetize-tip.dev-glass-wrap--pop-right:focus-within .dev-glass-pop {
+        transform: translateX(0) translateY(0);
+    }
+    #createMonetizeCard .dev-glass-wrap--monetize-tip.dev-glass-wrap--pop-right .dev-glass-pop::after {
+        left: auto;
+        right: 14px;
+        top: -6px;
+        bottom: auto;
+        transform: none;
+        border: 6px solid transparent;
+        border-top-color: transparent;
+        border-bottom-color: rgba(22, 22, 34, 0.96);
+        border-right-color: transparent;
+        border-left-color: transparent;
+    }
+}
 
 .preview-mock .pm-video {
     margin-top: 12px;
@@ -1345,7 +1385,7 @@
                 <div class="setting-card" id="createMonetizeCard" style="margin-top: 16px">
                     <div class="editor-head">
                         <h3><span class="ic" style="background: linear-gradient(135deg,#F59E0B,#EC4899)"><i class="fa-solid fa-coins"></i></span> 变现设置</h3>
-                        <span class="dev-glass-wrap dev-glass-wrap--pop-below">
+                        <span class="dev-glass-wrap dev-glass-wrap--align-end dev-glass-wrap--pop-right dev-glass-wrap--layer-top dev-glass-wrap--monetize-tip">
                             <span class="dev-glass-sphere" tabindex="0" aria-describedby="devPpvTip">
                                 <span class="dev-glass-sphere-shine"></span>
                                 <span class="dev-glass-sphere-txt">To 研发</span>
@@ -1640,6 +1680,7 @@
 <script src="../js-web/content-taxonomy-store.js"></script>
 <script src="../js-web/create-category-select.js"></script>
 <script src="../js/creator-subscription-store.js"></script>
+<script src="../js-web/dev-glass-viewport.js"></script>
 <script src="../js-web/create-studio.js"></script>
 <script src="../js-web/create-audience-visibility.js"></script>
 <script src="../js-web/create-studio-live.js"></script>
@@ -1657,5 +1698,6 @@ if (window.location.hash === '#live-res') {
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/host-live-pip-global.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>
+<script src="../js-web/web-icons.js"></script>
 </body>
 </html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>主播直播中</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/h5-live-host.css">
+<script src="../js/h5-theme-boot.js"></script>
+<style>
+body.page-h5-live-host .status-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; color: #fff; background: transparent; }
+body.page-h5-live-host .status-bar .time,
+body.page-h5-live-host .status-bar .right { text-shadow: 0 1px 4px rgba(0,0,0,.5); }
+</style>
+</head>
+<body class="page-h5-live-host">
+
+<div class="status-bar dark-mode">
+    <span class="time">9:41</span>
+    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+</div>
+
+<div class="lh-root" id="lhRoot" role="img" aria-label="摄像头预览"></div>
+
+<div class="lh-countdown" id="lhCountdown" aria-live="assertive">3</div>
+
+<div class="lh-top">
+    <button type="button" class="back" id="lhBtnBack" aria-label="返回"><i class="fa-solid fa-chevron-down"></i></button>
+    <span class="lh-live-pill is-prep" id="lhLivePill"><span class="dot"></span> 准备中</span>
+    <div class="lh-stat-chips">
+        <span class="lh-chip" id="lhViewers"><i class="fa-solid fa-eye"></i> 128</span>
+        <span class="lh-chip" id="lhTimer"><i class="fa-regular fa-clock"></i> 00:00</span>
+        <span class="lh-chip"><i class="fa-solid fa-signal"></i> 推流正常</span>
+    </div>
+</div>
+
+<div class="lh-danmaku" id="lhDanmaku" aria-live="polite"></div>
+<div class="lh-gift-float" id="lhGiftFloat"></div>
+
+<div class="lh-title-block">
+    <div class="ti" id="lhTitle">深夜爵士 · 即兴钢琴</div>
+    <div class="sub" id="lhSub">手机摄像头推流 · USDT 打赏已开启</div>
+</div>
+
+<div class="lh-dock">
+    <div class="lh-dock-row">
+        <button type="button" class="lh-dock-btn" id="lhBtnFlip"><span class="ic"><i class="fa-solid fa-camera-rotate"></i></span><span>翻转</span></button>
+        <button type="button" class="lh-dock-btn" id="lhBtnMic"><span class="ic"><i class="fa-solid fa-microphone"></i></span><span>麦克风</span></button>
+        <button type="button" class="lh-dock-btn" id="lhBtnBeauty"><span class="ic"><i class="fa-solid fa-wand-magic-sparkles"></i></span><span>美颜</span></button>
+        <button type="button" class="lh-dock-btn" id="lhBtnPause"><span class="ic"><i class="fa-solid fa-pause"></i></span><span>暂停</span></button>
+        <button type="button" class="lh-dock-btn" id="lhBtnMore"><span class="ic"><i class="fa-solid fa-ellipsis"></i></span><span>更多</span></button>
+        <button type="button" class="lh-dock-btn primary" id="lhBtnEnd"><span class="ic"><i class="fa-solid fa-power-off"></i></span><span>结束</span></button>
+    </div>
+</div>
+
+<div class="lh-pause-ovl" id="lhPauseOvl">
+    <div class="ico"><i class="fa-solid fa-mug-hot"></i></div>
+    <h3>主播暂时离开</h3>
+    <p>观众端将看到「主播暂时离开，马上回来。」画面保持最后一帧。</p>
+    <button type="button" class="btn-resume" id="lhBtnResume"><i class="fa-solid fa-play"></i> 继续直播</button>
+</div>
+
+<!-- 开播前 -->
+<div class="lh-prep-ovl" id="lhPrepOvl">
+    <div class="lh-prep-sheet">
+        <h2>准备手机开播</h2>
+        <p class="lead">授权相机与麦克风后即可进入直播间。请确认网络稳定，建议 Wi‑Fi 或 5G。</p>
+        <ul class="lh-prep-checks">
+            <li data-check="cam"><i class="fa-regular fa-circle"></i> 相机 · 用于直播画面</li>
+            <li data-check="mic"><i class="fa-regular fa-circle"></i> 麦克风 · 用于语音互动</li>
+            <li class="done"><i class="fa-solid fa-circle-check"></i> 标题与变现设置已从创建页带入</li>
+        </ul>
+        <div class="lh-prep-actions">
+            <button type="button" class="btn btn-secondary" id="lhBtnGrantCam"><i class="fa-solid fa-video"></i> 授权相机</button>
+            <button type="button" class="btn btn-secondary" id="lhBtnGrantMic"><i class="fa-solid fa-microphone"></i> 授权麦克风</button>
+            <button type="button" class="btn btn-primary" id="lhBtnGoLive"><i class="fa-solid fa-tower-broadcast"></i> 开始直播</button>
+        </div>
+    </div>
+</div>
+
+<!-- 更多 -->
+<div class="lh-sheet-ovl" id="lhMoreSheet">
+    <div class="lh-sheet">
+        <div class="sh"><h3>直播工具</h3><button type="button" id="lhMoreClose">关闭</button></div>
+        <div class="lh-more-grid">
+            <button type="button" class="lh-more-item" data-lh-more="chat"><span class="ic"><i class="fa-regular fa-comments"></i></span>弹幕</button>
+            <button type="button" class="lh-more-item" data-lh-more="cohost"><span class="ic"><i class="fa-solid fa-link"></i></span>连麦</button>
+            <button type="button" class="lh-more-item" data-lh-more="share"><span class="ic"><i class="fa-solid fa-share-nodes"></i></span>分享</button>
+            <button type="button" class="lh-more-item" data-lh-more="flip"><span class="ic"><i class="fa-solid fa-camera-rotate"></i></span>翻转</button>
+        </div>
+    </div>
+</div>
+
+<!-- 结束确认 -->
+<div class="lh-end-ovl" id="lhEndOvl">
+    <div class="lh-end-card">
+        <h3>结束直播？</h3>
+        <p>结束后观众将无法继续观看，本场数据将写入创作者收入（原型）。</p>
+        <div class="lh-end-actions">
+            <button type="button" id="lhEndCancel">继续直播</button>
+            <button type="button" class="danger" id="lhEndConfirm">结束直播</button>
+        </div>
+    </div>
+</div>
+
+<!-- 本场小结 -->
+<div class="lh-end-ovl" id="lhSummaryOvl">
+    <div class="lh-end-card">
+        <h3><i class="fa-solid fa-circle-check" style="color:#34d399"></i> 直播已结束</h3>
+        <p>感谢开播！以下为本场数据摘要（原型演示）。</p>
+        <div class="lh-end-stats">
+            <div>时长<b id="lhEndDur">00:00</b></div>
+            <div>观看<b id="lhEndViewers">0</b></div>
+            <div>礼物<b id="lhEndGift">0 USDT</b></div>
+        </div>
+        <div class="lh-end-actions">
+            <button type="button" class="btn btn-primary" id="lhSummaryDone" style="flex:1;background:var(--brand-gradient);border:0;color:#fff">返回创作中心</button>
+        </div>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script src="../js/h5-live-host-page.js"></script>
+</body>
+</html>

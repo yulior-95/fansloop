@@ -5,6 +5,8 @@
 <title>视频详情</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/h5-share-sheets.css">
+<link rel="stylesheet" href="../css-web/content-report.css">
 <script src="../js/h5-theme-boot.js"></script>
 <style>
 body { background: #000; }
@@ -12,9 +14,14 @@ body { background: #000; }
 .video-wrap {
     position: absolute; inset: 0;
 }
+.video-wrap.cover-press-hold {
+    transform: scale(0.985);
+    transition: transform 0.15s ease;
+}
 .video-wrap img {
     width: 100%; height: 100%;
     object-fit: cover;
+    pointer-events: none;
 }
 
 .top-controls {
@@ -32,12 +39,55 @@ body { background: #000; }
     backdrop-filter: blur(10px);
     display: flex; align-items: center; justify-content: center;
     color: #fff; font-size: 16px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+.ctrl-btn.is-on {
+    background: rgba(168, 85, 247, 0.45);
+    box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.55);
 }
 .top-controls .right-group { display: flex; gap: 10px; }
 
+.feed-more-sheet { height: auto; max-height: 52%; z-index: 146; }
+.feed-more-list { display: flex; flex-direction: column; gap: 8px; }
+.feed-more-row {
+    width: 100%;
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 14px;
+    border: 0; border-radius: 12px;
+    background: rgba(255,255,255,0.06);
+    color: #fff; text-align: left;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+}
+.feed-more-row .ic {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+    background: rgba(255,255,255,0.08);
+}
+.feed-more-row.danger { color: #fca5a5; }
+.feed-more-row.danger .ic { background: rgba(239,68,68,0.18); color: #f87171; }
+.feed-more-sheet.is-report { max-height: 82%; }
+.feed-more-sheet.is-report .feed-more-main { display: none; }
+.feed-more-sheet .feed-more-report { display: none; }
+.feed-more-sheet.is-report .feed-more-report { display: block; }
+.feed-more-sheet .feed-more-report .fl-report-bd { padding: 0 2px 4px; max-height: min(52vh, 360px); }
+.feed-more-sheet .feed-more-report .fl-report-ft { padding: 12px 0 4px; }
+.feed-more-sheet .hs-head .feed-more-back {
+    display: none;
+    width: 32px; height: 32px;
+    border: 0; border-radius: 8px;
+    background: rgba(255,255,255,0.08);
+    color: #fff; margin-right: 8px; flex-shrink: 0;
+    cursor: pointer;
+}
+.feed-more-sheet.is-report .hs-head .feed-more-back { display: inline-flex; align-items: center; justify-content: center; }
+.feed-more-sheet.is-report .hs-head .t { flex: 1; text-align: center; margin-right: 32px; }
+
 .play-center {
     position: absolute;
-    left: 50%; top: 35%;
+    left: 50%; top: 38%;
     transform: translate(-50%, -50%);
     width: 72px; height: 72px;
     border-radius: 50%;
@@ -48,126 +98,176 @@ body { background: #000; }
     z-index: 10;
 }
 
+/* 进度条 · 贴页面底部 */
 .video-progress {
     position: absolute;
-    left: 16px; right: 16px;
-    bottom: calc(44px + 230px);
-    z-index: 10;
+    left: 12px; right: 12px;
+    bottom: 22px;
+    z-index: 15;
 }
 .progress-track {
-    height: 3px; background: rgba(255,255,255,0.25);
-    border-radius: 2px; overflow: hidden;
+    height: 3px; background: rgba(255,255,255,0.28);
+    border-radius: 2px; overflow: visible;
     position: relative;
 }
 .progress-fill {
     width: 42%; height: 100%;
     background: var(--brand-gradient);
+    border-radius: 2px;
 }
 .progress-track::after {
     content: '';
     position: absolute;
     left: 42%; top: 50%;
     transform: translate(-50%, -50%);
-    width: 12px; height: 12px;
+    width: 10px; height: 10px;
     border-radius: 50%;
     background: #fff;
     box-shadow: 0 0 6px rgba(168,85,247,0.8);
 }
 .progress-time {
     display: flex; justify-content: space-between;
-    margin-top: 6px;
-    font-size: 11px; color: rgba(255,255,255,0.8);
+    margin-top: 4px;
+    font-size: 10px; color: rgba(255,255,255,0.75);
     font-variant-numeric: tabular-nums;
 }
+
+/* 右侧互动栏 · 对齐首页 feed */
+.vd-action-bar {
+    position: absolute;
+    right: 10px;
+    bottom: 118px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: center;
+    z-index: 12;
+}
+.vd-action-bar .action {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 3px;
+    color: #fff; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+.vd-action-bar .action i {
+    font-size: 26px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));
+}
+.vd-action-bar .action .count {
+    font-size: 11px; font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.vd-action-bar .action.is-on i { color: #ff3b5c; }
+.vd-action-bar .action.action-save.is-on i { color: var(--crypto-gold); }
 
 /* 创作者卡片 */
 .creator-card {
     position: absolute;
-    left: 16px; right: 16px;
-    bottom: calc(44px + 120px);
-    padding: 12px;
-    background: rgba(20,20,30,0.7);
+    left: 16px; right: 64px;
+    bottom: 52px;
+    padding: 10px 10px 10px 12px;
+    background: rgba(20,20,30,0.78);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255,255,255,0.1);
-    border-radius: var(--radius-lg);
-    display: flex; align-items: center;
-    gap: 12px;
-    z-index: 10;
+    border-radius: 14px;
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 10px;
+    z-index: 11;
 }
-.creator-card .info { flex: 1; min-width: 0; }
-.creator-card .name {
-    font-size: 14px; font-weight: 700; color: #fff;
-    display: flex; align-items: center; gap: 6px;
+.creator-card .avatar-ring {
+    width: 44px; height: 44px; flex-shrink: 0; box-sizing: border-box;
+}
+.creator-card .avatar-ring .avatar-md { width: 40px; height: 40px; }
+.creator-card .info { min-width: 0; overflow: hidden; }
+.creator-card .name-row {
+    display: flex; align-items: center; gap: 6px; min-width: 0;
+}
+.creator-card .name-text {
+    font-size: 13px; font-weight: 700; color: #fff; line-height: 1.25;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    min-width: 0; flex: 1;
+}
+.creator-card .badge-brand {
+    flex-shrink: 0;
+    padding: 1px 6px !important; font-size: 9px !important;
+    line-height: 1.2; border-radius: 999px;
 }
 .creator-card .sub-info {
-    font-size: 11px; color: rgba(255,255,255,0.7);
-    margin-top: 2px;
+    font-size: 11px; color: rgba(255,255,255,0.72);
+    margin-top: 3px; line-height: 1.25;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.creator-card .btn-subscribe {
+    flex-shrink: 0;
+    height: 34px; padding: 0 10px; margin: 0; border: none;
+    border-radius: 999px; font-size: 11px; font-weight: 700;
+    white-space: nowrap;
+    display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+    background: var(--brand-gradient); color: #fff;
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.35);
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.creator-card .btn-subscribe:active { transform: scale(0.97); }
+.creator-card .btn-subscribe.is-subscribed {
+    background: rgba(255,255,255,0.14);
+    color: rgba(255,255,255,0.88);
+    box-shadow: none;
+    border: 1px solid rgba(255,255,255,0.18);
 }
 
-/* 评论输入 */
-.comment-bar {
-    position: absolute;
-    left: 0; right: 0;
-    bottom: 44px;
-    padding: 10px 16px;
+.vd-subscribe-sheet.subscribe-sheet { height: 68%; z-index: 145; }
+.vd-subscribe-sheet .sub-step { display: none; }
+.vd-subscribe-sheet .sub-step.active { display: block; }
+.vd-subscribe-sheet .sub-creator {
     display: flex; align-items: center; gap: 10px;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(10px);
-    z-index: 10;
-    border-top: 0.5px solid rgba(255,255,255,0.08);
+    padding: 10px; border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-elevated);
+    margin-bottom: 10px;
 }
-.comment-input {
-    flex: 1;
-    height: 36px;
-    background: rgba(255,255,255,0.1);
-    border-radius: var(--radius-full);
-    padding: 0 16px;
-    display: flex; align-items: center;
-    font-size: 13px; color: rgba(255,255,255,0.6);
+.vd-subscribe-sheet .sub-creator .av {
+    width: 36px; height: 36px; border-radius: 50%; object-fit: cover;
 }
-.comment-actions { display: flex; gap: 14px; }
-.comment-actions .c-btn {
-    color: #fff; font-size: 20px;
-    display: flex; flex-direction: column; align-items: center;
+.vd-subscribe-sheet .sub-creator .n { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+.vd-subscribe-sheet .sub-creator .d { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.vd-subscribe-sheet .sub-plan-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.vd-subscribe-sheet .sub-plan-btn {
+    border: 1px solid var(--border-color); background: var(--bg-card);
+    color: var(--text-primary); border-radius: 12px;
+    padding: 10px 12px; display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer; width: 100%; text-align: left;
 }
-.comment-actions .c-btn .c-num {
-    font-size: 10px; margin-top: 2px;
+.vd-subscribe-sheet .sub-plan-btn.on {
+    border-color: rgba(168,85,247,0.7); background: rgba(168,85,247,0.12);
 }
-.c-btn.liked { color: #ff3b5c; }
-.c-btn.saved { color: var(--crypto-gold); }
+.vd-subscribe-sheet .sub-plan-btn small { display: block; color: var(--text-tertiary); font-size: 10px; }
+.vd-subscribe-sheet .sub-kv { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
+.vd-subscribe-sheet .sub-kv b { color: var(--text-primary); }
+.vd-subscribe-sheet .sub-quick { display: flex; gap: 8px; margin: 8px 0 10px; }
+.vd-subscribe-sheet .sub-quick button {
+    flex: 1; height: 34px; border: 0; border-radius: 10px;
+    background: var(--bg-elevated); color: var(--text-primary);
+}
+.vd-subscribe-sheet .sub-pwd {
+    width: 100%; height: 40px; border: 1px solid var(--border-color); border-radius: 12px;
+    padding: 0 12px; margin: 8px 0 12px; color: var(--text-primary); background: var(--bg-card);
+}
 
-.home-indicator { bottom: 10px; z-index: 20; }
-
-/* 弹幕示例 */
-.danmaku {
-    position: absolute;
-    top: 140px; left: 16px; right: 80px;
-    display: flex; flex-direction: column; gap: 8px;
-    z-index: 5;
-    pointer-events: none;
-}
-.dm-item {
-    background: rgba(0,0,0,0.4);
-    backdrop-filter: blur(10px);
-    padding: 4px 10px;
-    border-radius: var(--radius-full);
-    font-size: 12px; color: #fff;
-    align-self: flex-start;
-    max-width: 80%;
-}
+.home-indicator { bottom: 6px; z-index: 20; }
 </style>
 <link rel="stylesheet" href="../css/h5-light-theme.css">
 </head>
 <body class="h5-feed-dark">
 
-<!-- 视频 -->
-<div class="video-wrap">
+<div class="video-wrap" id="vdVideoWrap">
     <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" alt="">
     <div class="gradient-overlay-top"></div>
-    <div class="gradient-overlay-bottom" style="height:60%"></div>
+    <div class="gradient-overlay-bottom" style="height:55%"></div>
 </div>
 
-<!-- 状态栏 -->
 <div class="status-bar dark-mode">
     <span class="time">9:41</span>
     <span class="right">
@@ -177,28 +277,52 @@ body { background: #000; }
     </span>
 </div>
 
-<!-- 顶部控件 -->
 <div class="top-controls">
-    <div class="ctrl-btn"><i class="fa-solid fa-chevron-left"></i></div>
+    <div class="ctrl-btn" data-back="home.html" aria-label="返回"><i class="fa-solid fa-chevron-left"></i></div>
     <div class="right-group">
-        <div class="ctrl-btn"><i class="fa-solid fa-closed-captioning"></i></div>
-        <div class="ctrl-btn"><i class="fa-solid fa-ellipsis"></i></div>
+        <div class="ctrl-btn is-on" id="vdBtnCc" role="button" tabindex="0" aria-label="弹幕开关" aria-pressed="true"><i class="fa-solid fa-closed-captioning"></i></div>
     </div>
 </div>
 
-<!-- 弹幕 -->
-<div class="danmaku">
-    <div class="dm-item">🔥 这段构图绝了</div>
-    <div class="dm-item">灯光好赞，Luna 永远的神</div>
-    <div class="dm-item">已订阅一年了，从没失望过</div>
-</div>
-
-<!-- 中央播放按钮 -->
 <div class="play-center">
     <i class="fa-solid fa-play" style="margin-left:4px"></i>
 </div>
 
-<!-- 进度条 -->
+<div class="vd-action-bar" aria-label="互动">
+    <div class="action action-like" id="vdActLike" role="button" tabindex="0">
+        <i class="fa-solid fa-heart"></i>
+        <span class="count">12.4K</span>
+    </div>
+    <div class="action action-comment" id="vdActComment" role="button" tabindex="0">
+        <i class="fa-solid fa-comment-dots"></i>
+        <span class="count">832</span>
+    </div>
+    <div class="action action-save" id="vdActSave" role="button" tabindex="0">
+        <i class="fa-solid fa-bookmark"></i>
+        <span class="count">256</span>
+    </div>
+    <div class="action action-share" id="vdActShare" role="button" tabindex="0">
+        <i class="fa-solid fa-share"></i>
+        <span class="count">分享</span>
+    </div>
+</div>
+
+<div class="creator-card">
+    <div class="avatar-ring" data-go="creator-profile.html?u=luna_web3">
+        <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80" alt="">
+    </div>
+    <div class="info" data-go="creator-profile.html?u=luna_web3" style="cursor:pointer">
+        <div class="name-row">
+            <span class="name-text">Luna · @luna_web3</span>
+            <span class="badge badge-brand"><i class="fa-solid fa-crown"></i> Pro</span>
+        </div>
+        <div class="sub-info">62 条月度更新 · 12.5W 订阅</div>
+    </div>
+    <button type="button" class="btn-subscribe" id="vdBtnSubscribe" data-creator-slug="luna_web3">
+        <i class="fa-solid fa-bolt"></i> 订阅 29.9U
+    </button>
+</div>
+
 <div class="video-progress">
     <div class="progress-track">
         <div class="progress-fill"></div>
@@ -209,40 +333,397 @@ body { background: #000; }
     </div>
 </div>
 
-<!-- 创作者卡片 -->
-<div class="creator-card">
-    <div class="avatar-ring">
-        <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80">
-    </div>
-    <div class="info">
-        <div class="name">
-            Luna · @luna_web3
-            <span class="badge badge-brand" style="padding:1px 6px; font-size:9px"><i class="fa-solid fa-crown"></i> Pro</span>
+<div class="home-overlay" id="vdOverlay"></div>
+<div class="home-sheet subscribe-sheet vd-subscribe-sheet" id="vdSubscribeSheet">
+    <div class="hs-head"><div class="t">订阅创作者</div><button type="button" class="x" data-close-subscribe aria-label="关闭"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="hs-body">
+        <div class="sub-step active" id="vdSubStepPlan">
+            <div class="sub-creator">
+                <img class="av" id="vdSubCreatorAv" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&q=80" alt="">
+                <div>
+                    <div class="n" id="vdSubCreatorName">Luna · @luna_web3</div>
+                    <div class="d">订阅后可解锁专属内容与直播回放</div>
+                </div>
+            </div>
+            <div class="sub-kv">钱包可用余额：<b id="vdSubBalanceVal">100.00 USDT</b></div>
+            <div class="sub-plan-list">
+                <button class="sub-plan-btn on" type="button" data-plan-price="29.9"><span><span>月付</span><small>可随时取消</small></span><b>29.9 USDT</b></button>
+                <button class="sub-plan-btn" type="button" data-plan-price="79.9"><span><span>季付</span><small>约省 11%</small></span><b>79.9 USDT</b></button>
+                <button class="sub-plan-btn" type="button" data-plan-price="287"><span><span>年付</span><small>约省 20%</small></span><b>287 USDT</b></button>
+            </div>
+            <div class="sub-kv">支付将从钱包 USDT 余额扣除；余额不足将引导充值。</div>
+            <button class="btn btn-primary btn-block" type="button" id="vdSubConfirmBtn"><i class="fa-solid fa-bolt"></i> 确认订阅并支付</button>
         </div>
-        <div class="sub-info">62 条月度更新 · 12.5W 订阅</div>
+        <div class="sub-step" id="vdSubStepRecharge">
+            <div class="sub-kv">余额不足，还需充值：<b id="vdSubNeedVal">0 USDT</b></div>
+            <div class="sub-quick">
+                <button type="button" data-recharge="50">+50</button>
+                <button type="button" data-recharge="100">+100</button>
+                <button type="button" data-recharge="200">+200</button>
+            </div>
+            <button class="btn btn-primary btn-block" type="button" id="vdSubRechargeBtn">确认充值</button>
+        </div>
+        <div class="sub-step" id="vdSubStepPwd">
+            <div class="sub-kv">请输入支付密码（演示：123456）</div>
+            <input type="password" class="sub-pwd" id="vdSubPwdInput" maxlength="6" placeholder="输入 6 位支付密码" inputmode="numeric">
+            <button class="btn btn-primary btn-block" type="button" id="vdSubPayBtn">确认支付</button>
+        </div>
+        <div class="sub-step" id="vdSubStepDone">
+            <div class="sub-kv"><b><i class="fa-solid fa-circle-check" style="color:#22c55e"></i> 订阅成功</b></div>
+            <p style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin:0 0 12px">你已成功订阅该创作者，专属内容已解锁。</p>
+            <button class="btn btn-primary btn-block" type="button" id="vdSubDoneBtn">完成</button>
+        </div>
     </div>
-    <button class="btn btn-primary btn-sm">
-        <i class="fa-solid fa-bolt"></i> 订阅 29.9U
-    </button>
 </div>
 
-<!-- 底部评论栏 -->
-<div class="comment-bar">
-    <div class="comment-input">
-        <i class="fa-regular fa-comment" style="margin-right:8px"></i>
-        <span>说点什么...</span>
+<div class="home-sheet feed-more-sheet" id="vdFeedMoreSheet">
+    <div class="hs-head">
+        <button type="button" class="feed-more-back" id="vdFeedMoreBack" aria-label="返回"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="t" id="vdFeedMoreTitle">更多操作</div>
+        <button class="x" type="button" id="vdFeedMoreClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <div class="comment-actions">
-        <div class="c-btn">
-            <i class="fa-regular fa-paper-plane"></i>
+    <div class="hs-body">
+        <div class="feed-more-main" id="vdFeedMoreMain">
+            <div class="feed-more-list">
+                <button type="button" class="feed-more-row danger" data-vd-feed-more="report"><span class="ic"><i class="fa-solid fa-flag"></i></span>举报</button>
+                <button type="button" class="feed-more-row" data-vd-feed-more="not-interested"><span class="ic"><i class="fa-solid fa-circle-minus"></i></span>不感兴趣</button>
+                <button type="button" class="feed-more-row" data-vd-feed-more="hide-creator"><span class="ic"><i class="fa-solid fa-user-slash"></i></span>不看该创作者</button>
+                <button type="button" class="feed-more-row" data-vd-feed-more="reduce-similar"><span class="ic"><i class="fa-solid fa-sliders"></i></span>减少此类内容</button>
+            </div>
         </div>
-        <div class="c-btn">
-            <i class="fa-solid fa-gift" style="color: var(--crypto-gold)"></i>
+        <div class="feed-more-report" id="vdFeedMoreReport">
+            <div class="fl-report-bd">
+                <span class="fl-report-label">举报原因<span class="req">*</span></span>
+                <div class="fl-report-reasons" id="vdFeedMoreReportReasons"></div>
+                <span class="fl-report-label">举报描述</span>
+                <textarea class="fl-report-desc" id="vdFeedMoreReportDesc" maxlength="500" placeholder="请详细描述举报原因，便于平台判断违规情况"></textarea>
+            </div>
+            <div class="fl-report-ft">
+                <button type="button" class="fl-report-submit" id="vdFeedMoreReportSubmit" disabled>提交</button>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="home-indicator"></div>
 <script src="../js/digital-h5-nav.js"></script>
+<script src="../js-web/content-report.js"></script>
+<script src="../js/h5-subscribe-sheet.js"></script>
+<script>
+(function () {
+    var slug = 'luna_web3';
+    var creatorName = 'Luna · @luna_web3';
+    var creatorAv = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80';
+    var btnSub = document.getElementById('vdBtnSubscribe');
+
+    function toast(msg) {
+        if (window.DigitalH5Nav && DigitalH5Nav.toast) DigitalH5Nav.toast(msg);
+    }
+
+    function syncSubscribeBtn() {
+        if (!btnSub || !subscribeApi) return;
+        var offer = subscribeApi.tierOffer(slug);
+        var tier = subscribeApi.getSubTier(slug);
+        btnSub.setAttribute('data-creator-slug', slug);
+        if (!tier) {
+            btnSub.classList.remove('is-subscribed');
+            btnSub.innerHTML = '<i class="fa-solid fa-bolt"></i> 订阅 29.9U';
+            return;
+        }
+        if (offer.pay === 'quarterly') {
+            btnSub.classList.remove('is-subscribed');
+            btnSub.innerHTML = '<i class="fa-solid fa-bolt"></i> 升级季付';
+            return;
+        }
+        if (offer.pay === 'annual') {
+            btnSub.classList.remove('is-subscribed');
+            btnSub.innerHTML = '<i class="fa-solid fa-gem"></i> 升级年付';
+            return;
+        }
+        btnSub.classList.add('is-subscribed');
+        btnSub.innerHTML = '<i class="fa-solid fa-crown"></i> 已订阅';
+    }
+
+    var subscribeApi = null;
+    if (window.H5SubscribeSheet) {
+        subscribeApi = H5SubscribeSheet.init({
+            overlayId: 'vdOverlay',
+            sheetId: 'vdSubscribeSheet',
+            nameId: 'vdSubCreatorName',
+            avId: 'vdSubCreatorAv',
+            balanceId: 'vdSubBalanceVal',
+            needId: 'vdSubNeedVal',
+            pwdId: 'vdSubPwdInput',
+            confirmId: 'vdSubConfirmBtn',
+            rechargeId: 'vdSubRechargeBtn',
+            payId: 'vdSubPayBtn',
+            doneId: 'vdSubDoneBtn',
+            stepPlanId: 'vdSubStepPlan',
+            stepRechargeId: 'vdSubStepRecharge',
+            stepPwdId: 'vdSubStepPwd',
+            stepDoneId: 'vdSubStepDone',
+            onSubscribed: function () {
+                syncSubscribeBtn();
+            }
+        });
+    }
+
+    if (btnSub) {
+        syncSubscribeBtn();
+        btnSub.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!subscribeApi) {
+                toast('订阅模块未加载');
+                return;
+            }
+            var offer = subscribeApi.tierOffer(slug);
+            if (!offer.pay) {
+                toast('已是最高订阅档位');
+                return;
+            }
+            var price = offer.meta && offer.meta.price ? offer.meta.price : 29.9;
+            subscribeApi.open({
+                slug: slug,
+                name: creatorName,
+                avatar: creatorAv,
+                defaultPlan: price
+            });
+        });
+    }
+
+    var like = document.getElementById('vdActLike');
+    if (like) {
+        like.addEventListener('click', function () {
+            like.classList.toggle('is-on');
+            toast(like.classList.contains('is-on') ? '已点赞' : '已取消点赞');
+        });
+    }
+    var save = document.getElementById('vdActSave');
+    if (save) {
+        save.addEventListener('click', function () {
+            save.classList.toggle('is-on');
+            toast(save.classList.contains('is-on') ? '已收藏' : '已取消收藏');
+        });
+    }
+    var comment = document.getElementById('vdActComment');
+    if (comment) {
+        comment.addEventListener('click', function () {
+            toast('评论功能演示：可在完整版打开评论面板');
+        });
+    }
+    var share = document.getElementById('vdActShare');
+    if (share) share.addEventListener('click', function () { toast('分享面板演示'); });
+
+    var btnCc = document.getElementById('vdBtnCc');
+    var ccOn = true;
+    if (btnCc) {
+        btnCc.addEventListener('click', function (e) {
+            e.stopPropagation();
+            ccOn = !ccOn;
+            btnCc.classList.toggle('is-on', ccOn);
+            btnCc.setAttribute('aria-pressed', ccOn ? 'true' : 'false');
+            toast(ccOn ? '弹幕已开启' : '弹幕已关闭');
+        });
+    }
+
+    var vdOverlay = document.getElementById('vdOverlay');
+    var vdFeedMoreSheet = document.getElementById('vdFeedMoreSheet');
+    var vdSubscribeSheet = document.getElementById('vdSubscribeSheet');
+    var vdVideoWrap = document.getElementById('vdVideoWrap');
+    var vdFeedMoreTitle = document.getElementById('vdFeedMoreTitle');
+    var vdFeedMoreReportReasons = document.getElementById('vdFeedMoreReportReasons');
+    var vdFeedMoreReportDesc = document.getElementById('vdFeedMoreReportDesc');
+    var vdFeedMoreReportSubmit = document.getElementById('vdFeedMoreReportSubmit');
+    var vdFeedMoreBack = document.getElementById('vdFeedMoreBack');
+    var vdFeedMoreClose = document.getElementById('vdFeedMoreClose');
+    var vdFeedMoreReasonsReady = false;
+    var contentId = 'video-luna-mountain-01';
+    var contentTitle = 'Luna · 山景氛围短片';
+
+    function anyVdSheetOpen() {
+        return (vdSubscribeSheet && vdSubscribeSheet.classList.contains('show')) ||
+            (vdFeedMoreSheet && vdFeedMoreSheet.classList.contains('show'));
+    }
+    function syncVdOverlay() {
+        if (!vdOverlay) return;
+        if (anyVdSheetOpen()) vdOverlay.classList.add('show');
+        else vdOverlay.classList.remove('show');
+    }
+    function resetVdFeedMoreReportForm() {
+        if (vdFeedMoreReportReasons) {
+            vdFeedMoreReportReasons.querySelectorAll('input[name="vdFeedMoreReportReason"]').forEach(function (el) {
+                el.checked = false;
+            });
+        }
+        if (vdFeedMoreReportDesc) vdFeedMoreReportDesc.value = '';
+        if (vdFeedMoreReportSubmit) vdFeedMoreReportSubmit.disabled = true;
+    }
+    function resetVdFeedMoreView() {
+        if (!vdFeedMoreSheet) return;
+        vdFeedMoreSheet.classList.remove('is-report');
+        if (vdFeedMoreTitle) vdFeedMoreTitle.textContent = '更多操作';
+        resetVdFeedMoreReportForm();
+    }
+    function clearVdPressHold() {
+        if (vdVideoWrap) vdVideoWrap.classList.remove('cover-press-hold');
+    }
+    function closeVdFeedMore() {
+        if (vdFeedMoreSheet) vdFeedMoreSheet.classList.remove('show');
+        resetVdFeedMoreView();
+        clearVdPressHold();
+        syncVdOverlay();
+    }
+    function openVdFeedMore() {
+        if (anyVdSheetOpen() && vdSubscribeSheet && vdSubscribeSheet.classList.contains('show')) return;
+        resetVdFeedMoreView();
+        if (vdFeedMoreSheet) vdFeedMoreSheet.classList.add('show');
+        syncVdOverlay();
+    }
+    function ensureVdFeedMoreReportReasons() {
+        var R = window.FL_ContentReport;
+        if (!R || !vdFeedMoreReportReasons || vdFeedMoreReasonsReady) return;
+        vdFeedMoreReportReasons.innerHTML = R.reasonHtml('vdFeedMoreReportReason');
+        vdFeedMoreReasonsReady = true;
+    }
+    function syncVdFeedMoreReportSubmit() {
+        if (!vdFeedMoreReportSubmit || !vdFeedMoreReportReasons) return;
+        var checked = vdFeedMoreReportReasons.querySelector('input[name="vdFeedMoreReportReason"]:checked');
+        vdFeedMoreReportSubmit.disabled = !checked;
+    }
+    function openVdFeedMoreReport() {
+        var R = window.FL_ContentReport;
+        if (!R) {
+            toast('举报功能暂不可用');
+            return;
+        }
+        ensureVdFeedMoreReportReasons();
+        resetVdFeedMoreReportForm();
+        var titleMap = R.TITLE_MAP || {};
+        if (vdFeedMoreTitle) vdFeedMoreTitle.textContent = titleMap.video || titleMap.content || '举报视频';
+        if (vdFeedMoreSheet) vdFeedMoreSheet.classList.add('is-report');
+    }
+    function finishVdFeedMorePreference() {
+        closeVdFeedMore();
+        toast('提交成功');
+    }
+
+    if (vdFeedMoreClose) vdFeedMoreClose.addEventListener('click', closeVdFeedMore);
+    if (vdFeedMoreBack) vdFeedMoreBack.addEventListener('click', resetVdFeedMoreView);
+    if (vdFeedMoreReportReasons) vdFeedMoreReportReasons.addEventListener('change', syncVdFeedMoreReportSubmit);
+    if (vdFeedMoreReportSubmit) {
+        vdFeedMoreReportSubmit.addEventListener('click', function () {
+            var R = window.FL_ContentReport;
+            if (!R) {
+                toast('举报功能暂不可用');
+                return;
+            }
+            var checked = vdFeedMoreReportReasons && vdFeedMoreReportReasons.querySelector('input[name="vdFeedMoreReportReason"]:checked');
+            if (!checked) {
+                toast('请选择举报原因');
+                return;
+            }
+            var desc = (vdFeedMoreReportDesc && vdFeedMoreReportDesc.value || '').trim();
+            closeVdFeedMore();
+            R.submitReport({
+                reason: checked.value,
+                desc: desc,
+                type: 'video',
+                contentId: contentId,
+                contentTitle: contentTitle,
+                toast: toast,
+                onDone: function () {
+                    if (window.DigitalH5Nav && DigitalH5Nav.go) DigitalH5Nav.go('home.html');
+                    else window.location.href = 'home.html';
+                }
+            });
+        });
+    }
+    document.querySelectorAll('[data-vd-feed-more]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var kind = btn.getAttribute('data-vd-feed-more');
+            if (kind === 'report') {
+                openVdFeedMoreReport();
+                return;
+            }
+            if (kind === 'not-interested' || kind === 'hide-creator' || kind === 'reduce-similar') {
+                finishVdFeedMorePreference();
+            }
+        });
+    });
+    if (vdOverlay) {
+        vdOverlay.addEventListener('click', function () {
+            if (vdFeedMoreSheet && vdFeedMoreSheet.classList.contains('show')) closeVdFeedMore();
+        });
+    }
+
+    var lpTimer = null;
+    var lpStartX = 0;
+    var lpStartY = 0;
+    var lpFired = false;
+
+    function vdLongPressBlocked(el) {
+        if (!el || !el.closest) return true;
+        return !!el.closest('.top-controls, .vd-action-bar, .creator-card, .video-progress, .play-center, .status-bar, .home-sheet, .home-overlay');
+    }
+    function clearVdLongPressTimer() {
+        if (lpTimer) {
+            clearTimeout(lpTimer);
+            lpTimer = null;
+        }
+    }
+    function beginVdLongPress(clientX, clientY, target) {
+        if (anyVdSheetOpen()) return;
+        if (vdLongPressBlocked(target)) return;
+        if (!target.closest || !target.closest('#vdVideoWrap')) return;
+        clearVdLongPressTimer();
+        clearVdPressHold();
+        lpFired = false;
+        lpStartX = clientX;
+        lpStartY = clientY;
+        lpTimer = setTimeout(function () {
+            lpTimer = null;
+            lpFired = true;
+            if (vdVideoWrap) vdVideoWrap.classList.add('cover-press-hold');
+            openVdFeedMore();
+            try { if (navigator.vibrate) navigator.vibrate(12); } catch (err) { /* ignore */ }
+        }, 480);
+    }
+    function moveVdLongPress(clientX, clientY) {
+        if (!lpTimer) return;
+        if (Math.abs(clientY - lpStartY) > 14 || Math.abs(clientX - lpStartX) > 14) {
+            clearVdLongPressTimer();
+            clearVdPressHold();
+        }
+    }
+
+    document.body.addEventListener('pointerdown', function (e) {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        beginVdLongPress(e.clientX, e.clientY, e.target);
+    });
+    document.body.addEventListener('pointermove', function (e) {
+        moveVdLongPress(e.clientX, e.clientY);
+    });
+    document.body.addEventListener('pointerup', function () {
+        clearVdLongPressTimer();
+        clearVdPressHold();
+        lpFired = false;
+    });
+    document.body.addEventListener('pointercancel', function () {
+        clearVdLongPressTimer();
+        clearVdPressHold();
+        lpFired = false;
+    });
+
+    if (vdVideoWrap) {
+        vdVideoWrap.addEventListener('contextmenu', function (e) {
+            if (vdLongPressBlocked(e.target)) return;
+            e.preventDefault();
+            if (vdVideoWrap) vdVideoWrap.classList.add('cover-press-hold');
+            openVdFeedMore();
+        });
+    }
+})();
+</script>
 </body>
 </html>

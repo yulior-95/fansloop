@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>人工客服 · GOODFANS 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/cs-support.css">
+</head>
+<body data-admin-page="cs-support">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 客服中心 / 人工客服</span></div>
+      <div class="admin-header-right">
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>客服坐席</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">人工客服工作台</h1>
+      <p class="cs-hint">
+        承接 C 端「智能客服 → 转人工」队列（原型数据存 <code>localStorage</code> · <code>fl_admin_cs_sessions_v1</code>）。
+        坐席可接入排队会话、回复用户、查看 UID / 订单上下文并结束会话。
+      </p>
+
+      <div class="cs-kpi" id="csKpi"></div>
+
+      <div class="admin-toolbar" style="margin-bottom:12px">
+        <button type="button" class="ant-btn ant-btn-primary" id="csBtnTake"><i class="fa-solid fa-headset"></i> 接入当前会话</button>
+        <button type="button" class="ant-btn ant-btn-danger" id="csBtnClose"><i class="fa-solid fa-phone-slash"></i> 结束会话</button>
+        <button type="button" class="ant-btn" id="csBtnReset" style="margin-left:auto"><i class="fa-solid fa-flask"></i> 恢复演示数据</button>
+      </div>
+
+      <div class="cs-layout">
+        <aside class="cs-panel cs-queue">
+          <div class="cs-panel-hd">
+            <span style="font-weight:600;font-size:13px">会话列表</span>
+            <div class="cs-tabs">
+              <button type="button" class="active" data-tab="queue">排队</button>
+              <button type="button" data-tab="active">进行中</button>
+              <button type="button" data-tab="closed">已结束</button>
+            </div>
+          </div>
+          <div class="cs-queue-list" id="csQueueList"></div>
+        </aside>
+
+        <section class="cs-panel cs-chat">
+          <div class="cs-panel-hd cs-chat-hd" id="csChatTitle">请选择会话</div>
+          <div class="cs-quick">
+            <button type="button" data-text="你好，我是 GOODFANS 人工客服，很高兴为你服务。">问候语</button>
+            <button type="button" data-text="请提供订单号或截图，我为你进一步核实。">索要订单</button>
+            <button type="button" data-text="问题已记录，预计 24 小时内邮件回复处理结果。">跟进承诺</button>
+          </div>
+          <div class="cs-chat-msgs" id="csChatMsgs"></div>
+          <div class="cs-empty" id="csChatEmpty" hidden>左侧选择一条会话后开始接待</div>
+          <div class="cs-chat-compose">
+            <textarea id="csReplyInput" placeholder="输入回复，Enter 发送 · Shift+Enter 换行"></textarea>
+            <button type="button" class="ant-btn ant-btn-primary" id="csBtnSend"><i class="fa-solid fa-paper-plane"></i> 发送</button>
+          </div>
+        </section>
+
+        <aside class="cs-panel cs-context">
+          <div class="cs-panel-hd"><span style="font-weight:600;font-size:13px">用户上下文</span></div>
+          <div class="cs-context-body" id="csContext"></div>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="js/admin-cs-store.js"></script>
+<script src="js/cs-support-page.js"></script>
+</body>
+</html>

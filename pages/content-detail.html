@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>内容详情</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<script src="../js/h5-theme-boot.js"></script>
+<style>
+.cd-page { padding-bottom: 72px; }
+.cd-hero {
+    width: 100%;
+    aspect-ratio: 4/5;
+    max-height: 52vh;
+    background: var(--bg-card);
+    overflow: hidden;
+}
+.cd-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.cd-body { padding: 14px 16px 0; }
+.cd-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    cursor: pointer;
+}
+.cd-author .av {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.cd-author .meta .n { font-size: 14px; font-weight: 700; }
+.cd-author .meta .s { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.cd-title {
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.45;
+    margin: 0 0 8px;
+}
+.cd-desc {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin: 0 0 14px;
+}
+.cd-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-bottom: 14px;
+    border-bottom: 0.5px solid var(--border);
+}
+.cd-actions button {
+    flex: 1;
+    min-width: calc(50% - 4px);
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.cd-actions button.liked { color: #ff3b5c; border-color: rgba(255,59,92,0.35); }
+.cd-actions button.saved { color: var(--crypto-gold, #f5c16c); }
+.cd-comments-hd {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0 10px;
+    font-size: 13px;
+    font-weight: 700;
+}
+.cd-comments-hd span:last-child {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+}
+.cd-comment {
+    display: flex;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 0.5px solid var(--border);
+}
+.cd-comment .av {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-size: cover;
+    flex-shrink: 0;
+}
+.cd-comment .n { font-size: 12px; font-weight: 700; display: block; }
+.cd-comment .c { font-size: 12px; color: var(--text-secondary); line-height: 1.45; margin-top: 2px; }
+.cd-comment .t { font-size: 10px; color: var(--text-tertiary); margin-top: 4px; }
+.cd-compose {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0));
+    display: flex;
+    gap: 8px;
+    background: var(--bg-primary);
+    border-top: 0.5px solid var(--border);
+    z-index: 20;
+}
+.cd-compose input {
+    flex: 1;
+    height: 38px;
+    border: 0;
+    border-radius: 19px;
+    padding: 0 14px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 13px;
+}
+.cd-compose button {
+    height: 38px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 19px;
+    background: var(--brand-gradient);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+}
+</style>
+<link rel="stylesheet" href="../css/h5-light-theme.css">
+</head>
+<body>
+
+<div class="status-bar dark-mode">
+    <span class="time">9:41</span>
+    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+</div>
+<div class="nav-bar">
+    <div class="nav-left"><div class="nav-btn" data-back="subscriptions.html"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">内容详情</div>
+    <div class="nav-right"><div class="nav-btn" id="cdShare" title="分享"><i class="fa-solid fa-share-nodes"></i></div></div>
+</div>
+
+<div class="app-content cd-page">
+    <div class="cd-hero"><img id="cdHero" src="" alt=""></div>
+    <div class="cd-body">
+        <div class="cd-author" id="cdAuthorGo">
+            <img class="av" id="cdAuthorAv" src="" alt="">
+            <div class="meta">
+                <div class="n" id="cdAuthorName">创作者</div>
+                <div class="s">订阅创作者 · 图文动态</div>
+            </div>
+        </div>
+        <h1 class="cd-title" id="cdTitle">—</h1>
+        <p class="cd-desc" id="cdDesc">—</p>
+        <div class="cd-actions">
+            <button type="button" id="cdLike"><i class="fa-regular fa-heart"></i> 点赞 <span id="cdLikeCount">0</span></button>
+            <button type="button" id="cdSave"><i class="fa-regular fa-bookmark"></i> 收藏</button>
+            <button type="button" id="cdForward"><i class="fa-solid fa-share"></i> 转发</button>
+            <button type="button" id="cdReport"><i class="fa-regular fa-flag"></i> 举报</button>
+        </div>
+        <div class="cd-comments-hd">
+            <span>评论</span>
+            <span id="cdCommentTotal">0 条评论</span>
+        </div>
+        <div id="cdCommentList"></div>
+    </div>
+</div>
+
+<div class="cd-compose">
+    <input type="text" id="cdCommentInput" placeholder="说点什么…" autocomplete="off">
+    <button type="button" id="cdCommentSend">发送</button>
+</div>
+
+<div class="home-indicator"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var SAMPLE = [
+        { user: 'Aria', av: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80', text: '这个角度太绝了！能出一期后期教程吗？', time: '18 分钟前' },
+        { user: 'Neo', av: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=80', text: '已收藏，期待下一组 🙌', time: '32 分钟前' },
+        { user: 'BlockTrader', av: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80', text: '画面太美了，打赏支持！', time: '1 小时前' }
+    ];
+    function qs(id) { return document.getElementById(id); }
+    function params() { return new URLSearchParams(location.search || ''); }
+    function loadPayload() {
+        var p = {};
+        try {
+            p = JSON.parse(sessionStorage.getItem('gf_content_detail') || '{}');
+        } catch (e) { /* ignore */ }
+        var q = params();
+        if (q.get('title')) p.title = q.get('title');
+        if (q.get('from')) p.from = q.get('from');
+        return p;
+    }
+    function renderComments(list) {
+        var el = qs('cdCommentList');
+        if (!el) return;
+        el.innerHTML = list.map(function (c) {
+            return '<div class="cd-comment">' +
+                '<div class="av" style="background-image:url(\'' + c.av + '\')"></div>' +
+                '<div><span class="n">' + c.user + '</span><div class="c">' + c.text + '</div><div class="t">' + c.time + '</div></div></div>';
+        }).join('');
+        var total = qs('cdCommentTotal');
+        if (total) total.textContent = list.length + ' 条评论';
+    }
+    function toast(msg) {
+        if (window.DigitalH5Nav && window.DigitalH5Nav.toast) {
+            window.DigitalH5Nav.toast(msg);
+            return;
+        }
+        alert(msg);
+    }
+    var data = loadPayload();
+    var back = params().get('from') || 'subscriptions.html';
+    var backBtn = document.querySelector('[data-back]');
+    if (backBtn) backBtn.setAttribute('data-back', back);
+
+    var hero = qs('cdHero');
+    if (hero) hero.src = data.image || 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=1200&q=80';
+    if (qs('cdTitle')) qs('cdTitle').textContent = data.title || '图文详情';
+    if (qs('cdDesc')) qs('cdDesc').textContent = data.desc || '来自订阅动态的图文帖，支持查看完整内容、评论、点赞与打赏。';
+    if (qs('cdAuthorName')) qs('cdAuthorName').textContent = data.author || '创作者';
+    if (qs('cdAuthorAv')) qs('cdAuthorAv').src = data.authorAv || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80';
+    if (qs('cdLikeCount')) qs('cdLikeCount').textContent = data.likes || '0';
+    renderComments(SAMPLE);
+
+    var authorGo = qs('cdAuthorGo');
+    if (authorGo) {
+        authorGo.addEventListener('click', function () {
+            var u = data.author || '';
+            location.href = 'creator-profile.html?u=' + encodeURIComponent(u) + '&from=content-detail.html';
+        });
+    }
+    var likeBtn = qs('cdLike');
+    if (likeBtn) {
+        likeBtn.addEventListener('click', function () {
+            var on = likeBtn.classList.toggle('liked');
+            var ic = likeBtn.querySelector('i');
+            if (ic) ic.className = on ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+        });
+    }
+    var saveBtn = qs('cdSave');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function () {
+            saveBtn.classList.toggle('saved');
+            var ic = saveBtn.querySelector('i');
+            if (ic) ic.className = saveBtn.classList.contains('saved') ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark';
+        });
+    }
+    qs('cdForward')?.addEventListener('click', function () { toast('已复制分享链接（原型）'); });
+    qs('cdShare')?.addEventListener('click', function () { toast('已复制分享链接（原型）'); });
+    qs('cdReport')?.addEventListener('click', function () { toast('已提交举报（原型）'); });
+    qs('cdCommentSend')?.addEventListener('click', function () {
+        var inp = qs('cdCommentInput');
+        var t = (inp && inp.value || '').trim();
+        if (!t) return;
+        SAMPLE.unshift({ user: '我', av: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80', text: t, time: '刚刚' });
+        renderComments(SAMPLE);
+        if (inp) inp.value = '';
+    });
+})();
+</script>
+</body>
+</html>

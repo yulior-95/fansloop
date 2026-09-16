@@ -20,8 +20,16 @@ body {
 }
 .hero-type { font-size: 11px; color: var(--text-tertiary); letter-spacing: .6px; text-transform: uppercase; }
 .hero-amt { font-size: 38px; font-weight: 900; margin-top: 4px; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
-.hero-amt.inc { color: #6EE7B7; }
+.hero-amt.inc {
+    color: #6EE7B7;
+    text-shadow: 0 0 28px rgba(110,231,183,0.35);
+    animation: tdAmtGlow 2.8s ease-in-out infinite;
+}
 .hero-amt.out { color: #FCA5A5; }
+@keyframes tdAmtGlow {
+    0%, 100% { text-shadow: 0 0 18px rgba(110,231,183,0.25); }
+    50% { text-shadow: 0 0 32px rgba(110,231,183,0.45); }
+}
 .hero-sub { margin-top: 5px; font-size: 12px; color: var(--text-secondary); }
 .hero-st {
     margin-top: 10px; display: inline-flex; align-items: center; gap: 5px;
@@ -53,6 +61,20 @@ body {
     font-size: 11px; color: var(--brand-purple); border: 1px solid rgba(168,85,247,.35);
     background: rgba(168,85,247,.12); border-radius: 8px; padding: 5px 10px; cursor: pointer;
 }
+.gift-preview {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: 12px;
+    background: linear-gradient(135deg, rgba(236,72,153,.12), rgba(168,85,247,.08));
+    border: 1px solid rgba(236,72,153,.22);
+}
+.gift-preview .em {
+    width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
+    display: grid; place-items: center; font-size: 28px;
+    background: rgba(0,0,0,.2); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+}
+.gift-preview .tx .t { font-size: 15px; font-weight: 800; }
+.gift-preview .tx .s { margin-top: 3px; font-size: 11px; color: var(--text-tertiary); line-height: 1.45; }
+.nav-bar .nav-right { display: flex; gap: 4px; }
 .kv { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; font-size: 12px; }
 .kv + .kv { border-top: .5px solid rgba(255,255,255,.05); }
 .kv .k { color: var(--text-tertiary); }
@@ -102,7 +124,10 @@ body {
 <div class="nav-bar blur">
     <div class="nav-left"><div class="nav-btn" id="tdBackBtn" data-back="transactions.html"><i class="fa-solid fa-chevron-left"></i></div></div>
     <div class="nav-title">账变详情</div>
-    <div class="nav-right"></div>
+    <div class="nav-right">
+        <div class="nav-btn" id="tdShareBtn" title="分享海报"><i class="fa-solid fa-share-nodes"></i></div>
+        <div class="nav-btn" id="tdMoreBtn" title="更多"><i class="fa-solid fa-ellipsis"></i></div>
+    </div>
 </div>
 
 <div class="app-content">
@@ -124,6 +149,19 @@ body {
                     <div class="s" id="tdCpMeta"></div>
                 </div>
                 <button type="button" class="btn-mini" id="tdCpActionBtn">私信</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" id="tdGiftCard" hidden>
+        <div class="hd"><i class="fa-solid fa-gift"></i>礼物信息</div>
+        <div class="bd">
+            <div class="gift-preview">
+                <div class="em" id="tdGiftEmoji"></div>
+                <div class="tx">
+                    <div class="t" id="tdGiftTitle"></div>
+                    <div class="s" id="tdGiftSub"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -175,8 +213,9 @@ body {
             calc: [['礼物支付金额', '$15.00'], ['通道手续费', '-$0.00'], ['平台分成', '$0.00'], ['创作者实收', '+$15.00', true]],
             timeline: [['粉丝打赏成功', '09:28:01', true], ['平台确认收款', '09:28:03', true], ['收入到账可提现', '09:28:05', true]],
             chain: [['结算币种', 'USDT (TRC20)'], ['分账批次', 'B-20260423-0928-A17', true], ['入账账户', 'Creator Primary Wallet']],
+            gift: { emoji: '🚀', title: '超级火箭', sub: '直播间打赏 · 深夜电台 · 04期' },
             note: '该笔打赏收入已到账。如有争议可在 72 小时内发起申诉。',
-            primary: ['去提现', 'withdraw.html', 'fa-arrow-up-right-from-square']
+            primary: ['去提现', 'creator-withdraw.html', 'fa-arrow-up-right-from-square']
         },
         sub: {
             iconBg: 'linear-gradient(135deg,#A855F7,#7C3AED)',
@@ -188,7 +227,7 @@ body {
             timeline: [['订阅自动扣款', '08:12:09', true], ['平台确认订单', '08:12:11', true], ['收入到账', '08:12:12', true]],
             chain: [['结算币种', 'USDT (TRC20)'], ['订单流水', 'S-20260423-0812-09', true], ['入账账户', 'Creator Primary Wallet']],
             note: '订阅收入已到账并计入可提现余额。',
-            primary: ['去提现', 'withdraw.html', 'fa-arrow-up-right-from-square']
+            primary: ['去提现', 'creator-withdraw.html', 'fa-arrow-up-right-from-square']
         },
         recharge: {
             iconBg: 'linear-gradient(135deg,#10B981,#059669)',
@@ -214,7 +253,18 @@ body {
             note: '提现已完成到账。若目标地址错误，链上交易不可撤销。',
             primary: ['再提一笔', 'withdraw.html', 'fa-arrow-up-right-from-square']
         },
-        live: { alias: 'tip' },
+        live: {
+            iconBg: 'linear-gradient(135deg,#3B82F6,#1D4ED8)',
+            icon: 'fa-video', heroType: 'LIVE INCOME · 直播收入', amountClass: 'inc',
+            amount: '+$8.80', sub: '8.80 USDT · 直播付费门票入账', statusText: '已到账', statusClass: 'ok',
+            cp: { name: 'RivenStark', meta: '@rivenstark · 直播观众', action: '主页', go: 'creator-profile.html', avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=160&h=160&fit=crop&crop=faces' },
+            info: [['交易单号', order, true], ['交易类型', '直播付费门票'], ['交易时间', '2026-04-23 02:14:42'], ['直播间', '深夜电台 · 04期'], ['结算状态', '已到账，可提现']],
+            calc: [['门票支付金额', '$8.80'], ['平台分成', '-$0.00'], ['通道手续费', '-$0.00'], ['创作者实收', '+$8.80', true]],
+            timeline: [['观众购票成功', '02:14:42', true], ['平台确认订单', '02:14:45', true], ['收入到账', '02:14:46', true]],
+            chain: [['结算币种', 'USDT (TRC20)'], ['订单流水', 'L-20260423-0214-42', true], ['入账账户', 'Creator Primary Wallet']],
+            note: '直播门票收入已到账，可在直播数据中心查看对应场次。',
+            primary: ['去提现', 'creator-withdraw.html', 'fa-arrow-up-right-from-square']
+        },
         settle: { alias: 'sub' },
         fee: {
             iconBg: 'linear-gradient(135deg,#64748B,#475569)',
@@ -313,8 +363,47 @@ body {
             primary: ['查看联盟选品', 'affiliate-catalog.html', 'fa-bag-shopping']
         }
     };
+    function patchCfg(base, patch) {
+        if (!patch) return base;
+        var out = {};
+        Object.keys(base).forEach(function (k) {
+            out[k] = base[k];
+        });
+        Object.keys(patch).forEach(function (k) {
+            if (patch[k] && typeof patch[k] === 'object' && !Array.isArray(patch[k]) && out[k] && typeof out[k] === 'object' && !Array.isArray(out[k])) {
+                out[k] = patchCfg(out[k], patch[k]);
+            } else {
+                out[k] = patch[k];
+            }
+        });
+        return out;
+    }
+    var ORDER_PATCH = {
+        T20260423074516: {
+            amount: '+$9.00', sub: '9.00 USDT · 礼物打赏（入账中）', statusText: '入账中', statusClass: 'pending',
+            cp: { name: 'SophiaRose', meta: '@sophiarose · 粉丝', action: '私信', go: 'messages-chat.html?peer=SophiaRose', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&h=160&fit=crop&crop=faces' },
+            gift: { emoji: '🌹', title: '玫瑰花束 × 3', sub: '日常直播 · 预计 24 小时内到账' },
+            info: [['交易单号', 'T20260423074516', true], ['交易类型', '直播间打赏'], ['交易时间', '2026-04-23 07:45:16'], ['来源场景', '日常直播'], ['结算状态', '入账中']],
+            calc: [['礼物支付金额', '$9.00'], ['通道手续费', '-$0.00'], ['平台分成', '$0.00'], ['创作者实收（待结算）', '+$9.00', true]],
+            timeline: [['粉丝打赏成功', '07:45:16', true], ['平台确认收款', '07:45:18', true], ['收入到账可提现', '预计 24h 内', false]]
+        },
+        T20260422210831: {
+            amount: '+$20.00', sub: '20.00 USDT · 礼物打赏入账',
+            cp: { name: 'LilyBrooks', meta: '@lilybrooks · 粉丝', action: '私信', go: 'messages-chat.html?peer=LilyBrooks', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=160&h=160&fit=crop&crop=faces' },
+            gift: { emoji: '👑', title: '皇冠', sub: '美妆专场直播 · 2026-04-22 21:08' },
+            info: [['交易单号', 'T20260422210831', true], ['交易类型', '直播间打赏'], ['交易时间', '2026-04-22 21:08:31'], ['来源场景', '美妆专场'], ['结算状态', '已到账，可提现']],
+            calc: [['礼物支付金额', '$20.00'], ['通道手续费', '-$0.00'], ['平台分成', '$0.00'], ['创作者实收', '+$20.00', true]]
+        },
+        S20260422234108: {
+            amount: '+$25.00', sub: '25.00 USDT · 季度订阅入账',
+            cp: { name: 'NoahKlein', meta: '@noahklein · 季度订阅者', action: '主页', go: 'creator-profile.html', avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=160&h=160&fit=crop&crop=faces' },
+            info: [['交易单号', 'S20260422234108', true], ['交易类型', '订阅续费 · 季度'], ['交易时间', '2026-04-22 23:41:08'], ['订阅周期', '2026-04-22 ~ 2026-07-22'], ['结算状态', '已到账']],
+            calc: [['订阅支付金额', '$25.00'], ['平台分成', '-$0.00'], ['网络手续费', '-$0.00'], ['创作者实收', '+$25.00', true]]
+        }
+    };
     var cfg = MAP[type] || MAP.tip;
     if (cfg.alias) cfg = MAP[cfg.alias] || MAP.tip;
+    cfg = patchCfg(cfg, ORDER_PATCH[order]);
 
     function $(id) { return document.getElementById(id); }
     function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -327,8 +416,14 @@ body {
         if (from === 'search') backTo = 'transactions-search.html';
         if (from === 'funds-history') backTo = 'funds-history.html';
         if (from === 'wallet') backTo = 'wallet.html';
+        if (from === 'creator-income') backTo = 'creator-income.html';
         backBtn.setAttribute('data-back', backTo);
     }
+    var detailQuery = 'type=' + encodeURIComponent(type) + '&order=' + encodeURIComponent(order) + (from ? '&from=' + encodeURIComponent(from) : '');
+    var shareBtn = $('tdShareBtn');
+    var moreBtn = $('tdMoreBtn');
+    if (shareBtn) shareBtn.onclick = function () { location.href = 'transaction-share-poster.html?' + detailQuery; };
+    if (moreBtn) moreBtn.onclick = function () { location.href = 'transaction-more-menu.html?' + detailQuery; };
     function kvRows(rows) {
         return rows.map(function (r) {
             return '<div class="kv"><span class="k">' + esc(r[0]) + '</span><span class="v' + (r[2] ? ' mono' : '') + '">' + esc(r[1]) + (r[2] ? '<span class="copy" data-copy="' + esc(r[1]) + '"><i class="fa-regular fa-copy"></i></span>' : '') + '</span></div>';
@@ -355,7 +450,8 @@ body {
     $('tdHeroAmt').textContent = cfg.amount;
     $('tdHeroSub').textContent = cfg.sub;
     $('tdHeroStatus').className = 'hero-st ' + cfg.statusClass;
-    $('tdHeroStatus').innerHTML = '<i class="fa-solid fa-circle-check"></i><span>' + cfg.statusText + '</span>';
+    var stIcon = cfg.statusClass === 'pending' ? 'fa-clock' : (cfg.statusClass === 'fail' ? 'fa-circle-xmark' : 'fa-circle-check');
+    $('tdHeroStatus').innerHTML = '<i class="fa-solid ' + stIcon + '"></i><span>' + cfg.statusText + '</span>';
     $('tdInfoRows').innerHTML = kvRows(cfg.info || []);
     $('tdCalcRows').innerHTML = calcRows(cfg.calc || []);
     $('tdTimeline').innerHTML = timelineRows(cfg.timeline || []);
@@ -372,13 +468,25 @@ body {
         $('tdCounterpartyCard').style.display = 'none';
     }
 
+    var giftCard = $('tdGiftCard');
+    if (cfg.gift && giftCard) {
+        giftCard.hidden = false;
+        $('tdGiftEmoji').textContent = cfg.gift.emoji || '🎁';
+        $('tdGiftTitle').textContent = cfg.gift.title || '';
+        $('tdGiftSub').textContent = cfg.gift.sub || '';
+    } else if (giftCard) {
+        giftCard.hidden = true;
+    }
+
     if (!cfg.chain || !cfg.chain.length) $('tdChainCard').style.display = 'none';
 
     var p = cfg.primary || ['返回记录', 'transactions.html', 'fa-list-ul'];
     var btn = $('tdPrimaryBtn');
     btn.innerHTML = '<i class="fa-solid ' + p[2] + '"></i> ' + p[0];
     btn.onclick = function () { location.href = p[1]; };
-    $('tdAppealBtn').onclick = function () { location.href = 'transaction-appeal.html?order=' + encodeURIComponent(order); };
+    $('tdAppealBtn').onclick = function () {
+        location.href = 'transaction-appeal.html?order=' + encodeURIComponent(order) + (from ? '&from=' + encodeURIComponent(from) : '');
+    };
     $('tdSupportBtn').onclick = function () { location.href = 'transaction-contact.html'; };
 
     document.querySelectorAll('[data-copy]').forEach(function (el) {

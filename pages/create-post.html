@@ -55,6 +55,44 @@ textarea{min-height:100px;resize:vertical}
 .cat-col{background:var(--bg-inset);border:1px solid var(--border-color);border-radius:10px;max-height:220px;overflow:auto}
 .cat-opt{padding:8px 10px;font-size:12px;color:var(--text-secondary);cursor:pointer}
 .cat-opt.on{background:rgba(168,85,247,.18);color:var(--text-primary)}
+.nav-preview-btn{border:0;background:transparent;padding:8px 4px;font-size:13px;font-weight:600;color:var(--brand-purple);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.nav-preview-btn:active{opacity:.75}
+.post-preview-ovl{position:fixed;inset:0;z-index:200;background:var(--bg-primary);display:none;flex-direction:column;transform:translateY(8px);opacity:0;transition:transform .22s ease,opacity .22s ease}
+.post-preview-ovl.open{display:flex;transform:translateY(0);opacity:1}
+.post-preview-ovl .pp-top{display:flex;align-items:center;gap:8px;padding:calc(var(--status-bar-height) + 6px) 12px 10px;border-bottom:.5px solid var(--border-color);background:var(--bg-primary);flex-shrink:0}
+.post-preview-ovl .pp-top .pp-badge{font-size:10px;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(168,85,247,.16);border:1px solid rgba(168,85,247,.35);color:#c4b5fd}
+.post-preview-ovl .pp-view-seg{display:flex;gap:4px;padding:3px;border-radius:999px;background:var(--bg-inset);border:1px solid var(--border-color);margin-left:4px}
+.post-preview-ovl .pp-view-seg button{border:0;background:transparent;padding:5px 10px;border-radius:999px;font-size:11px;font-weight:600;color:var(--text-tertiary);cursor:pointer}
+.post-preview-ovl .pp-view-seg button.on{background:var(--bg-card);color:var(--text-primary);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.post-preview-ovl .pp-close{margin-left:auto;border:0;background:var(--bg-inset);color:var(--text-primary);font-size:12px;font-weight:600;padding:7px 12px;border-radius:999px;cursor:pointer;border:1px solid var(--border-color)}
+.post-preview-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:0 0 24px}
+.pp-author{display:flex;align-items:center;gap:10px;padding:14px 16px 10px}
+.pp-author .av{width:40px;height:40px;border-radius:50%;background-size:cover;background-position:center;flex-shrink:0}
+.pp-author .n{font-size:14px;font-weight:700}.pp-author .s{font-size:11px;color:var(--text-tertiary);margin-top:2px}
+.pp-carousel-wrap{position:relative;margin:0 16px}
+.pp-carousel{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;border-radius:12px;background:var(--bg-inset);scrollbar-width:none}
+.pp-carousel::-webkit-scrollbar{display:none}
+.pp-slide{flex:0 0 100%;scroll-snap-align:start;aspect-ratio:4/5;position:relative;overflow:hidden}
+.pp-slide img{width:100%;height:100%;object-fit:cover;display:block}
+.pp-slide.empty{display:grid;place-items:center;color:var(--text-tertiary);font-size:12px;padding:20px;text-align:center;line-height:1.5}
+.pp-lock{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(10,10,18,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;text-align:center;padding:16px}
+.pp-lock i{font-size:28px;color:#fbbf24}
+.pp-lock .ti{font-size:14px;font-weight:700}.pp-lock .sub{font-size:11px;opacity:.85;line-height:1.45;max-width:240px}
+.pp-dots{display:flex;justify-content:center;gap:6px;margin:10px 0 0}
+.pp-dots span{width:6px;height:6px;border-radius:50%;background:var(--border-strong);opacity:.45}
+.pp-dots span.on{width:16px;border-radius:999px;background:var(--brand-purple);opacity:1}
+.pp-body{padding:12px 16px 0}
+.pp-title{font-size:17px;font-weight:800;line-height:1.45;margin:0 0 8px}
+.pp-desc{font-size:13px;line-height:1.6;color:var(--text-secondary);margin:0 0 12px;white-space:pre-wrap}
+.pp-desc.empty{color:var(--text-tertiary);font-style:italic}
+.pp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.pp-chip{font-size:10px;font-weight:600;padding:4px 8px;border-radius:999px;border:1px solid var(--border-color);color:var(--text-secondary);background:var(--bg-inset)}
+.pp-chip.gold{border-color:rgba(245,193,108,.45);color:#f5c16c;background:rgba(245,193,108,.1)}
+.pp-chip.purple{border-color:rgba(168,85,247,.4);color:#c4b5fd;background:rgba(168,85,247,.12)}
+.pp-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px}
+.pp-actions button{height:36px;border-radius:10px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-tertiary);font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:not-allowed;opacity:.72}
+.pp-hint{font-size:11px;color:var(--text-tertiary);text-align:center;padding:12px 16px 0;line-height:1.5}
+body.post-preview-open{overflow:hidden}
 </style>
 <link rel="stylesheet" href="../css/h5-light-theme.css">
 <link rel="stylesheet" href="../css/h5-audience-perm.css">
@@ -65,7 +103,7 @@ textarea{min-height:100px;resize:vertical}
 <div class="nav-bar solid">
   <div class="nav-left"><div class="nav-btn" data-back="create.html"><i class="fa-solid fa-chevron-left"></i></div></div>
   <div class="nav-title">发布图文</div>
-  <div class="nav-right"><div style="font-size:13px;color:var(--brand-purple)">预览</div></div>
+  <div class="nav-right"><button type="button" class="nav-preview-btn" id="navPreviewBtn" aria-haspopup="dialog">预览</button></div>
 </div>
 <div class="app-content">
   <div class="upload" id="uploadRow"><div class="l"><i class="fa-regular fa-images" style="font-size:20px;color:#c084fc"></i><div><div style="font-size:13px;font-weight:700">添加图片</div><div style="font-size:11px;color:var(--text-tertiary)">点击上传，最多10张</div></div></div><button class="btn btn-secondary btn-sm">选择图片</button></div>
@@ -111,6 +149,39 @@ textarea{min-height:100px;resize:vertical}
 <div class="submit-bar"><button class="btn btn-ghost draft" id="saveDraftBtn">草稿</button><button class="btn btn-primary" id="publishBtn"><i class="fa-solid fa-paper-plane"></i> 提交审核并发布</button></div>
 
 <div class="cat-ovl" id="catOvl"><div class="cat-sheet"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><strong>选择内容类别</strong><button class="btn btn-secondary btn-sm" id="catCloseBtn">关闭</button></div><div class="cat-cols"><div class="cat-col" id="catCol1"></div><div class="cat-col" id="catCol2"></div><div class="cat-col" id="catCol3"></div></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-secondary" id="catClearBtn">清空</button><button class="btn btn-primary" id="catConfirmBtn">确认选择</button></div></div></div>
+
+<div class="post-preview-ovl" id="postPreviewOvl" role="dialog" aria-modal="true" aria-labelledby="ppTitle" aria-hidden="true">
+  <div class="pp-top">
+    <span class="pp-badge"><i class="fa-solid fa-eye"></i> 发布预览</span>
+    <div class="pp-view-seg" role="tablist" aria-label="预览视角">
+      <button type="button" class="on" data-pp-view="guest" role="tab" aria-selected="true">访客视角</button>
+      <button type="button" data-pp-view="member" role="tab" aria-selected="false">订阅者视角</button>
+    </div>
+    <button type="button" class="pp-close" id="postPreviewClose">关闭</button>
+  </div>
+  <div class="post-preview-scroll">
+    <div class="pp-author">
+      <div class="av" style="background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></div>
+      <div><div class="n">Luna 🌙</div><div class="s">刚刚 · 图文动态预览</div></div>
+    </div>
+    <div class="pp-carousel-wrap">
+      <div class="pp-carousel" id="ppCarousel"></div>
+    </div>
+    <div class="pp-dots" id="ppDots" hidden></div>
+    <div class="pp-body">
+      <h2 class="pp-title" id="ppTitle">未填写标题</h2>
+      <p class="pp-desc empty" id="ppDesc">暂无作品描述</p>
+      <div class="pp-chips" id="ppChips"></div>
+    </div>
+    <div class="pp-actions">
+      <button type="button" disabled><i class="fa-regular fa-heart"></i> 点赞</button>
+      <button type="button" disabled><i class="fa-regular fa-comment"></i> 评论</button>
+      <button type="button" disabled><i class="fa-regular fa-bookmark"></i> 收藏</button>
+      <button type="button" disabled><i class="fa-solid fa-share"></i> 分享</button>
+    </div>
+    <p class="pp-hint" id="ppHint">预览仅模拟发布后的展示；切换「访客 / 订阅者」可查看付费内容的锁定效果。</p>
+  </div>
+</div>
 
 <div class="home-indicator"></div>
 <script src="../js/digital-h5-nav.js"></script>
@@ -192,6 +263,117 @@ textarea{min-height:100px;resize:vertical}
   catOvl.onclick=function(e){ if(e.target===catOvl) catOvl.classList.remove('open'); };
   document.getElementById('saveDraftBtn').onclick=function(){ toast('已存草稿'); };
   document.getElementById('publishBtn').onclick=function(){ if(!images.length) return toast('请先上传至少1张图片'); if(!catPath[2]) return toast('请先选择内容类别'); toast('图文已提交审核并发布（原型）'); };
+
+  var postPreviewOvl=document.getElementById('postPreviewOvl');
+  var ppCarousel=document.getElementById('ppCarousel');
+  var ppDots=document.getElementById('ppDots');
+  var ppTitleEl=document.getElementById('ppTitle');
+  var ppDescEl=document.getElementById('ppDesc');
+  var ppChips=document.getElementById('ppChips');
+  var ppView='guest';
+
+  function permLabel(){
+    var sel=document.getElementById('permSelect');
+    if(sel&&sel.selectedOptions&&sel.selectedOptions[0]) return sel.selectedOptions[0].textContent;
+    var lbl=document.getElementById('permTriggerLabel');
+    return lbl?lbl.textContent:'所有人';
+  }
+  function monetizeState(){
+    var hasFree=moneyGrid.querySelector('[data-mode="free"]').classList.contains('on');
+    var hasSub=moneyGrid.querySelector('[data-mode="sub"]').classList.contains('on');
+    var hasPpv=moneyGrid.querySelector('[data-mode="ppv"]').classList.contains('on');
+    var ppvVal=parseFloat(document.getElementById('ppvPrice').value)||0;
+    return { hasFree:hasFree, hasSub:hasSub, hasPpv:hasPpv, ppvVal:ppvVal };
+  }
+  function shouldLockGuest(m){
+    if(m.hasFree&&!m.hasSub&&!m.hasPpv) return null;
+    if(m.hasPpv) return { type:'ppv', text:'付费解锁后可查看全部 '+images.length+' 张高清图', price:m.ppvVal };
+    if(m.hasSub) return { type:'sub', text:'订阅创作者后可查看全部图片与描述', price:0 };
+    return null;
+  }
+  function buildPreviewChips(m){
+    var chips=[];
+    if(m.hasFree) chips.push({ cls:'', label:'免费公开' });
+    if(m.hasSub) chips.push({ cls:'purple', label:'订阅专属' });
+    if(m.hasPpv) chips.push({ cls:'gold', label:'按篇 '+ (m.ppvVal||'—') +' USDT' });
+    chips.push({ cls:'', label:'可见 · '+permLabel() });
+    if(catPath[2]) chips.push({ cls:'', label:catPath.join(' / ') });
+    chips.push({ cls:'', label:allowComment?'允许评论':'评论已关' });
+    chips.push({ cls:'', label:allowShare?'允许分享':'分享已关' });
+    ppChips.innerHTML=chips.map(function(c){
+      return '<span class="pp-chip'+(c.cls?' '+c.cls:'')+'">'+c.label+'</span>';
+    }).join('');
+  }
+  function renderPreviewCarousel(lockInfo){
+    ppCarousel.innerHTML='';
+    var slides=images.length?images:[null];
+    slides.forEach(function(src,i){
+      var slide=document.createElement('div');
+      slide.className='pp-slide'+(src?'':' empty');
+      if(src){
+        slide.innerHTML='<img src="'+src+'" alt="预览图 '+(i+1)+'">';
+        if(lockInfo){
+          slide.innerHTML+='<div class="pp-lock"><i class="fa-solid fa-lock"></i><div class="ti">'+(lockInfo.type==='ppv'?'付费内容':'订阅专属')+'</div><div class="sub">'+lockInfo.text+'</div></div>';
+        }
+      }else{
+        slide.textContent='尚未上传图片，发布后此处将展示你的作品图集';
+      }
+      ppCarousel.appendChild(slide);
+    });
+    if(images.length>1){
+      ppDots.hidden=false;
+      ppDots.innerHTML=images.map(function(_,i){ return '<span'+(i===0?' class="on"':'')+'></span>'; }).join('');
+    }else ppDots.hidden=true;
+  }
+  function syncPreviewDots(){
+    if(!ppCarousel||ppDots.hidden) return;
+    var idx=Math.round(ppCarousel.scrollLeft/Math.max(1,ppCarousel.clientWidth));
+    ppDots.querySelectorAll('span').forEach(function(d,i){ d.classList.toggle('on',i===idx); });
+  }
+  function renderPostPreview(){
+    var t=(title.value||'').trim();
+    var d=(desc.value||'').trim();
+    ppTitleEl.textContent=t||'未填写标题';
+    ppDescEl.textContent=d||'暂无作品描述';
+    ppDescEl.classList.toggle('empty',!d);
+    var m=monetizeState();
+    buildPreviewChips(m);
+    var lock=ppView==='guest'?shouldLockGuest(m):null;
+    renderPreviewCarousel(lock);
+    var hint=document.getElementById('ppHint');
+    if(hint){
+      if(!images.length) hint.textContent='提示：上传图片后预览更接近真实发布效果；当前为占位展示。';
+      else if(lock) hint.textContent='访客视角下付费/订阅内容已模拟锁定；订阅者视角可查看完整图集。';
+      else hint.textContent='当前为公开内容，访客与订阅者看到的画面一致。互动按钮在预览中不可用。';
+    }
+  }
+  function openPostPreview(){
+    renderPostPreview();
+    postPreviewOvl.classList.add('open');
+    postPreviewOvl.setAttribute('aria-hidden','false');
+    document.body.classList.add('post-preview-open');
+  }
+  function closePostPreview(){
+    postPreviewOvl.classList.remove('open');
+    postPreviewOvl.setAttribute('aria-hidden','true');
+    document.body.classList.remove('post-preview-open');
+  }
+
+  document.getElementById('navPreviewBtn').onclick=function(){ openPostPreview(); };
+  document.getElementById('postPreviewClose').onclick=function(){ closePostPreview(); };
+  postPreviewOvl.querySelectorAll('[data-pp-view]').forEach(function(btn){
+    btn.onclick=function(){
+      ppView=btn.getAttribute('data-pp-view')||'guest';
+      postPreviewOvl.querySelectorAll('[data-pp-view]').forEach(function(b){
+        var on=b===btn;
+        b.classList.toggle('on',on);
+        b.setAttribute('aria-selected',on?'true':'false');
+      });
+      renderPostPreview();
+    };
+  });
+  if(ppCarousel) ppCarousel.addEventListener('scroll',function(){ syncPreviewDots(); },{passive:true});
+
   render();
 })();
 </script>

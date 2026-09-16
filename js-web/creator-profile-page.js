@@ -299,20 +299,8 @@
                 }
             });
         });
-        var entry = document.getElementById('cpShowcaseEntry');
-        if (entry) {
-            entry.addEventListener('click', function () { goShowcase(); });
-            entry.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    goShowcase();
-                }
-            });
-        }
         var btnShowcase = document.getElementById('cpBtnShowcase');
         if (btnShowcase) btnShowcase.addEventListener('click', function () { goShowcase(); });
-        var asideBtn = document.getElementById('cpAsideShowcaseBtn');
-        if (asideBtn) asideBtn.addEventListener('click', function () { goShowcase(); });
         try {
             var tab = new URLSearchParams(location.search).get('tab');
             if (tab === 'store' || tab === 'showcase') switchTab('showcase');
@@ -422,12 +410,47 @@
         return badgeData;
     }
 
+    function creatorReportId() {
+        var name = getCreatorName();
+        return 'creator-profile:' + String(name).replace(/\s+/g, '_').slice(0, 48);
+    }
+
+    function initCoverTools() {
+        var btnShare = document.getElementById('cpCoverBtnShare');
+        if (btnShare) {
+            btnShare.addEventListener('click', function () {
+                if (typeof global.FL_openInteractionModal === 'function') {
+                    global.FL_openInteractionModal('share-modal.html');
+                    return;
+                }
+                global.location.href = 'share-modal.html';
+            });
+        }
+        var btnReport = document.getElementById('cpCoverBtnReport');
+        if (btnReport) {
+            btnReport.addEventListener('click', function () {
+                var R = global.FL_ContentReport;
+                if (!R || typeof R.open !== 'function') {
+                    toast('举报功能暂不可用');
+                    return;
+                }
+                R.open({
+                    type: 'content',
+                    contentId: creatorReportId(),
+                    title: '举报创作者',
+                    contentTitle: getCreatorName()
+                });
+            });
+        }
+    }
+
     function init() {
         var levelData = initCreatorLevel();
         initTabs();
         initTipRank();
         syncTipStats();
         global.addEventListener('fl-tip-sent', syncTipStats);
+        initCoverTools();
 
         var btnDm = document.getElementById('cpBtnDm');
         if (btnDm) {

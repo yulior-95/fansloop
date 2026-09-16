@@ -76,6 +76,18 @@
 .profile-top .p-head .name {
     font-size: 22px; font-weight: 800;
     display: flex; align-items: center; gap: 6px;
+    min-width: 0;
+    max-width: 100%;
+}
+.profile-top .p-head .name #pfNameText {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.profile-top .p-head .name > i {
+    flex-shrink: 0;
 }
 .profile-top .p-head .id-row {
     margin-top: 4px;
@@ -1077,6 +1089,7 @@
     var pfEditName = document.getElementById('pfEditName');
     var pfEditBio = document.getElementById('pfEditBio');
     var pfNameText = document.getElementById('pfNameText');
+    if (pfNameText && pfNameText.textContent) pfNameText.setAttribute('title', pfNameText.textContent.trim());
     var pfBioText = document.getElementById('pfBioText');
     var pfInviteOvl = document.getElementById('pfInviteOvl');
     var pfPointsOvl = document.getElementById('pfPointsOvl');
@@ -1132,7 +1145,10 @@
         var name = pfEditName ? pfEditName.value.trim() : '';
         var bio = pfEditBio ? pfEditBio.value.trim() : '';
         if (!name) return toast('请输入昵称');
-        if (pfNameText) pfNameText.textContent = name;
+        if (pfNameText) {
+            pfNameText.textContent = name;
+            pfNameText.setAttribute('title', name);
+        }
         if (pfBioText) pfBioText.textContent = bio || '这个人很神秘，还没有填写签名。';
         close(pfEditOvl);
         toast('资料已更新');

@@ -909,9 +909,6 @@
         if (showGroupNotif && GROUP_NOTIFS.length) {
             html += renderNotifHubRow('group', GROUP_NOTIFS, '群聊通知', 'hub-group');
         }
-        if (showFriendNotif && STRANGER_DM_NOTIFS.length) {
-            html += renderNotifHubRow('stranger', STRANGER_DM_NOTIFS, '私信请求', 'hub-stranger');
-        }
 
         if (list.length) {
             list.forEach(function (t) {
@@ -1271,10 +1268,27 @@
         }
     }
 
-    function toggleSearch() {
-        state.searchOpen = !state.searchOpen;
+    function toggleSearch(force) {
+        if (typeof force === 'boolean') state.searchOpen = force;
+        else state.searchOpen = !state.searchOpen;
         if (el.searchPanel) el.searchPanel.classList.toggle('show', state.searchOpen);
-        if (state.searchOpen && el.searchInput) el.searchInput.focus();
+        if (state.searchOpen && el.searchInput) {
+            el.searchInput.focus();
+            runInChatSearch(el.searchInput.value.trim());
+        }
+    }
+
+    function startCall(kind) {
+        var t = findThread(state.activeId);
+        if (!t) {
+            toast('请先选择会话');
+            return;
+        }
+        if (t.kind === 'group') {
+            toast('群通话功能演示：可在群设置中发起');
+            return;
+        }
+        toast((kind === 'video' ? '视频' : '语音') + '通话：正在呼叫「' + t.name + '」…（演示）');
     }
 
     function runInChatSearch(q) {
@@ -1574,7 +1588,6 @@
             addMessage({ from: 'me', type: 'image', src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600' });
             toast('图片已发送（演示）');
         });
-        if (el.btnAttach) el.btnAttach.addEventListener('click', function () { toast('附件功能演示中'); });
         if (el.btnVoice) el.btnVoice.addEventListener('click', toggleVoiceRec);
         if (el.btnGift) el.btnGift.addEventListener('click', openGift);
         if (el.btnSharePost) {
@@ -1586,6 +1599,17 @@
 
         if (el.btnSearch) el.btnSearch.addEventListener('click', toggleSearch);
         if (el.searchInput) el.searchInput.addEventListener('input', function () { runInChatSearch(el.searchInput.value.trim()); });
+        if (el.searchHits) {
+            el.searchHits.addEventListener('click', function (e) {
+                var hit = e.target.closest('.hit');
+                if (!hit) return;
+                toast('已定位到匹配消息（演示）');
+            });
+        }
+        var btnCall = $('imBtnCall');
+        var btnVideo = $('imBtnVideo');
+        if (btnCall) btnCall.addEventListener('click', function () { startCall('voice'); });
+        if (btnVideo) btnVideo.addEventListener('click', function () { startCall('video'); });
 
         if (el.btnMore) el.btnMore.addEventListener('click', function (e) {
             e.stopPropagation();
@@ -1601,8 +1625,23 @@
                 hideDropdown();
                 var act = b.getAttribute('data-action');
                 var t = findThread(state.activeId);
-                if (act === 'remark') {
+                if (act === 'profile') {
+                    toggleInfoPanel(true);
+                } else if (act === 'media') {
+                    if (window.FL_openChatMedia) window.FL_openChatMedia();
+                    else toast('聊天文件（演示）');
+                } else if (act === 'search') {
+                    toggleSearch(true);
+                } else if (act === 'mute') {
+                    if (t) {
+                        t.muted = !t.muted;
+                        saveThreadMeta(t.id, { muted: t.muted });
+                        toast(t.muted ? '已开启消息免打扰' : '已关闭消息免打扰');
+                        renderHeader();
+                    }
+                } else if (act === 'remark') {
                     if (window.FL_openRemarkModal) window.FL_openRemarkModal();
+                    else toast('设置备注（演示）');
                 } else if (act === 'clear') {
                     if (t && window.confirm('清空与该用户的聊天记录？')) {
                         t.messages = [{ type: 'day', text: '今天' }];
@@ -1613,6 +1652,7 @@
                     if (t) deleteThread(t.id);
                 } else if (act === 'report') {
                     if (window.FL_openReportModal) window.FL_openReportModal();
+                    else toast('举报已提交（演示）');
                 }
             });
         }
@@ -1797,7 +1837,6 @@
         el.btnSend = $('imBtnSend');
         el.btnEmoji = $('imBtnEmoji');
         el.btnImage = $('imBtnImage');
-        el.btnAttach = $('imBtnAttach');
         el.btnVoice = $('imBtnVoice');
         el.btnGift = $('imBtnGift');
         el.btnSharePost = $('imBtnSharePost');

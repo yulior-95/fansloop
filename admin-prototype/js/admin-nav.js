@@ -143,6 +143,12 @@
       ]
     },
     {
+      title: "客服中心",
+      items: [
+        { key: "cs-support", href: "cs-support.html", icon: "fa-headset", label: "人工客服" }
+      ]
+    },
+    {
       title: "内容与运营",
       items: [
         { key: "content-categories", href: "content-categories.html", icon: "fa-sitemap", label: "平台内容类别管理" },

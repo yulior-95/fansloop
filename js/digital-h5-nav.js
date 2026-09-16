@@ -118,7 +118,8 @@
     }
 
     var TAB_BAR_ICON_STYLES = {
-        house: ['fa-solid fa-house', 'fa-regular fa-house'],
+        /* FA Free 无 regular 版 house，未选中用 solid + CSS 描边模拟线条 */
+        house: ['fa-solid fa-house', 'fa-solid fa-house'],
         heart: ['fa-solid fa-heart', 'fa-regular fa-heart'],
         message: ['fa-solid fa-message', 'fa-regular fa-message'],
         user: ['fa-solid fa-user', 'fa-regular fa-user'],

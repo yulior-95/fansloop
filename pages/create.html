@@ -267,6 +267,105 @@ body { background: var(--bg-primary); }
 .preview-title { font-size: 15px; font-weight: 700; }
 .preview-meta { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
 .preview-desc { font-size: 12px; color: var(--text-tertiary); margin-top: 8px; line-height: 1.55; }
+.preview-sheet .preview-hd-label { font-size: 14px; font-weight: 700; }
+.preview-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+}
+.preview-status.reviewing {
+    color: #FDE68A;
+    background: rgba(251,191,36,.14);
+    border: 1px solid rgba(251,191,36,.35);
+}
+.preview-status.rejected {
+    color: #FCA5A5;
+    background: rgba(239,68,68,.12);
+    border: 1px solid rgba(239,68,68,.35);
+}
+.preview-cat { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; line-height: 1.45; }
+.preview-carousel {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 12px;
+    gap: 8px;
+    margin-bottom: 10px;
+    scrollbar-width: none;
+}
+.preview-carousel::-webkit-scrollbar { display: none; }
+.preview-carousel .slide {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    aspect-ratio: 4/5;
+    border-radius: 12px;
+    background: var(--bg-inset) center/cover no-repeat;
+}
+.preview-video-stage {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 12px;
+    background: var(--bg-inset) center/cover no-repeat;
+    margin-bottom: 10px;
+    position: relative;
+    display: none;
+}
+.preview-video-stage.show { display: block; }
+.preview-video-stage .play {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(0,0,0,.28);
+}
+.preview-video-stage .play span {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.92);
+    display: grid;
+    place-items: center;
+    color: #111;
+    font-size: 18px;
+    padding-left: 3px;
+}
+.preview-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin: -4px 0 10px;
+}
+.preview-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    opacity: .45;
+}
+.preview-dots span.on {
+    width: 16px;
+    border-radius: 999px;
+    background: var(--brand-purple);
+    opacity: 1;
+}
+.preview-note {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 10px;
+    line-height: 1.5;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--bg-inset);
+    border: 1px solid var(--border-color);
+}
+.audit-row[data-pending-preview] .top { cursor: pointer; }
+.audit-row[data-pending-preview] .top:active { opacity: .85; }
 .draft-list-ovl {
     position: absolute;
     inset: 0;
@@ -421,25 +520,44 @@ body { background: var(--bg-primary); }
         <span class="title">待审核与不通过</span>
         <span class="badge" id="rejectCount">2 条</span>
     </div>
-    <div class="audit-row reviewing" data-reject-row>
-        <div class="top">
+    <div class="audit-row reviewing" data-reject-row data-pending-preview="1"
+         data-kind="image"
+         data-title="富士山日出 · 组图"
+         data-meta="图文 · 今天 09:12"
+         data-desc="五合目日出组图，待审核通过后对订阅者可见。"
+         data-category="视觉美学 / 写真摄影 / 艺术写真"
+         data-status="reviewing"
+         data-img1="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=900&q=80"
+         data-img2="https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=900&q=80"
+         data-img3="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=900&q=80">
+        <div class="top" data-action="preview-pending">
             <div class="t">富士山日出 · 组图</div>
             <i class="fa-solid fa-hourglass-half" style="color:#FBBF24"></i>
         </div>
         <div class="m">状态：审核中，暂不支持编辑，请等待审核结果</div>
         <div class="audit-actions">
-            <button class="audit-btn danger" data-action="cancel-reject">取消</button>
+            <button type="button" class="audit-btn" data-action="preview-pending">预览</button>
+            <button type="button" class="audit-btn danger" data-action="cancel-reject">取消</button>
         </div>
     </div>
-    <div class="audit-row" data-reject-row data-edit-go="create-video.html?from=reject">
-        <div class="top">
+    <div class="audit-row" data-reject-row data-pending-preview="1" data-edit-go="create-video.html?from=reject"
+         data-kind="video"
+         data-title="咖啡馆问答 Vol.4"
+         data-meta="视频 · 昨天 21:40"
+         data-desc="本期聊聊创作者如何定价订阅内容，并回答粉丝关于订阅档位、单独付费与免费试看的提问。"
+         data-category="创作者生活 / 日常分享 / 互动内容"
+         data-status="rejected"
+         data-reject-reason="含未授权背景音乐片段（00:42–01:15），请替换音轨或提供授权证明后重新提交。"
+         data-video-poster="https://images.unsplash.com/photo-1493612276216-ee3925520721?w=900&q=80">
+        <div class="top" data-action="preview-pending">
             <div class="t">咖啡馆问答 Vol.4</div>
             <i class="fa-solid fa-circle-xmark" style="color:#F87171"></i>
         </div>
         <div class="m">原因：含未授权背景音乐片段（00:42–01:15）</div>
         <div class="audit-actions">
-            <button class="audit-btn" data-action="edit-reject">去编辑</button>
-            <button class="audit-btn danger" data-action="cancel-reject">取消</button>
+            <button type="button" class="audit-btn" data-action="preview-pending">预览</button>
+            <button type="button" class="audit-btn" data-action="edit-reject">去编辑</button>
+            <button type="button" class="audit-btn danger" data-action="cancel-reject">取消</button>
         </div>
     </div>
 </div>
@@ -453,15 +571,21 @@ body { background: var(--bg-primary); }
 <div class="preview-ovl" id="draftPreviewOvl">
     <div class="preview-sheet">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <strong>草稿预览</strong>
-            <button class="audit-btn" style="flex:0 0 72px" id="previewCloseBtn">关闭</button>
+            <strong class="preview-hd-label" id="previewHdLabel">草稿预览</strong>
+            <button type="button" class="audit-btn" style="flex:0 0 72px" id="previewCloseBtn">关闭</button>
         </div>
+        <div id="previewStatusWrap" hidden><span class="preview-status reviewing" id="previewStatus"></span></div>
+        <div class="preview-video-stage" id="previewVideoStage"><div class="play"><span><i class="fa-solid fa-play"></i></span></div></div>
         <div class="preview-cover" id="previewCover"></div>
+        <div class="preview-carousel" id="previewCarousel" hidden></div>
+        <div class="preview-dots" id="previewDots" hidden></div>
         <div class="preview-title" id="previewTitle"></div>
         <div class="preview-meta" id="previewMeta"></div>
+        <div class="preview-cat" id="previewCat" hidden></div>
         <div class="preview-desc" id="previewDesc"></div>
-        <div style="display:flex;gap:8px;margin-top:12px">
-            <button class="audit-btn" id="previewEditBtn">去编辑</button>
+        <p class="preview-note" id="previewNote" hidden></p>
+        <div style="display:flex;gap:8px;margin-top:12px" id="previewFootActions">
+            <button type="button" class="audit-btn" id="previewEditBtn">去编辑</button>
         </div>
     </div>
 </div>
@@ -491,6 +615,15 @@ body { background: var(--bg-primary); }
     var previewMeta = document.getElementById('previewMeta');
     var previewDesc = document.getElementById('previewDesc');
     var previewEditBtn = document.getElementById('previewEditBtn');
+    var previewHdLabel = document.getElementById('previewHdLabel');
+    var previewStatusWrap = document.getElementById('previewStatusWrap');
+    var previewStatus = document.getElementById('previewStatus');
+    var previewVideoStage = document.getElementById('previewVideoStage');
+    var previewCarousel = document.getElementById('previewCarousel');
+    var previewDots = document.getElementById('previewDots');
+    var previewCat = document.getElementById('previewCat');
+    var previewNote = document.getElementById('previewNote');
+    var previewFootActions = document.getElementById('previewFootActions');
     var draftListOvl = document.getElementById('draftListOvl');
     var draftFullList = document.getElementById('draftFullList');
     var currentPreviewGo = '';
@@ -500,6 +633,112 @@ body { background: var(--bg-primary); }
         { type: 'post', title: '胶片私房摄影合集（18 张）', meta: '图文 · 18 图 · 昨天', desc: '胶片风主题图文草稿，已选封面与正文，待确认可见范围与价格。', cover: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200&q=80', go: 'create-post.html?from=draft' },
         { type: 'live', title: '周末爵士夜 · 直播预告', meta: '直播预告 · 3 天后开播 · 今天', desc: '已设置直播封面与预告文案，待确认门票和可见范围。', cover: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1200&q=80', go: 'create-live.html?mode=preview&from=draft' }
     ];
+
+    function collectRowImages(row) {
+        var urls = [];
+        ['data-img1', 'data-img2', 'data-img3', 'data-img4', 'data-img5'].forEach(function (attr) {
+            var u = row.getAttribute(attr);
+            if (u) urls.push(u);
+        });
+        return urls;
+    }
+    function syncPreviewDots() {
+        if (!previewCarousel || previewDots.hidden) return;
+        var idx = Math.round(previewCarousel.scrollLeft / Math.max(1, previewCarousel.clientWidth));
+        previewDots.querySelectorAll('span').forEach(function (d, i) {
+            d.classList.toggle('on', i === idx);
+        });
+    }
+    function openDraftPreviewSheet(opts) {
+        opts = opts || {};
+        var isPending = opts.mode === 'pending';
+        if (previewHdLabel) previewHdLabel.textContent = isPending ? '待审核预览' : '草稿预览';
+        if (previewCover) {
+            previewCover.style.display = 'none';
+            previewCover.style.backgroundImage = '';
+        }
+        if (previewCarousel) {
+            previewCarousel.hidden = true;
+            previewCarousel.innerHTML = '';
+        }
+        if (previewDots) previewDots.hidden = true;
+        if (previewVideoStage) {
+            previewVideoStage.classList.remove('show');
+            previewVideoStage.style.backgroundImage = '';
+        }
+        if (previewStatusWrap && previewStatus) {
+            if (isPending && opts.status) {
+                previewStatusWrap.hidden = false;
+                previewStatus.className = 'preview-status ' + (opts.status === 'reviewing' ? 'reviewing' : 'rejected');
+                previewStatus.innerHTML = opts.status === 'reviewing'
+                    ? '<i class="fa-solid fa-spinner fa-spin"></i> 审核中'
+                    : '<i class="fa-solid fa-circle-xmark"></i> 审核不通过';
+            } else {
+                previewStatusWrap.hidden = true;
+            }
+        }
+        if (previewCat) {
+            if (opts.category) {
+                previewCat.hidden = false;
+                previewCat.textContent = '类别 · ' + opts.category;
+            } else previewCat.hidden = true;
+        }
+        if (previewNote) {
+            if (isPending) {
+                previewNote.hidden = false;
+                previewNote.textContent = opts.status === 'reviewing'
+                    ? '此为提交审核后的发布效果预览；审核通过前粉丝端不可见，暂不支持编辑。'
+                    : (opts.rejectReason ? '驳回原因：' + opts.rejectReason + ' 预览仍展示你提交时的内容样式。' : '审核未通过，请修改后重新提交。');
+            } else previewNote.hidden = true;
+        }
+        previewTitle.textContent = opts.title || '';
+        previewMeta.textContent = opts.meta || '';
+        previewDesc.textContent = opts.desc || '';
+        if (opts.kind === 'video' && opts.videoPoster && previewVideoStage) {
+            previewVideoStage.style.backgroundImage = 'url("' + opts.videoPoster + '")';
+            previewVideoStage.classList.add('show');
+        } else if (opts.images && opts.images.length > 1 && previewCarousel) {
+            previewCarousel.hidden = false;
+            opts.images.forEach(function (src) {
+                var slide = document.createElement('div');
+                slide.className = 'slide';
+                slide.style.backgroundImage = 'url("' + src + '")';
+                previewCarousel.appendChild(slide);
+            });
+            previewDots.hidden = false;
+            previewDots.innerHTML = opts.images.map(function (_, i) {
+                return '<span' + (i === 0 ? ' class="on"' : '') + '></span>';
+            }).join('');
+        } else if (previewCover) {
+            previewCover.style.display = '';
+            var cover = (opts.images && opts.images[0]) || opts.cover || '';
+            previewCover.style.backgroundImage = cover ? 'url("' + cover + '")' : '';
+        }
+        currentPreviewGo = opts.editGo || '';
+        if (previewEditBtn) {
+            var hideEdit = isPending && opts.status === 'reviewing';
+            previewEditBtn.style.display = hideEdit ? 'none' : '';
+            previewEditBtn.textContent = isPending ? '去编辑' : '去编辑';
+        }
+        if (previewFootActions) previewFootActions.style.display = (isPending && opts.status === 'reviewing') ? 'none' : '';
+        previewOvl.classList.add('open');
+    }
+    function openPendingPreviewFromRow(row) {
+        if (!row || !row.getAttribute('data-pending-preview')) return;
+        openDraftPreviewSheet({
+            mode: 'pending',
+            kind: row.getAttribute('data-kind') || 'image',
+            title: row.getAttribute('data-title') || '',
+            meta: row.getAttribute('data-meta') || '',
+            desc: row.getAttribute('data-desc') || '',
+            category: row.getAttribute('data-category') || '',
+            status: row.getAttribute('data-status') || 'reviewing',
+            rejectReason: row.getAttribute('data-reject-reason') || '',
+            videoPoster: row.getAttribute('data-video-poster') || '',
+            images: collectRowImages(row),
+            editGo: row.getAttribute('data-edit-go') || ''
+        });
+    }
 
     function renderDraftFullList() {
         var rows = draftsData.filter(function (item) {
@@ -522,14 +761,20 @@ body { background: var(--bg-primary); }
     document.querySelectorAll('.draft-row[data-preview]').forEach(function(row){
         row.addEventListener('click', function(e){
             if (e.target.closest('.fa-ellipsis')) return;
-            currentPreviewGo = row.getAttribute('data-go') || '';
-            previewCover.style.backgroundImage = 'url("' + (row.getAttribute('data-cover') || '') + '")';
-            previewTitle.textContent = row.getAttribute('data-title') || '';
-            previewMeta.textContent = row.getAttribute('data-meta') || '';
-            previewDesc.textContent = row.getAttribute('data-desc') || '';
-            previewOvl.classList.add('open');
+            openDraftPreviewSheet({
+                mode: 'draft',
+                title: row.getAttribute('data-title') || '',
+                meta: row.getAttribute('data-meta') || '',
+                desc: row.getAttribute('data-desc') || '',
+                cover: row.getAttribute('data-cover') || '',
+                editGo: row.getAttribute('data-go') || ''
+            });
         });
     });
+
+    if (previewCarousel) {
+        previewCarousel.addEventListener('scroll', syncPreviewDots, { passive: true });
+    }
 
     document.getElementById('previewCloseBtn').addEventListener('click', function(){
         previewOvl.classList.remove('open');
@@ -568,12 +813,14 @@ body { background: var(--bg-primary); }
         if (!item) return;
         var op = btn.getAttribute('data-op');
         if (op === 'preview') {
-            currentPreviewGo = item.go;
-            previewCover.style.backgroundImage = 'url("' + item.cover + '")';
-            previewTitle.textContent = item.title;
-            previewMeta.textContent = item.meta;
-            previewDesc.textContent = item.desc;
-            previewOvl.classList.add('open');
+            openDraftPreviewSheet({
+                mode: 'draft',
+                title: item.title,
+                meta: item.meta,
+                desc: item.desc,
+                cover: item.cover,
+                editGo: item.go
+            });
             return;
         }
         if (op === 'edit') {
@@ -595,6 +842,19 @@ body { background: var(--bg-primary); }
     }
     syncRejectCount();
 
+    document.querySelectorAll('[data-action="preview-pending"]').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var row = btn.closest('[data-reject-row]');
+            openPendingPreviewFromRow(row);
+        });
+    });
+    document.querySelectorAll('[data-pending-preview] .top[data-action="preview-pending"]').forEach(function (top) {
+        top.addEventListener('click', function () {
+            openPendingPreviewFromRow(top.closest('[data-reject-row]'));
+        });
+    });
+
     document.querySelectorAll('[data-action="edit-reject"]').forEach(function(btn){
         btn.addEventListener('click', function(){
             var row = btn.closest('[data-reject-row]');
@@ -612,7 +872,7 @@ body { background: var(--bg-primary); }
             if (!row) return;
             row.remove();
             syncRejectCount();
-            toast('已取消该条不通过内容');
+            toast(row.classList.contains('reviewing') ? '已取消待审核投稿' : '已取消该条不通过内容');
         });
     });
 })();

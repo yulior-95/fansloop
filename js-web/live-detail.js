@@ -38,6 +38,48 @@
             : "NovaPlay";
     }
 
+    function openLiveCreatorProfile() {
+        var h =
+            window.LiveViewHost && window.LiveViewHost.getCurrent
+                ? window.LiveViewHost.getCurrent()
+                : null;
+        var name = h ? h.name : getHostName();
+        var params = new URLSearchParams();
+        params.set("user", name);
+        params.set("from", "live-detail.html");
+        if (h && h.slug) params.set("host", h.slug);
+        location.href = "creator-profile.html?" + params.toString();
+    }
+
+    (function wireCreatorStripProfile() {
+        var strip = document.querySelector(".creator-strip");
+        if (!strip) return;
+        var av = strip.querySelector(".av-ring");
+        var info = strip.querySelector(".info");
+        function go(e) {
+            e.preventDefault();
+            openLiveCreatorProfile();
+        }
+        if (av) {
+            av.setAttribute("role", "link");
+            av.setAttribute("title", "查看创作者主页");
+            av.setAttribute("tabindex", "0");
+            av.addEventListener("click", go);
+            av.addEventListener("keydown", function (e) {
+                if (e.key === "Enter" || e.key === " ") go(e);
+            });
+        }
+        if (info) {
+            info.setAttribute("role", "link");
+            info.setAttribute("title", "查看创作者主页");
+            info.setAttribute("tabindex", "0");
+            info.addEventListener("click", go);
+            info.addEventListener("keydown", function (e) {
+                if (e.key === "Enter" || e.key === " ") go(e);
+            });
+        }
+    })();
+
     function getLiveLink() {
         if (window.LiveViewHost && window.LiveViewHost.getCurrent) {
             var h = window.LiveViewHost.getCurrent();
@@ -204,18 +246,6 @@
                 return;
             }
             completeSubscribe();
-        });
-    }
-
-    /* 收藏 */
-    var btnBm = document.getElementById("btnBookmark");
-    if (btnBm) {
-        btnBm.addEventListener("click", function () {
-            var on = btnBm.classList.toggle("is-on");
-            btnBm.innerHTML = on
-                ? '<i class="fa-solid fa-bookmark"></i> 已收藏'
-                : '<i class="fa-regular fa-bookmark"></i> 收藏';
-            toast(on ? "已加入收藏" : "已取消收藏");
         });
     }
 
@@ -396,6 +426,9 @@
             btnVol.innerHTML = muted
                 ? '<i class="fa-solid fa-volume-xmark"></i>'
                 : '<i class="fa-solid fa-volume-high"></i>';
+            if (window.FLWebIcons && window.FLWebIcons.refresh) {
+                window.FLWebIcons.refresh(btnVol);
+            }
             toast(muted ? "已静音" : "已恢复音量");
         });
     }

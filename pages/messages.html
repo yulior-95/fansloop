@@ -55,7 +55,22 @@
     gap: 8px;
     padding: 0 12px;
 }
-.msg-search i { font-size: 12px; color: var(--text-tertiary); }
+.msg-search > i {
+    flex-shrink: 0;
+    width: 18px;
+    text-align: center;
+    font-size: 15px;
+    line-height: 1;
+    color: var(--text-tertiary);
+}
+.nav-bar .nav-btn > i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    line-height: 1;
+    pointer-events: none;
+}
 .msg-search input {
     flex: 1;
     min-width: 0;
@@ -78,28 +93,62 @@
     gap: 8px;
 }
 .msg-summary b { color: var(--text-primary); }
-.msg-actions {
-    margin: 0 16px 10px;
-    display: flex;
-    gap: 8px;
+.msg-compose-row {
+    margin: 0 16px 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
 }
-.msg-actions button {
-    flex: 1;
-    height: 32px;
-    border-radius: 16px;
+.msg-compose-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 11px;
+    border-radius: 12px;
     border: 1px solid var(--border-color);
     background: var(--bg-card);
-    color: var(--text-secondary);
-    font-size: 12px;
-    display: inline-flex;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    text-align: left;
+}
+.msg-compose-card:active { transform: scale(0.98); }
+.msg-compose-card .ic {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    font-size: 15px;
 }
-.msg-actions button.primary {
-    background: var(--brand-gradient);
-    color: #fff;
-    border-color: transparent;
+.msg-compose-card .ic.dm {
+    background: rgba(59, 130, 246, 0.14);
+    color: #60a5fa;
+}
+.msg-compose-card .ic.grp {
+    background: rgba(168, 85, 247, 0.16);
+    color: #c084fc;
+}
+.msg-compose-card .tx {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.msg-compose-card .tx b {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+.msg-compose-card .tx small {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* 快捷入口 */
@@ -182,6 +231,19 @@
     display: flex; align-items: center;
     gap: 6px;
 }
+.chat-hub-av {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    border: none;
+}
+.chat-hub-av--group {
+    background: linear-gradient(135deg, #10B981, #3B82F6);
+    color: #fff;
+}
+.chat-notif-hub { cursor: pointer; }
+.chat-notif-hub:active { background: var(--bg-elevated); }
 .chat-item .name {
     font-size: 14px;
     font-weight: 600;
@@ -328,9 +390,13 @@
 </div>
 
 <div class="nav-bar solid">
-    <div class="nav-left"><div class="nav-btn" id="btnMsgNavSearch" data-nav-search="1"><i class="fa-regular fa-magnifying-glass"></i></div></div>
+    <div class="nav-left">
+        <div class="nav-btn" id="btnMsgNavSearch" data-nav-search="1" aria-label="聚焦搜索">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        </div>
+    </div>
     <div class="nav-title">消息</div>
-    <div class="nav-right"><div class="nav-btn"><i class="fa-regular fa-pen-to-square"></i></div></div>
+    <div class="nav-right" aria-hidden="true"></div>
 </div>
 
 <div class="app-content">
@@ -341,23 +407,35 @@
         <span class="t" data-filter="group">群聊<span class="cnt" id="imlCntGroup">1</span></span>
     </div>
     <div class="msg-search">
-        <i class="fa-regular fa-magnifying-glass"></i>
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
         <input id="msgSearchInput" placeholder="搜索会话 / 文案关键词" />
     </div>
-    <div class="msg-actions">
-        <button type="button" id="btnAddContact"><i class="fa-solid fa-user-plus"></i>添加联系人</button>
-        <button type="button" class="primary" id="btnCreateGroup"><i class="fa-solid fa-user-group"></i>创建群聊</button>
+    <div class="msg-compose-row">
+        <button type="button" class="msg-compose-card" id="btnAddContact">
+            <span class="ic dm"><i class="fa-solid fa-comment-dots" aria-hidden="true"></i></span>
+            <span class="tx"><b>发起私聊</b><small>从互关好友开聊</small></span>
+        </button>
+        <button type="button" class="msg-compose-card" id="btnCreateGroup">
+            <span class="ic grp"><i class="fa-solid fa-users" aria-hidden="true"></i></span>
+            <span class="tx"><b>创建群聊</b><small>邀请多人会话</small></span>
+        </button>
     </div>
 
-    <div style="margin:0 16px 10px;display:flex;gap:8px">
-        <a href="messages-requests.html" style="flex:1;text-align:center;padding:8px;font-size:12px;background:var(--bg-card);border-radius:var(--radius-md);color:var(--text-secondary);text-decoration:none;border:1px solid var(--border-color)"><i class="fa-solid fa-inbox"></i> 消息请求 <span style="color:#EF4444;font-weight:700">3</span></a>
-    </div>
-
-    <div class="section-title" style="display:flex;align-items:center;justify-content:space-between">
-        <span>最近会话</span>
-        <a href="messages-requests.html" style="font-size:12px;color:var(--brand-purple);text-decoration:none">消息请求 · 3</a>
-    </div>
+    <div class="section-title">最近会话</div>
     <div class="chat-list">
+        <div class="chat-item chat-notif-hub" id="chatHubGroup" data-go="messages-group-inbox.html" role="button" tabindex="0" data-chat-type="hub">
+            <div class="avatar-box">
+                <div class="avatar avatar-md chat-hub-av chat-hub-av--group"><i class="fa-solid fa-users"></i></div>
+                <div class="unread" id="chatHubGroupBadge">12</div>
+            </div>
+            <div class="info">
+                <div class="row1">
+                    <span class="name">群聊通知</span>
+                    <i class="fa-solid fa-chevron-right" style="margin-left:auto;font-size:11px;color:var(--text-tertiary)"></i>
+                </div>
+                <div class="msg" id="chatHubGroupPreview">Luna VIP 摄影群 等 12 条进群邀请</div>
+            </div>
+        </div>
         <div class="chat-item" data-peer="Luna" data-chat-type="dm" data-text="已向你发送新的订阅专属视频">
             <div class="avatar-box">
                 <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80">

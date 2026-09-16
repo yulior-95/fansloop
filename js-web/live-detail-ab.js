@@ -317,6 +317,62 @@
         });
     });
 
+    function chatUserDisplayName(nmEl) {
+        if (!nmEl) return "";
+        var clone = nmEl.cloneNode(true);
+        clone.querySelectorAll(".badge").forEach(function (b) {
+            b.remove();
+        });
+        return (clone.textContent || "").replace(/\s+/g, " ").trim();
+    }
+
+    function openChatUserProfile(nmEl) {
+        var name = chatUserDisplayName(nmEl);
+        if (!name) return;
+        var params = new URLSearchParams();
+        params.set("user", name);
+        params.set("from", "live-detail-ab.html");
+        try {
+            var hostSlug = getHost().slug;
+            if (hostSlug) params.set("host", hostSlug);
+        } catch (e) { /* ignore */ }
+        location.href = "creator-profile.html?" + params.toString();
+    }
+
+    function openLiveHostProfile() {
+        var h = getHost();
+        if (!h || !h.name) return;
+        var params = new URLSearchParams();
+        params.set("user", h.name);
+        params.set("from", "live-detail-ab.html");
+        if (h.slug) params.set("host", h.slug);
+        location.href = "creator-profile.html?" + params.toString();
+    }
+
+    function decorateChatUserNm(nm) {
+        if (!nm) return;
+        nm.setAttribute("role", "link");
+        nm.setAttribute("title", "查看用户主页");
+        nm.setAttribute("tabindex", "0");
+    }
+
+    if (chatBody) {
+        chatBody.querySelectorAll(".ld-ab-msg .nm").forEach(decorateChatUserNm);
+        chatBody.addEventListener("click", function (e) {
+            var nm = e.target.closest(".ld-ab-msg .nm");
+            if (!nm) return;
+            e.preventDefault();
+            openChatUserProfile(nm);
+        });
+        chatBody.addEventListener("keydown", function (e) {
+            if (e.key !== "Enter" && e.key !== " ") return;
+            var nm = e.target.closest(".ld-ab-msg .nm");
+            if (!nm) return;
+            e.preventDefault();
+            openChatUserProfile(nm);
+        });
+    }
+
     /* 关注（主播 chip 内） */
     var followed = false;
     function toggleFollow(e) {
@@ -414,6 +470,7 @@
             user +
             '</span><span class="text"></span></div>';
         row.querySelector(".text").textContent = text;
+        decorateChatUserNm(row.querySelector(".nm"));
         chatBody.appendChild(row);
         applyChatTranslate();
         scrollChatToEnd();
@@ -770,8 +827,7 @@
     if (hostChip) {
         hostChip.addEventListener("click", function (e) {
             if (e.target.closest("#ldAbBtnFollow")) return;
-            var h = getHost();
-            if (h.slug) location.href = "creator-profile.html";
+            openLiveHostProfile();
         });
     }
 
@@ -796,6 +852,9 @@
             btnVol.innerHTML = muted
                 ? '<i class="fa-solid fa-volume-xmark"></i>'
                 : '<i class="fa-solid fa-volume-high"></i>';
+            if (window.FLWebIcons && window.FLWebIcons.refresh) {
+                window.FLWebIcons.refresh(btnVol);
+            }
             toast(muted ? "已静音" : "已恢复音量");
         });
     }
@@ -1100,6 +1159,7 @@
             '<div class="av" style="background-image:url(\'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80\')"></div>' +
             '<div class="body"><span class="nm">Luna 🌙</span><span class="text"></span></div>';
         row.querySelector(".text").textContent = text;
+        decorateChatUserNm(row.querySelector(".nm"));
         chatBody.appendChild(row);
         applyChatTranslate();
         scrollChatToEnd();

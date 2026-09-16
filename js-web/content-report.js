@@ -119,11 +119,12 @@
         document.body.appendChild(toastEl);
     }
 
-    function reasonHtml() {
+    function reasonHtml(radioName) {
+        radioName = radioName || 'flReportReason';
         return REASONS.map(function (r) {
             return (
                 '<label class="fl-report-reason' + (r.full ? ' is-full' : '') + '">' +
-                '<input type="radio" name="flReportReason" value="' + r.id + '">' +
+                '<input type="radio" name="' + radioName + '" value="' + r.id + '">' +
                 '<span>' + r.label + '</span></label>'
             );
         }).join('');
@@ -241,19 +242,16 @@
         document.body.classList.remove('fl-report-open');
     }
 
-    function submit() {
-        var checked = overlay && overlay.querySelector('input[name="flReportReason"]:checked');
-        if (!checked) {
-            showToast('请选择举报原因');
-            return;
-        }
-        var reasonId = checked.value;
-        var desc = (overlay.querySelector('#flReportDesc').value || '').trim();
-        var payload = {
+    function buildPayload(reasonId, desc, meta) {
+        meta = meta || {};
+        var contentId = meta.contentId != null ? String(meta.contentId) : state.contentId;
+        var contentTitle = meta.contentTitle != null ? meta.contentTitle : state.contentTitle;
+        var type = meta.type || state.type;
+        return {
             id: 'rpt-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-            contentId: state.contentId,
-            contentTitle: state.contentTitle || state.contentId || '未命名内容',
-            type: state.type,
+            contentId: contentId,
+            contentTitle: contentTitle || contentId || '未命名内容',
+            type: type,
             reason: reasonId,
             reasonLabel: reasonLabelOf(reasonId),
             desc: desc,
@@ -263,18 +261,57 @@
             handledAt: null,
             handledNote: ''
         };
+    }
+
+    function persistPayload(payload) {
         var logs = readLogs();
         logs.unshift(payload);
         writeLogs(logs);
+        if (payload.contentId) markReported(payload.contentId);
+    }
 
-        if (state.contentId) markReported(state.contentId);
-
-        var done = state.onDone;
-        close();
+    function submitReport(opts) {
+        opts = opts || {};
+        if (!opts.reason) {
+            var toastMissing = typeof opts.toast === 'function' ? opts.toast : showToast;
+            toastMissing('请选择举报原因');
+            return null;
+        }
+        if (typeof opts.toast === 'function') state.toastFn = opts.toast;
+        var desc = (opts.desc || '').trim();
+        var payload = buildPayload(opts.reason, desc, {
+            type: opts.type || 'content',
+            contentId: opts.contentId,
+            contentTitle: opts.contentTitle || opts.title || ''
+        });
+        persistPayload(payload);
+        var done = typeof opts.onDone === 'function' ? opts.onDone : null;
         showToast('提交成功');
         setTimeout(function () {
             if (done) done(payload);
         }, 280);
+        return payload;
+    }
+
+    function submit() {
+        var checked = overlay && overlay.querySelector('input[name="flReportReason"]:checked');
+        if (!checked) {
+            showToast('请选择举报原因');
+            return;
+        }
+        var reasonId = checked.value;
+        var desc = (overlay.querySelector('#flReportDesc').value || '').trim();
+        var done = state.onDone;
+        submitReport({
+            reason: reasonId,
+            desc: desc,
+            type: state.type,
+            contentId: state.contentId,
+            contentTitle: state.contentTitle,
+            toast: state.toastFn,
+            onDone: done
+        });
+        close();
     }
 
     /** 从内容类型推断举报标题类型 */
@@ -288,6 +325,8 @@
     global.FL_ContentReport = {
         open: open,
         close: close,
+        submitReport: submitReport,
+        reasonHtml: reasonHtml,
         isReported: isReported,
         markReported: markReported,
         filterReported: filterReported,
@@ -297,6 +336,7 @@
         reasonLabelOf: reasonLabelOf,
         resolveType: resolveType,
         REASONS: REASONS,
-        LOG_KEY: LOG_KEY
+        LOG_KEY: LOG_KEY,
+        TITLE_MAP: TITLE_MAP
     };
 })(window);

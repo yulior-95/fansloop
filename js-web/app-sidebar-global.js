@@ -751,6 +751,9 @@
             applySidebarIndicators(sidebar);
             applyAuthSidebarBottom();
             cacheSidebarShell(sidebar);
+            if (global.FLWebIcons && typeof global.FLWebIcons.refresh === 'function') {
+                global.FLWebIcons.refresh(sidebar);
+            }
         });
     }
 
@@ -1053,6 +1056,34 @@
         renderLivePip(null);
     };
 
+    function ensureWebIcons(cb) {
+        if (global.FLWebIcons) {
+            if (cb) cb();
+            return;
+        }
+        if (global.__flWebIconsBootLoading) {
+            global.addEventListener('fl-web-icons-ready', function once() {
+                global.removeEventListener('fl-web-icons-ready', once);
+                if (cb) cb();
+            });
+            return;
+        }
+        global.__flWebIconsBootLoading = true;
+        var base = detectScriptBase();
+        var s = document.createElement('script');
+        s.src = base + 'web-icons.js';
+        s.async = true;
+        s.onload = function () {
+            global.__flWebIconsBootLoading = false;
+            if (cb) cb();
+        };
+        s.onerror = function () {
+            global.__flWebIconsBootLoading = false;
+            if (cb) cb();
+        };
+        document.head.appendChild(s);
+    }
+
     function ensureResponsiveLayout() {
         var html = document.documentElement;
         if (global.FL_responsiveLayout || (html && html.getAttribute('data-fl-responsive-ready') === '1')) return;
@@ -1078,6 +1109,7 @@
         document.head.appendChild(s);
     }
 
+    ensureWebIcons();
     ensureResponsiveLayout();
     ensurePageBackNav();
 

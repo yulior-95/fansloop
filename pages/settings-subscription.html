@@ -2,127 +2,195 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>会员订阅设置</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
-<script src="../js/h5-theme-boot.js"></script>
-<style>
-.app-content { padding: calc(var(--status-bar-height) + var(--nav-bar-height) + 12px) 16px 100px; }
-.card {
-    background: var(--bg-card);
-    border-radius: 14px;
-    padding: 14px;
-    margin-bottom: 12px;
-}
-.card h3 { font-size: 14px; margin: 0 0 6px; }
-.card p { font-size: 11px; color: var(--text-tertiary); margin: 0 0 12px; line-height: 1.5; }
-.tier {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 10px; padding: 10px 0;
-    border-top: 0.5px solid var(--border-color);
-}
-.tier:first-of-type { border-top: 0; }
-.tier .n { font-size: 13px; font-weight: 600; }
-.tier .d { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
-.tier input {
-    width: 88px; height: 34px; border-radius: 10px;
-    border: 1px solid var(--border-strong);
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    padding: 0 8px; text-align: right; font-size: 13px; font-weight: 700;
-}
-.unit { font-size: 11px; color: var(--text-tertiary); }
-.hint { font-size: 11px; color: var(--danger-text); margin-top: 8px; display: none; }
-.hint.show { display: block; }
-.foot {
-    position: absolute; left: 0; right: 0; bottom: 0;
-    padding: 12px 16px 28px;
-    background: linear-gradient(180deg, transparent, var(--bg-primary) 28%);
-}
-.foot .btn { width: 100%; height: 44px; border: 0; border-radius: 22px; font-weight: 700; color: #fff; background: var(--brand-gradient); }
-</style>
+<link rel="stylesheet" href="../css/h5-settings-common.css">
 <link rel="stylesheet" href="../css/h5-light-theme.css">
+<script src="../js/h5-theme-boot.js"></script>
+
+<link rel="stylesheet" href="../css-web/settings-creator.css">
+<link rel="stylesheet" href="../css-web/subscribe-modal.css">
+<link rel="stylesheet" href="../css/h5-settings-subscription.css">
+<style>
+.nav-bar { background: var(--bg-primary); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 28px;
+}
+</style>
 </head>
-<body>
-<div class="status-bar"><span class="time">9:41</span><span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span></div>
+<body class="page-settings page-settings-h5 ">
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+</div>
 <div class="nav-bar solid">
-    <div class="nav-left" data-go="settings.html"><i class="fa-solid fa-chevron-left"></i></div>
+    <div class="nav-left"><div class="nav-btn" data-back="settings.html"><i class="fa-solid fa-chevron-left"></i></div></div>
     <div class="nav-title">会员订阅设置</div>
     <div class="nav-right"></div>
 </div>
-<div class="app-content">
-    <div class="card">
-        <h3>订阅周期与定价</h3>
-        <p>须满足月付 &lt; 季付 &lt; 年付；最低 5 USDT。保存后创建内容才可勾选「订阅专属」。</p>
-        <div class="tier">
-            <div><div class="n">月付</div><div class="d">主推档位</div></div>
-            <div style="display:flex;align-items:center;gap:6px"><input id="priceMonthly" type="number" min="5" step="1" placeholder="未设置"><span class="unit">USDT</span></div>
+<div class="app-content set-h5-main">
+
+    <div class="page-head" hidden aria-hidden="true"><button type="button" class="btn btn-primary">保存</button></div>
+    <div class="set-page-intro">
+        <p>配置订阅价格、权益与欢迎语，管理粉丝会员体系。</p>
+        <div class="intro-actions">
+            <button type="button" class="btn" onclick="location.href='profile.html'"><i class="fa-solid fa-eye"></i> 预览主页</button>
+            <button type="button" class="btn btn-primary" id="btnSubSaveTop"><i class="fa-solid fa-floppy-disk"></i> 保存</button>
         </div>
-        <div class="tier">
-            <div><div class="n">季付</div><div class="d">约省 11%</div></div>
-            <div style="display:flex;align-items:center;gap:6px"><input id="priceQuarterly" type="number" min="5" step="1" placeholder="未设置"><span class="unit">USDT</span></div>
+    </div>
+<div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background:linear-gradient(135deg,#F59E0B,#EC4899)"><i class="fa-solid fa-crown"></i></div>
+                        <div><h3>订阅周期与定价</h3><p>设置月付 / 季付 / 年付价格；订阅数据与收入统计请前往 <a href="creator-income.html" style="color:#C084FC">创作者收入</a></p></div>
+                    </div>
+                    <div class="body">
+                        <div class="tier-grid" id="tierGrid">
+                            <div class="tier-card active" data-tier="monthly" data-price="28" role="button" tabindex="0">
+                                <span class="tier-badge">当前主推</span>
+                                <div class="tier-name"><i class="fa-solid fa-calendar-day" style="color:#94A3B8"></i> 月付</div>
+                                <div class="tier-price" data-tier-price>28 <small>USDT/月</small></div>
+                                <ul>
+                                    <li><i class="fa-solid fa-check"></i> 灵活按月续订</li>
+                                    <li><i class="fa-solid fa-check"></i> 全部订阅专属内容与直播权益</li>
+                                    <li><i class="fa-solid fa-check"></i> 适合首次订阅的粉丝</li>
+                                </ul>
+                            </div>
+                            <div class="tier-card" data-tier="quarterly" data-price="75" role="button" tabindex="0">
+                                <div class="tier-name"><i class="fa-solid fa-calendar-week" style="color:#FBBF24"></i> 季付</div>
+                                <div class="tier-price" data-tier-price>75 <small>USDT/季</small></div>
+                                <ul>
+                                    <li><i class="fa-solid fa-check"></i> 一次付 3 个月，约省 11%</li>
+                                    <li><i class="fa-solid fa-check"></i> 权益与月付相同</li>
+                                    <li><i class="fa-solid fa-check"></i> 折合约 25 USDT/月</li>
+                                </ul>
+                            </div>
+                            <div class="tier-card" data-tier="annual" data-price="268" role="button" tabindex="0">
+                                <div class="tier-name"><i class="fa-solid fa-calendar" style="color:#C084FC"></i> 年付</div>
+                                <div class="tier-price" data-tier-price>268 <small>USDT/年</small></div>
+                                <ul>
+                                    <li><i class="fa-solid fa-check"></i> 一次付 12 个月，约省 20%</li>
+                                    <li><i class="fa-solid fa-check"></i> 权益与月付相同</li>
+                                    <li><i class="fa-solid fa-check"></i> 折合约 22.3 USDT/月</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="form-row" style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border)">
+                            <div class="label">
+                                <span id="subPriceLabel">月付价格</span>
+                                <div class="desc">须满足 <strong>月付 &lt; 季付 &lt; 年付</strong>（USDT 总价）；最低 5 USDT</div>
+                            </div>
+                            <div class="control">
+                                <div class="sub-price-control">
+                                    <input type="number" id="subPriceInput" value="28" min="5" step="1" style="max-width:120px" aria-describedby="subPriceHint">
+                                    <span id="subPriceUnit" style="font-size:13px;color:var(--t-secondary)">USDT / 月</span>
+                                </div>
+                                <p class="sub-price-hint" id="subPriceHint" role="alert" hidden></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background:linear-gradient(135deg,#10B981,#06B6D4)"><i class="fa-solid fa-gift"></i></div>
+                        <div><h3>试用与欢迎</h3><p>降低新粉丝订阅门槛，提升转化与留存</p></div>
+                    </div>
+                    <div class="body">
+                        <div class="set-row">
+                            <div class="row-ic" style="color:#6EE7B7"><i class="fa-solid fa-hourglass-half"></i></div>
+                            <div class="row-info"><div class="ti">7 天免费试用</div><div class="sub">新订阅者可免费体验 7 天，到期自动续费（可关闭）</div></div>
+                            <div class="row-action"><div class="switch on" id="trialSwitch"></div></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="label">欢迎消息<div class="desc">新订阅者加入后自动发送的私信</div></div>
+                            <div class="control">
+                                <textarea id="welcomeMsg">感谢你成为 Luna 的订阅者 🌙！这里有独家摄影日记、直播回放和幕后花絮。有任何想看的主题欢迎私信告诉我～</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="set-card">
+                    <div class="ssh">
+                        <div class="ic-circle" style="background:linear-gradient(135deg,#8B5CF6,#EC4899)"><i class="fa-solid fa-ticket"></i></div>
+                        <div><h3>优惠码</h3><p>创建限时折扣码，用于活动拉新或回馈老粉</p></div>
+                        <button type="button" class="btn btn-sm" id="btnNewPromo" style="margin-left:auto"><i class="fa-solid fa-plus"></i> 新建优惠码</button>
+                    </div>
+                    <div class="body" style="padding:0">
+                        <div class="promo-table-wrap"><table class="promo-table">
+                            <thead>
+                                <tr><th>代码</th><th>折扣</th><th>已用 / 上限</th><th>有效期</th><th>状态</th><th></th></tr>
+                            </thead>
+                            <tbody id="promoTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="tier">
-            <div><div class="n">年付</div><div class="d">约省 20%</div></div>
-            <div style="display:flex;align-items:center;gap:6px"><input id="priceAnnual" type="number" min="5" step="1" placeholder="未设置"><span class="unit">USDT</span></div>
+    </main>
+</div>
+
+
+</div>
+<div class="inline-overlay" id="ovlPromoEdit" aria-hidden="true">
+    <div class="iol-panel promo-edit-modal">
+        <div class="iol-head">
+            <h3 id="promoModalTitle">新建优惠码</h3>
+            <button type="button" class="iol-close" data-promo-close aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div class="hint hint-error" id="priceHint" role="alert"></div>
+        <div class="promo-form-body">
+            <div class="promo-field">
+                <label for="promoFormCode">优惠码</label>
+                <input type="text" id="promoFormCode" class="input" placeholder="如 LUNA20" maxlength="20" autocomplete="off">
+                <p class="promo-field-hint">大写字母与数字，粉丝订阅时输入相同代码</p>
+            </div>
+            <div class="promo-field">
+                <label for="promoFormType">折扣类型</label>
+                <select id="promoFormType" class="select">
+                    <option value="percent">首月折扣（如 8 折）</option>
+                    <option value="fixed_first">首月固定价</option>
+                </select>
+            </div>
+            <div class="promo-field">
+                <label for="promoFormValue" id="promoFormValueLabel">折扣力度</label>
+                <input type="number" id="promoFormValue" class="input" min="1" max="9" step="1" placeholder="8">
+                <p class="promo-field-hint" id="promoFormValueHint">填写 1–9 的数字，如 8 表示 8 折首月</p>
+            </div>
+            <div class="promo-field-row">
+                <div class="promo-field">
+                    <label for="promoFormMaxUses">使用上限</label>
+                    <input type="number" id="promoFormMaxUses" class="input" min="1" step="1" value="100">
+                </div>
+                <div class="promo-field">
+                    <label for="promoFormExpires">有效期</label>
+                    <input type="date" id="promoFormExpires" class="input">
+                </div>
+            </div>
+            <div class="promo-field">
+                <label for="promoFormStatus">状态</label>
+                <select id="promoFormStatus" class="select">
+                    <option value="active">启用</option>
+                    <option value="disabled">停用</option>
+                </select>
+            </div>
+        </div>
+        <div class="promo-form-foot">
+            <button type="button" class="btn btn-ghost btn-sm" id="btnPromoDelete" style="color:var(--danger-light);margin-right:auto"><i class="fa-solid fa-trash"></i> 删除</button>
+            <button type="button" class="btn btn-secondary" data-promo-close>取消</button>
+            <button type="button" class="btn btn-primary" id="btnPromoSave"><i class="fa-solid fa-floppy-disk"></i> 保存</button>
+        </div>
     </div>
 </div>
-<div class="foot"><button type="button" class="btn" id="saveBtn">保存会员订阅价格</button></div>
-<div class="home-indicator"></div>
-<script src="../js/digital-h5-nav.js"></script>
+<div id="promoToastHost" aria-live="polite"></div>
 <script src="../js/creator-subscription-store.js"></script>
-<script>
-(function () {
-    var m = document.getElementById('priceMonthly');
-    var q = document.getElementById('priceQuarterly');
-    var a = document.getElementById('priceAnnual');
-    var hint = document.getElementById('priceHint');
-    var saved = window.CreatorSubscriptionStore && CreatorSubscriptionStore.getTiers();
-    if (saved && saved.configured) {
-        if (saved.monthly) m.value = saved.monthly;
-        if (saved.quarterly) q.value = saved.quarterly;
-        if (saved.annual) a.value = saved.annual;
-    }
-    function toast(msg) {
-        if (window.DigitalH5Nav && DigitalH5Nav.toast) DigitalH5Nav.toast(msg);
-        else alert(msg);
-    }
-    document.getElementById('saveBtn').onclick = function () {
-        var monthly = parseFloat(m.value);
-        var quarterly = parseFloat(q.value) || 0;
-        var annual = parseFloat(a.value) || 0;
-        if (!(monthly >= 5)) {
-            hint.textContent = '请设置有效月付价格（最低 5 USDT）';
-            hint.classList.add('show');
-            return;
-        }
-        if (quarterly > 0 && !(monthly < quarterly)) {
-            hint.textContent = '月付须低于季付';
-            hint.classList.add('show');
-            return;
-        }
-        if (annual > 0 && quarterly > 0 && !(quarterly < annual)) {
-            hint.textContent = '季付须低于年付';
-            hint.classList.add('show');
-            return;
-        }
-        if (annual > 0 && !(monthly < annual)) {
-            hint.textContent = '月付须低于年付';
-            hint.classList.add('show');
-            return;
-        }
-        hint.classList.remove('show');
-        CreatorSubscriptionStore.saveTiers({ monthly: monthly, quarterly: quarterly || monthly * 3, annual: annual || monthly * 12 }, true);
-        toast('会员订阅价格已保存');
-    };
-    document.querySelector('[data-go]').onclick = function () {
-        if (window.DigitalH5Nav && DigitalH5Nav.go) DigitalH5Nav.go('settings.html');
-        else location.href = 'settings.html';
-    };
-})();
-</script>
+<script src="../js-web/creator-promo-codes-store.js"></script>
+<script src="../js-web/settings-subscription-page.js"></script>
+<script src="../js-web/settings-subscription-promo-page.js"></script>
+<script src="../js/h5-settings-subscription.js"></script>
+<script src="../js/h5-settings-common.js"></script>
+<script src="../js/digital-h5-nav.js"></script>
 </body>
 </html>

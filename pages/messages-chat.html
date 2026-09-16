@@ -73,15 +73,105 @@
     border-top: 0.5px solid var(--border-color);
     z-index: 20;
 }
-.mob-chat-bar .tools { display: flex; gap: 12px; margin-bottom: 8px; padding: 0 4px; }
-.mob-chat-bar .tools button {
-    font-size: 17px;
-    color: var(--text-secondary);
-    background: none;
-    border: 0;
-    padding: 0;
+.nav-bar.chat-nav .nav-title { display: none; }
+.chat-nav-center {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 6px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
-.mob-chat-bar .row { display: flex; gap: 8px; align-items: flex-end; }
+.chat-nav-center .chat-head-av {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1.5px solid rgba(168, 85, 247, 0.45);
+}
+.chat-nav-center .chat-head-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+}
+.nav-bar.chat-nav .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.nav-bar.chat-nav .nav-right .nav-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 15px;
+}
+.mob-chat-search {
+    display: none;
+    padding: 8px 12px;
+    border-bottom: 0.5px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+.mob-chat-search.show { display: block; }
+.mob-chat-search input {
+    width: 100%;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    padding: 0 12px;
+    font-size: 13px;
+    color: var(--text-primary);
+    outline: none;
+}
+.mob-chat-search .hint {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+    line-height: 1.4;
+}
+.mob-bub.is-dim { opacity: 0.35; }
+.mob-bub.is-hit { box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.55); }
+.mob-emoji-panel {
+    display: none;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 0 8px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+.mob-emoji-panel.show { display: flex; }
+.mob-emoji-panel button {
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--bg-card);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+.mob-chat-bar .row { display: flex; gap: 6px; align-items: flex-end; }
+.mob-chat-bar .bar-icon-btn {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 .mob-chat-bar textarea {
     flex: 1;
     min-height: 36px;
@@ -131,13 +221,24 @@
     </span>
 </div>
 
-<div class="nav-bar solid">
-    <div class="nav-left"><div class="nav-btn" data-back="messages.html"><i class="fa-solid fa-chevron-left"></i></div></div>
-    <div class="nav-title" id="chatTitle">Luna</div>
-    <div class="nav-right"></div>
+<div class="nav-bar solid chat-nav">
+    <div class="nav-left"><div class="nav-btn" data-back="messages.html" aria-label="返回"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="chat-nav-center" id="chatHeadProfile" role="button" tabindex="0" aria-label="查看用户主页">
+        <img class="chat-head-av" id="chatHeadAv" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80" alt="">
+        <span class="chat-head-name" id="chatTitle">Luna</span>
+    </div>
+    <div class="nav-right">
+        <div class="nav-btn" id="mobBtnChatSearch" aria-label="搜索聊天记录"><i class="fa-solid fa-magnifying-glass"></i></div>
+        <div class="nav-btn" id="mobBtnVoiceCall" aria-label="语音通话"><i class="fa-solid fa-phone"></i></div>
+        <div class="nav-btn" id="mobBtnVideoCall" aria-label="视频通话"><i class="fa-solid fa-video"></i></div>
+    </div>
 </div>
 
 <div class="mob-chat">
+    <div class="mob-chat-search" id="mobChatSearchPanel">
+        <input type="search" id="mobChatSearchInput" placeholder="搜索聊天记录…" autocomplete="off" enterkeyhint="search">
+        <div class="hint" id="mobChatSearchHint">输入关键词高亮匹配消息</div>
+    </div>
     <div class="dm-limit-banner" id="mobDmLimitBanner" hidden>
         <div class="t"><i class="fa-solid fa-lock"></i> 私信限制提示</div>
         <div id="mobDmLimitText">未互关且未订阅时，仅可发送首条私信；互关、订阅或对方回复后解除限制。</div>
@@ -146,12 +247,11 @@
 </div>
 
 <div class="mob-chat-bar">
-    <div class="tools">
-        <button type="button" title="表情"><i class="fa-regular fa-face-smile"></i></button>
-        <button type="button" title="图片"><i class="fa-regular fa-image"></i></button>
-        <button type="button" id="mobBtnGift" title="送礼"><i class="fa-solid fa-gift"></i></button>
-    </div>
+    <div class="mob-emoji-panel" id="mobEmojiPanel" aria-hidden="true"></div>
     <div class="row">
+        <button type="button" class="bar-icon-btn" id="mobBtnEmoji" aria-label="表情"><i class="fa-solid fa-face-smile"></i></button>
+        <button type="button" class="bar-icon-btn" id="mobBtnAttach" aria-label="图片" title="图片"><i class="fa-regular fa-image"></i></button>
+        <input type="file" id="mobChatFile" accept="image/*" multiple hidden>
         <textarea id="mobChatInput" placeholder="发消息…" rows="1"></textarea>
         <button type="button" class="voice-btn" id="mobBtnVoice" title="语音"><i class="fa-solid fa-microphone"></i></button>
         <button type="button" class="send-btn" id="mobChatSend">发送</button>

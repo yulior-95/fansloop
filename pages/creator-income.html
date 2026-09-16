@@ -483,6 +483,19 @@ body {
     display: flex; align-items: center; gap: 11px;
     padding: 11px 16px;
     border-top: 0.5px solid rgba(255,255,255,0.04);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s;
+}
+.detail-item:active { background: rgba(255,255,255,0.04); }
+.detail-item::after {
+    content: '\f054';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 9px;
+    color: var(--text-quaternary, rgba(255,255,255,0.22));
+    flex-shrink: 0;
+    margin-left: 2px;
 }
 .detail-item .av {
     width: 40px; height: 40px; border-radius: 50%;
@@ -831,7 +844,7 @@ body {
     <!-- ===== 收入明细 ===== -->
     <div class="sec-title">
         <div class="t"><i class="fa-solid fa-list-check"></i> 收入明细</div>
-        <span class="more">全部 <i class="fa-solid fa-chevron-right" style="font-size: 9px"></i></span>
+        <span class="more" id="incomeAllTxLink" role="button" tabindex="0">全部 <i class="fa-solid fa-chevron-right" style="font-size: 9px"></i></span>
     </div>
 
     <div class="detail-card">
@@ -844,7 +857,7 @@ body {
 
         <div class="detail-group-label">今天 · 2026-04-23</div>
 
-        <div class="detail-item">
+        <div class="detail-item" data-tx-type="tip" data-tx-order="T20260423092801" role="button" tabindex="0">
             <div class="av" style="background-image: url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&h=120&fit=crop&crop=faces')">
                 <span class="type-dot tip"><i class="fa-solid fa-gift"></i></span>
             </div>
@@ -858,7 +871,7 @@ body {
             </div>
         </div>
 
-        <div class="detail-item">
+        <div class="detail-item" data-tx-type="sub" data-tx-order="S20260423081209" role="button" tabindex="0">
             <div class="av" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&h=120&fit=crop&crop=faces')">
                 <span class="type-dot sub"><i class="fa-regular fa-heart"></i></span>
             </div>
@@ -872,7 +885,7 @@ body {
             </div>
         </div>
 
-        <div class="detail-item">
+        <div class="detail-item" data-tx-type="tip" data-tx-order="T20260423074516" role="button" tabindex="0">
             <div class="av" style="background-image: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&h=120&fit=crop&crop=faces')">
                 <span class="type-dot tip"><i class="fa-solid fa-gift"></i></span>
             </div>
@@ -886,7 +899,7 @@ body {
             </div>
         </div>
 
-        <div class="detail-item">
+        <div class="detail-item" data-tx-type="live" data-tx-order="L20260423021442" role="button" tabindex="0">
             <div class="av" style="background-image: url('https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=120&h=120&fit=crop&crop=faces')">
                 <span class="type-dot live"><i class="fa-solid fa-video"></i></span>
             </div>
@@ -902,7 +915,7 @@ body {
 
         <div class="detail-group-label">昨天 · 2026-04-22</div>
 
-        <div class="detail-item">
+        <div class="detail-item" data-tx-type="sub" data-tx-order="S20260422234108" role="button" tabindex="0">
             <div class="av" style="background-image: url('https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=120&h=120&fit=crop&crop=faces')">
                 <span class="type-dot sub"><i class="fa-regular fa-heart"></i></span>
             </div>
@@ -916,7 +929,7 @@ body {
             </div>
         </div>
 
-        <div class="detail-item">
+        <div class="detail-item" data-tx-type="tip" data-tx-order="T20260422210831" role="button" tabindex="0">
             <div class="av" style="background-image: url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&h=120&fit=crop&crop=faces')">
                 <span class="type-dot tip"><i class="fa-solid fa-gift"></i></span>
             </div>
@@ -974,5 +987,32 @@ body {
 
 <div class="home-indicator"></div>
 <script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    function openTxDetail(type, order) {
+        var q = 'transaction-detail.html?type=' + encodeURIComponent(type) +
+            '&order=' + encodeURIComponent(order) +
+            '&from=creator-income';
+        location.href = q;
+    }
+    document.querySelectorAll('.detail-item[data-tx-type]').forEach(function (row) {
+        function go() {
+            openTxDetail(row.getAttribute('data-tx-type'), row.getAttribute('data-tx-order'));
+        }
+        row.addEventListener('click', go);
+        row.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
+        });
+    });
+    var allLink = document.getElementById('incomeAllTxLink');
+    if (allLink) {
+        function goAll() { location.href = 'transactions.html'; }
+        allLink.addEventListener('click', goAll);
+        allLink.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goAll(); }
+        });
+    }
+})();
+</script>
 </body>
 </html>

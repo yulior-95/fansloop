@@ -29,6 +29,16 @@
       time: "09:58"
     },
     {
+      id: "cs-queue",
+      level: "high",
+      levelLabel: "高",
+      module: "人工客服",
+      title: "2 位用户排队转人工",
+      desc: "含订单咨询与提现未到账，建议 5 分钟内接入",
+      href: "cs-support.html",
+      time: "10:08"
+    },
+    {
       id: "withdraw-pending",
       level: "high",
       levelLabel: "高",

@@ -11,6 +11,79 @@
         { name: 'Aria', nick: '@aria_live', av: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&q=80' },
         { name: 'Kenji', nick: '@kenji_film', av: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&q=80' }
     ];
+    function peerProfileSlug(name) {
+        var i;
+        for (i = 0; i < CONTACTS.length; i++) {
+            if (CONTACTS[i].name === name) {
+                var nick = CONTACTS[i].nick || '';
+                return String(nick).replace(/^@/, '') || 'luna_web3';
+            }
+        }
+        if (name === 'Luna') return 'luna_web3';
+        return String(name || 'creator').toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_\u4e00-\u9fff]/gi, '');
+    }
+
+    var MOB_EMOJIS = ['😀', '😂', '🥰', '😎', '👍', '🙏', '🔥', '💜', '🎬', '📷', '✨', '🎉'];
+    var GROUP_INBOX_KEY = 'gf_h5_group_inbox_v1';
+
+    function defaultGroupInbox() {
+        var list = [
+            { id: 'gn1', host: 'Luna 🌙', groupName: 'Luna VIP 摄影群', preview: '邀请你加入订阅者专属群', time: '10 分钟前', members: 128 },
+            { id: 'gn2', host: 'Lens 旅记', groupName: '直播粉丝交流群', preview: '邀请你讨论本周直播', time: '1 小时前', members: 56 },
+            { id: 'gn3', host: '山野食光', groupName: '美食私域群', preview: '订阅者专属菜谱交流群', time: '2 小时前', members: 210 },
+            { id: 'gn4', host: '夜雨听弦', groupName: '播客听友群', preview: '每周直播复盘讨论', time: '3 小时前', members: 89 }
+        ];
+        var hosts = ['Nova Studio', '海风日记', '晨间咖啡', '云端书客', '东京夜跑团', '胶片少女', 'Mio_摄影', '阿Ken旅行'];
+        var i;
+        for (i = 0; i < hosts.length; i++) {
+            list.push({
+                id: 'gn' + (5 + i),
+                host: hosts[i],
+                groupName: hosts[i] + ' 粉丝群',
+                preview: '邀请你加入粉丝交流群',
+                time: (4 + i) + ' 小时前',
+                members: 40 + i * 17
+            });
+        }
+        return list;
+    }
+
+    function loadGroupInbox() {
+        try {
+            var raw = localStorage.getItem(GROUP_INBOX_KEY);
+            if (!raw) return defaultGroupInbox();
+            var parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed : defaultGroupInbox();
+        } catch (e) {
+            return defaultGroupInbox();
+        }
+    }
+
+    function saveGroupInbox(list) {
+        try {
+            localStorage.setItem(GROUP_INBOX_KEY, JSON.stringify(list));
+        } catch (e) { /* ignore */ }
+    }
+
+    function groupInboxPreview(list) {
+        if (!list.length) return '暂无进群邀请';
+        if (list.length === 1) return list[0].groupName;
+        return list[0].groupName + ' 等 ' + list.length + ' 条进群邀请';
+    }
+
+    function syncGroupHubOnMessagesPage() {
+        var list = loadGroupInbox();
+        var badge = document.getElementById('chatHubGroupBadge');
+        var preview = document.getElementById('chatHubGroupPreview');
+        var hub = document.getElementById('chatHubGroup');
+        if (badge) {
+            badge.textContent = list.length > 99 ? '99+' : String(list.length);
+            badge.style.display = list.length ? '' : 'none';
+        }
+        if (preview) preview.textContent = groupInboxPreview(list);
+        if (hub) hub.style.display = list.length ? '' : 'none';
+    }
+
     var PEERS = {
         Luna: {
             av: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80',
@@ -123,6 +196,7 @@
         }
 
         function chatTypeMatchesTab(cat, tab) {
+            if (cat === 'hub') return tab === 'all' || tab === 'group';
             if (tab === 'all') return true;
             if (tab === 'dm') return cat === 'dm';
             if (tab === 'group') return cat === 'group';
@@ -168,13 +242,6 @@
                 location.href = 'messages-chat.html?peer=' + encodeURIComponent(item.getAttribute('data-peer'));
             });
         });
-        var composeBtn = document.querySelector('.nav-right .nav-btn');
-        if (composeBtn) {
-            composeBtn.addEventListener('click', function () {
-                openOverlay(ovlAddContact);
-                refreshAddContacts();
-            });
-        }
         chips.forEach(function (chip) {
             chip.addEventListener('click', function () {
                 chips.forEach(function (c) { c.classList.remove('active'); });
@@ -241,7 +308,90 @@
                 toast('已创建群聊：' + gName);
             });
         }
+        syncGroupHubOnMessagesPage();
         applyFilter();
+    }
+
+    function initGroupInbox() {
+        var listEl = document.getElementById('giList');
+        var searchInp = document.getElementById('giSearch');
+        var navCount = document.getElementById('giNavCount');
+        var list = loadGroupInbox();
+
+        function toast(msg) {
+            if (window.DigitalH5Nav && DigitalH5Nav.toast) DigitalH5Nav.toast(msg);
+            else alert(msg);
+        }
+
+        function render() {
+            if (navCount) navCount.textContent = list.length ? '(' + list.length + ')' : '';
+            if (!listEl) return;
+            var q = String(searchInp && searchInp.value || '').trim().toLowerCase();
+            var filtered = list.filter(function (n) {
+                if (!q) return true;
+                var blob = (n.groupName + ' ' + n.host + ' ' + n.preview).toLowerCase();
+                return blob.indexOf(q) >= 0;
+            });
+            if (!filtered.length) {
+                listEl.innerHTML = '<div class="gi-empty"><i class="fa-regular fa-folder-open" style="font-size:28px;display:block;margin-bottom:10px;opacity:0.45"></i>暂无进群邀请</div>';
+                return;
+            }
+            listEl.innerHTML = filtered.map(function (n) {
+                return '<div class="gi-item" data-gi-id="' + n.id + '">' +
+                    '<div class="av"><i class="fa-solid fa-users"></i></div>' +
+                    '<div class="body">' +
+                    '<div class="name">' + n.groupName + '</div>' +
+                    '<div class="sub">' + n.preview + '</div>' +
+                    '<div class="meta">' + n.host + ' · ' + n.members + ' 人 · ' + n.time + '</div>' +
+                    '</div>' +
+                    '<div class="acts">' +
+                    '<button type="button" data-gi-reject="' + n.id + '">拒绝</button>' +
+                    '<button type="button" class="ok" data-gi-accept="' + n.id + '">同意</button>' +
+                    '</div></div>';
+            }).join('');
+        }
+
+        function removeById(id) {
+            list = list.filter(function (n) { return n.id !== id; });
+            saveGroupInbox(list);
+            render();
+        }
+
+        if (listEl) {
+            listEl.addEventListener('click', function (e) {
+                var accept = e.target.closest('[data-gi-accept]');
+                var reject = e.target.closest('[data-gi-reject]');
+                if (accept) {
+                    var idA = accept.getAttribute('data-gi-accept');
+                    var item = list.filter(function (n) { return n.id === idA; })[0];
+                    removeById(idA);
+                    toast(item ? '已加入「' + item.groupName + '」' : '已同意');
+                    return;
+                }
+                if (reject) {
+                    removeById(reject.getAttribute('data-gi-reject'));
+                    toast('已拒绝');
+                }
+            });
+        }
+        if (searchInp) searchInp.addEventListener('input', render);
+        document.getElementById('giRejectAll')?.addEventListener('click', function () {
+            if (!list.length) { toast('暂无待处理邀请'); return; }
+            if (!window.confirm('拒绝全部 ' + list.length + ' 条进群邀请？')) return;
+            list = [];
+            saveGroupInbox(list);
+            render();
+            toast('已全部拒绝');
+        });
+        document.getElementById('giAcceptAll')?.addEventListener('click', function () {
+            if (!list.length) { toast('暂无待处理邀请'); return; }
+            var n = list.length;
+            list = [];
+            saveGroupInbox(list);
+            render();
+            toast('已同意 ' + n + ' 条邀请');
+        });
+        render();
     }
 
     function initChat() {
@@ -262,7 +412,17 @@
         var dmLimited = !isGroup && !rel.mutual && !rel.subscribed;
 
         var title = document.getElementById('chatTitle');
-        if (title) title.textContent = isGroup ? (groupTitles[groupSlug] || '群聊') : name;
+        var headAv = document.getElementById('chatHeadAv');
+        var headProfile = document.getElementById('chatHeadProfile');
+        var displayName = isGroup ? (groupTitles[groupSlug] || '群聊') : name;
+        if (title) title.textContent = displayName;
+        if (headAv) {
+            if (isGroup) {
+                headAv.src = 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=120&q=80';
+            } else {
+                headAv.src = data.av || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&q=80';
+            }
+        }
         var limitBanner = document.getElementById('mobDmLimitBanner');
         var limitText = document.getElementById('mobDmLimitText');
         var sentCount = 0;
@@ -289,11 +449,16 @@
         var list = document.getElementById('mobMsgList');
         if (!list) return;
 
-        list.innerHTML = data.messages.map(function (msg) {
+        function renderBubbleHtml(msg) {
             var cls = 'mob-bub' + (msg.from === 'me' ? ' me' : '');
-            if (msg.image) return '<div class="' + cls + '"><img src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=400" style="max-width:200px;border-radius:12px;display:block"><div style="font-size:11px;margin-top:4px;opacity:0.7">' + msg.time + '</div></div>';
-            return '<div class="' + cls + '">' + msg.text + '<div style="font-size:11px;margin-top:4px;opacity:0.7">' + msg.time + '</div></div>';
-        }).join('');
+            var textKey = (msg.text || '').toLowerCase();
+            if (msg.image) {
+                var src = msg.imageSrc || 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=400';
+                return '<div class="' + cls + '" data-msg-text="' + textKey + '"><img src="' + src + '" style="max-width:200px;border-radius:12px;display:block"><div style="font-size:11px;margin-top:4px;opacity:0.7">' + msg.time + '</div></div>';
+            }
+            return '<div class="' + cls + '" data-msg-text="' + textKey + '">' + msg.text + '<div style="font-size:11px;margin-top:4px;opacity:0.7">' + msg.time + '</div></div>';
+        }
+        list.innerHTML = data.messages.map(renderBubbleHtml).join('');
 
         if (/[?&]shared=creator(?:&|$)/.test(location.search)) {
             var preview = null;
@@ -326,6 +491,22 @@
             }
             alert(msg);
         }
+        function openPeerProfile() {
+            if (isGroup) {
+                toast('群资料页演示');
+                return;
+            }
+            location.href = 'creator-profile.html?u=' + encodeURIComponent(peerProfileSlug(name)) + '&from=messages-chat';
+        }
+        if (headProfile) {
+            headProfile.addEventListener('click', openPeerProfile);
+            headProfile.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openPeerProfile();
+                }
+            });
+        }
         function sendMsg() {
             var t = (input && input.value || '').trim();
             if (!t) return;
@@ -336,6 +517,7 @@
             }
             var bub = document.createElement('div');
             bub.className = 'mob-bub me';
+            bub.setAttribute('data-msg-text', t.toLowerCase());
             bub.innerHTML = t + '<div style="font-size:11px;margin-top:4px;opacity:0.7">刚刚</div>';
             list.appendChild(bub);
             input.value = '';
@@ -358,15 +540,109 @@
             if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
         });
 
-        document.getElementById('mobBtnGift')?.addEventListener('click', function () {
-            alert('打开送礼（移动端演示）');
-        });
         document.getElementById('mobBtnVoice')?.addEventListener('click', function () {
             toast('按住说话（原型演示）');
         });
+
+        var searchPanel = document.getElementById('mobChatSearchPanel');
+        var searchInput = document.getElementById('mobChatSearchInput');
+        var searchHint = document.getElementById('mobChatSearchHint');
+        var searchOpen = false;
+        function applyChatSearch(q) {
+            q = String(q || '').trim().toLowerCase();
+            var bubs = list.querySelectorAll('.mob-bub');
+            var hits = 0;
+            bubs.forEach(function (b) {
+                var txt = b.getAttribute('data-msg-text') || b.textContent.toLowerCase();
+                var ok = !q || txt.indexOf(q) >= 0;
+                b.classList.toggle('is-dim', !!q && !ok);
+                b.classList.toggle('is-hit', !!q && ok);
+                if (ok && q) hits += 1;
+            });
+            if (searchHint) {
+                searchHint.textContent = !q
+                    ? '输入关键词高亮匹配消息'
+                    : (hits ? '找到 ' + hits + ' 条相关消息' : '无匹配结果');
+            }
+        }
+        document.getElementById('mobBtnChatSearch')?.addEventListener('click', function () {
+            searchOpen = !searchOpen;
+            if (searchPanel) searchPanel.classList.toggle('show', searchOpen);
+            if (searchOpen && searchInput) {
+                searchInput.focus();
+            } else if (searchInput) {
+                searchInput.value = '';
+                applyChatSearch('');
+            }
+        });
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                applyChatSearch(searchInput.value);
+            });
+        }
+
+        document.getElementById('mobBtnVoiceCall')?.addEventListener('click', function () {
+            toast('正在呼叫 ' + displayName + '（语音通话演示）');
+        });
+        document.getElementById('mobBtnVideoCall')?.addEventListener('click', function () {
+            toast('正在发起与 ' + displayName + ' 的视频通话（演示）');
+        });
+
+        var emojiPanel = document.getElementById('mobEmojiPanel');
+        var emojiOpen = false;
+        if (emojiPanel) {
+            emojiPanel.innerHTML = MOB_EMOJIS.map(function (em) {
+                return '<button type="button" data-em="' + em + '">' + em + '</button>';
+            }).join('');
+            emojiPanel.addEventListener('click', function (e) {
+                var btn = e.target.closest('button[data-em]');
+                if (!btn || !input) return;
+                input.value += btn.getAttribute('data-em');
+                input.focus();
+            });
+        }
+        document.getElementById('mobBtnEmoji')?.addEventListener('click', function () {
+            emojiOpen = !emojiOpen;
+            if (emojiPanel) {
+                emojiPanel.classList.toggle('show', emojiOpen);
+                emojiPanel.setAttribute('aria-hidden', emojiOpen ? 'false' : 'true');
+            }
+        });
+
+        var fileInput = document.getElementById('mobChatFile');
+        document.getElementById('mobBtnAttach')?.addEventListener('click', function () {
+            if (dmLimited && sentCount >= 1 && !hasReply) {
+                toast('当前仅可发送首条私信');
+                return;
+            }
+            if (fileInput) fileInput.click();
+        });
+        if (fileInput) {
+            fileInput.addEventListener('change', function () {
+                var files = fileInput.files;
+                if (!files || !files.length) return;
+                Array.prototype.forEach.call(files, function (file) {
+                    if (!file.type || file.type.indexOf('image/') !== 0) return;
+                    var url = URL.createObjectURL(file);
+                    var bubImg = document.createElement('div');
+                    bubImg.className = 'mob-bub me';
+                    bubImg.setAttribute('data-msg-text', file.name.toLowerCase());
+                    bubImg.innerHTML = '<img src="' + url + '" style="max-width:200px;border-radius:12px;display:block" alt="">' +
+                        '<div style="font-size:11px;margin-top:4px;opacity:0.7">刚刚 · 图片</div>';
+                    list.appendChild(bubImg);
+                    sentCount += 1;
+                });
+                list.scrollTop = list.scrollHeight;
+                syncLimitBanner();
+                toast('已发送 ' + files.length + ' 张图片');
+                fileInput.value = '';
+            });
+        }
+
         syncLimitBanner();
     }
 
     if (document.body.getAttribute('data-page') === 'messages-inbox') initInbox();
+    if (document.body.getAttribute('data-page') === 'messages-group-inbox') initGroupInbox();
     if (document.body.getAttribute('data-page') === 'messages-chat') initChat();
 })();

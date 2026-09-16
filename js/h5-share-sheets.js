@@ -52,6 +52,10 @@
             [mainSheet, dmSheet, groupSheet].forEach(function (el) {
                 if (el) el.classList.remove('show');
             });
+            var subSheet = document.getElementById('cpSubscribeSheet');
+            if (subSheet) subSheet.classList.remove('show');
+            var tipSheet = document.getElementById('cpTipSheet');
+            if (tipSheet) tipSheet.classList.remove('show');
         }
 
         function openMain() {

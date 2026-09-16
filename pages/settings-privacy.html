@@ -2,96 +2,27 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>隐私设置</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/h5-settings-privacy.css">
 <script src="../js/h5-theme-boot.js"></script>
 <style>
 .nav-bar { background: var(--bg-primary); }
-.app-content { padding-top: calc(var(--status-bar-height) + var(--nav-bar-height)); padding-bottom: 22px; }
-.head {
-    margin: 10px 16px 12px;
-    padding: 14px;
-    border-radius: 14px;
-    border: 1px solid var(--border-color);
-    background: linear-gradient(135deg, rgba(239,68,68,.12), rgba(168,85,247,.08));
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 24px;
 }
-.crumb { font-size: 11px; color: var(--text-tertiary); display: flex; gap: 6px; align-items: center; }
-.title { margin-top: 8px; font-size: 18px; font-weight: 800; }
-.sub { margin-top: 4px; font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
-.head-btn {
-    margin-top: 10px;
-    height: 32px;
-    border-radius: 999px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-card);
-    color: #fff;
-    font-size: 12px;
-    padding: 0 12px;
+body.page-settings-h5 .pri-row .row-action.switch-row {
+    display: flex;
+    justify-content: flex-end;
+    overflow: visible;
 }
-.card {
-    margin: 0 16px 12px;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-card);
-    overflow: hidden;
-}
-.card .hd {
-    padding: 12px;
-    border-bottom: 1px solid rgba(255,255,255,.05);
-    font-size: 13px;
-    font-weight: 700;
-}
-.row { padding: 12px; border-bottom: 1px solid rgba(255,255,255,.05); }
-.row:last-child { border-bottom: 0; }
-.row .t { font-size: 12px; font-weight: 700; }
-.row .d { margin-top: 4px; font-size: 11px; color: var(--text-tertiary); line-height: 1.45; }
-.seg {
-    margin-top: 8px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-}
-.seg button {
-    height: 32px;
-    border-radius: 999px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-primary);
-    color: var(--text-secondary);
-    font-size: 11px;
-}
-.seg button.active {
-    color: #fff;
-    border-color: rgba(168,85,247,.5);
-    background: rgba(168,85,247,.2);
-}
-.sw {
-    margin-top: 8px;
-    width: 46px;
-    height: 26px;
-    border-radius: 999px;
-    background: rgba(255,255,255,.15);
-    border: 1px solid rgba(255,255,255,.2);
-    position: relative;
-    cursor: pointer;
-}
-.sw::after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #fff;
-    transition: .2s;
-}
-.sw.on { background: rgba(16,185,129,.45); border-color: rgba(16,185,129,.5); }
-.sw.on::after { left: 22px; }
 </style>
 <link rel="stylesheet" href="../css/h5-light-theme.css">
 </head>
-<body>
+<body class="page-settings page-settings-h5">
 <div class="status-bar">
     <span class="time">9:41</span>
     <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
@@ -102,114 +33,341 @@
     <div class="nav-right"></div>
 </div>
 
-<div class="app-content">
-    <div class="head">
-        <div class="crumb"><span>设置</span><i class="fa-solid fa-chevron-right" style="font-size:10px"></i><span>隐私设置</span></div>
-        <div class="title">隐私设置</div>
-        <div class="sub">管理谁可以查看你的内容、与你互动以及如何使用你的数据。我们认真对待每一项你的隐私选择。</div>
-        <button type="button" class="head-btn" id="btnExportData"><i class="fa-solid fa-download"></i> 导出我的数据</button>
+<div class="app-content pri-h5-main">
+    <div class="pri-page-intro">
+        <p>管理谁可以查看你的内容、与你互动以及如何使用你的数据。我们认真对待每一项你的隐私选择。</p>
+        <button type="button" class="btn" id="btnExportDataTop"><i class="fa-solid fa-file-export"></i> 导出我的数据</button>
     </div>
 
-    <div class="card">
-        <div class="hd">公开可见性</div>
-        <div class="row">
-            <div class="t">主页可见性</div>
-            <div class="d">控制谁能查看你的主页和动态。私密账户的关注请求需要审核。</div>
-            <div class="seg" id="profileVisSeg">
-                <button type="button" data-vis="public">公开</button>
-                <button type="button" data-vis="subs">仅订阅者</button>
-                <button type="button" data-vis="private">私密</button>
+    <div class="set-card">
+        <div class="ssh">
+            <div class="ic-circle" style="background: linear-gradient(135deg,#06B6D4,#3B82F6)"><i class="fa-solid fa-eye"></i></div>
+            <div><h3>公开可见性</h3><p>谁可以看到你的主页与活动</p></div>
+        </div>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic"><i class="fa-solid fa-house-user"></i></div>
+                <div class="row-info">
+                    <div class="ti">主页可见性</div>
+                    <div class="sub">控制谁能查看你的主页和动态。私密账户的关注请求需要审核。</div>
+                </div>
+            </div>
+            <div class="row-action">
+                <div class="seg" data-pref="profileVis">
+                    <button type="button" class="on"><i class="fa-solid fa-globe"></i> 公开</button>
+                    <button type="button"><i class="fa-solid fa-user-group"></i> 仅订阅者</button>
+                    <button type="button"><i class="fa-solid fa-lock"></i> 私密</button>
+                </div>
             </div>
         </div>
-        <div class="row">
-            <div class="t">允许搜索引擎收录</div>
-            <div class="d">关闭后，Google、Bing 等搜索引擎将不会索引你的主页。</div>
-            <div class="sw" id="swIndexable"></div>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic"><i class="fa-solid fa-magnifying-glass"></i></div>
+                <div class="row-info">
+                    <div class="ti">允许搜索引擎收录</div>
+                    <div class="sub">关闭后，Google、Bing 等搜索引擎将不会索引你的主页</div>
+                </div>
+            </div>
+            <div class="row-action switch-row"><div class="switch on" role="switch" aria-checked="true" tabindex="0"></div></div>
         </div>
-        <div class="row">
-            <div class="t">允许出现在推荐位</div>
-            <div class="d">是否允许你出现在「发现页」「猜你喜欢」等推荐场景。</div>
-            <div class="sw" id="swRecommend"></div>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic"><i class="fa-solid fa-list-ul"></i></div>
+                <div class="row-info">
+                    <div class="ti">允许出现在推荐位</div>
+                    <div class="sub">是否允许你出现在「发现页」「猜你喜欢」等推荐位</div>
+                </div>
+            </div>
+            <div class="row-action switch-row"><div class="switch on" role="switch" aria-checked="true" tabindex="0"></div></div>
+        </div>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic"><i class="fa-solid fa-circle-check"></i></div>
+                <div class="row-info">
+                    <div class="ti">在线状态显示</div>
+                    <div class="sub">控制谁能看到你的「最近活跃于 X 分钟前」</div>
+                </div>
+            </div>
+            <div class="row-action">
+                <div class="seg">
+                    <button type="button" class="on">所有人</button>
+                    <button type="button">关注 / 订阅</button>
+                    <button type="button">仅自己</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="card">
-        <div class="hd">互动权限</div>
-        <div class="row">
-            <div class="t">陌生人私信</div>
-            <div class="d">新会话进入「消息请求」，可在消息页统一处理。</div>
-            <div class="sw on" id="swMsgReq"></div>
+    <div class="set-card">
+        <div class="ssh">
+            <div class="ic-circle" style="background: linear-gradient(135deg,#A855F7,#EC4899)"><i class="fa-regular fa-comments"></i></div>
+            <div><h3>互动权限</h3><p>控制谁可以评论、私信、@ 你</p></div>
         </div>
-        <div class="row">
-            <div class="t">评论可见范围</div>
-            <div class="d">仅自己可见 / 粉丝可见 / 所有人可见。</div>
-            <div class="seg" id="commentVisSeg">
-                <button type="button" data-cv="self">仅自己</button>
-                <button type="button" data-cv="fans">粉丝</button>
-                <button type="button" data-cv="all">所有人</button>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic"><i class="fa-regular fa-comments"></i></div>
+                <div class="row-info">
+                    <div class="ti">谁可以私信我</div>
+                    <div class="sub">陌生人私信将进入「请求」文件夹，需主动接受</div>
+                </div>
+            </div>
+            <div class="row-action">
+                <div class="seg">
+                    <button type="button">所有人</button>
+                    <button type="button" class="on">仅订阅者</button>
+                    <button type="button">仅关注我的人</button>
+                    <button type="button">关闭</button>
+                </div>
+            </div>
+        </div>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic"><i class="fa-solid fa-comment"></i></div>
+                <div class="row-info">
+                    <div class="ti">谁可以评论我的内容</div>
+                    <div class="sub">免费内容可单独控制，付费内容默认仅订阅者可评论</div>
+                </div>
+            </div>
+            <div class="row-action">
+                <div class="seg">
+                    <button type="button" class="on">所有人</button>
+                    <button type="button">已认证用户</button>
+                    <button type="button">仅关注 ≥ 1 周</button>
+                </div>
+            </div>
+        </div>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic"><i class="fa-solid fa-at"></i></div>
+                <div class="row-info">
+                    <div class="ti">谁可以 @ 我</div>
+                    <div class="sub">不在权限内的 @ 不会触达通知</div>
+                </div>
+            </div>
+            <div class="row-action">
+                <div class="seg">
+                    <button type="button">所有人</button>
+                    <button type="button" class="on">关注列表</button>
+                    <button type="button">仅订阅者</button>
+                    <button type="button">关闭</button>
+                </div>
+            </div>
+        </div>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic"><i class="fa-solid fa-gift"></i></div>
+                <div class="row-info">
+                    <div class="ti">接受打赏 / 礼物</div>
+                    <div class="sub">关闭后他人无法对你打赏，但仍可订阅</div>
+                </div>
+            </div>
+            <div class="row-action switch-row"><div class="switch on" role="switch" aria-checked="true" tabindex="0"></div></div>
+        </div>
+    </div>
+
+    <div class="set-card" id="group-invite">
+        <div class="ssh">
+            <div class="ic-circle" style="background: linear-gradient(135deg,#10B981,#3B82F6)"><i class="fa-solid fa-users"></i></div>
+            <div><h3>粉丝群与邀请</h3><p>控制他人邀请你进群的方式，与消息中心「进群邀请」联动</p></div>
+        </div>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic"><i class="fa-solid fa-user-check"></i></div>
+                <div class="row-info">
+                    <div class="ti">被邀请进群需我确认</div>
+                    <div class="sub">开启后，他人邀请你加入粉丝群时，需你在 <a href="messages-group-inbox.html">进群邀请</a> 中同意；关闭则直接入群</div>
+                </div>
+            </div>
+            <div class="row-action switch-row"><div class="switch on" id="swGroupInviteConsent" role="switch" aria-checked="true" tabindex="0"></div></div>
+        </div>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic"><i class="fa-solid fa-user-plus"></i></div>
+                <div class="row-info">
+                    <div class="ti">谁可以邀请我进群</div>
+                    <div class="sub">仅你关注的创作者、或已订阅的创作者可发起邀请</div>
+                </div>
+            </div>
+            <div class="row-action">
+                <div class="seg">
+                    <button type="button">所有人</button>
+                    <button type="button" class="on">已订阅创作者</button>
+                    <button type="button">关闭邀请</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="set-card">
+        <div class="ssh">
+            <div class="ic-circle" style="background: linear-gradient(135deg,#EF4444,#F472B6)"><i class="fa-solid fa-ban"></i></div>
+            <div><h3>屏蔽列表</h3><p>已屏蔽的用户与关键词，被屏蔽方将无法查看你的内容或与你互动</p></div>
+        </div>
+        <div class="body">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+                <span style="font-size:13px;font-weight:600">已屏蔽用户</span>
+                <span class="tag" style="background:rgba(239,68,68,0.15);color:var(--danger-light);border:1px solid rgba(239,68,68,0.25)">2 人</span>
+                <button type="button" class="btn btn-sm" id="btnBlockAdd" style="margin-left:auto"><i class="fa-solid fa-plus"></i> 添加</button>
+            </div>
+            <div class="bl-row">
+                <div class="av" style="background-image:url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></div>
+                <div class="info"><div class="n">noisy_troll</div><div class="m">已屏蔽 12 天前 · 原因：恶意评论</div></div>
+                <button type="button" class="btn btn-sm" data-pri-unblock>解除</button>
+            </div>
+            <div class="bl-row">
+                <div class="av" style="background-image:url('https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=80')"></div>
+                <div class="info"><div class="n">ad_robot_888</div><div class="m">已屏蔽 5 天前 · 原因：营销垃圾</div></div>
+                <button type="button" class="btn btn-sm" data-pri-unblock>解除</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin:18px 0 10px;flex-wrap:wrap">
+                <span style="font-size:13px;font-weight:600">关键词屏蔽</span>
+                <span class="tag" style="background:rgba(239,68,68,0.15);color:var(--danger-light);border:1px solid rgba(239,68,68,0.25)">4 个</span>
+                <span style="font-size:11px;color:var(--t-tertiary);margin-left:auto">包含这些词的评论与私信将被自动隐藏</span>
+            </div>
+            <div class="kw-pool">
+                <span class="kw">广告 <span class="x"><i class="fa-solid fa-xmark" style="font-size:9px"></i></span></span>
+                <span class="kw">免费送 <span class="x"><i class="fa-solid fa-xmark" style="font-size:9px"></i></span></span>
+                <span class="kw">加微信 <span class="x"><i class="fa-solid fa-xmark" style="font-size:9px"></i></span></span>
+                <span class="kw">私聊 <span class="x"><i class="fa-solid fa-xmark" style="font-size:9px"></i></span></span>
+                <span class="add-kw" role="button" tabindex="0"><i class="fa-solid fa-plus"></i> 添加关键词</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="set-card">
+        <div class="ssh">
+            <div class="ic-circle" style="background: linear-gradient(135deg,#F59E0B,#EC4899)"><i class="fa-solid fa-eye-slash"></i></div>
+            <div><h3>内容偏好</h3><p>调整你看到的内容类型</p></div>
+        </div>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic" style="color:#F87171"><i class="fa-solid fa-fire"></i></div>
+                <div class="row-info">
+                    <div class="ti">敏感内容过滤</div>
+                    <div class="sub">默认隐藏带有「敏感」标签的内容（暴力、惊悚、成人主题等）</div>
+                </div>
+            </div>
+            <div class="row-action">
+                <div class="seg">
+                    <button type="button" class="on">严格</button>
+                    <button type="button">标准</button>
+                    <button type="button">关闭</button>
+                </div>
+            </div>
+        </div>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic"><i class="fa-solid fa-language"></i></div>
+                <div class="row-info">
+                    <div class="ti">内容语言偏好</div>
+                    <div class="sub">推荐和发现页将优先展示这些语言的内容</div>
+                </div>
+            </div>
+            <div class="row-action">
+                <select class="pri-select" aria-label="内容语言偏好">
+                    <option>中文 + 英语</option>
+                    <option>仅中文</option>
+                    <option>所有语言</option>
+                </select>
+            </div>
+        </div>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic"><i class="fa-solid fa-shield-virus"></i></div>
+                <div class="row-info">
+                    <div class="ti">陌生人付费内容警告</div>
+                    <div class="sub">购买未关注创作者的付费内容前显示二次确认</div>
+                </div>
+            </div>
+            <div class="row-action switch-row"><div class="switch on" role="switch" aria-checked="true" tabindex="0"></div></div>
+        </div>
+    </div>
+
+    <div class="set-card">
+        <div class="ssh">
+            <div class="ic-circle" style="background: linear-gradient(135deg,#10B981,#06B6D4)"><i class="fa-solid fa-database"></i></div>
+            <div><h3>数据与个性化</h3><p>控制 GOODFANS 如何使用你的数据</p></div>
+        </div>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic"><i class="fa-solid fa-sparkles"></i></div>
+                <div class="row-info">
+                    <div class="ti">个性化推荐</div>
+                    <div class="sub">基于你的浏览、点赞、订阅历史推荐内容。关闭后将看到通用推荐。</div>
+                </div>
+            </div>
+            <div class="row-action switch-row"><div class="switch on" role="switch" aria-checked="true" tabindex="0"></div></div>
+        </div>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic"><i class="fa-solid fa-cookie-bite"></i></div>
+                <div class="row-info">
+                    <div class="ti">分析与 Cookie</div>
+                    <div class="sub">允许我们使用匿名分析数据改进产品体验</div>
+                </div>
+            </div>
+            <div class="row-action switch-row"><div class="switch on" role="switch" aria-checked="true" tabindex="0"></div></div>
+        </div>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic"><i class="fa-solid fa-bullseye"></i></div>
+                <div class="row-info">
+                    <div class="ti">个性化广告</div>
+                    <div class="sub">允许根据你的兴趣展示相关广告（GOODFANS 不会出售你的数据）</div>
+                </div>
+            </div>
+            <div class="row-action switch-row"><div class="switch" role="switch" aria-checked="false" tabindex="0"></div></div>
+        </div>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic"><i class="fa-solid fa-history"></i></div>
+                <div class="row-info">
+                    <div class="ti">浏览历史</div>
+                    <div class="sub">GOODFANS 仅保留你的浏览历史 90 天，可随时清除</div>
+                </div>
+            </div>
+            <div class="row-action">
+                <button type="button" class="btn btn-sm btn-danger" id="btnClearBrowseHistory"><i class="fa-solid fa-broom"></i> 立即清除</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="set-card">
+        <div class="ssh">
+            <div class="ic-circle" style="background: linear-gradient(135deg,#3B82F6,#A855F7)"><i class="fa-solid fa-file-export"></i></div>
+            <div><h3>你的数据</h3><p>下载或永久删除你的全部数据，符合 GDPR / 个人信息保护法要求</p></div>
+        </div>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic"><i class="fa-solid fa-download"></i></div>
+                <div class="row-info">
+                    <div class="ti">导出我的数据</div>
+                    <div class="sub">打包下载所有发布内容、消息、收藏、交易记录（ZIP / JSON）</div>
+                </div>
+            </div>
+            <div class="row-action">
+                <button type="button" class="btn btn-sm btn-primary" id="btnExportDataRow"><i class="fa-solid fa-file-zipper"></i> 申请导出</button>
+            </div>
+        </div>
+        <div class="pri-row">
+            <div class="row-top">
+                <div class="row-ic" style="color:var(--danger-light)"><i class="fa-solid fa-trash"></i></div>
+                <div class="row-info">
+                    <div class="ti">永久删除账户</div>
+                    <div class="sub">所有内容、订阅、收益、链上记录将无法恢复，请先提现余额</div>
+                </div>
+            </div>
+            <div class="row-action">
+                <button type="button" class="btn btn-sm btn-danger" id="btnDeleteAccount"><i class="fa-solid fa-skull-crossbones"></i> 删除我的账户</button>
             </div>
         </div>
     </div>
 </div>
 
 <div class="home-indicator"></div>
+<div id="priToast" class="pri-toast" role="status" aria-live="polite"></div>
+
 <script src="../js/digital-h5-nav.js"></script>
-<script>
-(function () {
-    var LS_VIS = 'h5_privacy_profile_vis';
-    var LS_INDEX = 'h5_privacy_indexable';
-    var LS_REC = 'h5_privacy_recommend';
-    var LS_MSG = 'h5_privacy_msg_req';
-    var LS_COMMENT = 'h5_privacy_comment_vis';
-
-    function toast(msg) {
-        if (window.DigitalH5Nav && typeof window.DigitalH5Nav.toast === 'function') window.DigitalH5Nav.toast(msg);
-    }
-    function setSwitch(el, on) { if (el) el.classList.toggle('on', !!on); }
-    function bindSwitch(id, key, def, textOn, textOff) {
-        var el = document.getElementById(id);
-        var on = localStorage.getItem(key);
-        on = on === null ? def : on === '1';
-        setSwitch(el, on);
-        if (!el) return;
-        el.addEventListener('click', function () {
-            on = !on;
-            localStorage.setItem(key, on ? '1' : '0');
-            setSwitch(el, on);
-            toast(on ? textOn : textOff);
-        });
-    }
-    function bindSegment(wrapId, key, def, toastPrefix) {
-        var wrap = document.getElementById(wrapId);
-        if (!wrap) return;
-        var val = localStorage.getItem(key) || def;
-        function paint() {
-            wrap.querySelectorAll('button').forEach(function (b) {
-                b.classList.toggle('active', b.getAttribute('data-vis') === val || b.getAttribute('data-cv') === val);
-            });
-        }
-        paint();
-        wrap.querySelectorAll('button').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                val = btn.getAttribute('data-vis') || btn.getAttribute('data-cv');
-                localStorage.setItem(key, val);
-                paint();
-                toast(toastPrefix + '：' + btn.textContent.trim());
-            });
-        });
-    }
-
-    var btnExportData = document.getElementById('btnExportData');
-    if (btnExportData) btnExportData.addEventListener('click', function () {
-        toast('数据导出任务已创建（原型）');
-    });
-
-    bindSegment('profileVisSeg', LS_VIS, 'public', '主页可见性已更新');
-    bindSegment('commentVisSeg', LS_COMMENT, 'all', '评论可见范围已更新');
-    bindSwitch('swIndexable', LS_INDEX, true, '已开启搜索引擎收录', '已关闭搜索引擎收录');
-    bindSwitch('swRecommend', LS_REC, true, '已允许出现在推荐位', '已关闭推荐位曝光');
-    bindSwitch('swMsgReq', LS_MSG, true, '陌生人私信已开启请求箱', '陌生人私信已关闭');
-})();
-</script>
+<script src="../js/h5-settings-privacy.js?v=1"></script>
 </body>
 </html>

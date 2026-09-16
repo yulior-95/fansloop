@@ -304,6 +304,9 @@
                   '<div class="chat-msg"><span class="u">' + user + '</span><span class="' + msgClass + '"' + msgTitle + ">" + displayText + "</span></div>" +
                   "</div></div>";
         el.innerHTML = main + ops;
+        if (window.FLWebIcons && window.FLWebIcons.refresh) {
+            window.FLWebIcons.refresh(el);
+        }
         var atBottom = isNearBottom(chatScroll);
         chatInner.appendChild(el);
         trimFeed(chatInner, 120);

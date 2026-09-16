@@ -6,6 +6,10 @@
 <title>GOODFANS · 账户与安全</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css-web/subscribe-modal.css">
+<link rel="stylesheet" href="../css-web/settings-layout.css">
+<link rel="stylesheet" href="../css-web/settings-security-page.css">
+<link rel="stylesheet" href="../css/h5-settings-security.css?v=sec-log-h5">
 <script src="../js/h5-theme-boot.js"></script>
 <style>
 .nav-bar { background: var(--bg-primary); }
@@ -13,245 +17,227 @@
     padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
     padding-bottom: calc(var(--tab-bar-height) + 18px);
 }
-.sec-card {
-    margin: 10px 16px 12px;
-    border-radius: 14px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-card);
-    overflow: hidden;
-}
-.sec-head {
-    padding: 12px;
-    border-bottom: 1px solid rgba(255,255,255,.05);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.sec-head .ic {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    background: linear-gradient(135deg,#a855f7,#ec4899);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-}
-.sec-head .ti { font-size: 13px; font-weight: 700; }
-.sec-head .sub { margin-top: 2px; font-size: 11px; color: var(--text-tertiary); line-height: 1.45; }
-.score-wrap {
-    padding: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-}
-.score-wrap .l b { font-size: 24px; }
-.score-wrap .l { font-size: 12px; }
-.score-wrap .l .s { color: var(--text-tertiary); margin-top: 4px; font-size: 11px; }
-.score-wrap .btn {
-    height: 32px;
-    padding: 0 11px;
-    border-radius: 999px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-primary);
-    color: #fff;
-    font-size: 11px;
-}
-.row {
-    padding: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-bottom: 1px solid rgba(255,255,255,.05);
-}
-.row:last-child { border-bottom: 0; }
-.row .ric {
-    width: 32px;
-    height: 32px;
-    border-radius: 9px;
-    background: rgba(255,255,255,.06);
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-.row .main { flex: 1; min-width: 0; }
-.row .main .t { font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-.row .main .d { margin-top: 3px; font-size: 11px; color: var(--text-tertiary); line-height: 1.45; }
-.row .rv { font-size: 11px; color: var(--text-secondary); text-align: right; white-space: nowrap; }
-.row.click { cursor: pointer; }
-.badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 10px;
-    font-weight: 700;
-}
-.badge.ok { background: rgba(16,185,129,.16); color: #6ee7b7; border: 1px solid rgba(16,185,129,.35); }
-.badge.warn { background: rgba(245,158,11,.16); color: #fcd34d; border: 1px solid rgba(245,158,11,.35); }
-.sheet-ovl {
-    position: fixed;
-    inset: 0;
-    display: none;
-    align-items: flex-end;
-    justify-content: center;
-    background: rgba(0,0,0,.55);
-    z-index: 260;
-}
-.sheet-ovl.show { display: flex; }
-.sheet {
-    width: 100%;
-    max-width: var(--phone-width);
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-bottom: 0;
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
-    padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
-}
-.sheet .hd {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-}
-.sheet .hd .t { font-size: 14px; font-weight: 800; }
-.sheet .hd .x {
-    width: 30px;
-    height: 30px;
-    border: 0;
-    border-radius: 50%;
-    background: var(--bg-card);
-    color: var(--text-secondary);
-}
-.sheet .bd { display: grid; gap: 8px; }
-.sheet .btn {
-    height: 40px;
-    border-radius: 10px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-card);
-    color: #fff;
-    font-size: 12px;
-}
-.sheet .btn.pri { background: var(--brand-gradient); border-color: transparent; }
 </style>
 <link rel="stylesheet" href="../css/h5-light-theme.css">
 </head>
-<body>
+<body class="page-settings page-settings-h5">
 <div class="status-bar dark-mode">
     <span class="time">9:41</span>
     <span class="right"><i class="fa-solid fa-signal"></i> <i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-battery-full"></i></span>
 </div>
 <div class="nav-bar solid" style="top:var(--status-bar-height)">
     <div class="nav-left"><div class="nav-btn" data-back="settings.html"><i class="fa-solid fa-chevron-left"></i></div></div>
-    <div class="nav-title">账户与安全</div>
+    <div class="nav-title">账户安全</div>
     <div class="nav-right"></div>
 </div>
-<div class="app-content">
-    <div class="sec-card">
-        <div class="sec-head">
-            <div class="ic"><i class="fa-solid fa-shield-halved"></i></div>
-            <div style="flex:1;min-width:0">
-                <div class="ti">账户安全</div>
-                <div class="sub">管理你的密码、二次验证、登录设备和恢复方式。强烈建议同时开启「2FA」与「生物识别」。</div>
+<div class="app-content sec-h5-main">
+
+    <div class="sec-overview" id="secOverview">
+        <div class="sec-overview-top">
+            <div class="sec-overview-score">
+                <div class="sec-score-ring" id="secScoreRing" data-level="mid">
+                    <svg viewBox="0 0 110 110" aria-hidden="true">
+                        <circle class="bg-c" cx="55" cy="55" r="50"></circle>
+                        <circle class="fg-c" id="secScoreArc" cx="55" cy="55" r="50"></circle>
+                    </svg>
+                    <div class="num"><span id="secScoreNum">0</span><small>/100</small></div>
+                </div>
+                <div>
+                    <h3>安全等级：<span id="secScoreLevel">—</span></h3>
+                    <p id="secScoreHint">分数由各项安全设置自动汇总，点击「计分规则」查看详情。</p>
+                </div>
             </div>
-        </div>
-        <div class="score-wrap">
-            <div class="l"><b id="secScore">30</b> / 100 · 安全等级：<span id="secLevel">较弱</span><div class="s">请尽快完善安全设置，降低账号被盗风险。</div></div>
-            <button type="button" class="btn" id="btnScoreRule">计分规则</button>
+            <button type="button" class="btn btn-sm" id="btnSecScoreRules"><i class="fa-solid fa-circle-info"></i> 计分规则</button>
         </div>
     </div>
 
-    <div class="sec-card">
-        <div class="sec-head">
-            <div class="ic" style="background:linear-gradient(135deg,#06b6d4,#3b82f6)"><i class="fa-solid fa-id-badge"></i></div>
-            <div><div class="ti">账户验证方式</div><div class="sub">验证邮箱用于密码找回与重要操作通知</div></div>
+    <div class="set-card">
+        <div class="ssh">
+            <div class="ic-circle" style="background: linear-gradient(135deg,#06B6D4,#3B82F6)"><i class="fa-solid fa-id-badge"></i></div>
+            <div><h3>账户验证方式</h3><p>验证邮箱用于密码找回与重要操作通知</p></div>
         </div>
-        <div class="row click" id="rowPrimaryEmail">
-            <div class="ric"><i class="fa-regular fa-envelope"></i></div>
-            <div class="main">
-                <div class="t">主邮箱 <span class="badge ok">已验证</span></div>
-                <div class="d">l***@goodfans.io · 注册时绑定 · 用于密码找回与重要登录通知</div>
+        <div class="sec-row" id="secRowPrimaryEmail">
+            <div class="row-ic"><i class="fa-regular fa-envelope"></i></div>
+            <div class="row-info">
+                <div class="ti">主邮箱 <span class="tag tag-success">已验证</span></div>
+                <div class="sub" id="secPrimaryEmailSub">l***@goodfans.io · 注册时绑定 · 用于密码找回与重要登录通知</div>
             </div>
-            <div class="rv">修改 <i class="fa-solid fa-chevron-right"></i></div>
+            <div class="row-action"><button type="button" class="btn btn-sm" id="btnEditPrimaryEmail">修改</button></div>
         </div>
-        <div class="row click" id="rowBackupEmail">
-            <div class="ric"><i class="fa-regular fa-envelope-open"></i></div>
-            <div class="main">
-                <div class="t">备用邮箱 <span class="badge warn" id="backupTag">未设置</span></div>
-                <div class="d" id="backupSub">推荐使用与主邮箱不同的服务商，避免单点故障</div>
+        <div class="sec-row" id="secRowBackupEmail">
+            <div class="row-ic"><i class="fa-regular fa-envelope-open"></i></div>
+            <div class="row-info">
+                <div class="ti">备用邮箱 <span class="tag tag-warning" id="secBackupTag">未设置</span></div>
+                <div class="sub" id="secBackupSub">推荐使用与主邮箱不同的服务商以避免单点故障</div>
             </div>
-            <div class="rv" id="backupAction">添加 <i class="fa-solid fa-chevron-right"></i></div>
+            <div class="row-action"><button type="button" class="btn btn-sm btn-primary" id="btnAddBackupEmail">立即添加</button></div>
         </div>
     </div>
 
-    <div class="sec-card">
-        <div class="row click" id="rowPassword">
-            <div class="ric"><i class="fa-solid fa-key"></i></div>
-            <div class="main">
-                <div class="t">登录密码</div>
-                <div class="d">上次修改：38 天前</div>
-            </div>
-            <div class="rv">修改 <i class="fa-solid fa-chevron-right"></i></div>
+    <div class="set-card" id="pwdCard">
+        <div class="ssh">
+            <div class="ic-circle" style="background: linear-gradient(135deg,#A855F7,#EC4899)"><i class="fa-solid fa-key"></i></div>
+            <div><h3>登录密码</h3><p>定期更换密码可显著提升账户安全</p></div>
         </div>
-        <div class="row click" id="row2fa">
-            <div class="ric"><i class="fa-solid fa-lock"></i></div>
-            <div class="main">
-                <div class="t">双因素验证（2FA）</div>
-                <div class="d" id="twofaSub">认证器 APP：未开启 · 生物识别：未注册</div>
+        <div class="body">
+            <div class="form-row align-center">
+                <div class="label">当前密码</div>
+                <div class="control">
+                    <div class="pwd-input-wrap">
+                        <input type="password" id="pwdCurrent" autocomplete="current-password" placeholder="输入当前密码">
+                        <button type="button" class="pwd-toggle" aria-label="显示密码" aria-pressed="false"><i class="fa-regular fa-eye"></i></button>
+                    </div>
+                    <div class="field-error" id="pwdErrCurrent"></div>
+                </div>
             </div>
-            <div class="rv"><span class="badge warn" id="twofaTag">建议开启</span></div>
-        </div>
-        <div class="row click" id="rowWithdrawSafe">
-            <div class="ric"><i class="fa-solid fa-coins"></i></div>
-            <div class="main">
-                <div class="t">提现安全</div>
-                <div class="d">USDT 链上提现与站内消费资金保护</div>
+            <div class="form-row">
+                <div class="label">新密码<div class="desc">至少 12 字符，含大小写、数字与符号</div></div>
+                <div class="control">
+                    <div class="pwd-input-wrap">
+                        <input type="password" id="pwdNew" autocomplete="new-password" placeholder="输入新密码">
+                        <button type="button" class="pwd-toggle" aria-label="显示密码" aria-pressed="false"><i class="fa-regular fa-eye"></i></button>
+                    </div>
+                    <div class="pwd-strength" id="pwdStrength" data-level="0">
+                        <span></span><span></span><span></span><span></span>
+                    </div>
+                    <div class="pwd-strength-label" id="pwdStrengthLabel"></div>
+                    <div class="field-error" id="pwdErrNew"></div>
+                </div>
             </div>
-            <div class="rv">设置 <i class="fa-solid fa-chevron-right"></i></div>
+            <div class="form-row align-center">
+                <div class="label">确认新密码</div>
+                <div class="control">
+                    <div class="pwd-input-wrap">
+                        <input type="password" id="pwdConfirm" autocomplete="new-password" placeholder="再次输入新密码">
+                        <button type="button" class="pwd-toggle" aria-label="显示密码" aria-pressed="false"><i class="fa-regular fa-eye"></i></button>
+                    </div>
+                    <div class="field-error" id="pwdErrConfirm"></div>
+                </div>
+            </div>
+            <div class="pwd-actions">
+                <button type="button" class="btn btn-primary" id="btnPwdSave"><i class="fa-solid fa-floppy-disk"></i> 修改密码</button>
+                <button type="button" class="btn" id="btnPwdCancel">取消</button>
+                <span class="pwd-last" id="pwdLastChanged"><i class="fa-solid fa-clock"></i> 上次修改：38 天前</span>
+            </div>
         </div>
     </div>
 
-    <div class="sec-card">
-        <div class="sec-head">
-            <div class="ic" style="background:linear-gradient(135deg,#3b82f6,#a855f7)"><i class="fa-solid fa-laptop"></i></div>
-            <div><div class="ti">登录设备</div><div class="sub">查看登录设备并随时强制下线</div></div>
+    <div class="set-card" id="sec2faCard">
+        <div class="ssh">
+            <div class="ic-circle" style="background: linear-gradient(135deg,#10B981,#06B6D4)"><i class="fa-solid fa-lock"></i></div>
+            <div class="ssh-main">
+                <h3>双因素验证 (2FA)</h3>
+                <p>验证登录者与修改登录密码时的操作身份</p>
+            </div>
         </div>
-        <div class="row click" id="rowDevice1">
-            <div class="ric"><i class="fa-brands fa-apple"></i></div>
-            <div class="main"><div class="t">MacBook Pro 16" · Chrome</div><div class="d">日本 · 东京 · 最近活跃 1 分钟前</div></div>
-            <div class="rv">本设备</div>
-        </div>
-        <div class="row click" id="rowDevice2">
-            <div class="ric"><i class="fa-solid fa-mobile-screen-button"></i></div>
-            <div class="main"><div class="t">iPhone 17 Pro · App</div><div class="d">日本 · 横滨 · 最近活跃 2 小时前</div></div>
-            <div class="rv">下线</div>
-        </div>
-        <div class="row click" id="rowDevice3">
-            <div class="ric"><i class="fa-brands fa-windows"></i></div>
-            <div class="main"><div class="t">Windows 11 · Edge</div><div class="d">中国 · 上海 · 异地登录提醒</div></div>
-            <div class="rv">下线</div>
-        </div>
-        <div class="row click" id="rowDeviceAll">
-            <div class="ric"><i class="fa-solid fa-power-off"></i></div>
-            <div class="main"><div class="t">全部下线（除当前）</div><div class="d">不在你信任范围内的设备请立即下线</div></div>
-            <div class="rv"><i class="fa-solid fa-chevron-right"></i></div>
+        <div class="body">
+            <div class="sec-2fa-intro">
+                <button type="button" class="sec-2fa-intro-toggle" id="btn2faIntroToggle" aria-expanded="false">
+                    <i class="fa-solid fa-circle-question"></i> 什么是双因素验证 (2FA)？
+                    <i class="fa-solid fa-chevron-down chev"></i>
+                </button>
+                <div class="sec-2fa-intro-body" id="sec2faIntroBody" hidden>
+                    <p>开启后，<b>常用设备上的日常登录流程不变</b>（邮箱 / 密码即可）。仅在风险场景或敏感操作时，才要求第二因素校验。</p>
+                    <ul>
+                        <li><b>认证器 APP</b>：推荐首选。触发场景包括：新设备或新浏览器首次登录、异地 / 异常 IP 登录、超过 30 天未登录、修改登录密码等账号安全操作</li>
+                        <li><b>生物识别</b>：通过 WebAuthn 绑定本机指纹 / 面容，在已信任设备上可快捷完成上述校验</li>
+                        <li><b>与提现安全</b>：2FA 证明「是你本人」；支付密码、邮件确认等控制资金转出流程——链上提现时依次校验</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fa-method" id="faTotp" data-2fa="totp">
+                <div class="m-ic" style="background: linear-gradient(135deg,#10B981,#06B6D4)"><i class="fa-solid fa-mobile-screen-button"></i></div>
+                <div class="m-info">
+                    <div class="nm">认证器 APP <span class="tag tag-success">推荐</span></div>
+                    <div class="desc" id="faTotpDesc">开启后常用设备登录不变；新设备、异地或超 30 天未登录时需动态码 · 未开启</div>
+                </div>
+                <div class="m-action"><div class="switch" data-2fa-switch="totp" role="switch" tabindex="0" aria-label="认证器 APP"></div></div>
+            </div>
+            <div class="fa-method" id="faWebAuthn" data-2fa="webauthn">
+                <div class="m-ic" style="background: linear-gradient(135deg,#A855F7,#EC4899)"><i class="fa-solid fa-fingerprint"></i></div>
+                <div class="m-info">
+                    <div class="nm">生物识别（WebAuthn）</div>
+                    <div class="desc" id="faWebAuthnDesc">Touch ID / Face ID / Windows Hello · 未注册设备</div>
+                </div>
+                <div class="m-action" id="faWebAuthnAction">
+                    <button type="button" class="btn btn-sm btn-primary" id="btnWebAuthnRegister">注册本设备</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="sec-card">
-        <div class="sec-head">
-            <div class="ic" style="background:linear-gradient(135deg,#64748b,#475569)"><i class="fa-solid fa-clock-rotate-left"></i></div>
-            <div><div class="ti">近期安全活动</div><div class="sub">过去 30 天关键安全事件</div></div>
+    <div class="set-card" id="secWithdrawCard">
+        <div class="ssh">
+            <div class="ic-circle" style="background: linear-gradient(135deg,#F59E0B,#EC4899)"><i class="fa-solid fa-coins"></i></div>
+            <div><h3>提现安全</h3><p>USDT 链上提现与站内消费的资金保护 · 提现前还须完成上方 2FA 身份校验</p></div>
         </div>
-        <div class="row click" id="rowLog1"><div class="ric"><i class="fa-solid fa-right-to-bracket"></i></div><div class="main"><div class="t">新设备登录</div><div class="d">今天 20:31 · Windows 11 · 中国上海</div></div><div class="rv">详情</div></div>
-        <div class="row click" id="rowLog2"><div class="ric"><i class="fa-solid fa-key"></i></div><div class="main"><div class="t">修改登录密码</div><div class="d">昨天 23:12 · MacBook Pro</div></div><div class="rv">详情</div></div>
-        <div class="row click" id="rowLogAll"><div class="ric"><i class="fa-solid fa-list"></i></div><div class="main"><div class="t">查看全部安全日志</div><div class="d">支持按类型筛选与导出 CSV</div></div><div class="rv"><i class="fa-solid fa-chevron-right"></i></div></div>
+        <div class="sec-row" id="secPayPwdRow">
+            <div class="row-ic"><i class="fa-solid fa-key"></i></div>
+            <div class="row-info">
+                <div class="ti">支付密码（6 位）<span class="tag tag-purple">资金校验</span></div>
+                <div class="sub" id="secPayPwdSub">站内消费及链上提现须输入，与 2FA 互补 · <span id="secPayPwdStatus">未设置</span></div>
+            </div>
+            <div class="row-action"><button type="button" class="btn btn-sm btn-primary" id="btnSecPayPwd">设置</button></div>
+        </div>
+        <div class="sec-row">
+            <div class="row-ic"><i class="fa-solid fa-envelope"></i></div>
+            <div class="row-info">
+                <div class="ti">提现邮件确认<span class="tag tag-muted">转出策略</span></div>
+                <div class="sub" id="secWithdrawEmailSub">每次提现须验证主邮箱验证码（与账户验证邮箱相同）</div>
+            </div>
+            <div class="row-action"><div class="switch on" id="swWithdrawEmailConfirm" data-withdraw-email-switch role="switch" tabindex="0" aria-label="提现邮件确认"></div></div>
+        </div>
+    </div>
+
+    <div class="set-card">
+        <div class="ssh">
+            <div class="ic-circle" style="background: linear-gradient(135deg,#3B82F6,#A855F7)"><i class="fa-solid fa-laptop"></i></div>
+            <div><h3>登录设备</h3><p>查看正在登录账户的设备并随时强制下线</p></div>
+        </div>
+        <div class="body">
+            <div class="dev-row">
+                <div class="dv-ic"><i class="fa-brands fa-apple"></i></div>
+                <div class="dv-info">
+                    <div class="nm">MacBook Pro 16" · Chrome 138 <span class="tag tag-success">当前设备</span></div>
+                    <div class="meta">日本 · 东京 · 192.168.*.* · 最近活跃 1 分钟前</div>
+                </div>
+                <div class="dv-action"><span style="font-size: 11px; color: var(--t-tertiary)">本设备</span></div>
+            </div>
+            <div class="dev-row">
+                <div class="dv-ic"><i class="fa-solid fa-mobile-screen-button"></i></div>
+                <div class="dv-info">
+                    <div class="nm">iPhone 17 Pro · GOODFANS App 2.4.0</div>
+                    <div class="meta">日本 · 横滨 · 4G 移动 · 最近活跃 2 小时前</div>
+                </div>
+                <div class="dv-action"><button type="button" class="btn btn-sm btn-danger">下线</button></div>
+            </div>
+            <div class="dev-row">
+                <div class="dv-ic"><i class="fa-brands fa-windows"></i></div>
+                <div class="dv-info">
+                    <div class="nm">Windows 11 · Edge 132</div>
+                    <div class="meta">中国 · 上海 · 联通宽带 · 最近活跃 3 天前 · <span style="color: var(--warning-light)"><i class="fa-solid fa-triangle-exclamation"></i> 异地登录</span></div>
+                </div>
+                <div class="dv-action"><button type="button" class="btn btn-sm btn-danger">下线</button></div>
+            </div>
+            <div style="padding-top: 12px; display: flex; flex-direction: column; gap: 10px; margin-top: 6px">
+                <span style="font-size: 11px; color: var(--t-tertiary); line-height: 1.45"><i class="fa-solid fa-circle-info"></i> 不在你信任范围内的设备请立即下线并修改密码</span>
+                <button type="button" class="btn btn-danger btn-sm"><i class="fa-solid fa-power-off"></i> 全部下线（除当前）</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="set-card" id="secActivityCard">
+        <div class="ssh">
+            <div class="ic-circle" style="background: linear-gradient(135deg,#64748B,#475569)"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            <div class="ssh-main">
+                <h3>近期安全活动</h3>
+                <p>过去 30 天的关键安全事件，可帮助发现异常行为</p>
+            </div>
+        </div>
+        <div class="body" id="secActivityPreview"></div>
     </div>
 </div>
+
 <div class="tab-bar">
     <div class="tab-item"><i class="fa-solid fa-house"></i><span>首页</span></div>
     <div class="tab-item"><i class="fa-regular fa-heart"></i><span>订阅</span></div>
@@ -261,207 +247,185 @@
 </div>
 <div class="home-indicator"></div>
 
-<div class="sheet-ovl" id="sheetOvl">
-    <div class="sheet">
-        <div class="hd">
-            <div class="t" id="sheetTitle">设置</div>
-            <button type="button" class="x" id="sheetClose"><i class="fa-solid fa-xmark"></i></button>
+<div id="secPageToast" class="sec-toast" role="status" aria-live="polite"></div>
+
+<div class="inline-overlay" id="ovlSecContact" aria-hidden="true">
+    <div class="iol-panel sec-contact-modal">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-shield-halved" style="color:var(--brand-purple)"></i> <span id="secContactTitle">验证方式</span></h3>
+            <button type="button" class="iol-close" id="closeSecContact" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div class="bd" id="sheetBody"></div>
+        <div class="modal-body">
+            <p class="step-hint" id="secContactHint"></p>
+            <div class="field" id="secContactEmailField">
+                <label for="secContactEmail">邮箱地址</label>
+                <input type="email" id="secContactEmail" class="input" autocomplete="email" placeholder="name@example.com">
+            </div>
+            <div class="field" id="secContactCodeField" style="display:none">
+                <label for="secContactCode">验证码</label>
+                <div class="code-row">
+                    <input type="text" id="secContactCode" class="input" inputmode="numeric" maxlength="6" placeholder="6 位验证码" autocomplete="one-time-code">
+                    <button type="button" class="btn btn-secondary btn-send-code" id="btnSecSendCode">获取验证码</button>
+                </div>
+            </div>
+            <div class="field-error" id="secContactErr"></div>
+        </div>
+        <div class="modal-foot">
+            <span class="spacer"></span>
+            <button type="button" class="btn btn-secondary" id="btnSecContactCancel">取消</button>
+            <button type="button" class="btn btn-primary" id="btnSecContactSave"><i class="fa-solid fa-check"></i> 下一步</button>
+        </div>
+    </div>
+</div>
+
+<div class="inline-overlay" id="ovlSecScoreRules" aria-hidden="true">
+    <div class="iol-panel sec-rules-modal">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-calculator" style="color:var(--brand-purple)"></i> 安全分计分规则</h3>
+            <button type="button" class="iol-close" id="closeSecScoreRules" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body" id="secScoreRulesBody"></div>
+        <div class="modal-foot">
+            <span class="spacer"></span>
+            <button type="button" class="btn btn-primary" id="btnSecScoreRulesOk">知道了</button>
+        </div>
+    </div>
+</div>
+
+<div class="inline-overlay" id="ovlSecWebAuthn" aria-hidden="true">
+    <div class="iol-panel sec-contact-modal">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-fingerprint" style="color:var(--brand-purple)"></i> 注册生物识别</h3>
+            <button type="button" class="iol-close" id="closeSecWebAuthn" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <p class="step-hint">将使用 WebAuthn 在本机注册指纹 / 面容。原型环境将模拟注册流程，正式版需浏览器与设备支持。</p>
+            <div class="field">
+                <label for="webAuthnDeviceName">设备名称</label>
+                <input type="text" id="webAuthnDeviceName" class="input" placeholder="例如：MacBook Pro · Chrome">
+            </div>
+        </div>
+        <div class="modal-foot">
+            <span class="spacer"></span>
+            <button type="button" class="btn btn-secondary" id="btnWebAuthnCancel">取消</button>
+            <button type="button" class="btn btn-primary" id="btnWebAuthnConfirm"><i class="fa-solid fa-fingerprint"></i> 开始注册</button>
+        </div>
+    </div>
+</div>
+
+<div class="inline-overlay" id="ovlSecTotpSetup" aria-hidden="true">
+    <div class="iol-panel sec-contact-modal sec-totp-modal">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-mobile-screen-button" style="color:var(--success-light)"></i> 开启认证器 APP</h3>
+            <button type="button" class="iol-close" id="closeSecTotpSetup" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <p class="step-hint">请先在手机安装 <strong style="color:#fff">Google 身份验证器</strong>，然后在 APP 内选择「输入设置密钥」，填入下方账户名与密钥。</p>
+            <div class="sec-totp-download-card">
+                <div class="ic"><i class="fa-brands fa-google-play"></i></div>
+                <div class="tx">
+                    <div class="nm">Google 身份验证器</div>
+                    <div class="sub">Google LLC · 免费</div>
+                </div>
+                <a class="btn btn-sm btn-primary" id="btnTotpGooglePlay" href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square"></i> Google Play 下载</a>
+            </div>
+            <div class="field">
+                <label>账户名称</label>
+                <div class="sec-totp-readonly" id="totpSetupAccount">GOODFANS 账户</div>
+            </div>
+            <div class="field">
+                <label>谷歌密钥串 <span style="font-weight:600;color:var(--t-quaternary)">（Base32）</span></label>
+                <div class="sec-totp-secret-row">
+                    <code class="sec-totp-secret" id="totpSetupSecret">—</code>
+                    <button type="button" class="btn btn-sm btn-primary" id="btnTotpCopySecret" title="复制密钥"><i class="fa-regular fa-copy"></i> 复制</button>
+                </div>
+            </div>
+            <p class="sec-totp-note">密钥仅展示一次，请复制保存后在 Google 身份验证器中添加，再点击「完成谷歌密钥添加」。</p>
+        </div>
+        <div class="modal-foot">
+            <span class="spacer"></span>
+            <button type="button" class="btn btn-secondary" id="btnTotpSetupCancel">取消</button>
+            <button type="button" class="btn btn-primary" id="btnTotpSetupDone"><i class="fa-solid fa-check"></i> 完成谷歌密钥添加</button>
+        </div>
+    </div>
+</div>
+
+<div class="inline-overlay" id="ovlSecTotpDisable" aria-hidden="true">
+    <div class="iol-panel sec-contact-modal sec-totp-modal">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-triangle-exclamation" style="color:var(--warning-light)"></i> 关闭认证器 APP？</h3>
+            <button type="button" class="iol-close" id="closeSecTotpDisable" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="sec-totp-disable-warn">
+                <p>关闭后，以下场景将<strong style="color:#fff">不再要求</strong>输入认证器动态码，账号安全强度会下降：</p>
+                <ul>
+                    <li>新设备 / 新浏览器登录</li>
+                    <li>异地或异常 IP 登录</li>
+                    <li>超过 30 天未登录</li>
+                    <li>修改登录密码等敏感操作</li>
+                </ul>
+                <p class="foot">如仅更换手机，建议在新设备添加密钥后再关闭，或改用生物识别作为补充。</p>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <span class="spacer"></span>
+            <button type="button" class="btn btn-secondary" id="btnTotpDisableCancel">保持开启</button>
+            <button type="button" class="btn btn-ghost" id="btnTotpDisableConfirm" style="color:var(--danger-light)"><i class="fa-solid fa-power-off"></i> 确认关闭</button>
+        </div>
+    </div>
+</div>
+
+<div class="inline-overlay" id="ovlSecActivityLog" aria-hidden="true">
+    <div class="iol-panel sec-log-modal">
+        <div class="iol-head">
+            <h3><i class="fa-solid fa-clock-rotate-left" style="color:var(--brand-purple)"></i> 全部安全日志</h3>
+            <button type="button" class="iol-close" id="closeSecActivityLog" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <p class="sec-log-intro">近 30 天内的账号安全事件，可按类型筛选或搜索关键词。点击单条可展开详情；列表滚动至底部自动加载更多。</p>
+            <div class="sec-log-toolbar">
+                <div class="sec-log-filters" id="secLogFilters" role="tablist" aria-label="日志类型筛选"></div>
+                <div class="sec-log-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="search" id="secLogSearch" placeholder="搜索设备、地点、操作…" autocomplete="off" />
+                </div>
+            </div>
+            <div class="sec-log-summary" id="secLogSummary"></div>
+            <div class="sec-log-list" id="secLogList"></div>
+            <div class="sec-log-empty" id="secLogEmpty" hidden>
+                <i class="fa-regular fa-folder-open"></i>
+                <p>没有匹配的安全日志</p>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button type="button" class="btn btn-secondary btn-sm" id="btnSecLogExport"><i class="fa-solid fa-download"></i> 导出 CSV</button>
+            <span class="spacer"></span>
+            <button type="button" class="btn btn-primary" id="btnSecActivityLogOk">关闭</button>
+        </div>
     </div>
 </div>
 
 <script src="../js/digital-h5-nav.js"></script>
+<script src="../js-web/user-assets-store.js"></script>
+<script src="../js-web/pay-password-store.js"></script>
+<script src="../js-web/withdraw-email-confirm-store.js"></script>
+<script src="../js-web/settings-security-page.js?v=sec-log-h5"></script>
 <script>
 (function () {
-    var LS_TOTP = 'h5_security_totp';
-    var LS_BIO = 'h5_security_bio';
-    var LS_PAYPWD = 'h5_security_paypwd';
-    var LS_MAILCFM = 'h5_security_mailcfm';
-    var LS_BACKUP = 'h5_security_backup_mail';
-    var LS_WEAK = 'h5_security_weak_pwd';
-    var scoreEl = document.getElementById('secScore');
-    var levelEl = document.getElementById('secLevel');
-    var backupTag = document.getElementById('backupTag');
-    var backupSub = document.getElementById('backupSub');
-    var backupAction = document.getElementById('backupAction');
-    var twofaSub = document.getElementById('twofaSub');
-    var twofaTag = document.getElementById('twofaTag');
-    var ovl = document.getElementById('sheetOvl');
-    var closeBtn = document.getElementById('sheetClose');
-    var titleEl = document.getElementById('sheetTitle');
-    var bodyEl = document.getElementById('sheetBody');
-
-    function readBool(key, fallback) {
-        var v = localStorage.getItem(key);
-        if (v === null) return fallback;
-        return v === '1';
-    }
-    function setBool(key, value) {
-        localStorage.setItem(key, value ? '1' : '0');
-    }
-    function toast(msg) {
-        if (window.DigitalH5Nav && typeof window.DigitalH5Nav.toast === 'function') window.DigitalH5Nav.toast(msg);
-    }
-    function score() {
-        var v = 30;
-        if (readBool(LS_TOTP, false)) v += 25;
-        if (readBool(LS_BIO, false)) v += 20;
-        if (readBool(LS_PAYPWD, false)) v += 15;
-        if (readBool(LS_MAILCFM, true)) v += 5;
-        if (readBool(LS_BACKUP, false)) v += 5;
-        if (!readBool(LS_WEAK, true)) v += 10;
-        return Math.min(v, 100);
-    }
-    function level(v) {
-        if (v >= 80) return '较强';
-        if (v >= 50) return '中等';
-        return '较弱';
-    }
-    function sync() {
-        var s = score();
-        var backup = readBool(LS_BACKUP, false);
-        var totp = readBool(LS_TOTP, false);
-        var bio = readBool(LS_BIO, false);
-        if (scoreEl) scoreEl.textContent = String(s);
-        if (levelEl) levelEl.textContent = level(s);
-        if (backupTag) {
-            backupTag.className = 'badge ' + (backup ? 'ok' : 'warn');
-            backupTag.textContent = backup ? '已设置' : '未设置';
-        }
-        if (backupSub) backupSub.textContent = backup ? 'b***@mail.com · 可用于账号恢复与安全确认' : '推荐使用与主邮箱不同的服务商，避免单点故障';
-        if (backupAction) backupAction.innerHTML = (backup ? '管理' : '添加') + ' <i class="fa-solid fa-chevron-right"></i>';
-        if (twofaSub) twofaSub.textContent = '认证器 APP：' + (totp ? '已开启' : '未开启') + ' · 生物识别：' + (bio ? '已注册' : '未注册');
-        if (twofaTag) {
-            twofaTag.className = 'badge ' + (totp ? 'ok' : 'warn');
-            twofaTag.textContent = totp ? '已开启' : '建议开启';
-        }
-    }
-    function openSheet(title, html) {
-        titleEl.textContent = title;
-        bodyEl.innerHTML = html;
-        ovl.classList.add('show');
-    }
-    function closeSheet() {
-        ovl.classList.remove('show');
-    }
-    function bind(selector, fn) {
-        var el = bodyEl.querySelector(selector);
-        if (el) el.addEventListener('click', fn);
-    }
-
-    if (closeBtn) closeBtn.addEventListener('click', closeSheet);
-    if (ovl) ovl.addEventListener('click', function (e) { if (e.target === ovl) closeSheet(); });
-
-    document.getElementById('btnScoreRule').addEventListener('click', function () {
-        openSheet('计分规则',
-            '<button class="btn">主邮箱验证 +30</button>' +
-            '<button class="btn">认证器 APP +25</button>' +
-            '<button class="btn">生物识别 +20</button>' +
-            '<button class="btn">支付密码 +15</button>' +
-            '<button class="btn">提现邮件确认 +5</button>' +
-            '<button class="btn">备用邮箱 +5</button>'
-        );
-    });
-
-    document.getElementById('rowPrimaryEmail').addEventListener('click', function () {
-        openSheet('主邮箱',
-            '<button class="btn">当前：l***@goodfans.io</button>' +
-            '<button class="btn pri" id="btnEmailMock">发送验证码并修改</button>'
-        );
-        bind('#btnEmailMock', function () { closeSheet(); toast('主邮箱修改流程已启动（原型）'); });
-    });
-
-    document.getElementById('rowBackupEmail').addEventListener('click', function () {
-        var has = readBool(LS_BACKUP, false);
-        openSheet('备用邮箱',
-            '<button class="btn">' + (has ? '当前：b***@mail.com' : '当前未设置') + '</button>' +
-            '<button class="btn pri" id="btnBackupToggle">' + (has ? '移除备用邮箱' : '添加备用邮箱') + '</button>'
-        );
-        bind('#btnBackupToggle', function () {
-            setBool(LS_BACKUP, !has);
-            closeSheet();
-            sync();
-            toast(has ? '备用邮箱已移除' : '备用邮箱已添加');
+    var legacy = document.getElementById('sheetOvl');
+    if (legacy) legacy.remove();
+    var btn = document.getElementById('btnSecPayPwd');
+    if (btn) {
+        btn.addEventListener('click', function () {
+            var ret = 'goodfans-account-security.html';
+            if (window.FLPayPasswordStore && window.FLPayPasswordStore.getSettingsUrl) {
+                location.href = window.FLPayPasswordStore.getSettingsUrl(ret);
+            } else {
+                location.href = 'settings-pay-password.html?return=' + encodeURIComponent(ret);
+            }
         });
-    });
-
-    document.getElementById('rowPassword').addEventListener('click', function () {
-        openSheet('登录密码',
-            '<button class="btn">密码强度：较弱</button>' +
-            '<button class="btn pri" id="btnPwdDone">完成改密（模拟）</button>'
-        );
-        bind('#btnPwdDone', function () {
-            setBool(LS_WEAK, false);
-            closeSheet();
-            sync();
-            toast('登录密码已修改');
-        });
-    });
-
-    document.getElementById('row2fa').addEventListener('click', function () {
-        var totp = readBool(LS_TOTP, false);
-        var bio = readBool(LS_BIO, false);
-        openSheet('双因素验证（2FA）',
-            '<button class="btn" id="btnTotp">认证器 APP：' + (totp ? '已开启' : '未开启') + '</button>' +
-            '<button class="btn" id="btnBio">生物识别：' + (bio ? '已注册' : '未注册') + '</button>' +
-            '<button class="btn pri" id="btn2faDone">完成</button>'
-        );
-        bind('#btnTotp', function () {
-            setBool(LS_TOTP, !totp);
-            closeSheet();
-            sync();
-            toast(totp ? '认证器 APP 已关闭' : '认证器 APP 已开启');
-        });
-        bind('#btnBio', function () {
-            setBool(LS_BIO, !bio);
-            closeSheet();
-            sync();
-            toast(bio ? '生物识别已移除' : '生物识别已注册');
-        });
-        bind('#btn2faDone', function () { closeSheet(); });
-    });
-
-    document.getElementById('rowWithdrawSafe').addEventListener('click', function () {
-        var payPwd = readBool(LS_PAYPWD, false);
-        var mail = readBool(LS_MAILCFM, true);
-        openSheet('提现安全',
-            '<button class="btn" id="btnPayPwd">支付密码：' + (payPwd ? '已设置' : '未设置') + '</button>' +
-            '<button class="btn" id="btnMailCfm">提现邮件确认：' + (mail ? '已开启' : '已关闭') + '</button>'
-        );
-        bind('#btnPayPwd', function () {
-            setBool(LS_PAYPWD, !payPwd);
-            closeSheet();
-            sync();
-            toast(payPwd ? '支付密码已清除（原型）' : '支付密码已设置（原型）');
-        });
-        bind('#btnMailCfm', function () {
-            setBool(LS_MAILCFM, !mail);
-            closeSheet();
-            sync();
-            toast(mail ? '提现邮件确认已关闭' : '提现邮件确认已开启');
-        });
-    });
-
-    document.getElementById('rowDevice1').addEventListener('click', function () { toast('当前设备不可下线'); });
-    document.getElementById('rowDevice2').addEventListener('click', function () { toast('iPhone 设备已下线（原型）'); });
-    document.getElementById('rowDevice3').addEventListener('click', function () { toast('Windows 设备已下线（原型）'); });
-    document.getElementById('rowDeviceAll').addEventListener('click', function () { toast('已全部下线（除当前）'); });
-
-    document.getElementById('rowLog1').addEventListener('click', function () { toast('已展开：新设备登录详情'); });
-    document.getElementById('rowLog2').addEventListener('click', function () { toast('已展开：修改密码详情'); });
-    document.getElementById('rowLogAll').addEventListener('click', function () {
-        openSheet('全部安全日志',
-            '<button class="btn">登录与会话（12）</button>' +
-            '<button class="btn">资金与提现（7）</button>' +
-            '<button class="btn">账号与验证（5）</button>' +
-            '<button class="btn">设备管理（4）</button>' +
-            '<button class="btn pri" id="btnExportLog">导出 CSV</button>'
-        );
-        bind('#btnExportLog', function () { closeSheet(); toast('安全日志已导出（原型）'); });
-    });
-
-    sync();
+    }
 })();
 </script>
 </body>

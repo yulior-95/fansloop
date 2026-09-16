@@ -901,3 +901,97 @@
 .live-player.is-ended .cam-hint-strip {
     display: none !important;
 }
+
+/* 观众连麦席 · 与 live-detail-ab #ldAbPlayer 右下布局一致 */
+.live-player > .ld-live-audience-slots {
+    position: absolute;
+    inset: auto 4px 4px auto;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+    justify-content: flex-end;
+    width: max-content;
+    height: max-content;
+    margin: 0;
+    padding: 0;
+    pointer-events: auto;
+}
+.live-player > .ld-live-audience-slots .obs-audience-slot {
+    position: relative;
+    width: 52px;
+    min-height: 0;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+}
+.live-player > .ld-live-audience-slots .obs-audience-slot .av-wrap {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+}
+.live-player > .ld-live-audience-slots .obs-audience-slot .av {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid rgba(255, 255, 255, 0.92);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.42);
+}
+.live-player > .ld-live-audience-slots .obs-audience-slot.is-speaking .av-wrap::before,
+.live-player > .ld-live-audience-slots .obs-audience-slot.is-speaking .av-wrap::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 2px solid rgba(52, 211, 153, 0.65);
+    animation: ld-live-voice-ring 1.2s ease-out infinite;
+    pointer-events: none;
+}
+.live-player > .ld-live-audience-slots .obs-audience-slot.is-speaking .av-wrap::after {
+    animation-delay: 0.45s;
+}
+@keyframes ld-live-voice-ring {
+    0% { transform: scale(0.94); opacity: 0.85; }
+    100% { transform: scale(1.16); opacity: 0; }
+}
+.live-player > .ld-live-audience-slots .obs-audience-slot .nm {
+    font-size: 9px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 5px rgba(0, 0, 0, 0.85);
+    max-width: 52px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1;
+    text-align: center;
+}
+.live-player > .ld-live-audience-slots .obs-audience-slot.empty .av {
+    background: rgba(255, 255, 255, 0.08);
+    border-style: dashed;
+    border-color: rgba(255, 255, 255, 0.28);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 13px;
+}
+.live-player.dm-safe-area > .ld-live-audience-slots {
+    inset: auto 4px 4px auto;
+}
+.live-player.dm-safe-area .bottom-overlay {
+    right: 72px;
+}
+.live-player.dm-safe-area .danmaku-layer.gift-fly-layer {
+    inset: 70px 0 68px 0;
+    padding-top: 0;
+}

@@ -29,6 +29,10 @@
 .pm-h5-wrap .pm-tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
 .pm-h5-wrap .usage-scroll-wrap { margin: 0 -4px; }
 .pm-h5-wrap .wheel-banner { flex-direction: column; align-items: flex-start; gap: 10px; }
+.pm-h5-wrap .dev-glass-wrap { display: none !important; }
+.pm-h5-wrap .pm-hero-title { font-size: 20px; padding: 16px 16px 0; }
+.pm-h5-wrap .pm-hero-in { padding: 10px 16px 18px; gap: 12px; }
+.pm-h5-wrap .pm-balance { width: 100%; min-width: 0; }
 .pm-overlay { position: absolute !important; inset: 0; z-index: 500; }
 .pm-modal { max-width: calc(100% - 24px); }
 .pm-modal--history, .pm-modal--wheel { max-width: calc(100vw - 24px); margin: 12px auto; }
@@ -49,7 +53,7 @@
 <div class="status-bar"><span class="time">9:41</span><span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span></div>
 <div class="nav-bar solid">
     <div class="nav-left"><div class="nav-btn" data-back="profile.html"><i class="fa-solid fa-chevron-left"></i></div></div>
-    <div class="nav-title">积分商城</div>
+    <div class="nav-title">积分兑换商城</div>
     <div class="nav-right"></div>
 </div>
 <div class="app-content">
@@ -58,40 +62,32 @@
             <h1 class="pm-hero-title"><i class="fa-solid fa-coins" style="color:#FBBF24;margin-right:10px"></i>积分兑换商城</h1>
             <div class="pm-hero-in">
                 <div class="pm-hero-main">
-                    <p class="pm-hero-desc">使用积分在本商城兑换各类站内权益，兑换成功后权益将下发至你的账户。</p>
-                    <div class="pm-benefit-slot pm-hero-glass" id="pmBenefitSlot">
-                        <div class="bh">
-                            <span class="bh-title" id="benefitPanelTitle"><i class="fa-solid fa-ticket" style="color:#C084FC"></i>当前兑换权益</span>
+                    <p class="pm-hero-desc">使用积分兑换站内权益，兑换成功后权益将下发至你的账户。</p>
+                    <div class="pm-balance" id="pmBalanceCard">
+                        <div class="lb-row">
+                            <div class="lb">积分账户</div>
+                            <button type="button" class="bp-history-btn pm-balance-history" id="btnHistoryToggle" title="历史兑换记录" aria-expanded="false" aria-label="查看历史兑换记录" aria-controls="historyOverlay">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                            </button>
                         </div>
-                        <div class="bb" id="benefitViewCurrent">
-                            <!-- 由 mall-benefits-sync.js 动态渲染当前权益 -->
-                        </div>
-                    </div>
-                </div>
-                <div class="pm-balance" id="pmBalanceCard">
-                    <div class="lb-row">
-                        <div class="lb">积分账户</div>
-                        <button type="button" class="bp-history-btn pm-balance-history" id="btnHistoryToggle" title="历史兑换记录" aria-expanded="false" aria-label="查看历史兑换记录" aria-controls="historyOverlay">
-                            <i class="fa-solid fa-clock-rotate-left"></i>
-                        </button>
-                    </div>
-                    <div class="val"><i class="fa-solid fa-bolt"></i><span id="pmAvailVal">12,580</span></div>
-                    <div class="pm-balance-grid">
-                        <div class="cell">
-                            <div class="k">可用（可兑换）</div>
-                            <div class="v avail" id="pmAvailDup">12,580</div>
-                        </div>
-                        <div class="cell">
-                            <div class="k">
-                                冷静中
-                                <span class="pm-tip-wrap" tabindex="0">
-                                    <i class="fa-solid fa-circle-question pm-tip-icon" aria-hidden="true"></i>
-                                    <span class="pm-tip-pop" role="tooltip">
-                                        <strong>积分冷静期说明</strong>：邀请、活动等渠道获得的积分不会立刻可兑换，需经过 <span id="pmCoolingDaysTip">7</span> 天冷静期后进入<strong>可用积分池</strong>，方可于本商城消耗。计时任务等日常奖励可按后台配置即时可用或同步冷静。
-                                    </span>
-                                </span>
+                        <div class="val"><i class="fa-solid fa-bolt"></i><span id="pmAvailVal">12,580</span></div>
+                        <div class="pm-balance-grid">
+                            <div class="cell">
+                                <div class="k">可用（可兑换）</div>
+                                <div class="v avail" id="pmAvailDup">12,580</div>
                             </div>
-                            <div class="v frozen" id="pmFrozenVal">1,400</div>
+                            <div class="cell">
+                                <div class="k">
+                                    冷静中（7天）
+                                    <span class="pm-tip-wrap" tabindex="0">
+                                        <i class="fa-solid fa-circle-question pm-tip-icon" aria-hidden="true"></i>
+                                        <span class="pm-tip-pop" role="tooltip">
+                                            <strong>积分冷静期说明</strong>：邀请、活动等渠道获得的积分不会立刻可兑换，需经过 <span id="pmCoolingDaysTip">7</span> 天冷静期后进入<strong>可用积分池</strong>，方可于本商城消耗。计时任务等日常奖励可按后台配置即时可用或同步冷静。
+                                        </span>
+                                    </span>
+                                </div>
+                                <div class="v frozen" id="pmFrozenVal">1,400</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -99,24 +95,11 @@
         </div>
 
         <div class="usage-section">
-            <span class="dev-glass-wrap dev-glass-wrap--pop-left dev-glass-wrap--layer-top usage-glass">
-                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devPmUsageTip">
-                    <span class="dev-glass-sphere-shine"></span>
-                    <span class="dev-glass-sphere-txt">To 研发</span>
-                </span>
-                <span class="dev-glass-pop dev-glass-pop--wide" id="devPmUsageTip" role="tooltip">
-                    <strong>后台支持配置展示内容</strong>
-                    <ol>
-                        <li>上传 ICON，标题，说明</li>
-                        <li>支持鼠标滚轮上下滑动来进行左右切换</li>
-                    </ol>
-                </span>
-            </span>
             <div class="usage-scroll-wrap" id="usageScrollWrap">
                 <div class="usage-grid" id="usageGrid">
                     <div class="usage-card"><div class="ic p1"><i class="fa-solid fa-lock-open"></i></div><div><h3>付费内容试看券</h3><p>1 次解锁 · 24 小时内观看整篇付费内容。</p></div></div>
                     <div class="usage-card"><div class="ic p2"><i class="fa-solid fa-percent"></i></div><div><h3>订阅折扣券</h3><p>9 折 / 8 折 · 限时使用，结账自动抵扣。</p></div></div>
-                    <div class="usage-card"><div class="ic p3"><i class="fa-solid fa-gift"></i></div><div><h3>打赏加成卡</h3><p>按次数补贴 · 打赏 100 → 创作者实收 110（平台额外 +10%）。</p></div></div>
+                    <div class="usage-card"><div class="ic p3"><i class="fa-solid fa-gift"></i></div><div><h3>打赏加成卡</h3><p>平台额外 +10% 补贴创作者。</p></div></div>
                     <div class="usage-card"><div class="ic p4"><i class="fa-solid fa-chart-line"></i></div><div><h3>积分加速卡</h3><p>积分获取收益 +20% · 持续 24 小时。</p></div></div>
                     <div class="usage-card"><div class="ic p5"><i class="fa-solid fa-coins"></i></div><div><h3>SFL / NFT 牵引</h3><p>限量兑换资格、空投抽奖券、NFT 折扣与质押加成。</p></div></div>
                     <div class="usage-card"><div class="ic p6"><i class="fa-solid fa-broadcast-tower"></i></div><div><h3>直播互动加成</h3><p>直播间打赏 / 礼物积分收益 +15% · 单场有效。</p></div></div>
@@ -138,18 +121,6 @@
         </div>
 
         <div class="pm-tabs-wrap">
-            <span class="dev-glass-wrap dev-glass-wrap--pop-left dev-glass-wrap--layer-top pm-tabs-glass">
-                <span class="dev-glass-sphere" tabindex="0" aria-describedby="devMallTabsTip">
-                    <span class="dev-glass-sphere-shine"></span>
-                    <span class="dev-glass-sphere-txt">To 研发</span>
-                </span>
-                <span class="dev-glass-pop dev-glass-pop--wide" id="devMallTabsTip" role="tooltip">
-                    <strong>商城分类 Tab · 后台配置</strong>
-                    <ol>
-                        <li>这里的分类，由后台积分活动管理配置展示</li>
-                    </ol>
-                </span>
-            </span>
             <div class="pm-tabs" role="tablist" id="mallTabs">
                 <button type="button" class="active" data-tab="hot">热门推荐</button>
                 <button type="button" data-tab="pay">付费权益</button>
@@ -500,10 +471,6 @@
         <footer style="margin-top:40px;padding-top:22px;border-top:1px solid var(--border);font-size:12px;color:var(--t-tertiary);text-align:center">
             GOODFANS · 积分规则以站内公告为准 · 兑换完成将写入账变（积分）· 客服与申诉入口见设置中心
         </footer>
-    </main>
-</div>
-
-
 </div>
 </div>
 <div class="home-indicator"></div>

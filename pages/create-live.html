@@ -27,13 +27,15 @@ textarea{min-height:68px;resize:vertical}
 .live-preview-hint i{color:#60a5fa;margin-right:4px}
 .cover{aspect-ratio:16/9;border-radius:12px;border:1.5px dashed var(--border-strong);background:var(--bg-card);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--text-tertiary);cursor:pointer;margin-top:10px}
 .cover.ok{border-style:solid;border-color:rgba(16,185,129,.5);background-size:cover;background-position:center;align-items:flex-end;justify-content:flex-end;padding:10px}
-.obs-card{margin-top:12px;padding:12px;border-radius:12px;border:1px solid rgba(168,85,247,.35);background:linear-gradient(160deg,rgba(168,85,247,.1) 0%,var(--bg-card) 55%)}
-.obs-card h4{margin:0 0 6px;font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.obs-card h4 .badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(168,85,247,.2);color:#c4b5fd;border:1px solid rgba(168,85,247,.35)}
-.obs-card .obs-lead{font-size:11px;color:var(--text-secondary);line-height:1.5;margin:0 0 10px}
-.obs-wait{font-size:11px;color:var(--text-tertiary);line-height:1.5;margin-top:10px;padding:8px 10px;border-radius:8px;background:var(--bg-inset);border:1px solid var(--border-color)}
-.obs-wait i{color:#34d399;margin-right:4px}
-.obs-links{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.mobile-live-card{margin-top:12px;padding:12px;border-radius:12px;border:1px solid rgba(16,185,129,.35);background:linear-gradient(160deg,rgba(16,185,129,.1) 0%,var(--bg-card) 55%)}
+.mobile-live-card h4{margin:0 0 6px;font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mobile-live-card h4 .badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(16,185,129,.18);color:#6ee7b7;border:1px solid rgba(16,185,129,.35)}
+.mobile-live-card .lead{font-size:11px;color:var(--text-secondary);line-height:1.5;margin:0 0 10px}
+.mobile-live-steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.mobile-live-steps li{display:flex;align-items:flex-start;gap:8px;font-size:11px;color:var(--text-secondary);line-height:1.5}
+.mobile-live-steps li i{color:#34d399;margin-top:2px;flex-shrink:0}
+.mobile-live-note{font-size:11px;color:var(--text-tertiary);line-height:1.5;margin-top:10px;padding:8px 10px;border-radius:8px;background:var(--bg-inset);border:1px solid var(--border-color)}
+.mobile-live-note i{color:#60a5fa;margin-right:4px}
 .tag-input{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;border-radius:10px;border:1px solid var(--border-color);background:var(--bg-inset);min-height:42px;align-items:center}
 .tag-input input{flex:1;min-width:80px;border:0;background:transparent;padding:4px 0;font-size:12px}
 .tag-pill{font-size:11px;padding:4px 8px;border-radius:999px;background:rgba(168,85,247,.14);border:1px solid rgba(168,85,247,.35);color:var(--text-primary)}
@@ -41,8 +43,6 @@ textarea{min-height:68px;resize:vertical}
 .hidden{display:none}
 .submit-bar{position:absolute;left:0;right:0;bottom:0;padding:10px 16px 30px;background:rgba(10,10,18,.95);border-top:.5px solid var(--border-color)}
 .submit-bar .btn{width:100%}
-.obs-guide-ovl{position:absolute;inset:0;z-index:98;background:rgba(0,0,0,.72);display:none}.obs-guide-ovl.show{display:block}
-.obs-guide-ovl iframe{width:100%;height:100%;border:0;background:#151224}
 .set-row.clickable{cursor:pointer}
 .set-row .ic{width:36px;height:36px;border-radius:10px;background:var(--bg-inset);display:flex;align-items:center;justify-content:center;color:#60a5fa;flex-shrink:0}
 .set-row .aud-val{font-size:12px;color:var(--text-secondary);flex-shrink:0}
@@ -84,7 +84,7 @@ textarea{min-height:68px;resize:vertical}
   <div id="blockNow">
     <div class="field"><input id="titleInputNow" placeholder="直播标题" value="深夜爵士 · 即兴钢琴"></div>
     <div class="field"><textarea id="descInputNow" placeholder="直播简介…">今晚即兴爵士，欢迎点歌；支持 USDT 打赏与礼物。</textarea></div>
-    <p class="tip"><i class="fa-solid fa-display" style="color:#a855f7"></i> 使用 <strong>OBS 推流</strong> 开播，配置见下方「高级设置 · 直播配置」。</p>
+    <p class="tip"><i class="fa-solid fa-mobile-screen-button" style="color:#34d399"></i> 手机端直接 <strong>摄像头开播</strong>，填好信息后进主播间即可推流，无需 OBS。</p>
   </div>
 
   <div id="blockPreview" class="hidden">
@@ -138,23 +138,20 @@ textarea{min-height:68px;resize:vertical}
     </div>
     <div class="set-row"><div><div class="t">允许评论</div><div class="d">关闭后用户无法在此动态下评论</div></div><div class="switch on" id="allowCommentSwitch"></div></div>
     <div class="set-row"><div><div class="t">允许分享</div><div class="d">关闭后无法被分享到其它平台</div></div><div class="switch on" id="allowShareSwitch"></div></div>
-    <div class="obs-card hidden" id="obsConfigCard">
-      <h4><i class="fa-solid fa-display" style="color:#a855f7"></i> 直播配置 <span class="badge">OBS 推流</span></h4>
-      <p class="obs-lead">复制推流地址与密钥到 OBS，开始推流后平台将自动开播。</p>
-      <div class="field" style="margin-top:0"><div class="lb" style="margin-bottom:4px"><span>推流地址（服务器）</span></div><div class="line"><code id="crRtmpUrl">rtmps://push.goodfans.io/live</code><button type="button" class="sbtn" data-copy="crRtmpUrl"><i class="fa-regular fa-copy"></i></button></div></div>
-      <div class="field" style="margin-top:8px"><div class="lb" style="margin-bottom:4px"><span>推流码（串流密钥）</span></div><div class="line"><code id="crStreamKey">sk_live_FLP_7k2mN9pQx4vR8wY1zA3bC6dE0fG5hJ</code><button type="button" class="sbtn" data-copy="crStreamKey"><i class="fa-regular fa-copy"></i></button></div></div>
-      <div class="obs-links">
-        <button type="button" class="btn btn-secondary btn-sm" id="btnObsGuide"><i class="fa-regular fa-circle-question"></i> 配置说明</button>
-        <span style="font-size:11px;color:var(--text-tertiary)">复制以上内容到 OBS 即可</span>
-      </div>
-      <div class="obs-wait"><i class="fa-solid fa-signal"></i> <strong>配置成功后</strong>，请在 OBS 点击「开始推流」。GOODFANS 接收到信号后将<strong>自动开播</strong>。</div>
+    <div class="mobile-live-card hidden" id="mobileLiveCard">
+      <h4><i class="fa-solid fa-mobile-screen-button" style="color:#34d399"></i> 直播方式 <span class="badge">手机开播</span></h4>
+      <p class="lead">在手机上使用摄像头与麦克风直接推流，无需配置 OBS 或推流密钥。</p>
+      <ul class="mobile-live-steps">
+        <li><i class="fa-solid fa-circle-check"></i><span>确认标题与简介，按需设置标签与变现方式</span></li>
+        <li><i class="fa-solid fa-circle-check"></i><span>点击下方「进入主播直播间」，授权相机与麦克风</span></li>
+        <li><i class="fa-solid fa-circle-check"></i><span>在主播间内可切换前后摄像头、暂停、弹幕与礼物</span></li>
+      </ul>
+      <div class="mobile-live-note"><i class="fa-solid fa-wifi"></i> 建议在 Wi‑Fi 或稳定 4G/5G 环境下开播；OBS 推流请在电脑端创建直播。</div>
     </div>
   </div>
 </div>
 
 <div class="submit-bar"><button type="button" class="btn btn-primary" id="submitBtn"><i class="fa-solid fa-tower-broadcast"></i> 进入主播直播间</button></div>
-
-<div class="obs-guide-ovl" id="obsGuideOvl"><iframe src="../pages-web/modal-live-obs-guide.html" title="OBS 配置说明"></iframe></div>
 
 <div class="home-indicator"></div>
 <script src="../js/digital-h5-nav.js"></script>
@@ -173,7 +170,7 @@ textarea{min-height:68px;resize:vertical}
   var blockNow=document.getElementById('blockNow'), blockPreview=document.getElementById('blockPreview');
   var cover=document.getElementById('cover'), coverInput=document.getElementById('coverInput');
   var scheduleInput=document.getElementById('scheduleInput');
-  var obsCard=document.getElementById('obsConfigCard'), obsGuideOvl=document.getElementById('obsGuideOvl');
+  var mobileLiveCard=document.getElementById('mobileLiveCard');
   var moneyGrid=document.getElementById('moneyGrid'), rowPpv=document.getElementById('rowPpv');
   var liveTagInput=document.getElementById('liveTagInput'), liveTagField=document.getElementById('liveTagField');
   var LIVE_TAG_MAX=8;
@@ -189,12 +186,12 @@ textarea{min-height:68px;resize:vertical}
     tabPreview.classList.toggle('active',mode==='preview');
     blockNow.classList.toggle('hidden',mode!=='now');
     blockPreview.classList.toggle('hidden',mode!=='preview');
-    obsCard.classList.toggle('hidden',mode!=='now');
+    if(mobileLiveCard) mobileLiveCard.classList.toggle('hidden',mode!=='now');
     submitBtn.innerHTML=mode==='now'
       ?'<i class="fa-solid fa-tower-broadcast"></i> 进入主播直播间'
       :'<i class="fa-solid fa-bullhorn"></i> 发布直播预告';
     if(fromUser){
-      toast(mode==='preview'?'直播预告将以图文动态发布，不创建直播间':'已切换为立即开播（OBS 推流）');
+      toast(mode==='preview'?'直播预告将以图文动态发布，不创建直播间':'已切换为立即开播（手机摄像头）');
     }
   }
 
@@ -220,15 +217,6 @@ textarea{min-height:68px;resize:vertical}
       cover.style.backgroundImage='';
       cover.innerHTML='<i class="fa-regular fa-image" style="font-size:28px;color:#a78bfa"></i><div>点击更换封面</div><div style="font-size:11px">建议 16:9</div>';
     }
-  }
-
-  function copyEl(id){
-    var el=document.getElementById(id);
-    if(!el) return;
-    var t=el.textContent;
-    if(navigator.clipboard&&navigator.clipboard.writeText){
-      navigator.clipboard.writeText(t).then(function(){ toast('已复制到剪贴板'); });
-    }else toast(t);
   }
 
   function liveTagCount(){ return liveTagInput?liveTagInput.querySelectorAll('.tag-pill').length:0; }
@@ -264,15 +252,6 @@ textarea{min-height:68px;resize:vertical}
     }
     coverInput.value='';
   };
-
-  document.querySelectorAll('[data-copy]').forEach(function(btn){
-    btn.onclick=function(){ copyEl(btn.getAttribute('data-copy')); };
-  });
-  document.getElementById('btnObsGuide').onclick=function(){ obsGuideOvl.classList.add('show'); };
-  obsGuideOvl.onclick=function(e){ if(e.target===obsGuideOvl) obsGuideOvl.classList.remove('show'); };
-  window.addEventListener('message',function(e){
-    if(e.data&&e.data.type==='goodfans-close-obs-guide') obsGuideOvl.classList.remove('show');
-  });
 
   if(liveTagInput){
     liveTagInput.addEventListener('click',function(e){
@@ -315,6 +294,32 @@ textarea{min-height:68px;resize:vertical}
   if(window.CreateMonetizeGate) CreateMonetizeGate.syncSubCell(moneyGrid);
   syncMonetize();
 
+  function collectLiveSession(){
+    var titleVal=(document.getElementById('titleInputNow').value||'').trim();
+    if(!titleVal) return null;
+    var tags=[];
+    if(liveTagInput){
+      liveTagInput.querySelectorAll('.tag-pill').forEach(function(p){
+        tags.push(p.textContent.replace(/×/g,'').trim());
+      });
+    }
+    var perm=document.getElementById('permSelect');
+    return {
+      title: titleVal,
+      desc: (document.getElementById('descInputNow').value||'').trim(),
+      tags: tags,
+      perm: perm ? perm.value : 'public',
+      permLabel: document.getElementById('permAudienceVal') ? document.getElementById('permAudienceVal').textContent.replace(/\s*›.*/,'').trim() : '所有人',
+      monetize: {
+        free: moneyGrid.querySelector('[data-mode="free"]').classList.contains('on'),
+        sub: moneyGrid.querySelector('[data-mode="sub"]').classList.contains('on'),
+        ppv: moneyGrid.querySelector('[data-mode="ppv"]').classList.contains('on'),
+        ppvPrice: document.getElementById('ppvPrice') ? document.getElementById('ppvPrice').value : ''
+      },
+      createdAt: Date.now()
+    };
+  }
+
   submitBtn.onclick=function(){
     if(mode==='preview'){
       var pt=scheduleInput.value||'';
@@ -322,7 +327,10 @@ textarea{min-height:68px;resize:vertical}
       toast('直播预告已作为图文动态发布到 Feed，计划开播时间 '+(pt.replace('T',' ')));
       return;
     }
-    location.href='../pages-web/create-live-host.html';
+    var session=collectLiveSession();
+    if(!session) return toast('请填写直播标题');
+    try { sessionStorage.setItem('gf_h5_live_session', JSON.stringify(session)); } catch(e) {}
+    location.href='live-host.html';
   };
 })();
 </script>

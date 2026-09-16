@@ -678,7 +678,11 @@
 /* 图文卡 */
 .post-text {
     padding: 14px;
+    cursor: pointer;
 }
+.post-text .img-grid img { cursor: pointer; }
+.feed-card .title,
+.feed-card .media { cursor: pointer; }
 .post-text .content { font-size: 14px; line-height: 1.6; margin-bottom: 10px; }
 .post-text .img-grid {
     display: grid;
@@ -1106,6 +1110,74 @@
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
     }
 
+    function detailPageForItem(item) {
+        if (item.type === 'live') return 'home.html';
+        if (item.type === 'feed') return 'content-detail.html';
+        if (item.type === 'video') return 'video-detail.html';
+        if (item.type === 'paid') return 'digital-detail-owned.html';
+        return 'content-detail.html';
+    }
+
+    function stashContentDetailPreview(card) {
+        if (!card) return;
+        var titleEl = card.querySelector('.post-text .content') || card.querySelector('.title');
+        var title = titleEl ? titleEl.textContent.trim() : '图文详情';
+        var author = card.getAttribute('data-creator') || '创作者';
+        var avEl = card.querySelector('.feed-head .avatar');
+        var imgEl = card.querySelector('.post-text .img-grid img') || card.querySelector('.media img');
+        var likeEl = card.querySelector('.act[data-act="like"] span');
+        var commentEl = card.querySelector('.act[data-act="comment"] span');
+        try {
+            sessionStorage.setItem('gf_content_detail', JSON.stringify({
+                id: card.getAttribute('data-item-id') || '',
+                title: title,
+                author: author,
+                authorAv: avEl ? avEl.src : '',
+                image: imgEl ? imgEl.src : '',
+                likes: likeEl ? likeEl.textContent.trim() : '0',
+                comments: commentEl ? commentEl.textContent.trim() : '0',
+                desc: '来自订阅动态的图文帖，支持查看完整内容、评论、点赞与打赏。'
+            }));
+        } catch (e) { /* ignore */ }
+    }
+
+    function openContentDetailFromCard(card) {
+        stashContentDetailPreview(card);
+        var id = card.getAttribute('data-item-id') || '';
+        var q = ['from=subscriptions.html'];
+        if (id) q.unshift('id=' + encodeURIComponent(id));
+        goFeedHref('content-detail.html?' + q.join('&'));
+    }
+
+    function resolveFeedDetailHref(card) {
+        if (!card) return '';
+        var base = card.getAttribute('data-detail-go') || 'digital-detail-owned.html';
+        if (/^https?:\/\//i.test(base)) return base;
+        var id = card.getAttribute('data-item-id') || '';
+        var type = card.getAttribute('data-sub-type') || '';
+        var q = ['from=subscriptions.html'];
+        if (id) q.unshift('id=' + encodeURIComponent(id));
+        if (type === 'live') q.push('tab=live');
+        var join = base.indexOf('?') >= 0 ? '&' : '?';
+        return base + join + q.join('&');
+    }
+
+    function goFeedHref(href) {
+        if (!href) return;
+        if (window.DigitalH5Nav && typeof window.DigitalH5Nav.go === 'function') {
+            window.DigitalH5Nav.go(href);
+            return;
+        }
+        location.href = href;
+    }
+
+    function creatorProfileHref(card) {
+        var name = (card && card.getAttribute('data-creator')) || '';
+        var q = 'from=subscriptions.html';
+        if (name) q = 'u=' + encodeURIComponent(name) + '&' + q;
+        return 'creator-profile.html?' + q;
+    }
+
     function buildCardHtml(item) {
         var c = item.creator;
         var nameHtml = esc(c.name)
@@ -1140,8 +1212,7 @@
                 + '<div class="act" data-act="save"><i class="fa-regular fa-bookmark"></i><span>' + item.saves + '</span></div>'
                 + '<div class="sp"></div><div class="act" data-act="share"><i class="fa-solid fa-share"></i></div></div>';
         }
-        var detail = item.type === 'paid' ? 'digital-detail-owned.html'
-            : (item.type === 'live' ? 'home.html' : 'creator-profile.html');
+        var detail = detailPageForItem(item);
         return '<div class="feed-card" data-sub-type="' + item.type + '" data-creator="' + esc(c.name) + '" data-item-id="' + esc(item.id) + '" data-unread="1" data-detail-go="' + detail + '">'
             + '<div class="feed-head"><img class="avatar avatar-md" src="' + c.avatar + '"><div class="info">'
             + '<div class="name-row">' + nameHtml + '</div>'
@@ -1615,18 +1686,38 @@
             return;
         }
 
+        var headHit = e.target.closest('.feed-card > .feed-head');
+        if (headHit) {
+            var headCard = headHit.closest('.feed-card[data-sub-type]');
+            if (headCard) {
+                markAsRead(headCard);
+                goFeedHref(creatorProfileHref(headCard));
+            }
+            return;
+        }
+
+        var contentHit = e.target.closest('.post-text, .feed-card .title, .feed-card .media');
+        if (contentHit) {
+            var contentCard = contentHit.closest('.feed-card[data-sub-type]');
+            if (contentCard) {
+                markAsRead(contentCard);
+                if (contentCard.getAttribute('data-sub-type') === 'feed') {
+                    openContentDetailFromCard(contentCard);
+                } else {
+                    goFeedHref(resolveFeedDetailHref(contentCard));
+                }
+            }
+            return;
+        }
+
         var card = e.target.closest('.feed-card[data-sub-type]');
         if (!card) return;
         markAsRead(card);
-        var href = card.getAttribute('data-detail-go') || '';
-        if (window.DigitalH5Nav && typeof window.DigitalH5Nav.go === 'function' && href) {
-            window.DigitalH5Nav.go(href);
+        if (card.getAttribute('data-sub-type') === 'feed') {
+            openContentDetailFromCard(card);
             return;
         }
-        var type = card.getAttribute('data-sub-type');
-        if (type === 'feed') toast('进入动态详情（原型）');
-        else if (type === 'live') toast('进入直播详情（原型）');
-        else toast('进入付费独享内容（原型）');
+        goFeedHref(resolveFeedDetailHref(card));
     });
     document.querySelectorAll('.sub-exp-item .renew').forEach(function (btn) {
         btn.addEventListener('click', function () {
