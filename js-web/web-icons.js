@@ -90,6 +90,8 @@
         clone: 'copy',
         rotate: 'rotate-cw',
         'rotate-right': 'rotate-cw',
+        'clock-rotate-left': 'history',
+        'arrow-rotate-left': 'history',
         'arrows-rotate': 'refresh-cw',
         sync: 'refresh-cw',
         'right-from-bracket': 'log-out',

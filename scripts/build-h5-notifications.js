@@ -21,7 +21,6 @@ const overlays = web.slice(toastStart, cddStart);
 
 const headActions = `
 <div class="nf-h5-head">
-    <p class="nf-h5-sub">未读与互动提醒 · 与 Web 通知中心一致</p>
     <div class="nf-h5-btns">
         <button type="button" class="nf-h5-btn" id="btnMarkAllReadTop"><i class="fa-solid fa-check-double"></i> 全部已读</button>
         <button type="button" class="nf-h5-btn" id="btnNfSettings"><i class="fa-solid fa-gear"></i> 设置</button>
@@ -45,7 +44,6 @@ ${inlineStyles}
     padding-bottom: 28px;
 }
 .nf-h5-head { margin: 0 16px 10px; }
-.nf-h5-sub { font-size: 11px; color: var(--text-tertiary); margin: 0 0 8px; line-height: 1.45; }
 .nf-h5-btns { display: flex; gap: 8px; }
 .nf-h5-btn {
     flex: 1; height: 34px; border-radius: 10px;

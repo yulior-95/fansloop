@@ -824,6 +824,69 @@
 
     global.FL_bindNotificationEntry = initNotificationEntry;
 
+    /** 全站顶栏积分入口（主导航页常驻，与通知/充值同级） */
+    function loadGlobalPointsHeader() {
+        if (!document.querySelector('.app-shell')) return;
+        if (document.querySelector('script[data-fl-global-points-header]')) return;
+        var scripts = document.getElementsByTagName('script');
+        var base = '';
+        for (var i = 0; i < scripts.length; i++) {
+            var src = scripts[i].src || '';
+            if (src.indexOf('app-sidebar-global') >= 0) {
+                base = src.replace(/\/js-web\/app-sidebar-global\.js.*$/, '/js-web/');
+                break;
+            }
+        }
+        if (!base) return;
+        if (!document.querySelector('script[data-fl-global-points-drawer]')) {
+            var drawerJs = document.createElement('script');
+            drawerJs.src = base + 'global-points-drawer.js';
+            drawerJs.setAttribute('data-fl-global-points-drawer', '1');
+            document.body.appendChild(drawerJs);
+        }
+        var js = document.createElement('script');
+        js.src = base + 'global-points-header.js';
+        js.setAttribute('data-fl-global-points-header', '1');
+        js.defer = true;
+        document.body.appendChild(js);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadGlobalPointsHeader);
+    } else {
+        loadGlobalPointsHeader();
+    }
+
+    global.FL_loadGlobalPointsHeader = loadGlobalPointsHeader;
+
+    /** 积分流水弹窗（抽屉「查看完整流水」、商城「积分流水」） */
+    function loadPointsLedgerModal() {
+        if (!document.querySelector('.app-shell')) return;
+        if (document.querySelector('script[data-fl-points-ledger-modal]')) return;
+        var scripts = document.getElementsByTagName('script');
+        var base = '';
+        for (var i = 0; i < scripts.length; i++) {
+            var src = scripts[i].src || '';
+            if (src.indexOf('app-sidebar-global') >= 0) {
+                base = src.replace(/\/js-web\/app-sidebar-global\.js.*$/, '/js-web/');
+                break;
+            }
+        }
+        if (!base) return;
+        var js = document.createElement('script');
+        js.src = base + 'points-ledger-modal.js';
+        js.setAttribute('data-fl-points-ledger-modal', '1');
+        document.body.appendChild(js);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadPointsLedgerModal);
+    } else {
+        loadPointsLedgerModal();
+    }
+
+    global.FL_loadPointsLedgerModal = loadPointsLedgerModal;
+
     /** 全局加载 macOS 风格侧边通知（有 app-shell 的页面） */
     function loadMacNotificationBanner() {
         if (!document.querySelector('.app-shell')) return;

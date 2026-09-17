@@ -8,20 +8,39 @@
 <link rel="stylesheet" href="../css/common.css">
 <link rel="stylesheet" href="../css/h5-live-host.css">
 <script src="../js/h5-theme-boot.js"></script>
+<link rel="stylesheet" href="../css/h5-light-theme.css">
 <style>
-body.page-h5-live-host .status-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; color: #fff; background: transparent; }
+body.page-h5-live-host .status-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 100; color: #fff; background: transparent; }
 body.page-h5-live-host .status-bar .time,
 body.page-h5-live-host .status-bar .right { text-shadow: 0 1px 4px rgba(0,0,0,.5); }
 </style>
 </head>
 <body class="page-h5-live-host">
 
+<div class="lh-stage" id="lhStage">
+
 <div class="status-bar dark-mode">
     <span class="time">9:41</span>
     <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
 </div>
 
-<div class="lh-root" id="lhRoot" role="img" aria-label="摄像头预览"></div>
+<div class="lh-root lh-root--tap" id="lhRoot" role="button" tabindex="0" aria-label="摄像头预览，点击查看创作者主页"></div>
+<div class="obs-audience-slots lh-host-audience-slots" id="lhAudienceSlotsLive" hidden aria-label="观众连麦席位"></div>
+<div class="lh-mic-apply-banner" id="lhMicApplyBanner" hidden role="dialog" aria-labelledby="lhMicApplyTitle">
+    <div class="lh-mic-apply-inner">
+        <div class="av" id="lhMicApplyAv" aria-hidden="true"></div>
+        <div class="meta">
+            <div class="t" id="lhMicApplyTitle">连麦申请</div>
+            <div class="n" id="lhMicApplyName">—</div>
+            <div class="q" id="lhMicApplyQueueHint" hidden></div>
+        </div>
+        <div class="acts">
+            <button type="button" class="reject" id="lhMicApplyReject">拒绝</button>
+            <button type="button" class="ok" id="lhMicApplyAccept">同意</button>
+        </div>
+    </div>
+</div>
+<div class="lh-root-hint" id="lhRootHint"><i class="fa-regular fa-user"></i> 点击查看主页</div>
 
 <div class="lh-countdown" id="lhCountdown" aria-live="assertive">3</div>
 
@@ -47,9 +66,8 @@ body.page-h5-live-host .status-bar .right { text-shadow: 0 1px 4px rgba(0,0,0,.5
     <div class="lh-dock-row">
         <button type="button" class="lh-dock-btn" id="lhBtnFlip"><span class="ic"><i class="fa-solid fa-camera-rotate"></i></span><span>翻转</span></button>
         <button type="button" class="lh-dock-btn" id="lhBtnMic"><span class="ic"><i class="fa-solid fa-microphone"></i></span><span>麦克风</span></button>
-        <button type="button" class="lh-dock-btn" id="lhBtnBeauty"><span class="ic"><i class="fa-solid fa-wand-magic-sparkles"></i></span><span>美颜</span></button>
         <button type="button" class="lh-dock-btn" id="lhBtnPause"><span class="ic"><i class="fa-solid fa-pause"></i></span><span>暂停</span></button>
-        <button type="button" class="lh-dock-btn" id="lhBtnMore"><span class="ic"><i class="fa-solid fa-ellipsis"></i></span><span>更多</span></button>
+        <button type="button" class="lh-dock-btn" id="lhBtnMore"><span class="ic"><i class="fa-solid fa-ellipsis"></i><span class="lh-dock-badge" id="lhMicPendingBadge" hidden aria-label="待处理连麦申请"></span></span><span>更多</span></button>
         <button type="button" class="lh-dock-btn primary" id="lhBtnEnd"><span class="ic"><i class="fa-solid fa-power-off"></i></span><span>结束</span></button>
     </div>
 </div>
@@ -63,17 +81,21 @@ body.page-h5-live-host .status-bar .right { text-shadow: 0 1px 4px rgba(0,0,0,.5
 
 <!-- 开播前 -->
 <div class="lh-prep-ovl" id="lhPrepOvl">
-    <div class="lh-prep-sheet">
-        <h2>准备手机开播</h2>
-        <p class="lead">授权相机与麦克风后即可进入直播间。请确认网络稳定，建议 Wi‑Fi 或 5G。</p>
+    <div class="lh-prep-sheet" role="dialog" aria-labelledby="lhPrepTitle">
+        <div class="lh-sheet-grabber" aria-hidden="true"></div>
+        <h2 id="lhPrepTitle">准备手机开播</h2>
+        <p class="lead">点击「开始直播」后，系统将依次弹出相机与麦克风授权（与真机一致）。请确认网络稳定，建议 Wi‑Fi 或 5G。</p>
+        <div class="lh-prep-session" id="lhPrepSession">
+            <div class="k">本场直播</div>
+            <div class="t" id="lhPrepTitleText">—</div>
+            <div class="s" id="lhPrepSubText">—</div>
+        </div>
         <ul class="lh-prep-checks">
-            <li data-check="cam"><i class="fa-regular fa-circle"></i> 相机 · 用于直播画面</li>
-            <li data-check="mic"><i class="fa-regular fa-circle"></i> 麦克风 · 用于语音互动</li>
-            <li class="done"><i class="fa-solid fa-circle-check"></i> 标题与变现设置已从创建页带入</li>
+            <li data-check="cam"><i class="fa-regular fa-circle"></i><span>相机 · 用于直播画面</span></li>
+            <li data-check="mic"><i class="fa-regular fa-circle"></i><span>麦克风 · 用于语音互动</span></li>
+            <li class="done"><i class="fa-solid fa-circle-check"></i><span>标题与变现设置已从创建页带入</span></li>
         </ul>
         <div class="lh-prep-actions">
-            <button type="button" class="btn btn-secondary" id="lhBtnGrantCam"><i class="fa-solid fa-video"></i> 授权相机</button>
-            <button type="button" class="btn btn-secondary" id="lhBtnGrantMic"><i class="fa-solid fa-microphone"></i> 授权麦克风</button>
             <button type="button" class="btn btn-primary" id="lhBtnGoLive"><i class="fa-solid fa-tower-broadcast"></i> 开始直播</button>
         </div>
     </div>
@@ -86,8 +108,63 @@ body.page-h5-live-host .status-bar .right { text-shadow: 0 1px 4px rgba(0,0,0,.5
         <div class="lh-more-grid">
             <button type="button" class="lh-more-item" data-lh-more="chat"><span class="ic"><i class="fa-regular fa-comments"></i></span>弹幕</button>
             <button type="button" class="lh-more-item" data-lh-more="cohost"><span class="ic"><i class="fa-solid fa-link"></i></span>连麦</button>
+            <button type="button" class="lh-more-item" data-lh-more="admin"><span class="ic"><i class="fa-solid fa-user-shield"></i></span>房管</button>
             <button type="button" class="lh-more-item" data-lh-more="share"><span class="ic"><i class="fa-solid fa-share-nodes"></i></span>分享</button>
             <button type="button" class="lh-more-item" data-lh-more="flip"><span class="ic"><i class="fa-solid fa-camera-rotate"></i></span>翻转</button>
+        </div>
+    </div>
+</div>
+
+<div class="lh-sheet-ovl" id="lhChatSheet">
+    <div class="lh-sheet">
+        <div class="sh"><h3>弹幕管理</h3><button type="button" data-lh-sheet-close="lhChatSheet">关闭</button></div>
+        <p class="lh-sheet-lead">与 Web 主播控制台弹幕区一致 · 可屏蔽礼物飘字。</p>
+        <div class="lh-switch-row">
+            <span>显示弹幕</span>
+            <button type="button" class="lh-switch on" id="lhSwitchDanmaku" aria-pressed="true">开</button>
+        </div>
+        <div class="lh-switch-row">
+            <span>礼物飘字</span>
+            <button type="button" class="lh-switch on" id="lhSwitchGiftFloat" aria-pressed="true">开</button>
+        </div>
+    </div>
+</div>
+
+<div class="lh-sheet-ovl" id="lhCohostSheet">
+    <div class="lh-sheet">
+        <div class="sh"><h3>观众连麦</h3><button type="button" data-lh-sheet-close="lhCohostSheet">关闭</button></div>
+        <p class="lh-sheet-lead">此处仅开启或关闭连麦。开启后请返回直播画面；有新申请时会在画面底部弹出，可直接同意或拒绝。</p>
+        <div class="lh-switch-row">
+            <span>允许观众申请连麦</span>
+            <button type="button" class="lh-switch on" id="lhSwitchMicApply" aria-pressed="true">开</button>
+        </div>
+        <p class="lh-sheet-note">最多 2 人同时上麦 · 满员时需先下麦再接新申请</p>
+        <button type="button" class="btn btn-secondary btn-sm" id="lhMicDemoApply" style="width:100%;margin-top:10px"><i class="fa-solid fa-user-plus"></i> 模拟观众申请（演示）</button>
+    </div>
+</div>
+
+<div class="lh-sheet-ovl" id="lhAdminSheet">
+    <div class="lh-sheet lh-sheet-tall">
+        <div class="sh"><h3>房管 · 管理员</h3><button type="button" data-lh-sheet-close="lhAdminSheet">关闭</button></div>
+        <p class="lh-sheet-lead">与 Web「互动 · 房管」一致：任命后可文字发言、禁言/踢人、飘屏公告。</p>
+        <ul class="lh-admin-perms">
+            <li><i class="fa-solid fa-check"></i> 文字代发 / 飘屏公告</li>
+            <li><i class="fa-solid fa-check"></i> 禁言、踢出直播间</li>
+            <li><i class="fa-solid fa-check"></i> 处理连麦队列（同意/拒绝）</li>
+        </ul>
+        <div class="lh-queue-hd">当前房管</div>
+        <ul class="lh-admin-list" id="lhAdminList"></ul>
+        <button type="button" class="btn btn-primary btn-sm" id="lhAdminFromDm" style="width:100%;margin-top:10px"><i class="fa-solid fa-user-shield"></i> 从最近弹幕任命（演示）</button>
+    </div>
+</div>
+
+<div class="lh-sheet-ovl" id="lhShareSheet">
+    <div class="lh-sheet">
+        <div class="sh"><h3>分享直播</h3><button type="button" data-lh-sheet-close="lhShareSheet">关闭</button></div>
+        <p class="lh-sheet-lead">复制链接分享给粉丝，观众从 live-detail 进入。</p>
+        <div class="lh-share-row">
+            <input type="text" readonly id="lhShareLink" value="https://goodfans.app/live/luna-jazz" />
+            <button type="button" class="btn btn-primary btn-sm" id="lhShareCopy">复制</button>
         </div>
     </div>
 </div>
@@ -120,7 +197,19 @@ body.page-h5-live-host .status-bar .right { text-shadow: 0 1px 4px rgba(0,0,0,.5
     </div>
 </div>
 
+<div class="lh-sys-perm-ovl" id="lhSysPermOvl" hidden aria-hidden="true">
+    <div class="lh-sys-perm-alert" role="alertdialog" aria-modal="true" aria-labelledby="lhSysPermTitle" aria-describedby="lhSysPermMsg">
+        <p class="lh-sys-perm-title" id="lhSysPermTitle">「GOODFANS」想访问您的相机</p>
+        <p class="lh-sys-perm-msg" id="lhSysPermMsg">用于采集直播画面。</p>
+        <div class="lh-sys-perm-actions">
+            <button type="button" class="deny" id="lhSysPermDeny">不允许</button>
+            <button type="button" class="allow" id="lhSysPermAllow">好</button>
+        </div>
+    </div>
+</div>
+
 <div class="home-indicator"></div>
+</div><!-- .lh-stage -->
 <script src="../js/digital-h5-nav.js"></script>
 <script src="../js/h5-live-host-page.js"></script>
 </body>

@@ -160,11 +160,19 @@
         var btn = document.getElementById('hPointsBtn');
         if (btn && global.FLHomePoints.formatPoints) {
             var w = data.wallet;
+            var total = global.FLHomePoints.getTotalPoints
+                ? global.FLHomePoints.getTotalPoints(w)
+                : (w.available || 0) + (w.frozen || 0);
             btn.innerHTML =
                 '<span class="ic"><i class="fa-solid fa-coins"></i></span>' +
-                '<span class="val">' + global.FLHomePoints.formatPoints(w.available) + '</span>' +
+                '<span class="val">' + global.FLHomePoints.formatPoints(total) + '</span>' +
                 '<span class="sub">积分</span>';
-            btn.title = '可用 ' + global.FLHomePoints.formatPoints(w.available) + ' · 冷静中 ' + global.FLHomePoints.formatPoints(w.frozen);
+            btn.title = '总 ' + global.FLHomePoints.formatPoints(total) +
+                ' · 可用 ' + global.FLHomePoints.formatPoints(w.available) +
+                ' · 冷静中 ' + global.FLHomePoints.formatPoints(w.frozen);
+        }
+        if (global.FLGlobalPointsHeader && global.FLGlobalPointsHeader.render) {
+            global.FLGlobalPointsHeader.render(data);
         }
     }
 

@@ -5,6 +5,7 @@
 <title>消息</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/h5-messages.css">
 <script src="../js/h5-theme-boot.js"></script>
 <style>
 .nav-bar { background: var(--bg-primary); }
@@ -12,44 +13,7 @@
     padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
     padding-bottom: calc(var(--tab-bar-height) + 10px);
 }
-
-.iml-tabs {
-    display: flex;
-    gap: 6px;
-    padding: 10px 16px 12px;
-    overflow-x: auto;
-    scrollbar-width: none;
-}
-.iml-tabs::-webkit-scrollbar { display: none; }
-.iml-tabs .t {
-    flex-shrink: 0;
-    padding: 6px 12px;
-    border-radius: 7px;
-    background: var(--bg-card);
-    color: var(--text-secondary);
-    font-size: 12px;
-    border: 1px solid var(--border-color);
-    cursor: pointer;
-}
-.iml-tabs .t.active {
-    background: var(--bg-input);
-    color: var(--text-primary);
-    font-weight: 700;
-}
-.iml-tabs .t .cnt {
-    font-size: 9px;
-    margin-left: 4px;
-    padding: 1px 5px;
-    background: #ef4444;
-    color: #fff;
-    border-radius: 999px;
-}
 .msg-search {
-    margin: 0 16px 12px;
-    height: 36px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-card);
-    border-radius: 10px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -94,19 +58,14 @@
 }
 .msg-summary b { color: var(--text-primary); }
 .msg-compose-row {
-    margin: 0 16px 12px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
 }
 .msg-compose-card {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 11px;
-    border-radius: 12px;
     border: 1px solid var(--border-color);
-    background: var(--bg-card);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     text-align: left;
@@ -151,61 +110,10 @@
     text-overflow: ellipsis;
 }
 
-/* 快捷入口 */
-.quick-grid {
-    margin: 0 16px 12px;
-    padding: 16px 0;
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-}
-.quick-grid .q {
-    display: flex; flex-direction: column; align-items: center; gap: 6px;
-    position: relative;
-}
-.quick-grid .q .ic {
-    width: 42px; height: 42px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 17px;
-}
-.quick-grid .q .label { font-size: 11px; color: var(--text-secondary); }
-.quick-grid .q .badge-num {
-    position: absolute;
-    top: -4px; right: 18%;
-    min-width: 16px; height: 16px;
-    padding: 0 4px;
-    border-radius: 8px;
-    background: #EF4444;
-    color: #fff;
-    font-size: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 600;
-}
-
-.c-1 { background: rgba(239,68,68,0.15); color: var(--danger); }
-.c-2 { background: rgba(245,158,11,0.15); color: var(--crypto-gold); }
-.c-3 { background: rgba(168,85,247,0.15); color: var(--brand-purple); }
-.c-4 { background: rgba(16,185,129,0.15); color: var(--crypto-green); }
-
 /* 消息列表 */
-.section-title {
-    padding: 6px 16px 10px;
-    font-size: 13px;
-    color: var(--text-secondary);
-}
-
-.chat-list {
-    margin: 0 16px;
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-}
 .chat-item {
     display: flex; align-items: center;
     gap: 12px;
-    padding: 12px 14px;
     border-bottom: 0.5px solid var(--border-color);
 }
 .chat-item:last-child { border-bottom: none; }
@@ -401,15 +309,31 @@
 
 <div class="app-content">
 
-    <div class="iml-tabs" id="imlTabs">
-        <span class="t active" data-filter="all">全部<span class="cnt" id="imlCntAll">8</span></span>
-        <span class="t" data-filter="dm">私聊<span class="cnt" id="imlCntDm">7</span></span>
-        <span class="t" data-filter="group">群聊<span class="cnt" id="imlCntGroup">1</span></span>
+    <div class="iml-head">
+        <div class="iml-title-row">
+            <h1><i class="fa-regular fa-comments" style="font-size:20px;color:var(--brand-purple)"></i> 消息 <span class="iml-unread-pill" id="imlUnreadHead">8 未读</span></h1>
+            <div class="iml-head-actions">
+                <button type="button" id="btnAddContactIcon" title="发起私聊" aria-label="发起私聊"><i class="fa-regular fa-message"></i></button>
+                <button type="button" id="btnCreateGroupIcon" title="创建群聊" aria-label="创建群聊"><i class="fa-solid fa-user-group"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="iml-tabs" id="imlTabs" role="tablist">
+        <button type="button" class="t active" data-filter="all" role="tab">全部<span class="cnt" id="imlCntAll">8</span></button>
+        <button type="button" class="t" data-filter="dm" role="tab">私聊<span class="cnt" id="imlCntDm">7</span></button>
+        <button type="button" class="t" data-filter="group" role="tab">群聊<span class="cnt" id="imlCntGroup">1</span></button>
     </div>
     <div class="msg-search">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-        <input id="msgSearchInput" placeholder="搜索会话 / 文案关键词" />
+        <input id="msgSearchInput" placeholder="搜索会话、群聊、关键词…" autocomplete="off" />
     </div>
+    <nav class="iml-quick-links" aria-label="消息快捷入口">
+        <a href="messages-interactions.html"><span class="ic c-1"><i class="fa-regular fa-heart"></i></span>互动</a>
+        <a href="messages-requests.html"><span class="ic c-2"><i class="fa-solid fa-user-plus"></i></span>好友请求</a>
+        <a href="messages-wallet-notices.html"><span class="ic c-3"><i class="fa-solid fa-wallet"></i></span>钱包通知</a>
+        <a href="notifications.html"><span class="ic c-4"><i class="fa-regular fa-bell"></i></span>系统通知</a>
+    </nav>
+    <style>.c-1{background:rgba(239,68,68,0.14);color:#f87171}.c-2{background:rgba(245,158,11,0.14);color:#fbbf24}.c-3{background:rgba(168,85,247,0.14);color:#c084fc}.c-4{background:rgba(16,185,129,0.14);color:#34d399}</style>
     <div class="msg-compose-row">
         <button type="button" class="msg-compose-card" id="btnAddContact">
             <span class="ic dm"><i class="fa-solid fa-comment-dots" aria-hidden="true"></i></span>
@@ -438,7 +362,7 @@
         </div>
         <div class="chat-item" data-peer="Luna" data-chat-type="dm" data-text="已向你发送新的订阅专属视频">
             <div class="avatar-box">
-                <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80">
+                <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80" alt="">
                 <div class="unread">5</div>
             </div>
             <div class="info">
@@ -452,7 +376,7 @@
         </div>
         <div class="chat-item" data-peer="Mila" data-chat-type="dm" data-text="谢谢你的打赏 已收到10USDT">
             <div class="avatar-box">
-                <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80">
+                <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80" alt="">
                 <div class="unread">2</div>
             </div>
             <div class="info">
@@ -465,7 +389,7 @@
         </div>
         <div class="chat-item" data-peer="Ryo" data-chat-type="dm" data-text="下周会去京都拍新的vlog 敬请期待">
             <div class="avatar-box">
-                <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80">
+                <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80" alt="">
             </div>
             <div class="info">
                 <div class="row1">
@@ -477,7 +401,7 @@
         </div>
         <div class="chat-item" data-peer="Nova" data-chat-type="group" data-text="图片 新作品">
             <div class="avatar-box">
-                <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=80">
+                <img class="avatar avatar-md" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&q=80" alt="">
             </div>
             <div class="info">
                 <div class="row1">
@@ -505,6 +429,7 @@
     </div>
 
 </div>
+
 <div class="msg-ovl" id="ovlAddContact">
     <div class="msg-panel">
         <div class="hd"><div class="t">新建私聊</div><button type="button" id="btnCloseAddContact"><i class="fa-solid fa-xmark"></i></button></div>

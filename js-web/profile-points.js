@@ -77,6 +77,19 @@
 
     function goMall() { location.href = 'points-mall.html'; }
 
+    function goPointsLedgerFull(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        closeDrawer();
+        if (window.FLPointsLedgerModal && typeof window.FLPointsLedgerModal.open === 'function') {
+            window.FLPointsLedgerModal.open();
+        } else {
+            location.assign('home-points-ledger.html');
+        }
+    }
+
     function applyWalletFromStorage(data) {
         if (window.FLUserRegistry && window.GoodfansAuth && window.GoodfansAuth.getUserId()) {
             var acc = window.FLUserRegistry.getByUserId(window.GoodfansAuth.getUserId());
@@ -155,6 +168,37 @@
         }).join('');
 
         bindTaskActions(tasksEl);
+        renderDrawerLedger(data);
+    }
+
+    function renderDrawerLedger(data) {
+        var el = qs('#hpDrawerLedger');
+        if (!el || !data.ledger) return;
+        el.innerHTML = data.ledger.map(function (row) {
+            var icCls = row.status === 'frozen' ? 'frozen' : row.type;
+            var ic = row.type === 'spend' ? 'fa-bag-shopping' : (row.status === 'frozen' ? 'fa-snowflake' : 'fa-plus');
+            var amtCls = row.points > 0 ? 'plus' : 'minus';
+            var amtTxt = row.points > 0 ? '+' + S.formatPoints(row.points) : S.formatPoints(row.points);
+            var sub = row.time;
+            if (row.status === 'frozen' && row.unfreezeAt) sub += ' · ' + row.unfreezeAt + ' 解冻';
+            return '<div class="hp-ledger-row">' +
+                '<div class="ic ' + icCls + '"><i class="fa-solid ' + ic + '"></i></div>' +
+                '<div class="info"><div class="t">' + escapeHtml(row.task) + '</div><div class="s">' + sub + '</div></div>' +
+                '<span class="amt ' + amtCls + '">' + amtTxt + '</span></div>';
+        }).join('');
+    }
+
+    function bindDrawerTabs() {
+        qsa('.hp-drawer-tabs button').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var tab = btn.getAttribute('data-tab');
+                qsa('.hp-drawer-tabs button').forEach(function (b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+                qsa('.hp-drawer-panel').forEach(function (p) {
+                    p.classList.toggle('active', p.id === 'hpPanel' + tab);
+                });
+            });
+        });
     }
 
     function markClaimedUI(card, task) {
@@ -226,6 +270,9 @@
         if (mask) mask.addEventListener('click', closeDrawer);
         var mall = qs('#hpDrawerGoMall');
         if (mall) mall.addEventListener('click', goMall);
+        var ledgerFull = qs('#hpDrawerGoLedger');
+        if (ledgerFull) ledgerFull.addEventListener('click', goPointsLedgerFull);
+        bindDrawerTabs();
     }
 
     function boot() {
@@ -242,6 +289,13 @@
         if (params.get('pointsTasks') === 'open' || params.get('pointsDrawer') === 'open') {
             setTimeout(openDrawer, 100);
         }
+        if (params.get('pointsTab') === 'ledger') {
+            setTimeout(function () {
+                openDrawer();
+                var ledgerBtn = qs('.hp-drawer-tabs button[data-tab="Ledger"]');
+                if (ledgerBtn) ledgerBtn.click();
+            }, 120);
+        }
         if (params.get('pointsCheckin') === 'claimed') {
             S.saveTaskState({ act_checkin: { status: 'claimed' } });
         }
@@ -249,6 +303,14 @@
             setTimeout(function () { window.MallBenefitsScenes.applyAll(); }, 80);
         }
     }
+
+    window.FLProfilePointsUI = {
+        openDrawer: openDrawer,
+        refreshAndOpen: function (data) {
+            renderAll(applyWalletFromStorage(data));
+            openDrawer();
+        }
+    };
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', boot);

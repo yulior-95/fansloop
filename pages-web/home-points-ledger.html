@@ -203,11 +203,8 @@
     S.fetchPointsData().then(function (data) {
         renderSummary(data);
         renderTable(data);
-        var btn = document.getElementById('hPointsBtn');
-        if (btn) {
-            btn.innerHTML = '<span class="ic"><i class="fa-solid fa-coins"></i></span><span class="val">' +
-                S.formatPoints(data.wallet.available) + '</span><span class="sub">积分</span>';
-            btn.onclick = function () { location.href = 'home.html?pointsDrawer=open'; };
+        if (window.FLGlobalPointsHeader && typeof window.FLGlobalPointsHeader.render === 'function') {
+            window.FLGlobalPointsHeader.render(data);
         }
     });
 
@@ -222,6 +219,7 @@
 })();
 </script>
 <script src="../js-web/page-back-nav.js"></script>
+<script src="../js-web/app-sidebar-global.js"></script>
 <script src="../js-web/web-icons.js"></script>
 </body>
 </html>

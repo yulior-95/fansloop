@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>积分流水</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/h5-light-theme.css">
+<script src="../js/h5-theme-boot.js"></script>
+<style>
+.nav-bar { background: var(--bg-primary); z-index: 100; }
+.status-bar { z-index: 110; background: var(--bg-primary); }
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 28px;
+}
+.hpl-wrap {
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-bottom: 8px;
+}
+.hpl-intro {
+    margin: 6px 0 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+}
+.hpl-intro code {
+    font-size: 10px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: var(--bg-inset);
+    color: var(--text-tertiary);
+}
+.hpl-search {
+    position: relative;
+    margin-bottom: 12px;
+}
+.hpl-search i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+.hpl-search input {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px 0 34px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-inset);
+    color: var(--text-primary);
+    font-size: 13px;
+    box-sizing: border-box;
+}
+.hpl-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.hpl-summary .card {
+    padding: 12px;
+    border-radius: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+}
+.hpl-summary .card .k {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-bottom: 4px;
+}
+.hpl-summary .card .v {
+    font-size: 18px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+.hpl-summary .card.avail .v { color: #fbbf24; }
+.hpl-summary .card.frozen .v { color: #93c5fd; }
+.hpl-summary .card.purple .v { color: #c084fc; }
+.hpl-filters {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-bottom: 12px;
+    padding-bottom: 2px;
+}
+.hpl-filters::-webkit-scrollbar { display: none; }
+.hpl-filters button {
+    flex-shrink: 0;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid var(--border-color);
+    background: var(--bg-inset);
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+.hpl-filters button.active {
+    background: rgba(168, 85, 247, 0.16);
+    border-color: rgba(168, 85, 247, 0.45);
+    color: var(--text-primary);
+}
+.hpl-list { display: flex; flex-direction: column; gap: 8px; }
+.hpl-row {
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+}
+.hpl-row .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+.hpl-row .top strong {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.35;
+}
+.hpl-row .amt {
+    font-size: 14px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+}
+.hpl-row .amt.plus { color: #6ee7b7; }
+.hpl-row .amt.minus { color: #fca5a5; }
+.hpl-row .meta {
+    margin-top: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+.hpl-status {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-weight: 700;
+}
+.hpl-status.available { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; }
+.hpl-status.frozen { background: rgba(59, 130, 246, 0.15); color: #93c5fd; }
+.hpl-status.spent { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
+.hpl-empty {
+    text-align: center;
+    padding: 36px 16px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+.hpl-loading {
+    text-align: center;
+    padding: 24px 16px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+.hpl-foot-cta {
+    margin-top: 14px;
+    display: flex;
+    gap: 8px;
+}
+.hpl-foot-cta .btn {
+    flex: 1;
+    height: 40px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+}
+.hpl-foot-cta .btn-primary {
+    background: var(--brand-gradient);
+    border-color: transparent;
+    color: #fff;
+}
+</style>
+</head>
+<body>
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+</div>
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" data-back="profile.html"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">积分流水</div>
+    <div class="nav-right"></div>
+</div>
+
+<div class="app-content hpl-wrap">
+    <p class="hpl-intro">
+        完整记录每一笔积分变动：任务奖励、邀请冷静期、商城兑换与转盘消耗。与首页积分条、个人页积分中心同源 <code>home-points-store.js</code>。
+    </p>
+
+    <div class="hpl-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" id="hplSearch" placeholder="搜索任务名称、订单号…" autocomplete="off">
+    </div>
+
+    <div class="hpl-summary" id="hplSummary"></div>
+
+    <div class="hpl-filters" id="hplFilters">
+        <button type="button" class="active" data-filter="all">全部</button>
+        <button type="button" data-filter="earn">获取</button>
+        <button type="button" data-filter="spend">消耗</button>
+        <button type="button" data-filter="frozen">冷静中</button>
+    </div>
+
+    <div class="hpl-loading" id="hplLoading">加载积分流水…</div>
+    <div class="hpl-list" id="hplList"></div>
+    <div class="hpl-empty" id="hplEmpty" hidden>暂无匹配的流水记录</div>
+
+    <div class="hpl-foot-cta">
+        <button type="button" class="btn" data-go="profile.html"><i class="fa-solid fa-user"></i> 个人页</button>
+        <button type="button" class="btn btn-primary" data-go="goodfans-assets-legend.html"><i class="fa-solid fa-store"></i> 积分商城</button>
+    </div>
+</div>
+
+<div class="home-indicator"></div>
+<script src="../js-web/invite-reward-config.js"></script>
+<script src="../js-web/points-tier-config.js"></script>
+<script src="../js-web/points-reward-service.js"></script>
+<script src="../js-web/home-points-store.js"></script>
+<script src="../js/digital-h5-nav.js"></script>
+<script>
+(function () {
+    var FALLBACK = {
+        wallet: { available: 12580, frozen: 1400, todayEarned: 310, todayCap: 480 },
+        ledger: [
+            { time: '2026-06-10 09:42', task: '每日签到', type: 'earn', points: 20, status: 'available' },
+            { time: '2026-06-10 08:15', task: '观看直播满 30 分钟', type: 'earn', points: 50, status: 'available' },
+            { time: '2026-06-09 22:30', task: '浏览赚积分', type: 'earn', points: 128, status: 'available' },
+            { time: '2026-06-09 18:05', task: '邀请好友 · 胶片爱好者', type: 'earn', points: 200, status: 'frozen', unfreezeAt: '2026-06-16' },
+            { time: '2026-06-08 14:20', task: '兑换 · 订阅 9 折券', type: 'spend', points: -800, status: 'spent' },
+            { time: '2026-06-07 11:00', task: '幸运转盘', type: 'spend', points: -500, status: 'spent' }
+        ]
+    };
+
+    var S = window.FLHomePoints;
+    var loadingEl = document.getElementById('hplLoading');
+
+    function formatPts(n) {
+        if (S && S.formatPoints) return S.formatPoints(n);
+        return Number(n).toLocaleString('zh-CN');
+    }
+
+    function hideLoading() {
+        if (loadingEl) loadingEl.hidden = true;
+    }
+
+    var currentFilter = 'all';
+    var searchQ = '';
+    var cachedData = null;
+
+    function statusBadge(row) {
+        if (row.status === 'frozen') return '<span class="hpl-status frozen">冷静中</span>';
+        if (row.type === 'spend') return '<span class="hpl-status spent">已消耗</span>';
+        return '<span class="hpl-status available">可用</span>';
+    }
+
+    function renderSummary(data) {
+        var w = data.wallet;
+        document.getElementById('hplSummary').innerHTML =
+            '<div class="card avail"><div class="k">可用积分</div><div class="v">' + formatPts(w.available) + '</div></div>' +
+            '<div class="card frozen"><div class="k">冷静中</div><div class="v">' + formatPts(w.frozen) + '</div></div>' +
+            '<div class="card purple"><div class="k">今日已获</div><div class="v">' + formatPts(w.todayEarned) + '</div></div>' +
+            '<div class="card"><div class="k">今日上限</div><div class="v">' + formatPts(w.todayCap) + '</div></div>';
+    }
+
+    function matchSearch(row) {
+        if (!searchQ) return true;
+        var hay = (row.task + ' ' + (row.order || '') + ' ' + row.time).toLowerCase();
+        return hay.indexOf(searchQ) >= 0;
+    }
+
+    function renderList(data) {
+        cachedData = data;
+        var rows = data.ledger.filter(function (r) {
+            if (currentFilter === 'earn' && r.type !== 'earn') return false;
+            if (currentFilter === 'spend' && r.type !== 'spend') return false;
+            if (currentFilter === 'frozen' && r.status !== 'frozen') return false;
+            return matchSearch(r);
+        });
+        var list = document.getElementById('hplList');
+        var empty = document.getElementById('hplEmpty');
+        if (!rows.length) {
+            list.innerHTML = '';
+            empty.hidden = false;
+            return;
+        }
+        empty.hidden = true;
+        list.innerHTML = rows.map(function (r) {
+            var cls = r.points > 0 ? 'plus' : 'minus';
+            var txt = r.points > 0 ? '+' + formatPts(r.points) : formatPts(r.points);
+            var note = r.status === 'frozen' && r.unfreezeAt ? ' · ' + r.unfreezeAt + ' 解冻' : '';
+            return '<article class="hpl-row">' +
+                '<div class="top"><strong>' + r.task + '</strong><span class="amt ' + cls + '">' + txt + '</span></div>' +
+                '<div class="meta"><span>' + r.time + '</span>' + statusBadge(r) +
+                (note ? '<span>' + note + '</span>' : '') + '</div></article>';
+        }).join('');
+    }
+
+    function boot(data) {
+        hideLoading();
+        renderSummary(data);
+        renderList(data);
+    }
+
+    if (S && S.fetchPointsData) {
+        S.fetchPointsData().then(boot).catch(function () { boot(FALLBACK); });
+    } else {
+        boot(FALLBACK);
+    }
+
+    document.getElementById('hplFilters').addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-filter]');
+        if (!btn) return;
+        currentFilter = btn.getAttribute('data-filter');
+        document.querySelectorAll('#hplFilters button').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        if (cachedData) renderList(cachedData);
+        else if (S && S.fetchPointsData) S.fetchPointsData().then(renderList).catch(function () { renderList(FALLBACK); });
+        else renderList(FALLBACK);
+    });
+
+    var searchEl = document.getElementById('hplSearch');
+    if (searchEl) {
+        searchEl.addEventListener('input', function () {
+            searchQ = searchEl.value.trim().toLowerCase();
+            if (cachedData) renderList(cachedData);
+        });
+    }
+})();
+</script>
+</body>
+</html>

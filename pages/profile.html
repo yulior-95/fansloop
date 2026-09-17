@@ -96,36 +96,6 @@
     color: var(--text-tertiary);
 }
 
-.wallet-chip-lg {
-    margin-top: 14px;
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px;
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-}
-.wallet-chip-lg .w-icon {
-    width: 32px; height: 32px; border-radius: 8px;
-    background: linear-gradient(135deg, rgba(6,182,212,0.25), rgba(6,182,212,0.05));
-    color: var(--crypto-cyan);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
-}
-.wallet-chip-lg .w-info { flex: 1; min-width: 0; }
-.wallet-chip-lg .w-label { font-size: 10px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; }
-.wallet-chip-lg .w-addr {
-    font-family: "SF Mono", monospace;
-    font-size: 13px;
-    margin-top: 2px;
-    color: var(--text-primary);
-}
-.wallet-chip-lg .w-copy {
-    display: flex; align-items: center; gap: 4px;
-    color: var(--brand-purple);
-    font-size: 12px;
-    font-weight: 500;
-}
-
 /* 账户卡 */
 .wallets-row {
     display: block;
@@ -702,6 +672,32 @@
     color: #fff;
     border-color: transparent;
 }
+.hp-mini-ledger-more {
+    margin-top: 10px;
+    width: 100%;
+    height: 34px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+.hp-mini-ledger-more i {
+    font-size: 11px;
+    opacity: 0.88;
+}
+.hp-mini-ledger-more:active {
+    opacity: 0.92;
+    transform: scale(0.99);
+}
 </style>
 <link rel="stylesheet" href="../css/h5-light-theme.css">
 </head>
@@ -746,14 +742,6 @@
             <div class="tool-btn" id="pfEditProfileBtn"><i class="fa-solid fa-pen"></i></div>
         </div>
 
-        <div class="wallet-chip-lg">
-            <div class="w-icon"><i class="fa-solid fa-wallet"></i></div>
-            <div class="w-info">
-                <div class="w-label">链上地址 · ID</div>
-                <div class="w-addr">0x8A...f2E6</div>
-            </div>
-            <div class="w-copy" id="pfCopyAddr"><i class="fa-regular fa-copy"></i> 复制</div>
-        </div>
     </div>
 
     <!-- 数据统计 -->
@@ -803,7 +791,7 @@
             <div class="tool-icon tool-color-3"><i class="fa-solid fa-list-check"></i></div>
             <span class="tool-label">积分任务</span>
         </div>
-        <div class="tool" id="pfToolMall" data-go="points-mall.html">
+        <div class="tool" id="pfToolMall" data-go="goodfans-assets-legend.html">
             <div class="tool-icon tool-color-2"><i class="fa-solid fa-coins"></i></div>
             <span class="tool-label">积分商城</span>
         </div>
@@ -815,9 +803,9 @@
             <div class="tool-icon tool-color-4"><i class="fa-solid fa-chart-line"></i></div>
             <span class="tool-label">创作者收入</span>
         </div>
-        <div class="tool" data-go="my-appeals.html">
-            <div class="tool-icon tool-color-5"><i class="fa-solid fa-gavel"></i></div>
-            <span class="tool-label">我的申诉</span>
+        <div class="tool" data-go="after-sales.html">
+            <div class="tool-icon tool-color-5"><i class="fa-solid fa-life-ring"></i></div>
+            <span class="tool-label">售后帮助</span>
         </div>
     </div>
 
@@ -1014,7 +1002,9 @@
                     <div class="top"><strong>积分商城兑换</strong><span class="amt minus">-1,600</span></div>
                     <div class="s">昨天 21:03 · 付费内容试看券</div>
                 </div>
-                <button type="button" class="op" id="pfPointsLedgerBtn" style="width:100%;height:30px">查看完整流水页</button>
+                <button type="button" class="hp-mini-ledger-more" id="pfPointsLedgerBtn">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> 查看完整流水页
+                </button>
             </div>
             <div class="hp-mini-foot">
                 <button type="button" id="pfPointsCloseFoot"><i class="fa-solid fa-xmark"></i> 关闭</button>
@@ -1069,6 +1059,10 @@
 </div>
 
 <div class="home-indicator"></div>
+<script src="../js-web/invite-reward-config.js"></script>
+<script src="../js-web/points-tier-config.js"></script>
+<script src="../js-web/points-reward-service.js"></script>
+<script src="../js-web/home-points-store.js"></script>
 <script src="../js/digital-h5-nav.js"></script>
 <script>
 (function () {
@@ -1080,7 +1074,6 @@
     var pfNotiClose = document.getElementById('pfNotiClose');
     var pfInviteClose = document.getElementById('pfInviteClose');
     var pfPointsClose = document.getElementById('pfPointsClose');
-    var pfCopyAddr = document.getElementById('pfCopyAddr');
     var pfEditProfileBtn = document.getElementById('pfEditProfileBtn');
     var pfEditOvl = document.getElementById('pfEditOvl');
     var pfEditClose = document.getElementById('pfEditClose');
@@ -1095,6 +1088,7 @@
     var pfPointsOvl = document.getElementById('pfPointsOvl');
     var pfToolInvite = document.getElementById('pfToolInvite');
     var pfToolPoints = document.getElementById('pfToolPoints');
+    var pfToolMall = document.getElementById('pfToolMall');
     var pfInviteCopyBtn = document.getElementById('pfInviteCopyBtn');
     var pfInviteGotoBtn = document.getElementById('pfInviteGotoBtn');
     var pfPointsMallBtn = document.getElementById('pfPointsMallBtn');
@@ -1133,7 +1127,6 @@
             if (go) location.href = go;
         });
     });
-    if (pfCopyAddr) pfCopyAddr.addEventListener('click', function () { toast('链上地址已复制'); });
     if (pfEditClose) pfEditClose.addEventListener('click', function () { close(pfEditOvl); });
     if (pfEditCancel) pfEditCancel.addEventListener('click', function () { close(pfEditOvl); });
     if (pfEditProfileBtn) pfEditProfileBtn.addEventListener('click', function () {
@@ -1154,7 +1147,37 @@
         toast('资料已更新');
     });
     if (pfToolInvite) pfToolInvite.addEventListener('click', function () { location.href = 'invite-data.html'; });
-    if (pfToolPoints) pfToolPoints.addEventListener('click', function () { open(pfPointsOvl); });
+    function syncPointsMiniFromStore() {
+        if (!window.FLHomePoints || !window.FLHomePoints.fetchPointsData) return;
+        window.FLHomePoints.fetchPointsData().then(function (data) {
+            var w = data.wallet;
+            var fmt = window.FLHomePoints.formatPoints;
+            var gold = document.querySelector('.hp-mini-summary .hp-v-gold');
+            var blue = document.querySelector('.hp-mini-summary .hp-v-blue');
+            var purple = document.querySelector('.hp-mini-summary .hp-v-purple');
+            if (gold) gold.textContent = fmt(w.available);
+            if (blue) blue.textContent = fmt(w.frozen);
+            if (purple) purple.textContent = fmt(w.todayEarned);
+            var ledgerPanel = document.getElementById('hpMiniLedger');
+            var ledgerBtn = document.getElementById('pfPointsLedgerBtn');
+            if (ledgerPanel && data.ledger && data.ledger.length) {
+                var rows = data.ledger.slice(0, 3).map(function (r) {
+                    var cls = r.points > 0 ? 'plus' : 'minus';
+                    var amt = r.points > 0 ? '+' + fmt(r.points) : fmt(r.points);
+                    var st = r.status === 'frozen' ? '冷静中' : (r.type === 'spend' ? '已消耗' : '可用积分');
+                    return '<div class="hp-ledger-row"><div class="top"><strong>' + r.task + '</strong><span class="amt ' + cls + '">' + amt + '</span></div>' +
+                        '<div class="s">' + r.time + ' · ' + st + '</div></div>';
+                }).join('');
+                ledgerPanel.innerHTML = rows;
+                if (ledgerBtn) ledgerPanel.appendChild(ledgerBtn);
+            }
+        }).catch(function () { /* keep static demo */ });
+    }
+    if (pfToolPoints) pfToolPoints.addEventListener('click', function () {
+        syncPointsMiniFromStore();
+        open(pfPointsOvl);
+    });
+    if (pfToolMall) pfToolMall.addEventListener('click', function () { location.href = 'goodfans-assets-legend.html'; });
     if (pfInviteCopyBtn) pfInviteCopyBtn.addEventListener('click', function () { toast('邀请码已复制：ALEX-8K3F'); });
     if (pfInviteGotoBtn) pfInviteGotoBtn.addEventListener('click', function () { location.href = 'transactions.html'; });
     if (pfPointsMallBtn) pfPointsMallBtn.addEventListener('click', function () { location.href = 'goodfans-assets-legend.html'; });

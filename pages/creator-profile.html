@@ -791,6 +791,18 @@
 <script>
 (function () {
     var params = new URLSearchParams(location.search);
+    var backTarget = params.get('back');
+    if (backTarget) {
+        var backBtn = document.querySelector('.nav-bar [data-back]');
+        if (backBtn) {
+            backBtn.setAttribute('data-back', backTarget);
+            backBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                location.href = backTarget;
+            }, true);
+        }
+    }
     var handle = params.get('u') || '';
     var preview = null;
     try {

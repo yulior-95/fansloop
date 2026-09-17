@@ -81,11 +81,14 @@
         var btn = qs('#hPointsBtn');
         if (!btn) return;
         var w = data.wallet;
+        var total = S.getTotalPoints(w);
         btn.innerHTML =
             '<span class="ic"><i class="fa-solid fa-coins"></i></span>' +
-            '<span class="val">' + S.formatPoints(w.available) + '</span>' +
+            '<span class="val">' + S.formatPoints(total) + '</span>' +
             '<span class="sub">积分</span>';
-        btn.title = '可用 ' + S.formatPoints(w.available) + ' · 冷静中 ' + S.formatPoints(w.frozen);
+        btn.title = '总 ' + S.formatPoints(total) +
+            ' · 可用 ' + S.formatPoints(w.available) +
+            ' · 冷静中 ' + S.formatPoints(w.frozen);
     }
 
     function renderAside(data) {
@@ -221,6 +224,19 @@
 
     function goMall() { location.href = 'points-mall.html'; }
 
+    function goPointsLedgerFull(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        closeDrawer();
+        if (window.FLPointsLedgerModal && typeof window.FLPointsLedgerModal.open === 'function') {
+            window.FLPointsLedgerModal.open();
+        } else {
+            location.assign('home-points-ledger.html');
+        }
+    }
+
     function toast(msg) {
         var host = qs('#toastHostF');
         if (!host) return;
@@ -282,6 +298,8 @@
 
         var footMall = qs('#hpDrawerGoMall');
         if (footMall) footMall.addEventListener('click', goMall);
+        var ledgerFull = qs('#hpDrawerGoLedger');
+        if (ledgerFull) ledgerFull.addEventListener('click', goPointsLedgerFull);
 
         bindDrawerTabs();
 
@@ -303,6 +321,16 @@
     window.addEventListener('fl-points-data-change', function (e) {
         if (e.detail) refreshAll(e.detail);
     });
+
+    window.FLHomePointsUI = {
+        openDrawer: openDrawer,
+        closeDrawer: closeDrawer,
+        refreshAll: refreshAll,
+        refreshAndOpen: function (data) {
+            refreshAll(data);
+            openDrawer();
+        }
+    };
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', boot);
