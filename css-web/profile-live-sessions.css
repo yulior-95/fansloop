@@ -2,24 +2,39 @@
  * 个人主页 · 直播 Tab（场次列表 + 直播数据看板）
  */
 .pf-live-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    align-items: stretch;
+}
+
+@media (max-width: 1100px) {
+    .pf-live-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .pf-live-list {
+        grid-template-columns: 1fr;
+    }
 }
 
 .pf-live-item {
     display: flex;
-    gap: 12px;
+    flex-direction: column;
+    gap: 10px;
     padding: 12px;
     background: var(--bg-card);
     border: 1px solid var(--border, var(--border-color));
     border-radius: var(--r-lg, 14px);
-    align-items: stretch;
+    min-width: 0;
 }
 
 .pf-live-item .thumb {
-    width: 96px;
-    min-height: 72px;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    min-height: 0;
     border-radius: 10px;
     background-size: cover;
     background-position: center;
@@ -43,15 +58,32 @@
     flex: 1;
     min-width: 0;
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.pf-live-item .pf-live-copy {
+    flex: 1;
+    min-width: 0;
+    display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
+}
+
+.pf-live-item .meta .pf-live-views {
+    white-space: nowrap;
 }
 
 .pf-live-item .title {
     margin: 0;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 800;
     line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .pf-live-item .meta {
@@ -60,41 +92,20 @@
     line-height: 1.45;
 }
 
-.pf-live-item .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-}
-
-.pf-live-item .chip {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.06);
-    color: var(--t-secondary, var(--text-secondary));
-}
-
-.pf-live-item .chip.accent {
-    background: rgba(239, 68, 68, 0.15);
-    color: #FCA5A5;
-}
-
 .pf-live-item .btn-live-data {
-    align-self: flex-start;
-    margin-top: 2px;
-    height: 32px;
-    padding: 0 12px;
-    border-radius: 8px;
-    border: 1px solid rgba(168, 85, 247, 0.4);
-    background: rgba(168, 85, 247, 0.12);
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 10px;
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    background: rgba(168, 85, 247, 0.1);
     color: #E9D5FF;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 14px;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
 }
 
 .pf-live-item .btn-live-data:active {
@@ -102,7 +113,8 @@
 }
 
 .pf-live-foot {
-    margin-top: 12px;
+    grid-column: 1 / -1;
+    margin-top: 4px;
     font-size: 11px;
     color: var(--t-tertiary, var(--text-tertiary));
     line-height: 1.5;

@@ -27,6 +27,23 @@
             .replace(/"/g, '&quot;');
     }
 
+    /** 已购查看页：去掉面向未购用户的「购买后可…」等话术 */
+    function ownedViewDescription(desc) {
+        if (!desc) return '';
+        var s = String(desc).trim();
+        s = s.replace(/[，,]\s*购买后[^。；!?！？]*([。；!?！？]|$)/g, function (_, punct) {
+            return punct || '。';
+        });
+        s = s.replace(/购买后[^。；!?！？]*([。；!?！？]|$)/g, function (_, punct) {
+            return punct || '';
+        });
+        s = s.replace(/[，,]\s*$/g, '');
+        s = s.replace(/^[，,]\s*/g, '');
+        s = s.replace(/\s{2,}/g, ' ');
+        if (s && !/[。；!?！？]$/.test(s)) s += '。';
+        return s.trim();
+    }
+
     function supplyHtml(p) {
         var Store = global.DigitalAssetsStore;
         if (!p || p.supplyMode !== 'limited') {
@@ -526,14 +543,51 @@
         var root = typeof rootSel === 'string' ? qs(rootSel) : rootSel;
         var layout = opts.layout || 'web';
         if (!root || !Orders) return;
-        var list = Orders.listEntitlements();
+        var list = Orders.listEntitlements().slice().sort(function (a, b) {
+            return (b.grantedAt || '').localeCompare(a.grantedAt || '');
+        });
         var storeHref = layout === 'h5' ? 'digital-store.html' : 'digital-asset-store.html';
         var hideRefund = !!opts.hideRefund;
         if (!list.length) {
             root.innerHTML = '<div class="da-empty">还没有已购作品 · <a href="' + storeHref + '" style="color:#C084FC">去逛逛</a></div>';
             return;
         }
+        var profileGrid = opts.viewFrom === 'profile' && hideRefund;
+
+        function profileOwnedCardHtml(e, cardLayout) {
+            var viewHref = ownedViewHref(e.productId, cardLayout, opts);
+            var prod = Store && Store.getById ? Store.getById(e.productId) : null;
+            var typeId = (prod && prod.assetType) || e.assetType;
+            var typeLabel = Store ? Store.typeLabel(typeId) : typeId;
+            var mediaLine = '';
+            if (prod && Store.mediaSummary) {
+                var summary = Store.mediaSummary(prod);
+                if (summary && summary !== '无素材') mediaLine = summary;
+            }
+            var cover = (prod && prod.coverUrl) || e.coverUrl;
+            var title = (prod && prod.title) || e.productTitle;
+            var creator = e.creatorName || (prod && prod.creatorName) || '';
+            return (
+                '<a class="da-ent-card da-ent-card--profile" href="' + esc(viewHref) + '">' +
+                '<span class="da-ent-cover">' +
+                '<img src="' + esc(cover) + '" alt="">' +
+                '<span class="da-ent-type-badge">' + esc(typeLabel) + '</span>' +
+                '</span>' +
+                '<span class="info">' +
+                '<span class="t">' + esc(title) + '</span>' +
+                (mediaLine ? '<span class="da-ent-media">' + esc(mediaLine) + '</span>' : '') +
+                '<span class="da-ent-creator">' + esc(creator) + '</span>' +
+                '</span></a>'
+            );
+        }
+
         if (layout === 'h5') {
+            if (profileGrid) {
+                root.innerHTML = '<div class="da-ent-list da-ent-grid">' + list.map(function (e) {
+                    return profileOwnedCardHtml(e, 'h5');
+                }).join('') + '</div>';
+                return;
+            }
             root.innerHTML = list.map(function (e) {
                 var order = Orders.getOrderById(e.orderId);
                 return (
@@ -552,6 +606,12 @@
                 );
             }).join('');
             if (!hideRefund) bindAfterSalesActions(root, 'h5', opts);
+            return;
+        }
+        if (profileGrid) {
+            root.innerHTML = '<div class="da-ent-list da-ent-grid">' + list.map(function (e) {
+                return profileOwnedCardHtml(e, 'web');
+            }).join('') + '</div>';
             return;
         }
         root.innerHTML = '<div class="da-ent-list">' + list.map(function (e) {
@@ -578,7 +638,8 @@
         return layout === 'h5' ? 'my-digital-assets.html' : 'my-digital-assets.html';
     }
 
-    function renderOwnedMediaHtml(p, Store) {
+    function renderOwnedMediaHtml(p, Store, layout) {
+        layout = layout || 'web';
         var items = Store.mediaItems(p);
         var images = items.filter(function (x) { return x.kind === 'image'; });
         var videos = items.filter(function (x) { return x.kind === 'video'; });
@@ -590,28 +651,45 @@
         var showVideos = p.assetType === 'video' || p.assetType === 'bundle' || videos.length;
 
         if (showImages && images.length) {
-            var imgTitle = p.assetType === 'bundle' ? '图片合集' : '浏览图片';
-            html += '<div class="da-owned-section"><h3>' + esc(imgTitle) + '</h3></div>' +
+            html +=
+                '<section class="da-owned-block da-owned-block--images">' +
+                '<div class="da-owned-block-head">' +
+                '<h3><i class="fa-solid fa-images" aria-hidden="true"></i> 图片合集</h3>' +
+                '<span class="da-owned-count">共 ' + images.length + ' 张</span>' +
+                '</div>' +
                 '<div class="da-owned-grid">' +
-                images.map(function (it) {
-                    return '<a class="da-owned-tile" href="' + esc(it.url) + '" target="_blank" rel="noopener">' +
-                        '<img src="' + esc(it.url) + '" alt=""></a>';
+                images.map(function (it, idx) {
+                    return '<a class="da-owned-tile" href="' + esc(it.url) + '" target="_blank" rel="noopener" title="查看大图">' +
+                        '<img src="' + esc(it.url) + '" alt="" loading="lazy">' +
+                        '<span class="da-owned-idx">' + (idx + 1) + '</span></a>';
                 }).join('') +
-                '</div>';
+                '</div></section>';
         }
         if (showVideos && videos.length) {
-            html += '<div class="da-owned-section"><h3>' + (p.assetType === 'bundle' ? '视频' : '播放视频') + '</h3></div>' +
+            html +=
+                '<section class="da-owned-block da-owned-block--videos">' +
+                '<div class="da-owned-block-head">' +
+                '<h3><i class="fa-solid fa-clapperboard" aria-hidden="true"></i> 视频合集</h3>' +
+                '<span class="da-owned-count">共 ' + videos.length + ' 段</span>' +
+                '</div>' +
                 '<div class="da-owned-videos">' +
                 videos.map(function (it, i) {
                     var poster = p.coverUrl && i === 0 ? ' poster="' + esc(p.coverUrl) + '"' : '';
-                    return '<video controls playsinline preload="metadata"' + poster + ' src="' + esc(it.url) + '"></video>';
+                    return (
+                        '<article class="da-owned-video-card">' +
+                        '<div class="da-owned-video-frame">' +
+                        '<video controls playsinline preload="metadata"' + poster + ' src="' + esc(it.url) + '"></video>' +
+                        '</div>' +
+                        '<p class="da-owned-video-cap">视频 ' + (i + 1) + ' / ' + videos.length + '</p>' +
+                        '</article>'
+                    );
                 }).join('') +
-                '</div>';
+                '</div></section>';
         }
         if (!html) {
             html = '<div class="da-empty">暂无可浏览的素材</div>';
         }
-        return html;
+        return '<div class="da-owned-body' + (layout === 'h5' ? ' da-owned-body--h5' : '') + '">' + html + '</div>';
     }
 
     function initOwnedViewPage(opts) {
@@ -623,15 +701,26 @@
         var back = qs(opts.back || '#daOwnedBack');
         var Store = global.DigitalAssetsStore;
         var Orders = global.DigitalAssetOrdersStore;
-        if (back) back.setAttribute('href', ownedBackHref(from, layout));
+        if (back) {
+            var backHref = ownedBackHref(from, layout);
+            if (layout === 'h5') {
+                back.setAttribute('data-back', backHref);
+                back.removeAttribute('href');
+            } else {
+                back.setAttribute('href', backHref);
+            }
+        }
         if (!root) return;
         if (!id || !Store || !Orders) {
             root.innerHTML = '<div class="da-empty">无效链接</div>';
             return;
         }
-        if (!Orders.hasEntitlement(id)) {
-            var storeHref = layout === 'h5' ? 'digital-store.html' : 'digital-asset-store.html';
-            root.innerHTML = '<div class="da-empty">未找到购买权益 · <a href="' + storeHref + '" style="color:#C084FC">去 Store</a></div>';
+        var canAccess = Orders.viewerCanAccessProduct
+            ? Orders.viewerCanAccessProduct(id)
+            : Orders.hasEntitlement(id);
+        if (!canAccess) {
+            var backHref = ownedBackHref(from, layout);
+            root.innerHTML = '<div class="da-empty">未找到购买权益 · <a href="' + esc(backHref) + '" style="color:#C084FC">返回</a></div>';
             return;
         }
         var p = Store.getById(id);
@@ -639,20 +728,40 @@
             root.innerHTML = '<div class="da-empty">商品不存在或已删除</div>';
             return;
         }
-        var ent = Orders.listEntitlements().filter(function (e) { return e.productId === id; })[0];
+        var ent = Orders.findEntitlement
+            ? Orders.findEntitlement(id)
+            : Orders.listEntitlements().filter(function (e) { return e.productId === id; })[0];
         var summary = Store.mediaSummary(p);
+        var typeLabel = Store.typeLabel(p.assetType);
+        var counts = Store.mediaCounts(p);
         root.innerHTML =
+            '<div class="da-owned-page' + (layout === 'h5' ? ' da-owned-page--h5' : '') + '">' +
+            (p.coverUrl
+                ? '<div class="da-owned-hero">' +
+                '<img src="' + esc(p.coverUrl) + '" alt="">' +
+                '<div class="da-owned-hero-shade"></div>' +
+                '<span class="da-owned-hero-type">' + esc(typeLabel) + '</span>' +
+                '</div>'
+                : '') +
             '<div class="da-owned-head">' +
             '<div class="da-owned-kicker">' +
-            '<span class="da-chip">已解锁</span>' +
-            '<span class="da-chip">' + esc(Store.typeLabel(p.assetType)) + '</span>' +
+            '<span class="da-chip da-chip-unlock"><i class="fa-solid fa-lock-open"></i> 已解锁</span>' +
+            '<span class="da-chip da-chip-type">' + esc(typeLabel) + '</span>' +
+            (counts.total ? '<span class="da-chip da-chip-muted">' + esc(summary) + '</span>' : '') +
             '</div>' +
             '<h1 class="da-owned-title">' + esc(p.title) + '</h1>' +
-            '<p class="da-owned-meta">' + esc(p.creatorName || '') + ' · ' + esc(summary) +
-            (ent && ent.grantedAt ? ' · 获得于 ' + esc(ent.grantedAt) : '') + '</p>' +
-            (p.description ? '<p class="da-owned-desc">' + esc(p.description) + '</p>' : '') +
+            '<p class="da-owned-meta">' +
+            '<span class="da-owned-creator">' + esc(p.creatorName || '') + '</span>' +
+            (ent && ent.grantedAt ? '<span class="da-owned-grant">获得于 ' + esc(ent.grantedAt) + '</span>' : '') +
+            '</p>' +
+            (p.description ? '<p class="da-owned-desc">' + esc(ownedViewDescription(p.description)) + '</p>' : '') +
             '</div>' +
-            renderOwnedMediaHtml(p, Store);
+            renderOwnedMediaHtml(p, Store, layout) +
+            '</div>';
+        if (layout === 'h5') {
+            var navTitle = document.querySelector('.nav-title');
+            if (navTitle) navTitle.textContent = typeLabel;
+        }
         if (layout === 'web') {
             document.title = (p.title || '已购作品') + ' · GOODFANS';
         }

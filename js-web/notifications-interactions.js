@@ -63,6 +63,10 @@
             var on = saved[key] !== false;
             sw.classList.toggle('on', on);
         });
+        var dndStart = document.getElementById('nfDndStart');
+        var dndEnd = document.getElementById('nfDndEnd');
+        if (dndStart && saved.dndStart) dndStart.value = saved.dndStart;
+        if (dndEnd && saved.dndEnd) dndEnd.value = saved.dndEnd;
     }
 
     document.getElementById('btnNfSettings')?.addEventListener('click', function () {

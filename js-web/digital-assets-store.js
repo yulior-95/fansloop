@@ -16,8 +16,8 @@
 
     var ASSET_TYPES = [
         { id: 'image', label: '图片合集' },
-        { id: 'video', label: '视频作品' },
-        { id: 'bundle', label: '图视作品包' }
+        { id: 'video', label: '视频合集' },
+        { id: 'bundle', label: '图视合集' }
     ];
 
     var ALLOWED_TYPES = { image: true, video: true, bundle: true };

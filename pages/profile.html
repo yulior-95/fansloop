@@ -2,11 +2,11 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>我的</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
 <link rel="stylesheet" href="../css-web/profile-works.css">
-<link rel="stylesheet" href="../css/profile-works-h5.css">
 <link rel="stylesheet" href="../css-web/profile-live-sessions.css">
 <link rel="stylesheet" href="../css-web/digital-assets.css">
 <script src="../js/h5-theme-boot.js"></script>
@@ -83,6 +83,58 @@
     min-width: 0;
     max-width: 100%;
 }
+.profile-top .pf-tags-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+}
+.profile-top .pf-tags-row .tag,
+.profile-top .pf-tags-row button.tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.25;
+    white-space: nowrap;
+}
+.profile-top .tag-info { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.25); }
+.profile-top .tag-purple { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+.profile-top .tag-muted { background: rgba(255,255,255,0.04); color: var(--text-tertiary); border: 1px solid var(--border-color); }
+.profile-top .pf-role-line {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    font-family: ui-monospace, monospace;
+}
+.avatar-ring { position: relative; }
+.avatar-ring .pf-role-badge {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6b7280, #4b5563);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    border: 2px solid var(--bg-primary);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+}
+.avatar-ring .pf-role-badge.role-badge--pending {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+.avatar-ring .pf-role-badge:not(.role-badge--muted):not(.role-badge--pending) {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+}
+
 .profile-top .p-head .name #pfNameText {
     flex: 1;
     min-width: 0;
@@ -704,8 +756,10 @@
 }
 </style>
 <link rel="stylesheet" href="../css/h5-light-theme.css">
+<link rel="stylesheet" href="../css/profile-works-h5.css">
+<link rel="stylesheet" href="../css-web/profile-creator-cert.css">
 </head>
-<body>
+<body class="page-profile-h5">
 
 <div class="profile-bg"></div>
 
@@ -728,16 +782,21 @@
     <div class="profile-top">
         <div class="p-head">
             <div class="avatar-ring">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80" alt="">
+                <span class="role-badge pf-role-badge" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
             </div>
             <div class="info">
                 <div class="name">
                     <span id="pfNameText">Alex_K</span>
-                    <i class="fa-solid fa-circle-check" style="color:var(--info); font-size:14px"></i>
+                </div>
+                <div class="pf-tags-row tags-row" id="creatorTagsRow">
+                    <span id="creatorCertTagWrap"></span>
+                    <span class="tag tag-muted"><i class="fa-solid fa-shield" aria-hidden="true"></i>未认证</span>
                 </div>
                 <div style="font-size:12px; color:var(--text-secondary); margin-top:4px">
                     @alex_k · 加入 128 天
                 </div>
+                <div class="pf-role-line" id="profileRoleLine">用户 · 0x7A3F...3F2C</div>
                 <div class="id-row">
                     <span class="badge badge-crypto"><i class="fa-solid fa-bolt"></i> Lv.5 资深用户</span>
                 </div>
@@ -851,8 +910,8 @@
                         <time class="work-time" data-published-at="2026-05-23T08:30:00+09:00">—</time>
                     </div>
                     <div class="work-actions">
-                        <button type="button" class="work-act is-pinned-active" data-act="pin"><i class="fa-solid fa-thumbtack"></i> 取消置顶</button>
-                        <button type="button" class="work-act danger" data-act="takedown"><i class="fa-solid fa-eye-slash"></i> 下架</button>
+                        <button type="button" class="work-act is-pinned-active" data-act="pin" aria-label="取消置顶" title="取消置顶"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i></button>
+                        <button type="button" class="work-act danger" data-act="takedown" aria-label="下架" title="下架"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i></button>
                     </div>
                 </article>
                 <article class="work-card" data-work-id="hw2" data-go-h5="video-detail.html" data-published-at="2026-05-19T14:00:00+09:00">
@@ -865,8 +924,8 @@
                         <time class="work-time" data-published-at="2026-05-19T14:00:00+09:00">—</time>
                     </div>
                     <div class="work-actions">
-                        <button type="button" class="work-act" data-act="pin"><i class="fa-regular fa-thumbtack"></i> 置顶</button>
-                        <button type="button" class="work-act danger" data-act="takedown"><i class="fa-solid fa-eye-slash"></i> 下架</button>
+                        <button type="button" class="work-act" data-act="pin" aria-label="置顶" title="置顶"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i></button>
+                        <button type="button" class="work-act danger" data-act="takedown" aria-label="下架" title="下架"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i></button>
                     </div>
                 </article>
                 <article class="work-card" data-work-id="hw3" data-go-h5="digital-detail-owned.html" data-published-at="2026-04-08T10:00:00+09:00">
@@ -879,8 +938,8 @@
                         <time class="work-time" data-published-at="2026-04-08T10:00:00+09:00">—</time>
                     </div>
                     <div class="work-actions">
-                        <button type="button" class="work-act" data-act="pin"><i class="fa-regular fa-thumbtack"></i> 置顶</button>
-                        <button type="button" class="work-act danger" data-act="takedown"><i class="fa-solid fa-eye-slash"></i> 下架</button>
+                        <button type="button" class="work-act" data-act="pin" aria-label="置顶" title="置顶"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i></button>
+                        <button type="button" class="work-act danger" data-act="takedown" aria-label="下架" title="下架"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i></button>
                     </div>
                 </article>
                 <article class="work-card" data-work-id="hw4" data-go-h5="video-detail.html" data-published-at="2026-03-20T18:00:00+09:00">
@@ -893,8 +952,8 @@
                         <time class="work-time" data-published-at="2026-03-20T18:00:00+09:00">—</time>
                     </div>
                     <div class="work-actions">
-                        <button type="button" class="work-act" data-act="pin"><i class="fa-regular fa-thumbtack"></i> 置顶</button>
-                        <button type="button" class="work-act danger" data-act="takedown"><i class="fa-solid fa-eye-slash"></i> 下架</button>
+                        <button type="button" class="work-act" data-act="pin" aria-label="置顶" title="置顶"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i></button>
+                        <button type="button" class="work-act danger" data-act="takedown" aria-label="下架" title="下架"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i></button>
                     </div>
                 </article>
                 <article class="work-card" data-work-id="hw5" data-go-h5="digital-detail-owned.html" data-published-at="2025-12-15T09:00:00+09:00">
@@ -907,8 +966,8 @@
                         <time class="work-time" data-published-at="2025-12-15T09:00:00+09:00">—</time>
                     </div>
                     <div class="work-actions">
-                        <button type="button" class="work-act" data-act="pin"><i class="fa-regular fa-thumbtack"></i> 置顶</button>
-                        <button type="button" class="work-act danger" data-act="takedown"><i class="fa-solid fa-eye-slash"></i> 下架</button>
+                        <button type="button" class="work-act" data-act="pin" aria-label="置顶" title="置顶"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i></button>
+                        <button type="button" class="work-act danger" data-act="takedown" aria-label="下架" title="下架"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i></button>
                     </div>
                 </article>
                 <article class="work-card" data-work-id="hw6" data-go-h5="digital-detail-owned.html" data-published-at="2025-11-02T16:00:00+09:00">
@@ -921,8 +980,8 @@
                         <time class="work-time" data-published-at="2025-11-02T16:00:00+09:00">—</time>
                     </div>
                     <div class="work-actions">
-                        <button type="button" class="work-act" data-act="pin"><i class="fa-regular fa-thumbtack"></i> 置顶</button>
-                        <button type="button" class="work-act danger" data-act="takedown"><i class="fa-solid fa-eye-slash"></i> 下架</button>
+                        <button type="button" class="work-act" data-act="pin" aria-label="置顶" title="置顶"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i></button>
+                        <button type="button" class="work-act danger" data-act="takedown" aria-label="下架" title="下架"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i></button>
                     </div>
                 </article>
             </div>
@@ -1009,6 +1068,52 @@
         </div>
     </div>
 
+</div>
+
+<div class="profile-sheet cert-sheet" id="sheetCreatorCert" aria-hidden="true" role="dialog" aria-labelledby="certSheetTitle">
+    <div class="sh-panel">
+        <div class="sh-head">
+            <div class="cert-head-main">
+                <div id="certSheetTitle">申请成为创作者</div>
+                <p>官方认证创作者 · 与 Web 个人主页一致</p>
+            </div>
+            <button type="button" class="sh-close" id="certBtnClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="sh-body">
+            <div class="cert-steps" aria-hidden="true">
+                <div class="cert-step-dot active" data-step="1"><div class="num"><span>1</span></div><span class="lbl">选择类型</span></div>
+                <div class="cert-step-dot" data-step="2"><div class="num"><span>2</span></div><span class="lbl">资质校验</span></div>
+                <div class="cert-step-dot" data-step="3"><div class="num"><span>3</span></div><span class="lbl">提交审核</span></div>
+            </div>
+            <div class="cert-pane active" data-cert-step="1">
+                <p class="cert-pane-intro">请选择与主要内容方向一致的类型（单选）。</p>
+                <div class="cert-type-grid" id="certTypeGrid"></div>
+            </div>
+            <div class="cert-pane" data-cert-step="2">
+                <p class="cert-pane-intro">以下门槛需全部「符合」方可提交官方认证。</p>
+                <div class="cert-cond-list" id="certCondList"></div>
+            </div>
+            <div class="cert-pane" data-cert-step="3">
+                <div class="cert-pending-box">
+                    <div class="pend-ic"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <h3>审核中</h3>
+                    <p>您的创作者认证申请已提交，正在进行机审。若需人工复核，将在 1–3 个工作日内完成。</p>
+                </div>
+            </div>
+            <div class="cert-demo-bar">
+                <span>原型调试：</span>
+                <button type="button" id="certDemoApprove">模拟审核通过</button>
+                <button type="button" id="certDemoReset">重置未认证</button>
+            </div>
+            <p id="certFootNote" class="cert-foot-note"></p>
+        </div>
+        <div class="sh-actions">
+            <button type="button" class="ghost" id="certBtnBack" style="display:none">上一步</button>
+            <button type="button" class="ghost" id="certBtnDone" style="display:none">关闭</button>
+            <button type="button" class="primary" id="certBtnNext">下一步</button>
+            <button type="button" class="primary" id="certBtnSubmit" style="display:none">去认证</button>
+        </div>
+    </div>
 </div>
 
 <div class="pf-toast" id="pfToast" aria-live="polite"></div>
@@ -1236,6 +1341,10 @@
 <script src="../js-web/profile-live-sessions.js"></script>
 <script src="../js-web/user-prototype-registry.js"></script>
 <script src="../js-web/auth-session.js"></script>
+<script src="../js-web/user-assets-store.js"></script>
+<script>if (window.GoodfansAuth && GoodfansAuth.ensureDemoLogin) GoodfansAuth.ensureDemoLogin();</script>
+<script src="../js-web/auth-ui-sync.js"></script>
+<script src="../js-web/profile-creator-cert.js"></script>
 <script src="../js-web/mall-commerce-config-store.js"></script>
 <script src="../js-web/digital-assets-store.js"></script>
 <script src="../js-web/digital-asset-orders-store.js"></script>
@@ -1285,6 +1394,7 @@
         pfKycEntry.classList.toggle('pass', passed);
         pfKycStatus.textContent = passed ? '已认证' : '未认证';
         pfKycEntry.setAttribute('data-kyc-passed', passed ? '1' : '0');
+        if (window.FLAuthUiSync && window.FLAuthUiSync.apply) window.FLAuthUiSync.apply();
     }
 
     if (pfBtnBell) pfBtnBell.addEventListener('click', function () {

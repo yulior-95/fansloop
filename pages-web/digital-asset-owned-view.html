@@ -21,9 +21,6 @@
         <div class="h-actions" style="margin-left:0">
             <a class="btn btn-secondary btn-sm" id="daOwnedBack" href="my-digital-assets.html"><i class="fa-solid fa-arrow-left"></i> 返回</a>
         </div>
-        <div class="h-actions" style="margin-left:auto">
-            <button class="btn btn-primary" onclick="location.href='digital-asset-store.html'"><i class="fa-solid fa-compass"></i> 逛 Store</button>
-        </div>
     </header>
     <main class="app-main">
         <div id="daOwnedViewRoot"></div>
@@ -31,10 +28,17 @@
 </div>
 <script src="../js-web/app-sidebar-global.js"></script>
 <script src="../js-web/user-prototype-registry.js"></script>
+<script src="../js-web/auth-session.js"></script>
 <script src="../js-web/digital-assets-store.js"></script>
 <script src="../js-web/digital-asset-orders-store.js"></script>
-<script src="../js-web/digital-asset-pages.js"></script>
-<script>DigitalAssetPages.initOwnedViewPage();</script>
+<script src="../js-web/digital-asset-pages.js?v=owned-ui2"></script>
+<script>
+if (window.GoodfansAuth && GoodfansAuth.ensureDemoLogin) GoodfansAuth.ensureDemoLogin();
+DigitalAssetPages.initOwnedViewPage();
+window.addEventListener('goodfans-auth-change', function () {
+    DigitalAssetPages.initOwnedViewPage();
+});
+</script>
 <script src="../js-web/page-back-nav.js"></script>
 <script src="../js-web/web-icons.js"></script>
 </body>

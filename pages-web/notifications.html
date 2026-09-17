@@ -115,6 +115,8 @@
 .nf-ic.t-system { background: linear-gradient(135deg, #6B7280, #4B5563); }
 .nf-ic.t-live { background: linear-gradient(135deg, #DC2626, #F59E0B); }
 .nf-ic.t-preview { background: linear-gradient(135deg, #3B82F6, #8B5CF6); }
+.nf-ic.t-review { background: linear-gradient(135deg, #6366F1, #A855F7); }
+.nf-ic.t-expiry { background: linear-gradient(135deg, #F59E0B, #EF4444); }
 
 .nf-item .nf-body { flex: 1; min-width: 0; }
 .nf-item .nf-body .nf-text {
@@ -284,6 +286,7 @@
                 <div class="nf-filter" id="nfFilter">
                     <div class="ck active" data-tab="all">全部</div>
                     <div class="ck" data-tab="unread">未读 <span class="cnt" id="nfCntUnread">16</span></div>
+                    <div class="ck" data-tab="review">内容审核 <span class="cnt" id="nfCntReview">1</span></div>
                     <div class="ck" data-tab="live">开播提醒 <span class="cnt" id="nfCntLive">7</span></div>
                     <div class="ck" data-tab="subscription">订阅提醒</div>
                     <div class="ck" data-tab="income">收益通知 <span class="cnt" id="nfCntIncome">3</span></div>
@@ -310,6 +313,15 @@
                             <div class="nf-meta"><span><i class="fa-regular fa-clock"></i> 刚刚</span><span class="dot"></span><span>系统消息</span><span class="dot"></span><span>开播提醒</span></div>
                         </div>
                         <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&q=80')"></div>
+                    </div>
+
+                    <div class="nf-item unread" data-nf-type="review" data-actor-type="platform" data-actor-role="platform">
+                        <div class="nf-ic t-review" aria-hidden="true"><i class="fa-solid fa-clipboard-check"></i></div>
+                        <div class="nf-body">
+                            <div class="nf-text"><b>内容审核</b> 作品「胶片人像 · 午后窗光」已提交人工审核，预计 <b>24 小时内</b> 完成；通过后将公开展示。</div>
+                            <div class="nf-meta"><span><i class="fa-regular fa-clock"></i> 15 分钟前</span><span class="dot"></span><span>审核中</span><span class="dot"></span><span>图文动态</span></div>
+                        </div>
+                        <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200')"></div>
                     </div>
 
                     <div class="nf-item unread" data-nf-type="income">
@@ -617,187 +629,8 @@
 
 </div>
 
+<script src="../js-web/notifications-filter.js"></script>
 <script>
-(function () {
-    var typeMap = {
-        "t-tip": "income",
-        "t-comment": "interaction",
-        "t-like": "interaction",
-        "t-sub": "subscription",
-        "t-mention": "interaction",
-        "t-system": "system",
-        "t-live": "live",
-        "t-preview": "live",
-        "t-expiry": "expiry"
-    };
-    var filterHost = document.getElementById("nfFilter");
-    if (!filterHost) return;
-    function refreshItems() {
-        allItems = Array.prototype.slice.call(document.querySelectorAll(".nf-list .nf-item"));
-    }
-    var allItems = [];
-    refreshItems();
-    function actorLabel(role) {
-        var key = role === 'creator' ? 'role_creator'
-            : role === 'subscriber' ? 'role_subscriber'
-            : role === 'platform' ? 'role_platform' : 'role_member';
-        if (window.FLI18n && window.FLI18n.t) {
-            var localized = window.FLI18n.t(window.FLI18n.getLangCode(), key);
-            if (localized) return localized;
-        }
-        return role === 'creator' ? '创作者'
-            : role === 'subscriber' ? '订阅者'
-            : role === 'platform' ? '平台' : '用户';
-    }
-    function applyActorTags() {
-        allItems.forEach(function (item) {
-            var role = item.getAttribute('data-actor-role');
-            if (!role) return;
-            var name = item.querySelector('.nf-text b');
-            if (!name || name.nextElementSibling?.classList.contains('nf-actor-tag')) return;
-            var tag = document.createElement('span');
-            tag.className = 'nf-actor-tag ' + role;
-            tag.textContent = actorLabel(role);
-            name.insertAdjacentElement('afterend', tag);
-        });
-    }
-    function resolveType(item) {
-        var explicit = item.getAttribute("data-nf-type");
-        if (explicit) return explicit;
-        var ic = item.querySelector(".nf-ic");
-        if (!ic) return "interaction";
-        for (var key in typeMap) {
-            if (ic.classList.contains(key)) return typeMap[key];
-        }
-        return "interaction";
-    }
-    function updateUnreadCount() {
-        var unread = allItems.filter(function (x) { return x.classList.contains("unread"); }).length;
-        var bulk = document.getElementById("nfBulkUnreadCount");
-        var chip = document.getElementById("nfCntUnread");
-        if (bulk) bulk.textContent = String(unread);
-        if (chip) chip.textContent = String(unread);
-        if (window.FL_setSidebarUnread) {
-            window.FL_setSidebarUnread('notifications', unread);
-        } else {
-            try {
-                if (unread > 0) localStorage.setItem('fl_nf_unread_count', String(unread));
-                else localStorage.removeItem('fl_nf_unread_count');
-            } catch (e) { /* ignore */ }
-            window.dispatchEvent(new CustomEvent('fl-nf-unread-changed'));
-        }
-    }
-    function tipContextLabel(context) {
-        return context === 'live' ? '直播打赏' : context === 'message' ? '私信打赏' : context === 'profile' ? '主页打赏' : '动态打赏';
-    }
-    function appendTipEvent(event) {
-        if (!event || !event.id || !event.amount) return null;
-        if (document.querySelector('.nf-item[data-tip-event-id="' + event.id + '"]')) return null;
-        var day = document.querySelector('.nf-day[data-day="today"]');
-        if (!day) return null;
-        var item = document.createElement('div');
-        item.className = 'nf-item unread';
-        item.setAttribute('data-nf-type', 'income');
-        item.setAttribute('data-tip-event-id', event.id);
-        var icon = document.createElement('div');
-        icon.className = 'nf-ic t-tip';
-        icon.innerHTML = '<i class="fa-solid fa-gift"></i>';
-        var body = document.createElement('div');
-        body.className = 'nf-body';
-        var text = document.createElement('div');
-        text.className = 'nf-text';
-        var sender = document.createElement('b');
-        sender.textContent = event.sender || '匿名用户';
-        var amount = document.createElement('span');
-        amount.className = 'amt';
-        amount.textContent = '+' + window.FLTipEvents.formatAmount(event.amount) + ' USDT';
-        text.append(sender, document.createTextNode(' 给你打赏了「' + (event.gift || '心意') + '」 '), amount);
-        if (event.message) text.append(document.createTextNode(' · 「' + event.message + '」'));
-        var meta = document.createElement('div');
-        meta.className = 'nf-meta';
-        meta.innerHTML = '<span><i class="fa-regular fa-clock"></i> 刚刚</span><span class="dot"></span><span>' + tipContextLabel(event.context) + '</span>';
-        body.append(text, meta);
-        item.append(icon, body);
-        day.parentNode.insertBefore(item, day.nextElementSibling);
-        item.addEventListener('click', function () {
-            if (!item.classList.contains('unread')) return;
-            item.classList.remove('unread');
-            updateUnreadCount();
-            var active = filterHost.querySelector('.ck.active');
-            if (active && active.getAttribute('data-tab') === 'unread') applyTab('unread');
-        });
-        return item;
-    }
-    function syncTipEvents() {
-        if (!window.FLTipEvents) return;
-        window.FLTipEvents.getAll().forEach(appendTipEvent);
-        var total = document.getElementById('nfTipTotal');
-        if (total) {
-            var base = Number(total.getAttribute('data-base-tips') || 0);
-            var extra = window.FLTipEvents.getAll().reduce(function (sum, event) { return sum + (Number(event.amount) || 0); }, 0);
-            total.textContent = (base + extra).toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' USDT';
-        }
-        refreshItems();
-        applyActorTags();
-        var incomeCount = document.getElementById('nfCntIncome');
-        if (incomeCount) incomeCount.textContent = String(allItems.filter(function (item) { return resolveType(item) === 'income'; }).length);
-        updateUnreadCount();
-    }
-    function applyTab(tab) {
-        filterHost.querySelectorAll(".ck").forEach(function (ck) {
-            ck.classList.toggle("active", ck.getAttribute("data-tab") === tab);
-        });
-        allItems.forEach(function (item) {
-            var type = resolveType(item);
-            var show = tab === "all"
-                || (tab === "unread" && item.classList.contains("unread"))
-                || (tab === "expiry" && item.id === "nfLivePreviewRemind")
-                || type === tab;
-            item.style.display = show ? "" : "none";
-        });
-    }
-    filterHost.addEventListener("click", function (e) {
-        var ck = e.target.closest(".ck[data-tab]");
-        if (!ck) return;
-        applyTab(ck.getAttribute("data-tab"));
-    });
-    allItems.forEach(function (item) {
-        item.addEventListener("click", function () {
-            if (!item.classList.contains("unread")) return;
-            item.classList.remove("unread");
-            updateUnreadCount();
-            var active = filterHost.querySelector(".ck.active");
-            if (active && active.getAttribute("data-tab") === "unread") applyTab("unread");
-        });
-    });
-    function markAllRead() {
-        refreshItems();
-        allItems.forEach(function (x) { x.classList.remove("unread"); });
-        updateUnreadCount();
-        var active = filterHost.querySelector(".ck.active");
-        if (active && active.getAttribute("data-tab") === "unread") applyTab("unread");
-        if (window.FL_nfToast) window.FL_nfToast("已全部标记为已读", "ok");
-    }
-    document.getElementById("nfMarkAllRead")?.addEventListener("click", function (e) {
-        e.preventDefault();
-        markAllRead();
-    });
-    document.getElementById("btnMarkAllReadTop")?.addEventListener("click", markAllRead);
-    window.addEventListener("fl-nf-unread-changed", function () {
-        refreshItems();
-        updateUnreadCount();
-    });
-    updateUnreadCount();
-    syncTipEvents();
-    applyActorTags();
-    window.addEventListener('fl-tip-sent', syncTipEvents);
-    var q = new URLSearchParams(location.search);
-    applyTab(q.get("tab") || "unread");
-    window.addEventListener("fl-notification-focus-unread", function () {
-        applyTab("unread");
-    });
-})();
-
 (function () {
     var LS_KEY = 'fl_live_preview_reminds';
     var PREVIEW_ID = 'yeyu-jazz-0523';

@@ -39,7 +39,8 @@
         var covers = {
             img: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=400&q=80',
             vid: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&q=80',
-            img2: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80'
+            img2: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80',
+            bundle: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&q=80'
         };
         var orders = [
             {
@@ -121,6 +122,38 @@
                 feePercent: 10,
                 status: 'completed',
                 createdAt: '2026-08-02 13:26'
+            },
+            {
+                id: 'DO20260807031',
+                productId: 'da_seed_bundle_06',
+                productTitle: '旅拍花絮 · 图视作品包',
+                coverUrl: covers.bundle,
+                assetType: 'bundle',
+                creatorId: DEMO_CREATOR,
+                creatorName: 'Luna 🌙',
+                buyerId: DEMO_BUYER,
+                priceUsdt: 9.9,
+                platformFee: 0.99,
+                creatorNet: 8.91,
+                feePercent: 10,
+                status: 'completed',
+                createdAt: '2026-08-07 10:20'
+            },
+            {
+                id: 'DO20260807032',
+                productId: 'da_seed_bundle_06',
+                productTitle: '旅拍花絮 · 图视作品包',
+                coverUrl: covers.bundle,
+                assetType: 'bundle',
+                creatorId: DEMO_CREATOR,
+                creatorName: 'Luna 🌙',
+                buyerId: DEMO_CREATOR,
+                priceUsdt: 9.9,
+                platformFee: 0.99,
+                creatorNet: 8.91,
+                feePercent: 10,
+                status: 'completed',
+                createdAt: '2026-08-07 11:05'
             }
         ];
         var entitlements = orders.map(function (o, i) {
@@ -155,6 +188,73 @@
         return { orders: orders, entitlements: entitlements, earnings: earnings, refunds: [] };
     }
 
+    var BUNDLE_DEMO_PRODUCT_ID = 'da_seed_bundle_06';
+
+    /** 已为其它作品买过权益的演示账号，补一条图视合集（避免 buyerId 与种子不一致导致列表缺项） */
+    function migrateOwnedBundleEntitlements(data) {
+        if (!data.meta) data.meta = {};
+        if (data.meta.digitalOwnedBundleV2) return data;
+        if (!data.orders) data.orders = [];
+        if (!data.entitlements) data.entitlements = [];
+        var templateOrder = seedData().orders.filter(function (o) {
+            return o.productId === BUNDLE_DEMO_PRODUCT_ID;
+        })[0];
+        if (!templateOrder) {
+            data.meta.digitalOwnedBundleV2 = true;
+            return data;
+        }
+        var buyers = {};
+        buyers[DEMO_BUYER] = true;
+        buyers[DEMO_CREATOR] = true;
+        data.entitlements.forEach(function (e) {
+            if (e && e.buyerId) buyers[e.buyerId] = true;
+        });
+        Object.keys(buyers).forEach(function (bid) {
+            var hasBundle = data.entitlements.some(function (e) {
+                return e.buyerId === bid && e.productId === BUNDLE_DEMO_PRODUCT_ID;
+            });
+            if (hasBundle) return;
+            var slug = String(bid).replace(/[^a-zA-Z0-9]/g, '').slice(0, 18) || 'demo';
+            var orderId = 'DO_BUNDLE_' + slug;
+            if (!data.orders.some(function (o) { return o.id === orderId; })) {
+                var grantedAt = daysAgoIso(3);
+                data.orders.push({
+                    id: orderId,
+                    productId: templateOrder.productId,
+                    productTitle: templateOrder.productTitle,
+                    coverUrl: templateOrder.coverUrl,
+                    assetType: 'bundle',
+                    creatorId: templateOrder.creatorId,
+                    creatorName: templateOrder.creatorName,
+                    buyerId: bid,
+                    priceUsdt: templateOrder.priceUsdt,
+                    platformFee: templateOrder.platformFee,
+                    creatorNet: templateOrder.creatorNet,
+                    feePercent: templateOrder.feePercent,
+                    status: 'completed',
+                    createdAt: grantedAt
+                });
+            }
+            var order = data.orders.filter(function (o) { return o.id === orderId; })[0];
+            data.entitlements.push({
+                id: 'ent_bundle_' + slug,
+                orderId: orderId,
+                productId: BUNDLE_DEMO_PRODUCT_ID,
+                productTitle: templateOrder.productTitle,
+                coverUrl: templateOrder.coverUrl,
+                assetType: 'bundle',
+                contentFiles: [templateOrder.coverUrl],
+                creatorId: templateOrder.creatorId,
+                creatorName: templateOrder.creatorName,
+                buyerId: bid,
+                priceUsdt: templateOrder.priceUsdt,
+                grantedAt: order ? order.createdAt : daysAgoIso(3)
+            });
+        });
+        data.meta.digitalOwnedBundleV2 = true;
+        return data;
+    }
+
     function syncEntitlementGrantedAt(data, orderId, at) {
         data.entitlements.forEach(function (e) {
             if (e.orderId === orderId) e.grantedAt = at;
@@ -175,7 +275,8 @@
         var d10 = daysAgoIso(10);
         data.orders.forEach(function (o) {
             if (o.id === 'DO20260806001' && o.status === 'completed') o.createdAt = d2;
-            if (['DO20260805014', 'DO20260804008', 'DO20260803022', 'DO20260802007'].indexOf(o.id) >= 0 &&
+            if (['DO20260805014', 'DO20260804008', 'DO20260803022', 'DO20260802007',
+                'DO20260807031', 'DO20260807032'].indexOf(o.id) >= 0 &&
                 o.status === 'completed') {
                 o.createdAt = d10;
             }
@@ -246,6 +347,7 @@
             if (!e.settlementStatus) e.settlementStatus = 'pending';
         });
         migrateRefundDemoDates(data);
+        migrateOwnedBundleEntitlements(data);
         syncSettlementStates(data);
         return data;
     }
@@ -323,6 +425,38 @@
     function hasEntitlement(productId, buyerId) {
         buyerId = buyerId || currentUserId();
         return listEntitlements(buyerId).some(function (e) { return e.productId === productId; });
+    }
+
+    /** 当前登录用户可访问的权益（含创作者自购 / 演示粉丝桶） */
+    function findEntitlement(productId) {
+        if (!productId) return null;
+        var ents = read().entitlements.filter(function (e) { return e.productId === productId; });
+        if (!ents.length) return null;
+
+        var buyerId = currentUserId();
+        var hit = ents.filter(function (e) { return e.buyerId === buyerId; })[0];
+        if (hit) return hit;
+
+        if (global.GoodfansAuth && global.GoodfansAuth.getUserId) {
+            var sessionId = global.GoodfansAuth.getUserId();
+            if (sessionId) {
+                hit = ents.filter(function (e) { return e.buyerId === sessionId; })[0];
+                if (hit) return hit;
+            }
+        }
+
+        var Store = global.DigitalAssetsStore;
+        var p = Store && Store.getById(productId);
+        if (p && hasEntitlementInContext(productId, { asVisitor: true, creatorId: p.creatorId })) {
+            hit = ents.filter(function (e) { return e.buyerId === DEMO_BUYER; })[0];
+            if (hit) return hit;
+        }
+
+        return null;
+    }
+
+    function viewerCanAccessProduct(productId) {
+        return !!findEntitlement(productId);
     }
 
     function defaultCreatorId(creatorId) {
@@ -559,6 +693,8 @@
         listOrders: listOrders,
         listEntitlements: listEntitlements,
         hasEntitlement: hasEntitlement,
+        findEntitlement: findEntitlement,
+        viewerCanAccessProduct: viewerCanAccessProduct,
         hasEntitlementInContext: hasEntitlementInContext,
         resolveBuyerId: resolveBuyerId,
         getOrderById: getOrderById,

@@ -10,7 +10,8 @@
     }
     const tagWrap = document.getElementById('creatorCertTagWrap');
     const roleLine = document.getElementById('profileRoleLine');
-    const roleBadge = document.querySelector('.ph-row .av-xl .role-badge');
+    const roleBadge = document.querySelector('.ph-row .av-xl .role-badge')
+        || document.querySelector('.avatar-ring .role-badge, .avatar-ring .pf-role-badge');
     const sheet = document.getElementById('sheetCreatorCert');
     const toast = document.getElementById('pfToast');
 
@@ -72,6 +73,9 @@
             kycOk = window.FLUserAssets.isKycApproved();
         } else if (!kycFail && window.GoodfansKycStore) {
             kycOk = window.GoodfansKycStore.isApproved();
+        }
+        if (!kycFail && !kycOk) {
+            try { kycOk = localStorage.getItem('h5_withdraw_kyc_passed') === '1'; } catch (e) { /* ignore */ }
         }
         return {
             kyc: kycOk,

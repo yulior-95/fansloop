@@ -1,6 +1,42 @@
 /**
  * H5 个人主页 · 作品 Tab（复用 Web 结构，适配 375 布局与 common.css 变量）
  */
+html:has(body.page-profile-h5) {
+    background: var(--bg-primary);
+}
+
+/* H5 个人页 · 手机壳（覆盖 common 375px，统一 430；桌面预览时居中，真机为全宽） */
+body.page-profile-h5 {
+    position: relative;
+    width: 100%;
+    max-width: 430px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* 弹层相对手机壳，避免 fixed 铺满整屏浏览器 */
+body.page-profile-h5 .pf-modal {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 100%;
+    max-height: none;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    overflow: hidden;
+    z-index: 9200;
+}
+
+body.page-profile-h5.pf-modal-open {
+    overflow: hidden;
+}
+
 #pane-works,
 .pf-modal {
     --border: var(--border-color);
@@ -28,9 +64,112 @@
 }
 
 #pane-works .works-grid {
-    grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 0 16px 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 0 12px 12px;
+}
+
+#pane-works .work-card {
+    position: relative;
+}
+
+#pane-works .work-card .work-thumb {
+    position: relative;
+}
+
+#pane-works .work-card .work-body {
+    padding: 8px 8px 6px;
+}
+
+#pane-works .work-card .work-title {
+    font-size: 12px;
+    margin-bottom: 4px;
+    -webkit-line-clamp: 2;
+}
+
+#pane-works .work-card .work-time {
+    font-size: 10px;
+}
+
+#pane-works .work-card .work-thumb .work-actions {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    left: auto;
+    bottom: auto;
+    z-index: 4;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 3px;
+    padding: 0;
+    margin: 0;
+    pointer-events: none;
+}
+
+#pane-works .work-card .work-thumb .work-actions .work-act {
+    pointer-events: auto;
+}
+
+#pane-works .work-card .work-act {
+    flex: 0 0 22px;
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    padding: 0;
+    gap: 0;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(0, 0, 0, 0.52);
+    color: #fff;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+#pane-works .work-card .work-act i {
+    pointer-events: none;
+    line-height: 1;
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-style: normal;
+    font-size: 10px;
+    display: block;
+}
+
+#pane-works .work-card .work-act.accent {
+    color: #E9D5FF;
+    border-color: rgba(168, 85, 247, 0.45);
+    background: rgba(88, 28, 135, 0.55);
+}
+
+#pane-works .work-card .work-act.danger,
+#pane-works .work-card .work-act.danger-solid {
+    color: #FECACA;
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(127, 29, 29, 0.5);
+}
+
+#pane-works .work-card .work-act.is-pinned-active {
+    color: #FDE68A;
+    border-color: rgba(251, 191, 36, 0.55);
+    background: rgba(120, 53, 15, 0.65);
+}
+
+#pane-works .work-card .work-pin-badge {
+    top: 6px;
+    left: 6px;
+    padding: 2px 6px;
+    font-size: 9px;
+}
+
+#pane-works .work-card .work-thumb .thumb-meta {
+    left: 6px;
+    right: 6px;
+    bottom: 6px;
+    gap: 6px;
+    font-size: 10px;
 }
 
 #pane-works .works-empty {
@@ -68,10 +207,436 @@
     background: rgba(15, 18, 32, 0.88);
 }
 
-.pf-modal--analytics .wa-panel {
-    max-width: calc(100vw - 24px);
+/* H5 数据看板 · 底部全宽抽屉 */
+body.page-profile-h5 .pf-modal.pf-modal--analytics {
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
 }
 
-.pf-modal--analytics .wa-fans .dev-glass-wrap {
+body.page-profile-h5 .pf-modal.pf-modal--analytics.show {
+    display: flex;
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-panel {
+    width: 100%;
+    max-width: 100%;
+    max-height: min(92vh, 820px);
+    margin: 0;
+    border-radius: 16px 16px 0 0;
+    border: none;
+    border-top: 1px solid var(--border-color, var(--border));
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.42);
+    animation: pfMdSheetIn 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg-elevated, var(--bg-card));
+    padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-panel::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    margin: 8px auto 4px;
+    border-radius: 999px;
+    background: var(--border-color, rgba(255, 255, 255, 0.2));
+    flex-shrink: 0;
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-head {
+    padding: 6px 16px 12px;
+    border-bottom: 1px solid var(--border-color, var(--border));
+    flex-shrink: 0;
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-head h2 {
+    font-size: 15px;
+    color: var(--text-primary, #fff);
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-body {
+    padding: 14px 16px 20px;
+    max-height: none;
+    flex: 1;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-hero {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-hero .wa-cover {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    border-radius: 10px;
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-hero .wa-meta h3 {
+    font-size: 14px;
+    color: var(--text-primary, #fff);
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-hero .wa-meta .wa-dt {
+    font-size: 11px;
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-stat {
+    padding: 10px 11px;
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-stat .k {
+    font-size: 10px;
+    margin-bottom: 2px;
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-stat .v {
+    font-size: 17px;
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-chart-wrap {
+    padding: 12px 10px 10px;
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-chart-svg {
+    height: 120px;
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-fan-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-fan-card {
+    padding: 10px 12px;
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-fan-card .v {
+    font-size: 18px;
+}
+
+body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-fans .dev-glass-wrap {
     display: none;
+}
+
+:root[data-theme='light'] body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-panel {
+    background: var(--bg-sheet, #fff);
+    box-shadow: 0 -4px 28px rgba(15, 18, 32, 0.14);
+}
+
+:root[data-theme='light'] body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-panel::before {
+    background: rgba(15, 18, 32, 0.12);
+}
+
+:root[data-theme='light'] body.page-profile-h5 .pf-modal.pf-modal--analytics .wa-hero .wa-meta h3 {
+    color: var(--text-primary);
+}
+
+/* H5 下架 / 删除确认 · 底部抽屉（覆盖 Web 居中弹窗） */
+body.page-profile-h5 .pf-modal:not(.pf-modal--analytics) {
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.52);
+    backdrop-filter: blur(4px);
+}
+
+body.page-profile-h5 .pf-modal:not(.pf-modal--analytics).show {
+    display: flex;
+}
+
+body.page-profile-h5 .pf-modal:not(.pf-modal--analytics) .md-panel {
+    max-width: 100%;
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+    border: none;
+    border-top: 1px solid var(--border-color, var(--border));
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.35);
+    animation: pfMdSheetIn 0.26s cubic-bezier(0.32, 0.72, 0, 1);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+}
+
+body.page-profile-h5 .pf-modal:not(.pf-modal--analytics) .md-panel::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    margin: 8px auto 6px;
+    border-radius: 999px;
+    background: var(--border-color, rgba(255, 255, 255, 0.18));
+}
+
+@keyframes pfMdSheetIn {
+    from {
+        opacity: 0.6;
+        transform: translateY(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+body.page-profile-h5 .pf-modal:not(.pf-modal--analytics) .md-head {
+    padding: 4px 16px 0;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text-primary, #fff);
+    line-height: 1.35;
+}
+
+body.page-profile-h5 .pf-modal:not(.pf-modal--analytics) .md-head .ic-warn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+body.page-profile-h5 .pf-modal:not(.pf-modal--analytics) .md-body {
+    padding: 10px 16px 14px;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text-secondary, var(--t-secondary));
+}
+
+body.page-profile-h5 .pf-modal:not(.pf-modal--analytics) .md-body strong {
+    color: var(--text-primary, #fff);
+    font-weight: 700;
+}
+
+body.page-profile-h5 .pf-modal:not(.pf-modal--analytics) .md-actions {
+    padding: 0 16px 12px;
+    gap: 8px;
+}
+
+body.page-profile-h5 .pf-modal:not(.pf-modal--analytics) .md-actions button {
+    height: 44px;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+:root[data-theme='light'] body.page-profile-h5 .pf-modal:not(.pf-modal--analytics) .md-panel {
+    background: var(--bg-sheet, #fff);
+    box-shadow: 0 -4px 24px rgba(15, 18, 32, 0.12);
+}
+
+:root[data-theme='light'] body.page-profile-h5 .pf-modal:not(.pf-modal--analytics) .md-panel::before {
+    background: rgba(15, 18, 32, 0.12);
+}
+
+/* 直播 Tab · 单列横滑卡片（避免三列挤成 120px 窄条） */
+body.page-profile-h5 .pf-live-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+body.page-profile-h5 .pf-live-item {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+}
+
+body.page-profile-h5 .pf-live-item .thumb {
+    width: 112px;
+    aspect-ratio: 16 / 10;
+}
+
+body.page-profile-h5 .pf-live-item .body {
+    align-self: center;
+}
+
+body.page-profile-h5 .pf-live-foot {
+    grid-column: unset;
+    padding: 0 4px;
+}
+
+/* 已购作品 · 与 #pane-works .works-grid 同列宽、间距、封面比例 */
+body.page-profile-h5 #daProfileOwnedH5 .da-ent-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 0 12px 12px;
+    align-items: stretch;
+}
+
+body.page-profile-h5 #daProfileOwnedH5 .da-empty {
+    padding: 24px 16px;
+}
+
+body.page-profile-h5 #daProfileOwnedH5 a.da-ent-card {
+    height: 100%;
+}
+
+body.page-profile-h5 #daProfileOwnedH5 a.da-ent-card .da-ent-cover {
+    aspect-ratio: 16 / 10;
+}
+
+body.page-profile-h5 #daProfileOwnedH5 a.da-ent-card .info {
+    flex: 1;
+    padding: 8px 8px 6px;
+    min-height: 68px;
+    gap: 2px;
+}
+
+body.page-profile-h5 #daProfileOwnedH5 a.da-ent-card .t {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.35;
+    margin-bottom: 2px;
+    min-height: 2.7em;
+    -webkit-line-clamp: 2;
+}
+
+body.page-profile-h5 #daProfileOwnedH5 a.da-ent-card .da-ent-media {
+    font-size: 10px;
+    line-height: 1.3;
+}
+
+body.page-profile-h5 #daProfileOwnedH5 a.da-ent-card .da-ent-creator {
+    font-size: 10px;
+    margin-top: auto;
+}
+
+body.page-profile-h5 #daProfileOwnedH5 a.da-ent-card .da-ent-type-badge {
+    top: 6px;
+    left: 6px;
+    font-size: 9px;
+    padding: 2px 6px;
+}
+
+/* 创作者认证 · 底部抽屉（与 Web profile-sheet 同源 markup） */
+body.page-profile-h5 .profile-sheet {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 9100;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+}
+
+body.page-profile-h5 .profile-sheet.show {
+    display: flex;
+}
+
+body.page-profile-h5 .profile-sheet .sh-panel {
+    width: 100%;
+    max-height: min(92vh, 720px);
+    overflow: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.4);
+    --t-secondary: var(--text-secondary);
+    --t-tertiary: var(--text-tertiary);
+    --t-primary: var(--text-primary);
+    --border: var(--border-color);
+    --warning-light: #fbbf24;
+    --brand-grad: var(--brand-gradient);
+}
+
+body.page-profile-h5 .profile-sheet .sh-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+body.page-profile-h5 .profile-sheet .cert-head-main #certSheetTitle {
+    font-size: 16px;
+    font-weight: 800;
+}
+
+body.page-profile-h5 .profile-sheet .cert-head-main p {
+    margin: 4px 0 0;
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+
+body.page-profile-h5 .profile-sheet .sh-close {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-elevated, var(--bg-card));
+    color: var(--text-secondary);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+body.page-profile-h5 .profile-sheet .sh-body {
+    padding: 14px 16px 16px;
+}
+
+body.page-profile-h5 .profile-sheet .cert-pane-intro {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 0 0 12px;
+    line-height: 1.5;
+}
+
+body.page-profile-h5 .profile-sheet .cert-foot-note {
+    font-size: 11px;
+    color: #fbbf24;
+    margin: 10px 0 0;
+    min-height: 16px;
+}
+
+body.page-profile-h5 .profile-sheet .sh-actions {
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+    border-top: 1px solid var(--border-color);
+}
+
+body.page-profile-h5 .profile-sheet .sh-actions button {
+    height: 42px;
+    padding: 0 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+body.page-profile-h5 .profile-sheet .sh-actions button.primary {
+    background: var(--brand-gradient);
+    color: #fff;
+    border: none;
+}
+
+body.page-profile-h5 .cert-sheet .sh-panel {
+    max-width: 100%;
 }

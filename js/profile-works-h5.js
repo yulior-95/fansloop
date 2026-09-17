@@ -26,6 +26,13 @@
     let pendingDeleteCard = null;
     let currentFilter = 'published';
 
+    function setWorkActIcon(btn, label, iconClass) {
+        if (!btn) return;
+        btn.innerHTML = '<i class="' + iconClass + '" aria-hidden="true"></i>';
+        btn.setAttribute('aria-label', label);
+        btn.setAttribute('title', label);
+    }
+
     function showToast(msg) {
         if (toast) {
             toast.textContent = msg;
@@ -198,12 +205,14 @@
 
         modalAnalytics.classList.add('show');
         modalAnalytics.setAttribute('aria-hidden', 'false');
+        setModalScrollLock(true);
     }
 
     function closeAnalytics() {
         if (!modalAnalytics) return;
         modalAnalytics.classList.remove('show');
         modalAnalytics.setAttribute('aria-hidden', 'true');
+        if (!document.querySelector('.pf-modal.show')) setModalScrollLock(false);
     }
 
     function refreshTimeLabels() {
@@ -248,11 +257,27 @@
         const pinned = card.classList.contains('is-pinned');
         if (pinned) {
             btn.classList.add('is-pinned-active');
-            btn.innerHTML = '<i class="fa-solid fa-thumbtack"></i> 取消置顶';
         } else {
             btn.classList.remove('is-pinned-active');
-            btn.innerHTML = '<i class="fa-regular fa-thumbtack"></i> 置顶';
         }
+        setWorkActIcon(btn, pinned ? '取消置顶' : '置顶', 'fa-solid fa-thumbtack');
+    }
+
+    function layoutWorkActions(card) {
+        var actions = card.querySelector('.work-actions');
+        var thumb = card.querySelector('.work-thumb');
+        if (!actions || !thumb || actions.parentElement === thumb) return;
+        thumb.appendChild(actions);
+    }
+
+    function normalizeWorkActionButtons(card) {
+        var stats = card.querySelector('[data-act="stats"]');
+        if (stats) setWorkActIcon(stats, '数据看板', 'fa-solid fa-chart-line');
+        var td = card.querySelector('[data-act="takedown"]');
+        if (td) setWorkActIcon(td, '下架', 'fa-solid fa-eye-slash');
+        var del = card.querySelector('[data-act="delete"]');
+        if (del) setWorkActIcon(del, '删除', 'fa-solid fa-trash-can');
+        syncPinButton(card);
     }
 
     function sortPinnedFirst() {
@@ -281,16 +306,22 @@
         showToast(wasPinned ? '已取消置顶' : '已在创作者首页置顶');
     }
 
+    function setModalScrollLock(on) {
+        document.body.classList.toggle('pf-modal-open', !!on);
+    }
+
     function openModal(modal) {
         if (!modal) return;
         modal.classList.add('show');
         modal.setAttribute('aria-hidden', 'false');
+        setModalScrollLock(true);
     }
 
     function closeModal(modal) {
         if (!modal) return;
         modal.classList.remove('show');
         modal.setAttribute('aria-hidden', 'true');
+        if (!document.querySelector('.pf-modal.show')) setModalScrollLock(false);
     }
 
     function ensureStatsButton(card) {
@@ -300,7 +331,7 @@
         btn.type = 'button';
         btn.className = 'work-act accent';
         btn.setAttribute('data-act', 'stats');
-        btn.innerHTML = '<i class="fa-solid fa-chart-line"></i> 数据看板';
+        setWorkActIcon(btn, '数据看板', 'fa-solid fa-chart-line');
         actions.insertBefore(btn, actions.firstChild);
     }
 
@@ -320,7 +351,7 @@
             del.type = 'button';
             del.className = 'work-act danger-solid';
             del.setAttribute('data-act', 'delete');
-            del.innerHTML = '<i class="fa-regular fa-trash-can"></i> 删除';
+            setWorkActIcon(del, '删除', 'fa-solid fa-trash-can');
             actions.appendChild(del);
         }
     }
@@ -354,6 +385,7 @@
 
     function bindCard(card) {
         ensureStatsButton(card);
+        layoutWorkActions(card);
         card.addEventListener('click', function (e) {
             if (e.target.closest('.work-act')) return;
             if (typeof global.FL_openContentDetailFromCard === 'function') {
@@ -390,7 +422,7 @@
                 }
             });
         });
-        syncPinButton(card);
+        normalizeWorkActionButtons(card);
     }
 
     function setWorksFilter(filter) {

@@ -98,7 +98,6 @@
                 sub: '2026-05-20 20:30 开播 · 已结束',
                 cover: 'https://images.pexels.com/photos/3945683/pexels-photo-3945683.jpeg?auto=compress&cs=tinysrgb&w=600',
                 duration: '1:24:08',
-                chip: '单场最高',
                 stats: { views: '12.4k', peak: '3.2k', duration: '1:24:08', gifts: '820 USDT', fans: '+186', danmaku: '4.1k' }
             },
             {
@@ -107,7 +106,6 @@
                 sub: '2026-05-12 06:15 开播 · 已结束',
                 cover: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=600',
                 duration: '58:20',
-                chip: '',
                 stats: { views: '8.6k', peak: '2.1k', duration: '58:20', gifts: '412 USDT', fans: '+92', danmaku: '2.8k' }
             },
             {
@@ -116,7 +114,6 @@
                 sub: '2026-04-28 19:00 开播 · 已结束',
                 cover: 'https://images.pexels.com/photos/3379949/pexels-photo-3379949.jpeg?auto=compress&cs=tinysrgb&w=600',
                 duration: '42:05',
-                chip: '',
                 stats: { views: '5.1k', peak: '980', duration: '42:05', gifts: '156 USDT', fans: '+44', danmaku: '1.2k' }
             }
         ];
@@ -128,14 +125,11 @@
                 '<div class="thumb" style="background-image:url(\'' + esc(s.cover) + '\')">' +
                 '<span class="dur">' + esc(s.duration) + '</span></div>' +
                 '<div class="body">' +
+                '<div class="pf-live-copy">' +
                 '<h4 class="title">' + esc(s.title) + '</h4>' +
-                '<div class="meta">' + esc(s.sub) + '</div>' +
-                '<div class="chips">' +
-                '<span class="chip accent"><i class="fa-solid fa-tower-broadcast"></i> 已结束</span>' +
-                (s.chip ? '<span class="chip">' + esc(s.chip) + '</span>' : '') +
-                '<span class="chip"><i class="fa-solid fa-eye"></i> ' + esc(s.stats.views) + '</span>' +
+                '<div class="meta">' + esc(s.sub) + ' · <span class="pf-live-views"><i class="fa-solid fa-eye"></i> ' + esc(s.stats.views) + '</span></div>' +
                 '</div>' +
-                '<button type="button" class="btn-live-data" data-act="live-data"><i class="fa-solid fa-chart-column"></i> 查看直播数据</button>' +
+                '<button type="button" class="btn-live-data" data-act="live-data" aria-label="查看直播数据"><i class="fa-solid fa-chart-column"></i></button>' +
                 '</div></article>'
             );
         }).join('');

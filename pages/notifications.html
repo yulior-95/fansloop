@@ -116,6 +116,8 @@
 .nf-ic.t-system { background: linear-gradient(135deg, #6B7280, #4B5563); }
 .nf-ic.t-live { background: linear-gradient(135deg, #DC2626, #F59E0B); }
 .nf-ic.t-preview { background: linear-gradient(135deg, #3B82F6, #8B5CF6); }
+.nf-ic.t-review { background: linear-gradient(135deg, #6366F1, #A855F7); }
+.nf-ic.t-expiry { background: linear-gradient(135deg, #F59E0B, #EF4444); }
 
 .nf-item .nf-body { flex: 1; min-width: 0; }
 .nf-item .nf-body .nf-text {
@@ -342,17 +344,15 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.nf-overlay { position: absolute !important; z-index: 500; padding: 12px; align-items: flex-end; }
-.nf-overlay.show { display: flex; }
-.nf-modal { max-width: 100%; max-height: 88%; border-radius: 16px 16px 0 0; margin: 0; }
-.nf-toast-host { position: absolute; z-index: 600; pointer-events: none; }
+/* 弹层样式见 css/h5-notifications-modals.css */
 :root[data-theme='light'] .nf-list,
 :root[data-theme='light'] .nf-filter,
 :root[data-theme='light'] .nf-bulk { background: var(--bg-card); }
 </style>
 <link rel="stylesheet" href="../css/h5-light-theme.css">
+<link rel="stylesheet" href="../css/h5-notifications-modals.css">
 </head>
-<body>
+<body class="page-notifications-h5">
 <div class="status-bar"><span class="time">9:41</span><span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span></div>
 <div class="nav-bar solid">
     <div class="nav-left"><div class="nav-btn" data-back="profile.html"><i class="fa-solid fa-chevron-left"></i></div></div>
@@ -371,6 +371,7 @@
 <div class="nf-filter" id="nfFilter">
                     <div class="ck active" data-tab="all">全部</div>
                     <div class="ck" data-tab="unread">未读 <span class="cnt" id="nfCntUnread">16</span></div>
+                    <div class="ck" data-tab="review">内容审核 <span class="cnt" id="nfCntReview">1</span></div>
                     <div class="ck" data-tab="live">开播提醒 <span class="cnt" id="nfCntLive">7</span></div>
                     <div class="ck" data-tab="subscription">订阅提醒</div>
                     <div class="ck" data-tab="income">收益通知 <span class="cnt" id="nfCntIncome">3</span></div>
@@ -397,6 +398,15 @@
                             <div class="nf-meta"><span><i class="fa-regular fa-clock"></i> 刚刚</span><span class="dot"></span><span>系统消息</span><span class="dot"></span><span>开播提醒</span></div>
                         </div>
                         <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&q=80')"></div>
+                    </div>
+
+                    <div class="nf-item unread" data-nf-type="review" data-actor-type="platform" data-actor-role="platform">
+                        <div class="nf-ic t-review" aria-hidden="true"><i class="fa-solid fa-clipboard-check"></i></div>
+                        <div class="nf-body">
+                            <div class="nf-text"><b>内容审核</b> 作品「胶片人像 · 午后窗光」已提交人工审核，预计 <b>24 小时内</b> 完成；通过后将公开展示。</div>
+                            <div class="nf-meta"><span><i class="fa-regular fa-clock"></i> 15 分钟前</span><span class="dot"></span><span>审核中</span><span class="dot"></span><span>图文动态</span></div>
+                        </div>
+                        <div class="nf-thumb" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200')"></div>
                     </div>
 
                     <div class="nf-item unread" data-nf-type="income">
@@ -856,6 +866,7 @@
 
 <script src="../js/digital-h5-nav.js"></script>
 <script src="../js-web/tip-events-store.js"></script>
+<script src="../js-web/notifications-filter.js"></script>
 <script src="../js-web/notification-system-announcements.js"></script>
 <script src="../js-web/notifications-interactions.js"></script>
 

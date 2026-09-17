@@ -186,11 +186,15 @@
         });
     }
 
+    function isKycApprovedForUi() {
+        if (global.FLUserAssets && global.FLUserAssets.isKycApproved()) return true;
+        try { return localStorage.getItem('h5_withdraw_kyc_passed') === '1'; } catch (e) { return false; }
+    }
+
     function applyKycTag() {
-        if (!global.FLUserAssets) return;
-        var tag = document.querySelector('#creatorTagsRow .tag-info, .tags-row .tag-info');
+        var tag = document.querySelector('#creatorTagsRow .tag-info, .tags-row .tag-info, .pf-tags-row .tag-info, .pf-tags-row .tag-muted');
         if (!tag) return;
-        var approved = global.FLUserAssets.isKycApproved();
+        var approved = isKycApprovedForUi();
         if (approved) {
             tag.className = 'tag tag-info';
             tag.innerHTML = '<i class="fa-solid fa-shield-halved"></i>身份认证';

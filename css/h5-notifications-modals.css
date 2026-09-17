@@ -1,0 +1,189 @@
+/**
+ * H5 通知中心 · 页内弹窗（设置 / 回复等）
+ * 补齐 Web common-web 的 switch / input / btn，并与 Web 通知设置能力一致
+ */
+body.page-notifications-h5 {
+    position: relative;
+    width: 100%;
+    max-width: 430px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+    overflow: hidden;
+    --border: var(--border-color);
+    --border-strong: var(--border-color);
+    --t-primary: var(--text-primary);
+    --t-secondary: var(--text-secondary);
+    --t-tertiary: var(--text-tertiary);
+    --t-quaternary: var(--text-tertiary);
+    --bg-input: var(--bg-elevated, var(--bg-card));
+    --bg-input-focus: var(--bg-elevated, var(--bg-card));
+    --border-focus: rgba(168, 85, 247, 0.45);
+    --brand-grad: var(--brand-gradient);
+    --brand-purple: #a855f7;
+    --r-md: 12px;
+    --r-xl: 16px;
+    --r-pill: 999px;
+    --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.42);
+    --danger-light: #fca5a5;
+}
+
+body.page-notifications-h5 .nf-overlay {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 9200;
+    padding: 0 !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+}
+
+body.page-notifications-h5 .nf-overlay.show {
+    display: flex !important;
+}
+
+body.page-notifications-h5 .nf-modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: min(88vh, 680px) !important;
+    margin: 0;
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.35);
+}
+
+body.page-notifications-h5 .nf-modal-head {
+    padding: 16px 16px 12px;
+}
+
+body.page-notifications-h5 .nf-modal-body {
+    padding: 12px 16px 16px;
+}
+
+body.page-notifications-h5 .nf-setting-row {
+    padding: 14px 0;
+    font-size: 14px;
+}
+
+body.page-notifications-h5 .nf-setting-row .switch {
+    flex-shrink: 0;
+}
+
+body.page-notifications-h5 .nf-modal-foot {
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    flex-direction: column-reverse;
+    gap: 8px;
+}
+
+body.page-notifications-h5 .nf-modal-foot .btn {
+    width: 100%;
+    height: 44px;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+body.page-notifications-h5 .nf-toast-host {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--tab-bar-height, 0px) + 12px);
+    z-index: 9300;
+    pointer-events: none;
+}
+
+/* —— 与 Web 一致的开关 / 输入 / 按钮（H5 未加载 common-web） —— */
+body.page-notifications-h5 .nf-overlay .switch {
+    position: relative;
+    width: 44px;
+    height: 26px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: var(--r-pill);
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+body.page-notifications-h5 .nf-overlay .switch::after {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    top: 2px;
+    left: 2px;
+    transition: left 0.2s;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+}
+
+body.page-notifications-h5 .nf-overlay .switch.on {
+    background: var(--brand-grad);
+}
+
+body.page-notifications-h5 .nf-overlay .switch.on::after {
+    left: 20px;
+}
+
+body.page-notifications-h5 .nf-overlay .input {
+    width: 100%;
+    height: 40px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 0 12px;
+    color: var(--t-primary);
+    font-size: 13px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+body.page-notifications-h5 .nf-overlay .input:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.12);
+}
+
+body.page-notifications-h5 .nf-overlay .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 16px;
+    height: 38px;
+    border-radius: var(--r-md);
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    background: var(--bg-input);
+    color: var(--t-secondary);
+    cursor: pointer;
+}
+
+body.page-notifications-h5 .nf-overlay .btn.btn-primary {
+    background: var(--brand-grad);
+    color: #fff;
+    border: none;
+    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.35);
+}
+
+body.page-notifications-h5 .nf-overlay .btn.btn-secondary {
+    border-color: var(--border-strong);
+    background: transparent;
+    color: var(--t-secondary);
+}
+
+body.page-notifications-h5 .nf-overlay .btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+:root[data-theme='light'] body.page-notifications-h5 .nf-overlay .switch:not(.on) {
+    background: rgba(15, 18, 32, 0.12);
+}
+
+:root[data-theme='light'] body.page-notifications-h5 .nf-modal {
+    background: var(--bg-card);
+    border-color: var(--border-color);
+}
