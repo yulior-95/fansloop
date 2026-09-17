@@ -372,6 +372,8 @@
 </style>
 <link rel="stylesheet" href="../css-web/dev-glass-note.css">
 <link rel="stylesheet" href="../css-web/profile-works.css">
+<link rel="stylesheet" href="../css-web/profile-live-sessions.css">
+<link rel="stylesheet" href="../css-web/digital-assets.css">
 <link rel="stylesheet" href="../css-web/content-detail-drawer.css">
 <link rel="stylesheet" href="../css-web/content-report.css">
 <link rel="stylesheet" href="../css-web/profile-creator-cert.css">
@@ -486,6 +488,7 @@
             <div class="profile-tabs" id="profileTabs" role="tablist">
                 <div class="tb active" role="tab" data-pane="works" tabindex="0"><i class="fa-solid fa-th"></i>作品 <span class="cnt">142</span></div>
                 <div class="tb" role="tab" data-pane="paid" tabindex="0"><i class="fa-solid fa-crown"></i>付费内容 <span class="cnt">26</span></div>
+                <div class="tb" role="tab" data-pane="owned" tabindex="0"><i class="fa-solid fa-gem"></i>已购作品 <span class="cnt" id="profileOwnedCnt">0</span></div>
                 <div class="tb" role="tab" data-pane="live" tabindex="0"><i class="fa-solid fa-tower-broadcast"></i>直播 <span class="cnt">12</span></div>
                 <div class="tb" role="tab" data-pane="likes" tabindex="0"><i class="fa-regular fa-heart"></i>喜欢</div>
                 <div class="tb" role="tab" data-pane="bookmarks" tabindex="0"><i class="fa-solid fa-bookmark"></i>收藏</div>
@@ -680,15 +683,12 @@
             <p style="font-size:12px;color:var(--t-tertiary);margin-top:16px">按篇购买与付费专栏作品；结算与退款规则见创作者协议。</p>
         </div>
 
+        <div class="profile-pane" id="pane-owned" role="tabpanel">
+            <div id="daProfileOwned"></div>
+        </div>
+
         <div class="profile-pane" id="pane-live" role="tabpanel">
-            <div class="grid-live">
-                <div class="post-tile" style="background-image: url('https://images.pexels.com/photos/3945683/pexels-photo-3945683.jpeg?auto=compress&cs=tinysrgb&w=600')">
-                    <div class="meta" style="opacity:1"><span><i class="fa-solid fa-eye"></i> 12.4k</span><span><i class="fa-solid fa-gift"></i> 820</span></div>
-                </div>
-                <div class="post-tile" style="background-image: url('https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=600')"></div>
-                <div class="post-tile" style="background-image: url('https://images.pexels.com/photos/3379949/pexels-photo-3379949.jpeg?auto=compress&cs=tinysrgb&w=600')"></div>
-            </div>
-            <p style="font-size:12px;color:var(--t-tertiary);margin-top:16px">回放保留 30 天；打赏与礼物明细在创作者收入中查看。</p>
+            <div class="pf-live-list" id="pfLiveList"></div>
         </div>
 
         <div class="profile-pane" id="pane-likes" role="tabpanel">
@@ -1440,6 +1440,7 @@
     const panes = {
         works: document.getElementById('pane-works'),
         paid: document.getElementById('pane-paid'),
+        owned: document.getElementById('pane-owned'),
         live: document.getElementById('pane-live'),
         likes: document.getElementById('pane-likes'),
         bookmarks: document.getElementById('pane-bookmarks'),
@@ -1511,6 +1512,7 @@
 <script src="../js-web/content-report.js"></script>
 <script src="../js-web/content-detail-drawer.js"></script>
 <script src="../js-web/profile-works.js"></script>
+<script src="../js-web/profile-live-sessions.js"></script>
 <script src="../js-web/profile-creator-cert.js"></script>
 <script src="../js-web/fl-friends-store.js"></script>
 <script src="../js-web/profile-social-lists.js"></script>
@@ -1541,6 +1543,10 @@
 <script src="../js-web/app-sidebar-global.js"></script>
 <script src="../js-web/mall-commerce-config-store.js"></script>
 <script src="../js-web/digital-assets-store.js"></script>
+<script src="../js-web/digital-asset-orders-store.js"></script>
+<script src="../js-web/digital-asset-after-sales.js"></script>
+<script src="../js-web/digital-asset-pages.js"></script>
+<script src="../js-web/profile-owned-digital.js"></script>
 <script src="../js-web/affiliate-catalog-store.js"></script>
 <script src="../js-web/affiliate-showcase-store.js"></script>
 <script>

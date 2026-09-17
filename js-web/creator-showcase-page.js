@@ -125,9 +125,10 @@
         var type = Store ? Store.typeLabel(p.assetType) : p.assetType;
         var left = Store ? Store.remaining(p) : null;
         var preview = isPreviewMode();
-        var asVisitor = isVisitorChrome() && !preview;
-        var entBuyer = asVisitor && Orders ? Orders.DEMO_BUYER : null;
-        var owned = Orders && Orders.hasEntitlement(p.id, entBuyer || undefined);
+        var owned = Orders && Orders.hasEntitlementInContext(p.id, {
+            asVisitor: isVisitorChrome() && !preview,
+            creatorId: p.creatorId
+        });
         var soldout = p.status === 'sold_out';
         var delisted = p.status === 'delisted';
         var rejected = p.status === 'rejected';
@@ -189,7 +190,7 @@
                 '<button type="button" class="btn btn-sm" disabled>预览不可购</button></div>';
         } else if (owned) {
             foot = '<div class="cs-card-foot"><button type="button" class="btn btn-sm js-cs-da-view" data-id="' + esc(p.id) + '">查看</button>' +
-                '<button type="button" class="btn btn-sm" disabled>已拥有</button></div>';
+                '<button type="button" class="btn btn-primary btn-sm" disabled>已购买</button></div>';
         } else if (soldout) {
             foot = '<div class="cs-card-foot"><button type="button" class="btn btn-sm js-cs-da-view" data-id="' + esc(p.id) + '">查看</button>' +
                 '<button type="button" class="btn btn-sm" disabled>已售罄</button></div>';
@@ -436,14 +437,11 @@
         var heroTitle = qs('#csHeroTitle');
         var ownerBar = qs('#csOwnerBar');
         var stats = qs('#csStats');
-        var switchBtn = qs('#csSwitchMode');
         var headerTitle = qs('#csHeaderTitle');
         var preview = isPreviewMode();
-        var modeLabel = manage ? '本人管理' : (preview ? '访客预览' : '访客浏览');
 
         if (heroTitle) {
-            heroTitle.innerHTML = esc(name) + ' · 创作者橱窗 <span class="chip' + (manage ? ' active' : '') + '" id="csModeTag">' +
-                modeLabel + '</span>';
+            heroTitle.textContent = name + ' · 创作者橱窗';
         }
         if (headerTitle) {
             headerTitle.textContent = name + ' · 橱窗' + (preview ? '（预览）' : '');
@@ -456,19 +454,6 @@
         if (stats) {
             stats.hidden = !manage;
             stats.style.display = manage ? '' : 'none';
-        }
-
-        // 本人橱窗可预览访客；预览中可返回管理；纯访客不显示切换
-        if (switchBtn) {
-            if (manage) {
-                switchBtn.style.display = '';
-                switchBtn.textContent = '预览访客';
-            } else if (preview && isSelfShowcase()) {
-                switchBtn.style.display = '';
-                switchBtn.textContent = '返回管理';
-            } else {
-                switchBtn.style.display = 'none';
-            }
         }
 
         var backBtn = qs('#csBackProfile');
@@ -550,16 +535,6 @@
         });
     }
 
-    function buildQuery(extra) {
-        var q = new URLSearchParams();
-        q.set('name', creatorName());
-        if (activeTab === 'affiliate') q.set('tab', 'affiliate');
-        Object.keys(extra || {}).forEach(function (k) {
-            if (extra[k] != null && extra[k] !== '') q.set(k, extra[k]);
-        });
-        return 'creator-showcase.html?' + q.toString();
-    }
-
     function init(skipToast) {
         var manage = isManageMode();
         var cid = creatorId();
@@ -575,17 +550,6 @@
             tabs._bound = true;
             bindTabs();
         }
-        var switchBtn = qs('#csSwitchMode');
-        if (switchBtn && !switchBtn._bound) {
-            switchBtn._bound = true;
-            switchBtn.addEventListener('click', function () {
-                if (isManageMode()) {
-                    location.href = buildQuery({ preview: '1' });
-                } else {
-                    location.href = buildQuery({ owner: '1' });
-                }
-            });
-        }
         var createDigBtn = qs('#csCreateDigitalBtn');
         if (createDigBtn && !createDigBtn._bound) {
             createDigBtn._bound = true;
@@ -595,6 +559,12 @@
         }
         if (!skipToast && manage && param('from') === 'catalog') {
             toast('实体选品暂未开放 · 已进入数字商品橱窗');
+        }
+
+        if (!init._purchaseBound) {
+            init._purchaseBound = true;
+            global.addEventListener('fl-digital-purchase', function () { init(true); });
+            global.addEventListener('fl-digital-refund', function () { init(true); });
         }
 
         var openId = param('open');

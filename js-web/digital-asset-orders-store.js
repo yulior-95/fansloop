@@ -291,6 +291,21 @@
         return DEMO_BUYER;
     }
 
+    /** 与 purchase() 一致：访客购买本人橱窗商品时权益记在演示粉丝账号 */
+    function resolveBuyerId(opts) {
+        opts = opts || {};
+        var buyerId = opts.buyerId || currentUserId();
+        if (opts.asVisitor && opts.creatorId && buyerId && opts.creatorId === buyerId) {
+            return DEMO_BUYER;
+        }
+        return buyerId;
+    }
+
+    function hasEntitlementInContext(productId, opts) {
+        var buyerId = resolveBuyerId(opts || {});
+        return listEntitlements(buyerId).some(function (e) { return e.productId === productId; });
+    }
+
     function listOrders(filter) {
         var orders = read().orders.slice();
         filter = filter || {};
@@ -459,11 +474,11 @@
             if (left !== null && left <= 0 && !opts.checkoutLocked) return { ok: false, error: '已售罄' };
         }
 
-        var buyerId = opts.buyerId || currentUserId();
-        // 访客视角原型：当前登录若是创作者本人，以粉丝身份完成购买演示
-        if (opts.asVisitor && product.creatorId && product.creatorId === buyerId) {
-            buyerId = DEMO_BUYER;
-        }
+        var buyerId = resolveBuyerId({
+            buyerId: opts.buyerId,
+            asVisitor: opts.asVisitor,
+            creatorId: product.creatorId
+        });
         if (product.creatorId && product.creatorId === buyerId) {
             return { ok: false, error: '不能购买自己的数字资产' };
         }
@@ -544,6 +559,8 @@
         listOrders: listOrders,
         listEntitlements: listEntitlements,
         hasEntitlement: hasEntitlement,
+        hasEntitlementInContext: hasEntitlementInContext,
+        resolveBuyerId: resolveBuyerId,
         getOrderById: getOrderById,
         getRefundEligibility: getRefundEligibility,
         requestRefund: requestRefund,

@@ -338,7 +338,12 @@
         opts = opts || {};
         var Store = global.DigitalAssetsStore;
         var Orders = global.DigitalAssetOrdersStore;
-        var owned = Orders && Orders.hasEntitlement(p.id, opts.asVisitor && Orders.DEMO_BUYER ? Orders.DEMO_BUYER : undefined);
+        var owned = Orders && (Orders.hasEntitlementInContext
+            ? Orders.hasEntitlementInContext(p.id, {
+                asVisitor: !!opts.asVisitor,
+                creatorId: p.creatorId
+            })
+            : Orders.hasEntitlement(p.id));
         var left = Store.remaining(p);
         var own = isOwnProduct(p);
         var manage = !!(opts.ownerView || (own && opts.forceManage));

@@ -4,12 +4,15 @@
  */
 (function (global) {
     var DEMO_UID = 'demo_uid_882910';
+    /** 新注册 / 零余额账号一次性发放的演示 USDT（便于购买、订阅等闭环） */
+    var STARTER_LIVE_USDT = 500;
 
     function newUserAssets() {
         return {
             walletUsd: 0,
             usdtBalance: 0,
             liveUsdt: 0,
+            starterUsdtGranted: false,
             monthlyRecharge: 0,
             monthlyWithdraw: 0,
             monthlyDelta: 0,
@@ -41,25 +44,48 @@
         return global.FLUserRegistry.getByUserId(uid);
     }
 
+    function grantStarterUsdtIfNeeded(account) {
+        if (!account || !account.assets) return;
+        var a = account.assets;
+        if (a.starterUsdtGranted) return;
+        var bal = a.liveUsdt || 0;
+        var recharged = (a.monthlyRecharge || 0) > 0;
+        if (recharged) {
+            a.starterUsdtGranted = true;
+            global.FLUserRegistry.persistAccount(account);
+            return;
+        }
+        if (bal > 0) {
+            a.starterUsdtGranted = true;
+            global.FLUserRegistry.persistAccount(account);
+            return;
+        }
+        var next = STARTER_LIVE_USDT;
+        account.assets = Object.assign({}, a, {
+            liveUsdt: next,
+            usdtBalance: next,
+            walletUsd: next,
+            starterUsdtGranted: true
+        });
+        global.FLUserRegistry.persistAccount(account);
+    }
+
     function ensureAssets(account) {
         if (!account) return null;
         if (!account.assets) {
             account.assets = newUserAssets();
+            if (account.isNewUser) {
+                account.assets.liveUsdt = STARTER_LIVE_USDT;
+                account.assets.usdtBalance = STARTER_LIVE_USDT;
+                account.assets.walletUsd = STARTER_LIVE_USDT;
+                account.assets.starterUsdtGranted = true;
+            }
             global.FLUserRegistry.persistAccount(account);
         } else if (account.email === 'luna@goodfans.io' && account.assets.kyc && account.assets.kyc.lastId === 'KYC-LUNA-DEMO') {
             account.assets = newUserAssets();
             global.FLUserRegistry.persistAccount(account);
         } else if (account.isNewUser) {
-            var a = account.assets;
-            var recharged = (a.monthlyRecharge || 0) > 0;
-            if (!recharged && ((a.liveUsdt || 0) > 0 || (a.usdtBalance || 0) > 0)) {
-                account.assets = Object.assign({}, a, {
-                    liveUsdt: 0,
-                    usdtBalance: 0,
-                    walletUsd: 0
-                });
-                global.FLUserRegistry.persistAccount(account);
-            }
+            grantStarterUsdtIfNeeded(account);
         }
         return account.assets;
     }

@@ -128,7 +128,7 @@
             if (name) target += '&name=' + encodeURIComponent(name);
             if (owner === '1') target += '&owner=1';
         } else if (from === 'my') {
-            target = 'my-digital-assets.html?open=' + encodeURIComponent(id);
+            target = 'digital-asset-owned-view.html?id=' + encodeURIComponent(id) + '&from=my';
         } else {
             target = 'digital-asset-store.html?open=' + encodeURIComponent(id);
         }
@@ -446,7 +446,13 @@
             setTimeout(function () { afterSaveRedirect(p, true); }, 700);
         });
     }
-    function entitlementPills(order, Orders) {
+    function entitlementPills(order, Orders, hideRefund) {
+        if (hideRefund) {
+            if (order && order.status === 'refunded') {
+                return '<span class="da-pill bad">已退款</span>';
+            }
+            return '<span class="da-pill ok">已获得</span>';
+        }
         if (!order) return '<span class="da-pill off">已获得</span>';
         if (order.status === 'refunded') {
             return '<span class="da-pill bad">已退款</span><span class="da-pill off">' + esc(order.refundedAt || '') + '</span>';
@@ -461,13 +467,26 @@
         return '<span class="da-pill ok">已获得</span><span class="da-pill off">' + esc(order.createdAt || '') + '</span>';
     }
 
-    function entitlementBadgeWeb(order, Orders) {
+    function entitlementBadgeWeb(order, Orders, hideRefund) {
+        if (hideRefund) {
+            if (order && order.status === 'refunded') return '<span class="da-ent-badge bad">已退款</span>';
+            return '<span class="da-ent-badge ok">已获得</span>';
+        }
         if (!order) return '<span class="da-ent-badge muted">已获得</span>';
         if (order.status === 'refunded') return '<span class="da-ent-badge bad">已退款</span>';
         var check = Orders.getRefundEligibility(order.id, order.buyerId);
         if (check.ok) return '<span class="da-ent-badge refund">7 日内可退 · 剩余 ' + check.daysLeft + ' 天</span>';
         if (check.expired) return '<span class="da-ent-badge muted">售后期已过（购买超 7 天）</span>';
         return '<span class="da-ent-badge ok">已获得</span>';
+    }
+
+    function ownedViewHref(productId, layout, opts) {
+        opts = opts || {};
+        var from = opts.viewFrom || 'my';
+        if (layout === 'h5') {
+            return 'digital-owned-view.html?id=' + encodeURIComponent(productId) + '&from=' + encodeURIComponent(from);
+        }
+        return 'digital-asset-owned-view.html?id=' + encodeURIComponent(productId) + '&from=' + encodeURIComponent(from);
     }
 
     function refundActionHtml(order, Orders, layout) {
@@ -509,7 +528,7 @@
         if (!root || !Orders) return;
         var list = Orders.listEntitlements();
         var storeHref = layout === 'h5' ? 'digital-store.html' : 'digital-asset-store.html';
-        var detailHref = layout === 'h5' ? 'digital-owned.html' : 'digital-asset-detail.html?id=';
+        var hideRefund = !!opts.hideRefund;
         if (!list.length) {
             root.innerHTML = '<div class="da-empty">还没有已购作品 · <a href="' + storeHref + '" style="color:#C084FC">去逛逛</a></div>';
             return;
@@ -524,33 +543,119 @@
                     '<div class="t">' + esc(e.productTitle) + '</div>' +
                     '<div class="id">' + esc(Store ? Store.typeLabel(e.assetType) : e.assetType) +
                     ' · ' + esc(e.creatorName) + '</div>' +
-                    '<div class="row">' + entitlementPills(order, Orders) + '</div>' +
+                    '<div class="row">' + entitlementPills(order, Orders, hideRefund) + '</div>' +
                     '<div class="da-btns">' +
-                    '<button type="button" class="mini pri" onclick="location.href=\'' + detailHref + '?id=' +
-                    encodeURIComponent(e.productId) + '\'">查看</button>' +
-                    refundActionHtml(order, Orders, 'h5') +
+                    '<button type="button" class="mini pri" onclick="location.href=\'' +
+                    ownedViewHref(e.productId, 'h5', opts) + '\'">查看</button>' +
+                    (hideRefund ? '' : refundActionHtml(order, Orders, 'h5')) +
                     '</div></div></div>'
                 );
             }).join('');
-            bindAfterSalesActions(root, 'h5', opts);
+            if (!hideRefund) bindAfterSalesActions(root, 'h5', opts);
             return;
         }
         root.innerHTML = '<div class="da-ent-list">' + list.map(function (e) {
             var order = Orders.getOrderById(e.orderId);
+            var viewHref = ownedViewHref(e.productId, 'web', opts);
             return (
                 '<div class="da-ent-item">' +
                 '<img src="' + esc(e.coverUrl) + '" alt="">' +
                 '<div class="info"><h3>' + esc(e.productTitle) + '</h3>' +
                 '<div class="sub">' + esc(Store ? Store.typeLabel(e.assetType) : e.assetType) +
                 ' · ' + esc(e.creatorName) + ' · 获得于 ' + esc(e.grantedAt) + '</div>' +
-                entitlementBadgeWeb(order, Orders) + '</div>' +
+                entitlementBadgeWeb(order, Orders, hideRefund) + '</div>' +
                 '<div class="da-ent-actions">' +
-                '<a class="btn btn-secondary btn-sm" href="digital-asset-detail.html?id=' + encodeURIComponent(e.productId) + '&from=my">查看</a>' +
-                refundActionHtml(order, Orders, 'web') +
+                '<a class="btn btn-secondary btn-sm" href="' + esc(viewHref) + '">查看</a>' +
+                (hideRefund ? '' : refundActionHtml(order, Orders, 'web')) +
                 '</div></div>'
             );
         }).join('') + '</div>';
-        bindAfterSalesActions(root, 'web', opts);
+        if (!hideRefund) bindAfterSalesActions(root, 'web', opts);
+    }
+
+    function ownedBackHref(from, layout) {
+        if (from === 'profile') return layout === 'h5' ? 'profile.html' : 'profile.html';
+        return layout === 'h5' ? 'my-digital-assets.html' : 'my-digital-assets.html';
+    }
+
+    function renderOwnedMediaHtml(p, Store) {
+        var items = Store.mediaItems(p);
+        var images = items.filter(function (x) { return x.kind === 'image'; });
+        var videos = items.filter(function (x) { return x.kind === 'video'; });
+        if (!items.length && p.coverUrl) {
+            images = [{ kind: 'image', url: p.coverUrl }];
+        }
+        var html = '';
+        var showImages = p.assetType === 'image' || p.assetType === 'bundle' || (images.length && !videos.length);
+        var showVideos = p.assetType === 'video' || p.assetType === 'bundle' || videos.length;
+
+        if (showImages && images.length) {
+            var imgTitle = p.assetType === 'bundle' ? '图片合集' : '浏览图片';
+            html += '<div class="da-owned-section"><h3>' + esc(imgTitle) + '</h3></div>' +
+                '<div class="da-owned-grid">' +
+                images.map(function (it) {
+                    return '<a class="da-owned-tile" href="' + esc(it.url) + '" target="_blank" rel="noopener">' +
+                        '<img src="' + esc(it.url) + '" alt=""></a>';
+                }).join('') +
+                '</div>';
+        }
+        if (showVideos && videos.length) {
+            html += '<div class="da-owned-section"><h3>' + (p.assetType === 'bundle' ? '视频' : '播放视频') + '</h3></div>' +
+                '<div class="da-owned-videos">' +
+                videos.map(function (it, i) {
+                    var poster = p.coverUrl && i === 0 ? ' poster="' + esc(p.coverUrl) + '"' : '';
+                    return '<video controls playsinline preload="metadata"' + poster + ' src="' + esc(it.url) + '"></video>';
+                }).join('') +
+                '</div>';
+        }
+        if (!html) {
+            html = '<div class="da-empty">暂无可浏览的素材</div>';
+        }
+        return html;
+    }
+
+    function initOwnedViewPage(opts) {
+        opts = opts || {};
+        var layout = opts.layout || (document.body && document.body.getAttribute('data-da-layout')) || 'web';
+        var id = param('id');
+        var from = param('from') || 'my';
+        var root = qs(opts.root || '#daOwnedViewRoot');
+        var back = qs(opts.back || '#daOwnedBack');
+        var Store = global.DigitalAssetsStore;
+        var Orders = global.DigitalAssetOrdersStore;
+        if (back) back.setAttribute('href', ownedBackHref(from, layout));
+        if (!root) return;
+        if (!id || !Store || !Orders) {
+            root.innerHTML = '<div class="da-empty">无效链接</div>';
+            return;
+        }
+        if (!Orders.hasEntitlement(id)) {
+            var storeHref = layout === 'h5' ? 'digital-store.html' : 'digital-asset-store.html';
+            root.innerHTML = '<div class="da-empty">未找到购买权益 · <a href="' + storeHref + '" style="color:#C084FC">去 Store</a></div>';
+            return;
+        }
+        var p = Store.getById(id);
+        if (!p) {
+            root.innerHTML = '<div class="da-empty">商品不存在或已删除</div>';
+            return;
+        }
+        var ent = Orders.listEntitlements().filter(function (e) { return e.productId === id; })[0];
+        var summary = Store.mediaSummary(p);
+        root.innerHTML =
+            '<div class="da-owned-head">' +
+            '<div class="da-owned-kicker">' +
+            '<span class="da-chip">已解锁</span>' +
+            '<span class="da-chip">' + esc(Store.typeLabel(p.assetType)) + '</span>' +
+            '</div>' +
+            '<h1 class="da-owned-title">' + esc(p.title) + '</h1>' +
+            '<p class="da-owned-meta">' + esc(p.creatorName || '') + ' · ' + esc(summary) +
+            (ent && ent.grantedAt ? ' · 获得于 ' + esc(ent.grantedAt) : '') + '</p>' +
+            (p.description ? '<p class="da-owned-desc">' + esc(p.description) + '</p>' : '') +
+            '</div>' +
+            renderOwnedMediaHtml(p, Store);
+        if (layout === 'web') {
+            document.title = (p.title || '已购作品') + ' · GOODFANS';
+        }
     }
 
     function initCreatorManageList(container) {
@@ -574,6 +679,8 @@
         initDetailPage: initDetailPage,
         initCreatePage: initCreatePage,
         initMyAssetsPage: initMyAssetsPage,
+        initOwnedViewPage: initOwnedViewPage,
+        ownedViewHref: ownedViewHref,
         initCreatorManageList: initCreatorManageList,
         cardHtml: cardHtml,
         bindCards: bindCards
