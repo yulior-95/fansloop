@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>数字商品退款</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/digital-h5.css">
+<link rel="stylesheet" href="../css/h5-light-theme.css">
+<script src="../js/h5-theme-boot.js"></script>
+<style>
+.app-content {
+    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    padding-bottom: 28px;
+}
+.das-wrap { padding: 12px 16px; }
+.das-intro { font-size: 12px; color: var(--text-secondary); line-height: 1.55; margin: 0 0 14px; }
+.das-order {
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    margin-bottom: 14px;
+}
+.das-order .t { font-size: 15px; font-weight: 800; margin-bottom: 6px; }
+.das-order .m { font-size: 11px; color: var(--text-tertiary); line-height: 1.45; }
+.das-reason {
+    display: flex;
+    gap: 10px;
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+}
+.das-reason:has(input:checked) { border-color: rgba(168,85,247,0.45); }
+.das-reason input { margin-top: 4px; accent-color: #A855F7; }
+.das-reason .t { font-size: 14px; font-weight: 700; display: block; }
+.das-reason .h { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; display: block; line-height: 1.4; }
+.das-note {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 80px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 13px;
+    margin: 8px 0 12px;
+}
+.das-warn { font-size: 11px; color: var(--text-tertiary); line-height: 1.5; margin-bottom: 16px; }
+.das-actions { display: flex; flex-direction: column; gap: 10px; }
+.das-actions button {
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 700;
+}
+.das-actions .pri { background: linear-gradient(135deg,#A855F7,#6366F1); color: #fff; }
+.das-actions .ghost { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); }
+.das-empty { text-align: center; padding: 40px 16px; color: var(--text-tertiary); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
+</div>
+<div class="nav-bar solid">
+    <div class="nav-left"><div class="nav-btn" data-back="my-digital-assets.html"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-title">申请退款</div>
+    <div class="nav-right"></div>
+</div>
+
+<div class="app-content das-wrap" id="dasRoot"></div>
+<div class="home-indicator"></div>
+
+<script src="../js/digital-h5-nav.js"></script>
+<script src="../js-web/user-prototype-registry.js"></script>
+<script src="../js-web/user-assets-store.js"></script>
+<script src="../js-web/digital-asset-orders-store.js"></script>
+<script>
+(function () {
+    var REASONS = [
+        { code: 'cant_open', label: '无法打开 / 无法播放', hint: '文件损坏、链接失效或播放器报错' },
+        { code: 'mismatch', label: '内容与描述不符', hint: '规格、清晰度或类型与商品页不一致' },
+        { code: 'duplicate', label: '重复扣款', hint: '同一商品被扣款两次' },
+        { code: 'other', label: '其他原因', hint: '请在下方补充说明' }
+    ];
+    var Orders = window.DigitalAssetOrdersStore;
+    var root = document.getElementById('dasRoot');
+    var params = new URLSearchParams(location.search);
+    var orderId = params.get('orderId') || '';
+
+    function esc(s) {
+        return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    if (!Orders || !orderId) {
+        root.innerHTML = '<div class="das-empty">缺少订单信息<br><a href="my-digital-assets.html">返回我的作品</a></div>';
+        return;
+    }
+
+    var check = Orders.getRefundEligibility(orderId);
+    var introHtml = '<p class="das-intro">购买后 <strong>' + Orders.REFUND_WINDOW_DAYS +
+        ' 日内</strong>可退；成功后 USDT 原路退回并收回数字权益。</p>';
+
+    if (!check.ok) {
+        root.innerHTML = introHtml + '<p class="das-intro">' + esc(check.reason) + '</p>' +
+            '<div class="das-empty"><a href="my-digital-assets.html">返回我的作品</a></div>';
+        return;
+    }
+
+    var order = check.order;
+    var reasonsHtml = REASONS.map(function (r, i) {
+        return '<label class="das-reason">' +
+            '<input type="radio" name="dasReason" value="' + esc(r.code) + '"' + (i === 0 ? ' checked' : '') + '>' +
+            '<span><span class="t">' + esc(r.label) + '</span><span class="h">' + esc(r.hint) + '</span></span></label>';
+    }).join('');
+
+    root.innerHTML =
+        introHtml +
+        '<div class="das-order">' +
+        '<div class="t">' + esc(order.productTitle) + '</div>' +
+        '<div class="m">订单 ' + esc(order.id) + ' · ' + order.priceUsdt + ' USDT</div>' +
+        '<div class="m">售后期剩余约 <strong>' + check.daysLeft + '</strong> 天</div></div>' +
+        reasonsHtml +
+        '<textarea class="das-note" id="dasNote" maxlength="240" placeholder="补充说明（选填）"></textarea>' +
+        '<p class="das-warn"><i class="fa-solid fa-circle-info"></i> 退款成功后将无法继续访问该作品。</p>' +
+        '<div class="das-actions">' +
+        '<button type="button" class="pri" id="dasSubmit"><i class="fa-solid fa-check"></i> 提交退款</button>' +
+        '<button type="button" class="ghost" data-back="my-digital-assets.html">取消</button></div>';
+
+    document.getElementById('dasSubmit').addEventListener('click', function () {
+        var checked = document.querySelector('input[name="dasReason"]:checked');
+        var code = checked ? checked.value : 'cant_open';
+        var note = (document.getElementById('dasNote') || {}).value || '';
+        var res = Orders.requestRefund(orderId, {
+            reasonCode: code,
+            reasonText: note.trim() || Orders.refundReasonLabel(code)
+        });
+        if (!res.ok) {
+            if (window.DigitalH5Nav) DigitalH5Nav.toast(res.error || '退款失败');
+            return;
+        }
+        if (window.DigitalH5Nav) DigitalH5Nav.toast('退款成功 · 已退回 ' + order.priceUsdt + ' USDT');
+        setTimeout(function () { location.href = 'my-digital-assets.html'; }, 600);
+    });
+})();
+</script>
+</body>
+</html>

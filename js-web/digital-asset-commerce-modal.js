@@ -13,9 +13,12 @@
         preview: false,
         /** 进入确认支付时锁定，下架后仍可完成这笔支付 */
         checkoutLocked: false,
-        asVisitor: false
+        asVisitor: false,
+        lastOrderId: ''
     };
     var STEPS = ['daCmStepDetail', 'daCmStepConfirm', 'daCmStepRecharge', 'daCmStepPwdMissing', 'daCmStepPayPwd', 'daCmStepOk'];
+    var PAY_CONFIRM_TITLE = '确认支付';
+    var PAY_CONFIRM_MESSAGE = '数字商品购买之后不可退款，是否确认购买？';
 
     function esc(s) {
         return String(s == null ? '' : s)
@@ -172,7 +175,9 @@
 
             '<div class="sub-modal-step" id="daCmStepOk">' +
             '<div class="sub-result"><i class="fa-solid fa-circle-check"></i><h4>购买成功</h4>' +
-            '<p id="daCmOkText">数字权益已发放到你的账户。</p></div>' +
+            '<p id="daCmOkText">数字权益已发放到你的账户。</p>' +
+            '<p class="note" id="daCmOkRefundNote" style="margin-top:10px;font-size:11px">购买后 7 日内如遇无法打开 / 无法播放，可申请原路退款。</p></div>' +
+            '<button type="button" class="btn btn-secondary btn-block mt-16" id="daCmOkAfterSales">遇到问题 · 申请售后</button>' +
             '<button type="button" class="btn btn-primary btn-block mt-16" id="daCmOkDone">完成</button></div>' +
 
             '</div></div>';
@@ -513,9 +518,15 @@
         }
         var head = document.getElementById('daCmHeadTitle');
         if (head) head.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#34D399"></i> 购买成功';
+        state.lastOrderId = res.order && res.order.id ? res.order.id : '';
         document.getElementById('daCmOkText').textContent =
             '已获得「' + state.title + '」。' + deliverNote({ assetType: (global.DigitalAssetsStore.getById(state.productId) || {}).assetType }) +
             ' · 扣款 ' + fmt(state.price) + ' USDT。';
+        var note = document.getElementById('daCmOkRefundNote');
+        if (note && global.DigitalAssetOrdersStore && global.DigitalAssetOrdersStore.REFUND_WINDOW_DAYS) {
+            note.textContent = '购买后 ' + global.DigitalAssetOrdersStore.REFUND_WINDOW_DAYS +
+                ' 日内如遇无法打开 / 无法播放，可在「我的作品」申请原路退款。';
+        }
         showStep('daCmStepOk');
     }
 
@@ -548,7 +559,14 @@
             }
             showStep('daCmStepDetail');
         });
-        document.getElementById('daCmConfirmPay').addEventListener('click', proceedAfterConfirm);
+        document.getElementById('daCmConfirmPay').addEventListener('click', function () {
+            confirmAction({
+                title: PAY_CONFIRM_TITLE,
+                message: PAY_CONFIRM_MESSAGE,
+                okText: '确认购买',
+                onConfirm: proceedAfterConfirm
+            });
+        });
         document.getElementById('daCmRechargeBack').addEventListener('click', function () {
             openConfirm(global.DigitalAssetsStore.getById(state.productId));
         });
@@ -561,6 +579,25 @@
         document.getElementById('daCmGoSetPwd').addEventListener('click', goSetPayPassword);
         document.getElementById('daCmPwdBack').addEventListener('click', function () {
             openConfirm(global.DigitalAssetsStore.getById(state.productId));
+        });
+        document.getElementById('daCmOkAfterSales').addEventListener('click', function () {
+            var oid = state.lastOrderId;
+            if (!oid) {
+                toast('未找到订单号', true);
+                return;
+            }
+            if (global.DigitalAssetAfterSales && global.DigitalAssetAfterSales.open) {
+                global.DigitalAssetAfterSales.open({
+                    orderId: oid,
+                    onDone: function () {
+                        var cb = state.onDone;
+                        close();
+                        if (typeof cb === 'function') cb();
+                    }
+                });
+                return;
+            }
+            toast('售后模块未加载', true);
         });
         document.getElementById('daCmOkDone').addEventListener('click', function () {
             var cb = state.onDone;
@@ -693,6 +730,8 @@
         confirm: confirmAction,
         close: close,
         isOwnProduct: isOwnProduct,
-        currentUserId: currentUserId
+        currentUserId: currentUserId,
+        PAY_CONFIRM_TITLE: PAY_CONFIRM_TITLE,
+        PAY_CONFIRM_MESSAGE: PAY_CONFIRM_MESSAGE
     };
 })(typeof window !== 'undefined' ? window : this);

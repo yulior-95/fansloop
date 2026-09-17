@@ -5,7 +5,6 @@
 <title>私聊</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
-<link rel="stylesheet" href="../css/h5-messages.css">
 <script src="../js/h5-theme-boot.js"></script>
 <style>
 .nav-bar { background: var(--bg-primary); }
@@ -75,27 +74,18 @@
     z-index: 20;
 }
 .nav-bar.chat-nav .nav-title { display: none; }
-.nav-bar.chat-nav {
-    padding: 0 8px 0 4px;
-    gap: 6px;
-}
-.nav-bar.chat-nav .chat-nav-left {
-    flex: 1;
-    min-width: 0;
-    gap: 2px;
-}
-.chat-nav-profile {
+.chat-nav-center {
     flex: 1;
     min-width: 0;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     gap: 8px;
-    padding: 0 4px 0 0;
+    padding: 0 6px;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
 }
-.chat-nav-profile .chat-head-av {
+.chat-nav-center .chat-head-av {
     width: 32px;
     height: 32px;
     border-radius: 50%;
@@ -103,26 +93,24 @@
     flex-shrink: 0;
     border: 1.5px solid rgba(168, 85, 247, 0.45);
 }
-.chat-nav-profile .chat-head-name {
+.chat-nav-center .chat-head-name {
     font-size: 15px;
     font-weight: 700;
     color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: min(148px, 42vw);
+    max-width: 140px;
 }
 .nav-bar.chat-nav .nav-right {
     display: flex;
     align-items: center;
-    gap: 2px;
-    flex-shrink: 0;
-    min-width: 0;
+    gap: 4px;
 }
 .nav-bar.chat-nav .nav-right .nav-btn {
-    width: 32px;
-    height: 32px;
-    font-size: 14px;
+    width: 34px;
+    height: 34px;
+    font-size: 15px;
 }
 .mob-chat-search {
     display: none;
@@ -234,18 +222,15 @@
 </div>
 
 <div class="nav-bar solid chat-nav">
-    <div class="nav-left chat-nav-left">
-        <div class="nav-btn" data-back="messages.html" aria-label="返回"><i class="fa-solid fa-chevron-left"></i></div>
-        <div class="chat-nav-profile" id="chatHeadProfile" role="button" tabindex="0" aria-label="查看用户主页">
-            <img class="chat-head-av" id="chatHeadAv" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80" alt="">
-            <span class="chat-head-name" id="chatTitle">Luna</span>
-        </div>
+    <div class="nav-left"><div class="nav-btn" data-back="messages.html" aria-label="返回"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="chat-nav-center" id="chatHeadProfile" role="button" tabindex="0" aria-label="查看用户主页">
+        <img class="chat-head-av" id="chatHeadAv" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80" alt="">
+        <span class="chat-head-name" id="chatTitle">Luna</span>
     </div>
     <div class="nav-right">
         <div class="nav-btn" id="mobBtnChatSearch" aria-label="搜索聊天记录"><i class="fa-solid fa-magnifying-glass"></i></div>
-        <div class="nav-btn" id="mobBtnVideoCall" aria-label="视频通话"><i class="fa-solid fa-video"></i></div>
         <div class="nav-btn" id="mobBtnVoiceCall" aria-label="语音通话"><i class="fa-solid fa-phone"></i></div>
-        <div class="nav-btn" id="mobBtnChatMore" aria-label="更多"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+        <div class="nav-btn" id="mobBtnVideoCall" aria-label="视频通话"><i class="fa-solid fa-video"></i></div>
     </div>
 </div>
 
@@ -270,107 +255,6 @@
         <textarea id="mobChatInput" placeholder="发消息…" rows="1"></textarea>
         <button type="button" class="voice-btn" id="mobBtnVoice" title="语音"><i class="fa-solid fa-microphone"></i></button>
         <button type="button" class="send-btn" id="mobChatSend">发送</button>
-    </div>
-</div>
-
-<div class="im-more-ovl" id="mobChatMoreOvl" aria-hidden="true">
-    <div class="im-more-sheet" role="menu" aria-label="聊天更多操作">
-        <div class="grab"></div>
-        <div class="sheet-title" id="mobChatMoreTitle">聊天操作</div>
-        <button type="button" data-im-more="profile"><i class="fa-regular fa-user"></i> 查看资料</button>
-        <button type="button" data-im-more="media"><i class="fa-regular fa-folder-open"></i> 聊天文件</button>
-        <button type="button" data-im-more="search"><i class="fa-solid fa-magnifying-glass"></i> 搜索聊天记录</button>
-        <button type="button" data-im-more="mute" id="mobBtnMuteToggle"><i class="fa-regular fa-bell-slash"></i> 消息免打扰</button>
-        <button type="button" data-im-more="remark"><i class="fa-solid fa-pen"></i> 设置备注</button>
-        <div class="sep"></div>
-        <button type="button" data-im-more="clear"><i class="fa-solid fa-eraser"></i> 清空聊天记录</button>
-        <button type="button" data-im-more="delete"><i class="fa-solid fa-trash"></i> 删除会话</button>
-        <button type="button" class="danger" data-im-more="report"><i class="fa-solid fa-flag"></i> 举报</button>
-        <button type="button" class="im-more-cancel" id="mobChatMoreClose">取消</button>
-    </div>
-</div>
-
-<div class="im-media-ovl" id="mobChatMediaOvl" aria-hidden="true">
-    <div class="im-media-panel" role="dialog" aria-label="聊天文件" aria-modal="true">
-        <div class="hd">
-            <button type="button" id="mobChatMediaClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
-            <div class="im-media-hd-t">
-                <span class="t"><i class="fa-regular fa-folder-open"></i> 聊天文件</span>
-                <span class="sub" id="mobChatMediaCount">—</span>
-            </div>
-        </div>
-        <div class="im-media-tabs" role="tablist" aria-label="文件分类">
-            <button type="button" class="active" data-media-tab="all" role="tab" aria-selected="true">全部</button>
-            <button type="button" data-media-tab="image" role="tab" aria-selected="false">图片</button>
-            <button type="button" data-media-tab="link" role="tab" aria-selected="false">链接</button>
-            <button type="button" data-media-tab="file" role="tab" aria-selected="false">文件</button>
-        </div>
-        <div class="bd" id="mobChatMediaBody">
-            <div class="im-media-grid" id="mobChatMediaGrid" hidden></div>
-            <div class="im-media-links" id="mobChatMediaLinks" hidden></div>
-            <div class="im-media-files" id="mobChatMediaFiles" hidden></div>
-            <div class="im-media-empty" id="mobChatMediaEmpty" hidden>
-                <i class="fa-regular fa-folder-open"></i>
-                <p>本会话暂无该类型内容</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="im-remark-ovl" id="mobImRemarkOvl" aria-hidden="true">
-    <div class="im-remark-backdrop" id="mobImRemarkBackdrop" aria-hidden="true"></div>
-    <div class="im-remark-card" role="dialog" aria-labelledby="mobImRemarkTitle" aria-modal="true">
-        <h3 id="mobImRemarkTitle"><i class="fa-solid fa-pen"></i> 设置备注</h3>
-        <p class="im-remark-hint" id="mobImRemarkHint">备注名将优先显示在会话列表与顶栏</p>
-        <p class="im-remark-origin" id="mobImRemarkOrigin"></p>
-        <input type="text" id="mobImRemarkInput" maxlength="32" autocomplete="off" placeholder="输入备注名，留空则恢复原名" />
-        <div class="im-remark-actions">
-            <button type="button" class="btn-cancel" id="mobImRemarkCancel">取消</button>
-            <button type="button" class="btn-save" id="mobImRemarkSave">保存</button>
-        </div>
-    </div>
-</div>
-
-<div class="im-media-preview" id="mobChatMediaPreview" aria-hidden="true">
-    <button type="button" class="im-media-preview-close" id="mobChatMediaPreviewClose" aria-label="关闭预览"><i class="fa-solid fa-xmark"></i></button>
-    <img id="mobChatMediaPreviewImg" alt="" />
-</div>
-
-<div class="mob-call-ovl" id="mobCallOvl" aria-hidden="true" data-mode="outgoing" data-kind="voice">
-    <div class="mob-call-bg" aria-hidden="true"></div>
-    <div class="mob-call-video-layer" id="mobCallVideoPreview" hidden>
-        <span class="mob-call-local-tag" id="mobCallLocalTag" hidden>本地预览</span>
-    </div>
-    <div class="mob-call-pip" id="mobCallRemotePip" hidden aria-hidden="true"></div>
-    <div class="mob-call-stage">
-        <div class="mob-call-hero" id="mobCallHero">
-            <div class="mob-call-av-wrap pulse" id="mobCallAvWrap">
-                <img class="mob-call-av" id="mobCallAv" src="" alt="">
-            </div>
-            <div class="mob-call-name" id="mobCallName">—</div>
-            <div class="mob-call-status" id="mobCallStatus">正在呼叫…</div>
-            <div class="mob-call-timer" id="mobCallTimer" hidden>00:00</div>
-        </div>
-        <div class="mob-call-dock" id="mobCallDock">
-            <div class="mob-call-panel mob-call-panel--ring" data-call-panel="outgoing" id="mobCallOutgoing">
-                <button type="button" class="mob-call-btn secondary mob-call-ring-ctrl" id="mobCallRingMute" hidden title="麦克风"><span class="round sm"><i class="fa-solid fa-microphone"></i></span><span class="lbl">麦克风</span></button>
-                <button type="button" class="mob-call-btn hangup" id="mobCallCancel"><span class="round"><i class="fa-solid fa-phone-slash"></i></span><span>取消</span></button>
-                <button type="button" class="mob-call-btn secondary mob-call-ring-ctrl" id="mobCallRingCam" hidden title="摄像头"><span class="round sm"><i class="fa-solid fa-video"></i></span><span class="lbl">摄像头</span></button>
-            </div>
-            <div class="mob-call-panel mob-call-panel--ring" data-call-panel="incoming" id="mobCallIncoming" hidden>
-                <button type="button" class="mob-call-btn secondary mob-call-ring-ctrl" id="mobCallInMute" hidden title="麦克风"><span class="round sm"><i class="fa-solid fa-microphone"></i></span><span class="lbl">麦克风</span></button>
-                <button type="button" class="mob-call-btn reject" id="mobCallReject"><span class="round"><i class="fa-solid fa-phone-slash"></i></span><span>拒绝</span></button>
-                <button type="button" class="mob-call-btn accept" id="mobCallAccept"><span class="round"><i class="fa-solid fa-phone"></i></span><span>接听</span></button>
-                <button type="button" class="mob-call-btn secondary mob-call-ring-ctrl" id="mobCallInCam" hidden title="摄像头"><span class="round sm"><i class="fa-solid fa-video"></i></span><span class="lbl">摄像头</span></button>
-            </div>
-            <div class="mob-call-panel is-active-bar" data-call-panel="active" id="mobCallActive" hidden>
-                <button type="button" class="mob-call-btn secondary" id="mobCallMute" title="静音"><span class="round sm"><i class="fa-solid fa-microphone"></i></span><span class="lbl">静音</span></button>
-                <button type="button" class="mob-call-btn secondary mob-call-video-only" id="mobCallCam" hidden title="摄像头"><span class="round sm"><i class="fa-solid fa-video"></i></span><span class="lbl">摄像头</span></button>
-                <button type="button" class="mob-call-btn secondary mob-call-video-only" id="mobCallFlip" hidden title="翻转"><span class="round sm"><i class="fa-solid fa-camera-rotate"></i></span><span class="lbl">翻转</span></button>
-                <button type="button" class="mob-call-btn hangup primary" id="mobCallEnd" title="挂断"><span class="round lg"><i class="fa-solid fa-phone-slash"></i></span><span>挂断</span></button>
-                <button type="button" class="mob-call-btn secondary mob-call-voice-only" id="mobCallSpeaker" title="扬声器"><span class="round sm"><i class="fa-solid fa-volume-high"></i></span><span class="lbl">扬声器</span></button>
-            </div>
-        </div>
     </div>
 </div>
 

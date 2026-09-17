@@ -446,27 +446,111 @@
             setTimeout(function () { afterSaveRedirect(p, true); }, 700);
         });
     }
-    function initMyAssetsPage() {
+    function entitlementPills(order, Orders) {
+        if (!order) return '<span class="da-pill off">已获得</span>';
+        if (order.status === 'refunded') {
+            return '<span class="da-pill bad">已退款</span><span class="da-pill off">' + esc(order.refundedAt || '') + '</span>';
+        }
+        var check = Orders.getRefundEligibility(order.id, order.buyerId);
+        if (check.ok) {
+            return '<span class="da-pill ok">已获得</span><span class="da-pill warn">7日内可退 · 剩' + check.daysLeft + '天</span>';
+        }
+        if (check.expired) {
+            return '<span class="da-pill ok">已获得</span><span class="da-pill off">售后期已过</span>';
+        }
+        return '<span class="da-pill ok">已获得</span><span class="da-pill off">' + esc(order.createdAt || '') + '</span>';
+    }
+
+    function entitlementBadgeWeb(order, Orders) {
+        if (!order) return '<span class="da-ent-badge muted">已获得</span>';
+        if (order.status === 'refunded') return '<span class="da-ent-badge bad">已退款</span>';
+        var check = Orders.getRefundEligibility(order.id, order.buyerId);
+        if (check.ok) return '<span class="da-ent-badge refund">7 日内可退 · 剩余 ' + check.daysLeft + ' 天</span>';
+        if (check.expired) return '<span class="da-ent-badge muted">售后期已过（购买超 7 天）</span>';
+        return '<span class="da-ent-badge ok">已获得</span>';
+    }
+
+    function refundActionHtml(order, Orders, layout) {
+        if (!order || order.status === 'refunded') return '';
+        var check = Orders.getRefundEligibility(order.id, order.buyerId);
+        if (!check.ok) return '';
+        if (layout === 'h5') {
+            return '<button type="button" class="mini ghost" data-da-refund="' + esc(order.id) + '">申请退款</button>';
+        }
+        return '<button type="button" class="btn btn-secondary btn-sm" data-da-refund="' + esc(order.id) + '">申请退款</button>';
+    }
+
+    function bindAfterSalesActions(root, layout, reloadOpts) {
+        qsa('[data-da-refund]', root).forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var oid = btn.getAttribute('data-da-refund');
+                if (!oid) return;
+                if (layout === 'h5') {
+                    location.href = 'digital-after-sales.html?orderId=' + encodeURIComponent(oid);
+                    return;
+                }
+                if (global.DigitalAssetAfterSales && global.DigitalAssetAfterSales.open) {
+                    global.DigitalAssetAfterSales.open({
+                        orderId: oid,
+                        onDone: function () { initMyAssetsPage(reloadOpts); }
+                    });
+                }
+            });
+        });
+    }
+
+    function initMyAssetsPage(opts) {
+        opts = opts || {};
         var Orders = global.DigitalAssetOrdersStore;
         var Store = global.DigitalAssetsStore;
-        var root = qs('#daMyAssets');
+        var rootSel = opts.root || '#daMyAssets';
+        var root = typeof rootSel === 'string' ? qs(rootSel) : rootSel;
+        var layout = opts.layout || 'web';
         if (!root || !Orders) return;
         var list = Orders.listEntitlements();
+        var storeHref = layout === 'h5' ? 'digital-store.html' : 'digital-asset-store.html';
+        var detailHref = layout === 'h5' ? 'digital-owned.html' : 'digital-asset-detail.html?id=';
         if (!list.length) {
-            root.innerHTML = '<div class="da-empty">还没有已购作品 · <a href="digital-asset-store.html" style="color:#C084FC">去 Creator Store 逛逛</a></div>';
+            root.innerHTML = '<div class="da-empty">还没有已购作品 · <a href="' + storeHref + '" style="color:#C084FC">去逛逛</a></div>';
+            return;
+        }
+        if (layout === 'h5') {
+            root.innerHTML = list.map(function (e) {
+                var order = Orders.getOrderById(e.orderId);
+                return (
+                    '<div class="da-manage-card">' +
+                    '<img src="' + esc(e.coverUrl) + '" alt="">' +
+                    '<div class="main">' +
+                    '<div class="t">' + esc(e.productTitle) + '</div>' +
+                    '<div class="id">' + esc(Store ? Store.typeLabel(e.assetType) : e.assetType) +
+                    ' · ' + esc(e.creatorName) + '</div>' +
+                    '<div class="row">' + entitlementPills(order, Orders) + '</div>' +
+                    '<div class="da-btns">' +
+                    '<button type="button" class="mini pri" onclick="location.href=\'' + detailHref + '?id=' +
+                    encodeURIComponent(e.productId) + '\'">查看</button>' +
+                    refundActionHtml(order, Orders, 'h5') +
+                    '</div></div></div>'
+                );
+            }).join('');
+            bindAfterSalesActions(root, 'h5', opts);
             return;
         }
         root.innerHTML = '<div class="da-ent-list">' + list.map(function (e) {
+            var order = Orders.getOrderById(e.orderId);
             return (
                 '<div class="da-ent-item">' +
                 '<img src="' + esc(e.coverUrl) + '" alt="">' +
                 '<div class="info"><h3>' + esc(e.productTitle) + '</h3>' +
                 '<div class="sub">' + esc(Store ? Store.typeLabel(e.assetType) : e.assetType) +
-                ' · ' + esc(e.creatorName) + ' · 获得于 ' + esc(e.grantedAt) + '</div></div>' +
-                '<a class="btn btn-secondary btn-sm" href="digital-asset-detail.html?id=' + encodeURIComponent(e.productId) + '">查看</a>' +
-                '</div>'
+                ' · ' + esc(e.creatorName) + ' · 获得于 ' + esc(e.grantedAt) + '</div>' +
+                entitlementBadgeWeb(order, Orders) + '</div>' +
+                '<div class="da-ent-actions">' +
+                '<a class="btn btn-secondary btn-sm" href="digital-asset-detail.html?id=' + encodeURIComponent(e.productId) + '&from=my">查看</a>' +
+                refundActionHtml(order, Orders, 'web') +
+                '</div></div>'
             );
         }).join('') + '</div>';
+        bindAfterSalesActions(root, 'web', opts);
     }
 
     function initCreatorManageList(container) {

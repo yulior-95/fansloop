@@ -8,6 +8,50 @@
 <script src="../js/h5-theme-boot.js"></script>
 <link rel="stylesheet" href="../css/digital-h5.css">
 <link rel="stylesheet" href="../css/h5-light-theme.css">
+<style>
+.iol-overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-overlay);
+    z-index: 70;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+}
+.iol-overlay.show { display: flex; }
+.iol-panel {
+    width: 100%;
+    border-radius: 18px 18px 0 0;
+    background: var(--bg-sheet);
+    border: 1px solid var(--border-strong);
+    color: var(--text-primary);
+}
+.iol-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border-bottom: 0.5px solid var(--border-color);
+}
+.iol-head .t { font-size: 14px; font-weight: 700; }
+.iol-close {
+    width: 28px; height: 28px; border: 0; border-radius: 50%;
+    background: var(--bg-elevated); color: var(--text-primary);
+}
+.iol-body { padding: 14px 14px 18px; }
+.iol-msg { font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin: 0 0 16px; }
+.iol-actions { display: flex; gap: 10px; }
+.iol-actions button {
+    flex: 1;
+    height: 44px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+}
+.iol-actions .sec { background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border-color); }
+.iol-actions .pri { background: linear-gradient(135deg,#A855F7,#6366F1); color: #fff; }
+</style>
 </head>
 <body>
 <div class="status-bar dark-mode">
@@ -55,6 +99,23 @@
         <p class="text-center text-xs text-muted" style="margin-top:10px;cursor:pointer" id="demoLow">模拟余额不足 →</p>
     </div>
 </div>
+
+<div class="iol-overlay" id="ovlDaPayConfirm" aria-hidden="true">
+    <div class="iol-panel" role="dialog" aria-labelledby="daPayConfirmTitle">
+        <div class="iol-head">
+            <div class="t" id="daPayConfirmTitle">确认支付</div>
+            <button type="button" class="iol-close" id="daPayConfirmClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="iol-body">
+            <p class="iol-msg">数字商品购买之后不可退款，是否确认购买？</p>
+            <div class="iol-actions">
+                <button type="button" class="sec" id="daPayConfirmCancel">取消</button>
+                <button type="button" class="pri" id="daPayConfirmOk">确认购买</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="home-indicator"></div>
 <script src="../js/digital-h5-nav.js"></script>
 <script>
@@ -74,8 +135,25 @@
     }
     var next = 'digital-pay-pwd.html?price=' + encodeURIComponent(price) + '&title=' + encodeURIComponent(title);
     var low = 'digital-pay-recharge.html?price=' + encodeURIComponent(price) + '&title=' + encodeURIComponent(title) + '&bal=' + bal;
-    document.getElementById('btnConfirm').addEventListener('click', function () {
+    var ovlConfirm = document.getElementById('ovlDaPayConfirm');
+    function openPayConfirm() {
+        ovlConfirm.classList.add('show');
+        ovlConfirm.setAttribute('aria-hidden', 'false');
+    }
+    function closePayConfirm() {
+        ovlConfirm.classList.remove('show');
+        ovlConfirm.setAttribute('aria-hidden', 'true');
+    }
+    function proceedPay() {
+        closePayConfirm();
         location.href = bal < price ? low : next;
+    }
+    document.getElementById('btnConfirm').addEventListener('click', openPayConfirm);
+    document.getElementById('daPayConfirmOk').addEventListener('click', proceedPay);
+    document.getElementById('daPayConfirmCancel').addEventListener('click', closePayConfirm);
+    document.getElementById('daPayConfirmClose').addEventListener('click', closePayConfirm);
+    ovlConfirm.addEventListener('click', function (e) {
+        if (e.target === ovlConfirm) closePayConfirm();
     });
     document.getElementById('demoLow').addEventListener('click', function () {
         location.href = low;

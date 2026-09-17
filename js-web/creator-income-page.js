@@ -106,6 +106,11 @@
         var today = hasIncome ? monthly / 9 : 0;
         var withdrawable = hasIncome ? monthly * 1.74 : 0;
         var pending = hasIncome ? monthly * 0.5 : 0;
+        var digPending = 0;
+        if (isCreator && window.DigitalAssetOrdersStore && window.DigitalAssetOrdersStore.sumCreatorEarningsPending) {
+            digPending = window.DigitalAssetOrdersStore.sumCreatorEarningsPending() || 0;
+            if (digPending > 0) pending += digPending;
+        }
 
         var totalNum = document.querySelector('.total-card .num');
         if (totalNum) totalNum.innerHTML = fmtUsdt(total) + '<span>USDT</span>';
@@ -118,8 +123,13 @@
         var wd = document.querySelector('.withdraw-card .top .v');
         if (wd) wd.innerHTML = fmtUsdt(withdrawable) + '<small>USDT</small>';
 
-        var pend = document.querySelector('.withdraw-card .pending b');
+        var pendWrap = document.querySelector('.withdraw-card .pending');
+        var pend = pendWrap && pendWrap.querySelector('b');
         if (pend) pend.textContent = fmtUsdt(pending) + ' USDT';
+        if (pendWrap && digPending > 0) {
+            pendWrap.innerHTML = '<i class="fa-solid fa-clock"></i> <b>' + fmtUsdt(pending) + ' USDT</b> 结算中（含数字商品 ' +
+                (window.DigitalAssetOrdersStore.SETTLEMENT_HOLD_DAYS || 7) + ' 天冷静期）';
+        }
 
         var pieTotal = document.getElementById('distPieTotal');
         if (pieTotal) pieTotal.textContent = fmtUsdt(hasIncome ? monthly : 0);
@@ -206,7 +216,11 @@
         var dig = 0;
         var aff = 0;
         try {
-            if (window.DigitalAssetOrdersStore) dig = window.DigitalAssetOrdersStore.sumCreatorEarnings() || 0;
+            if (window.DigitalAssetOrdersStore && window.DigitalAssetOrdersStore.sumCreatorEarningsSettled) {
+                dig = window.DigitalAssetOrdersStore.sumCreatorEarningsSettled() || 0;
+            } else if (window.DigitalAssetOrdersStore) {
+                dig = window.DigitalAssetOrdersStore.sumCreatorEarnings() || 0;
+            }
         } catch (e1) { /* ignore */ }
         try {
             if (window.AffiliateShowcaseStore) {
@@ -380,12 +394,21 @@
         var aff = window.AffiliateShowcaseStore;
         if (dig && dig.listEarnings) {
             dig.listEarnings().slice(0, 8).forEach(function (e, i) {
+                var st = e.settlementStatus || 'pending';
+                var sttHtml;
+                if (st === 'reversed') {
+                    sttHtml = '<div class="stt" style="color:#FCA5A5"><i class="fa-solid fa-rotate-left"></i> 已退款</div>';
+                } else if (st === 'pending') {
+                    sttHtml = '<div class="stt"><i class="fa-solid fa-hourglass-half"></i> 冷静期</div>';
+                } else {
+                    sttHtml = '<div class="stt">已结算</div>';
+                }
                 html +=
                     '<div class="income-row" data-cat="mall" data-tx="tx_digital_' + escHtml(e.id || i) + '">' +
                     '<div class="av" style="background-image:url(\'' + escHtml(e.coverUrl || 'https://images.unsplash.com/photo-1727722158074-b7916daf6af4?w=80') + '\')"></div>' +
                     '<div class="info"><div class="nm">数字资产销售 <span class="tag digital">数字</span></div>' +
                     '<div class="meta">「' + escHtml(e.productTitle || '数字商品') + '」成交实得 · ' + escHtml(e.createdAt || '') + '</div></div>' +
-                    '<div class="right"><div class="am">+' + fmtUsdt(e.amount) + ' USDT</div><div class="stt">已结算</div></div>' +
+                    '<div class="right"><div class="am">+' + fmtUsdt(e.amount) + ' USDT</div>' + sttHtml + '</div>' +
                     '</div>';
             });
         }
@@ -526,6 +549,14 @@
         if (pending) {
             pending.style.cursor = 'pointer';
             pending.addEventListener('click', function () {
+                var dp = window.DigitalAssetOrdersStore && window.DigitalAssetOrdersStore.sumCreatorEarningsPending
+                    ? window.DigitalAssetOrdersStore.sumCreatorEarningsPending()
+                    : 0;
+                if (dp > 0) {
+                    showToast('数字商品收入需满 ' + (window.DigitalAssetOrdersStore.SETTLEMENT_HOLD_DAYS || 7) +
+                        ' 天且无退款后，才计入可提现余额');
+                    return;
+                }
                 showToast('当前暂无可用的结算数据');
             });
         }
@@ -647,6 +678,19 @@
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
     else init();
+
+    window.addEventListener('fl-digital-refund', function () {
+        renderMallIncomeRows();
+        bindIncomeRows();
+        syncCommerceCard();
+        applyCreatorIncomeForUser();
+    });
+    window.addEventListener('fl-digital-purchase', function () {
+        renderMallIncomeRows();
+        bindIncomeRows();
+        syncCommerceCard();
+        applyCreatorIncomeForUser();
+    });
 
     window.addEventListener('goodfans-auth-change', function () {
         applyCreatorIncomeForUser();
