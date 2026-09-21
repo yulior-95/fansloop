@@ -110,9 +110,11 @@
     }
 
     var userCard = $('tdWebUserCard');
+    var asideSplit = $('tdWebAsideSplit');
     if (userCard) {
         if (cfg.cp && !cfg.cp.hide) {
             userCard.style.display = '';
+            if (asideSplit) asideSplit.style.display = '';
             var av = $('tdWebUserAv');
             if (av) av.style.backgroundImage = 'url("' + cfg.cp.avatar + '")';
             var nm = $('tdWebUserName');
@@ -130,11 +132,9 @@
             if (profileBtn) profileBtn.onclick = function () { location.href = cfg.cp.go || 'creator-profile.html'; };
         } else {
             userCard.style.display = 'none';
+            if (asideSplit) asideSplit.style.display = 'none';
         }
     }
-
-    var note = $('tdWebNote');
-    if (note) note.textContent = cfg.note || '';
 
     function openTxModal(page) {
         if (typeof closeMoreMenu === 'function') closeMoreMenu();
@@ -282,11 +282,17 @@
     if (from === 'wallet') backDefault = 'wallet.html';
 
     document.querySelectorAll('[data-td-back]').forEach(function (btn) {
+        if (btn.getAttribute('data-td-back-bound') === '1') return;
+        btn.setAttribute('data-td-back-bound', '1');
+        btn.setAttribute('data-back-fallback', backDefault);
         btn.addEventListener('click', function (e) {
             e.preventDefault();
             location.href = backDefault;
         });
     });
+
+    var injectedBack = document.getElementById('flPageBackBtn');
+    if (injectedBack) injectedBack.remove();
 
     document.querySelectorAll('[data-copy]').forEach(function (el) {
         el.addEventListener('click', function () {

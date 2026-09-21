@@ -227,6 +227,7 @@
     function hasExistingBackControl() {
         if (!doc || !doc.querySelector) return false;
         if (doc.querySelector('[data-fl-page-back]')) return true;
+        if (doc.querySelector('[data-td-back]')) return true;
         if (typeof doc.getElementById === 'function' && doc.getElementById('flPageBackBtn')) return true;
         var sels = [
             'a.back',
@@ -248,7 +249,7 @@
         var limit = Math.min(candidates.length, 12);
         for (var j = 0; j < limit; j++) {
             var el = candidates[j];
-            var t = String((el.textContent || '')).replace(/\s+/g, '');
+            var t = String((el.textContent || el.getAttribute('data-i18n-src') || el.getAttribute('title') || '')).replace(/\s+/g, '');
             if (t.indexOf('返回') >= 0 || t.indexOf('上一步') >= 0 || t.indexOf('回到') >= 0) return true;
         }
         return false;
@@ -377,8 +378,9 @@
         for (var k = 0; k < headerBtns.length; k++) {
             (function (el) {
                 if (el.getAttribute('data-fl-back-bound') === '1') return;
+                if (el.getAttribute('data-td-back') != null) return;
                 if (el.getAttribute('onclick')) return;
-                var t = String(el.textContent || '').replace(/\s+/g, '');
+                var t = String(el.textContent || el.getAttribute('data-i18n-src') || el.getAttribute('title') || '').replace(/\s+/g, '');
                 if (t.indexOf('返回') < 0 && t.indexOf('上一步') < 0 && t.indexOf('回到') < 0) return;
                 el.setAttribute('data-fl-back-bound', '1');
                 el.setAttribute('data-fl-page-back', '1');

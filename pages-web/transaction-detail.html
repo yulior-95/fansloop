@@ -37,8 +37,29 @@
 .tx-hero .meta b { color: #fff; font-weight: 600; }
 
 .detail-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 24px 28px; margin-bottom: 18px; }
-.detail-card .ds-head { font-size: 13px; font-weight: 700; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
-.detail-card .ds-head a { color: var(--brand-purple); font-size: 11px; font-weight: 500; }
+.detail-aside { align-self: start; position: sticky; top: 80px; }
+.detail-aside > .detail-card { margin-bottom: 0; padding: 20px 22px; }
+.detail-aside .td-web-aside-split {
+    height: 1px;
+    background: var(--border);
+    margin: 14px 0 12px;
+}
+.detail-aside .td-web-aside-support {
+    padding-top: 2px;
+    border-radius: var(--r-md);
+    background: linear-gradient(135deg, rgba(245,158,11,0.06), rgba(245,158,11,0.02));
+    margin: 0 -8px -4px;
+    padding: 12px 8px 4px;
+}
+.detail-aside #tdWebUserCard[style*="display: none"] + .td-web-aside-split { display: none; }
+.detail-aside .ds-head { margin-bottom: 10px; }
+.detail-card .ds-head {
+    font-size: 13px; font-weight: 700; margin-bottom: 14px;
+    display: flex; justify-content: flex-start; align-items: center; gap: 8px;
+}
+.detail-card .ds-head > span { display: inline-flex; align-items: center; gap: 8px; }
+.detail-card .ds-head i:first-child { flex-shrink: 0; opacity: 0.85; }
+.detail-card .ds-head a { color: var(--brand-purple); font-size: 11px; font-weight: 500; margin-left: auto; }
 
 .kv-detail .row { display: flex; padding: 10px 0; border-bottom: 1px dashed var(--border); }
 .kv-detail .row:last-child { border-bottom: none; }
@@ -186,7 +207,7 @@
                 <p>订单号 <span class="num" id="tdWebOrderId">TXN20260425190832</span></p>
             </div>
             <div class="ph-r">
-                <button class="btn" type="button" data-td-back><i class="fa-solid fa-arrow-left"></i>返回</button>
+                <button class="btn" type="button" data-td-back data-fl-page-back="1" title="返回"><i class="fa-solid fa-arrow-left"></i>返回</button>
                 <button type="button" class="btn btn-secondary" id="tdWebShareBtn"><i class="fa-solid fa-share-nodes"></i>分享</button>
                 <button type="button" class="btn btn-secondary" id="tdWebMoreMenuBtn"><i class="fa-solid fa-ellipsis"></i></button>
             </div>
@@ -249,42 +270,37 @@
                 </div>
             </div>
 
-            <div>
-                <div class="detail-card" id="tdWebUserCard">
-                    <div class="ds-head"><i class="fa-solid fa-user"></i> 交易方</div>
-                    <div class="user-card">
-                        <div class="av" id="tdWebUserAv" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></div>
-                        <div class="info">
-                            <div class="nm" id="tdWebUserName">Alex Chen <i class="fa-solid fa-circle-check"></i></div>
-                            <div class="e" id="tdWebUserMeta">@alex_chen · 注册 8 个月</div>
-                            <div class="stats" id="tdWebUserStats"><span>累计订阅 <b>12</b> 月</span> · <span>累计 <b>$120</b></span></div>
+            <div class="detail-aside">
+                <div class="detail-card">
+                    <div id="tdWebUserCard">
+                        <div class="ds-head"><i class="fa-solid fa-user"></i> 交易方</div>
+                        <div class="user-card">
+                            <div class="av" id="tdWebUserAv" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></div>
+                            <div class="info">
+                                <div class="nm" id="tdWebUserName">Alex Chen <i class="fa-solid fa-circle-check"></i></div>
+                                <div class="e" id="tdWebUserMeta">@alex_chen · 注册 8 个月</div>
+                                <div class="stats" id="tdWebUserStats"><span>累计订阅 <b>12</b> 月</span> · <span>累计 <b>$120</b></span></div>
+                            </div>
+                        </div>
+                        <div class="action-row" style="margin-top: 12px">
+                            <button type="button" class="btn btn-secondary" id="tdWebUserMsg"><i class="fa-solid fa-message"></i>发消息</button>
+                            <button type="button" class="btn btn-secondary" id="tdWebUserProfile"><i class="fa-solid fa-user"></i>查看主页</button>
                         </div>
                     </div>
-                    <div class="action-row" style="margin-top: 16px">
-                        <button type="button" class="btn btn-secondary" id="tdWebUserMsg"><i class="fa-solid fa-message"></i>发消息</button>
-                        <button type="button" class="btn btn-secondary" id="tdWebUserProfile"><i class="fa-solid fa-user"></i>查看主页</button>
-                    </div>
-                </div>
-
-                <div class="detail-card">
-                    <div class="ds-head"><i class="fa-solid fa-circle-info"></i> 备注</div>
-                    <div id="tdWebNote" style="font-size: 12.5px; color: var(--t-secondary); line-height: 1.7">
-                        系统自动生成的订阅订单，会在每月 25 日自动续订。如需取消，请通知粉丝在订阅设置中关闭自动续订。
-                    </div>
-                </div>
-
-                <div class="detail-card" style="background: linear-gradient(135deg, rgba(245,158,11,0.06), rgba(245,158,11,0.02)); border-color: rgba(245,158,11,0.25)">
-                    <div class="ds-head" style="color: var(--warning-light)"><i class="fa-solid fa-shield-halved"></i> 交易问题？</div>
-                    <div style="font-size: 12px; color: var(--t-secondary); line-height: 1.7; margin-bottom: 12px">
-                        如对该笔交易有疑问，可发起申诉、联系客服，或直接申请提现。
-                    </div>
-                    <div class="action-row">
-                        <button type="button" class="btn btn-secondary" data-td-appeal><i class="fa-solid fa-gavel"></i>发起申诉</button>
-                        <button type="button" class="btn btn-secondary" data-td-contact><i class="fa-solid fa-headset"></i>联系客服</button>
-                        <button class="btn btn-primary" onclick="location.href='withdraw-fiat.html'"><i class="fa-solid fa-arrow-up-from-bracket"></i>去提现</button>
-                    </div>
-                    <div style="margin-top:12px;font-size:11px;color:var(--t-tertiary);line-height:1.55">
-                        申诉入口仅在本页提供；查看全部历史工单：<a href="my-appeals.html" style="color:var(--brand-purple);font-weight:600">我的申诉</a>
+                    <div class="td-web-aside-split" id="tdWebAsideSplit" aria-hidden="true"></div>
+                    <div class="td-web-aside-support">
+                        <div class="ds-head" style="color: var(--warning-light)"><i class="fa-solid fa-shield-halved"></i> 交易问题？</div>
+                        <div style="font-size: 12px; color: var(--t-secondary); line-height: 1.7; margin-bottom: 10px">
+                            如对该笔交易有疑问，可发起申诉、联系客服，或直接申请提现。
+                        </div>
+                        <div class="action-row" style="margin-top: 0">
+                            <button type="button" class="btn btn-secondary" data-td-appeal><i class="fa-solid fa-gavel"></i>发起申诉</button>
+                            <button type="button" class="btn btn-secondary" data-td-contact><i class="fa-solid fa-headset"></i>联系客服</button>
+                            <button class="btn btn-primary" onclick="location.href='withdraw-fiat.html'"><i class="fa-solid fa-arrow-up-from-bracket"></i>去提现</button>
+                        </div>
+                        <div style="margin-top:10px;font-size:11px;color:var(--t-tertiary);line-height:1.55">
+                            申诉入口仅在本页提供；查看全部历史工单：<a href="my-appeals.html" style="color:var(--brand-purple);font-weight:600">我的申诉</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -341,10 +357,10 @@
 
 <script src="../js/transaction-detail-presets.js"></script>
 <script src="../js-web/fl-interaction-modal.js"></script>
-<script src="../js-web/transaction-detail-page.js"></script>
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>
 <script src="../js-web/page-back-nav.js"></script>
+<script src="../js-web/transaction-detail-page.js"></script>
 <script src="../js-web/web-icons.js"></script>
 </body>
 </html>
