@@ -335,7 +335,7 @@
             function go() {
                 var action = el.getAttribute('data-about-action');
                 if (action === 'support') {
-                    location.href = 'transaction-contact.html';
+                    location.href = 'after-sales.html?support=1';
                     return;
                 }
                 if (action === 'feedback') {

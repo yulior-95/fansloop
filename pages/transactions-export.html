@@ -2,10 +2,13 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>导出账单</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link rel="stylesheet" href="../css/common.css">
-<script src="../js/h5-theme-boot.js"></script>
+<link rel="stylesheet" href="../css/common.css?v=20260423-tx2">
+<script src="../js/h5-theme-boot.js?v=20260423-tx2"></script>
 <style>
 body {
     background: var(--bg-primary);
@@ -42,7 +45,7 @@ body {
 
 /* ===== 弹窗 ===== */
 .sheet-overlay {
-    position: absolute;
+    position: fixed;
     inset: 0;
     background: rgba(15, 18, 32, 0.48);
     z-index: 100;
@@ -50,7 +53,7 @@ body {
     backdrop-filter: blur(8px);
     animation: fadeIn 0.25s ease;
 }
-html[data-fl-theme="light"] .sheet-overlay {
+:root[data-theme='light'] .sheet-overlay {
     background: rgba(15, 23, 42, 0.34);
 }
 @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
@@ -375,9 +378,9 @@ html[data-fl-theme="light"] .sheet-overlay {
 }
 .sheet-bar .btn.main { flex: 1; }
 </style>
-<link rel="stylesheet" href="../css/h5-light-theme.css">
+<link rel="stylesheet" href="../css/h5-light-theme.css?v=20260423-tx2">
 </head>
-<body>
+<body class="tx-export-page page-no-tab-bar">
 
 <div class="status-bar">
     <span class="time">9:41</span>
@@ -582,6 +585,47 @@ html[data-fl-theme="light"] .sheet-overlay {
 </div>
 
 <div class="home-indicator"></div>
-<script src="../js/digital-h5-nav.js"></script>
+<script src="../js/digital-h5-nav.js?v=20260423-tx2"></script>
+<script>
+(function () {
+    var params = new URLSearchParams(location.search);
+    var embedded = params.get('embedded') === '1';
+
+    document.querySelectorAll('.tab-bar').forEach(function (el) { el.remove(); });
+
+    function closeExport() {
+        if (embedded && window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'tx-export-close' }, '*');
+            return;
+        }
+        location.href = 'transactions.html';
+    }
+
+    if (embedded) {
+        document.body.classList.add('tx-export-embedded');
+        var navBack = document.querySelector('.nav-bar .nav-btn');
+        if (navBack) {
+            navBack.onclick = function (e) {
+                e.preventDefault();
+                closeExport();
+            };
+        }
+    }
+
+    var closeBtn = document.querySelector('.head .close');
+    if (closeBtn) {
+        closeBtn.onclick = function (e) {
+            e.preventDefault();
+            closeExport();
+        };
+    }
+    document.querySelectorAll('.sheet-bar .btn.sec').forEach(function (btn) {
+        btn.onclick = function (e) {
+            e.preventDefault();
+            closeExport();
+        };
+    });
+})();
+</script>
 </body>
 </html>

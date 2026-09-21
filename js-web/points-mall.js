@@ -6,6 +6,8 @@
     var WHEEL_COST = 500;
     var WHEEL_DAILY_CAP = 2500;
     var WHEEL_STORAGE_KEY = 'fl_wheel_daily_v1';
+    var REDEEM_LIMIT_LS = 'fl_mall_redeem_limit_v1';
+    var LIMIT_TOAST_MSG = '检测您达到限购数量，无法兑换';
 
     var PRIZES = [
         { label: '0.5 USDT', weight: 8, color: '#7C3AED' },
@@ -107,6 +109,7 @@
     var balance = 12580;
     var pendingPoints = 0;
     var pendingRedeemTitle = '';
+    var pendingRedeemCard = null;
     var isSpinning = false;
     var currentRotation = 0;
 
@@ -154,10 +157,103 @@
         });
     });
 
-    function showToast(msg) {
-        toastMsg.textContent = msg;
-        toast.classList.add('show');
-        setTimeout(function () { toast.classList.remove('show'); }, 2600);
+    function showToast(msg, isError) {
+        if (toast && toastMsg) {
+            toastMsg.textContent = msg;
+            toast.classList.toggle('toast--error', !!isError);
+            toast.classList.add('show');
+            setTimeout(function () {
+                toast.classList.remove('show');
+                toast.classList.remove('toast--error');
+            }, 2600);
+            return;
+        }
+        if (typeof global.toast === 'function') {
+            global.toast(msg);
+        }
+    }
+
+    function parsePurchaseLimit(card) {
+        if (!card) return null;
+        var spans = card.querySelectorAll('.meta-row span');
+        for (var i = 0; i < spans.length; i++) {
+            var m = spans[i].textContent.match(/限购\s*(\d+)\s*\/\s*(月|周|日|季|年|人|期)/);
+            if (m) {
+                return { max: parseInt(m[1], 10), unit: m[2] };
+            }
+        }
+        return null;
+    }
+
+    function periodKeyForLimitUnit(unit) {
+        var d = new Date();
+        var y = d.getFullYear();
+        if (unit === '日') return todayKey();
+        if (unit === '月') {
+            return y + '-' + String(d.getMonth() + 1).padStart(2, '0');
+        }
+        if (unit === '年') return String(y);
+        if (unit === '季') {
+            return y + '-Q' + (Math.floor(d.getMonth() / 3) + 1);
+        }
+        if (unit === '周') {
+            var jan1 = new Date(y, 0, 1);
+            var week = Math.ceil((((d - jan1) / 86400000) + jan1.getDay() + 1) / 7);
+            return y + '-W' + String(week).padStart(2, '0');
+        }
+        if (unit === '人') return 'lifetime';
+        if (unit === '期') return y + '-M' + String(d.getMonth() + 1).padStart(2, '0') + '-issue';
+        return todayKey();
+    }
+
+    function limitStoreKey(title, unit) {
+        return (title || '') + '|' + unit;
+    }
+
+    function readRedeemLimitStore() {
+        try {
+            var raw = localStorage.getItem(REDEEM_LIMIT_LS);
+            return raw ? JSON.parse(raw) : {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function writeRedeemLimitStore(store) {
+        try {
+            localStorage.setItem(REDEEM_LIMIT_LS, JSON.stringify(store));
+        } catch (e) { /* noop */ }
+    }
+
+    function getRedeemCountInPeriod(title, unit) {
+        var store = readRedeemLimitStore();
+        var key = limitStoreKey(title, unit);
+        var rec = store[key];
+        var period = periodKeyForLimitUnit(unit);
+        if (!rec || rec.period !== period) return 0;
+        return rec.count || 0;
+    }
+
+    function incrementRedeemCount(title, card) {
+        var lim = parsePurchaseLimit(card);
+        if (!title || !lim) return;
+        var unit = lim.unit;
+        var store = readRedeemLimitStore();
+        var key = limitStoreKey(title, unit);
+        var period = periodKeyForLimitUnit(unit);
+        var rec = store[key];
+        if (!rec || rec.period !== period) {
+            rec = { period: period, count: 0 };
+        }
+        rec.count = (rec.count || 0) + 1;
+        store[key] = rec;
+        writeRedeemLimitStore(store);
+    }
+
+    function isOverPurchaseLimit(title, card) {
+        var lim = parsePurchaseLimit(card);
+        if (!lim || !lim.max) return false;
+        return getRedeemCountInPeriod(title, lim.unit) >= lim.max;
     }
 
     function fillRedeemRules(card) {
@@ -202,6 +298,7 @@
     function openRedeem(title, points, imgUrl, card) {
         pendingPoints = points;
         pendingRedeemTitle = title || '';
+        pendingRedeemCard = card || null;
         redeemName.textContent = title;
         redeemImg.style.backgroundImage = imgUrl ? 'url(\'' + imgUrl + '\')' : 'none';
         redeemCost.textContent = fmt(points) + ' 积分';
@@ -222,11 +319,16 @@
             var points = parseInt(btn.dataset.points, 10);
             var img = btn.dataset.img || '';
             if (!title || !points) return;
+            var card = btn.closest('.goods-card');
+            if (isOverPurchaseLimit(title, card)) {
+                showToast(LIMIT_TOAST_MSG, true);
+                return;
+            }
             if (balance < points) {
                 showToast('积分不足，去完成活跃任务或等待计时奖励吧');
                 return;
             }
-            openRedeem(title, points, img, btn.closest('.goods-card'));
+            openRedeem(title, points, img, card);
         });
     });
 
@@ -236,6 +338,11 @@
 
     if (redeemOk) {
         redeemOk.addEventListener('click', function () {
+            if (isOverPurchaseLimit(pendingRedeemTitle, pendingRedeemCard)) {
+                showToast(LIMIT_TOAST_MSG, true);
+                closeRedeem();
+                return;
+            }
             balance -= pendingPoints;
             var av = document.getElementById('pmAvailVal');
             if (av) av.textContent = fmt(balance);
@@ -255,7 +362,9 @@
             } else {
                 showToast('兑换成功 · 权益已下发（原型演示）');
             }
+            incrementRedeemCount(pendingRedeemTitle, pendingRedeemCard);
             pendingRedeemTitle = '';
+            pendingRedeemCard = null;
             closeRedeem();
             updateWheelBalance();
         });

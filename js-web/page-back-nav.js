@@ -95,7 +95,7 @@
         'transaction-appeal.html': 'transaction-detail.html',
         'my-appeals.html': 'transactions.html',
         'transaction-appeal-detail.html': 'my-appeals.html',
-        'transaction-contact.html': 'transaction-detail.html',
+        'transaction-contact.html': 'after-sales.html',
         'transaction-more-menu.html': 'transaction-detail.html',
         'transaction-share-poster.html': 'transaction-detail.html',
 

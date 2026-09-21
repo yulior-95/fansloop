@@ -18,16 +18,27 @@
 .profile-bg {
     position: absolute;
     top: 0; left: 0; right: 0; height: 280px;
-    background:
-        radial-gradient(circle at 30% 20%, rgba(168,85,247,0.3), transparent 50%),
-        radial-gradient(circle at 70% 30%, rgba(236,72,153,0.2), transparent 50%),
-        var(--bg-primary);
+    background-color: var(--bg-primary);
+    background-size: cover;
+    background-position: center;
     z-index: 0;
+}
+.profile-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 30% 20%, rgba(168,85,247,0.28), transparent 50%),
+        radial-gradient(circle at 70% 30%, rgba(236,72,153,0.18), transparent 50%);
+    pointer-events: none;
+    z-index: 1;
 }
 .profile-bg::after {
     content: '';
     position: absolute; inset: 0;
-    background: linear-gradient(to bottom, transparent 50%, var(--bg-primary) 100%);
+    background: linear-gradient(to bottom, transparent 42%, var(--bg-primary) 100%);
+    pointer-events: none;
+    z-index: 2;
 }
 
 .top-tools {
@@ -493,7 +504,12 @@
     background: var(--bg-card);
     color: var(--text-secondary);
 }
-.pf-panel .bd { padding: 12px; }
+.pf-panel .bd {
+    padding: 12px;
+    max-height: min(70vh, 520px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
 .pf-edit-form {
     display: grid;
     gap: 10px;
@@ -517,8 +533,48 @@
     padding: 10px 12px;
 }
 .pf-edit-form .field textarea {
-    min-height: 72px;
+    min-height: 88px;
     resize: none;
+}
+.pf-edit-form .field .hint {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    line-height: 1.45;
+    margin-top: -2px;
+}
+.pf-edit-form .pf-cover-field .pf-cover-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.pf-edit-form .pf-cover-preview {
+    width: 96px;
+    height: 54px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-inset) center/cover no-repeat;
+}
+.pf-edit-form .pf-cover-actions {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.pf-edit-form .pf-cover-actions button {
+    height: 32px;
+    border-radius: 9px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+}
+.pf-edit-form .pf-cover-actions button.pri {
+    background: var(--brand-gradient);
+    color: #fff;
+    border-color: transparent;
 }
 .pf-actions {
     display: grid;
@@ -761,7 +817,7 @@
 </head>
 <body class="page-profile-h5">
 
-<div class="profile-bg"></div>
+<div class="profile-bg" id="profileBg" data-profile-cover></div>
 
 <div class="status-bar dark-mode">
     <span class="time">9:41</span>
@@ -787,7 +843,7 @@
             </div>
             <div class="info">
                 <div class="name">
-                    <span id="pfNameText">Alex_K</span>
+                    <span id="pfNameText">Luna 🌙</span>
                 </div>
                 <div class="pf-tags-row tags-row" id="creatorTagsRow">
                     <span id="creatorCertTagWrap"></span>
@@ -800,7 +856,7 @@
                 <div class="id-row">
                     <span class="badge badge-crypto"><i class="fa-solid fa-bolt"></i> Lv.5 资深用户</span>
                 </div>
-                <div id="pfBioText" style="margin-top:6px;font-size:12px;color:var(--text-secondary)">Web3 创作者 / 每晚 20:30 直播</div>
+                <div id="pfBioText" style="margin-top:6px;font-size:12px;color:var(--text-secondary)">📷 旅行 / 美食 / 慢生活 摄影师｜📍现居东京</div>
             </div>
             <div class="tool-btn" id="pfEditProfileBtn"><i class="fa-solid fa-pen"></i></div>
         </div>
@@ -1291,18 +1347,34 @@
         <div class="hd"><div class="t">编辑资料</div><button type="button" class="x" id="pfEditClose"><i class="fa-solid fa-xmark"></i></button></div>
         <div class="bd">
             <div class="pf-edit-form">
-                <div class="field">
-                    <label for="pfEditName">昵称</label>
-                    <input id="pfEditName" type="text" maxlength="24" placeholder="输入昵称">
+                <div class="field pf-cover-field">
+                    <label>首页背景图</label>
+                    <p class="hint">展示在「我的」顶部横幅，与 Web 个人主页封面同步（JPG/PNG/WEBP/GIF · ≤ 8 MB）</p>
+                    <div class="pf-cover-row">
+                        <div class="pf-cover-preview" id="pfEditCoverPreview" data-profile-cover aria-hidden="true"></div>
+                        <div class="pf-cover-actions">
+                            <button type="button" class="pri" id="pfEditCoverPick"><i class="fa-solid fa-image"></i> 更换背景</button>
+                            <button type="button" id="pfEditCoverReset"><i class="fa-solid fa-rotate-left"></i> 恢复默认</button>
+                        </div>
+                    </div>
+                    <input type="file" id="pfEditCoverFile" accept="image/png,image/jpeg,image/webp,image/gif,image/*" hidden>
                 </div>
                 <div class="field">
-                    <label for="pfEditBio">个性签名</label>
-                    <textarea id="pfEditBio" maxlength="80" placeholder="介绍一下你正在做的内容"></textarea>
+                    <label for="pfEditName">昵称</label>
+                    <input id="pfEditName" type="text" maxlength="20" placeholder="2–20 个字符，可包含 emoji" autocomplete="nickname">
+                </div>
+                <div class="field">
+                    <label for="pfEditBio">简介</label>
+                    <textarea id="pfEditBio" maxlength="160" placeholder="📷 摄影 · 🌍 旅行 · 支持 #话题 与 @ 提及"></textarea>
+                </div>
+                <div class="field">
+                    <label for="pfEditSite">个人站点</label>
+                    <input id="pfEditSite" type="url" inputmode="url" placeholder="https://luna.studio" autocomplete="url">
                 </div>
             </div>
             <div class="pf-actions">
                 <button type="button" class="btn" id="pfEditCancel">取消</button>
-                <button type="button" class="btn pri" id="pfEditSave">保存</button>
+                <button type="button" class="btn pri" id="pfEditSave">保存更改</button>
             </div>
         </div>
     </div>
@@ -1344,6 +1416,8 @@
 <script src="../js-web/user-assets-store.js"></script>
 <script>if (window.GoodfansAuth && GoodfansAuth.ensureDemoLogin) GoodfansAuth.ensureDemoLogin();</script>
 <script src="../js-web/auth-ui-sync.js"></script>
+<script src="../js-web/profile-cover-store.js"></script>
+<script src="../js-web/profile-cover-sync.js"></script>
 <script src="../js-web/profile-creator-cert.js"></script>
 <script src="../js-web/mall-commerce-config-store.js"></script>
 <script src="../js-web/digital-assets-store.js"></script>
@@ -1368,6 +1442,17 @@
     var pfEditSave = document.getElementById('pfEditSave');
     var pfEditName = document.getElementById('pfEditName');
     var pfEditBio = document.getElementById('pfEditBio');
+    var pfEditSite = document.getElementById('pfEditSite');
+    var pfEditCoverPick = document.getElementById('pfEditCoverPick');
+    var pfEditCoverReset = document.getElementById('pfEditCoverReset');
+    var pfEditCoverFile = document.getElementById('pfEditCoverFile');
+    var PROFILE_SITE_KEY = 'fl_profile_site_v1';
+    function readProfileSite() {
+        try { return localStorage.getItem(PROFILE_SITE_KEY) || 'https://luna.studio'; } catch (e) { return 'https://luna.studio'; }
+    }
+    function writeProfileSite(url) {
+        try { localStorage.setItem(PROFILE_SITE_KEY, url); } catch (e) { /* ignore */ }
+    }
     var pfNameText = document.getElementById('pfNameText');
     if (pfNameText && pfNameText.textContent) pfNameText.setAttribute('title', pfNameText.textContent.trim());
     var pfBioText = document.getElementById('pfBioText');
@@ -1419,20 +1504,48 @@
     if (pfEditCancel) pfEditCancel.addEventListener('click', function () { close(pfEditOvl); });
     if (pfEditProfileBtn) pfEditProfileBtn.addEventListener('click', function () {
         if (pfEditName) pfEditName.value = (pfNameText ? pfNameText.textContent : '').trim();
-        if (pfEditBio) pfEditBio.value = (pfBioText ? pfBioText.textContent : '').trim();
+        if (pfEditBio) {
+            var bioRaw = (pfBioText ? pfBioText.textContent : '').trim();
+            pfEditBio.value = bioRaw === '这个人很神秘，还没有填写简介。' ? '' : bioRaw;
+        }
+        if (pfEditSite) pfEditSite.value = readProfileSite();
+        if (window.FLProfileCoverSync && window.FLProfileCoverSync.apply) window.FLProfileCoverSync.apply();
         open(pfEditOvl);
     });
+    if (pfEditCoverPick && pfEditCoverFile) {
+        pfEditCoverPick.addEventListener('click', function () { pfEditCoverFile.click(); });
+        pfEditCoverFile.addEventListener('change', function () {
+            var file = pfEditCoverFile.files && pfEditCoverFile.files[0];
+            pfEditCoverFile.value = '';
+            if (!file || !window.FLProfileCoverStore) return;
+            window.FLProfileCoverStore.acceptFile(file, function (res) {
+                if (!res.ok) return toast(res.message || '请选择图片文件');
+                var hint = res.isAnimated ? '背景图已更新（动图）' : '背景图已更新';
+                if (res.sessionOnly) hint += '（仅本次浏览）';
+                toast(hint);
+            });
+        });
+    }
+    if (pfEditCoverReset && window.FLProfileCoverStore) {
+        pfEditCoverReset.addEventListener('click', function () {
+            window.FLProfileCoverStore.reset();
+            toast('已恢复默认背景');
+        });
+    }
     if (pfEditSave) pfEditSave.addEventListener('click', function () {
         var name = pfEditName ? pfEditName.value.trim() : '';
         var bio = pfEditBio ? pfEditBio.value.trim() : '';
+        var site = pfEditSite ? pfEditSite.value.trim() : '';
         if (!name) return toast('请输入昵称');
+        if (name.length < 2) return toast('昵称至少 2 个字符');
         if (pfNameText) {
             pfNameText.textContent = name;
             pfNameText.setAttribute('title', name);
         }
-        if (pfBioText) pfBioText.textContent = bio || '这个人很神秘，还没有填写签名。';
+        if (pfBioText) pfBioText.textContent = bio || '这个人很神秘，还没有填写简介。';
+        if (site) writeProfileSite(site);
         close(pfEditOvl);
-        toast('资料已更新');
+        toast('资料已更新（原型）');
     });
     if (pfToolInvite) pfToolInvite.addEventListener('click', function () { location.href = 'invite-data.html'; });
     function syncPointsMiniFromStore() {

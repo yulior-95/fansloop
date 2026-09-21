@@ -2,10 +2,13 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>账变记录</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link rel="stylesheet" href="../css/common.css">
-<script src="../js/h5-theme-boot.js"></script>
+<link rel="stylesheet" href="../css/common.css?v=20260423-tx2">
+<script src="../js/h5-theme-boot.js?v=20260423-tx2"></script>
 <style>
 body {
     background:
@@ -22,6 +25,29 @@ body {
 .app-content {
     padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
     padding-bottom: calc(var(--tab-bar-height) + 20px);
+}
+body.tx-export-open {
+    overflow: hidden;
+}
+body.tx-export-open .tab-bar,
+body.tx-export-open .home-indicator {
+    display: none !important;
+}
+body.tx-export-open .app-content {
+    padding-bottom: 20px;
+}
+.tx-export-iframe {
+    position: fixed;
+    inset: 0;
+    z-index: 450;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: var(--bg-primary);
+    display: none;
+}
+body.tx-export-open .tx-export-iframe {
+    display: block;
 }
 
 /* ===== 顶部 · 本月资金动态 ===== */
@@ -108,9 +134,9 @@ body {
 /* ===== 筛选 & 工具条（sticky 吸附在 nav-bar 下方） ===== */
 .filter-bar {
     position: sticky;
-    /* app-content 已经包含顶部内边距，这里吸顶到容器顶部即可 */
-    top: 0;
-    z-index: 50;
+    /* app-content 为滚动容器且顶到视口；吸顶须让出状态栏 + 导航，避免被 nav-bar 遮住 */
+    top: calc(var(--status-bar-height, 44px) + var(--nav-bar-height, 44px));
+    z-index: 105;
     margin: 0 0 8px;
     padding: 10px 16px 10px;
     background: var(--bg-primary);
@@ -122,6 +148,11 @@ body {
     overflow-x: auto;
     scrollbar-width: none;
     margin-bottom: 8px;
+    min-height: 32px;
+    align-items: center;
+    padding-right: 12px;
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 28px), transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 28px), transparent 100%);
 }
 .filter-chips::-webkit-scrollbar { display: none; }
 .chip {
@@ -151,6 +182,12 @@ body {
 }
 .chip.active .cnt { background: rgba(255,255,255,0.25); }
 .chip .name { line-height: 1; }
+:root[data-theme='light'] .filter-bar .chip.active {
+    color: #fff !important;
+    background: var(--brand-gradient) !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.28);
+}
 
 .filter-tools {
     display: flex; align-items: center; gap: 8px;
@@ -417,7 +454,7 @@ body {
 .tx-custom-range .cr-err.show { display: block; }
 
 </style>
-<link rel="stylesheet" href="../css/h5-light-theme.css">
+<link rel="stylesheet" href="../css/h5-light-theme.css?v=20260423-tx2">
 </head>
 <body>
 
@@ -434,7 +471,7 @@ body {
     <div class="nav-left"><div class="nav-btn" data-back="profile.html"><i class="fa-solid fa-chevron-left"></i></div></div>
     <div class="nav-title">账变记录</div>
     <div class="nav-right">
-        <div class="nav-btn" onclick="location.href='transactions-export.html'" title="导出账变"><i class="fa-solid fa-file-export"></i></div>
+        <div class="nav-btn" id="txExportOpenBtn" title="导出账变"><i class="fa-solid fa-file-export"></i></div>
         <div class="nav-btn" onclick="location.href='transactions-search.html'" title="搜索账变"><i class="fa-solid fa-magnifying-glass"></i></div>
     </div>
 </div>
@@ -830,6 +867,8 @@ body {
     </div>
 </div>
 
+<iframe class="tx-export-iframe" id="txExportIframe" title="导出账单" src="about:blank"></iframe>
+
 <!-- Tab Bar -->
 <div class="tab-bar">
     <div class="tab-item"><i class="fa-solid fa-house"></i><span>首页</span></div>
@@ -839,9 +878,29 @@ body {
 </div>
 
 <div class="home-indicator"></div>
-<script src="../js/digital-h5-nav.js"></script>
+<script src="../js/digital-h5-nav.js?v=20260423-tx2"></script>
 <script>
 (function () {
+    var txExportOpenBtn = document.getElementById('txExportOpenBtn');
+    var txExportIframe = document.getElementById('txExportIframe');
+    function openTxExportSheet() {
+        if (!txExportIframe) {
+            location.href = 'transactions-export.html';
+            return;
+        }
+        txExportIframe.src = 'transactions-export.html?embedded=1&v=20260423-tx2';
+        document.body.classList.add('tx-export-open');
+    }
+    function closeTxExportSheet() {
+        document.body.classList.remove('tx-export-open');
+        if (txExportIframe) txExportIframe.src = 'about:blank';
+    }
+    if (txExportOpenBtn) txExportOpenBtn.addEventListener('click', openTxExportSheet);
+    window.addEventListener('message', function (e) {
+        if (!e.data || e.data.type !== 'tx-export-close') return;
+        closeTxExportSheet();
+    });
+
     var chipsWrap = document.getElementById('txFilterChips');
     var currentLabel = document.getElementById('txCurrentFilterLabel');
     var labelMap = {

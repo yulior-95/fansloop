@@ -81,6 +81,7 @@
         opts = opts || {};
         if (!dock) return null;
 
+        ensureRingIcon(dock);
         var floatLayer = opts.floatLayer || document.getElementById('rewardFloatLayer');
         var isCollapsed = false;
         var isRightSide = opts.defaultRight !== false;
@@ -339,6 +340,16 @@
         };
     }
 
+    function ensureRingIcon(dock) {
+        if (!dock) return;
+        var ring = dock.querySelector('.rd-ring');
+        if (!ring || ring.querySelector('i')) return;
+        var ic = document.createElement('i');
+        ic.className = 'fa-solid fa-coins';
+        ic.setAttribute('aria-hidden', 'true');
+        ring.appendChild(ic);
+    }
+
     function ensureFoldButton(dock) {
         if (!dock || dock.querySelector('.rd-fold')) return;
         var btn = document.createElement('button');
@@ -353,6 +364,7 @@
     global.RewardDockInteract = {
         bind: bindRewardDockInteract,
         ensureFoldButton: ensureFoldButton,
+        ensureRingIcon: ensureRingIcon,
         STORAGE_KEY: STORAGE_KEY
     };
 })(typeof window !== 'undefined' ? window : this);

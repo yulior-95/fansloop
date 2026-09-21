@@ -91,7 +91,12 @@
             light: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80',
             auto: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1200&q=80'
         };
-        hero.style.backgroundImage = "url('" + (map[p.theme] || map.dark) + "')";
+        var themeKey = p.theme || 'dark';
+        if (themeKey !== 'dark' && themeKey !== 'light' && themeKey !== 'auto') {
+            themeKey = 'dark';
+        }
+        hero.dataset.heroTheme = themeKey;
+        hero.style.backgroundImage = "url('" + (map[themeKey] || map.dark) + "')";
     }
 
     document.addEventListener('DOMContentLoaded', function () {

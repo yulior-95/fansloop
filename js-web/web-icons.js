@@ -264,11 +264,22 @@
         });
     }
 
+    function repairPointsHeaderIcons(root) {
+        var scope = root || document;
+        if (!scope.querySelectorAll) return;
+        scope.querySelectorAll('.h-points .ic').forEach(function (wrap) {
+            var el = wrap.querySelector('i.fa-solid.fa-coins[data-fl-icon-skip="1"]');
+            if (el && !el.classList.contains('web-icon')) return;
+            wrap.innerHTML = '<i class="fa-solid fa-coins" data-fl-icon-skip="1" aria-hidden="true"></i>';
+        });
+    }
+
     function migrateRoot(root) {
         var scope = root || document;
         var nodes = scope.querySelectorAll ? scope.querySelectorAll('i[class*="fa-"]') : [];
         nodes.forEach(function (el) {
             if (el.getAttribute('data-fl-icon-skip') === '1') return;
+            if (el.closest && el.closest('.h-points .ic')) return;
             if (el.getAttribute('data-lucide')) return;
             var info = parseFaIcon(el);
             if (!info.icon) return;
@@ -311,6 +322,7 @@
         migrateRoot(root || document);
         paintIcons();
         repairMissingSvg(root || document);
+        repairPointsHeaderIcons(root || document);
         suppressObs = false;
     }
 

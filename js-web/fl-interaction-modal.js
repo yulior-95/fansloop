@@ -140,6 +140,48 @@
     return new URLSearchParams(page.slice(i + 1));
   }
 
+  /** 整页壳（侧栏 + main），不应塞进 iframe 蒙层 */
+  function shouldNavigateFullPage(page) {
+    var base = page.split('?')[0].split('/').pop() || page;
+    return /^(transaction-detail|funds-flow-detail|transactions|creator-income)\.html$/i.test(base);
+  }
+
+  function showModalRoot() {
+    if (!root) return;
+    root.style.display = 'flex';
+    root.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function openIframeFallback(page, extraClasses) {
+    bindElements();
+    if (!root) {
+      window.location.href = page;
+      return;
+    }
+    if (!iframeEl) {
+      window.location.href = page;
+      return;
+    }
+    clearInline();
+    iframeEl.style.display = '';
+    iframeEl.src = page;
+    root.classList.remove(
+      'fl-modal--comment',
+      'fl-modal--danmaku',
+      'fl-modal--share',
+      'fl-modal--gift',
+      'fl-modal--export',
+      'fl-modal--tx',
+      'fl-modal--inline'
+    );
+    (extraClasses || []).forEach(function (c) { root.classList.add(c); });
+    if (!extraClasses || extraClasses.indexOf('fl-modal--default') < 0) {
+      root.classList.add('fl-modal--default');
+    }
+    showModalRoot();
+  }
+
   function ensureTxModalsCss() {
     if (document.querySelector('link[data-fl-tx-modals-css]')) return;
     var base = scriptBase().replace(/\/js-web\/$/, '');
@@ -178,10 +220,7 @@
         var doc = new DOMParser().parseFromString(html, 'text/html');
         var modal = doc.querySelector('.modal-mask .modal') || doc.querySelector('.modal');
         if (!modal) {
-          if (iframeEl) iframeEl.src = page;
-          root.classList.add('fl-modal--tx', 'fl-modal--default');
-          root.style.display = 'flex';
-          root.setAttribute('aria-hidden', 'false');
+          openIframeFallback(page, ['fl-modal--tx', 'fl-modal--default']);
           return;
         }
         clearInline();
@@ -207,10 +246,7 @@
         }
       })
       .catch(function () {
-        if (iframeEl) iframeEl.src = page;
-        root.classList.add('fl-modal--tx', 'fl-modal--default');
-        root.style.display = 'flex';
-        root.setAttribute('aria-hidden', 'false');
+        openIframeFallback(page, ['fl-modal--tx', 'fl-modal--default']);
       });
   }
 
@@ -231,10 +267,7 @@
         var doc = new DOMParser().parseFromString(html, 'text/html');
         var modal = doc.querySelector('.modal.tx-export-modal') || doc.querySelector('.modal-mask .modal') || doc.querySelector('.modal');
         if (!modal) {
-          if (iframeEl) iframeEl.src = page;
-          root.classList.add('fl-modal--export', 'fl-modal--default');
-          root.style.display = 'flex';
-          root.setAttribute('aria-hidden', 'false');
+          openIframeFallback(page, ['fl-modal--export', 'fl-modal--default']);
           return;
         }
         clearInline();
@@ -243,18 +276,13 @@
         if (iframeEl) iframeEl.style.display = 'none';
         root.classList.remove('fl-modal--comment', 'fl-modal--danmaku', 'fl-modal--share', 'fl-modal--gift', 'fl-modal--default');
         root.classList.add('fl-modal--export', 'fl-modal--inline');
-        root.style.display = 'flex';
-        root.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden';
+        showModalRoot();
         if (window.FLTransactionsExport) {
           window.FLTransactionsExport.init({ host: inlineHost, from: from, inline: true });
         }
       })
       .catch(function () {
-        if (iframeEl) iframeEl.src = page;
-        root.classList.add('fl-modal--export', 'fl-modal--default');
-        root.style.display = 'flex';
-        root.setAttribute('aria-hidden', 'false');
+        openIframeFallback(page, ['fl-modal--export', 'fl-modal--default']);
       });
   }
 
@@ -418,6 +446,11 @@
       return;
     }
 
+    if (shouldNavigateFullPage(page)) {
+      window.location.href = page;
+      return;
+    }
+
     if (page.indexOf('gift-modal') >= 0) {
       openGiftInline(page);
       return;
@@ -449,6 +482,7 @@
       return;
     }
 
+    iframeEl.style.display = '';
     iframeEl.src = page;
     root.classList.remove('fl-modal--comment', 'fl-modal--danmaku', 'fl-modal--share', 'fl-modal--gift', 'fl-modal--default', 'fl-modal--inline');
     if (page.indexOf('danmaku-send-modal') >= 0) {
@@ -460,8 +494,7 @@
       iframeEl.style.width = root.classList.contains('fl-interaction-ovl') ? '' : 'min(940px, calc(100vw - 32px))';
       iframeEl.style.height = root.classList.contains('fl-interaction-ovl') ? '' : 'min(920px, calc(100vh - 32px))';
     }
-    root.style.display = 'flex';
-    root.setAttribute('aria-hidden', 'false');
+    showModalRoot();
   };
 
   window.addEventListener('message', function (e) {

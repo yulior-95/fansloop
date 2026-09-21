@@ -11,8 +11,8 @@
     var DEFAULTS = {
         theme: 'dark',
         fontScaleIndex: 2,
-        highContrast: false,
-        sansFont: false,
+        highContrast: true,
+        sansFont: true,
         uiMotion: true,
         glass: true,
         timezone: 'system'
@@ -22,7 +22,10 @@
         try {
             var raw = localStorage.getItem(STORAGE);
             if (!raw) return Object.assign({}, DEFAULTS);
-            return Object.assign({}, DEFAULTS, JSON.parse(raw));
+            var merged = Object.assign({}, DEFAULTS, JSON.parse(raw));
+            merged.highContrast = true;
+            merged.sansFont = true;
+            return merged;
         } catch (e) {
             return Object.assign({}, DEFAULTS);
         }
@@ -48,8 +51,8 @@
 
         html.setAttribute('data-fl-theme', resolved);
         html.setAttribute('data-fl-theme-mode', prefs.theme || 'dark');
-        html.setAttribute('data-fl-high-contrast', prefs.highContrast ? '1' : '0');
-        html.setAttribute('data-fl-sans', prefs.sansFont ? '1' : '0');
+        html.setAttribute('data-fl-high-contrast', '1');
+        html.setAttribute('data-fl-sans', '1');
         html.setAttribute('data-fl-motion', prefs.uiMotion === false ? '0' : '1');
         html.setAttribute('data-fl-glass', prefs.glass === false ? '0' : '1');
 
@@ -81,7 +84,16 @@
     }
 
     function set(partial) {
-        var prefs = Object.assign(load(), partial || {});
+        partial = partial || {};
+        if ('highContrast' in partial || 'sansFont' in partial) {
+            var next = Object.assign({}, partial);
+            delete next.highContrast;
+            delete next.sansFont;
+            partial = next;
+        }
+        var prefs = Object.assign(load(), partial);
+        prefs.highContrast = true;
+        prefs.sansFont = true;
         save(prefs);
         apply(prefs);
         try {

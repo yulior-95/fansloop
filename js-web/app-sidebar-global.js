@@ -15,8 +15,8 @@
         var html = document.documentElement;
         html.setAttribute('data-fl-theme', resolved);
         html.setAttribute('data-fl-theme-mode', theme);
-        html.setAttribute('data-fl-high-contrast', p.highContrast ? '1' : '0');
-        html.setAttribute('data-fl-sans', p.sansFont ? '1' : '0');
+        html.setAttribute('data-fl-high-contrast', '1');
+        html.setAttribute('data-fl-sans', '1');
         html.setAttribute('data-fl-motion', p.uiMotion === false ? '0' : '1');
         html.setAttribute('data-fl-glass', p.glass === false ? '0' : '1');
         var idx = p.fontScaleIndex != null ? p.fontScaleIndex : 2;
@@ -28,7 +28,8 @@
 
     var STORAGE_KEY = 'fl_sidebar_collapsed';
     var NAV_CONTEXT_KEY = 'fl_sidebar_nav_context';
-    var SIDEBAR_SHELL_CACHE_KEY = 'fl_sidebar_shell_v2';
+    var SIDEBAR_SHELL_CACHE_KEY = 'fl_sidebar_shell_v3';
+    var SIDEBAR_LEGACY_NAV_IDS = { 'my-appeals': true };
 
     function detectScriptBase() {
         var scripts = document.getElementsByTagName('script');
@@ -174,8 +175,7 @@
                 { id: 'wallet', label: '钱包', i18nKey: 'nav_wallet', href: 'wallet.html', icon: 'fa-solid fa-wallet' },
                 { id: 'creator-income', label: '创作者收入', i18nKey: 'nav_creator_income', href: 'creator-income.html', icon: 'fa-solid fa-coins' },
                 { id: 'points-mall', label: '积分商城', i18nKey: 'nav_points_mall', href: 'points-mall.html', icon: 'fa-solid fa-store' },
-                { id: 'transactions', label: '账变记录', i18nKey: 'nav_transactions', href: 'transactions.html', icon: 'fa-solid fa-list-ul' },
-                { id: 'my-appeals', label: '我的申诉', href: 'my-appeals.html', icon: 'fa-solid fa-gavel' }
+                { id: 'transactions', label: '账变记录', i18nKey: 'nav_transactions', href: 'transactions.html', icon: 'fa-solid fa-list-ul' }
             ]
         },
         {
@@ -247,7 +247,8 @@
         if (page.indexOf('notification') === 0) return 'notifications';
         if (page === 'points-mall.html') return 'points-mall';
         if (page === 'creator-income.html') return 'creator-income';
-        if (page === 'my-appeals.html' || page === 'transaction-appeal-detail.html') return 'my-appeals';
+        if (page === 'my-appeals.html' || page === 'transaction-appeal-detail.html') return 'transactions';
+        if (page === 'after-sales.html') return 'settings';
         if (page.indexOf('transaction') === 0) return 'transactions';
         if (
             page.indexOf('wallet') === 0 || page.indexOf('recharge') === 0 ||
@@ -576,16 +577,36 @@
         } catch (e) { /* ignore */ }
     }
 
+    function stripLegacySidebarItems(sidebar) {
+        if (!sidebar) return;
+        Object.keys(SIDEBAR_LEGACY_NAV_IDS).forEach(function (id) {
+            sidebar.querySelectorAll('.s-item[data-nav-id="' + id + '"]').forEach(function (row) {
+                row.remove();
+            });
+        });
+    }
+
+    function sidebarCacheIsStale(raw) {
+        if (!raw || raw.indexOf('data-nav-id') < 0) return true;
+        var id;
+        for (id in SIDEBAR_LEGACY_NAV_IDS) {
+            if (SIDEBAR_LEGACY_NAV_IDS.hasOwnProperty(id) && raw.indexOf('data-nav-id="' + id + '"') >= 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function tryHydrateSidebarFromCache(sidebar, activeId) {
         try {
             var raw = sessionStorage.getItem(SIDEBAR_SHELL_CACHE_KEY);
             if (!raw) return false;
-            // 缓存必须是统一导航结构（含 data-nav-id），否则会残留旧页高亮
-            if (raw.indexOf('data-nav-id') < 0) {
+            if (sidebarCacheIsStale(raw)) {
                 sessionStorage.removeItem(SIDEBAR_SHELL_CACHE_KEY);
                 return false;
             }
             sidebar.innerHTML = raw;
+            stripLegacySidebarItems(sidebar);
             syncSidebarActiveState(sidebar, activeId);
             sidebar.setAttribute('data-fl-nav-unified', '1');
             return true;
@@ -616,6 +637,7 @@
             persistNavContext(activeId);
         }
         if (sidebar.getAttribute('data-fl-nav-unified') === '1') {
+            stripLegacySidebarItems(sidebar);
             syncSidebarActiveState(sidebar, activeId);
             applySidebarIndicators(sidebar);
             applySidebarI18n();
@@ -628,6 +650,7 @@
             sidebar.innerHTML = brandHtml + buildSidebarNavHtml(activeId) + DEFAULT_BOTTOM;
             sidebar.setAttribute('data-fl-nav-unified', '1');
         }
+        stripLegacySidebarItems(sidebar);
         applySidebarIndicators(sidebar);
         applySidebarI18n();
         applySidebarNavTips(sidebar);

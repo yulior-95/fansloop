@@ -12,31 +12,18 @@
         gift: '#F59E0B'
     };
 
-    var DIST_BY_PERIOD = {
-        '7': {
-            total: '0',
-            sub: { am: '0 USDT', pc: '0%', pct: 0 },
-            tip: { am: '0 USDT', pc: '0%', pct: 0 },
-            live: { am: '0 USDT', pc: '0%', pct: 0 },
-            ppv: { am: '0 USDT', pc: '0%', pct: 0 },
-            gift: { am: '0 USDT', pc: '0%', pct: 0 }
-        },
-        '30': {
-            total: '0',
-            sub: { am: '0 USDT', pc: '0%', pct: 0 },
-            tip: { am: '0 USDT', pc: '0%', pct: 0 },
-            live: { am: '0 USDT', pc: '0%', pct: 0 },
-            ppv: { am: '0 USDT', pc: '0%', pct: 0 },
-            gift: { am: '0 USDT', pc: '0%', pct: 0 }
-        },
-        '90': {
-            total: '0',
-            sub: { am: '0 USDT', pc: '0%', pct: 0 },
-            tip: { am: '0 USDT', pc: '0%', pct: 0 },
-            live: { am: '0 USDT', pc: '0%', pct: 0 },
-            ppv: { am: '0 USDT', pc: '0%', pct: 0 },
-            gift: { am: '0 USDT', pc: '0%', pct: 0 }
-        }
+    /** 原型 · 各周期收入合计（无账变数据时用于扇形图/图例占比） */
+    var PROTOTYPE_DIST_TOTAL = {
+        '7': 291.18,
+        '30': 1280.50,
+        '90': 3642.42
+    };
+    /** 四类主来源占「核心收入」比例（商城收益另计） */
+    var DIST_CORE_SHARE = {
+        sub: 0.50,
+        tip: 0.28,
+        live: 0.14,
+        ppv: 0.08
     };
 
     var CHART_PATHS = {
@@ -97,8 +84,8 @@
         var monthly = window.FLCreatorIncomeStore && window.FLCreatorIncomeStore.getMonthlyUsdt
             ? window.FLCreatorIncomeStore.getMonthlyUsdt()
             : 0;
-        var isCreator = global.FLIdentity && global.FLIdentity.isCreator
-            ? global.FLIdentity.isCreator(user)
+        var isCreator = window.FLIdentity && window.FLIdentity.isCreator
+            ? window.FLIdentity.isCreator(user)
             : user.role === 'Creator';
         var hasIncome = isCreator && monthly > 0;
 
@@ -148,14 +135,16 @@
             document.querySelectorAll('.dist-legend .dist-row .pcc').forEach(function (el) {
                 el.textContent = '--';
             });
-            var svg = document.getElementById('distPieSvg');
-            if (svg) svg.innerHTML = '';
-        } else {
-            syncDistPeriod(currentPeriod);
+        }
+        syncDistPeriod(currentPeriod, { hasIncome: hasIncome, legendBlank: !hasIncome });
+        if (!hasIncome) {
+            var pieTotalEl = document.getElementById('distPieTotal');
+            if (pieTotalEl) pieTotalEl.textContent = '--';
         }
     }
 
     window.FL_applyCreatorIncomeForUser = applyCreatorIncomeForUser;
+    window.FLCreatorIncomePage = { paintDistPie: paintDistPieChart, syncDistPeriod: syncDistPeriod };
 
     function showToast(msg) {
         if (!toastEl) toastEl = document.getElementById('ciToast');
@@ -231,20 +220,29 @@
         return { dig: dig, aff: aff, total: dig + aff };
     }
 
+    function periodScale(period) {
+        return period === '7' ? 0.25 : (period === '90' ? 2.85 : 1);
+    }
+
     function buildPeriodData(period) {
-        var base = DIST_BY_PERIOD[period] || DIST_BY_PERIOD['30'];
-        var factor = period === '7' ? 0.25 : (period === '90' ? 2.85 : 1);
+        var factor = periodScale(period);
         var live = getLiveMallParts();
         var mallAmt = Math.round(live.total * factor * 100) / 100;
+        var monthly = window.FLCreatorIncomeStore && window.FLCreatorIncomeStore.getMonthlyUsdt
+            ? window.FLCreatorIncomeStore.getMonthlyUsdt()
+            : 0;
+        var user = resolveIncomeUser();
+        var isCreator = window.FLIdentity && window.FLIdentity.isCreator
+            ? window.FLIdentity.isCreator(user)
+            : user && user.role === 'Creator';
+        var coreTotal = (isCreator && monthly > 0) ? monthly * factor : (PROTOTYPE_DIST_TOTAL[period] || PROTOTYPE_DIST_TOTAL['30']);
+        if (!(coreTotal > 0) && !(mallAmt > 0)) return null;
+
         var baseKeys = ['sub', 'tip', 'live', 'ppv'];
-        var baseSum = baseKeys.reduce(function (s, k) {
-            return s + (base[k] ? parseAmt(base[k].am) : 0);
-        }, 0);
-        var newTotal = baseSum + mallAmt;
-        if (newTotal <= 0) return null;
-        var out = { total: fmtUsdt(newTotal) };
+        var newTotal = coreTotal + mallAmt;
+        var out = { total: fmtUsdt(newTotal), isPrototypeCore: !(isCreator && monthly > 0) };
         baseKeys.forEach(function (k) {
-            var amt = base[k] ? parseAmt(base[k].am) : 0;
+            var amt = Math.round(coreTotal * (DIST_CORE_SHARE[k] || 0) * 100) / 100;
             var pct = newTotal > 0 ? (amt / newTotal) * 100 : 0;
             out[k] = {
                 am: fmtUsdt(amt) + ' USDT',
@@ -261,31 +259,9 @@
         return out;
     }
 
-    function renderPieChart(period) {
-        var data = buildPeriodData(period);
-        var svg = document.getElementById('distPieSvg');
-        var totalEl = document.getElementById('distPieTotal');
-        if (!data || !svg) return;
-        if (totalEl) totalEl.textContent = data.total;
-        var cx = 100;
-        var cy = 100;
-        var rOut = 88;
-        var rIn = 54;
-        var pctSum = DIST_KEYS.reduce(function (s, k) { return s + (data[k] ? data[k].pct : 0); }, 0) || 100;
-        var cursor = 0;
-        var html = '';
-        DIST_KEYS.forEach(function (key) {
-            var item = data[key];
-            if (!item || !item.pct) return;
-            var sweep = (item.pct / pctSum) * 360;
-            if (sweep <= 0) return;
-            var start = cursor;
-            var end = cursor + sweep;
-            cursor = end;
-            html += '<path data-key="' + key + '" fill="' + DIST_COLORS[key] + '" d="' +
-                donutSlice(cx, cy, rOut, rIn, start, end) + '"></path>';
-        });
-        svg.innerHTML = html;
+    function bindPieSegmentEvents(svg) {
+        if (!svg || svg.getAttribute('data-fl-pie-bound') === '1') return;
+        svg.setAttribute('data-fl-pie-bound', '1');
         svg.querySelectorAll('path[data-key]').forEach(function (path) {
             var key = path.getAttribute('data-key');
             path.addEventListener('mouseenter', function () { highlightDistSegment(key); });
@@ -295,28 +271,86 @@
                 if (row) row.click();
             });
         });
+    }
+
+    function renderPieChart(period, opts) {
+        opts = opts || {};
+        var data = buildPeriodData(period);
+        var svg = document.getElementById('distPieSvg');
+        var totalEl = document.getElementById('distPieTotal');
+        if (!svg) return;
+        if (!data) {
+            bindPieSegmentEvents(svg);
+            highlightDistSegment(null);
+            return;
+        }
+        svg.classList.toggle('dist-pie-svg--demo', !!data.isPrototypeCore);
+        if (totalEl && opts.updateHub !== false) totalEl.textContent = data.total;
+        var cx = 100;
+        var cy = 100;
+        var rOut = 88;
+        var rIn = 54;
+        var pctSum = DIST_KEYS.reduce(function (s, k) { return s + (data[k] ? data[k].pct : 0); }, 0) || 100;
+        var cursor = 0;
+        var track = '<path class="dist-pie-track" d="M 100 12 A 88 88 0 1 1 99.99 12 L 100 46 A 54 54 0 1 0 100.01 46 Z" fill="none" stroke="rgba(148,163,184,0.22)" stroke-width="1"/>';
+        var html = track;
+        DIST_KEYS.forEach(function (key) {
+            var item = data[key];
+            if (!item || !(item.pct > 0)) return;
+            var sweep = (item.pct / pctSum) * 360;
+            if (sweep <= 0.01) return;
+            var start = cursor;
+            var end = cursor + sweep;
+            cursor = end;
+            var color = DIST_COLORS[key] || '#94A3B8';
+            html += '<path data-key="' + key + '" fill="' + color + '" d="' +
+                donutSlice(cx, cy, rOut, rIn, start, end) + '"></path>';
+        });
+        if (html === track) return;
+        svg.innerHTML = html;
+        svg.removeAttribute('data-fl-pie-bound');
+        svg.querySelectorAll('path[data-key]').forEach(function (path) {
+            var key = path.getAttribute('data-key');
+            path.setAttribute('fill', DIST_COLORS[key] || '#94A3B8');
+        });
+        bindPieSegmentEvents(svg);
         highlightDistSegment(null);
     }
 
-    function syncDistPeriod(period) {
+    function creatorHasIncomeForDist() {
+        var user = resolveIncomeUser();
+        if (!user) return false;
+        var monthly = window.FLCreatorIncomeStore && window.FLCreatorIncomeStore.getMonthlyUsdt
+            ? window.FLCreatorIncomeStore.getMonthlyUsdt()
+            : 0;
+        var isCreator = window.FLIdentity && window.FLIdentity.isCreator
+            ? window.FLIdentity.isCreator(user)
+            : user.role === 'Creator';
+        return isCreator && monthly > 0;
+    }
+
+    function syncDistPeriod(period, opts) {
+        opts = opts || {};
+        if (opts.legendBlank == null) opts.legendBlank = !creatorHasIncomeForDist();
         currentPeriod = period;
         var data = buildPeriodData(period);
         if (!data) {
-            var emptySvg = document.getElementById('distPieSvg');
-            if (emptySvg) emptySvg.innerHTML = '';
+            bindPieSegmentEvents(document.getElementById('distPieSvg'));
             var emptyX = document.querySelector('.chart-x');
             if (emptyX) emptyX.innerHTML = '<span>--</span><span>--</span><span>--</span><span>--</span><span>--</span>';
             return;
         }
-        DIST_KEYS.forEach(function (key) {
-            var row = document.querySelector('.dist-legend .dist-row.' + key);
-            if (!row || !data[key]) return;
-            var am = row.querySelector('.am');
-            var pcc = row.querySelector('.pcc');
-            if (am) am.textContent = data[key].am;
-            if (pcc) pcc.textContent = data[key].pc;
-        });
-        renderPieChart(period);
+        if (!opts.legendBlank) {
+            DIST_KEYS.forEach(function (key) {
+                var row = document.querySelector('.dist-legend .dist-row.' + key);
+                if (!row || !data[key]) return;
+                var am = row.querySelector('.am');
+                var pcc = row.querySelector('.pcc');
+                if (am) am.textContent = data[key].am;
+                if (pcc) pcc.textContent = data[key].pc;
+            });
+        }
+        renderPieChart(period, { updateHub: !opts.legendBlank });
         var area = document.querySelector('.chart-svg path[fill^="url"]');
         var line = document.querySelector('.chart-svg path[stroke="#A855F7"]');
         if (area && CHART_PATHS[period]) area.setAttribute('d', CHART_PATHS[period]);
@@ -329,6 +363,16 @@
         }
         var periodLabel = document.getElementById('chartPeriodLabel');
         if (periodLabel) periodLabel.textContent = CHART_PERIOD_LABELS[period] || '近 30 天';
+    }
+
+    function paintDistPieChart() {
+        try {
+            syncDistPeriod(currentPeriod);
+            if (!creatorHasIncomeForDist()) {
+                var pieTotalEl = document.getElementById('distPieTotal');
+                if (pieTotalEl) pieTotalEl.textContent = '--';
+            }
+        } catch (e) { /* keep static SVG fallback */ }
     }
 
     function bindPeriodTabs() {
@@ -670,9 +714,10 @@
         bindWithdrawCard();
         bindDeltaHints();
         bindDistRows();
+        bindPieSegmentEvents(document.getElementById('distPieSvg'));
         syncCommerceCard();
-        syncDistPeriod(currentPeriod);
         applyCreatorIncomeForUser();
+        paintDistPieChart();
         applyDeepLinks();
         window.addEventListener('fl-tip-sent', function () {
             renderTipIncomeRows();
@@ -702,6 +747,10 @@
     });
     window.addEventListener('fl-auth-prototype-ready', function () {
         applyCreatorIncomeForUser();
+        paintDistPieChart();
         if (window.FLAuthUiSync && window.FLAuthUiSync.apply) window.FLAuthUiSync.apply();
+    });
+    window.addEventListener('fl-web-icons-ready', function () {
+        paintDistPieChart();
     });
 })();

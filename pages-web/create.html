@@ -646,6 +646,7 @@
 .preview-mock .pm-badge.ppv { background: rgba(245,158,11,0.18); color: #FDE68A; }
 .preview-mock .pm-badge.free { background: rgba(16,185,129,0.15); color: #6EE7B7; }
 .preview-mock .pm-badge.cat { background: rgba(59,130,246,0.16); color: #BFDBFE; }
+.cr-em { color: var(--t-primary); font-weight: 700; }
 #createMonetizeCard.is-hidden { display: none; }
 /* 变现卡 · 研发气泡改向右展开，避免 pop-below 挡住下方价格选项 */
 #createMonetizeCard {
@@ -764,29 +765,64 @@
 
 /* 标签 */
 .tag-input {
-    display: flex; gap: 6px; flex-wrap: wrap;
-    padding: 10px 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 8px 12px;
     background: var(--bg-input);
     border: 1px solid var(--border);
     border-radius: var(--r-md);
-    min-height: 44px;
+    min-height: 48px;
+    box-sizing: border-box;
+    cursor: text;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.tag-input:focus-within {
+    border-color: rgba(168, 85, 247, 0.55);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.14);
 }
 .tag-input .tag-pill {
-    padding: 4px 10px;
-    background: rgba(168,85,247,0.18);
-    border: 1px solid rgba(168,85,247,0.3);
+    padding: 5px 11px;
+    background: rgba(168, 85, 247, 0.16);
+    border: 1px solid rgba(168, 85, 247, 0.32);
     color: #C084FC;
     border-radius: 999px;
     font-size: 12px;
-    display: inline-flex; align-items: center; gap: 5px;
+    font-weight: 600;
+    line-height: 1.25;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
 }
-.tag-input .tag-pill .x { cursor: pointer; opacity: 0.6; }
-.tag-input input {
-    flex: 1; min-width: 100px;
+.tag-input .tag-pill .x {
+    cursor: pointer;
+    opacity: 0.65;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0 1px;
+}
+.tag-input .tag-pill .x:hover { opacity: 1; }
+.tag-input input,
+.tag-input #liveTagField {
+    flex: 1 1 140px;
+    min-width: 140px;
+    min-height: 34px;
+    margin: 0;
+    padding: 6px 6px;
     background: transparent;
-    border: none; outline: none;
-    color: #fff;
+    border: none;
+    outline: none;
+    color: var(--t-primary);
     font-size: 13px;
+    font-family: inherit;
+    line-height: 1.45;
+}
+.tag-input input::placeholder,
+.tag-input #liveTagField::placeholder {
+    color: var(--t-quaternary);
+    font-weight: 400;
 }
 
 /* 底部操作栏 */
@@ -1402,7 +1438,7 @@
                     </div>
                     <div class="editor-body" style="padding: 16px 18px 18px">
                         <p style="font-size:12px;color:var(--t-secondary);line-height:1.55;margin-bottom:12px">
-                            选择内容的可见与付费方式。<strong style="color:#fff">按篇购买</strong>：未订阅的粉丝付一次费即可看该篇完整内容；可与「订阅专属」同时开启。
+                            选择内容的可见与付费方式。<strong class="cr-em">按篇购买</strong>：未订阅的粉丝付一次费即可看该篇完整内容；可与「订阅专属」同时开启。
                         </p>
                         <div class="price-grid" id="priceGrid">
                             <div class="price-cell" data-mode="free" role="button" tabindex="0">

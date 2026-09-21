@@ -104,12 +104,7 @@
 
     function openDetail(tr) {
         if (!tr) return;
-        var page = detailHref(tr);
-        if (window.FL_openInteractionModal) {
-            window.FL_openInteractionModal(page);
-        } else {
-            location.href = page;
-        }
+        location.href = detailHref(tr);
     }
 
     function bindDetailNav() {

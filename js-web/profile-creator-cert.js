@@ -108,12 +108,23 @@
         }
 
         if (roleLine) {
-            if (status === 'approved') {
-                roleLine.textContent = 'Creator · 0x7A3F...3F2C';
+            var walletEl = roleLine.querySelector('[data-wallet-text]');
+            var wallet = (walletEl && walletEl.textContent) ? walletEl.textContent.trim() : '0x7A3F...3F2C';
+            var sync = window.FLProfileHeadUi && window.FLProfileHeadUi.updateRoleLine;
+            if (sync) {
+                if (status === 'approved') {
+                    sync({ label: '创作者', variant: 'creator', wallet: wallet, iconClass: 'fa-solid fa-crown' });
+                } else if (status === 'pending') {
+                    sync({ label: '认证审核中', variant: 'pending', wallet: wallet, iconClass: 'fa-solid fa-hourglass-half' });
+                } else {
+                    sync({ label: '粉丝', variant: 'fan', wallet: wallet, iconClass: 'fa-solid fa-user' });
+                }
+            } else if (status === 'approved') {
+                roleLine.textContent = '创作者 · ' + wallet;
             } else if (status === 'pending') {
-                roleLine.textContent = '创作者认证审核中 · 0x7A3F...3F2C';
+                roleLine.textContent = '认证审核中 · ' + wallet;
             } else {
-                roleLine.textContent = '用户 · 0x7A3F...3F2C';
+                roleLine.textContent = '粉丝 · ' + wallet;
             }
         }
 

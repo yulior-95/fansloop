@@ -85,8 +85,6 @@
     function syncSwitches() {
         var p = prefs();
         var map = {
-            swHighContrast: p.highContrast,
-            swSansFont: p.sansFont,
             swGlass: p.glass !== false
         };
         Object.keys(map).forEach(function (id) {
@@ -360,8 +358,6 @@
         syncLangGrid();
         bindTheme();
         bindFontSlider();
-        bindSwitch('swHighContrast', 'highContrast', '高对比模式已开启 · 全站文字对比度提升', '高对比模式已关闭');
-        bindSwitch('swSansFont', 'sansFont', '已切换为系统无衬线字体 · 全站生效', '已恢复 Inter 默认字体');
         bindSwitch('swGlass', 'glass', '背景毛玻璃已开启', '背景毛玻璃已关闭 · 全站使用实色背景');
         bindLang();
         bindTimezone();

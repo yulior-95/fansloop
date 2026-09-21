@@ -252,8 +252,33 @@
         });
     }
 
+    function applyH5TabBarPolicy() {
+        if (global.applyH5TabBarPolicy && document.body && !document.body.dataset.tabBarPolicyApplied) {
+            global.applyH5TabBarPolicy();
+            document.body.dataset.tabBarPolicyApplied = '1';
+            return;
+        }
+        var body = document.body;
+        if (!body || body.classList.contains('page-no-tab-bar') || body.classList.contains('h5-main-tab')) return;
+        if (body.getAttribute('data-h5-root-tab') === '1') {
+            body.classList.add('h5-main-tab');
+            return;
+        }
+        var file = (location.pathname.split('/').pop() || '').split('?')[0].toLowerCase();
+        var main = {
+            'home.html': 1,
+            'fl2-home-after-login.html': 1,
+            'subscriptions.html': 1,
+            'messages.html': 1,
+            'profile.html': 1
+        };
+        if (main[file]) body.classList.add('h5-main-tab');
+        else body.classList.add('page-no-tab-bar');
+    }
+
     function init() {
         applyTheme();
+        applyH5TabBarPolicy();
         watchOverlaysForLightTheme();
         bindClicks();
         bindDefaultBackButtons();

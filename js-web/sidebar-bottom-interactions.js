@@ -168,12 +168,25 @@
                 var creator = global.FLIdentity && global.FLIdentity.isCreator
                     ? global.FLIdentity.isCreator(user)
                     : !!(user && user.role === 'Creator');
-                var roleKey = creator ? 'role_creator' : 'role_member';
-                var roleText = global.FLI18n && global.FLI18n.t
-                    ? global.FLI18n.t(global.FLI18n.getLangCode(), roleKey)
-                    : (creator ? 'Creator' : 'Fan');
-                roleEl.textContent = roleText;
-                roleEl.className = 's-role-tag ' + (creator ? 'is-creator' : 'is-member');
+                var pro = isProMember();
+                /* 已开通 Creator Pro 的非创作者：只展示 Pro 角标，不再显示「普通用户」 */
+                if (pro && !creator) {
+                    roleEl.textContent = '';
+                    roleEl.hidden = true;
+                    roleEl.style.display = 'none';
+                    roleEl.className = 's-role-tag is-member';
+                    roleEl.setAttribute('aria-hidden', 'true');
+                } else {
+                    var roleKey = creator ? 'role_creator' : 'role_member';
+                    var roleText = global.FLI18n && global.FLI18n.t
+                        ? global.FLI18n.t(global.FLI18n.getLangCode(), roleKey)
+                        : (creator ? 'Creator' : 'Fan');
+                    roleEl.textContent = roleText;
+                    roleEl.hidden = false;
+                    roleEl.style.display = '';
+                    roleEl.removeAttribute('aria-hidden');
+                    roleEl.className = 's-role-tag ' + (creator ? 'is-creator' : 'is-member');
+                }
             }
 
             if (avEl && user && user.avatar) {

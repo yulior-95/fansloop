@@ -10,10 +10,10 @@
     var pending = null;
 
     var REASONS = {
-        new: '检测到<strong style="color:#fff">新设备 / 新浏览器</strong>登录，请完成二次验证。',
-        remote: '检测到<strong style="color:#fff">异地 / 异常 IP</strong>登录，请完成二次验证。',
-        idle: '已超过 <strong style="color:#fff">30 天</strong>未在本设备登录，请完成二次验证。',
-        pwd: '你最近<strong style="color:#fff">修改过登录密码</strong>，请完成二次验证后再进入。'
+        new: '检测到<strong class="l2fa-em">新设备 / 新浏览器</strong>登录，请完成二次验证。',
+        remote: '检测到<strong class="l2fa-em">异地 / 异常 IP</strong>登录，请完成二次验证。',
+        idle: '已超过 <strong class="l2fa-em">30 天</strong>未在本设备登录，请完成二次验证。',
+        pwd: '你最近<strong class="l2fa-em">修改过登录密码</strong>，请完成二次验证后再进入。'
     };
 
     function $(id) {
@@ -224,8 +224,8 @@
 
         if (totpHint) {
             totpHint.innerHTML = totpOn
-                ? '打开认证器 APP，输入 6 位动态码（原型演示可填 <strong style="color:#FBBF24">' + DEMO_TOTP + '</strong>）'
-                : '账户安全中未开启认证器；原型演示可填 <strong style="color:#FBBF24">' + DEMO_TOTP + '</strong>';
+                ? '打开认证器 APP，输入 6 位动态码（原型演示可填 <strong class="l2fa-demo-code">' + DEMO_TOTP + '</strong>）'
+                : '账户安全中未开启认证器；原型演示可填 <strong class="l2fa-demo-code">' + DEMO_TOTP + '</strong>';
         }
         if (bioHint) {
             bioHint.textContent = webOn
@@ -296,9 +296,12 @@
                 } else {
                     enableRiskSim();
                     var err = $('loginErr');
-                    if (err) {
+                    if (err && window.FL_setAuthBanner) {
+                        window.FL_setAuthBanner('loginErr', 'info', '已开启风险模拟：下次登录成功后将要求二次验证（常用设备仍走原流程，需先点此处开启）');
+                    } else if (err) {
+                        err.className = 'auth-banner auth-banner--info';
                         err.style.display = 'flex';
-                        err.innerHTML = '<i class="fa-solid fa-circle-info" style="color:var(--warning-light)"></i><div>已开启风险模拟：下次登录成功后将要求二次验证（常用设备仍走原流程，需先点此处开启）</div>';
+                        err.innerHTML = '<i class="fa-solid fa-circle-info" aria-hidden="true"></i><div>已开启风险模拟：下次登录成功后将要求二次验证（常用设备仍走原流程，需先点此处开启）</div>';
                     }
                 }
             });

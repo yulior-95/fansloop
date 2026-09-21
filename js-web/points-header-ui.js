@@ -10,7 +10,7 @@
 
     function markup(totalFormatted) {
         return (
-            '<span class="ic"><i class="' + ICON_CLASS + '"></i></span>' +
+            '<span class="ic"><i class="' + ICON_CLASS + '" data-fl-icon-skip="1" aria-hidden="true"></i></span>' +
             '<span class="val">' + formatPlaceholder(totalFormatted) + '</span>' +
             '<span class="sub">积分</span>'
         );
@@ -24,9 +24,7 @@
     }
 
     function afterPaint(root) {
-        if (global.FLWebIcons && typeof global.FLWebIcons.refresh === 'function') {
-            global.FLWebIcons.refresh(root || document);
-        }
+        /* 积分入口固定 FA 硬币，不参与 Lucide 迁移 */
     }
 
     function paint(btn, totalFormatted, title) {
@@ -43,6 +41,12 @@
         }
     }
 
+    function bindIconsReady() {
+        global.addEventListener('fl-web-icons-ready', function () {
+            global.document.querySelectorAll('#hPointsBtn').forEach(ensureDefault);
+        });
+    }
+
     global.FLPointsHeaderUi = {
         ICON_CLASS: ICON_CLASS,
         markup: markup,
@@ -50,4 +54,6 @@
         ensureDefault: ensureDefault,
         afterPaint: afterPaint
     };
+
+    bindIconsReady();
 })(typeof window !== 'undefined' ? window : this);

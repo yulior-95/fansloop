@@ -116,11 +116,21 @@
         }
     }
 
+    function setAuthBanner(id, kind, msg) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var k = kind === 'success' || kind === 'info' ? kind : 'error';
+        el.className = 'auth-banner auth-banner--' + k;
+        el.style.display = 'flex';
+        el.setAttribute('role', 'alert');
+        el.setAttribute('aria-live', 'polite');
+        var icon = k === 'success' ? 'fa-circle-check' : (k === 'info' ? 'fa-circle-info' : 'fa-circle-exclamation');
+        el.innerHTML = '<i class="fa-solid ' + icon + '" aria-hidden="true"></i><div>' + msg + '</div>';
+    }
+    window.FL_setAuthBanner = setAuthBanner;
+
     function showRegErr(msg) {
-        var err = document.getElementById('regErr');
-        if (!err) return;
-        err.style.display = 'flex';
-        err.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i><div>' + msg + '</div>';
+        setAuthBanner('regErr', 'error', msg);
     }
 
     function hideRegErr() {
@@ -230,10 +240,7 @@
     });
 
     function showLoginHint(msg) {
-        var el = document.getElementById('loginErr');
-        if (!el) return;
-        el.style.display = 'flex';
-        el.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i><div>' + msg + '</div>';
+        setAuthBanner('loginErr', 'error', msg);
     }
 
     function bindOtpCountdown(btn, getEmail, opts) {
@@ -293,21 +300,12 @@
             return true;
         },
         onSent: function () {
-            var el = document.getElementById('loginErr');
-            if (el) {
-                el.style.display = 'flex';
-                el.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--success-light)"></i><div>验证码已发送（原型演示）</div>';
-            }
+            setAuthBanner('loginErr', 'success', '验证码已发送（原型演示）');
         }
     });
 
     function showRegOk(msg) {
-        var err = document.getElementById('regErr');
-        if (!err) return;
-        err.style.display = 'flex';
-        err.style.background = '';
-        err.style.borderColor = '';
-        err.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--success-light)"></i><div>' + msg + '</div>';
+        setAuthBanner('regErr', 'success', msg);
     }
 
     bindOtpCountdown(document.getElementById('btnRegSendOtp'), function () {

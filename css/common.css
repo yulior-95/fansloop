@@ -65,6 +65,21 @@
     --radius-full: 999px;
 }
 
+/* 高对比 · 全站默认开启（见 global-display-prefs.js） */
+html[data-fl-high-contrast="1"]:not([data-theme='light']) {
+    --text-secondary: rgba(255, 255, 255, 0.92);
+    --text-tertiary: rgba(255, 255, 255, 0.78);
+    --border-color: rgba(255, 255, 255, 0.14);
+    --border-strong: rgba(255, 255, 255, 0.22);
+}
+
+html[data-fl-high-contrast="1"][data-theme='light'] {
+    --text-secondary: #1a2035;
+    --text-tertiary: #404968;
+    --border-color: rgba(15, 18, 32, 0.14);
+    --border-strong: rgba(15, 18, 32, 0.22);
+}
+
 :root[data-theme='light'] {
     /* 亮色背景体系 · 保证日间可读 */
     --bg-primary: #F3F5FA;
@@ -155,13 +170,15 @@ body.light-bg .status-bar {
     align-items: center;
     justify-content: space-between;
     padding: 0 16px;
-    z-index: 100;
+    z-index: 110;
     background: transparent;
+    isolation: isolate;
 }
 
 .nav-bar.solid {
     background: var(--bg-primary);
     border-bottom: 0.5px solid var(--border-color);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
 }
 
 .nav-bar .nav-title {
@@ -364,6 +381,7 @@ body.light-bg .status-bar {
     left: 0;
     right: 0;
     bottom: 0;
+    z-index: 1;
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
@@ -376,6 +394,24 @@ body.light-bg .status-bar {
 }
 .content-with-tab {
     padding-bottom: var(--tab-bar-height);
+}
+
+/* 子流程页隐藏底部 Tab（由 h5-theme-boot / digital-h5-nav 自动加 page-no-tab-bar） */
+body.page-no-tab-bar .tab-bar,
+body.tx-export-page .tab-bar,
+body.tx-export-embedded .tab-bar {
+    display: none !important;
+    height: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+}
+body.page-no-tab-bar .app-content,
+body.tx-export-page .app-content {
+    padding-bottom: max(28px, env(safe-area-inset-bottom, 0px)) !important;
+}
+body.tx-export-open .tab-bar {
+    display: none !important;
 }
 
 /* ========== 通用组件 ========== */

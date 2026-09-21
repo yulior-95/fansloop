@@ -226,14 +226,6 @@
     padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
     padding-bottom: 28px;
 }
-.nf-h5-head { margin: 0 16px 10px; }
-.nf-h5-btns { display: flex; gap: 8px; }
-.nf-h5-btn {
-    flex: 1; height: 34px; border-radius: 10px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-card); color: var(--text-secondary);
-    font-size: 11px; font-weight: 600;
-}
 .nf-h5-wrap {
     padding: 0 12px;
     --border: var(--border-color);
@@ -253,11 +245,43 @@
     --info-light: #93c5fd;
 }
 
+.nf-h5-head {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin: 0 0 10px;
+    padding: 0 2px;
+}
+.nf-h5-btns {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: auto;
+    max-width: 100%;
+}
+.nf-h5-btn {
+    flex: 0 0 auto;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.nf-h5-btn i {
+    margin-right: 4px;
+    font-size: 10px;
+    opacity: 0.85;
+}
+
 /* H5 · 分类筛选：单行横向滚动胶囊（对齐 messages iml-tabs，勿用 Web 多行 wrap） */
 .nf-h5-wrap .nf-filter {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     flex-wrap: nowrap;
     width: 100%;
     max-width: 100%;
@@ -277,13 +301,13 @@
 .nf-h5-wrap .nf-filter .ck {
     flex: 0 0 auto;
     white-space: nowrap;
-    padding: 7px 14px;
+    padding: 6px 11px;
     border-radius: 999px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
-    line-height: 1.2;
+    line-height: 1.25;
     color: var(--text-secondary);
-    background: var(--bg-card);
+    background: var(--bg-inset);
     border: 1px solid var(--border-color);
     box-shadow: none;
 }
@@ -291,13 +315,13 @@
     color: #fff;
     border-color: transparent;
     background: var(--brand-gradient);
-    box-shadow: 0 4px 14px rgba(168, 85, 247, 0.35);
+    box-shadow: 0 3px 10px rgba(168, 85, 247, 0.28);
 }
 .nf-h5-wrap .nf-filter .ck .cnt {
     display: inline-block;
-    margin-left: 5px;
-    font-size: 10px;
-    padding: 1px 6px;
+    margin-left: 4px;
+    font-size: 9px;
+    padding: 1px 5px;
     border-radius: 999px;
     font-weight: 700;
     vertical-align: 0.05em;
@@ -309,14 +333,25 @@
     color: #fff;
 }
 
+:root[data-theme='light'] .nf-h5-btn {
+    background: var(--bg-card);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+}
 :root[data-theme='light'] .nf-h5-wrap .nf-filter .ck {
-    background: #fff;
-    border-color: rgba(15, 18, 32, 0.1);
-    color: #5c6378;
+    background: var(--bg-inset);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
 }
 :root[data-theme='light'] .nf-h5-wrap .nf-filter .ck.active {
-    color: #fff;
-    border-color: transparent;
+    color: #5b21b6;
+    background: rgba(168, 85, 247, 0.12);
+    border-color: rgba(124, 58, 237, 0.38);
+    box-shadow: none;
+}
+:root[data-theme='light'] .nf-h5-wrap .nf-filter .ck.active .cnt {
+    background: rgba(124, 58, 237, 0.18);
+    color: #5b21b6;
 }
 
 .nf-h5-wrap .nf-bulk {
@@ -345,9 +380,12 @@
     text-overflow: ellipsis;
 }
 /* 弹层样式见 css/h5-notifications-modals.css */
-:root[data-theme='light'] .nf-list,
-:root[data-theme='light'] .nf-filter,
-:root[data-theme='light'] .nf-bulk { background: var(--bg-card); }
+:root[data-theme='light'] .nf-h5-wrap .nf-list,
+:root[data-theme='light'] .nf-h5-wrap .nf-bulk { background: var(--bg-card); }
+:root[data-theme='light'] .nf-h5-wrap .nf-filter {
+    background: transparent;
+    border: none;
+}
 </style>
 <link rel="stylesheet" href="../css/h5-light-theme.css">
 <link rel="stylesheet" href="../css/h5-notifications-modals.css">
@@ -360,14 +398,13 @@
     <div class="nav-right"></div>
 </div>
 <div class="app-content">
-
+<div class="nf-h5-wrap">
 <div class="nf-h5-head">
     <div class="nf-h5-btns">
-        <button type="button" class="nf-h5-btn" id="btnMarkAllReadTop"><i class="fa-solid fa-check-double"></i> 全部已读</button>
-        <button type="button" class="nf-h5-btn" id="btnNfSettings"><i class="fa-solid fa-gear"></i> 设置</button>
+        <button type="button" class="nf-h5-btn" id="btnMarkAllReadTop"><i class="fa-solid fa-check-double"></i>全部已读</button>
+        <button type="button" class="nf-h5-btn" id="btnNfSettings"><i class="fa-solid fa-gear"></i>设置</button>
     </div>
 </div>
-<div class="nf-h5-wrap">
 <div class="nf-filter" id="nfFilter">
                     <div class="ck active" data-tab="all">全部</div>
                     <div class="ck" data-tab="unread">未读 <span class="cnt" id="nfCntUnread">16</span></div>

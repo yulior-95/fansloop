@@ -659,6 +659,11 @@
                 '</div>' +
                 '<div class="da-owned-grid">' +
                 images.map(function (it, idx) {
+                    if (layout === 'h5') {
+                        return '<button type="button" class="da-owned-tile" data-da-media="image" data-da-url="' + esc(it.url) + '" aria-label="查看第 ' + (idx + 1) + ' 张">' +
+                            '<img src="' + esc(it.url) + '" alt="" loading="lazy">' +
+                            '<span class="da-owned-idx">' + (idx + 1) + '</span></button>';
+                    }
                     return '<a class="da-owned-tile" href="' + esc(it.url) + '" target="_blank" rel="noopener" title="查看大图">' +
                         '<img src="' + esc(it.url) + '" alt="" loading="lazy">' +
                         '<span class="da-owned-idx">' + (idx + 1) + '</span></a>';
@@ -690,6 +695,69 @@
             html = '<div class="da-empty">暂无可浏览的素材</div>';
         }
         return '<div class="da-owned-body' + (layout === 'h5' ? ' da-owned-body--h5' : '') + '">' + html + '</div>';
+    }
+
+    var ownedLightboxEl = null;
+
+    function closeOwnedLightbox() {
+        if (!ownedLightboxEl) return;
+        var stage = ownedLightboxEl.querySelector('.da-owned-lightbox-stage');
+        if (stage) stage.innerHTML = '';
+        ownedLightboxEl.classList.remove('is-open');
+        ownedLightboxEl.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('da-owned-lightbox-open');
+    }
+
+    function ensureOwnedLightbox() {
+        if (ownedLightboxEl) return ownedLightboxEl;
+        ownedLightboxEl = document.createElement('div');
+        ownedLightboxEl.className = 'da-owned-lightbox';
+        ownedLightboxEl.setAttribute('aria-hidden', 'true');
+        ownedLightboxEl.innerHTML =
+            '<button type="button" class="da-owned-lightbox-close" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>' +
+            '<div class="da-owned-lightbox-stage"></div>';
+        document.body.appendChild(ownedLightboxEl);
+        ownedLightboxEl.querySelector('.da-owned-lightbox-close').addEventListener('click', closeOwnedLightbox);
+        ownedLightboxEl.addEventListener('click', function (e) {
+            if (e.target === ownedLightboxEl) closeOwnedLightbox();
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && ownedLightboxEl.classList.contains('is-open')) closeOwnedLightbox();
+        });
+        return ownedLightboxEl;
+    }
+
+    function openOwnedLightbox(url, kind) {
+        if (!url) return;
+        var lb = ensureOwnedLightbox();
+        var stage = lb.querySelector('.da-owned-lightbox-stage');
+        if (!stage) return;
+        stage.innerHTML = '';
+        if (kind === 'video') {
+            var v = document.createElement('video');
+            v.src = url;
+            v.controls = true;
+            v.playsInline = true;
+            v.autoplay = true;
+            stage.appendChild(v);
+        } else {
+            var img = document.createElement('img');
+            img.src = url;
+            img.alt = '';
+            stage.appendChild(img);
+        }
+        lb.classList.add('is-open');
+        lb.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('da-owned-lightbox-open');
+    }
+
+    function bindOwnedMediaLightbox(root, layout) {
+        if (layout !== 'h5' || !root) return;
+        root.querySelectorAll('.da-owned-tile[data-da-url]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                openOwnedLightbox(btn.getAttribute('data-da-url'), btn.getAttribute('data-da-media') || 'image');
+            });
+        });
     }
 
     function initOwnedViewPage(opts) {
@@ -759,6 +827,7 @@
             renderOwnedMediaHtml(p, Store, layout) +
             '</div>';
         if (layout === 'h5') {
+            bindOwnedMediaLightbox(root, layout);
             var navTitle = document.querySelector('.nav-title');
             if (navTitle) navTitle.textContent = typeLabel;
         }

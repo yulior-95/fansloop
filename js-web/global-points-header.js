@@ -32,7 +32,7 @@
             return;
         }
         btn.innerHTML =
-            '<span class="ic"><i class="fa-solid fa-coins"></i></span>' +
+            '<span class="ic"><i class="fa-solid fa-coins" data-fl-icon-skip="1" aria-hidden="true"></i></span>' +
             '<span class="val">' + totalFormatted + '</span>' +
             '<span class="sub">积分</span>';
         if (title) btn.title = title;

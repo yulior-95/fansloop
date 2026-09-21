@@ -34,6 +34,7 @@
             title: "关于",
             titleKey: "set_grp_about",
             items: [
+                { id: "support", label: "售后与帮助", i18nKey: "set_nav_support", href: "after-sales.html", icon: "fa-solid fa-headset" },
                 { id: "about", label: "关于 GOODFANS", i18nKey: "set_nav_about", href: "settings-about.html", icon: "fa-solid fa-circle-info" },
                 { id: "terms", label: "条款与协议", i18nKey: "set_nav_terms", href: "settings-terms.html", icon: "fa-solid fa-file-lines" },
                 { id: "logout", label: "退出登录", i18nKey: "set_nav_logout", href: "#", icon: "fa-solid fa-right-from-bracket", logout: true }
@@ -50,6 +51,7 @@
         "settings-privacy.html": "privacy",
         "settings-display.html": "display",
         "settings-subscription.html": "subscription",
+        "after-sales.html": "support",
         "settings-about.html": "about",
         "settings-terms.html": "terms"
     };

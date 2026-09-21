@@ -99,7 +99,16 @@
     transition: opacity 0.18s, transform 0.18s;
     transform-origin: 100px 100px;
     cursor: pointer;
+    stroke: rgba(255, 255, 255, 0.12);
+    stroke-width: 1px;
 }
+.dist-pie-svg path[data-key="sub"] { fill: #A855F7 !important; }
+.dist-pie-svg path[data-key="tip"] { fill: #EC4899 !important; }
+.dist-pie-svg path[data-key="live"] { fill: #10B981 !important; }
+.dist-pie-svg path[data-key="ppv"] { fill: #3B82F6 !important; }
+.dist-pie-svg path[data-key="mall"] { fill: #38BDF8 !important; }
+.dist-pie-svg .dist-pie-track { pointer-events: none; }
+.dist-pie-svg.dist-pie-svg--demo path { opacity: 0.92; }
 .dist-pie-svg path:hover { opacity: 0.88; filter: brightness(1.08); }
 .dist-pie-hub {
     position: absolute; inset: 0;
@@ -212,7 +221,8 @@
 
 .note-card { background: linear-gradient(135deg, rgba(245,158,11,0.06), rgba(245,158,11,0.02)); border: 1px solid rgba(245,158,11,0.2); border-radius: var(--r-lg); padding: 20px 22px; }
 .note-card h4 { font-size: 13px; font-weight: 700; color: var(--warning-light); margin-bottom: 8px; }
-.note-card p { font-size: 12px; color: var(--t-secondary); line-height: 1.7; }
+.note-card p { font-size: 12.5px; color: var(--t-primary); line-height: 1.75; opacity: 0.92; }
+.note-card p strong { color: #FDE68A; font-weight: 700; }
 
 .income-row { cursor: pointer; border-radius: var(--r-md); margin: 0 -8px; padding-left: 8px; padding-right: 8px; transition: background 0.15s; }
 .income-row:hover { background: rgba(168,85,247,0.06); }
@@ -388,7 +398,13 @@
 
                 <div class="dist-body">
                     <div class="dist-pie-stage" aria-hidden="true">
-                        <svg class="dist-pie-svg" id="distPieSvg" viewBox="0 0 200 200" role="img" aria-label="收入来源扇形图"></svg>
+                        <svg class="dist-pie-svg" id="distPieSvg" viewBox="0 0 200 200" role="img" aria-label="收入来源扇形图" data-fl-pie-static="1">
+                            <path class="dist-pie-track" d="M 100 12 A 88 88 0 1 1 99.99 12 L 100 46 A 54 54 0 1 0 100.01 46 Z" fill="none" stroke="rgba(148,163,184,0.22)" stroke-width="1"/>
+                            <path data-key="sub" fill="#A855F7" d="M 100.00 12.00 A 88 88 0 0 1 100.00 188.00 L 100.00 154.00 A 54 54 0 0 0 100.00 46.00 Z"/>
+                            <path data-key="tip" fill="#EC4899" d="M 100.00 188.00 A 88 88 0 0 1 13.56 83.51 L 46.96 89.88 A 54 54 0 0 0 100.00 154.00 Z"/>
+                            <path data-key="live" fill="#10B981" d="M 13.56 83.51 A 88 88 0 0 1 57.61 22.89 L 73.99 52.68 A 54 54 0 0 0 46.96 89.88 Z"/>
+                            <path data-key="ppv" fill="#3B82F6" d="M 57.61 22.89 A 88 88 0 0 1 100.00 12.00 L 100.00 46.00 A 54 54 0 0 0 73.99 52.68 Z"/>
+                        </svg>
                         <div class="dist-pie-hub">
                             <div class="hub-lb">收入合计</div>
                             <div class="hub-val" id="distPieTotal">--</div>
@@ -481,7 +497,7 @@
                 </div>
                 <div class="note-card">
                     <h4><i class="fa-solid fa-circle-info"></i> 结算与说明</h4>
-                    <p>所有收入以 USDT 结算与展示。平台分成 15% + 链上手续费已包含。新订阅 / 打赏在 1–3 天结算锁定期后进入可提现余额；<strong style="color:#fff">数字商品成交</strong>需 <strong style="color:#fff">7 天</strong> 冷静期（与买家 7 日售后期对齐），期间如发生退款则对应收入不结算。</p>
+                    <p>所有收入以 USDT 结算与展示。平台分成 15% + 链上手续费已包含。新订阅 / 打赏在 1–3 天结算锁定期后进入可提现余额；<strong>数字商品成交</strong>需 <strong>7 天</strong> 冷静期（与买家 7 日售后期对齐），期间如发生退款则对应收入不结算。</p>
                 </div>
             </div>
         </div>
@@ -523,11 +539,11 @@
             <div class="rm-hero"><div class="cap">所有收入以 USDT 结算与展示</div></div>
             <div class="rule-block">
                 <h3><i class="fa-solid fa-hourglass-half"></i>结算锁定期</h3>
-                <p>新订阅、打赏、直播礼物等收入进入 <strong style="color:#fff">1–3 天</strong> 结算锁定期，用于风控与链上确认。锁定期结束后自动转入「可提现余额」。</p>
+                <p>新订阅、打赏、直播礼物等收入进入 <strong>1–3 天</strong> 结算锁定期，用于风控与链上确认。锁定期结束后自动转入「可提现余额」。</p>
             </div>
             <div class="rule-block">
                 <h3><i class="fa-solid fa-gem"></i>数字商品 · 7 天冷静期</h3>
-                <p>站内数字资产成交后，创作者实得进入 <strong style="color:#fff">7 天</strong> 冷静期，与买家「购买后 7 日内可退款」规则对齐。冷静期内买家若因无法播放等原因退款成功，该笔收入标记为已退款、不计入可提现；期满且无退款则自动结算。</p>
+                <p>站内数字资产成交后，创作者实得进入 <strong>7 天</strong> 冷静期，与买家「购买后 7 日内可退款」规则对齐。冷静期内买家若因无法播放等原因退款成功，该笔收入标记为已退款、不计入可提现；期满且无退款则自动结算。</p>
             </div>
             <div class="rule-block rule-block--fee">
                 <h3>
@@ -546,7 +562,7 @@
                         </span>
                     </span>
                 </h3>
-                <p>平台收取创作者收入 <strong style="color:#fff"><span data-income-split-fee-tip>15</span>%</strong> 服务费（打赏类默认），链上 Gas 已包含在展示金额内，不再额外扣减。</p>
+                <p>平台收取创作者收入 <strong><span data-income-split-fee-tip>15</span>%</strong> 服务费（打赏类默认），链上 Gas 已包含在展示金额内，不再额外扣减。</p>
                 <table class="split-table">
                     <thead><tr><th>收入类型</th><th>创作者实得</th><th>说明</th></tr></thead>
                     <tbody data-income-split-table></tbody>
@@ -554,7 +570,7 @@
             </div>
             <div class="rule-block">
                 <h3><i class="fa-solid fa-arrow-up-from-bracket"></i>提现说明</h3>
-                <p>可提现余额仅支持提现至<strong style="color:#fff">链上 USDT 地址</strong>（须选择与接收地址一致的网络，如 TRC20 / ERC20 等）。单笔最低 10 USDT，每日上限 50,000 USDT。提现前需完成 KYC 身份验证。</p>
+                <p>可提现余额仅支持提现至<strong>链上 USDT 地址</strong>（须选择与接收地址一致的网络，如 TRC20 / ERC20 等）。单笔最低 10 USDT，每日上限 50,000 USDT。提现前需完成 KYC 身份验证。</p>
             </div>
             <div class="rule-block">
                 <h3><i class="fa-solid fa-shield-halved"></i>风控与申诉</h3>

@@ -129,15 +129,41 @@
         });
     }
 
-    function applyProfileMeta(user) {
-        var roleLine = document.getElementById('profileRoleLine');
-        if (roleLine) {
-            var roleLabel = global.FLIdentity && global.FLIdentity.isCreator && global.FLIdentity.isCreator(user)
-                ? 'Creator' : 'Fan';
-            roleLine.textContent = roleLabel + ' · ' + (user.walletShort || '0x----...----');
+    function updateProfileRoleLine(opts) {
+        if (!opts) return;
+        var row = document.getElementById('profileRoleLine');
+        if (!row) return;
+        var labelEl = row.querySelector('[data-role-label]');
+        var walletEl = row.querySelector('[data-wallet-text]');
+        var pill = row.querySelector('[data-role-pill]');
+        var icon = pill ? pill.querySelector('i') : null;
+        if (walletEl && opts.wallet != null) walletEl.textContent = opts.wallet;
+        if (labelEl && opts.label != null) labelEl.textContent = opts.label;
+        if (pill) {
+            pill.classList.remove('role-pill--creator', 'role-pill--pending', 'role-pill--fan');
+            if (opts.variant === 'creator') pill.classList.add('role-pill--creator');
+            else if (opts.variant === 'pending') pill.classList.add('role-pill--pending');
+            else pill.classList.add('role-pill--fan');
         }
+        if (icon && opts.iconClass) icon.className = opts.iconClass;
+        if (!labelEl && !walletEl && opts.label != null && opts.wallet != null) {
+            row.textContent = opts.label + ' · ' + opts.wallet;
+        }
+    }
+
+    function applyProfileMeta(user) {
+        var isCreator = global.FLIdentity && global.FLIdentity.isCreator && global.FLIdentity.isCreator(user);
+        updateProfileRoleLine({
+            label: isCreator ? '创作者' : '粉丝',
+            variant: isCreator ? 'creator' : 'fan',
+            wallet: user.walletShort || '0x----...----',
+            iconClass: isCreator ? 'fa-solid fa-crown' : 'fa-solid fa-user'
+        });
         var bio = document.querySelector('.profile-head .bio');
-        if (bio && user.bio) bio.textContent = user.bio;
+        if (bio && user.bio) {
+            bio.textContent = user.bio;
+            bio.classList.toggle('bio--placeholder', /欢迎来到 GOODFANS/.test(user.bio));
+        }
         var meta = document.querySelector('.ph-meta');
         if (meta && user.location) {
             var loc = meta.querySelector('span');
@@ -170,7 +196,7 @@
                 global.FLPointsHeaderUi.paint(btn, global.FLHomePoints.formatPoints(total), title);
             } else {
                 btn.innerHTML =
-                    '<span class="ic"><i class="fa-solid fa-coins"></i></span>' +
+                    '<span class="ic"><i class="fa-solid fa-coins" data-fl-icon-skip="1" aria-hidden="true"></i></span>' +
                     '<span class="val">' + global.FLHomePoints.formatPoints(total) + '</span>' +
                     '<span class="sub">积分</span>';
                 btn.title = title;
@@ -227,7 +253,13 @@
         if (global.FL_applyCreatorIncomeForUser) global.FL_applyCreatorIncomeForUser(user);
     }
 
-    global.FLAuthUiSync = { apply: apply, getUser: getUser, resolveUser: resolveUser };
+    global.FLAuthUiSync = {
+        apply: apply,
+        getUser: getUser,
+        resolveUser: resolveUser,
+        updateProfileRoleLine: updateProfileRoleLine
+    };
+    global.FLProfileHeadUi = { updateRoleLine: updateProfileRoleLine };
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', apply);

@@ -38,10 +38,20 @@
     document.body.appendChild(dock);
     document.body.appendChild(layer);
 
+    if (window.RewardDockInteract && typeof window.RewardDockInteract.ensureRingIcon === 'function') {
+        window.RewardDockInteract.ensureRingIcon(dock);
+    }
+
     var TOTAL = 45;
     var left = TOTAL;
     var timer = null;
     var ring = document.getElementById('rewardRing');
+    if (ring && !ring.querySelector('i')) {
+        var ringIc = document.createElement('i');
+        ringIc.className = 'fa-solid fa-coins';
+        ringIc.setAttribute('aria-hidden', 'true');
+        ring.appendChild(ringIc);
+    }
     var timeEl = document.getElementById('rewardTime');
 
     function fmt(sec) {

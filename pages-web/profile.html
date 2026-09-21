@@ -90,6 +90,8 @@
 .ph-row .info #creatorCertTagWrap { display: inline-flex; align-items: center; }
 .ph-row .info .tags-row .tag,
 .ph-row .info .tags-row button.tag {
+    font-size: 11px;
+    padding: 3px 9px;
     line-height: 1.25;
     white-space: nowrap;
     vertical-align: middle;
@@ -105,8 +107,100 @@
 }
 .ph-row .info .tags-row .tag-info i { color: var(--info-light); opacity: 0.92; }
 .ph-row .info .tags-row .tag-muted i { color: var(--t-quaternary); opacity: 0.9; }
-.ph-row .info .h { font-size: 13.5px; color: var(--t-secondary); font-family: ui-monospace, monospace; }
-.ph-row .info .bio { font-size: 13px; color: var(--t-secondary); line-height: 1.5; max-width: 580px; margin-top: 8px; }
+/* 叠在封面渐变上的文案 · 统一浅色字 */
+.ph-row .info h1 { color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45); }
+.ph-row .info .profile-identity-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    max-width: 100%;
+}
+.ph-row .info .profile-identity-row .role-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    font-family: inherit;
+    line-height: 1.2;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    text-shadow: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+.ph-row .info .profile-identity-row .role-pill i {
+    font-size: 10px;
+    opacity: 0.92;
+}
+.ph-row .info .profile-identity-row .role-pill.role-pill--creator {
+    background: rgba(124, 58, 237, 0.42);
+    border-color: rgba(216, 180, 254, 0.55);
+}
+.ph-row .info .profile-identity-row .role-pill.role-pill--pending {
+    background: rgba(245, 158, 11, 0.38);
+    border-color: rgba(253, 230, 138, 0.5);
+}
+.ph-row .info .profile-identity-row .wallet-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 600;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 0.96);
+    background: rgba(8, 10, 18, 0.38);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    text-shadow: none;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.ph-row .info .profile-identity-row .wallet-chip i {
+    font-size: 10px;
+    opacity: 0.75;
+    font-family: "Font Awesome 6 Free";
+}
+.ph-row .info .bio {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.92);
+    line-height: 1.55;
+    max-width: min(640px, 100%);
+    margin-top: 10px;
+    margin-bottom: 0;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+.ph-row .info .bio.bio--placeholder {
+    font-weight: 450;
+    color: rgba(255, 255, 255, 0.88);
+    padding-left: 12px;
+    border-left: 3px solid rgba(255, 255, 255, 0.32);
+}
+.ph-row .info .tags-row .tag-info {
+    background: rgba(255, 255, 255, 0.94);
+    color: #1D4ED8;
+    border: 1px solid rgba(37, 99, 235, 0.35);
+}
+.ph-row .info .tags-row .tag-info i { color: #2563EB; opacity: 1; }
+.ph-row .info .tags-row .tag-purple,
+.ph-row .info .tags-row .tag-creator-pending {
+    background: rgba(255, 255, 255, 0.94);
+    border-width: 1px;
+    border-style: solid;
+}
+.ph-row .info .tags-row .tag-purple { color: #7C3AED; border-color: rgba(124, 58, 237, 0.35); }
+.ph-row .info .tags-row .tag-creator-pending { color: #B45309; border-color: rgba(217, 119, 6, 0.4); }
 .ph-row .acts {
     grid-column: 2;
     grid-row: 2;
@@ -459,8 +553,17 @@
                         <span id="creatorCertTagWrap"></span>
                         <span class="tag tag-info"><i class="fa-solid fa-shield-halved"></i>身份认证</span>
                     </div>
-                    <div class="h" id="profileRoleLine" style="margin-top:6px">用户 · 0x7A3F...3F2C</div>
-                    <div class="bio">📷 旅行 / 美食 / 慢生活 摄影师｜📍现居东京｜35mm 定焦执着患者｜合作请私信</div>
+                    <p class="bio">📷 旅行 / 美食 / 慢生活 摄影师｜📍现居东京｜35mm 定焦执着患者｜合作请私信</p>
+                    <div class="profile-identity-row" id="profileRoleLine" aria-label="身份与钱包">
+                        <span class="role-pill role-pill--fan" data-role-pill>
+                            <i class="fa-solid fa-user" aria-hidden="true"></i>
+                            <span data-role-label>粉丝</span>
+                        </span>
+                        <span class="wallet-chip" data-wallet-chip title="链上地址">
+                            <i class="fa-solid fa-link" aria-hidden="true"></i>
+                            <span data-wallet-text>0x7A3F...3F2C</span>
+                        </span>
+                    </div>
                 </div>
                 <div class="acts">
                     <button type="button" class="btn btn-primary" id="btnMyShowcase"><i class="fa-solid fa-store"></i>我的橱窗</button>

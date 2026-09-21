@@ -14,8 +14,8 @@
         var html = document.documentElement;
         html.setAttribute('data-fl-theme', resolved);
         html.setAttribute('data-fl-theme-mode', theme);
-        html.setAttribute('data-fl-high-contrast', p.highContrast ? '1' : '0');
-        html.setAttribute('data-fl-sans', p.sansFont ? '1' : '0');
+        html.setAttribute('data-fl-high-contrast', '1');
+        html.setAttribute('data-fl-sans', '1');
         html.setAttribute('data-fl-motion', p.uiMotion === false ? '0' : '1');
         html.setAttribute('data-fl-glass', p.glass === false ? '0' : '1');
         var idx = p.fontScaleIndex != null ? p.fontScaleIndex : 2;

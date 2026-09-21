@@ -65,13 +65,13 @@ body { background: transparent; margin: 0; }
         <div class="modal-body">
             <div class="menu-list">
 
-                <div class="m-row copy">
+                <div class="m-row copy" id="txMenuCopyRow" role="button" tabindex="0">
                     <div class="ic-m"><i class="fa-regular fa-copy"></i></div>
                     <div class="info"><div class="nm">复制订单号</div><div class="desc">将订单号复制到剪贴板</div></div>
                     <i class="fa-solid fa-chevron-right arrow"></i>
                 </div>
 
-                <div class="m-row share" onclick="location.href='transaction-share-poster.html'">
+                <div class="m-row share" id="txMenuShareRow" role="button" tabindex="0">
                     <div class="ic-m"><i class="fa-solid fa-share-nodes"></i></div>
                     <div class="info"><div class="nm">分享收益海报</div><div class="desc">生成精美海报分享到社交平台</div></div>
                     <i class="fa-solid fa-chevron-right arrow"></i>
@@ -89,7 +89,7 @@ body { background: transparent; margin: 0; }
                     <i class="fa-solid fa-chevron-right arrow"></i>
                 </div>
 
-                <div class="m-row report">
+                <div class="m-row report" id="txMenuReportRow" role="button" tabindex="0">
                     <div class="ic-m"><i class="fa-solid fa-flag"></i></div>
                     <div class="info"><div class="nm">举报异常</div><div class="desc">举报欺诈 / 异常交易</div></div>
                     <i class="fa-solid fa-chevron-right arrow"></i>
@@ -144,6 +144,25 @@ body { background: transparent; margin: 0; }
 
     bindRow(document.getElementById('txMenuContactRow'), function () {
         location.href = detailUrl() + '&txModal=contact';
+    });
+
+    bindRow(document.getElementById('txMenuCopyRow'), function () {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(order).catch(function () { /* ignore */ });
+        }
+        if (typeof window.FL_showToast === 'function') {
+            window.FL_showToast('订单号已复制', { type: 'info' });
+        }
+    });
+
+    bindRow(document.getElementById('txMenuShareRow'), function () {
+        location.href = 'transaction-share-poster.html?order=' + encodeURIComponent(order);
+    });
+
+    bindRow(document.getElementById('txMenuReportRow'), function () {
+        if (typeof window.FL_showToast === 'function') {
+            window.FL_showToast('举报已记录（演示）', { type: 'info' });
+        }
     });
 })();
 </script>

@@ -6,9 +6,10 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
 <script src="../js/h5-theme-boot.js"></script>
+<link rel="stylesheet" href="../css/h5-light-theme.css">
 <style>
-body { background: #0A0A12; }
-.nav-bar { background: rgba(10,10,18,0.6); backdrop-filter: blur(16px); z-index: 110; }
+body { background: var(--bg-primary); }
+.nav-bar { background: var(--bg-primary); z-index: 110; }
 .app-content {
     padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
     padding-bottom: 20px;
@@ -24,9 +25,8 @@ body { background: #0A0A12; }
     color: #fff; font-size: 24px;
 }
 .bg-hero .lbl { font-size: 10px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-.bg-hero .amt { font-size: 32px; font-weight: 800; color: #6EE7B7; letter-spacing: -1px; }
+.bg-hero .amt { font-size: 32px; font-weight: 800; color: var(--success-light, #6EE7B7); letter-spacing: -1px; }
 
-/* ===== Action Sheet ===== */
 .sheet-overlay {
     position: absolute;
     inset: 0;
@@ -37,7 +37,6 @@ body { background: #0A0A12; }
 }
 @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
 
-/* iOS 风格 Action Sheet */
 .action-sheet {
     width: 100%;
     padding: 0 10px 10px;
@@ -58,18 +57,10 @@ body { background: #0A0A12; }
     border-bottom: 0.5px solid rgba(255,255,255,0.08);
 }
 .as-header .t {
-    font-size: 14px;
+    font-size: 15px;
     color: #fff;
     font-weight: 700;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
     margin-bottom: 2px;
-}
-.as-header .t .ic {
-    width: 20px; height: 20px; border-radius: 6px;
-    background: linear-gradient(135deg, #EC4899, #BE185D);
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: 9px;
-    color: #fff;
 }
 .as-header .s {
     font-size: 11px;
@@ -95,12 +86,11 @@ body { background: #0A0A12; }
     color: var(--brand-purple);
     flex-shrink: 0;
 }
-.as-row.purple .ic-box { background: rgba(168,85,247,0.18); color: #C084FC; }
-.as-row.blue .ic-box { background: rgba(59,130,246,0.18); color: #60A5FA; }
-.as-row.green .ic-box { background: rgba(16,185,129,0.18); color: #6EE7B7; }
-.as-row.orange .ic-box { background: rgba(245,158,11,0.18); color: #FBBF24; }
-.as-row.pink .ic-box { background: rgba(236,72,153,0.18); color: #F472B6; }
-.as-row.red .ic-box { background: rgba(239,68,68,0.18); color: #FCA5A5; }
+.as-row.copy .ic-box { background: rgba(59,130,246,0.18); color: #60A5FA; }
+.as-row.share .ic-box { background: rgba(168,85,247,0.18); color: #C084FC; }
+.as-row.appeal .ic-box { background: rgba(245,158,11,0.18); color: #FBBF24; }
+.as-row.contact .ic-box { background: rgba(16,185,129,0.18); color: #6EE7B7; }
+.as-row.report .ic-box { background: rgba(239,68,68,0.18); color: #FCA5A5; }
 
 .as-row .m { flex: 1; min-width: 0; }
 .as-row .m .n {
@@ -109,7 +99,6 @@ body { background: #0A0A12; }
     font-weight: 500;
     line-height: 1.3;
 }
-.as-row.danger .m .n { color: #FCA5A5; font-weight: 600; }
 .as-row .m .s {
     font-size: 11px;
     color: rgba(255,255,255,0.5);
@@ -119,14 +108,6 @@ body { background: #0A0A12; }
 .as-row .arrow {
     color: rgba(255,255,255,0.3);
     font-size: 11px;
-}
-.as-row .chip {
-    padding: 2px 7px;
-    border-radius: 999px;
-    background: rgba(251,191,36,0.2);
-    color: #FBBF24;
-    font-size: 9px;
-    font-weight: 700;
 }
 
 .as-cancel {
@@ -140,9 +121,7 @@ body { background: #0A0A12; }
     font-weight: 700;
     cursor: pointer;
 }
-
 </style>
-<link rel="stylesheet" href="../css/h5-light-theme.css">
 </head>
 <body>
 
@@ -156,7 +135,7 @@ body { background: #0A0A12; }
 </div>
 
 <div class="nav-bar">
-    <div class="nav-left"><div class="nav-btn" onclick="location.href='transaction-detail.html'"><i class="fa-solid fa-chevron-left"></i></div></div>
+    <div class="nav-left"><div class="nav-btn" id="tdMoreMenuBack"><i class="fa-solid fa-chevron-left"></i></div></div>
     <div class="nav-title">账变详情</div>
     <div class="nav-right">
         <div class="nav-btn"><i class="fa-solid fa-share-nodes"></i></div>
@@ -164,7 +143,6 @@ body { background: #0A0A12; }
     </div>
 </div>
 
-<!-- 背景 -->
 <div class="app-content">
     <div class="bg-hero">
         <div class="ic-big"><i class="fa-solid fa-gift"></i></div>
@@ -173,106 +151,62 @@ body { background: #0A0A12; }
     </div>
 </div>
 
-<!-- ================== Action Sheet ================== -->
-<div class="sheet-overlay">
+<div class="sheet-overlay" id="tdMoreMenuOverlay">
     <div class="action-sheet">
 
-        <!-- 头部订单信息 -->
         <div class="as-group">
             <div class="as-header">
-                <div class="t"><span class="ic"><i class="fa-solid fa-gift"></i></span>打赏 · Emma_Jade</div>
-                <div class="s">T20260423092801F7A9</div>
+                <div class="t">更多操作</div>
+                <div class="s" id="tdMoreMenuOrder">T20260423092801F7A9</div>
             </div>
 
-            <div class="as-row purple" onclick="location.href='transaction-share-poster.html'">
-                <div class="ic-box"><i class="fa-solid fa-image"></i></div>
-                <div class="m">
-                    <div class="n">生成收入海报</div>
-                    <div class="s">5 款模板，一键保存相册 / 分享</div>
-                </div>
-                <i class="fa-solid fa-chevron-right arrow"></i>
-            </div>
-
-            <div class="as-row blue">
+            <div class="as-row copy" id="tdMoreMenuCopy" role="button" tabindex="0">
                 <div class="ic-box"><i class="fa-regular fa-copy"></i></div>
                 <div class="m">
-                    <div class="n">复制交易单号</div>
-                    <div class="s">T20260423092801F7A9</div>
+                    <div class="n">复制订单号</div>
+                    <div class="s">将订单号复制到剪贴板</div>
                 </div>
                 <i class="fa-solid fa-chevron-right arrow"></i>
             </div>
 
-            <div class="as-row green">
-                <div class="ic-box"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="as-row share" id="tdMoreMenuShare" role="button" tabindex="0">
+                <div class="ic-box"><i class="fa-solid fa-share-nodes"></i></div>
                 <div class="m">
-                    <div class="n">查看结算凭证</div>
-                    <div class="s">分账批次 B-20260423-0928-A17</div>
+                    <div class="n">分享收益海报</div>
+                    <div class="s">生成精美海报分享到社交平台</div>
                 </div>
                 <i class="fa-solid fa-chevron-right arrow"></i>
             </div>
 
-            <div class="as-row pink">
-                <div class="ic-box"><i class="fa-solid fa-user-plus"></i></div>
+            <div class="as-row appeal" id="tdMoreMenuAppeal" role="button" tabindex="0">
+                <div class="ic-box"><i class="fa-solid fa-gavel"></i></div>
                 <div class="m">
-                    <div class="n">查看粉丝主页</div>
-                    <div class="s">@emma_jade · 已关注 18 天</div>
+                    <div class="n">申诉入口</div>
+                    <div class="s">打开申诉表单，填写原因并上传证据</div>
                 </div>
                 <i class="fa-solid fa-chevron-right arrow"></i>
             </div>
 
-            <div class="as-row pink">
-                <div class="ic-box"><i class="fa-regular fa-message"></i></div>
-                <div class="m">
-                    <div class="n">向该粉丝发送感谢</div>
-                    <div class="s">一键发送预设感谢私信</div>
-                </div>
-                <span class="chip">模板 × 3</span>
-            </div>
-        </div>
-
-        <!-- 问题处理 -->
-        <div class="as-group">
-            <div class="as-row orange" onclick="location.href='transaction-appeal.html'">
-                <div class="ic-box"><i class="fa-regular fa-flag"></i></div>
-                <div class="m">
-                    <div class="n">对该笔收入有疑问？发起申诉</div>
-                    <div class="s">72 小时内可提交申诉，平台 24h 内响应</div>
-                </div>
-                <i class="fa-solid fa-chevron-right arrow"></i>
-            </div>
-
-            <div class="as-row blue" id="tdMoreMenuContact" role="button" tabindex="0">
-                <div class="ic-box"><i class="fa-regular fa-comments"></i></div>
+            <div class="as-row contact" id="tdMoreMenuContact" role="button" tabindex="0">
+                <div class="ic-box"><i class="fa-solid fa-headset"></i></div>
                 <div class="m">
                     <div class="n">联系客服</div>
-                    <div class="s">客服 Iris · 7×24 在线 · 平均响应约 45 秒</div>
+                    <div class="s">智能客服 Eve · 7×24 在线 · 平均响应约 12 秒</div>
                 </div>
                 <i class="fa-solid fa-chevron-right arrow"></i>
             </div>
 
-            <div class="as-row red danger">
-                <div class="ic-box"><i class="fa-solid fa-user-slash"></i></div>
+            <div class="as-row report" id="tdMoreMenuReport" role="button" tabindex="0" data-td-more-stub="举报已记录（演示）">
+                <div class="ic-box"><i class="fa-solid fa-flag"></i></div>
                 <div class="m">
-                    <div class="n">屏蔽该粉丝</div>
-                    <div class="s">对方将无法再向你打赏、订阅或发送消息</div>
-                </div>
-                <i class="fa-solid fa-chevron-right arrow"></i>
-            </div>
-
-            <div class="as-row red danger">
-                <div class="ic-box"><i class="fa-solid fa-ban"></i></div>
-                <div class="m">
-                    <div class="n">举报此笔交易</div>
-                    <div class="s">涉及违规 / 欺诈 / 恶意打赏等情形</div>
+                    <div class="n">举报异常</div>
+                    <div class="s">举报欺诈 / 异常交易</div>
                 </div>
                 <i class="fa-solid fa-chevron-right arrow"></i>
             </div>
         </div>
 
-        <!-- 取消 -->
-        <div class="as-cancel" onclick="location.href='transaction-detail.html'">
-            取消
-        </div>
+        <div class="as-cancel" id="tdMoreMenuCancel">取消</div>
 
     </div>
 </div>
@@ -286,6 +220,12 @@ body { background: #0A0A12; }
     var order = params.get('order') || 'T20260423092801F7A9';
     var from = params.get('from') || '';
 
+    function toast(msg) {
+        if (window.DigitalH5Nav && typeof window.DigitalH5Nav.toast === 'function') {
+            window.DigitalH5Nav.toast(msg);
+        }
+    }
+
     function detailUrl(extra) {
         var u = 'transaction-detail.html?type=' + encodeURIComponent(type) + '&order=' + encodeURIComponent(order);
         if (from) u += '&from=' + encodeURIComponent(from);
@@ -293,19 +233,64 @@ body { background: #0A0A12; }
         return u;
     }
 
-    var contactRow = document.getElementById('tdMoreMenuContact');
-    if (!contactRow) return;
-
-    function openSupportFromMenu() {
-        location.href = detailUrl('&support=1');
+    function detailQuery() {
+        return 'type=' + encodeURIComponent(type) + '&order=' + encodeURIComponent(order) +
+            (from ? '&from=' + encodeURIComponent(from) : '');
     }
 
-    contactRow.addEventListener('click', openSupportFromMenu);
-    contactRow.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            openSupportFromMenu();
+    var orderEl = document.getElementById('tdMoreMenuOrder');
+    if (orderEl) orderEl.textContent = order;
+
+    function bindRow(row, fn) {
+        if (!row) return;
+        row.addEventListener('click', fn);
+        row.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                fn();
+            }
+        });
+    }
+
+    var back = document.getElementById('tdMoreMenuBack');
+    var cancel = document.getElementById('tdMoreMenuCancel');
+    var overlay = document.getElementById('tdMoreMenuOverlay');
+    function goDetail() { location.href = detailUrl(); }
+    if (back) back.addEventListener('click', goDetail);
+    if (cancel) cancel.addEventListener('click', goDetail);
+    if (overlay) {
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) goDetail();
+        });
+    }
+
+    bindRow(document.getElementById('tdMoreMenuCopy'), function () {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(order).then(function () { toast('订单号已复制'); }).catch(function () { toast('订单号已复制'); });
+        } else {
+            toast('订单号已复制');
         }
+    });
+
+    bindRow(document.getElementById('tdMoreMenuShare'), function () {
+        location.href = 'transaction-share-poster.html?' + detailQuery();
+    });
+
+    bindRow(document.getElementById('tdMoreMenuAppeal'), function () {
+        location.href = 'transaction-appeal.html?order=' + encodeURIComponent(order);
+    });
+
+    bindRow(document.getElementById('tdMoreMenuContact'), function () {
+        var u = 'after-sales.html?support=1&type=' + encodeURIComponent(type) +
+            '&order=' + encodeURIComponent(order);
+        if (from) u += '&from=' + encodeURIComponent(from);
+        location.href = u;
+    });
+
+    bindRow(document.getElementById('tdMoreMenuReport'), function () {
+        var row = document.getElementById('tdMoreMenuReport');
+        if (row) row.classList.add('is-busy');
+        location.href = detailUrl('&tdMoreToast=report');
     });
 })();
 </script>

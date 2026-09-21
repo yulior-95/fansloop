@@ -19,7 +19,10 @@
     border-radius: var(--radius-lg);
     background: linear-gradient(135deg, rgba(6,182,212,0.15), rgba(59,130,246,0.05));
     border: 1px solid rgba(6,182,212,0.25);
-    display: flex; align-items: center; gap: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 .balance-card .ic {
     width: 40px; height: 40px;
@@ -29,14 +32,16 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 18px;
 }
-.balance-card .info { flex: 1; }
 .balance-card .label { font-size: 11px; color: var(--text-tertiary); }
 .balance-card .amount {
     font-size: 20px; font-weight: 700;
     font-variant-numeric: tabular-nums;
     margin-top: 2px;
+    color: var(--text-primary);
 }
 .balance-card .sw {
+    margin-left: auto;
+    align-self: center;
     background: var(--bg-elevated);
     padding: 6px 12px;
     border-radius: var(--radius-full);
@@ -44,6 +49,11 @@
     color: var(--text-secondary);
     display: flex; align-items: center; gap: 4px;
     cursor: pointer;
+    border: 1px solid var(--border-color);
+}
+.balance-card .info {
+    flex: 1;
+    min-width: 0;
 }
 .kyc-chip {
     display: inline-flex;
@@ -110,19 +120,39 @@
     color: var(--brand-purple);
     font-size: 12px;
     font-weight: 600;
-    margin-left: auto;
     cursor: pointer;
+    flex-shrink: 0;
 }
 .field[data-clickable="1"] { cursor: pointer; }
 
+.amount-field .amount-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.amount-field .amount-head .label {
+    margin-bottom: 0;
+}
+.amount-field .value-row {
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 10px;
+}
 .amount-field input {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 0;
     font-size: 24px !important;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
 }
 .amount-field .unit {
-    font-size: 13px; color: var(--text-secondary);
-    font-weight: 500;
+    flex-shrink: 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 600;
 }
 
 /* 手续费 */
@@ -237,7 +267,7 @@
 </style>
 <link rel="stylesheet" href="../css/h5-light-theme.css">
 </head>
-<body>
+<body class="page-no-tab-bar">
 
 <div class="status-bar">
     <span class="time">9:41</span>
@@ -291,11 +321,13 @@
         </div>
 
         <div class="field amount-field">
-            <div class="label">提现数量</div>
-            <div class="value-row">
-                <input type="text" id="wdAmountInput" value="80.00" placeholder="最低 10 USDT">
-                <span class="unit" id="wdUnit">USDT</span>
+            <div class="amount-head">
+                <div class="label">提现数量</div>
                 <span class="all" id="wdAllBtn">全部</span>
+            </div>
+            <div class="value-row">
+                <input type="text" id="wdAmountInput" value="80.00" placeholder="最低 10 USDT" inputmode="decimal" autocomplete="off">
+                <span class="unit" id="wdUnit">USDT</span>
             </div>
         </div>
 
