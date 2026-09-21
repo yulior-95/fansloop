@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>交易详情 · GOODFANS</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="../js-web/fl-theme-boot.js"></script>
 <link rel="stylesheet" href="../css-web/common-web.css">
 <script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
 <style>
@@ -102,6 +103,41 @@
     display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;
 }
 .action-row .btn { flex: 1; white-space: nowrap; min-width: 110px; }
+
+#tdWebMoreMenuModal {
+    display: none;
+    z-index: 9000;
+}
+#tdWebMoreMenuModal.open {
+    display: flex;
+}
+#tdWebMoreMenuModal .modal { max-width: 420px; }
+.tx-more-menu .menu-list { display: flex; flex-direction: column; gap: 4px; }
+.tx-more-menu .m-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    background: var(--bg-input);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: 0.15s;
+}
+.tx-more-menu .m-row:hover { background: var(--bg-hover); }
+.tx-more-menu .m-row .ic-m {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 14px;
+    flex-shrink: 0;
+}
+.tx-more-menu .m-row.copy .ic-m { background: linear-gradient(135deg, #3B82F6, #1E40AF); }
+.tx-more-menu .m-row.share .ic-m { background: linear-gradient(135deg, #A855F7, #7E22CE); }
+.tx-more-menu .m-row.appeal .ic-m { background: linear-gradient(135deg, #F59E0B, #D97706); }
+.tx-more-menu .m-row.contact .ic-m { background: linear-gradient(135deg, #10B981, #059669); }
+.tx-more-menu .m-row.report .ic-m { background: linear-gradient(135deg, #EF4444, #B91C1C); }
+.tx-more-menu .m-row .info { flex: 1; min-width: 0; }
+.tx-more-menu .m-row .info .nm { font-size: 13.5px; font-weight: 600; color: var(--t-primary); }
+.tx-more-menu .m-row .info .desc { font-size: 11.5px; color: var(--t-tertiary); margin-top: 2px; }
+.tx-more-menu .m-row .arrow { color: var(--t-tertiary); font-size: 11px; }
 </style>
 
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
@@ -147,11 +183,11 @@
             <div class="ph-l">
                 <div class="crumb"><a href="transactions.html">账变记录</a><i class="fa-solid fa-chevron-right"></i><span class="curr">交易详情</span></div>
                 <h1>交易详情 <span class="tag tag-success" id="tdWebStatusTag" style="vertical-align: 4px; margin-left: 6px">已结算</span></h1>
-                <p>订单号 <span class="num" id="tdWebOrderId" style="color:#fff">TXN20260425190832</span></p>
+                <p>订单号 <span class="num" id="tdWebOrderId">TXN20260425190832</span></p>
             </div>
             <div class="ph-r">
                 <button class="btn" type="button" data-td-back><i class="fa-solid fa-arrow-left"></i>返回</button>
-                <button class="btn btn-secondary" onclick="location.href='transaction-share-poster.html'"><i class="fa-solid fa-share-nodes"></i>分享</button>
+                <button type="button" class="btn btn-secondary" id="tdWebShareBtn"><i class="fa-solid fa-share-nodes"></i>分享</button>
                 <button type="button" class="btn btn-secondary" id="tdWebMoreMenuBtn"><i class="fa-solid fa-ellipsis"></i></button>
             </div>
         </div>
@@ -243,19 +279,68 @@
                         如对该笔交易有疑问，可发起申诉、联系客服，或直接申请提现。
                     </div>
                     <div class="action-row">
-                        <button type="button" class="btn btn-secondary" data-td-appeal onclick="location.href='transaction-appeal.html?order=TXN20260425190832'"><i class="fa-solid fa-gavel"></i>发起申诉</button>
-                        <button class="btn btn-secondary" onclick="location.href='transaction-contact.html'"><i class="fa-solid fa-headset"></i>联系客服</button>
+                        <button type="button" class="btn btn-secondary" data-td-appeal><i class="fa-solid fa-gavel"></i>发起申诉</button>
+                        <button type="button" class="btn btn-secondary" data-td-contact><i class="fa-solid fa-headset"></i>联系客服</button>
                         <button class="btn btn-primary" onclick="location.href='withdraw-fiat.html'"><i class="fa-solid fa-arrow-up-from-bracket"></i>去提现</button>
                     </div>
                     <div style="margin-top:12px;font-size:11px;color:var(--t-tertiary);line-height:1.55">
-                        申诉入口仅在本页提供；历史工单示例：<a href="transaction-appeal-detail.html?appeal=AP20260505110002&amp;order=WD20260504195518" style="color:var(--brand-purple);font-weight:600">申诉详情（含申诉单号）</a>
+                        申诉入口仅在本页提供；查看全部历史工单：<a href="my-appeals.html" style="color:var(--brand-purple);font-weight:600">我的申诉</a>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 </div>
+
+<div class="modal-mask modal-mask--soft" id="tdWebMoreMenuModal" role="dialog" aria-modal="true" aria-labelledby="tdWebMoreMenuTitle" aria-hidden="true">
+    <div class="modal tx-more-menu">
+        <div class="modal-head">
+            <h2 id="tdWebMoreMenuTitle" style="font-size: 16px"><span class="ic"><i class="fa-solid fa-ellipsis"></i></span>更多操作
+                <span class="sub" id="tdWebMoreMenuOrder">订单 TXN20260425190832</span>
+            </h2>
+            <button type="button" class="close" id="tdWebMoreMenuClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="menu-list">
+                <div class="m-row copy" id="tdWebMoreCopy" role="button" tabindex="0">
+                    <div class="ic-m"><i class="fa-regular fa-copy"></i></div>
+                    <div class="info"><div class="nm">复制订单号</div><div class="desc">将订单号复制到剪贴板</div></div>
+                    <i class="fa-solid fa-chevron-right arrow"></i>
+                </div>
+                <div class="m-row share" id="tdWebMoreShare" role="button" tabindex="0">
+                    <div class="ic-m"><i class="fa-solid fa-share-nodes"></i></div>
+                    <div class="info"><div class="nm">分享收益海报</div><div class="desc">生成精美海报分享到社交平台</div></div>
+                    <i class="fa-solid fa-chevron-right arrow"></i>
+                </div>
+                <div class="m-row appeal" id="tdWebMoreAppeal" role="button" tabindex="0">
+                    <div class="ic-m"><i class="fa-solid fa-gavel"></i></div>
+                    <div class="info"><div class="nm">申诉入口</div><div class="desc">打开申诉表单，填写原因并上传证据</div></div>
+                    <i class="fa-solid fa-chevron-right arrow"></i>
+                </div>
+                <div class="m-row contact" id="tdWebMoreContact" role="button" tabindex="0">
+                    <div class="ic-m"><i class="fa-solid fa-headset"></i></div>
+                    <div class="info"><div class="nm">联系客服</div><div class="desc">智能客服 Eve · 7×24 在线 · 平均响应约 12 秒</div></div>
+                    <i class="fa-solid fa-chevron-right arrow"></i>
+                </div>
+                <div class="m-row report" role="button" tabindex="0" data-td-more-stub="举报已记录（演示）">
+                    <div class="ic-m"><i class="fa-solid fa-flag"></i></div>
+                    <div class="info"><div class="nm">举报异常</div><div class="desc">举报欺诈 / 异常交易</div></div>
+                    <i class="fa-solid fa-chevron-right arrow"></i>
+                </div>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button type="button" class="btn btn-secondary" id="tdWebMoreMenuDismiss" style="flex: 1">关闭</button>
+        </div>
+    </div>
+</div>
+
+<div id="flStandaloneModalRoot" class="fl-modal--default" aria-hidden="true" style="display:none;position:fixed;inset:0;z-index:100000;align-items:center;justify-content:center;padding:clamp(12px,3vw,24px);backdrop-filter:blur(10px);">
+    <iframe title="GOODFANS 弹窗" style="width:min(640px,calc(100vw - 32px));height:min(720px,calc(100vh - 32px));border:none;border-radius:var(--r-xl);background:transparent;box-shadow:var(--shadow-lg);pointer-events:auto;"></iframe>
+</div>
+
 <script src="../js/transaction-detail-presets.js"></script>
+<script src="../js-web/fl-interaction-modal.js"></script>
 <script src="../js-web/transaction-detail-page.js"></script>
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>

@@ -174,7 +174,8 @@
                 { id: 'wallet', label: '钱包', i18nKey: 'nav_wallet', href: 'wallet.html', icon: 'fa-solid fa-wallet' },
                 { id: 'creator-income', label: '创作者收入', i18nKey: 'nav_creator_income', href: 'creator-income.html', icon: 'fa-solid fa-coins' },
                 { id: 'points-mall', label: '积分商城', i18nKey: 'nav_points_mall', href: 'points-mall.html', icon: 'fa-solid fa-store' },
-                { id: 'transactions', label: '账变记录', i18nKey: 'nav_transactions', href: 'transactions.html', icon: 'fa-solid fa-list-ul' }
+                { id: 'transactions', label: '账变记录', i18nKey: 'nav_transactions', href: 'transactions.html', icon: 'fa-solid fa-list-ul' },
+                { id: 'my-appeals', label: '我的申诉', href: 'my-appeals.html', icon: 'fa-solid fa-gavel' }
             ]
         },
         {
@@ -246,6 +247,7 @@
         if (page.indexOf('notification') === 0) return 'notifications';
         if (page === 'points-mall.html') return 'points-mall';
         if (page === 'creator-income.html') return 'creator-income';
+        if (page === 'my-appeals.html' || page === 'transaction-appeal-detail.html') return 'my-appeals';
         if (page.indexOf('transaction') === 0) return 'transactions';
         if (
             page.indexOf('wallet') === 0 || page.indexOf('recharge') === 0 ||
@@ -844,11 +846,24 @@
             drawerJs.setAttribute('data-fl-global-points-drawer', '1');
             document.body.appendChild(drawerJs);
         }
-        var js = document.createElement('script');
-        js.src = base + 'global-points-header.js';
-        js.setAttribute('data-fl-global-points-header', '1');
-        js.defer = true;
-        document.body.appendChild(js);
+        function appendHeaderScript() {
+            if (document.querySelector('script[data-fl-global-points-header]')) return;
+            var js = document.createElement('script');
+            js.src = base + 'global-points-header.js';
+            js.setAttribute('data-fl-global-points-header', '1');
+            js.defer = true;
+            document.body.appendChild(js);
+        }
+        if (document.querySelector('script[data-fl-points-header-ui]')) {
+            appendHeaderScript();
+            return;
+        }
+        var uiJs = document.createElement('script');
+        uiJs.src = base + 'points-header-ui.js';
+        uiJs.setAttribute('data-fl-points-header-ui', '1');
+        uiJs.onload = appendHeaderScript;
+        uiJs.onerror = appendHeaderScript;
+        document.body.appendChild(uiJs);
     }
 
     if (document.readyState === 'loading') {

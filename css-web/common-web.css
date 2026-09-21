@@ -10,6 +10,8 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 @import url('global-display-prefs.css');
+@import url('light-theme-contrast.css');
+@import url('fl-global-toast.css');
 @import url('global-search.css');
 @import url('scrollbar.css');
 @import url('gift-modal.css');
@@ -1391,6 +1393,13 @@ html.sidebar-collapsed-pre .fl-page-back-float,html.sidebar-collapsed .fl-page-b
     animation: fadeIn 0.2s ease;
     padding: 24px;
 }
+/* 页内弹层：保留底层页面可见，深浅色分别调蒙层 */
+.modal-mask.modal-mask--soft {
+    background: rgba(15, 18, 32, 0.48);
+}
+html[data-fl-theme="light"] .modal-mask.modal-mask--soft {
+    background: rgba(15, 23, 42, 0.34);
+}
 @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
 
 .modal {
@@ -1569,4 +1578,21 @@ html.sidebar-collapsed-pre .fl-page-back-float,html.sidebar-collapsed .fl-page-b
 #flStandaloneModalRoot.fl-modal--share iframe {
     width: min(600px, calc(100vw - 32px));
     height: min(880px, calc(100vh - 32px));
+}
+
+/* 内联弹窗蒙层（覆盖页面 inline background） */
+#flStandaloneModalRoot {
+    background: rgba(15, 18, 32, 0.48) !important;
+}
+html[data-fl-theme="light"] #flStandaloneModalRoot {
+    background: rgba(15, 23, 42, 0.34) !important;
+}
+#flStandaloneModalRoot.fl-modal--inline {
+    overflow-y: auto;
+    align-items: flex-start;
+    padding-top: max(12px, env(safe-area-inset-top));
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+#flStandaloneModalRoot.fl-modal--inline > iframe {
+    display: none !important;
 }

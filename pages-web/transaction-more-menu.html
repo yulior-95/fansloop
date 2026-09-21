@@ -4,10 +4,18 @@
 <meta charset="UTF-8">
 <title>更多操作</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="../js-web/fl-theme-boot.js"></script>
 <link rel="stylesheet" href="../css-web/common-web.css">
 <style>
-body { background: var(--bg-app); }
-.modal-mask { background: rgba(0,0,0,0.7); }
+body { background: transparent; margin: 0; }
+.modal-mask {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
 .modal { max-width: 420px; }
 
 .menu-list { display: flex; flex-direction: column; gap: 4px; }
@@ -31,10 +39,7 @@ body { background: var(--bg-app); }
 .m-row.share .ic-m { background: linear-gradient(135deg, #A855F7, #7E22CE); }
 .m-row.appeal .ic-m { background: linear-gradient(135deg, #F59E0B, #D97706); }
 .m-row.contact .ic-m { background: linear-gradient(135deg, #10B981, #059669); }
-.m-row.invoice .ic-m { background: linear-gradient(135deg, #EC4899, #BE185D); }
 .m-row.report .ic-m { background: linear-gradient(135deg, #EF4444, #B91C1C); }
-.m-row.tax .ic-m { background: linear-gradient(135deg, #06B6D4, #0E7490); }
-.m-row.note .ic-m { background: linear-gradient(135deg, #8B5CF6, #6D28D9); }
 
 .m-row .info { flex: 1; }
 .m-row .info .nm { font-size: 13.5px; font-weight: 600; }
@@ -48,7 +53,7 @@ body { background: var(--bg-app); }
 </head>
 <body>
 
-<div class="modal-mask">
+<div class="modal-mask modal-mask--soft">
     <div class="modal">
         <div class="modal-head">
             <h2 style="font-size: 16px"><span class="ic"><i class="fa-solid fa-ellipsis"></i></span>更多操作
@@ -72,33 +77,15 @@ body { background: var(--bg-app); }
                     <i class="fa-solid fa-chevron-right arrow"></i>
                 </div>
 
-                <div class="m-row invoice">
-                    <div class="ic-m"><i class="fa-solid fa-file-invoice"></i></div>
-                    <div class="info"><div class="nm">下载收据 PDF</div><div class="desc">用于报销 / 财务存档</div></div>
-                    <i class="fa-solid fa-chevron-right arrow"></i>
-                </div>
-
-                <div class="m-row tax">
-                    <div class="ic-m"><i class="fa-solid fa-calculator"></i></div>
-                    <div class="info"><div class="nm">税务报告</div><div class="desc">查看本笔交易的税务详情</div></div>
-                    <i class="fa-solid fa-chevron-right arrow"></i>
-                </div>
-
-                <div class="m-row note">
-                    <div class="ic-m"><i class="fa-solid fa-pen"></i></div>
-                    <div class="info"><div class="nm">添加备注</div><div class="desc">为该交易添加自定义备注</div></div>
-                    <i class="fa-solid fa-chevron-right arrow"></i>
-                </div>
-
                 <div class="m-row appeal" id="txMenuAppealRow" role="button" tabindex="0">
                     <div class="ic-m"><i class="fa-solid fa-gavel"></i></div>
                     <div class="info"><div class="nm">申诉入口</div><div class="desc">打开申诉表单，填写原因并上传证据</div></div>
                     <i class="fa-solid fa-chevron-right arrow"></i>
                 </div>
 
-                <div class="m-row contact" onclick="location.href='transaction-contact.html'">
+                <div class="m-row contact" id="txMenuContactRow" role="button" tabindex="0">
                     <div class="ic-m"><i class="fa-solid fa-headset"></i></div>
-                    <div class="info"><div class="nm">联系客服</div><div class="desc">7×24 小时人工客服</div></div>
+                    <div class="info"><div class="nm">联系客服</div><div class="desc">智能客服 Eve · 7×24 在线 · 平均响应约 12 秒</div></div>
                     <i class="fa-solid fa-chevron-right arrow"></i>
                 </div>
 
@@ -140,14 +127,24 @@ body { background: var(--bg-app); }
         el.addEventListener('click', function () { location.href = detailUrl(); });
     });
 
-    var appealRow = document.getElementById('txMenuAppealRow');
-    if (appealRow) {
-        function goAppeal() { location.href = appealUrl(); }
-        appealRow.addEventListener('click', goAppeal);
-        appealRow.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goAppeal(); }
+    function bindRow(row, fn) {
+        if (!row) return;
+        row.addEventListener('click', fn);
+        row.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                fn();
+            }
         });
     }
+
+    bindRow(document.getElementById('txMenuAppealRow'), function () {
+        location.href = appealUrl();
+    });
+
+    bindRow(document.getElementById('txMenuContactRow'), function () {
+        location.href = detailUrl() + '&txModal=contact';
+    });
 })();
 </script>
 <script src="../js-web/page-back-nav.js"></script>

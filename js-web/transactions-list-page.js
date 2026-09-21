@@ -45,13 +45,12 @@
                 window.DigitalAssetOrdersStore.listEarnings().slice(0, 10).forEach(function (e) {
                     var oid = e.id || 'D' + Date.now();
                     html +=
-                        '<tr data-tx-type="digital income" data-tx-kind="digital" data-order="' + esc(oid) + '">' +
+                        '<tr data-tx-type="digital income" data-tx-kind="digital" data-order="' + esc(oid) + '" data-row-link style="cursor:pointer">' +
                         '<td><div class="tx-cell-info"><div class="ic in"><i class="fa-solid fa-gem"></i></div>' +
                         '<div><div class="nm">数字资产销售</div><div class="meta">「' + esc(e.productTitle || '数字商品') + '」创作者实得</div></div></div></td>' +
                         '<td><span class="amt-pos">+ $' + fmt(e.amount) + '</span></td>' +
                         '<td><span class="tag tag-success">已结算</span></td>' +
-                        '<td><span class="t-ter fs-12">' + esc((e.createdAt || '').slice(5) || '—') + '</span></td>' +
-                        '<td><div class="row-action"><button type="button" title="查看详情"><i class="fa-solid fa-eye"></i></button></div></td></tr>';
+                        '<td><span class="t-ter fs-12">' + esc((e.createdAt || '').slice(5) || '—') + '</span></td></tr>';
                 });
             }
             if (window.AffiliateShowcaseStore) {
@@ -60,13 +59,12 @@
                 }).slice(0, 10).forEach(function (c) {
                     var oid = c.id || 'A' + Date.now();
                     html +=
-                        '<tr data-tx-type="affiliate income" data-tx-kind="affiliate" data-order="' + esc(oid) + '">' +
+                        '<tr data-tx-type="affiliate income" data-tx-kind="affiliate" data-order="' + esc(oid) + '" data-row-link style="cursor:pointer">' +
                         '<td><div class="tx-cell-info"><div class="ic in"><i class="fa-solid fa-bag-shopping"></i></div>' +
                         '<div><div class="nm">联盟佣金回传</div><div class="meta">「' + esc(c.productTitle || '实体选品') + '」分成实得</div></div></div></td>' +
                         '<td><span class="amt-pos">+ $' + fmt(c.creatorShare) + '</span></td>' +
                         '<td><span class="tag tag-success">已结算</span></td>' +
-                        '<td><span class="t-ter fs-12">' + esc((c.createdAt || '').slice(5) || '—') + '</span></td>' +
-                        '<td><div class="row-action"><button type="button" title="查看详情"><i class="fa-solid fa-eye"></i></button></div></td></tr>';
+                        '<td><span class="t-ter fs-12">' + esc((c.createdAt || '').slice(5) || '—') + '</span></td></tr>';
                 });
             }
         } catch (e) { /* ignore */ }
@@ -95,30 +93,55 @@
         });
     }
 
+    function openExportModal() {
+        var page = 'transactions-export.html?from=transactions';
+        if (window.FL_openInteractionModal) {
+            window.FL_openInteractionModal(page);
+        } else {
+            location.href = page;
+        }
+    }
+
+    function openDetail(tr) {
+        if (!tr) return;
+        var page = detailHref(tr);
+        if (window.FL_openInteractionModal) {
+            window.FL_openInteractionModal(page);
+        } else {
+            location.href = page;
+        }
+    }
+
     function bindDetailNav() {
         var main = document.querySelector('.app-main');
         if (!main) return;
         main.addEventListener('click', function (e) {
-            var btn = e.target.closest('.row-action button');
-            if (btn) {
-                var icon = btn.querySelector('i');
-                if (icon && (icon.classList.contains('fa-eye') || icon.classList.contains('fa-up-right-from-square'))) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    var tr = btn.closest('tr[data-tx-type]');
-                    if (tr) location.href = detailHref(tr);
-                }
-                return;
-            }
             var tr = e.target.closest('tr[data-tx-type][data-row-link]');
-            if (tr && !e.target.closest('.row-action')) {
-                location.href = detailHref(tr);
-            }
+            if (!tr) return;
+            e.preventDefault();
+            openDetail(tr);
+        });
+    }
+
+    function bindExportBtn() {
+        var exportBtn = document.getElementById('btnTxExport');
+        if (!exportBtn) return;
+        exportBtn.removeAttribute('onclick');
+        exportBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            openExportModal();
         });
     }
 
     injectMallRows();
     bindDetailNav();
+    bindExportBtn();
+
+    try {
+        if (new URLSearchParams(location.search).get('export') === 'open') {
+            setTimeout(openExportModal, 80);
+        }
+    } catch (_) { /* noop */ }
 
     var chips = document.getElementById('txFilterChips');
     if (chips) {

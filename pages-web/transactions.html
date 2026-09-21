@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>账变记录 · GOODFANS</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="../js-web/fl-theme-boot.js"></script>
 <link rel="stylesheet" href="../css-web/common-web.css">
 <script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
 <style>
@@ -51,15 +52,8 @@
 .amt-neg { color: var(--danger-light); font-weight: 700; font-variant-numeric: tabular-nums; }
 .amt-neu { color: var(--t-secondary); font-weight: 600; font-variant-numeric: tabular-nums; }
 
-.row-action { display: flex; gap: 6px; justify-content: flex-end; }
-.row-action button {
-    width: 30px; height: 30px;
-    background: var(--bg-input); border: 1px solid var(--border);
-    color: var(--t-secondary); border-radius: 8px;
-    cursor: pointer; font-size: 11px;
-    display: flex; align-items: center; justify-content: center;
-}
-.row-action button:hover { background: var(--bg-card-2); color: #fff; }
+.tx-table tr[data-row-link] { cursor: pointer; }
+.tx-table tr[data-row-link]:hover td { background: var(--bg-hover); }
 
 .pagination { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; }
 .pagination .info { font-size: 12px; color: var(--t-tertiary); }
@@ -89,6 +83,7 @@
         <div class="s-item" onclick="location.href='wallet.html'"><span class="ic"><i class="fa-solid fa-wallet"></i></span><span class="lb">钱包</span></div>
         <div class="s-item" onclick="location.href='creator-income.html'"><span class="ic"><i class="fa-solid fa-coins"></i></span><span class="lb">创作者收入</span></div>
         <div class="s-item active" onclick="location.href='transactions.html'"><span class="ic"><i class="fa-solid fa-list-ul"></i></span><span class="lb">账变记录</span></div>
+        <div class="s-item" onclick="location.href='my-appeals.html'"><span class="ic"><i class="fa-solid fa-gavel"></i></span><span class="lb">我的申诉</span></div>
         <div class="s-section">个人</div>
         <div class="s-item" onclick="location.href='profile.html'"><span class="ic"><i class="fa-regular fa-user"></i></span><span class="lb">我的主页</span></div>
         <div class="s-item" onclick="location.href='settings.html'"><span class="ic"><i class="fa-solid fa-gear"></i></span><span class="lb">设置</span></div>
@@ -117,7 +112,8 @@
             </div>
             <div class="ph-r">
                 <button class="btn btn-secondary" onclick="location.href='transactions-search.html'"><i class="fa-solid fa-magnifying-glass"></i>高级搜索</button>
-                <button class="btn btn-secondary" onclick="location.href='transactions-export.html'"><i class="fa-solid fa-file-export"></i>导出</button>
+                <button type="button" class="btn btn-secondary" id="btnTxExport"><i class="fa-solid fa-file-export"></i>导出</button>
+                <button class="btn btn-secondary" onclick="location.href='my-appeals.html'"><i class="fa-solid fa-gavel"></i>我的申诉</button>
             </div>
         </div>
 
@@ -172,7 +168,6 @@
                         <th>金额</th>
                         <th>状态</th>
                         <th>时间</th>
-                        <th style="text-align: right">操作</th>
                     </tr>
                 </thead>
                 <tbody id="txTodayBody">
@@ -186,9 +181,8 @@
                         <td><span class="amt-pos">+ $10.00</span></td>
                         <td><span class="tag tag-success">已结算</span></td>
                         <td><span class="t-ter fs-12">19:08:32</span></td>
-                        <td><div class="row-action"><button><i class="fa-solid fa-eye"></i></button><button><i class="fa-solid fa-share-nodes"></i></button></div></td>
                     </tr>
-                    <tr data-tx-type="income" data-tx-kind="tip" data-order="T20260425185108">
+                    <tr data-tx-type="income" data-tx-kind="tip" data-order="T20260425185108" data-row-link style="cursor:pointer">
                         <td>
                             <div class="tx-cell-info">
                                 <div class="ic in"><i class="fa-solid fa-heart"></i></div>
@@ -198,9 +192,8 @@
                         <td><span class="amt-pos">+ $5.00</span></td>
                         <td><span class="tag tag-warning">结算中</span></td>
                         <td><span class="t-ter fs-12">18:51:08</span></td>
-                        <td><div class="row-action"><button><i class="fa-solid fa-eye"></i></button></div></td>
                     </tr>
-                    <tr data-tx-type="withdraw expense" data-tx-kind="withdraw" data-order="WD20260425142218">
+                    <tr data-tx-type="withdraw expense" data-tx-kind="withdraw" data-order="WD20260425142218" data-row-link style="cursor:pointer">
                         <td>
                             <div class="tx-cell-info">
                                 <div class="ic out"><i class="fa-solid fa-arrow-up"></i></div>
@@ -210,9 +203,8 @@
                         <td><span class="amt-neg">- $50.00</span></td>
                         <td><span class="tag tag-success">已到账</span></td>
                         <td><span class="t-ter fs-12">14:22:18</span></td>
-                        <td><div class="row-action"><button><i class="fa-solid fa-eye"></i></button><button><i class="fa-solid fa-rotate-right"></i></button></div></td>
                     </tr>
-                    <tr data-tx-type="income" data-tx-kind="live" data-order="L20260425120845">
+                    <tr data-tx-type="income" data-tx-kind="live" data-order="L20260425120845" data-row-link style="cursor:pointer">
                         <td>
                             <div class="tx-cell-info">
                                 <div class="ic swap"><i class="fa-solid fa-video"></i></div>
@@ -222,7 +214,6 @@
                         <td><span class="amt-pos">+ $30.00</span></td>
                         <td><span class="tag tag-success">已结算</span></td>
                         <td><span class="t-ter fs-12">12:08:45</span></td>
-                        <td><div class="row-action"><button><i class="fa-solid fa-eye"></i></button></div></td>
                     </tr>
                 </tbody>
             </table>
@@ -238,11 +229,10 @@
                         <th>金额</th>
                         <th>状态</th>
                         <th>时间</th>
-                        <th style="text-align: right">操作</th>
                     </tr>
                 </thead>
                 <tbody id="txYdayBody">
-                    <tr data-tx-type="income" data-tx-kind="sub" data-order="S20260424221408">
+                    <tr data-tx-type="income" data-tx-kind="sub" data-order="S20260424221408" data-row-link style="cursor:pointer">
                         <td style="width: 38%">
                             <div class="tx-cell-info">
                                 <div class="ic in"><i class="fa-solid fa-star"></i></div>
@@ -252,9 +242,8 @@
                         <td><span class="amt-pos">+ $96.00</span></td>
                         <td><span class="tag tag-success">已结算</span></td>
                         <td><span class="t-ter fs-12">22:14:08</span></td>
-                        <td style="text-align: right"><div class="row-action"><button><i class="fa-solid fa-eye"></i></button></div></td>
                     </tr>
-                    <tr data-tx-type="chain expense" data-tx-kind="chain" data-order="C20260424163208">
+                    <tr data-tx-type="chain expense" data-tx-kind="chain" data-order="C20260424163208" data-row-link style="cursor:pointer">
                         <td>
                             <div class="tx-cell-info">
                                 <div class="ic out"><i class="fa-solid fa-link"></i></div>
@@ -264,9 +253,8 @@
                         <td><span class="amt-neg">- 199.00</span></td>
                         <td><span class="tag tag-success">已确认</span></td>
                         <td><span class="t-ter fs-12">16:32:08</span></td>
-                        <td style="text-align: right"><div class="row-action"><button type="button" title="查看详情"><i class="fa-solid fa-eye"></i></button></div></td>
                     </tr>
-                    <tr data-tx-type="recharge" data-tx-kind="recharge" data-order="RC20260424101846">
+                    <tr data-tx-type="recharge" data-tx-kind="recharge" data-order="RC20260424101846" data-row-link style="cursor:pointer">
                         <td>
                             <div class="tx-cell-info">
                                 <div class="ic in"><i class="fa-solid fa-credit-card"></i></div>
@@ -276,7 +264,6 @@
                         <td><span class="amt-pos">+ 100.00</span></td>
                         <td><span class="tag tag-success">已到账</span></td>
                         <td><span class="t-ter fs-12">10:18:46</span></td>
-                        <td style="text-align: right"><div class="row-action"><button><i class="fa-solid fa-eye"></i></button></div></td>
                     </tr>
                 </tbody>
             </table>
@@ -296,7 +283,13 @@
         </div>
     </main>
 </div>
+
+<div id="flStandaloneModalRoot" class="fl-modal--default" aria-hidden="true" style="display:none;position:fixed;inset:0;z-index:100000;align-items:center;justify-content:center;padding:clamp(12px,3vw,24px);backdrop-filter:blur(10px);">
+    <iframe title="GOODFANS 弹窗" style="width:min(640px,calc(100vw - 32px));height:min(720px,calc(100vh - 32px));border:none;border-radius:var(--r-xl);background:transparent;box-shadow:var(--shadow-lg);pointer-events:auto;"></iframe>
+</div>
+
 <link rel="stylesheet" href="../css-web/host-live-pip-global.css">
+<script src="../js-web/fl-interaction-modal.js"></script>
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/host-live-pip-global.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>

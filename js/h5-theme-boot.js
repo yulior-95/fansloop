@@ -4,13 +4,28 @@
  */
 (function (global) {
     try {
-        var key = 'h5_settings_theme';
-        var pref = localStorage.getItem(key) || 'dark';
-        var theme = pref;
-        if (pref === 'system') {
-            theme = (global.matchMedia && global.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-        } else if (pref !== 'light') {
-            theme = 'dark';
+        var theme = 'dark';
+        var flRaw = localStorage.getItem('fl_display_prefs_v1');
+        if (flRaw) {
+            try {
+                var fp = JSON.parse(flRaw);
+                var mode = fp.theme || 'dark';
+                if (mode === 'auto') {
+                    theme = (global.matchMedia && global.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+                } else {
+                    theme = mode === 'light' ? 'light' : 'dark';
+                }
+            } catch (e) { /* fall through */ }
+        }
+        if (!flRaw) {
+            var key = 'h5_settings_theme';
+            var pref = localStorage.getItem(key) || 'dark';
+            theme = pref;
+            if (pref === 'system') {
+                theme = (global.matchMedia && global.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+            } else if (pref !== 'light') {
+                theme = 'dark';
+            }
         }
         var root = document.documentElement;
         root.setAttribute('data-theme', theme);

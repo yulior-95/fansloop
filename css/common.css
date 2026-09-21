@@ -971,11 +971,11 @@ body.light-bg .home-indicator { background: rgba(0,0,0,0.6); }
 :root[data-theme='light'] .fl-toast,
 :root[data-theme='light'] .fl2-toast-success,
 :root[data-theme='light'] [id$="Toast"],
-:root[data-theme='light'] [class*="toast"]:not(.btn) {
-    background: rgba(255, 255, 255, 0.96) !important;
+:root[data-theme='light'] [class*="toast"]:not(.btn):not([class*="host"]) {
+    background: rgba(255, 255, 255, 0.98) !important;
     color: #0F1220 !important;
-    border: 1px solid rgba(15, 18, 32, 0.12) !important;
-    box-shadow: 0 8px 22px rgba(15, 18, 32, 0.12);
+    border: none !important;
+    box-shadow: 0 10px 32px rgba(15, 18, 32, 0.12), 0 0 0 1px rgba(15, 18, 32, 0.04) !important;
 }
 :root[data-theme='light'] .scan-tip,
 :root[data-theme='light'] .tip-line,
@@ -1008,8 +1008,62 @@ body.light-bg .home-indicator { background: rgba(0,0,0,0.6); }
 .da-toast,
 .mob-toast,
 .toast,
-[id$="Toast"] {
-    position: absolute !important;
+.disp-toast,
+.set-toast,
+.nf-toast,
+.fl-toast,
+.fl2-toast-success,
+[class$="-toast"]:not(.btn):not([class*="host"]):not(.gift-toast):not(.sub-toast):not(.im-toast):not(.nf-toast):not(.toast-f),
+[id$="Toast"]:not([id*="ToastHost"]) {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-wrap: nowrap;
+    gap: 8px;
+    width: max-content;
+    max-width: min(92vw, 640px) !important;
+    padding: 10px 18px !important;
+    border-radius: 999px !important;
+    line-height: 1.35;
+    white-space: nowrap;
+    text-align: center;
+    position: fixed !important;
+    top: max(calc(var(--status-bar-height, 44px) + var(--nav-bar-height, 44px) + 8px), 72px) !important;
+    bottom: auto !important;
+    left: 50% !important;
+    transform: translateX(-50%) translateY(-10px);
+    z-index: 13000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.da-toast.show,
+.mob-toast.show,
+.toast.show,
+.disp-toast.show,
+.set-toast.show,
+[id$="Toast"].show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) !important;
+}
+.nf-toast-host {
+    position: fixed !important;
+    top: max(calc(var(--status-bar-height, 44px) + var(--nav-bar-height, 44px) + 8px), 72px) !important;
+    bottom: auto !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 8px;
+    z-index: 13000;
+    pointer-events: none;
+}
+.nf-toast-host .nf-toast {
+    position: static !important;
+    transform: none !important;
+    opacity: 1;
 }
 
 /* ----- 硬编码暗色内嵌块 ----- */
@@ -1190,6 +1244,43 @@ body.light-bg .home-indicator { background: rgba(0,0,0,0.6); }
     border: 0 !important;
     color: var(--brand-purple) !important;
     box-shadow: none !important;
+}
+
+:root[data-theme='light'] .sub-pay-summary .row .v,
+:root[data-theme='light'] .sub-pay-summary .row .k {
+    color: var(--text-primary) !important;
+}
+:root[data-theme='light'] .sub-pay-summary .row .k {
+    color: var(--text-secondary) !important;
+}
+:root[data-theme='light'] .sub-pwd-pad button {
+    background: #fff !important;
+    color: #0F172A !important;
+    border: 1px solid rgba(15, 23, 42, 0.14) !important;
+    font-weight: 700;
+}
+:root[data-theme='light'] .sub-pwd-pad button:hover {
+    background: rgba(124, 58, 237, 0.08) !important;
+    border-color: #7C3AED !important;
+    color: #5B21B6 !important;
+}
+:root[data-theme='light'] .sub-pwd-input .dot.filled {
+    color: #5B21B6 !important;
+    border-color: #7C3AED !important;
+}
+
+:root[data-theme='light'] .nf-item .nf-text,
+:root[data-theme='light'] .nf-item .nf-body .nf-text {
+    color: var(--text-primary) !important;
+}
+:root[data-theme='light'] .nf-item .nf-meta,
+:root[data-theme='light'] .nf-item .nf-body .nf-meta {
+    color: var(--text-tertiary) !important;
+}
+:root[data-theme='light'] .nf-actor-tag.platform {
+    color: #1D4ED8 !important;
+    background: rgba(59, 130, 246, 0.12) !important;
+    border-color: rgba(37, 99, 235, 0.35) !important;
 }
 
 /* ----- 账变筛选 / 积分半层 ----- */

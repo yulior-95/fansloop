@@ -130,9 +130,14 @@
         var btn = qs('#hPointsBtn');
         if (!btn) return;
         var total = S.getTotalPoints(data.wallet);
-        btn.innerHTML = '<span class="ic"><i class="fa-solid fa-coins"></i></span><span class="val">' +
-            S.formatPoints(total) + '</span><span class="sub">积分</span>';
-        btn.title = '总积分 ' + S.formatPoints(total);
+        var title = '总积分 ' + S.formatPoints(total);
+        if (window.FLPointsHeaderUi && window.FLPointsHeaderUi.paint) {
+            window.FLPointsHeaderUi.paint(btn, S.formatPoints(total), title);
+        } else {
+            btn.innerHTML = '<span class="ic"><i class="fa-solid fa-coins"></i></span><span class="val">' +
+                S.formatPoints(total) + '</span><span class="sub">积分</span>';
+            btn.title = title;
+        }
         btn.onclick = openDrawer;
     }
 

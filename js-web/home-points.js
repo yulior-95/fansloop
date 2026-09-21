@@ -82,13 +82,18 @@
         if (!btn) return;
         var w = data.wallet;
         var total = S.getTotalPoints(w);
-        btn.innerHTML =
-            '<span class="ic"><i class="fa-solid fa-coins"></i></span>' +
-            '<span class="val">' + S.formatPoints(total) + '</span>' +
-            '<span class="sub">积分</span>';
-        btn.title = '总 ' + S.formatPoints(total) +
+        var title = '总 ' + S.formatPoints(total) +
             ' · 可用 ' + S.formatPoints(w.available) +
             ' · 冷静中 ' + S.formatPoints(w.frozen);
+        if (window.FLPointsHeaderUi && window.FLPointsHeaderUi.paint) {
+            window.FLPointsHeaderUi.paint(btn, S.formatPoints(total), title);
+        } else {
+            btn.innerHTML =
+                '<span class="ic"><i class="fa-solid fa-coins"></i></span>' +
+                '<span class="val">' + S.formatPoints(total) + '</span>' +
+                '<span class="sub">积分</span>';
+            btn.title = title;
+        }
     }
 
     function renderAside(data) {

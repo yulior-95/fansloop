@@ -40,7 +40,17 @@
     if (iframeEl) iframeEl.src = 'about:blank';
     root.style.display = 'none';
     root.setAttribute('aria-hidden', 'true');
-    root.classList.remove('fl-modal--comment', 'fl-modal--danmaku', 'fl-modal--share', 'fl-modal--gift', 'fl-modal--default', 'fl-modal--inline');
+    root.classList.remove(
+      'fl-modal--comment',
+      'fl-modal--danmaku',
+      'fl-modal--share',
+      'fl-modal--gift',
+      'fl-modal--export',
+      'fl-modal--tx',
+      'fl-modal--default',
+      'fl-modal--inline'
+    );
+    document.body.style.overflow = '';
   };
 
   function scriptBase() {
@@ -107,6 +117,145 @@
   function ensureShareDeps() {
     var base = scriptBase();
     return loadScriptOnce(base + 'share-modal-inline.js');
+  }
+
+  function ensureExportModalCss() {
+    if (document.querySelector('link[data-fl-export-modal-css]')) return;
+    var base = scriptBase().replace(/\/js-web\/$/, '');
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = base + '/css-web/transactions-export-modal.css';
+    link.setAttribute('data-fl-export-modal-css', '1');
+    document.head.appendChild(link);
+  }
+
+  function ensureExportDeps() {
+    var base = scriptBase();
+    return loadScriptOnce(base + 'transactions-export-page.js');
+  }
+
+  function parsePageQuery(page) {
+    var i = page.indexOf('?');
+    if (i < 0) return new URLSearchParams('');
+    return new URLSearchParams(page.slice(i + 1));
+  }
+
+  function ensureTxModalsCss() {
+    if (document.querySelector('link[data-fl-tx-modals-css]')) return;
+    var base = scriptBase().replace(/\/js-web\/$/, '');
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = base + '/css-web/transaction-modals.css';
+    link.setAttribute('data-fl-tx-modals-css', '1');
+    document.head.appendChild(link);
+  }
+
+  function ensureTxModalsDeps() {
+    var base = scriptBase();
+    return loadScriptOnce(base + 'transaction-modals-inline.js');
+  }
+
+  function modalClassForTxPage(page) {
+    if (page.indexOf('transaction-share-poster') >= 0) return 'tx-modal-share';
+    if (page.indexOf('transaction-contact') >= 0) return 'tx-modal-contact';
+    if (page.indexOf('transaction-appeal') >= 0) return 'tx-modal-appeal';
+    return 'tx-page-modal';
+  }
+
+  function openTransactionModalInline(page) {
+    bindElements();
+    if (!root || !inlineHost) {
+      window.location.href = page;
+      return;
+    }
+    ensureTxModalsCss();
+    fetch(page)
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        return ensureTxModalsDeps().then(function () { return html; });
+      })
+      .then(function (html) {
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var modal = doc.querySelector('.modal-mask .modal') || doc.querySelector('.modal');
+        if (!modal) {
+          if (iframeEl) iframeEl.src = page;
+          root.classList.add('fl-modal--tx', 'fl-modal--default');
+          root.style.display = 'flex';
+          root.setAttribute('aria-hidden', 'false');
+          return;
+        }
+        clearInline();
+        var node = document.importNode(modal, true);
+        node.classList.add(modalClassForTxPage(page));
+        inlineHost.appendChild(node);
+        inlineHost.removeAttribute('hidden');
+        if (iframeEl) iframeEl.style.display = 'none';
+        root.classList.remove(
+          'fl-modal--comment',
+          'fl-modal--danmaku',
+          'fl-modal--share',
+          'fl-modal--gift',
+          'fl-modal--export',
+          'fl-modal--default'
+        );
+        root.classList.add('fl-modal--tx', 'fl-modal--inline');
+        root.style.display = 'flex';
+        root.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        if (window.FLTransactionModals) {
+          window.FLTransactionModals.init({ host: inlineHost, page: page, inline: true });
+        }
+      })
+      .catch(function () {
+        if (iframeEl) iframeEl.src = page;
+        root.classList.add('fl-modal--tx', 'fl-modal--default');
+        root.style.display = 'flex';
+        root.setAttribute('aria-hidden', 'false');
+      });
+  }
+
+  function openExportInline(page) {
+    bindElements();
+    if (!root || !inlineHost) {
+      window.location.href = page;
+      return;
+    }
+    ensureExportModalCss();
+    var from = parsePageQuery(page).get('from') || 'transactions';
+    fetch(page)
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        return ensureExportDeps().then(function () { return html; });
+      })
+      .then(function (html) {
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var modal = doc.querySelector('.modal.tx-export-modal') || doc.querySelector('.modal-mask .modal') || doc.querySelector('.modal');
+        if (!modal) {
+          if (iframeEl) iframeEl.src = page;
+          root.classList.add('fl-modal--export', 'fl-modal--default');
+          root.style.display = 'flex';
+          root.setAttribute('aria-hidden', 'false');
+          return;
+        }
+        clearInline();
+        inlineHost.appendChild(document.importNode(modal, true));
+        inlineHost.removeAttribute('hidden');
+        if (iframeEl) iframeEl.style.display = 'none';
+        root.classList.remove('fl-modal--comment', 'fl-modal--danmaku', 'fl-modal--share', 'fl-modal--gift', 'fl-modal--default');
+        root.classList.add('fl-modal--export', 'fl-modal--inline');
+        root.style.display = 'flex';
+        root.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        if (window.FLTransactionsExport) {
+          window.FLTransactionsExport.init({ host: inlineHost, from: from, inline: true });
+        }
+      })
+      .catch(function () {
+        if (iframeEl) iframeEl.src = page;
+        root.classList.add('fl-modal--export', 'fl-modal--default');
+        root.style.display = 'flex';
+        root.setAttribute('aria-hidden', 'false');
+      });
   }
 
   function openShareInline(page) {
@@ -281,6 +430,16 @@
 
     if (page.indexOf('share-modal') >= 0) {
       openShareInline(page);
+      return;
+    }
+
+    if (page.indexOf('transactions-export') >= 0) {
+      openExportInline(page);
+      return;
+    }
+
+    if (/transaction-(appeal|share-poster|contact)/.test(page)) {
+      openTransactionModalInline(page);
       return;
     }
 

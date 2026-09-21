@@ -479,16 +479,21 @@
         }
     }
 
-    function bindPageHeadButtons() {
-        var phBtns = document.querySelectorAll('.page-head .ph-r .btn');
-        phBtns.forEach(function (btn) {
+    function bindExportReport() {
+        function goExport(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            openModal('transactions-export.html?from=creator-income');
+        }
+        var dedicated = document.getElementById('btnCreatorIncomeExport');
+        if (dedicated) dedicated.addEventListener('click', goExport);
+        document.querySelectorAll('.page-head .ph-r .btn').forEach(function (btn) {
+            if (btn.id === 'btnCreatorIncomeExport') return;
             if (btn.textContent.indexOf('导出') >= 0) {
                 btn.removeAttribute('onclick');
-                btn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    openModal('transactions-export.html?from=creator-income');
-                });
+                btn.addEventListener('click', goExport);
             }
         });
     }
@@ -660,7 +665,7 @@
         renderMallIncomeRows();
         bindIncomeRows();
         bindHeaderActions();
-        bindPageHeadButtons();
+        bindExportReport();
         bindRulesOverlay();
         bindWithdrawCard();
         bindDeltaHints();

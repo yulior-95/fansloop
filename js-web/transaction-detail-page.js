@@ -136,21 +136,144 @@
     var note = $('tdWebNote');
     if (note) note.textContent = cfg.note || '';
 
-    var appealBtn = document.querySelector('[data-td-appeal]');
-    if (appealBtn) {
-        appealBtn.setAttribute('onclick', "location.href='transaction-appeal.html?order=" + encodeURIComponent(order) + "'");
+    function openTxModal(page) {
+        if (typeof closeMoreMenu === 'function') closeMoreMenu();
+        if (window.FL_openInteractionModal) {
+            window.FL_openInteractionModal(page);
+        } else {
+            location.href = page;
+        }
     }
 
-    var moreMenuBtn = document.getElementById('tdWebMoreMenuBtn');
-    if (moreMenuBtn) {
-        var menuQs =
-            'type=' + encodeURIComponent(type) +
-            '&order=' + encodeURIComponent(order) +
-            (from ? '&from=' + encodeURIComponent(from) : '');
-        moreMenuBtn.addEventListener('click', function () {
-            location.href = 'transaction-more-menu.html?' + menuQs;
+    function bindMenuRow(row, fn) {
+        if (!row) return;
+        row.addEventListener('click', fn);
+        row.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                fn();
+            }
         });
     }
+
+    function contactModalPage() {
+        return 'transaction-contact.html?order=' + encodeURIComponent(order);
+    }
+
+    var shareHeadBtn = document.getElementById('tdWebShareBtn');
+    if (shareHeadBtn) {
+        shareHeadBtn.addEventListener('click', function () {
+            openTxModal('transaction-share-poster.html?order=' + encodeURIComponent(order));
+        });
+    }
+
+    var appealBtn = document.querySelector('[data-td-appeal]');
+    if (appealBtn) {
+        appealBtn.removeAttribute('onclick');
+        appealBtn.addEventListener('click', function () {
+            openTxModal('transaction-appeal.html?order=' + encodeURIComponent(order));
+        });
+    }
+
+    var contactBtn = document.querySelector('[data-td-contact]');
+    if (contactBtn) {
+        contactBtn.removeAttribute('onclick');
+        contactBtn.addEventListener('click', function () {
+            openTxModal(contactModalPage());
+        });
+    }
+
+    var moreMenuModal = document.getElementById('tdWebMoreMenuModal');
+    var moreMenuBtn = document.getElementById('tdWebMoreMenuBtn');
+
+    function openMoreMenu() {
+        if (!moreMenuModal) return;
+        var sub = document.getElementById('tdWebMoreMenuOrder');
+        if (sub) sub.textContent = '订单 ' + order;
+        moreMenuModal.classList.add('open');
+        moreMenuModal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeMoreMenu() {
+        if (!moreMenuModal) return;
+        moreMenuModal.classList.remove('open');
+        moreMenuModal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+
+    if (moreMenuBtn && moreMenuModal) {
+        moreMenuBtn.addEventListener('click', openMoreMenu);
+    }
+
+    ['tdWebMoreMenuClose', 'tdWebMoreMenuDismiss'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.addEventListener('click', closeMoreMenu);
+    });
+
+    if (moreMenuModal) {
+        moreMenuModal.addEventListener('click', function (e) {
+            if (e.target === moreMenuModal) closeMoreMenu();
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && moreMenuModal.classList.contains('open')) closeMoreMenu();
+        });
+    }
+
+    var copyRow = document.getElementById('tdWebMoreCopy');
+    if (copyRow) {
+        function doCopy() {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(order).catch(function () { /* ignore */ });
+            }
+            closeMoreMenu();
+        }
+        copyRow.addEventListener('click', doCopy);
+        copyRow.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                doCopy();
+            }
+        });
+    }
+
+    bindMenuRow(document.getElementById('tdWebMoreShare'), function () {
+        openTxModal('transaction-share-poster.html?order=' + encodeURIComponent(order));
+    });
+
+    bindMenuRow(document.getElementById('tdWebMoreAppeal'), function () {
+        openTxModal('transaction-appeal.html?order=' + encodeURIComponent(order));
+    });
+
+    bindMenuRow(document.getElementById('tdWebMoreContact'), function () {
+        openTxModal(contactModalPage());
+    });
+
+    document.querySelectorAll('[data-td-more-stub]').forEach(function (row) {
+        bindMenuRow(row, function () {
+            closeMoreMenu();
+            var msg = row.getAttribute('data-td-more-stub') || '';
+            if (msg && typeof window.FL_showToast === 'function') {
+                window.FL_showToast(msg, { type: 'info' });
+            }
+        });
+    });
+
+    try {
+        var bootParams = new URLSearchParams(location.search);
+        var txModal = bootParams.get('txModal');
+        if (txModal === 'contact') {
+            setTimeout(function () { openTxModal(contactModalPage()); }, 80);
+        } else if (txModal === 'appeal') {
+            setTimeout(function () {
+                openTxModal('transaction-appeal.html?order=' + encodeURIComponent(order));
+            }, 80);
+        } else if (txModal === 'share') {
+            setTimeout(function () {
+                openTxModal('transaction-share-poster.html?order=' + encodeURIComponent(order));
+            }, 80);
+        }
+    } catch (_) { /* noop */ }
 
     var primary = cfg.primary || ['返回账变记录', 'transactions.html', 'fa-list-ul'];
     var backDefault = 'transactions.html';

@@ -111,6 +111,8 @@ window.DEMO_PAGE_GROUPS = [
         ["transaction-share-poster.html", "分享海报"],
         ["transaction-more-menu.html", "更多菜单"],
         ["transaction-appeal.html", "发起申诉"],
+        ["my-appeals.html", "我的申诉"],
+        ["transaction-appeal-detail.html", "申诉详情"],
         ["transaction-contact.html", "联系客服"]
     ]],
     ["双商城 · 数字商品", [

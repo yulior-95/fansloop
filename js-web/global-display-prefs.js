@@ -58,6 +58,26 @@
         html.setAttribute('data-fl-font-scale', String(idx));
         html.style.setProperty('--fl-font-scale', String(FONT_SCALES[idx]));
         html.setAttribute('data-fl-timezone', prefs.timezone || DEFAULTS.timezone);
+
+        /* H5 样式读 data-theme，与 Web data-fl-theme 同步 */
+        html.setAttribute('data-theme', resolved);
+        html.style.colorScheme = resolved === 'light' ? 'light' : 'dark';
+        try {
+            var h5Key = prefs.theme === 'auto' ? 'system' : (prefs.theme === 'light' ? 'light' : 'dark');
+            localStorage.setItem('h5_settings_theme', h5Key);
+        } catch (e) { /* ignore */ }
+        function paintH5Body() {
+            if (!document.body) return;
+            document.body.classList.toggle('light-bg', resolved === 'light');
+            document.body.classList.toggle('dark-bg', resolved !== 'light');
+        }
+        paintH5Body();
+        if (!document.body) {
+            document.addEventListener('DOMContentLoaded', paintH5Body, { once: true });
+        }
+        if (global.DigitalH5Nav && typeof global.DigitalH5Nav.applyTheme === 'function') {
+            try { global.DigitalH5Nav.applyTheme(); } catch (e) { /* ignore */ }
+        }
     }
 
     function set(partial) {

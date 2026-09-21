@@ -4,82 +4,18 @@
 <meta charset="UTF-8">
 <title>发起申诉</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="../js-web/fl-theme-boot.js"></script>
 <link rel="stylesheet" href="../css-web/common-web.css">
-<style>
-body { background: var(--bg-app); }
-.modal-mask { background: rgba(0,0,0,0.7); }
-.modal { max-width: 580px; }
-
-.appeal-hero {
-    background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.03));
-    border: 1px solid rgba(245,158,11,0.25);
-    border-radius: var(--r-md);
-    padding: 16px;
-    display: flex; gap: 14px; align-items: flex-start;
-    margin-bottom: 18px;
-}
-.appeal-hero .ic-h { width: 42px; height: 42px; border-radius: 10px; background: linear-gradient(135deg, #F59E0B, #D97706); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-.appeal-hero .info .ti { font-size: 14px; font-weight: 700; }
-.appeal-hero .info .desc { font-size: 12px; color: var(--t-secondary); margin-top: 4px; line-height: 1.6; }
-
-.reason-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.reason-grid .r-card {
-    padding: 12px;
-    background: var(--bg-input);
-    border: 1.5px solid var(--border);
-    border-radius: var(--r-md);
-    cursor: pointer;
-    display: flex; align-items: center; gap: 10px;
-    transition: 0.15s;
-}
-.reason-grid .r-card:hover { border-color: var(--border-strong); }
-.reason-grid .r-card.active {
-    border-color: var(--brand-purple);
-    background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.04));
-}
-.reason-grid .r-card .ic-r { width: 30px; height: 30px; border-radius: 8px; background: var(--bg-card-2); color: var(--brand-purple); display: flex; align-items: center; justify-content: center; font-size: 12px; }
-.reason-grid .r-card .nm { font-size: 12.5px; font-weight: 600; }
-
-.upload-zone {
-    padding: 22px;
-    border: 1.5px dashed var(--border-strong);
-    border-radius: var(--r-md);
-    text-align: center;
-    cursor: pointer;
-    transition: 0.15s;
-}
-.upload-zone:hover { border-color: var(--brand-purple); background: rgba(168,85,247,0.04); }
-.upload-zone i { font-size: 22px; color: var(--brand-purple); margin-bottom: 6px; }
-.upload-zone .ti { font-size: 13px; font-weight: 600; }
-.upload-zone .desc { font-size: 11px; color: var(--t-tertiary); margin-top: 3px; }
-
-.upload-list { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-.upload-item {
-    width: 64px; height: 64px;
-    border-radius: 8px;
-    background-size: cover; background-position: center;
-    position: relative;
-    border: 1px solid var(--border);
-}
-.upload-item .x {
-    position: absolute; top: -6px; right: -6px;
-    width: 18px; height: 18px;
-    background: var(--danger);
-    border-radius: 50%;
-    color: #fff; font-size: 9px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-}
-</style>
+<link rel="stylesheet" href="../css-web/transaction-modals.css">
 
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
 <script src="../js-web/ui-i18n.js" defer></script>
 <script src="../js-web/global-lang-switch.js" defer></script>
 </head>
-<body>
+<body class="tx-modal-standalone">
 
-<div class="modal-mask">
-    <div class="modal">
+<div class="modal-mask modal-mask--soft">
+    <div class="modal tx-modal-appeal appeal-modal">
         <div class="modal-head">
             <h2 style="font-size: 16px"><span class="ic"><i class="fa-solid fa-gavel"></i></span>充提订单申诉
                 <span class="sub">到账金额不符、支付参考号不匹配、超时未入账等 · 48h 内响应（示意）</span>
@@ -156,34 +92,7 @@ body { background: var(--bg-app); }
     </div>
 </div>
 
-<script>
-(function () {
-    var params = new URLSearchParams(location.search);
-    var q = params.get('order');
-    var el = document.getElementById('orderRef');
-    if (el && q) {
-        el.value = q;
-        el.style.color = '#fff';
-        el.style.fontWeight = '700';
-    }
-    function backToDetail() {
-        var ord = q || (el && el.value) || 'TXN20260425190832';
-        location.href = 'transaction-detail.html?order=' + encodeURIComponent(ord);
-    }
-    ['appealCloseBtn', 'appealCancelBtn'].forEach(function (id) {
-        var node = document.getElementById(id);
-        if (node) node.addEventListener('click', backToDetail);
-    });
-    var btn = document.getElementById('btnAppealSubmit');
-    if (btn) {
-        btn.addEventListener('click', function () {
-            var ref = document.getElementById('orderRef');
-            var ord = ref && ref.value ? ref.value : 'TXN20260425190832';
-            location.href = 'transaction-appeal-detail.html?appeal=AP20260508120001&order=' + encodeURIComponent(ord);
-        });
-    }
-})();
-</script>
+<script src="../js-web/transaction-modals-inline.js"></script>
 <script src="../js-web/page-back-nav.js"></script>
 <script src="../js-web/web-icons.js"></script>
 </body>

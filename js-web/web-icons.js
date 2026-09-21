@@ -161,7 +161,58 @@
         'user-large': 'user',
         ethereum: 'circle-dollar-sign',
         'bitcoin-sign': 'bitcoin',
-        'x-twitter': 'twitter'
+        'x-twitter': 'twitter',
+        coins: 'coins',
+        crown: 'crown',
+        store: 'store',
+        wallet: 'wallet',
+        compass: 'compass',
+        'list-check': 'list-todo',
+        'list-ul': 'list',
+        'box-archive': 'archive',
+        'life-ring': 'life-buoy',
+        'file-export': 'file-up',
+        'file-contract': 'file-text',
+        'bell-slash': 'bell-off',
+        'cookie-bite': 'cookie',
+        'circle-half-stroke': 'contrast',
+        'broadcast-tower': 'radio-tower',
+        'building-shield': 'shield-check',
+        'hand-pointer': 'mouse-pointer',
+        fire: 'flame',
+        'floppy-disk': 'save',
+        'gas-pump': 'fuel',
+        'gauge-high': 'gauge',
+        'info-circle': 'info',
+        'id-card-clip': 'id-card',
+        'image-portrait': 'user',
+        'box-open': 'package-open',
+        'check-double': 'check-check',
+        'file-invoice': 'receipt',
+        'file-pdf': 'file-text',
+        'file-csv': 'file-spreadsheet',
+        'file-excel': 'file-spreadsheet',
+        'file-zipper': 'file-archive',
+        'hourglass-half': 'hourglass',
+        'hourglass-end': 'hourglass',
+        'house-user': 'house',
+        'id-badge': 'badge',
+        'laptop-code': 'laptop',
+        'mug-hot': 'coffee',
+        'money-bill-transfer': 'banknote',
+        'arrow-right-to-bracket': 'log-in',
+        'arrow-up-from-bracket': 'share',
+        'arrow-rotate-right': 'rotate-cw',
+        'arrows-up-down': 'arrow-up-down',
+        'bell-concierge': 'concierge-bell',
+        broom: 'brush',
+        bullseye: 'target',
+        'calendar-day': 'calendar',
+        'calendar-week': 'calendar-days',
+        'camera-retro': 'camera',
+        'camera-rotate': 'camera',
+        'circle-dollar-to-slot': 'circle-dollar-sign',
+        infinity: 'infinity'
     };
 
     var FILL_WHEN_SOLID = { heart: 1, star: 1, bookmark: 1 };
@@ -196,6 +247,23 @@
             .join(' ');
     }
 
+    function restoreFaIcon(el) {
+        var restore = el.getAttribute('data-fl-fa-restore');
+        if (!restore) return;
+        el.className = restore;
+        el.removeAttribute('data-lucide');
+        el.setAttribute('data-fl-icon-skip', '1');
+    }
+
+    function repairMissingSvg(root) {
+        var scope = root || document;
+        if (!scope.querySelectorAll) return;
+        scope.querySelectorAll('i.web-icon[data-lucide]').forEach(function (el) {
+            if (el.querySelector('svg.lucide')) return;
+            restoreFaIcon(el);
+        });
+    }
+
     function migrateRoot(root) {
         var scope = root || document;
         var nodes = scope.querySelectorAll ? scope.querySelectorAll('i[class*="fa-"]') : [];
@@ -208,6 +276,9 @@
             if (info.style === 'brand') return;
             var name = resolveLucide(info.icon);
             if (!name) return;
+            if (!el.getAttribute('data-fl-fa-restore')) {
+                el.setAttribute('data-fl-fa-restore', el.className);
+            }
             var keep = stripFaClasses(el.className);
             el.className = (keep + ' web-icon').trim();
             if (info.style === 'solid') el.classList.add('web-icon--solid');
@@ -239,6 +310,7 @@
         suppressObs = true;
         migrateRoot(root || document);
         paintIcons();
+        repairMissingSvg(root || document);
         suppressObs = false;
     }
 

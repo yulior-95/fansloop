@@ -163,13 +163,18 @@
             var total = global.FLHomePoints.getTotalPoints
                 ? global.FLHomePoints.getTotalPoints(w)
                 : (w.available || 0) + (w.frozen || 0);
-            btn.innerHTML =
-                '<span class="ic"><i class="fa-solid fa-coins"></i></span>' +
-                '<span class="val">' + global.FLHomePoints.formatPoints(total) + '</span>' +
-                '<span class="sub">积分</span>';
-            btn.title = '总 ' + global.FLHomePoints.formatPoints(total) +
+            var title = '总 ' + global.FLHomePoints.formatPoints(total) +
                 ' · 可用 ' + global.FLHomePoints.formatPoints(w.available) +
                 ' · 冷静中 ' + global.FLHomePoints.formatPoints(w.frozen);
+            if (global.FLPointsHeaderUi && global.FLPointsHeaderUi.paint) {
+                global.FLPointsHeaderUi.paint(btn, global.FLHomePoints.formatPoints(total), title);
+            } else {
+                btn.innerHTML =
+                    '<span class="ic"><i class="fa-solid fa-coins"></i></span>' +
+                    '<span class="val">' + global.FLHomePoints.formatPoints(total) + '</span>' +
+                    '<span class="sub">积分</span>';
+                btn.title = title;
+            }
         }
         if (global.FLGlobalPointsHeader && global.FLGlobalPointsHeader.render) {
             global.FLGlobalPointsHeader.render(data);

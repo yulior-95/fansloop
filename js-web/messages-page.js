@@ -1109,9 +1109,16 @@
             if (stats[2]) stats[2].textContent = t.stats.active || '—';
         }
         var pinSw = el.infoPanel.querySelector('[data-switch="pin"]');
-        if (pinSw) pinSw.classList.toggle('on', !!t.pinned);
+        if (pinSw) {
+            pinSw.classList.toggle('on', !!t.pinned);
+            pinSw.setAttribute('aria-checked', t.pinned ? 'true' : 'false');
+        }
         var notifySw = el.infoPanel.querySelector('[data-switch="notify"]');
-        if (notifySw) notifySw.classList.toggle('on', t.notifyOff !== true);
+        if (notifySw) {
+            var notifyOn = t.notifyOff !== true;
+            notifySw.classList.toggle('on', notifyOn);
+            notifySw.setAttribute('aria-checked', notifyOn ? 'true' : 'false');
+        }
         var muteBtn = $('imBtnConvMute');
         if (muteBtn) muteBtn.classList.toggle('on', !!t.convMuted);
         var relSec = el.infoPanel.querySelector('.imi-section[data-relation]');
@@ -1717,8 +1724,13 @@
             el.infoPanel.addEventListener('click', function (e) {
                 e.stopPropagation();
                 var sw = e.target.closest('[data-switch]');
+                if (!sw) {
+                    var switchRow = e.target.closest('.imi-row--switch');
+                    if (switchRow) sw = switchRow.querySelector('[data-switch]');
+                }
                 if (!sw) return;
                 sw.classList.toggle('on');
+                sw.setAttribute('aria-checked', sw.classList.contains('on') ? 'true' : 'false');
                 var key = sw.getAttribute('data-switch');
                 var t = findThread(state.activeId);
                 if (key === 'pin' && t) {

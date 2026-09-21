@@ -233,11 +233,11 @@
 :root[data-theme='light'] .fl-toast,
 :root[data-theme='light'] .fl2-toast-success,
 :root[data-theme='light'] [id$="Toast"],
-:root[data-theme='light'] [class*="toast"]:not(.btn) {
-    background: rgba(255, 255, 255, 0.96) !important;
+:root[data-theme='light'] [class*="toast"]:not(.btn):not([class*="host"]) {
+    background: rgba(255, 255, 255, 0.98) !important;
     color: #0F1220 !important;
-    border: 1px solid rgba(15, 18, 32, 0.12) !important;
-    box-shadow: 0 8px 22px rgba(15, 18, 32, 0.12);
+    border: none !important;
+    box-shadow: 0 10px 32px rgba(15, 18, 32, 0.12), 0 0 0 1px rgba(15, 18, 32, 0.04) !important;
 }
 :root[data-theme='light'] .scan-tip,
 :root[data-theme='light'] .tip-line,
@@ -270,8 +270,62 @@
 .da-toast,
 .mob-toast,
 .toast,
-[id$="Toast"] {
-    position: absolute !important;
+.disp-toast,
+.set-toast,
+.nf-toast,
+.fl-toast,
+.fl2-toast-success,
+[class$="-toast"]:not(.btn):not([class*="host"]):not(.gift-toast):not(.sub-toast):not(.im-toast):not(.nf-toast):not(.toast-f),
+[id$="Toast"]:not([id*="ToastHost"]) {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-wrap: nowrap;
+    gap: 8px;
+    width: max-content;
+    max-width: min(92vw, 640px) !important;
+    padding: 10px 18px !important;
+    border-radius: 999px !important;
+    line-height: 1.35;
+    white-space: nowrap;
+    text-align: center;
+    position: fixed !important;
+    top: max(calc(var(--status-bar-height, 44px) + var(--nav-bar-height, 44px) + 8px), 72px) !important;
+    bottom: auto !important;
+    left: 50% !important;
+    transform: translateX(-50%) translateY(-10px) !important;
+    z-index: 13000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.da-toast.show,
+.mob-toast.show,
+.toast.show,
+.disp-toast.show,
+.set-toast.show,
+[id$="Toast"].show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) !important;
+}
+.nf-toast-host {
+    position: fixed !important;
+    top: max(calc(var(--status-bar-height, 44px) + var(--nav-bar-height, 44px) + 8px), 72px) !important;
+    bottom: auto !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 8px;
+    z-index: 13000;
+    pointer-events: none;
+}
+.nf-toast-host .nf-toast {
+    position: static !important;
+    transform: none !important;
+    opacity: 1;
 }
 
 /* ----- 硬编码暗色内嵌块 ----- */
@@ -543,4 +597,136 @@
     background: var(--brand-gradient) !important;
     color: #fff !important;
     border-color: transparent !important;
+}
+
+/* ----- 浅色 · 悬停/选中/标签对比度（H5 全站兜底） ----- */
+:root[data-theme='light'] .filter-bar .tab,
+:root[data-theme='light'] .seg-tabs button,
+:root[data-theme='light'] .sub-tabs .tab,
+:root[data-theme='light'] .works-sub-tabs button,
+:root[data-theme='light'] .notif-tabs button,
+:root[data-theme='light'] .tx-tabs button {
+    color: var(--text-tertiary) !important;
+}
+:root[data-theme='light'] .filter-bar .tab.active,
+:root[data-theme='light'] .seg-tabs button.active,
+:root[data-theme='light'] .sub-tabs .tab.active,
+:root[data-theme='light'] .works-sub-tabs button.active,
+:root[data-theme='light'] .notif-tabs button.active,
+:root[data-theme='light'] .tx-tabs button.active {
+    color: var(--text-primary) !important;
+}
+:root[data-theme='light'] .filter-bar .tab.active,
+:root[data-theme='light'] .seg-tabs button.on,
+:root[data-theme='light'] .notif-tabs button.on {
+    background: rgba(168, 85, 247, 0.12) !important;
+    border-color: rgba(124, 58, 237, 0.32) !important;
+    color: #6D28D9 !important;
+}
+:root[data-theme='light'] .list-item:hover,
+:root[data-theme='light'] .settings-row:hover,
+:root[data-theme='light'] .disp-cell:hover,
+:root[data-theme='light'] .tool-btn:active {
+    color: var(--text-primary) !important;
+}
+:root[data-theme='light'] .cd-actions button {
+    color: var(--text-secondary) !important;
+    background: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+}
+:root[data-theme='light'] .cd-actions button.liked {
+    color: #E11D48 !important;
+}
+:root[data-theme='light'] .cd-actions button.saved {
+    color: #B45309 !important;
+}
+:root[data-theme='light'] .tss-faq-item,
+:root[data-theme='light'] .tss-faq-item .q,
+:root[data-theme='light'] .order-snap .om .t,
+:root[data-theme='light'] .tss-sheet .sh .t {
+    color: var(--text-primary) !important;
+}
+:root[data-theme='light'] .tss-faq-item .a,
+:root[data-theme='light'] .order-snap .om .s,
+:root[data-theme='light'] .tss-sheet .sh .s {
+    color: var(--text-secondary) !important;
+}
+:root[data-theme='light'] .tss-close,
+:root[data-theme='light'] .sheet-close,
+:root[data-theme='light'] .modal-close {
+    color: var(--text-secondary) !important;
+    background: var(--bg-inset) !important;
+    border-color: var(--border-color) !important;
+}
+:root[data-theme='light'] body.page-settings-h5 .set-nav .nav-item,
+:root[data-theme='light'] body.page-settings-h5 .set-nav .nav-item .lb {
+    color: var(--text-secondary) !important;
+}
+:root[data-theme='light'] body.page-settings-h5 .set-nav .nav-item.active,
+:root[data-theme='light'] body.page-settings-h5 .set-nav .nav-item.on {
+    color: var(--text-primary) !important;
+    background: rgba(168, 85, 247, 0.08) !important;
+}
+:root[data-theme='light'] .digital-tab,
+:root[data-theme='light'] .store-filter .chip,
+:root[data-theme='light'] .filter-chips .chip {
+    color: var(--text-tertiary) !important;
+}
+:root[data-theme='light'] .digital-tab.active,
+:root[data-theme='light'] .chip.on,
+:root[data-theme='light'] .chip.active,
+:root[data-theme='light'] .filter-chips .chip.on {
+    color: #6D28D9 !important;
+    background: rgba(168, 85, 247, 0.1) !important;
+    border-color: rgba(124, 58, 237, 0.28) !important;
+}
+
+/* ----- H5 · 举报（半层 / 全屏 overlay，复用 content-report.css） ----- */
+:root[data-theme='light'] .fl-report-overlay {
+    background: rgba(15, 23, 42, 0.42) !important;
+}
+:root[data-theme='light'] .fl-report-modal {
+    background: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 18px 50px rgba(15, 18, 32, 0.12) !important;
+}
+:root[data-theme='light'] .fl-report-hd h3,
+:root[data-theme='light'] .feed-more-sheet .fl-report-label,
+:root[data-theme='light'] .feed-more-report .fl-report-label {
+    color: var(--text-primary) !important;
+}
+:root[data-theme='light'] .fl-report-label,
+:root[data-theme='light'] .feed-more-sheet .fl-report-reason {
+    color: var(--text-secondary) !important;
+}
+:root[data-theme='light'] .fl-report-reason,
+:root[data-theme='light'] .feed-more-sheet .fl-report-reason span {
+    color: var(--text-primary) !important;
+}
+:root[data-theme='light'] .fl-report-reason input {
+    border-color: rgba(15, 18, 32, 0.22) !important;
+}
+:root[data-theme='light'] .fl-report-reason input:checked {
+    box-shadow: inset 0 0 0 3px var(--bg-card) !important;
+}
+:root[data-theme='light'] .fl-report-desc,
+:root[data-theme='light'] .feed-more-sheet .fl-report-desc {
+    background: var(--bg-inset) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+:root[data-theme='light'] .fl-report-desc::placeholder {
+    color: var(--text-tertiary) !important;
+}
+:root[data-theme='light'] .fl-report-close {
+    color: var(--text-tertiary) !important;
+}
+:root[data-theme='light'] .fl-report-close:hover {
+    background: var(--bg-inset) !important;
+    color: var(--text-primary) !important;
+}
+:root[data-theme='light'] .fl-report-submit:disabled {
+    background: rgba(15, 18, 32, 0.1) !important;
+    color: var(--text-tertiary) !important;
 }

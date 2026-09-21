@@ -25,19 +25,32 @@
         global.document.head.appendChild(link);
     }
 
+    function paintPointsBtn(btn, totalFormatted, title) {
+        if (!btn) return;
+        if (global.FLPointsHeaderUi && global.FLPointsHeaderUi.paint) {
+            global.FLPointsHeaderUi.paint(btn, totalFormatted, title);
+            return;
+        }
+        btn.innerHTML =
+            '<span class="ic"><i class="fa-solid fa-coins"></i></span>' +
+            '<span class="val">' + totalFormatted + '</span>' +
+            '<span class="sub">积分</span>';
+        if (title) btn.title = title;
+    }
+
     function renderBtn(data) {
         var btn = global.document.getElementById('hPointsBtn');
         var S = global.FLHomePoints;
         if (!btn || !S || !data || !data.wallet) return;
         var w = data.wallet;
         var total = S.getTotalPoints ? S.getTotalPoints(w) : (w.available || 0) + (w.frozen || 0);
-        btn.innerHTML =
-            '<span class="ic"><i class="fa-solid fa-coins"></i></span>' +
-            '<span class="val">' + S.formatPoints(total) + '</span>' +
-            '<span class="sub">积分</span>';
-        btn.title = '总 ' + S.formatPoints(total) +
-            ' · 可用 ' + S.formatPoints(w.available) +
-            ' · 冷静中 ' + S.formatPoints(w.frozen);
+        paintPointsBtn(
+            btn,
+            S.formatPoints(total),
+            '总 ' + S.formatPoints(total) +
+                ' · 可用 ' + S.formatPoints(w.available) +
+                ' · 冷静中 ' + S.formatPoints(w.frozen)
+        );
     }
 
     function refreshPointsHeader() {
@@ -105,9 +118,7 @@
             btn.className = 'h-points';
             btn.id = 'hPointsBtn';
             btn.title = '我的积分';
-            btn.innerHTML =
-                '<span class="ic"><i class="fa-solid fa-coins"></i></span>' +
-                '<span class="val">—</span><span class="sub">积分</span>';
+            paintPointsBtn(btn, '—', '我的积分');
             var cta = actions.querySelector('.h-cta');
             if (cta) actions.insertBefore(btn, cta);
             else {
@@ -115,6 +126,8 @@
                 if (av) actions.insertBefore(btn, av);
                 else actions.appendChild(btn);
             }
+        } else if (global.FLPointsHeaderUi && global.FLPointsHeaderUi.ensureDefault) {
+            global.FLPointsHeaderUi.ensureDefault(btn);
         }
 
         if (btn.getAttribute('data-fl-points-bound') !== '1') {

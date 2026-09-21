@@ -7,6 +7,10 @@
     var mql = null;
 
     function resolveTheme() {
+        if (global.FLDisplayPrefs && typeof global.FLDisplayPrefs.resolveTheme === 'function') {
+            var p = global.FLDisplayPrefs.load();
+            return global.FLDisplayPrefs.resolveTheme(p.theme);
+        }
         var pref = localStorage.getItem(THEME_KEY) || 'dark';
         if (pref === 'system') {
             if (!mql && global.matchMedia) mql = global.matchMedia('(prefers-color-scheme: dark)');
@@ -218,41 +222,15 @@
             el = document.createElement('div');
             el.id = 'daToast';
             el.className = 'da-toast';
+            el.setAttribute('role', 'status');
+            el.setAttribute('aria-live', 'polite');
             document.body.appendChild(el);
         }
-        el.style.position = 'absolute';
-        el.style.left = '50%';
-        el.style.bottom = 'calc(var(--tab-bar-height, 64px) + 22px)';
-        el.style.transform = 'translateX(-50%) translateY(6px)';
-        el.style.padding = '9px 14px';
-        el.style.borderRadius = '999px';
-        var isLight = (document.documentElement.getAttribute('data-theme') === 'light');
-        el.style.background = isLight ? 'rgba(255,255,255,0.95)' : 'rgba(20,20,30,0.92)';
-        el.style.border = isLight ? '1px solid rgba(22,24,38,0.12)' : '1px solid rgba(255,255,255,0.18)';
-        el.style.color = isLight ? '#161826' : '#fff';
-        el.style.fontSize = '12px';
-        el.style.lineHeight = '1.35';
-        el.style.whiteSpace = 'nowrap';
-        el.style.maxWidth = 'calc(var(--phone-width, 375px) - 32px)';
-        el.style.overflow = 'hidden';
-        el.style.textOverflow = 'ellipsis';
-        el.style.backdropFilter = 'blur(8px)';
-        el.style.boxShadow = '0 8px 22px rgba(0,0,0,0.32)';
-        el.style.zIndex = '9999';
-        el.style.pointerEvents = 'none';
-        el.style.opacity = '0';
-        el.style.transition = 'opacity .18s ease, transform .18s ease';
         el.textContent = msg;
-        el.style.display = 'block';
-        requestAnimationFrame(function () {
-            el.style.opacity = '1';
-            el.style.transform = 'translateX(-50%) translateY(0)';
-        });
+        el.classList.add('show');
         clearTimeout(el._t);
         el._t = setTimeout(function () {
-            el.style.opacity = '0';
-            el.style.transform = 'translateX(-50%) translateY(6px)';
-            setTimeout(function () { el.style.display = 'none'; }, 180);
+            el.classList.remove('show');
         }, 1600);
     }
 
@@ -284,8 +262,20 @@
         if (mql && !mql._h5ThemeBound) {
             mql._h5ThemeBound = true;
             mql.addEventListener('change', function () {
+                if (global.FLDisplayPrefs) {
+                    var p = global.FLDisplayPrefs.load();
+                    if (p.theme === 'auto') applyTheme();
+                    return;
+                }
                 var pref = localStorage.getItem(THEME_KEY) || 'dark';
                 if (pref === 'system') applyTheme();
+            });
+        }
+        if (!global._h5DisplayPrefsBound) {
+            global._h5DisplayPrefsBound = true;
+            global.addEventListener('goodfans-display-change', function () {
+                applyTheme();
+                watchOverlaysForLightTheme();
             });
         }
     }

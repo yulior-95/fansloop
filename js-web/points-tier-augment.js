@@ -154,7 +154,7 @@
 
             '<div class="pt-ct-title">+' + S.formatPoints(detail.finalPoints) + ' 积分（服务端结算）</div>' +
 
-            '<div class="pt-ct-body">' + (taskName || '任务奖励') + '<br>' +
+            '<div class="pt-ct-body">' + (taskName || '任务奖励') + ' · ' +
 
             '基础 ' + S.formatPoints(detail.basePoints) + ' · 加成 +' + S.formatPoints(detail.bonusPoints) +
 
