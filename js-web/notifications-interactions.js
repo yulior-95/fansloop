@@ -282,17 +282,6 @@
         document.getElementById('nfDetailTitle').textContent = item.querySelector('.nf-text')?.innerText?.slice(0, 80) || '通知详情';
         document.getElementById('nfDetailType').textContent = typeTag;
         document.getElementById('nfDetailTime').textContent = item.querySelector('.nf-meta')?.textContent?.replace(/\s+/g, ' ') || '—';
-        document.getElementById('nfDetailBody').textContent = item.querySelector('.nf-text')?.innerText || '';
-        var thumb = item.querySelector('.nf-thumb');
-        var img = document.getElementById('nfDetailImg');
-        if (img) {
-            if (thumb) {
-                img.src = getComputedStyle(thumb).backgroundImage.replace(/^url\(["']?|["']?\)$/g, '');
-                img.style.display = '';
-            } else {
-                img.style.display = 'none';
-            }
-        }
         openOvl('nfOvlDetail');
     }
 

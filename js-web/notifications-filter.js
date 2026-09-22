@@ -114,6 +114,7 @@
         item.className = 'nf-item unread';
         item.setAttribute('data-nf-type', 'income');
         item.setAttribute('data-tip-event-id', event.id);
+        if (event.context === 'profile') item.setAttribute('data-nf-tip-context', 'profile');
         var icon = document.createElement('div');
         icon.className = 'nf-ic t-tip';
         icon.innerHTML = '<i class="fa-solid fa-gift"></i>';
@@ -126,11 +127,28 @@
         var amount = document.createElement('span');
         amount.className = 'amt';
         amount.textContent = '+' + window.FLTipEvents.formatAmount(event.amount) + ' USDT';
-        text.append(sender, document.createTextNode(' 给你打赏了「' + (event.gift || '心意') + '」 '), amount);
-        if (event.message) text.append(document.createTextNode(' · 「' + event.message + '」'));
+        if (event.context === 'profile') {
+            text.append(
+                sender,
+                document.createTextNode(' 在你的 '),
+                (function () {
+                    var strong = document.createElement('span');
+                    strong.style.fontWeight = '700';
+                    strong.textContent = '创作者主页';
+                    return strong;
+                })(),
+                document.createTextNode(' 直接打赏了 '),
+                amount
+            );
+        } else {
+            text.append(sender, document.createTextNode(' 给你打赏了「' + (event.gift || '心意') + '」 '), amount);
+        }
         var meta = document.createElement('div');
         meta.className = 'nf-meta';
-        meta.innerHTML = '<span><i class="fa-regular fa-clock"></i> 刚刚</span><span class="dot"></span><span>' + tipContextLabel(event.context) + '</span>';
+        var metaContext = event.context === 'profile'
+            ? '创作者主页<span class="dot"></span><span><i class="fa-solid fa-user"></i> 主页打赏</span>'
+            : tipContextLabel(event.context);
+        meta.innerHTML = '<span><i class="fa-regular fa-clock"></i> 刚刚</span><span class="dot"></span><span>' + metaContext + '</span>';
         body.append(text, meta);
         item.append(icon, body);
         day.parentNode.insertBefore(item, day.nextSibling);

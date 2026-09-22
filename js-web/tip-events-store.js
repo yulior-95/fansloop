@@ -95,8 +95,7 @@
             sender: currentUser && (currentUser.nickname || currentUser.nickName || currentUser.name),
             gift: selected.querySelector('.nm') ? selected.querySelector('.nm').textContent : '',
             amount: parseAmount(total.textContent),
-            context: recipient.querySelector('.ctx')?.getAttribute('data-gift-ctx'),
-            message: root.querySelector('.gift-msg-input input')?.value
+            context: recipient.querySelector('.ctx')?.getAttribute('data-gift-ctx')
         });
         if (badge && name) name.appendChild(badge);
         return event;

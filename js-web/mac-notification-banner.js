@@ -126,7 +126,7 @@
         tip: function () {
             return notify({
                 title: 'BlockTrader 打赏了你',
-                body: '+50 USDT · 「画面太美了，期待下一组！」',
+                body: '+50 USDT',
                 icon: 'fa-gift',
                 thumb: 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=200',
                 href: 'notifications.html?tab=unread',
