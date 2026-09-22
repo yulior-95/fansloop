@@ -1,14 +1,41 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="h5-create-live-page">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>创建直播</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
 <script src="../js/h5-theme-boot.js"></script>
 <style>
 .nav-bar{background:var(--bg-primary)}
-.app-content{padding:calc(var(--status-bar-height) + var(--nav-bar-height)) 16px 100px}
+html.h5-create-live-page{
+  min-height:100%;
+  min-height:100dvh;
+  display:flex;
+  justify-content:center;
+  align-items:stretch;
+  background:var(--bg-secondary);
+}
+:root[data-theme='light'] html.h5-create-live-page{
+  background:#e4e7ee;
+}
+body.page-create-live{
+  position:relative;
+  flex:0 0 auto;
+  width:100%;
+  max-width:430px;
+  min-height:100vh;
+  min-height:100dvh;
+  height:100vh;
+  height:100dvh;
+  margin:0;
+  overflow:hidden;
+  box-shadow:0 0 0 1px var(--border-color),0 12px 48px rgba(0,0,0,.18);
+}
+body.page-no-tab-bar.page-create-live .app-content{
+  padding:calc(var(--status-bar-height) + var(--nav-bar-height)) 16px calc(96px + env(safe-area-inset-bottom, 12px)) !important;
+}
 .seg{display:flex;gap:8px;margin-bottom:12px}
 .seg button{flex:1;height:36px;border-radius:999px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-secondary);font-size:13px}
 .seg button.active{background:rgba(168,85,247,.16);border-color:#a855f7;color:var(--text-primary)}
@@ -22,7 +49,15 @@ textarea{min-height:68px;resize:vertical}
 .line{display:flex;gap:8px;align-items:center}
 .line code{flex:1;background:var(--bg-inset);border:1px solid var(--border-color);border-radius:8px;padding:8px 10px;font-size:11px;color:#7c3aed;word-break:break-all}
 .sbtn{height:32px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary);padding:0 10px;font-size:12px}
-.preview-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.35);color:#93c5fd;margin-bottom:10px}
+.preview-badge{
+  display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
+  padding:5px 10px;border-radius:999px;margin-bottom:10px;
+  background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.35);color:#fde68a;
+}
+:root[data-theme='light'] body.page-create-live .preview-badge{
+  background:#fef3c7;border-color:rgba(217,119,6,.45);color:#92400e;
+}
+:root[data-theme='light'] body.page-create-live .preview-badge i{color:#b45309}
 .live-preview-hint{font-size:11px;color:var(--text-tertiary);line-height:1.55;margin-top:10px}
 .live-preview-hint i{color:#60a5fa;margin-right:4px}
 .cover{aspect-ratio:16/9;border-radius:12px;border:1.5px dashed var(--border-strong);background:var(--bg-card);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--text-tertiary);cursor:pointer;margin-top:10px}
@@ -41,8 +76,22 @@ textarea{min-height:68px;resize:vertical}
 .tag-pill{font-size:11px;padding:4px 8px;border-radius:999px;background:rgba(168,85,247,.14);border:1px solid rgba(168,85,247,.35);color:var(--text-primary)}
 .tag-pill .x{margin-left:4px;opacity:.7;cursor:pointer}
 .hidden{display:none}
-.submit-bar{position:absolute;left:0;right:0;bottom:0;padding:10px 16px 30px;background:rgba(10,10,18,.95);border-top:.5px solid var(--border-color)}
-.submit-bar .btn{width:100%}
+.submit-bar{
+  position:absolute;
+  left:0;right:0;bottom:0;
+  z-index:40;
+  padding:10px 16px calc(12px + env(safe-area-inset-bottom, 16px));
+  background:rgba(10,10,18,.95);
+  border-top:.5px solid var(--border-color);
+  box-sizing:border-box;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+.submit-bar .btn{width:100%;min-height:48px;font-size:15px;font-weight:600}
+:root[data-theme='light'] body.page-create-live .submit-bar{
+  background:rgba(255,255,255,.96);
+  border-top-color:var(--border-color);
+}
 .set-row.clickable{cursor:pointer}
 .set-row .ic{width:36px;height:36px;border-radius:10px;background:var(--bg-inset);display:flex;align-items:center;justify-content:center;color:#60a5fa;flex-shrink:0}
 .set-row .aud-val{font-size:12px;color:var(--text-secondary);flex-shrink:0}
@@ -66,7 +115,7 @@ textarea{min-height:68px;resize:vertical}
 <link rel="stylesheet" href="../css/h5-light-theme.css">
 <link rel="stylesheet" href="../css/h5-audience-perm.css">
 </head>
-<body>
+<body class="page-create-live">
 <input id="coverInput" type="file" accept="image/*" hidden>
 <div class="status-bar"><span class="time">9:41</span><span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span></div>
 <div class="nav-bar solid">
@@ -96,10 +145,10 @@ textarea{min-height:68px;resize:vertical}
       <div class="lb"><span><i class="fa-regular fa-clock"></i> 计划开播时间（仅展示在预告图文）</span></div>
       <input id="scheduleInput" type="datetime-local" step="60">
     </div>
-    <p class="live-preview-hint"><i class="fa-solid fa-circle-info"></i> 直播预告将以<strong>图文动态</strong>发布到 Feed；<strong>不会</strong>创建直播间。开播时请另选「立即开播」。</p>
+    <p class="live-preview-hint"><i class="fa-solid fa-circle-info"></i> 直播预告将以<strong>图文动态</strong>发布到 Feed，供粉丝浏览与互动；<strong>不会</strong>创建直播间，也与实际开播流程无关。开播时请另选「立即开播」。</p>
   </div>
 
-  <div class="card">
+  <div class="card" id="cardLiveTags">
     <div class="lb" style="margin:0 0 8px"><span><i class="fa-solid fa-hashtag" style="color:#c084fc"></i> 添加标签</span></div>
     <div class="tag-input" id="liveTagInput">
       <span class="tag-pill"># 爵士 <span class="x" role="button" tabindex="0" title="移除">×</span></span>
@@ -107,10 +156,10 @@ textarea{min-height:68px;resize:vertical}
       <span class="tag-pill"># 深夜直播 <span class="x" role="button" tabindex="0" title="移除">×</span></span>
       <input type="text" id="liveTagField" placeholder="输入后回车，最多 8 个" autocomplete="off">
     </div>
-    <div class="tip"><i class="fa-solid fa-compass"></i> 标签将展示在直播详情与发现流，便于粉丝通过话题找到本场直播。</div>
+    <div class="tip" id="liveTagTip"><i class="fa-solid fa-compass"></i> 标签将展示在直播详情与发现流，便于粉丝通过话题找到本场直播。</div>
   </div>
 
-  <div class="card">
+  <div class="card hidden" id="cardMonetize" aria-hidden="true">
     <div class="lb" style="margin:0 0 8px"><span><i class="fa-solid fa-coins" style="color:#f59e0b"></i> 变现设置</span></div>
     <div class="money-grid" id="moneyGrid">
       <div class="mcell" data-mode="free"><i class="fa-solid fa-check mcheck"></i><div class="ti">免费公开</div><div class="sub">所有人可见完整内容</div></div>
@@ -123,7 +172,7 @@ textarea{min-height:68px;resize:vertical}
     <div class="tip">「订阅专属」只决定可见范围；订阅价格请到会员订阅设置配置。</div>
   </div>
 
-  <div class="card">
+  <div class="card" id="cardAdvanced">
     <div class="lb" style="margin:0 0 8px"><span><i class="fa-solid fa-sliders" style="color:#60a5fa"></i> 高级设置</span></div>
     <select id="permSelect" class="perm-select-native" aria-hidden="true" tabindex="-1">
       <option value="public" selected>所有人</option>
@@ -142,7 +191,7 @@ textarea{min-height:68px;resize:vertical}
       <h4><i class="fa-solid fa-mobile-screen-button" style="color:#34d399"></i> 直播方式 <span class="badge">手机开播</span></h4>
       <p class="lead">在手机上使用摄像头与麦克风直接推流，无需配置 OBS 或推流密钥。</p>
       <ul class="mobile-live-steps">
-        <li><i class="fa-solid fa-circle-check"></i><span>确认标题与简介，按需设置标签与变现方式</span></li>
+        <li><i class="fa-solid fa-circle-check"></i><span>确认标题与简介，按需设置标签</span></li>
         <li><i class="fa-solid fa-circle-check"></i><span>点击下方「进入主播直播间」，授权相机与麦克风</span></li>
         <li><i class="fa-solid fa-circle-check"></i><span>在主播间内可切换前后摄像头、暂停、弹幕与礼物</span></li>
       </ul>
@@ -171,6 +220,10 @@ textarea{min-height:68px;resize:vertical}
   var cover=document.getElementById('cover'), coverInput=document.getElementById('coverInput');
   var scheduleInput=document.getElementById('scheduleInput');
   var mobileLiveCard=document.getElementById('mobileLiveCard');
+  var cardLiveTags=document.getElementById('cardLiveTags');
+  var cardAdvanced=document.getElementById('cardAdvanced');
+  var cardMonetize=document.getElementById('cardMonetize');
+  var liveTagTip=document.getElementById('liveTagTip');
   var moneyGrid=document.getElementById('moneyGrid'), rowPpv=document.getElementById('rowPpv');
   var liveTagInput=document.getElementById('liveTagInput'), liveTagField=document.getElementById('liveTagField');
   var LIVE_TAG_MAX=8;
@@ -187,6 +240,14 @@ textarea{min-height:68px;resize:vertical}
     blockNow.classList.toggle('hidden',mode!=='now');
     blockPreview.classList.toggle('hidden',mode!=='preview');
     if(mobileLiveCard) mobileLiveCard.classList.toggle('hidden',mode!=='now');
+    if(cardMonetize) cardMonetize.classList.add('hidden');
+    if(cardAdvanced) cardAdvanced.classList.remove('hidden');
+    if(cardLiveTags) cardLiveTags.classList.remove('hidden');
+    if(liveTagTip){
+      liveTagTip.innerHTML=mode==='preview'
+        ?'<i class="fa-solid fa-compass"></i> 标签将展示在预告图文与发现流，便于粉丝通过话题找到本场直播。'
+        :'<i class="fa-solid fa-compass"></i> 标签将展示在直播详情与发现流，便于粉丝通过话题找到本场直播。';
+    }
     submitBtn.innerHTML=mode==='now'
       ?'<i class="fa-solid fa-tower-broadcast"></i> 进入主播直播间'
       :'<i class="fa-solid fa-bullhorn"></i> 发布直播预告';
