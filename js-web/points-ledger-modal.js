@@ -212,7 +212,10 @@
     global.FLPointsLedgerModal = { open: open, close: close };
 
     function boot() {
-        if (!global.document.querySelector('.app-shell')) return;
+        var root = global.document.querySelector('.app-shell') ||
+            global.document.querySelector('.pm-h5-wrap') ||
+            global.document.querySelector('.goodfans-app');
+        if (!root) return;
         ensureCss();
         bindLedgerLinks();
     }

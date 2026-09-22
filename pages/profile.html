@@ -42,25 +42,27 @@
     z-index: 2;
 }
 
+body.page-profile-h5 .app-content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: transparent;
+    padding-bottom: 0;
+}
 body.page-profile-h5 .profile-header-sticky {
-    position: sticky;
-    top: 0;
+    flex-shrink: 0;
+    position: relative;
     z-index: 30;
     background: transparent;
-    box-shadow: none;
-    transition: background 0.22s ease, box-shadow 0.22s ease, backdrop-filter 0.22s ease;
 }
-body.page-profile-h5 .profile-header-sticky.is-scrolled {
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    background: rgba(10, 10, 18, 0.78);
-    box-shadow: 0 1px 0 var(--border-color);
-}
-:root[data-theme='light'] body.page-profile-h5 .profile-header-sticky.is-scrolled {
-    background: rgba(243, 245, 250, 0.88);
-}
-body.page-profile-h5 .app-content {
-    background: transparent;
+body.page-profile-h5 .profile-scroll-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    background: var(--bg-primary);
+    padding-bottom: calc(var(--tab-bar-height) + 20px);
 }
 .top-tools {
     position: relative;
@@ -406,7 +408,7 @@ body.page-profile-h5 .app-content {
 .tool-color-8 { background: rgba(168,85,247,0.15); color: var(--brand-purple); }
 
 /* 标签页 */
-body.page-profile-h5 #pfSectionMyContent { scroll-margin-top: 260px; }
+body.page-profile-h5 #pfSectionMyContent { scroll-margin-top: 8px; }
 .section-head2 {
     padding: 4px 16px 10px;
     display: flex; justify-content: space-between; align-items: center;
@@ -885,6 +887,8 @@ body.page-profile-h5 #pfSectionMyContent { scroll-margin-top: 260px; }
         </div>
     </div>
 
+    <div class="profile-scroll-body" id="profileScrollBody">
+
     <!-- 数据统计 -->
     <div class="stat-row" style="margin-top:16px">
         <div class="s" id="pfStatWorks"><div class="v">142</div><div class="l">作品</div></div>
@@ -932,7 +936,7 @@ body.page-profile-h5 #pfSectionMyContent { scroll-margin-top: 260px; }
             <div class="tool-icon tool-color-3"><i class="fa-solid fa-list-check"></i></div>
             <span class="tool-label">积分任务</span>
         </div>
-        <div class="tool" id="pfToolMall" data-go="goodfans-assets-legend.html">
+        <div class="tool" id="pfToolMall" data-go="points-mall.html">
             <div class="tool-icon tool-color-2"><i class="fa-solid fa-coins"></i></div>
             <span class="tool-label">积分商城</span>
         </div>
@@ -1145,6 +1149,8 @@ body.page-profile-h5 #pfSectionMyContent { scroll-margin-top: 260px; }
             </div>
         </div>
     </div>
+
+    </div><!-- /.profile-scroll-body -->
 
 </div>
 
@@ -1600,10 +1606,10 @@ body.page-profile-h5 #pfSectionMyContent { scroll-margin-top: 260px; }
         syncPointsMiniFromStore();
         open(pfPointsOvl);
     });
-    if (pfToolMall) pfToolMall.addEventListener('click', function () { location.href = 'goodfans-assets-legend.html'; });
+    if (pfToolMall) pfToolMall.addEventListener('click', function () { location.href = 'points-mall.html'; });
     if (pfInviteCopyBtn) pfInviteCopyBtn.addEventListener('click', function () { toast('邀请码已复制：ALEX-8K3F'); });
     if (pfInviteGotoBtn) pfInviteGotoBtn.addEventListener('click', function () { location.href = 'transactions.html'; });
-    if (pfPointsMallBtn) pfPointsMallBtn.addEventListener('click', function () { location.href = 'goodfans-assets-legend.html'; });
+    if (pfPointsMallBtn) pfPointsMallBtn.addEventListener('click', function () { location.href = 'points-mall.html'; });
     if (pfPointsCloseFoot) pfPointsCloseFoot.addEventListener('click', function () { close(pfPointsOvl); });
     if (pfPointsLedgerBtn) pfPointsLedgerBtn.addEventListener('click', function () { location.href = 'home-points-ledger.html'; });
     document.querySelectorAll('#hpMiniTabs button').forEach(function (btn) {
@@ -1677,15 +1683,6 @@ body.page-profile-h5 #pfSectionMyContent { scroll-margin-top: 260px; }
         if (!document.hidden) syncKyc();
     });
 
-    var pfAppContent = document.querySelector('body.page-profile-h5 .app-content');
-    var pfHeaderSticky = document.querySelector('.profile-header-sticky');
-    if (pfAppContent && pfHeaderSticky) {
-        function syncProfileHeaderScroll() {
-            pfHeaderSticky.classList.toggle('is-scrolled', pfAppContent.scrollTop > 12);
-        }
-        pfAppContent.addEventListener('scroll', syncProfileHeaderScroll, { passive: true });
-        syncProfileHeaderScroll();
-    }
 })();
 </script>
 </body>

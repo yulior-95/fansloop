@@ -13,7 +13,35 @@
 .hero{padding:14px;border-radius:14px;border:1px solid rgba(168,85,247,.35);background:linear-gradient(135deg,rgba(168,85,247,.18),rgba(236,72,153,.08))}
 .hero h1{font-size:20px;font-weight:800}
 .hero p{margin-top:6px;font-size:12px;color:var(--text-secondary);line-height:1.55}
-.balance .top{display:flex;justify-content:space-between;align-items:center}
+.balance .top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.balance-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.pm-balance-ledger-link{
+  display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 10px;border-radius:999px;
+  font-size:11px;font-weight:600;color:var(--text-secondary);text-decoration:none;
+  border:1px solid var(--border-color);background:var(--bg-card);
+}
+.pm-balance-ledger-link i{font-size:10px;color:#fbbf24}
+.gf-history-btn{
+  width:34px;height:34px;border-radius:10px;border:1px solid var(--border-color);
+  background:var(--bg-card);color:var(--text-secondary);cursor:pointer;display:grid;place-items:center;
+}
+.gf-history-btn.is-active,.gf-history-btn:active{color:var(--brand-purple);border-color:rgba(168,85,247,.45)}
+.gf-benefit-slot{
+  margin-top:12px;padding:0;border-radius:12px;border:1px solid var(--border-color);
+  background:var(--bg-inset);overflow:hidden;
+}
+.gf-benefit-slot .bh{
+  padding:10px 12px;border-bottom:1px solid var(--border-color);
+  font-size:10px;font-weight:700;letter-spacing:.3px;color:var(--text-tertiary);text-transform:uppercase;
+}
+.gf-benefit-slot .bh-title{display:flex;align-items:center;gap:6px}
+.gf-benefit-slot .bb{padding:8px 12px 12px;max-height:150px;overflow-y:auto;font-size:12px}
+.gf-benefit-slot .bp-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-color);align-items:flex-start}
+.gf-benefit-slot .bp-row:last-child{border-bottom:0;padding-bottom:0}
+.gf-benefit-slot .bp-row .dot{width:7px;height:7px;border-radius:50%;background:#10b981;margin-top:5px;flex-shrink:0}
+.gf-benefit-slot .bp-row .ti{font-weight:700;color:var(--text-primary);font-size:12px;line-height:1.35}
+.gf-benefit-slot .bp-row .exp{font-size:10px;color:var(--text-tertiary);margin-top:3px;line-height:1.45}
+.goodfans-app .dev-glass-wrap{display:none!important}
 .balance .v{font-size:24px;font-weight:900;margin-top:8px}
 .bgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .bcell{padding:8px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border-color)}
@@ -102,14 +130,26 @@ html[data-theme='light'] .goodfans-app .tabs button.active{color:#5b21b6;backgro
 <div class="nav-bar solid">
   <div class="nav-left"><div class="nav-btn" data-back="profile.html"><i class="fa-solid fa-chevron-left"></i></div></div>
   <div class="nav-title">积分兑换商城</div>
-  <div class="nav-right"><div class="nav-btn" id="btnHistory"><i class="fa-solid fa-clock-rotate-left"></i></div></div>
+  <div class="nav-right"></div>
 </div>
 <div class="app-content content-with-nav goodfans-app">
   <section class="hero">
     <h1><i class="fa-solid fa-coins" style="color:#fbbf24"></i> 积分兑换商城</h1>
     <p>使用积分兑换站内权益，兑换成功后权益将下发至你的账户。</p>
+    <div class="gf-benefit-slot pm-benefit-slot" id="pmBenefitSlot">
+      <div class="bh">
+        <span class="bh-title"><i class="fa-solid fa-ticket" style="color:#C084FC"></i>当前兑换权益</span>
+      </div>
+      <div class="bb" id="benefitViewCurrent"></div>
+    </div>
     <div class="balance">
-      <div class="top"><span style="font-size:11px;color:var(--text-tertiary)">积分账户</span></div>
+      <div class="top">
+        <span style="font-size:11px;color:var(--text-tertiary)">积分账户</span>
+        <div class="balance-actions">
+          <a href="#" class="pm-balance-ledger-link" title="任务签到、邀请、消耗等积分账变（弹窗查看）"><i class="fa-solid fa-receipt"></i> 积分流水</a>
+          <button type="button" class="gf-history-btn" id="btnHistoryToggle" title="商城兑换记录（非任务流水）" aria-expanded="false" aria-label="查看历史兑换记录" aria-controls="historyOvl"><i class="fa-solid fa-clock-rotate-left"></i></button>
+        </div>
+      </div>
       <div class="v"><i class="fa-solid fa-bolt" style="color:#fbbf24"></i> <span id="availVal">12,580</span></div>
       <div class="bgrid">
         <div class="bcell"><div class="k">可用（可兑换）</div><div class="n n--avail" id="availDup">12,580</div></div>
@@ -179,6 +219,12 @@ html[data-theme='light'] .goodfans-app .tabs button.active{color:#5b21b6;backgro
 
 <div class="home-indicator"></div>
 <script src="../js/digital-h5-nav.js"></script>
+<script src="../js-web/mall-vouchers-store.js"></script>
+<script src="../js-web/mall-benefits-sync.js"></script>
+<script src="../js-web/points-tier-config.js"></script>
+<script src="../js-web/points-reward-service.js"></script>
+<script src="../js-web/home-points-store.js"></script>
+<script src="../js-web/points-ledger-modal.js"></script>
 <script>
 (function(){
   function toast(m){ if(window.DigitalH5Nav&&window.DigitalH5Nav.toast) window.DigitalH5Nav.toast(m); }
@@ -251,11 +297,13 @@ html[data-theme='light'] .goodfans-app .tabs button.active{color:#5b21b6;backgro
     history.unshift({time:'09-01 20:35',order:'PM'+Date.now(),name:currentGood.title,cat:'pay',points:currentGood.price,status:'using',note:'兑换成功，待使用'});
     renderBalance(); renderHistory(); close('redeemOvl'); toast('兑换成功，权益已到账');
   };
-  document.getElementById('btnHistory').onclick=function(){ renderHistory(); open('historyOvl'); };
-  document.getElementById('historyClose').onclick=function(){ close('historyOvl'); };
+  function openHistory(){ renderHistory(); open('historyOvl'); var btn=document.getElementById('btnHistoryToggle'); if(btn){ btn.classList.add('is-active'); btn.setAttribute('aria-expanded','true'); } }
+  function closeHistory(){ close('historyOvl'); var btn=document.getElementById('btnHistoryToggle'); if(btn){ btn.classList.remove('is-active'); btn.setAttribute('aria-expanded','false'); } }
+  document.getElementById('btnHistoryToggle').onclick=function(){ openHistory(); };
+  document.getElementById('historyClose').onclick=function(){ closeHistory(); };
   document.getElementById('histSearch').addEventListener('input',renderHistory);
   document.getElementById('histStatus').addEventListener('change',renderHistory);
-  document.getElementById('historyOvl').addEventListener('click',function(e){ if(e.target===this) close('historyOvl'); });
+  document.getElementById('historyOvl').addEventListener('click',function(e){ if(e.target===this) closeHistory(); });
   document.getElementById('btnWheel2').onclick=function(){ open('wheelOvl'); };
   document.getElementById('wheelClose').onclick=function(){ close('wheelOvl'); };
   document.getElementById('wheelOvl').addEventListener('click',function(e){ if(e.target===this) close('wheelOvl'); });
@@ -273,6 +321,10 @@ html[data-theme='light'] .goodfans-app .tabs button.active{color:#5b21b6;backgro
       renderHistory(); spinning=false;
     },3200);
   };
+  if(window.MallBenefitsSync) window.MallBenefitsSync.renderHero('benefitViewCurrent');
+  document.addEventListener('fl-mall-benefits-changed',function(){
+    if(window.MallBenefitsSync) window.MallBenefitsSync.renderHero('benefitViewCurrent');
+  });
   renderBalance();
   renderGoods();
   renderHistory();
