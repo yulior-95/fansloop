@@ -17,11 +17,12 @@
 
 .profile-bg {
     position: absolute;
-    top: 0; left: 0; right: 0; height: 280px;
+    top: 0; left: 0; right: 0; height: 320px;
     background-color: var(--bg-primary);
     background-size: cover;
     background-position: center;
     z-index: 0;
+    pointer-events: none;
 }
 .profile-bg::before {
     content: '';
@@ -41,6 +42,26 @@
     z-index: 2;
 }
 
+body.page-profile-h5 .profile-header-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: transparent;
+    box-shadow: none;
+    transition: background 0.22s ease, box-shadow 0.22s ease, backdrop-filter 0.22s ease;
+}
+body.page-profile-h5 .profile-header-sticky.is-scrolled {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(10, 10, 18, 0.78);
+    box-shadow: 0 1px 0 var(--border-color);
+}
+:root[data-theme='light'] body.page-profile-h5 .profile-header-sticky.is-scrolled {
+    background: rgba(243, 245, 250, 0.88);
+}
+body.page-profile-h5 .app-content {
+    background: transparent;
+}
 .top-tools {
     position: relative;
     padding: calc(var(--status-bar-height) + 6px) 16px 0;
@@ -70,7 +91,7 @@
 /* Profile head */
 .profile-top {
     position: relative;
-    padding: 20px 16px 0;
+    padding: 20px 16px 12px;
     z-index: 3;
 }
 .profile-top .p-head {
@@ -385,7 +406,7 @@
 .tool-color-8 { background: rgba(168,85,247,0.15); color: var(--brand-purple); }
 
 /* 标签页 */
-#pfSectionMyContent { scroll-margin-top: 8px; }
+body.page-profile-h5 #pfSectionMyContent { scroll-margin-top: 260px; }
 .section-head2 {
     padding: 4px 16px 10px;
     display: flex; justify-content: space-between; align-items: center;
@@ -830,37 +851,38 @@
 
 <div class="app-content" style="padding-top:0">
 
-    <div class="top-tools">
-        <div class="tool-btn" id="pfBtnBell"><i class="fa-regular fa-bell"></i><span class="dot"></span></div>
-        <div class="tool-btn" data-go="settings.html"><i class="fa-solid fa-gear"></i></div>
-    </div>
-
-    <div class="profile-top">
-        <div class="p-head">
-            <div class="avatar-ring">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80" alt="">
-                <span class="role-badge pf-role-badge" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
-            </div>
-            <div class="info">
-                <div class="name">
-                    <span id="pfNameText">Luna 🌙</span>
-                </div>
-                <div class="pf-tags-row tags-row" id="creatorTagsRow">
-                    <span id="creatorCertTagWrap"></span>
-                    <span class="tag tag-muted"><i class="fa-solid fa-shield" aria-hidden="true"></i>未认证</span>
-                </div>
-                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px">
-                    @alex_k · 加入 128 天
-                </div>
-                <div class="pf-role-line" id="profileRoleLine">用户 · 0x7A3F...3F2C</div>
-                <div class="id-row">
-                    <span class="badge badge-crypto"><i class="fa-solid fa-bolt"></i> Lv.5 资深用户</span>
-                </div>
-                <div id="pfBioText" style="margin-top:6px;font-size:12px;color:var(--text-secondary)">📷 旅行 / 美食 / 慢生活 摄影师｜📍现居东京</div>
-            </div>
-            <div class="tool-btn" id="pfEditProfileBtn"><i class="fa-solid fa-pen"></i></div>
+    <div class="profile-header-sticky">
+        <div class="top-tools">
+            <div class="tool-btn" id="pfBtnBell"><i class="fa-regular fa-bell"></i><span class="dot"></span></div>
+            <div class="tool-btn" data-go="settings.html"><i class="fa-solid fa-gear"></i></div>
         </div>
 
+        <div class="profile-top">
+            <div class="p-head">
+                <div class="avatar-ring">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80" alt="">
+                    <span class="role-badge pf-role-badge" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
+                </div>
+                <div class="info">
+                    <div class="name">
+                        <span id="pfNameText">Luna 🌙</span>
+                    </div>
+                    <div class="pf-tags-row tags-row" id="creatorTagsRow">
+                        <span id="creatorCertTagWrap"></span>
+                        <span class="tag tag-muted"><i class="fa-solid fa-shield" aria-hidden="true"></i>未认证</span>
+                    </div>
+                    <div style="font-size:12px; color:var(--text-secondary); margin-top:4px">
+                        @alex_k · 加入 128 天
+                    </div>
+                    <div class="pf-role-line" id="profileRoleLine">用户 · 0x7A3F...3F2C</div>
+                    <div class="id-row">
+                        <span class="badge badge-crypto"><i class="fa-solid fa-bolt"></i> Lv.5 资深用户</span>
+                    </div>
+                    <div id="pfBioText" style="margin-top:6px;font-size:12px;color:var(--text-secondary)">📷 旅行 / 美食 / 慢生活 摄影师｜📍现居东京</div>
+                </div>
+                <div class="tool-btn" id="pfEditProfileBtn"><i class="fa-solid fa-pen"></i></div>
+            </div>
+        </div>
     </div>
 
     <!-- 数据统计 -->
@@ -1654,6 +1676,16 @@
     document.addEventListener('visibilitychange', function () {
         if (!document.hidden) syncKyc();
     });
+
+    var pfAppContent = document.querySelector('body.page-profile-h5 .app-content');
+    var pfHeaderSticky = document.querySelector('.profile-header-sticky');
+    if (pfAppContent && pfHeaderSticky) {
+        function syncProfileHeaderScroll() {
+            pfHeaderSticky.classList.toggle('is-scrolled', pfAppContent.scrollTop > 12);
+        }
+        pfAppContent.addEventListener('scroll', syncProfileHeaderScroll, { passive: true });
+        syncProfileHeaderScroll();
+    }
 })();
 </script>
 </body>

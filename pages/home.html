@@ -59,6 +59,62 @@ body { touch-action: pan-y; }
     z-index: 22;
 }
 .feed-live-badge i { font-size: 8px; }
+.feed-live-badge--preview {
+    background: rgba(245, 158, 11, 0.92);
+    color: #fff;
+}
+.feed-live-badge--preview i { font-size: 11px; }
+.feed-live-badge--ended {
+    background: rgba(100, 116, 139, 0.88);
+}
+.feed-live-badge--replay {
+    background: rgba(99, 102, 241, 0.88);
+}
+.feed-page--live-preview .feed-video.clickable { cursor: default; }
+.feed-preview-text-bg {
+    width: 100%; height: 100%;
+    background: linear-gradient(165deg, #1e293b 0%, #0f172a 45%, #312e81 100%);
+}
+.feed-live-preview-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+}
+.feed-live-preview-card .flp-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(245, 158, 11, 0.18);
+    color: #fcd34d;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 15px;
+}
+.feed-live-preview-card .flp-body { flex: 1; min-width: 0; }
+.feed-live-preview-card .flp-t { font-size: 13px; font-weight: 700; color: #fff; line-height: 1.35; }
+.feed-live-preview-card .flp-s { font-size: 11px; color: rgba(255,255,255,0.62); margin-top: 3px; }
+.feed-live-preview-card .lp-remind {
+    flex-shrink: 0;
+    border: 0;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.feed-live-preview-card .lp-remind.is-subscribed {
+    background: rgba(16, 185, 129, 0.35);
+    color: #a7f3d0;
+}
 
 /* 顶部导航 */
 .top-nav {
@@ -2784,6 +2840,10 @@ body.h5-search-open .top-nav {
             },
             {
                 id: 'live_nova_1',
+                feedType: 'live-preview',
+                previewId: 'nova-doc-2200',
+                previewTime: '2026-05-23（周六）22:00 开播',
+                previewSub: '图文预告 · 请注意开播时间',
                 cover: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=900&q=80',
                 creator: '@nova_room',
                 title: '今晚 22:00 开播，聊聊纪录片拍摄流程。',
@@ -2793,17 +2853,31 @@ body.h5-search-open .top-nav {
                 comment: '642',
                 save: '309',
                 avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80',
-                liveBadge: '直播预告 · 今晚 22:00',
-                liveScene: '多人连麦',
-                liveHref: 'live-detail.html?host=coffee&creator=%E5%92%96%E5%95%A1%E5%BA%97%E4%B8%BB&nav=home',
-                cohosts: [
-                    { name: 'Nova', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&q=80' },
-                    { name: 'Host-A', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&q=80' },
-                    { name: 'Host-B', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&q=80' }
-                ],
-                danmu: ['已预约', '今晚见', '多人连麦会聊哪些设备？'],
+                liveBadge: '直播预告',
                 comments: [
                     { name: 'Ryo', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80', text: '已预约，等你开播。' }
+                ],
+                locked: false
+            },
+            {
+                id: 'live_yeyu_preview_1',
+                feedType: 'live-preview',
+                previewVariant: 'text',
+                previewId: 'yeyu-jazz-0525',
+                previewTime: '2026-05-25（周三）20:30 开播',
+                previewSub: '纯文字预告 · 请注意开播时间',
+                cover: '',
+                creator: '@yeyu_music',
+                title: '周末爵士夜 · 曲目单已整理好，欢迎预约提醒。',
+                tags: ['#爵士夜', '#直播预告', '#预约提醒'],
+                music: '直播预告 · 夜雨听弦',
+                like: '920',
+                comment: '188',
+                save: '76',
+                avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80',
+                liveBadge: '直播预告',
+                comments: [
+                    { name: 'Mina', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=80', text: '已点预约，到时见。' }
                 ],
                 locked: false
             },
@@ -2924,8 +2998,13 @@ body.h5-search-open .top-nav {
         return activeFeeds || [];
     }
 
+    function isLivePreviewFeed(f) {
+        return f && (f.feedType === 'live-preview' || (f.liveBadge && String(f.liveBadge).indexOf('直播预告') === 0));
+    }
+
     function pageHtml(f, i) {
         var st = f.__state || { followed: false, liked: false, saved: false, titleExpanded: false };
+        var isPreview = isLivePreviewFeed(f);
         var likeCls = st.liked ? ' is-on' : '';
         var saveCls = st.saved ? ' is-on' : '';
         var followBtnHtml = st.followed
@@ -2933,14 +3012,33 @@ body.h5-search-open .top-nav {
             : '<div class="follow-btn" data-action="follow"><i class="fa-solid fa-plus"></i></div>';
         var titleCls = st.titleExpanded ? ' expanded' : '';
         var tagsHtml = (f.tags || []).map(function (t) { return '<span class="hash">' + esc(t) + '</span>'; }).join('');
-        var liveBadgeHtml = f.liveBadge
-            ? '<div class="feed-live-badge" data-action="enter-live"><i class="fa-solid fa-circle"></i><span>' + esc(f.liveBadge) + '</span></div>'
+        var liveBadgeHtml = '';
+        if (isPreview && f.liveBadge) {
+            liveBadgeHtml = '<div class="feed-live-badge feed-live-badge--preview"><i class="fa-regular fa-calendar-days"></i><span>' + esc(f.liveBadge) + '</span></div>';
+        } else if (f.liveBadge) {
+            var badgeMod = f.liveBadge.indexOf('直播中') >= 0 ? '' : (f.liveBadge.indexOf('回放') >= 0 ? ' feed-live-badge--replay' : ' feed-live-badge--ended');
+            liveBadgeHtml = '<div class="feed-live-badge' + badgeMod + '" data-action="enter-live"><i class="fa-solid fa-circle"></i><span>' + esc(f.liveBadge) + '</span></div>';
+        }
+        var canEnterLive = !isPreview && f.liveHref;
+        var videoCls = canEnterLive ? 'feed-video clickable' : 'feed-video';
+        var coverInner = (isPreview && f.previewVariant === 'text' && !f.cover)
+            ? '<div class="feed-preview-text-bg" aria-hidden="true"></div>'
+            : '<img class="cover" src="' + esc(f.cover) + '" alt="">';
+        var previewCardHtml = isPreview
+            ? ('<div class="feed-live-preview-card">' +
+                '<div class="flp-icon"><i class="fa-regular fa-clock"></i></div>' +
+                '<div class="flp-body">' +
+                '<div class="flp-t">' + esc(f.previewTime || '今晚 22:00 开播') + '</div>' +
+                '<div class="flp-s">' + esc(f.previewSub || '图文预告 · 请注意开播时间') + '</div>' +
+                '</div>' +
+                '<button type="button" class="lp-remind" data-action="book-preview" data-preview-id="' + esc(f.previewId || f.id) + '" data-preview-creator="' + esc((f.creator || '').replace(/^@/, '')) + '" data-preview-title="' + esc((f.title || '').slice(0, 24)) + '" data-preview-time="' + esc(f.previewTime || '') + '"><i class="fa-regular fa-bell"></i> 预约提醒</button>' +
+                '</div>')
             : '';
-        var videoCls = f.liveHref ? 'feed-video clickable' : 'feed-video';
+        var pageCls = 'feed-page' + (isPreview ? ' feed-page--live-preview' : '');
         return '' +
-            '<section class="feed-page" data-feed-index="' + i + '" style="transform:translateY(' + (i * 100) + '%)">' +
-                '<div class="' + videoCls + '" ' + (f.liveHref ? 'data-action="enter-live"' : '') + '>' +
-                    '<img class="cover" src="' + esc(f.cover) + '" alt="">' +
+            '<section class="' + pageCls + '" data-feed-index="' + i + '" style="transform:translateY(' + (i * 100) + '%)">' +
+                '<div class="' + videoCls + '" ' + (canEnterLive ? 'data-action="enter-live"' : '') + '>' +
+                    coverInner +
                     '<div class="gradient-overlay-top"></div>' +
                     '<div class="gradient-overlay-bottom"></div>' +
                 '</div>' +
@@ -2968,7 +3066,8 @@ body.h5-search-open .top-nav {
                     '<div class="creator"><span class="name" data-action="creator-profile">' + esc(f.creator) + '</span><span class="badge badge-brand"><i class="fa-solid fa-crown"></i> Pro</span></div>' +
                     '<div class="title expandable' + titleCls + '" data-action="toggle-title">' + esc(f.title) + '</div>' +
                     '<div class="tags">' + tagsHtml + '</div>' +
-                    '<div class="music-info"><i class="fa-solid fa-music"></i><span>' + esc(f.music) + '</span></div>' +
+                    previewCardHtml +
+                    '<div class="music-info"><i class="fa-solid fa-' + (isPreview ? 'calendar-check' : 'music') + '"></i><span>' + esc(f.music) + '</span></div>' +
                 '</div>' +
             '</section>';
     }
@@ -2978,6 +3077,7 @@ body.h5-search-open .top-nav {
         track.innerHTML = list.map(pageHtml).join('');
         if (idx >= list.length) idx = 0;
         applyTrack(false);
+        if (window.FL_applyLivePreviewReminds) window.FL_applyLivePreviewReminds();
     }
 
     function viewportH() {
@@ -3867,7 +3967,7 @@ body.h5-search-open .top-nav {
 
     function feedLongPressTarget(el) {
         if (!el || !el.closest) return null;
-        if (el.closest('.action-bar, .feed-info, .paywall, .feed-live-badge')) return null;
+        if (el.closest('.action-bar, .feed-info, .paywall, .feed-live-badge, .feed-live-preview-card, .lp-remind')) return null;
         var videoEl = el.closest('.feed-video');
         if (!videoEl) return null;
         var section = el.closest('.feed-page');
@@ -3988,6 +4088,42 @@ body.h5-search-open .top-nav {
         applyTrack(false);
     });
 
+    (function initLivePreviewRemind() {
+        var LS_KEY = 'fl_live_preview_reminds';
+        function loadReminds() {
+            try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch (e) { return []; }
+        }
+        function saveReminds(list) {
+            try { localStorage.setItem(LS_KEY, JSON.stringify(list)); } catch (e) {}
+        }
+        function markSubscribed(btn) {
+            btn.classList.add('is-subscribed');
+            btn.innerHTML = '<i class="fa-solid fa-bell"></i> 已预约';
+        }
+        function applySavedReminds() {
+            loadReminds().forEach(function (id) {
+                track.querySelectorAll('.lp-remind[data-preview-id="' + id + '"]').forEach(markSubscribed);
+            });
+        }
+        window.FL_applyLivePreviewReminds = applySavedReminds;
+        window.FL_toggleLivePreviewRemind = function (btn) {
+            if (!btn) return;
+            var id = btn.getAttribute('data-preview-id');
+            var creator = btn.getAttribute('data-preview-creator') || '创作者';
+            var title = btn.getAttribute('data-preview-title') || '直播预告';
+            var time = btn.getAttribute('data-preview-time') || '';
+            if (btn.classList.contains('is-subscribed')) {
+                showToast('已预约 · 开播前将通过系统消息提醒您');
+                return;
+            }
+            var list = loadReminds();
+            if (id && list.indexOf(id) === -1) list.push(id);
+            saveReminds(list);
+            markSubscribed(btn);
+            showToast('已加入系统消息 · ' + creator + '「' + title + '」' + (time ? ' · ' + time : '') + ' 开播前提醒您');
+        };
+    })();
+
     buildTrack();
 
     track.addEventListener('click', function (e) {
@@ -4037,10 +4173,20 @@ body.h5-search-open .top-nav {
             return;
         }
         if (action === 'enter-live') {
+            if (isLivePreviewFeed(item)) {
+                showToast('直播预告为图文动态 · 请使用「预约提醒」');
+                return;
+            }
             if (item.liveHref) {
                 openLiveRoom(item);
             } else {
                 showToast('该内容暂不支持进入直播间');
+            }
+            return;
+        }
+        if (action === 'book-preview') {
+            if (window.FL_toggleLivePreviewRemind) {
+                window.FL_toggleLivePreviewRemind(actionEl);
             }
             return;
         }

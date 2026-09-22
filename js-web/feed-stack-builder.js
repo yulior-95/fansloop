@@ -161,7 +161,7 @@
         if (liveEnded) {
             metaLive = '<span class="meta-live-ended"><i class="fa-solid fa-circle"></i>直播已结束</span><span class="dot">·</span>总观看 ' + formatNum(1200 + i * 89);
         } else if (isLive) {
-            metaLive = '<span style="color:#fca5a5;font-weight:600">正在直播</span><span class="dot">·</span><i class="fa-regular fa-eye"></i> ' + formatNum(800 + i * 37) + ' 人实时观看';
+            metaLive = '<span class="meta-live-on">正在直播</span><span class="dot">·</span><i class="fa-regular fa-eye"></i> ' + formatNum(800 + i * 37) + ' 人实时观看';
         } else {
             metaLive = '<span class="meta-online"><i class="fa-solid fa-circle"></i>在线</span><span class="dot">·</span>创作者 LV ' + c.lv + '<span class="dot">·</span>' + hours + ' 小时前';
         }
@@ -203,7 +203,11 @@
 
     function resolveSlideType(i, stackKind) {
         if (stackKind === 'live') {
-            return { type: 'live', liveStatus: i % 2 === 0 ? 'live' : 'ended' };
+            var lm = i % 10;
+            if (lm === 5) return { type: 'live-preview', previewVariant: 'image' };
+            if (lm === 6) return { type: 'live-preview', previewVariant: 'text' };
+            if (lm === 9) return { type: 'live', liveStatus: 'ended' };
+            return { type: 'live', liveStatus: 'live' };
         }
         if (stackKind === 'follow') {
             return { type: i % 3 === 1 ? 'video' : 'image' };
@@ -383,8 +387,7 @@
         var guestCls = guest ? ' guest-act' : '';
         var liveOngoing = type === 'live' && liveStatus !== 'ended';
         var liveExtra = liveOngoing
-            ? '<span class="a-btn' + guestCls + '" onclick="' + (guest ? "location.href='modal-login-main.html'" : 'FL_openDanmakuModal()') + '"><i class="fa-regular fa-comment"></i>实时弹幕</span>' +
-              '<span class="a-btn tip-cta' + guestCls + '" onclick="' + (guest ? "location.href='modal-login-main.html'" : 'FL_openGiftModal(this)') + '"><i class="fa-solid fa-gift"></i>送礼</span>'
+            ? '<span class="a-btn tip-cta' + guestCls + '" onclick="' + (guest ? "location.href='modal-login-main.html'" : 'FL_openGiftModal(this)') + '"><i class="fa-solid fa-gift"></i>送礼</span>'
             : '<span class="a-btn tip-cta' + guestCls + '" onclick="' + (guest ? "location.href='modal-login-main.html'" : 'FL_openGiftModal(this)') + '"><i class="fa-solid fa-gift"></i>打赏</span>' +
               '<span class="a-btn bookmark-act' + guestCls + '" role="button"><i class="fa-regular fa-bookmark"></i><span>收藏</span></span>';
         var commentClick = guest ? '' : ' onclick="FL_openInteractionModal(\'comment-modal.html\')"';
@@ -472,6 +475,9 @@
         track.innerHTML = html;
         if (global.FL_applyPostTextClamp) {
             global.FL_applyPostTextClamp(track);
+        }
+        if (global.FL_applyLivePreviewReminds) {
+            global.FL_applyLivePreviewReminds();
         }
         return n;
     }
