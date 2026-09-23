@@ -301,10 +301,12 @@
     var audienceSlots = [null, null];
     var micQueue = [];
     var micQueueId = 0;
+    var MAX_ADMINS = 5;
+    var ADMIN_ROLE_LABEL = '房管 · 本场';
     var admins = [
-        { name: 'Nova', av: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80', role: '房管 · 可禁言/踢人' }
+        { name: 'Nova', av: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80', role: ADMIN_ROLE_LABEL }
     ];
-    var lastDmUser = 'Ken';
+    var audienceRegistry = {};
     var AV_POOL = [
         'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80',
         'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=80',
@@ -312,9 +314,63 @@
     ];
     var DEMO_NAMES = ['Fan_01', 'River', 'Yuki', 'Alex', 'Mochi'];
 
+    function registerAudienceUser(name) {
+        if (!name || name === '系统') return;
+        if (audienceRegistry[name]) return;
+        var n = Object.keys(audienceRegistry).length;
+        audienceRegistry[name] = { av: AV_POOL[n % AV_POOL.length] };
+    }
+    DM_SAMPLES.forEach(function (item) { registerAudienceUser(item.u); });
+    DEMO_NAMES.forEach(function (name) { registerAudienceUser(name); });
+
+    function isAdminName(name) {
+        return admins.some(function (a) { return a.name === name; });
+    }
+    function findAudience(name) {
+        name = String(name || '').trim();
+        if (!name) return null;
+        if (audienceRegistry[name]) return { name: name, av: audienceRegistry[name].av };
+        var idx = DEMO_NAMES.indexOf(name);
+        if (idx >= 0) {
+            registerAudienceUser(name);
+            return { name: name, av: audienceRegistry[name].av };
+        }
+        return null;
+    }
+    function updateAdminCap() {
+        var cap = document.getElementById('lhAdminCap');
+        if (cap) cap.textContent = admins.length + ' / ' + MAX_ADMINS;
+    }
+    function appointAdmin(name) {
+        var info = findAudience(name);
+        if (!info) {
+            toast('未找到「' + name + '」· 请从列表选择或等待观众发言');
+            return false;
+        }
+        if (isAdminName(info.name)) {
+            toast(info.name + ' 已是房管');
+            return false;
+        }
+        if (admins.length >= MAX_ADMINS) {
+            toast('房管已满（最多 ' + MAX_ADMINS + ' 人）· 请先移除');
+            return false;
+        }
+        admins.push({ name: info.name, av: info.av, role: ADMIN_ROLE_LABEL });
+        toast('已任命 ' + info.name + ' 为房管');
+        renderAdmins();
+        renderAdminCandidates();
+        return true;
+    }
+
     function openSheet(id) {
         var el = document.getElementById(id);
-        if (el) el.classList.add('open');
+        if (el) {
+            el.classList.add('open');
+            if (id === 'lhAdminSheet') {
+                renderAdminCandidates();
+                updateAdminCap();
+            }
+        }
     }
     function closeSheet(id) {
         var el = document.getElementById(id);
@@ -480,6 +536,7 @@
         }
         micQueueId += 1;
         var applicant = name || DEMO_NAMES[micQueueId % DEMO_NAMES.length];
+        registerAudienceUser(applicant);
         micQueue.push({
             id: 'q' + micQueueId,
             name: applicant,
@@ -490,29 +547,85 @@
         toast(applicant + ' 申请连麦');
     }
 
+    function renderAdminCandidates() {
+        var list = document.getElementById('lhAdminCandidates');
+        var input = document.getElementById('lhAdminSearch');
+        if (!list) return;
+        var q = input ? String(input.value || '').trim().toLowerCase() : '';
+        var names = Object.keys(audienceRegistry).filter(function (name) {
+            if (isAdminName(name)) return false;
+            if (!q) return true;
+            return name.toLowerCase().indexOf(q) >= 0;
+        });
+        names.sort();
+        var atCap = admins.length >= MAX_ADMINS;
+        if (!names.length) {
+            list.innerHTML = '<li class="lh-admin-cand-empty">' +
+                (q ? '没有匹配「' + q + '」的观众' : '暂无观众 · 弹幕互动后将出现在此') +
+                '</li>';
+            return;
+        }
+        list.innerHTML = names.slice(0, 12).map(function (name) {
+            var av = audienceRegistry[name].av;
+            return '<li class="lh-admin-candidate">' +
+                '<div class="av" style="background-image:url(\'' + av + '\')"></div>' +
+                '<div class="meta"><div class="n">' + name + '</div><div class="s">本场观众</div></div>' +
+                '<button type="button" data-add-admin="' + name + '"' + (atCap ? ' disabled' : '') + '>任命</button></li>';
+        }).join('');
+        list.querySelectorAll('[data-add-admin]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                appointAdmin(btn.getAttribute('data-add-admin'));
+            });
+        });
+    }
+
     function renderAdmins() {
         var list = document.getElementById('lhAdminList');
         if (!list) return;
         if (!admins.length) {
-            list.innerHTML = '<li style="justify-content:center;color:var(--text-tertiary)">暂无房管</li>';
+            list.innerHTML = '<li class="lh-admin-empty" style="justify-content:center;color:var(--text-tertiary)">暂无房管 · 请从上方添加</li>';
+            updateAdminCap();
             return;
         }
         list.innerHTML = admins.map(function (a, idx) {
             return '<li><div class="av" style="background-image:url(\'' + a.av + '\')"></div>' +
                 '<div class="meta"><div class="n">' + a.name + '</div><div class="s">' + a.role + '</div></div>' +
-                '<button type="button" data-rm-admin="' + idx + '">移除</button></li>';
+                '<button type="button" data-rm-admin="' + idx + '" aria-label="移除房管 ' + a.name + '">移除</button></li>';
         }).join('');
         list.querySelectorAll('[data-rm-admin]').forEach(function (b) {
             b.addEventListener('click', function () {
                 var i = parseInt(b.getAttribute('data-rm-admin'), 10);
+                var removed = admins[i];
+                if (!removed) return;
                 admins.splice(i, 1);
+                toast('已取消 ' + removed.name + ' 的房管身份');
                 renderAdmins();
+                renderAdminCandidates();
             });
         });
+        updateAdminCap();
     }
+
+    document.getElementById('lhAdminSearch')?.addEventListener('input', renderAdminCandidates);
+    document.getElementById('lhAdminAddBtn')?.addEventListener('click', function () {
+        var input = document.getElementById('lhAdminSearch');
+        var name = input ? input.value.trim() : '';
+        if (!name) {
+            toast('请输入或选择观众昵称');
+            return;
+        }
+        if (appointAdmin(name) && input) input.value = '';
+    });
+    document.getElementById('lhAdminSearch')?.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('lhAdminAddBtn')?.click();
+        }
+    });
 
     updateMicLiveChrome();
     renderAdmins();
+    renderAdminCandidates();
 
     document.getElementById('lhMicApplyAccept')?.addEventListener('click', function () {
         var banner = document.getElementById('lhMicApplyBanner');
@@ -540,20 +653,6 @@
         closeSheet('lhCohostSheet');
     });
 
-    document.getElementById('lhAdminFromDm')?.addEventListener('click', function () {
-        if (admins.some(function (a) { return a.name === lastDmUser; })) {
-            toast(lastDmUser + ' 已是房管');
-            return;
-        }
-        admins.push({
-            name: lastDmUser,
-            av: AV_POOL[1],
-            role: '房管 · 从弹幕任命'
-        });
-        renderAdmins();
-        toast('已任命 ' + lastDmUser + ' 为房管');
-    });
-
     document.getElementById('lhShareCopy')?.addEventListener('click', function () {
         var inp = document.getElementById('lhShareLink');
         if (inp && navigator.clipboard && navigator.clipboard.writeText) {
@@ -571,7 +670,6 @@
             else if (action === 'cohost') openSheet('lhCohostSheet');
             else if (action === 'admin') openSheet('lhAdminSheet');
             else if (action === 'share') openSheet('lhShareSheet');
-            else if (action === 'flip') btnFlip?.click();
         });
     });
 
@@ -594,8 +692,11 @@
     var origPushDanmaku = pushDanmaku;
     pushDanmaku = function (item) {
         if (!danmakuOn && !item.sys) return;
-        if (item.u && item.u !== '系统') lastDmUser = item.u;
+        registerAudienceUser(item.u);
         origPushDanmaku(item);
+        if (document.getElementById('lhAdminSheet')?.classList.contains('open')) {
+            renderAdminCandidates();
+        }
     };
 
     var origShowGift = showGiftFloat;

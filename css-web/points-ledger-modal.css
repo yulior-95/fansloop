@@ -39,7 +39,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(168, 85, 247, 0.1));
+    background: linear-gradient(135deg, rgba(88, 28, 135, 0.25), rgba(168, 85, 247, 0.12));
 }
 .plm-overlay .pm-modal--ledger .mh h3 {
     font-size: 16px;
@@ -56,6 +56,9 @@
     min-width: 32px;
     min-height: 32px;
     border-radius: var(--r-md);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 .plm-overlay .pm-modal-close:hover {
     color: var(--t-primary);
@@ -68,6 +71,13 @@
     flex: 1;
     min-height: 0;
     overflow: hidden;
+}
+.plm-intro {
+    font-size: 12px;
+    color: var(--t-secondary);
+    margin: 0 0 12px;
+    line-height: 1.5;
+    flex-shrink: 0;
 }
 .ledger-modal-body .pl-summary {
     display: grid;
@@ -89,22 +99,32 @@
     font-size: 10px;
     color: var(--t-tertiary);
     margin-bottom: 4px;
+    white-space: nowrap;
 }
 .ledger-modal-body .pl-summary .card .v {
     font-size: 18px;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
 }
 .ledger-modal-body .pl-summary .card.avail .v { color: #FDE68A; }
 .ledger-modal-body .pl-summary .card.frozen .v { color: #93C5FD; }
+.ledger-modal-body .pl-summary .card.purple .v { color: #C084FC; }
 .ledger-modal-body .pl-filters {
     display: flex;
     gap: 8px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
     margin-bottom: 12px;
     flex-shrink: 0;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
 }
+.ledger-modal-body .pl-filters::-webkit-scrollbar { display: none; }
 .ledger-modal-body .pl-filters button {
+    flex-shrink: 0;
+    white-space: nowrap;
     padding: 7px 14px;
     border-radius: var(--r-pill);
     font-size: 12px;
@@ -134,6 +154,12 @@
     background: rgba(168, 85, 247, 0.22);
     border-color: rgba(168, 85, 247, 0.55);
 }
+.plm-ledger-area {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
 .ledger-table-scroll {
     flex: 1;
     min-height: 0;
@@ -144,6 +170,7 @@
 }
 .ledger-modal-body .pl-table {
     width: 100%;
+    min-width: 560px;
     border-collapse: collapse;
 }
 .ledger-modal-body .pl-table th {
@@ -157,6 +184,7 @@
     position: sticky;
     top: 0;
     z-index: 1;
+    white-space: nowrap;
 }
 .ledger-modal-body .pl-table td {
     padding: 12px 14px;
@@ -164,17 +192,211 @@
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
 }
+.ledger-modal-body .pl-table td.pl-col-time {
+    font-size: 12px;
+    color: var(--t-tertiary);
+    white-space: nowrap;
+}
+.ledger-modal-body .pl-table td.pl-col-status {
+    white-space: nowrap;
+}
+.ledger-modal-body .pl-table td.pl-col-amt {
+    text-align: right;
+    white-space: nowrap;
+}
+.ledger-modal-body .pl-table .pl-task-note {
+    font-size: 11px;
+    color: var(--t-tertiary);
+    margin-top: 2px;
+}
 .ledger-modal-body .pl-table tr:last-child td { border-bottom: none; }
 .ledger-modal-body .pl-table tr:hover td { background: var(--bg-hover); }
 .pl-status {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
     font-size: 10px;
     padding: 3px 8px;
     border-radius: 999px;
     font-weight: 700;
+    border: 1px solid transparent;
+    line-height: 1.2;
 }
 .pl-status.available { background: rgba(16, 185, 129, 0.15); color: #6EE7B7; }
 .pl-status.frozen { background: rgba(59, 130, 246, 0.15); color: #93C5FD; }
 .pl-status.spent { background: rgba(148, 163, 184, 0.12); color: #94A3B8; }
+/* H5 流水列表 · 状态胶囊略放大（浅色对比见 h5-light-theme.css） */
+.pm-h5-wrap .plm-overlay .pl-status {
+    font-size: 11px;
+    padding: 2px 8px;
+}
 .pl-amt.plus { color: #6EE7B7; font-weight: 800; }
 .pl-amt.minus { color: #FCA5A5; font-weight: 800; }
+.plm-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.plm-row {
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+}
+.plm-row .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+.plm-row .top strong {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.35;
+    min-width: 0;
+}
+.plm-row .amt {
+    font-size: 14px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+.plm-row .meta {
+    margin-top: 6px;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--t-tertiary);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.plm-row .meta::-webkit-scrollbar { display: none; }
+.plm-row .meta > span {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+.plm-empty {
+    text-align: center;
+    padding: 28px 16px;
+    font-size: 12px;
+    color: var(--t-tertiary);
+}
+.plm-overlay:not(.plm-overlay--h5) .plm-list,
+.plm-overlay:not(.plm-overlay--h5) .plm-empty {
+    display: none !important;
+}
+.plm-overlay--h5 .plm-table-wrap {
+    display: none !important;
+}
+
+/* H5 · 积分商城手机框内底 sheet（与兑换确认弹窗一致） */
+.pm-h5-wrap .plm-overlay.pm-overlay {
+    position: absolute !important;
+    inset: 0;
+    z-index: 520;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+.pm-h5-wrap .plm-overlay.pm-overlay.show .pm-modal--ledger {
+    animation: plmSheetUp 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+@keyframes plmSheetUp {
+    from { transform: translateY(100%); opacity: 0.92; }
+    to { transform: translateY(0); opacity: 1; }
+}
+.pm-h5-wrap .plm-overlay .pm-modal--ledger {
+    width: 100%;
+    max-width: 100%;
+    max-height: min(88vh, 720px);
+    margin: 0;
+    border-radius: 18px 18px 0 0;
+    border: 1px solid var(--border-color, var(--border));
+    border-bottom: none;
+    background: var(--bg-sheet, var(--bg-elevated));
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.22);
+}
+.pm-h5-wrap .plm-overlay .pm-modal--ledger .mh {
+    padding: 14px 16px;
+    background: var(--bg-sheet, var(--bg-elevated));
+    border-bottom: 1px solid var(--border-color, var(--border));
+}
+.pm-h5-wrap .plm-overlay .pm-modal--ledger .mh h3 {
+    font-size: 15px;
+    color: var(--text-primary, var(--t-primary));
+}
+.pm-h5-wrap .plm-overlay .pm-modal-close {
+    color: var(--text-tertiary, var(--t-tertiary));
+    background: var(--bg-inset, var(--bg-input));
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+}
+.pm-h5-wrap .plm-overlay .ledger-modal-body {
+    padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+}
+.pm-h5-wrap .plm-overlay .plm-intro {
+    color: var(--text-secondary, var(--t-secondary));
+}
+.pm-h5-wrap .plm-overlay .ledger-modal-body .pl-summary {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.pm-h5-wrap .plm-overlay .ledger-modal-body .pl-summary .card {
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color, var(--border));
+    background: var(--bg-card);
+    box-sizing: border-box;
+}
+.pm-h5-wrap .plm-overlay .ledger-modal-body .pl-summary .card.avail .v { color: #fbbf24; }
+.pm-h5-wrap .plm-overlay .ledger-modal-body .pl-summary .card.frozen .v { color: #93c5fd; }
+/* H5 筛选项：与 .pm-h5-wrap .pm-tabs 一致（覆盖 Web 端 .pl-filters 配色） */
+.pm-h5-wrap .plm-overlay .ledger-modal-body .pl-filters.pm-tabs {
+    padding: 2px 28px 6px 0;
+    scroll-padding-inline: 14px;
+}
+.pm-h5-wrap .plm-overlay .ledger-modal-body .pl-filters.pm-tabs button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    height: 34px;
+    padding: 0 14px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 999px;
+    border: 1px solid var(--border-color, var(--border));
+    background: var(--bg-inset, var(--bg-input));
+    color: var(--text-secondary, var(--t-secondary));
+    cursor: pointer;
+}
+.pm-h5-wrap .plm-overlay .ledger-modal-body .pl-filters.pm-tabs button:hover:not(.active) {
+    color: var(--text-primary, var(--t-primary));
+    background: var(--bg-elevated, var(--bg-hover));
+    border-color: var(--border-color, var(--border-strong));
+}
+.pm-h5-wrap .plm-overlay .ledger-modal-body .pl-filters.pm-tabs button.active {
+    background: var(--brand-gradient);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.22);
+}
+.pm-h5-wrap .plm-overlay .ledger-modal-body .pl-filters.pm-tabs button.active:hover {
+    color: #fff;
+    border-color: transparent;
+}
+.pm-h5-wrap .plm-overlay .plm-row {
+    border-color: var(--border-color, var(--border));
+    background: var(--bg-card);
+}
 body.pl-ledger-modal-open { overflow: hidden; }

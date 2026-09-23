@@ -49,6 +49,7 @@
     var historyOverlay = document.getElementById('historyOverlay');
     var historyClose = document.getElementById('historyClose');
     var historyTableBody = document.getElementById('historyTableBody');
+    var historyList = document.getElementById('historyList');
     var historyEmpty = document.getElementById('historyEmpty');
     var histSearch = document.getElementById('histSearch');
     var histStatus = document.getElementById('histStatus');
@@ -65,8 +66,12 @@
     var histSumFiltered = document.getElementById('histSumFiltered');
 
     var HIST_PAGE_SIZE = 10;
+    var HIST_H5_CHUNK = 10;
     var histPage = 1;
     var histFiltered = [];
+    var histH5Loaded = 0;
+    var histH5Loading = false;
+    var histListFoot = document.getElementById('histListFoot');
 
     function syncBenefitHero() {
         if (window.MallBenefitsSync) {
@@ -371,13 +376,107 @@
     }
 
     /* —— 历史兑换 · 大尺寸弹窗 —— */
+    function isMallH5() {
+        return !!document.querySelector('.pm-h5-wrap');
+    }
+
     function statusHtml(row) {
+        if (isMallH5()) {
+            var h5 = row.status === 'none' ? 'muted' : (row.status || 'muted');
+            return '<span class="pm-hist-status ' + h5 + '">' + row.statusLabel + '</span>';
+        }
         if (row.status === 'none') {
             return '<span style="color:var(--t-tertiary)">' + row.statusLabel + '</span>';
         }
         var cls = STATUS_TAG[row.status] || 'tag';
         var extra = row.status === 'expired' ? ' style="font-size:10px;background:rgba(255,255,255,0.06);color:var(--t-tertiary)"' : ' style="font-size:10px"';
         return '<span class="tag ' + cls + '"' + extra + '>' + row.statusLabel + '</span>';
+    }
+
+    function historyRowHtml(row) {
+        var note = row.note ? row.note : '';
+        return '<article class="pm-hist-row">' +
+            '<div class="top"><strong>' + row.product + '</strong>' +
+            '<span class="pts">−' + fmt(row.points) + '</span></div>' +
+            '<div class="meta"><span>' + row.time + '</span>' +
+            statusHtml(row) +
+            '<span>' + row.catLabel + '</span></div>' +
+            '<div class="sub">' + row.id + (note ? ' · ' + note : '') + '</div>' +
+            '</article>';
+    }
+
+    function renderHistoryListRows(pageRows, append) {
+        if (!historyList || !isMallH5()) return;
+        var html = pageRows.map(historyRowHtml).join('');
+        if (append) {
+            historyList.insertAdjacentHTML('beforeend', html);
+        } else {
+            historyList.innerHTML = html;
+            historyList.scrollTop = 0;
+        }
+        historyList.classList.toggle('has-items', historyList.children.length > 0);
+    }
+
+    function updateHistoryH5ListFoot() {
+        if (!histListFoot || !isMallH5()) return;
+        if (!histFiltered.length) {
+            histListFoot.hidden = true;
+            histListFoot.setAttribute('aria-hidden', 'true');
+            histListFoot.textContent = '';
+            histListFoot.classList.remove('is-loading');
+            return;
+        }
+        if (histH5Loading) {
+            histListFoot.hidden = false;
+            histListFoot.setAttribute('aria-hidden', 'false');
+            histListFoot.classList.add('is-loading');
+            histListFoot.textContent = '加载中…';
+            return;
+        }
+        if (histH5Loaded >= histFiltered.length) {
+            histListFoot.hidden = false;
+            histListFoot.setAttribute('aria-hidden', 'false');
+            histListFoot.classList.remove('is-loading');
+            histListFoot.textContent = '已展示全部 ' + fmt(histFiltered.length) + ' 条';
+            return;
+        }
+        histListFoot.hidden = false;
+        histListFoot.setAttribute('aria-hidden', 'false');
+        histListFoot.classList.remove('is-loading');
+        histListFoot.textContent = '上滑加载更多';
+    }
+
+    function appendHistoryH5Chunk() {
+        if (histH5Loaded >= histFiltered.length) return false;
+        var prev = histH5Loaded;
+        histH5Loaded = Math.min(histH5Loaded + HIST_H5_CHUNK, histFiltered.length);
+        renderHistoryListRows(histFiltered.slice(prev, histH5Loaded), prev > 0);
+        return true;
+    }
+
+    function fillHistoryH5Viewport() {
+        if (!historyList || !isMallH5()) return;
+        var guard = 0;
+        while (histH5Loaded < histFiltered.length &&
+            historyList.scrollHeight <= historyList.clientHeight + 8 &&
+            guard < 20) {
+            appendHistoryH5Chunk();
+            guard += 1;
+        }
+        updateHistoryH5ListFoot();
+    }
+
+    function loadMoreHistoryH5() {
+        if (!isMallH5() || histH5Loading || histH5Loaded >= histFiltered.length) return;
+        histH5Loading = true;
+        updateHistoryH5ListFoot();
+        var prev = histH5Loaded;
+        window.setTimeout(function () {
+            histH5Loaded = Math.min(histH5Loaded + HIST_H5_CHUNK, histFiltered.length);
+            renderHistoryListRows(histFiltered.slice(prev, histH5Loaded), true);
+            histH5Loading = false;
+            fillHistoryH5Viewport();
+        }, 120);
     }
 
     function filterHistoryRecords() {
@@ -410,6 +509,18 @@
     function renderHistoryTable() {
         histFiltered = filterHistoryRecords();
         updateHistorySummary(HISTORY_RECORDS, histFiltered);
+
+        if (isMallH5()) {
+            histH5Loading = false;
+            histH5Loaded = Math.min(HIST_H5_CHUNK, histFiltered.length);
+            renderHistoryListRows(histFiltered.slice(0, histH5Loaded), false);
+            if (historyEmpty) {
+                historyEmpty.classList.toggle('is-hidden', histFiltered.length > 0);
+            }
+            window.requestAnimationFrame(fillHistoryH5Viewport);
+            syncHistoryFilterFieldState();
+            return;
+        }
 
         var totalPages = Math.max(1, Math.ceil(histFiltered.length / HIST_PAGE_SIZE));
         if (histPage > totalPages) histPage = totalPages;
@@ -446,12 +557,22 @@
         }
         if (histPrev) histPrev.disabled = histPage <= 1;
         if (histNext) histNext.disabled = histPage >= totalPages;
+        syncHistoryFilterFieldState();
+    }
+
+    function syncHistoryFilterFieldState() {
+        [histStatus, histCategory].forEach(function (el) {
+            if (!el) return;
+            var wrap = el.closest('.ht-field--select');
+            if (wrap) wrap.classList.toggle('is-active', !!el.value);
+        });
     }
 
     function openHistoryModal() {
         if (!historyOverlay) return;
         histPage = 1;
         renderHistoryTable();
+        syncHistoryFilterFieldState();
         historyOverlay.classList.add('show');
         historyOverlay.setAttribute('aria-hidden', 'false');
         document.body.classList.add('pm-history-modal-open');
@@ -498,8 +619,8 @@
 
     [histSearch, histStatus, histCategory, histDateFrom, histDateTo].forEach(function (el) {
         if (!el) return;
-        el.addEventListener('input', function () { histPage = 1; renderHistoryTable(); });
-        el.addEventListener('change', function () { histPage = 1; renderHistoryTable(); });
+        el.addEventListener('input', function () { histPage = 1; renderHistoryTable(); syncHistoryFilterFieldState(); });
+        el.addEventListener('change', function () { histPage = 1; renderHistoryTable(); syncHistoryFilterFieldState(); });
     });
     if (histReset) {
         histReset.addEventListener('click', function () {
@@ -521,6 +642,15 @@
         histNext.addEventListener('click', function () {
             var totalPages = Math.max(1, Math.ceil(histFiltered.length / HIST_PAGE_SIZE));
             if (histPage < totalPages) { histPage += 1; renderHistoryTable(); }
+        });
+    }
+
+    if (historyList) {
+        historyList.addEventListener('scroll', function () {
+            if (!isMallH5() || !historyOverlay || !historyOverlay.classList.contains('show')) return;
+            if (histH5Loaded >= histFiltered.length) return;
+            var nearBottom = historyList.scrollTop + historyList.clientHeight >= historyList.scrollHeight - 56;
+            if (nearBottom) loadMoreHistoryH5();
         });
     }
 
@@ -547,8 +677,16 @@
         return USAGE_COLS;
     }
 
+    function isPmH5Layout() {
+        return !!(usageSection && usageSection.closest('.pm-h5-wrap'));
+    }
+
     function usageColWidth() {
         if (!usageScrollWrap) return 240;
+        if (isPmH5Layout()) {
+            var peek = 44;
+            return Math.max(220, usageScrollWrap.clientWidth - peek);
+        }
         var colsPerView = usageColsPerView();
         var gap = 12;
         return (usageScrollWrap.clientWidth - gap * (colsPerView - 1)) / colsPerView;
@@ -576,7 +714,7 @@
         var cards = usageGrid.querySelectorAll('.usage-card');
         var count = cards.length;
         var colsPerView = usageColsPerView();
-        var scrollable = count > colsPerView;
+        var scrollable = isPmH5Layout() ? count > 1 : count > colsPerView;
 
         usageSection.classList.toggle('is-scrollable', scrollable);
         usageGrid.classList.toggle('usage-grid--scroll', scrollable);

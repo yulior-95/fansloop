@@ -18,13 +18,16 @@ body {
 .nav-bar {
     background: var(--bg-primary);
     border-bottom: 0.5px solid var(--border-color);
-    z-index: 110;
+    z-index: 120;
 }
 .status-bar { z-index: 1000; background: var(--bg-primary); }
 
+/* 滚动区夹在状态栏+导航与 Tab 之间，避免列表滑到顶/底栏后面 */
 .app-content {
-    padding-top: calc(var(--status-bar-height) + var(--nav-bar-height));
-    padding-bottom: calc(var(--tab-bar-height) + 20px);
+    top: calc(var(--status-bar-height) + var(--nav-bar-height));
+    bottom: var(--tab-bar-height);
+    padding-top: 0;
+    padding-bottom: 20px;
 }
 body.tx-export-open {
     overflow: hidden;
@@ -34,6 +37,7 @@ body.tx-export-open .home-indicator {
     display: none !important;
 }
 body.tx-export-open .app-content {
+    bottom: 0;
     padding-bottom: 20px;
 }
 .tx-export-iframe {
@@ -134,14 +138,16 @@ body.tx-export-open .tx-export-iframe {
 /* ===== 筛选 & 工具条（sticky 吸附在 nav-bar 下方） ===== */
 .filter-bar {
     position: sticky;
-    /* app-content 为滚动容器且顶到视口；吸顶须让出状态栏 + 导航，避免被 nav-bar 遮住 */
-    top: calc(var(--status-bar-height, 44px) + var(--nav-bar-height, 44px));
-    z-index: 105;
+    top: 0;
+    z-index: 15;
     margin: 0 0 8px;
     padding: 10px 16px 10px;
     background: var(--bg-primary);
     border-bottom: 0.5px solid var(--border-color);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+:root[data-theme='light'] .filter-bar {
+    box-shadow: 0 4px 12px rgba(15, 18, 32, 0.06);
 }
 .filter-chips {
     display: flex; gap: 6px;
@@ -456,7 +462,7 @@ body.tx-export-open .tx-export-iframe {
 </style>
 <link rel="stylesheet" href="../css/h5-light-theme.css?v=20260423-tx2">
 </head>
-<body>
+<body class="page-tx-h5">
 
 <div class="status-bar">
     <span class="time">9:41</span>
@@ -467,7 +473,7 @@ body.tx-export-open .tx-export-iframe {
     </span>
 </div>
 
-<div class="nav-bar">
+<div class="nav-bar solid">
     <div class="nav-left"><div class="nav-btn" data-back="profile.html"><i class="fa-solid fa-chevron-left"></i></div></div>
     <div class="nav-title">账变记录</div>
     <div class="nav-right">

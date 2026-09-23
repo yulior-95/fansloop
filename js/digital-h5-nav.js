@@ -80,7 +80,7 @@
             if (el.children.length && el.textContent.trim().length <= 1) return;
             var cs = global.getComputedStyle(el);
             if (cs.display === 'none' || cs.visibility === 'hidden') return;
-            if (el.closest('.num, .cnt, .unread, .badge-num, .create-btn, .st, .btn-primary, .tab-bar, .da-buybar, .home-overlay, .home-sheet, .live-modal-sheet, .creator-search-inline, .tag, .status')) return;
+            if (el.closest('.num, .cnt, .unread, .badge-num, .create-btn, .st, .btn-primary, .btn-redeem, .btn-r, .wb-go, .gr-note, .g-note, .mf-btns .ok, #redeemOk, .tab-bar, .da-buybar, .home-overlay, .home-sheet, .live-modal-sheet, .creator-search-inline, .tag, .status, .pm-tabs button.active, .pl-filters button, #plModalFilters, #redeemOverlay, #pointsLedgerOverlay, #historyOverlay, #txSupportOverlay, #feedMoreSheet, #liveMoreSheet, #liveShareSheet, .lh-sheet-ovl, .lh-end-ovl, #lhEndOvl, #lhSummaryOvl, #lhMoreSheet, #lhChatSheet, #lhCohostSheet, #lhAdminSheet, #lhShareSheet, .pl-summary .v, .pl-status, .pm-hist-status, .pm-hist-row .pts, .history-summary .v, .detail-item .n .badge, .detail-tabs.pm-tabs .dt, .income-hero, .ih-cell .delta, .trend-sum .ts-r .d, .settle-box, .it-ic, .ic-circle, .row-ic, .m-ic, .dv-ic, .kw-pool, .kw, .inv-highlight, .cool-cell .v, .inv-gold, .warn-box, .da-pill, .da-reject-note')) return;
             if (cs.backgroundImage && cs.backgroundImage !== 'none') return;
             var fg = parseRgbColor(cs.color);
             if (!fg || fg.a <= 0.1) return;

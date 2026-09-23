@@ -27,6 +27,34 @@
             .replace(/"/g, '&quot;');
     }
 
+    function buyerCanAccessOwnedProduct(Orders, productId) {
+        if (!Orders || !productId) return false;
+        if (Orders.viewerCanAccessProduct(productId)) return true;
+        if (Orders.DEMO_BUYER && Orders.hasEntitlement(productId, Orders.DEMO_BUYER)) return true;
+        return Orders.listEntitlements().some(function (e) { return e.productId === productId; });
+    }
+
+    function renderDaPageEmpty(root, opts) {
+        if (!root) return;
+        opts = opts || {};
+        var backHref = opts.backHref || '';
+        var backLabel = opts.backLabel || '返回';
+        var useNavBack = opts.layout === 'h5' && backHref;
+        root.innerHTML =
+            '<div class="da-state-empty">' +
+            '<div class="da-state-empty-ic" aria-hidden="true"><i class="fa-solid fa-' + esc(opts.icon || 'folder-open') + '"></i></div>' +
+            '<p class="da-state-empty-msg">' + esc(opts.message || '暂无内容') + '</p>' +
+            (backHref
+                ? (useNavBack
+                    ? '<button type="button" class="btn btn-secondary da-state-empty-btn" data-go="' + esc(backHref) + '">' + esc(backLabel) + '</button>'
+                    : '<a class="btn btn-secondary da-state-empty-btn" href="' + esc(backHref) + '">' + esc(backLabel) + '</a>')
+                : '') +
+            '</div>';
+        if (global.DigitalH5Nav && typeof global.DigitalH5Nav.bindClicks === 'function') {
+            global.DigitalH5Nav.bindClicks(root);
+        }
+    }
+
     /** 已购查看页：去掉面向未购用户的「购买后可…」等话术 */
     function ownedViewDescription(desc) {
         if (!desc) return '';
@@ -479,7 +507,7 @@
             return '<span class="da-pill ok">已获得</span><span class="da-pill warn">7日内可退 · 剩' + check.daysLeft + '天</span>';
         }
         if (check.expired) {
-            return '<span class="da-pill ok">已获得</span><span class="da-pill off">售后期已过</span>';
+            return '<span class="da-pill ok">已获得</span>';
         }
         return '<span class="da-pill ok">已获得</span><span class="da-pill off">' + esc(order.createdAt || '') + '</span>';
     }
@@ -548,11 +576,21 @@
         });
         var storeHref = layout === 'h5' ? 'digital-store.html' : 'digital-asset-store.html';
         var hideRefund = !!opts.hideRefund;
+        var profileGrid = opts.viewFrom === 'profile' && hideRefund;
         if (!list.length) {
-            root.innerHTML = '<div class="da-empty">还没有已购作品 · <a href="' + storeHref + '" style="color:#C084FC">去逛逛</a></div>';
+            if (profileGrid) {
+                root.innerHTML = '';
+                return;
+            }
+            renderDaPageEmpty(root, {
+                layout: layout,
+                message: '还没有已购作品',
+                backHref: storeHref,
+                backLabel: '去逛逛',
+                icon: 'bag-shopping'
+            });
             return;
         }
-        var profileGrid = opts.viewFrom === 'profile' && hideRefund;
 
         function profileOwnedCardHtml(e, cardLayout) {
             var viewHref = ownedViewHref(e.productId, cardLayout, opts);
@@ -779,21 +817,36 @@
             }
         }
         if (!root) return;
+        var backHref = ownedBackHref(from, layout);
         if (!id || !Store || !Orders) {
-            root.innerHTML = '<div class="da-empty">无效链接</div>';
+            renderDaPageEmpty(root, {
+                layout: layout,
+                message: '链接无效或已失效',
+                backHref: backHref,
+                backLabel: '返回作品库',
+                icon: 'link-slash'
+            });
             return;
         }
-        var canAccess = Orders.viewerCanAccessProduct
-            ? Orders.viewerCanAccessProduct(id)
-            : Orders.hasEntitlement(id);
-        if (!canAccess) {
-            var backHref = ownedBackHref(from, layout);
-            root.innerHTML = '<div class="da-empty">未找到购买权益 · <a href="' + esc(backHref) + '" style="color:#C084FC">返回</a></div>';
+        if (!buyerCanAccessOwnedProduct(Orders, id)) {
+            renderDaPageEmpty(root, {
+                layout: layout,
+                message: '未找到购买权益，可能已退款或账号不一致',
+                backHref: backHref,
+                backLabel: '返回作品库',
+                icon: 'lock'
+            });
             return;
         }
         var p = Store.getById(id);
         if (!p) {
-            root.innerHTML = '<div class="da-empty">商品不存在或已删除</div>';
+            renderDaPageEmpty(root, {
+                layout: layout,
+                message: '商品不存在或已删除',
+                backHref: backHref,
+                backLabel: '返回作品库',
+                icon: 'box-open'
+            });
             return;
         }
         var ent = Orders.findEntitlement

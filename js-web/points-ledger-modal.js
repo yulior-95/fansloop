@@ -33,38 +33,65 @@
             .replace(/"/g, '&quot;');
     }
 
-    function ensureOverlay() {
-        if (overlay) return overlay;
-        overlay = global.document.getElementById('pointsLedgerOverlay');
-        if (overlay) return overlay;
+    function h5Mount() {
+        return global.document.querySelector('.pm-h5-wrap');
+    }
 
-        overlay = global.document.createElement('div');
-        overlay.className = 'pm-overlay plm-overlay pm-overlay--ledger';
-        overlay.id = 'pointsLedgerOverlay';
-        overlay.setAttribute('aria-hidden', 'true');
-        overlay.innerHTML =
-            '<div class="pm-modal pm-modal--ledger" role="dialog" aria-modal="true" aria-labelledby="plModalTitle">' +
-            '<div class="mh">' +
-            '<h3 id="plModalTitle"><i class="fa-solid fa-receipt" style="color:#FBBF24;margin-right:8px"></i>积分获取与消耗明细</h3>' +
-            '<button type="button" class="pm-modal-close" id="plModalClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>' +
-            '</div>' +
-            '<div class="ledger-modal-body">' +
-            '<p style="font-size:12px;color:var(--t-secondary);margin:0 0 12px;line-height:1.5">任务奖励、邀请冷静期、商城兑换与转盘消耗，与首页积分抽屉同源。</p>' +
-            '<div class="pl-summary" id="plModalSummary"></div>' +
-            '<div class="pl-filters" id="plModalFilters">' +
-            '<button type="button" class="active" data-filter="all">全部</button>' +
-            '<button type="button" data-filter="earn">获取</button>' +
-            '<button type="button" data-filter="spend">消耗</button>' +
-            '<button type="button" data-filter="frozen">冷静中</button>' +
-            '</div>' +
-            '<div class="ledger-table-scroll">' +
-            '<table class="pl-table">' +
-            '<thead><tr>' +
-            '<th>时间</th><th>来源 / 用途</th><th>状态</th><th style="text-align:right">积分变动</th>' +
-            '</tr></thead>' +
-            '<tbody id="plModalTableBody"></tbody>' +
-            '</table></div></div></div>';
-        global.document.body.appendChild(overlay);
+    function applyOverlayMount() {
+        if (!overlay) return;
+        var wrap = h5Mount();
+        if (wrap) {
+            if (overlay.parentNode !== wrap) wrap.appendChild(overlay);
+            overlay.classList.add('plm-overlay--h5');
+        } else {
+            overlay.classList.remove('plm-overlay--h5');
+        }
+        var filtersEl = overlay.querySelector('#plModalFilters');
+        if (filtersEl) {
+            filtersEl.classList.add('pm-tabs');
+            filtersEl.setAttribute('role', 'tablist');
+        }
+    }
+
+    function isH5Ledger() {
+        return overlay && overlay.classList.contains('plm-overlay--h5');
+    }
+
+    function ensureOverlay() {
+        overlay = global.document.getElementById('pointsLedgerOverlay');
+        if (!overlay) {
+            overlay = global.document.createElement('div');
+            overlay.className = 'pm-overlay plm-overlay pm-overlay--ledger';
+            overlay.id = 'pointsLedgerOverlay';
+            overlay.setAttribute('aria-hidden', 'true');
+            overlay.innerHTML =
+                '<div class="pm-modal pm-modal--ledger" role="dialog" aria-modal="true" aria-labelledby="plModalTitle">' +
+                '<div class="mh">' +
+                '<h3 id="plModalTitle"><i class="fa-solid fa-receipt" style="color:#FBBF24;margin-right:8px"></i>积分获取与消耗明细</h3>' +
+                '<button type="button" class="pm-modal-close" id="plModalClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>' +
+                '</div>' +
+                '<div class="ledger-modal-body">' +
+                '<p class="plm-intro">任务奖励、邀请冷静期、商城兑换与转盘消耗，与首页积分抽屉同源。</p>' +
+                '<div class="pl-summary" id="plModalSummary"></div>' +
+                '<div class="pl-filters pm-tabs" id="plModalFilters" role="tablist">' +
+                '<button type="button" class="active" data-filter="all">全部</button>' +
+                '<button type="button" data-filter="earn">获取</button>' +
+                '<button type="button" data-filter="spend">消耗</button>' +
+                '<button type="button" data-filter="frozen">冷静中</button>' +
+                '</div>' +
+                '<div class="plm-ledger-area">' +
+                '<div class="plm-list" id="plModalList"></div>' +
+                '<div class="plm-empty" id="plModalEmpty" hidden>暂无匹配的流水记录</div>' +
+                '<div class="ledger-table-scroll plm-table-wrap">' +
+                '<table class="pl-table">' +
+                '<thead><tr>' +
+                '<th>时间</th><th>来源 / 用途</th><th>状态</th><th style="text-align:right">积分变动</th>' +
+                '</tr></thead>' +
+                '<tbody id="plModalTableBody"></tbody>' +
+                '</table></div></div></div></div>';
+            (h5Mount() || global.document.body).appendChild(overlay);
+        }
+        applyOverlayMount();
 
         overlay.addEventListener('click', function (e) {
             if (e.target === overlay) close();
@@ -105,38 +132,79 @@
         el.innerHTML =
             '<div class="card avail"><div class="k">可用积分</div><div class="v">' + S.formatPoints(w.available) + '</div></div>' +
             '<div class="card frozen"><div class="k">冷静中</div><div class="v">' + S.formatPoints(w.frozen) + '</div></div>' +
-            '<div class="card"><div class="k">今日已获</div><div class="v" style="color:#C084FC">' + S.formatPoints(w.todayEarned) + '</div></div>' +
+            '<div class="card purple"><div class="k">今日已获</div><div class="v">' + S.formatPoints(w.todayEarned) + '</div></div>' +
             '<div class="card"><div class="k">今日上限</div><div class="v">' + S.formatPoints(w.todayCap) + '</div></div>';
     }
 
-    function renderTable(data) {
-        var el = global.document.getElementById('plModalTableBody');
-        var S = global.FLHomePoints;
-        if (!el || !S || !data.ledger) return;
-        var rows = data.ledger.filter(function (r) {
+    function filterLedgerRows(data) {
+        if (!data || !data.ledger) return [];
+        return data.ledger.filter(function (r) {
             if (currentFilter === 'all') return true;
             if (currentFilter === 'earn') return r.type === 'earn';
             if (currentFilter === 'spend') return r.type === 'spend';
             if (currentFilter === 'frozen') return r.status === 'frozen';
             return true;
         });
+    }
+
+    function renderLedgerTable(rows, S) {
+        var el = global.document.getElementById('plModalTableBody');
+        var empty = global.document.getElementById('plModalEmpty');
+        if (!el || !S) return;
+        if (!rows.length) {
+            el.innerHTML = '';
+            if (empty) empty.hidden = false;
+            return;
+        }
+        if (empty) empty.hidden = true;
         el.innerHTML = rows.map(function (r) {
             var cls = r.points > 0 ? 'plus' : 'minus';
             var txt = r.points > 0 ? '+' + S.formatPoints(r.points) : S.formatPoints(r.points);
             var note = r.status === 'frozen' && r.unfreezeAt
-                ? ' · ' + escapeHtml(r.unfreezeAt) + ' 解冻'
+                ? '<div class="pl-task-note">' + escapeHtml(r.unfreezeAt) + ' 解冻</div>'
                 : '';
-            return '<tr><td style="font-size:12px;color:var(--t-tertiary)">' + escapeHtml(r.time) + '</td>' +
-                '<td><strong>' + escapeHtml(r.task) + '</strong>' +
-                (note ? '<div style="font-size:11px;color:var(--t-tertiary);margin-top:2px">' + note + '</div>' : '') +
-                '</td><td>' + statusLabel(r) + '</td>' +
-                '<td style="text-align:right" class="pl-amt ' + cls + '">' + txt + '</td></tr>';
+            return '<tr><td class="pl-col-time">' + escapeHtml(r.time) + '</td>' +
+                '<td><strong>' + escapeHtml(r.task) + '</strong>' + note + '</td>' +
+                '<td class="pl-col-status">' + statusLabel(r) + '</td>' +
+                '<td class="pl-col-amt pl-amt ' + cls + '">' + txt + '</td></tr>';
         }).join('');
+    }
+
+    function renderLedgerList(rows, S) {
+        var list = global.document.getElementById('plModalList');
+        var empty = global.document.getElementById('plModalEmpty');
+        if (!list || !S) return;
+        if (!rows.length) {
+            list.innerHTML = '';
+            if (empty) empty.hidden = false;
+            return;
+        }
+        if (empty) empty.hidden = true;
+        list.innerHTML = rows.map(function (r) {
+            var cls = r.points > 0 ? 'plus' : 'minus';
+            var txt = r.points > 0 ? '+' + S.formatPoints(r.points) : S.formatPoints(r.points);
+            var note = r.status === 'frozen' && r.unfreezeAt
+                ? '<span>' + escapeHtml(r.unfreezeAt) + ' 解冻</span>'
+                : '';
+            return '<article class="plm-row">' +
+                '<div class="top"><strong>' + escapeHtml(r.task) + '</strong>' +
+                '<span class="amt ' + cls + '">' + txt + '</span></div>' +
+                '<div class="meta"><span>' + escapeHtml(r.time) + '</span>' +
+                statusLabel(r) + note + '</div></article>';
+        }).join('');
+    }
+
+    function renderLedger(data) {
+        var S = global.FLHomePoints;
+        if (!S) return;
+        var rows = filterLedgerRows(data);
+        if (isH5Ledger()) renderLedgerList(rows, S);
+        else renderLedgerTable(rows, S);
     }
 
     function renderAll(data) {
         renderSummary(data);
-        renderTable(data);
+        renderLedger(data);
     }
 
     function loadScript(src, cb) {
@@ -174,6 +242,7 @@
     function open() {
         ensureCss();
         ensureOverlay();
+        applyOverlayMount();
         ensurePointsStore(function () {
             if (!global.FLHomePoints) return;
             global.FLHomePoints.fetchPointsData().then(function (data) {

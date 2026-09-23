@@ -90,7 +90,7 @@
                 <div class="t">旅拍随手拍 · 未命名合集</div>
                 <div class="id">da_seed_rejected_05</div>
                 <div class="row"><span class="da-pill bad">已驳回</span></div>
-                <p style="font-size:11px;color:#fca5a5;margin-top:6px;line-height:1.45">封面与合集关联性不足，请补充说明后重提。</p>
+                <p class="da-reject-note">封面与合集关联性不足，请补充说明后重提。</p>
                 <div class="da-btns">
                     <button class="mini pri" data-go="create-digital.html">修改重提</button>
                 </div>
@@ -152,26 +152,71 @@ document.querySelectorAll('.js-pin').forEach(function (btn) {
         DigitalH5Nav.toast(on ? '已取消置顶' : '已置顶（数字商品仅可置顶 1 个）');
     });
 });
-document.querySelectorAll('.js-delist').forEach(function (btn) {
-    btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        if (!confirm('确认下架？下架后新访客不可购买。')) return;
-        DigitalH5Nav.toast('已下架');
-        btn.textContent = '已下架';
-        btn.disabled = true;
-    });
-});
-document.querySelector('.js-relist').addEventListener('click', function (e) {
+function shelfPillInCard(card) {
+    var row = card && card.querySelector('.row');
+    if (!row) return null;
+    return row.querySelector('.da-pill[data-shelf-status]') ||
+        row.querySelector('.da-pill.off#shelfPill') ||
+        (function () {
+            var pills = row.querySelectorAll('.da-pill');
+            for (var i = 0; i < pills.length; i++) {
+                if (pills[i].textContent.trim() === '已下架') return pills[i];
+            }
+            return null;
+        })();
+}
+function markListed(pill) {
+    if (!pill) return;
+    pill.className = 'da-pill ok';
+    pill.textContent = '已上架';
+    pill.setAttribute('data-shelf-status', '1');
+}
+function markDelisted(pill) {
+    if (!pill) return;
+    pill.className = 'da-pill off';
+    pill.textContent = '已下架';
+    pill.setAttribute('data-shelf-status', '1');
+}
+document.querySelector('.da-page').addEventListener('click', function (e) {
+    var btn = e.target.closest('.js-delist, .js-relist');
+    if (!btn || !btn.closest('.da-manage-card')) return;
     e.stopPropagation();
-    document.getElementById('shelfPill').className = 'da-pill ok';
-    document.getElementById('shelfPill').textContent = '已上架';
-    document.getElementById('shelfBtns').innerHTML =
-        '<button class="mini" data-go="digital-detail.html?owner=1">查看</button>' +
-        '<button class="mini ghost" data-go="digital-edit.html">编辑</button>' +
-        '<button class="mini js-delist">下架</button>';
-    DigitalH5Nav.bindClicks(document.getElementById('shelfBtns'));
+    if (btn.classList.contains('js-delist')) {
+        if (!confirm('确认下架？下架后新访客不可购买。')) return;
+        var card = btn.closest('.da-manage-card');
+        var row = card && card.querySelector('.row');
+        if (row) {
+            var ok = row.querySelector('.da-pill.ok');
+            if (ok && ok.textContent.trim() === '已上架') markDelisted(ok);
+        }
+        btn.className = 'mini pri js-relist';
+        btn.textContent = '上架';
+        btn.disabled = false;
+        btn.removeAttribute('data-light-text-fixed');
+        btn.style.color = '';
+        DigitalH5Nav.toast('已下架');
+        return;
+    }
+    var card = btn.closest('.da-manage-card');
+    if (card && card.id === 'cardDelisted') {
+        markListed(document.getElementById('shelfPill'));
+        document.getElementById('shelfBtns').innerHTML =
+            '<button class="mini" data-go="digital-detail.html?owner=1">查看</button>' +
+            '<button class="mini ghost" data-go="digital-edit.html">编辑</button>' +
+            '<button class="mini js-delist">下架</button>';
+        DigitalH5Nav.bindClicks(document.getElementById('shelfBtns'));
+        DigitalH5Nav.toast('已重新上架');
+        return;
+    }
+    markListed(shelfPillInCard(card));
+    btn.className = 'mini js-delist';
+    btn.textContent = '下架';
+    btn.removeAttribute('data-light-text-fixed');
+    btn.style.color = '';
     DigitalH5Nav.toast('已重新上架');
 });
+var shelfPill = document.getElementById('shelfPill');
+if (shelfPill) shelfPill.setAttribute('data-shelf-status', '1');
 document.querySelector('.js-remove').addEventListener('click', function (e) {
     e.stopPropagation();
     if (!confirm('确认从橱窗移除？须已下架。')) return;

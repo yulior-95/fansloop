@@ -356,23 +356,30 @@ body.h5-search-open .top-nav {
     transform: scale(0.985);
     transition: transform 0.15s ease;
 }
-.feed-more-sheet { height: auto; max-height: 52%; z-index: 126; }
-.feed-more-list { display: flex; flex-direction: column; gap: 8px; }
-.feed-more-row {
+.feed-more-sheet { height: auto; max-height: 58%; z-index: 126; }
+.feed-more-sheet .hs-body {
+    padding: 10px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+}
+.feed-more-list { display: flex; flex-direction: column; gap: 10px; }
+.feed-more-sheet .feed-more-row,
+.live-more-sheet .feed-more-row {
     width: 100%;
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 14px 14px;
-    border: 0;
+    min-height: 52px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 12px;
-    background: rgba(255,255,255,0.06);
+    background: rgba(255, 255, 255, 0.1);
     color: #fff;
     text-align: left;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
 }
-.feed-more-row .ic {
+.feed-more-sheet .feed-more-row .ic,
+.live-more-sheet .feed-more-row .ic {
     width: 36px;
     height: 36px;
     border-radius: 10px;
@@ -381,10 +388,27 @@ body.h5-search-open .top-nav {
     justify-content: center;
     font-size: 15px;
     flex-shrink: 0;
-    background: rgba(255,255,255,0.08);
+    background: rgba(255, 255, 255, 0.12);
+    color: #f3f4f6;
 }
-.feed-more-row.danger { color: #fca5a5; }
-.feed-more-row.danger .ic { background: rgba(239,68,68,0.18); color: #f87171; }
+.feed-more-sheet .feed-more-row.danger,
+.live-more-sheet .feed-more-row.danger {
+    color: #fecaca;
+    background: rgba(127, 29, 29, 0.35);
+    border-color: rgba(248, 113, 113, 0.35);
+}
+.feed-more-sheet .feed-more-row.danger .ic,
+.live-more-sheet .feed-more-row.danger .ic {
+    background: rgba(239, 68, 68, 0.28);
+    color: #fca5a5;
+}
+.feed-more-sheet .feed-more-list,
+.live-more-sheet .feed-more-list {
+    gap: 10px;
+}
+.live-more-sheet .lms-body {
+    padding: 10px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+}
 .feed-more-sheet.is-report { max-height: 82%; }
 .feed-more-sheet.is-report .feed-more-main { display: none; }
 .feed-more-sheet .feed-more-report { display: none; }
@@ -505,219 +529,97 @@ body.h5-search-open .top-nav {
 .tab-bar { background: rgba(0,0,0,0.65); }
 
 /* =============================================
-   积分商城悬浮球（参考番茄小说，Web3 化）
+   积分商城悬浮球 · 紧凑胶囊（少占屏、弱动效）
    ============================================= */
 .reward-ball {
     position: absolute;
-    left: 14px;
-    bottom: calc(var(--tab-bar-height) + 28px);
-    width: 72px;
-    height: 72px;
+    left: 12px;
+    bottom: calc(var(--tab-bar-height) + 22px);
+    width: 46px;
+    height: 46px;
     z-index: 40;
     cursor: pointer;
     touch-action: none;
     user-select: none;
-    /* 入场缓动 */
-    animation: rbFloatIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both,
-               rbSway 4s ease-in-out infinite 0.6s;
+    animation: rbFloatIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
     transition: left 0.24s cubic-bezier(0.22, 0.61, 0.36, 1), top 0.24s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 @keyframes rbFloatIn {
-    from { transform: translateY(20px) scale(0.5); opacity: 0; }
+    from { transform: translateY(12px) scale(0.85); opacity: 0; }
     to   { transform: translateY(0) scale(1); opacity: 1; }
 }
-@keyframes rbSway {
-    0%, 100% { transform: translateY(0) rotate(-1deg); }
-    50%      { transform: translateY(-4px) rotate(1deg); }
-}
 
-/* 外层光晕 */
-.reward-ball .rb-halo {
-    position: absolute; inset: -4px;
-    border-radius: 50%;
-    background: radial-gradient(circle,
-        rgba(251,191,36,0.5) 0%,
-        rgba(245,158,11,0.25) 45%,
-        transparent 70%);
-    filter: blur(6px);
-    animation: rbPulse 2.2s ease-in-out infinite;
-}
-@keyframes rbPulse {
-    0%, 100% { opacity: 0.9; transform: scale(1); }
-    50%      { opacity: 0.55; transform: scale(1.15); }
-}
-
-/* 倒计时进度环（conic-gradient） */
+/* 细进度环 */
 .reward-ball .rb-ring {
-    position: absolute; inset: 0;
+    position: absolute;
+    inset: 0;
     border-radius: 50%;
     background: conic-gradient(
         from -90deg,
-        #FBBF24 0%,
-        #F59E0B 30%,
-        #EC4899 60%,
-        rgba(255,255,255,0.12) 60%,
-        rgba(255,255,255,0.12) 100%);
-    padding: 3px;
-    mask: radial-gradient(circle, transparent 60%, #000 62%);
-    -webkit-mask: radial-gradient(circle, transparent 60%, #000 62%);
+        #FBBF24 0deg,
+        #F59E0B 280deg,
+        rgba(255, 255, 255, 0.14) 280deg,
+        rgba(255, 255, 255, 0.14) 360deg);
+    padding: 2px;
+    mask: radial-gradient(circle, transparent 68%, #000 70%);
+    -webkit-mask: radial-gradient(circle, transparent 68%, #000 70%);
     animation: rbCountdown 30s linear infinite;
 }
 @keyframes rbCountdown {
-    0%   { background: conic-gradient(from -90deg, #FBBF24, #F59E0B 40%, #EC4899 75%, rgba(255,255,255,0.12) 75%, rgba(255,255,255,0.12)); }
-    25%  { background: conic-gradient(from -90deg, #FBBF24, #F59E0B 30%, #EC4899 56%, rgba(255,255,255,0.12) 56%, rgba(255,255,255,0.12)); }
-    50%  { background: conic-gradient(from -90deg, #FBBF24, #F59E0B 22%, #EC4899 37%, rgba(255,255,255,0.12) 37%, rgba(255,255,255,0.12)); }
-    75%  { background: conic-gradient(from -90deg, #FBBF24, #F59E0B 14%, #EC4899 19%, rgba(255,255,255,0.12) 19%, rgba(255,255,255,0.12)); }
-    100% { background: conic-gradient(from -90deg, #FBBF24, #F59E0B 0%, #EC4899 0%, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.12)); }
+    0%   { background: conic-gradient(from -90deg, #FBBF24, #F59E0B 280deg, rgba(255,255,255,0.14) 280deg, rgba(255,255,255,0.14)); }
+    50%  { background: conic-gradient(from -90deg, #FBBF24, #F59E0B 140deg, rgba(255,255,255,0.14) 140deg, rgba(255,255,255,0.14)); }
+    100% { background: conic-gradient(from -90deg, #FBBF24, #F59E0B 0deg, rgba(255,255,255,0.14) 0deg, rgba(255,255,255,0.14)); }
 }
 
-/* 粒子轨道（两颗粒子绕行装饰） */
-.reward-ball .rb-orbit {
-    position: absolute; inset: 2px;
-    border-radius: 50%;
-    pointer-events: none;
-    animation: rbRotate 6s linear infinite;
-}
-.reward-ball .rb-orbit::before,
-.reward-ball .rb-orbit::after {
-    content: ''; position: absolute;
-    width: 5px; height: 5px; border-radius: 50%;
-    background: #FDE68A;
-    box-shadow: 0 0 8px 2px #FBBF24;
-}
-.reward-ball .rb-orbit::before { top: -2px; left: 50%; transform: translateX(-50%); }
-.reward-ball .rb-orbit::after {
-    bottom: -2px; left: 50%; transform: translateX(-50%);
-    background: #F9A8D4; box-shadow: 0 0 8px 2px #EC4899;
-}
-@keyframes rbRotate { to { transform: rotate(360deg); } }
-
-/* 核心金币主体 */
 .reward-ball .rb-core {
-    position: absolute; inset: 6px;
+    position: absolute;
+    inset: 4px;
     border-radius: 50%;
-    background: linear-gradient(135deg,
-        #FEF3C7 0%,
-        #FBBF24 30%,
-        #F59E0B 60%,
-        #D97706 100%);
-    box-shadow:
-        inset 0 2px 0 rgba(255,255,255,0.5),
-        inset 0 -3px 6px rgba(120,53,15,0.35),
-        0 4px 14px rgba(245,158,11,0.45);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    overflow: hidden;
-}
-/* 币面高光纹理 */
-.reward-ball .rb-core::before {
-    content: ''; position: absolute;
-    top: 6%; left: 10%;
-    width: 40%; height: 30%;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.35);
-    filter: blur(3px);
-}
-/* 币面 3D 翻转 */
-.reward-ball .rb-coin-inner {
-    position: relative;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 1px;
-    animation: rbFlip 3.8s ease-in-out infinite;
-    transform-style: preserve-3d;
-}
-@keyframes rbFlip {
-    0%, 42%, 100% { transform: rotateY(0deg); }
-    50%, 92% { transform: rotateY(180deg); }
+    background: rgba(12, 12, 18, 0.78);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(251, 191, 36, 0.28);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    line-height: 1;
+    transition: inset 0.2s ease, opacity 0.2s ease;
 }
 .reward-ball .rb-core i.coin-icon {
-    font-size: 20px;
-    color: #7C2D12;
-    filter: drop-shadow(0 1px 0 rgba(255,255,255,0.5));
-    margin-top: -2px;
+    font-size: 13px;
+    color: #FBBF24;
+    margin-bottom: 2px;
 }
 .reward-ball .rb-countdown {
-    font-size: 10px;
-    font-weight: 800;
-    color: #7C2D12;
-    font-family: ui-monospace, "SF Mono", monospace;
-    line-height: 1;
-    letter-spacing: -0.3px;
-    margin-top: 1px;
+    font-size: 8px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.72);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
 }
 
-/* +5 金币弹出气泡 */
-.reward-ball .rb-pop {
-    position: absolute;
-    top: -2px; right: -6px;
-    padding: 3px 8px;
-    border-radius: 999px;
-    background: linear-gradient(135deg, #EC4899, #A855F7);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.2px;
-    box-shadow: 0 4px 10px rgba(236,72,153,0.5);
-    display: flex; align-items: center; gap: 3px;
-    opacity: 0;
-    animation: rbPop 4s ease-in-out infinite;
-    animation-delay: 2s;
-    white-space: nowrap;
-    transform-origin: bottom left;
-}
-.reward-ball .rb-pop i { font-size: 8px; }
-@keyframes rbPop {
-    0%, 70% { opacity: 0; transform: translateY(4px) scale(0.7); }
-    10% { opacity: 1; transform: translateY(-6px) scale(1); }
-    50% { opacity: 1; transform: translateY(-10px) scale(1); }
-    60% { opacity: 0; transform: translateY(-18px) scale(0.9); }
-}
-
-/* 小尾巴提示 */
-.reward-ball .rb-tail {
-    position: absolute;
-    left: 50%; bottom: -16px;
-    transform: translateX(-50%);
-    padding: 2px 8px;
-    border-radius: 999px;
-    background: rgba(0,0,0,0.65);
-    backdrop-filter: blur(8px);
-    color: #FEF3C7;
-    font-size: 9px;
-    font-weight: 600;
-    white-space: nowrap;
-    border: 1px solid rgba(251,191,36,0.25);
-    display: flex; align-items: center; gap: 3px;
-}
-.reward-ball .rb-tail i { font-size: 7px; color: #FBBF24; }
-
-/* 收起状态：保留核心金币，弱化其他装饰 */
-.reward-ball.is-collapsed .rb-halo,
-.reward-ball.is-collapsed .rb-ring,
-.reward-ball.is-collapsed .rb-orbit,
-.reward-ball.is-collapsed .rb-pop,
-.reward-ball.is-collapsed .rb-tail {
+.reward-ball.is-collapsed .rb-ring {
     opacity: 0;
     transition: opacity 0.2s ease;
 }
 .reward-ball.is-collapsed .rb-core {
-    inset: 10px;
-    transition: inset 0.2s ease;
+    inset: 6px;
+    opacity: 0.92;
 }
 
-/* 点击按压反馈 */
 .reward-ball:active {
-    animation-play-state: paused;
-    transform: scale(0.94);
+    transform: scale(0.92);
     transition: transform 0.12s;
 }
 
 /* 首次引导 tooltip（数秒后消失） */
 .reward-guide {
     position: absolute;
-    left: 90px;
-    bottom: calc(var(--tab-bar-height) + 54px);
+    left: 66px;
+    bottom: calc(var(--tab-bar-height) + 46px);
     padding: 8px 12px;
     background: linear-gradient(135deg, #1A1A26, #0D0D14);
     border: 1px solid rgba(251,191,36,0.3);
@@ -1109,6 +1011,25 @@ body.h5-search-open .top-nav {
     height: 100%;
     object-fit: cover;
     display: block;
+    -webkit-touch-callout: none;
+    user-select: none;
+}
+.live-room-player .live-room-video {
+    -webkit-touch-callout: none;
+    user-select: none;
+}
+.live-room-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 12;
+    background: rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+.live-room-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
 }
 .live-cohost-stage {
     position: absolute;
@@ -1868,7 +1789,7 @@ body.h5-search-open .top-nav {
     background: rgba(18, 18, 27, 0.99);
     border-top: 1px solid rgba(255,255,255,0.14);
     border-radius: 16px 16px 0 0;
-    z-index: 14;
+    z-index: 18;
     transform: translateY(105%);
     transition: transform .22s cubic-bezier(0.22, 0.61, 0.36, 1);
     display: flex;
@@ -1876,6 +1797,33 @@ body.h5-search-open .top-nav {
     box-shadow: 0 -12px 30px rgba(0,0,0,0.45);
 }
 .live-modal-sheet.show { transform: translateY(0); }
+.live-more-sheet { z-index: 19; max-height: 52%; min-height: 200px; }
+.live-more-sheet.is-report { max-height: 82%; }
+.live-more-sheet.is-report .live-more-main { display: none; }
+.live-more-sheet .live-more-report { display: none; }
+.live-more-sheet.is-report .live-more-report { display: block; }
+.live-more-sheet .live-more-report .fl-report-bd { padding: 0 2px 4px; max-height: min(52vh, 360px); }
+.live-more-sheet .live-more-report .fl-report-ft { padding: 12px 0 4px; }
+.live-more-sheet .lms-head .live-more-back {
+    display: none;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    margin-right: 8px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+}
+.live-more-sheet.is-report .lms-head .live-more-back { display: inline-flex; }
+.live-more-sheet.is-report .lms-head .t { flex: 1; text-align: center; }
+.live-room-player.is-live-press-hold #liveRoomCover,
+.live-room-player.is-live-press-hold .live-room-video {
+    transform: scale(0.985);
+    transition: transform 0.15s ease;
+}
 .lms-head {
     display: flex;
     align-items: center;
@@ -2118,6 +2066,49 @@ body.h5-search-open .top-nav {
 :root[data-theme='light'] body.h5-feed-dark .lssp-item {
     border-bottom-color: rgba(15, 18, 32, 0.1) !important;
 }
+:root[data-theme='light'] body.h5-feed-dark .feed-more-sheet .feed-more-row,
+:root[data-theme='light'] body.h5-feed-dark .live-more-sheet .feed-more-row,
+:root[data-theme='light'] #feedMoreSheet .feed-more-row,
+:root[data-theme='light'] #liveMoreSheet .feed-more-row,
+:root[data-theme='light'] .feed-more-sheet .feed-more-row,
+:root[data-theme='light'] .live-more-sheet .feed-more-row {
+    background: var(--bg-inset) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+:root[data-theme='light'] body.h5-feed-dark .feed-more-sheet .feed-more-row .ic,
+:root[data-theme='light'] body.h5-feed-dark .live-more-sheet .feed-more-row .ic,
+:root[data-theme='light'] #feedMoreSheet .feed-more-row .ic,
+:root[data-theme='light'] #liveMoreSheet .feed-more-row .ic,
+:root[data-theme='light'] .feed-more-sheet .feed-more-row .ic,
+:root[data-theme='light'] .live-more-sheet .feed-more-row .ic {
+    background: var(--bg-card) !important;
+    color: var(--text-secondary) !important;
+}
+:root[data-theme='light'] body.h5-feed-dark .feed-more-sheet .feed-more-row.danger,
+:root[data-theme='light'] body.h5-feed-dark .live-more-sheet .feed-more-row.danger,
+:root[data-theme='light'] #feedMoreSheet .feed-more-row.danger,
+:root[data-theme='light'] #liveMoreSheet .feed-more-row.danger,
+:root[data-theme='light'] .feed-more-sheet .feed-more-row.danger,
+:root[data-theme='light'] .live-more-sheet .feed-more-row.danger {
+    color: #991b1b !important;
+    background: rgba(254, 226, 226, 0.9) !important;
+    border-color: rgba(239, 68, 68, 0.35) !important;
+}
+:root[data-theme='light'] body.h5-feed-dark .feed-more-sheet .feed-more-row.danger .ic,
+:root[data-theme='light'] body.h5-feed-dark .live-more-sheet .feed-more-row.danger .ic,
+:root[data-theme='light'] #feedMoreSheet .feed-more-row.danger .ic,
+:root[data-theme='light'] #liveMoreSheet .feed-more-row.danger .ic,
+:root[data-theme='light'] .feed-more-sheet .feed-more-row.danger .ic,
+:root[data-theme='light'] .live-more-sheet .feed-more-row.danger .ic {
+    background: rgba(239, 68, 68, 0.14) !important;
+    color: #dc2626 !important;
+}
+:root[data-theme='light'] body.h5-feed-dark .feed-more-sheet .hs-head .feed-more-back,
+:root[data-theme='light'] #feedMoreSheet .feed-more-back {
+    background: var(--bg-inset) !important;
+    color: var(--text-primary) !important;
+}
 :root[data-theme='light'] body.h5-feed-dark .lssp-divider {
     border-top-color: rgba(15, 18, 32, 0.1) !important;
     color: #2563EB !important;
@@ -2268,21 +2259,10 @@ body.h5-search-open .top-nav {
 </div>
 
 <div class="reward-ball" role="button" aria-label="积分商城" aria-expanded="true">
-    <div class="rb-halo"></div>
-    <div class="rb-ring"></div>
-    <div class="rb-orbit"></div>
+    <div class="rb-ring" aria-hidden="true"></div>
     <div class="rb-core">
-        <div class="rb-coin-inner">
-            <i class="fa-solid fa-coins coin-icon"></i>
-            <span class="rb-countdown">28s</span>
-        </div>
-    </div>
-    <div class="rb-pop">
-        <i class="fa-solid fa-plus"></i>5 金币
-    </div>
-    <div class="rb-tail">
-        <i class="fa-solid fa-bolt"></i>
-        赚积分
+        <i class="fa-solid fa-coins coin-icon" aria-hidden="true"></i>
+        <span class="rb-countdown">28s</span>
     </div>
 </div>
 
@@ -2468,7 +2448,7 @@ body.h5-search-open .top-nav {
                     <img class="av" id="liveHostAv" src="" alt="">
                     <div>
                         <div class="nm" id="liveHostName">@creator</div>
-                        <div class="vw" id="liveHostViewers">1.2K 观看</div>
+                        <div class="vw" id="liveHostViewers">1.2K 在线</div>
                     </div>
                 </button>
             </div>
@@ -2674,6 +2654,33 @@ body.h5-search-open .top-nav {
                 </div>
             </div>
         </div>
+        <div class="live-room-backdrop" id="liveRoomSheetBackdrop" aria-hidden="true"></div>
+        <div class="live-modal-sheet live-more-sheet" id="liveMoreSheet" aria-hidden="true">
+            <div class="lms-head">
+                <button type="button" class="live-more-back" id="liveMoreBack" aria-label="返回"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="t" id="liveMoreTitle">更多操作</div>
+                <button type="button" class="lms-close" id="liveMoreClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="lms-body">
+                <div class="live-more-main" id="liveMoreMain">
+                    <div class="feed-more-list">
+                        <button type="button" class="feed-more-row danger" data-live-more="report"><span class="ic"><i class="fa-solid fa-flag"></i></span>举报</button>
+                        <button type="button" class="feed-more-row" data-live-more="share"><span class="ic"><i class="fa-solid fa-share-nodes"></i></span>分享</button>
+                    </div>
+                </div>
+                <div class="live-more-report" id="liveMoreReport">
+                    <div class="fl-report-bd">
+                        <span class="fl-report-label">举报原因<span class="req">*</span></span>
+                        <div class="fl-report-reasons" id="liveMoreReportReasons"></div>
+                        <span class="fl-report-label">举报描述</span>
+                        <textarea class="fl-report-desc" id="liveMoreReportDesc" maxlength="500" placeholder="请详细描述举报原因，便于平台判断违规情况"></textarea>
+                    </div>
+                    <div class="fl-report-ft">
+                        <button type="button" class="fl-report-submit" id="liveMoreReportSubmit" disabled>提交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -2825,7 +2832,8 @@ body.h5-search-open .top-nav {
                 comment: '1.1K',
                 save: '602',
                 avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=80',
-                liveBadge: '直播中 · 1.2K 观看',
+                liveBadge: '直播中 · 1.2K 在线',
+                liveOnline: '1.2K',
                 liveScene: '双人连麦',
                 liveHref: 'live-detail.html?host=yeyu&creator=%E5%A4%9C%E9%9B%A8%E5%90%AC%E5%BC%A6&nav=home',
                 cohosts: [
@@ -2912,7 +2920,8 @@ body.h5-search-open .top-nav {
                 comment: '302',
                 save: '98',
                 avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80',
-                liveBadge: '直播中 · 双人连麦',
+                liveBadge: '直播中 · 856 在线',
+                liveOnline: '856',
                 liveScene: '双人连麦',
                 liveHref: 'live-detail.html?host=yeyu&creator=%E5%A4%9C%E9%9B%A8%E5%90%AC%E5%BC%A6&nav=home',
                 cohosts: [
@@ -2936,7 +2945,8 @@ body.h5-search-open .top-nav {
                 comment: '744',
                 save: '201',
                 avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&q=80',
-                liveBadge: '直播中 · 多人连麦',
+                liveBadge: '直播中 · 2.3K 在线',
+                liveOnline: '2.3K',
                 liveScene: '多人连麦',
                 liveHref: 'live-detail.html?host=coffee&creator=%E5%92%96%E5%95%A1%E5%BA%97%E4%B8%BB&nav=home',
                 cohosts: [
@@ -2961,7 +2971,8 @@ body.h5-search-open .top-nav {
                 comment: '211',
                 save: '73',
                 avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80',
-                liveBadge: '直播中 · 无人连麦',
+                liveBadge: '直播中 · 412 在线',
+                liveOnline: '412',
                 liveScene: '单人直播（无人连麦）',
                 liveHref: 'live-detail.html',
                 danmu: ['安静看直播好舒服', '画面太干净了', '收藏等回放'],
@@ -3188,6 +3199,15 @@ body.h5-search-open .top-nav {
     var liveShareView = document.getElementById('liveShareView');
     var liveShareUrl = document.getElementById('liveShareUrl');
     var liveShareCopyBtn = document.getElementById('liveShareCopyBtn');
+    var liveRoomSheetBackdrop = document.getElementById('liveRoomSheetBackdrop');
+    var liveMoreSheet = document.getElementById('liveMoreSheet');
+    var liveMoreClose = document.getElementById('liveMoreClose');
+    var liveMoreBack = document.getElementById('liveMoreBack');
+    var liveMoreTitle = document.getElementById('liveMoreTitle');
+    var liveMoreReportReasons = document.getElementById('liveMoreReportReasons');
+    var liveMoreReportDesc = document.getElementById('liveMoreReportDesc');
+    var liveMoreReportSubmit = document.getElementById('liveMoreReportSubmit');
+    var liveMoreReasonsReady = false;
     var liveGiftSheet = document.getElementById('liveGiftSheet');
     var liveGiftClose = document.getElementById('liveGiftClose');
     var liveGiftGrid = document.getElementById('liveGiftGrid');
@@ -3687,10 +3707,19 @@ body.h5-search-open .top-nav {
         if (!el || !el.closest) return false;
         return !!el.closest(
             'button, input, select, textarea, a, ' +
-            '.live-tool-sheet, .live-modal-sheet, .live-settings-sheet, .live-top-actions, ' +
+            '.live-tool-sheet, .live-modal-sheet, .live-settings-sheet, .live-more-sheet, .live-top-actions, ' +
             '.live-rank-avatars, .live-host-mini, .live-chat-foot, ' +
-            '.live-audience-slots, .live-mic-leave-ovl, .live-cohost-stage'
+            '.live-audience-slots, .live-mic-leave-ovl'
         );
+    }
+    function isLiveLongPressTarget(el) {
+        if (!liveRoomOverlay || !liveRoomOverlay.classList.contains('show')) return false;
+        if (!el || !liveRoomPlayer || !liveRoomPlayer.contains(el)) return false;
+        if (el.closest('.live-tool-sheet, .live-modal-sheet, .live-settings-sheet, .live-mic-leave-ovl, .live-room-backdrop')) {
+            return false;
+        }
+        if (isLiveInteractiveTarget(el)) return false;
+        return true;
     }
     function getLiveState(item) {
         if (!item) return { liked: false, cheerCount: 2800, saved: false };
@@ -3706,20 +3735,106 @@ body.h5-search-open .top-nav {
     function closeLiveToolSheet() {
         if (liveToolSheet) liveToolSheet.classList.remove('show');
         activeToolType = '';
+        syncLiveRoomSheetBackdrop();
     }
     function closeLiveSettingsSheet() {
         if (liveSettingsPop) liveSettingsPop.classList.remove('show');
+        syncLiveRoomSheetBackdrop();
     }
-    function closeLiveModalSheets() {
+    function resetLiveMoreView() {
+        if (liveMoreSheet) liveMoreSheet.classList.remove('is-report');
+        if (liveMoreTitle) liveMoreTitle.textContent = '更多操作';
+    }
+    function syncLiveRoomSheetBackdrop() {
+        var on = (liveMoreSheet && liveMoreSheet.classList.contains('show')) ||
+            (liveShareSheet && liveShareSheet.classList.contains('show')) ||
+            (liveGiftSheet && liveGiftSheet.classList.contains('show')) ||
+            (liveSettingsPop && liveSettingsPop.classList.contains('show')) ||
+            (liveToolSheet && liveToolSheet.classList.contains('show'));
+        if (liveRoomSheetBackdrop) {
+            liveRoomSheetBackdrop.classList.toggle('show', !!on);
+            liveRoomSheetBackdrop.setAttribute('aria-hidden', on ? 'false' : 'true');
+        }
+    }
+    function closeLiveMoreSheet() {
+        if (liveMoreSheet) {
+            liveMoreSheet.classList.remove('show');
+            liveMoreSheet.setAttribute('aria-hidden', 'true');
+        }
+        resetLiveMoreView();
+        syncLiveRoomSheetBackdrop();
+    }
+    function resetLiveMoreReportForm() {
+        if (liveMoreReportReasons) {
+            liveMoreReportReasons.querySelectorAll('input[name="flLiveMoreReportReason"]').forEach(function (el) {
+                el.checked = false;
+            });
+        }
+        if (liveMoreReportDesc) liveMoreReportDesc.value = '';
+        if (liveMoreReportSubmit) liveMoreReportSubmit.disabled = true;
+    }
+    function ensureLiveMoreReportReasons() {
+        var R = window.FL_ContentReport;
+        if (!R || !liveMoreReportReasons || liveMoreReasonsReady) return;
+        liveMoreReportReasons.innerHTML = R.reasonHtml('flLiveMoreReportReason');
+        liveMoreReasonsReady = true;
+    }
+    function syncLiveMoreReportSubmit() {
+        if (!liveMoreReportSubmit || !liveMoreReportReasons) return;
+        var checked = liveMoreReportReasons.querySelector('input[name="flLiveMoreReportReason"]:checked');
+        liveMoreReportSubmit.disabled = !checked;
+    }
+    function liveItemReportMeta() {
+        var item = activeLiveFeed || {};
+        var R = window.FL_ContentReport;
+        var type = 'live';
+        if (R) type = R.resolveType('live', 'live');
+        var slug = (item.creator || 'creator').replace('@', '').replace(/[^a-z0-9_]/ig, '-');
+        return {
+            type: type,
+            contentId: String(item.id || item.liveId || ('live-' + slug)),
+            contentTitle: item.title || item.liveTitle || '直播间'
+        };
+    }
+    function openLiveMoreReport() {
+        var R = window.FL_ContentReport;
+        if (!R) {
+            showToast('举报功能暂不可用');
+            return;
+        }
+        ensureLiveMoreReportReasons();
+        resetLiveMoreReportForm();
+        var meta = liveItemReportMeta();
+        var titleMap = R.TITLE_MAP || {};
+        if (liveMoreTitle) liveMoreTitle.textContent = titleMap[meta.type] || titleMap.live || '举报直播';
+        if (liveMoreSheet) liveMoreSheet.classList.add('is-report');
+    }
+    function openLiveMoreSheet() {
+        if (!liveRoomOverlay || !liveRoomOverlay.classList.contains('show')) return;
+        closeLiveToolSheet();
         closeLiveSettingsSheet();
         if (liveShareSheet) liveShareSheet.classList.remove('show');
         if (liveGiftSheet) liveGiftSheet.classList.remove('show');
+        resetLiveMoreView();
+        if (liveMoreSheet) {
+            liveMoreSheet.classList.add('show');
+            liveMoreSheet.setAttribute('aria-hidden', 'false');
+        }
+        syncLiveRoomSheetBackdrop();
+    }
+    function closeLiveModalSheets() {
+        closeLiveSettingsSheet();
+        closeLiveMoreSheet();
+        if (liveShareSheet) liveShareSheet.classList.remove('show');
+        if (liveGiftSheet) liveGiftSheet.classList.remove('show');
+        syncLiveRoomSheetBackdrop();
     }
     function openLiveSettingsSheet() {
         closeLiveToolSheet();
         if (liveShareSheet) liveShareSheet.classList.remove('show');
         if (liveGiftSheet) liveGiftSheet.classList.remove('show');
         if (liveSettingsPop) liveSettingsPop.classList.add('show');
+        syncLiveRoomSheetBackdrop();
     }
     function openLiveShareSheet() {
         closeLiveToolSheet();
@@ -3734,9 +3849,11 @@ body.h5-search-open .top-nav {
         if (liveShareSave) liveShareSave.textContent = f.save || '602';
         if (liveShareView) liveShareView.textContent = '18.6K';
         if (liveShareUrl) {
-            liveShareUrl.textContent = 'https://goodfans.io/p/' + (f.creator || 'luna_web3').replace('@', '').replace(/[^a-z0-9_]/ig, '-') + '-post-' + ((activeFeedIndex || 0) + 1);
+            var liveSlug = (f.creator || 'luna_web3').replace('@', '').replace(/[^a-z0-9_]/ig, '-');
+            liveShareUrl.textContent = 'https://goodfans.io/live/' + liveSlug + '-' + (f.id || ((activeFeedIndex || 0) + 1));
         }
         if (liveShareSheet) liveShareSheet.classList.add('show');
+        syncLiveRoomSheetBackdrop();
     }
     function setGiftSelection(name, price) {
         selectedGift = { name: name || '玫瑰', price: Number(price || 1) };
@@ -3750,6 +3867,7 @@ body.h5-search-open .top-nav {
         if (giftTargetName && activeLiveFeed) giftTargetName.textContent = (activeLiveFeed.creator || '@creator').replace('@', '');
         if (liveGiftNotice) liveGiftNotice.textContent = '你刚刚送出 钻石礼物！';
         if (liveGiftSheet) liveGiftSheet.classList.add('show');
+        syncLiveRoomSheetBackdrop();
     }
     function openLiveToolSheet(type) {
         if (!activeLiveFeed || !liveToolSheet || !liveToolTitle || !liveToolBody) return;
@@ -3805,11 +3923,32 @@ body.h5-search-open .top-nav {
         }
         liveToolBody.innerHTML = html || '<div class="lts-item">暂无数据</div>';
         liveToolSheet.classList.add('show');
+        syncLiveRoomSheetBackdrop();
     }
     function rankUsersFor(item) {
         var hs = (item && item.cohosts) ? item.cohosts.slice() : [];
         while (hs.length < 3) hs.push({ name: 'Top User', avatar: item && item.avatar ? item.avatar : '' });
         return hs.slice(0, 3);
+    }
+    function formatLiveHostOnline(feed) {
+        feed = feed || {};
+        if (feed.liveOnlineLabel) return feed.liveOnlineLabel;
+        var n = feed.liveOnline;
+        if (n) {
+            var s = String(n).trim();
+            return s.indexOf('在线') >= 0 ? s : (s + ' 在线');
+        }
+        var badge = String(feed.liveBadge || '');
+        var tail = badge.replace(/^[^·]*·\s*/, '').trim();
+        if (/观看/.test(tail)) return tail.replace(/观看/g, '在线');
+        if (/在线/.test(tail)) return tail;
+        if (/[\d.]+\s*[KkMm万]?/.test(tail) && tail.indexOf('连麦') < 0) {
+            return tail.indexOf('在线') >= 0 ? tail : (tail + ' 在线');
+        }
+        if (badge.indexOf('直播中') >= 0) return '1.2K 在线';
+        if (badge.indexOf('回放') >= 0) return '回放';
+        if (badge.indexOf('预告') >= 0) return '未开播';
+        return '—';
     }
     function openLiveRoom(item) {
         activeLiveFeed = item || null;
@@ -3832,7 +3971,7 @@ body.h5-search-open .top-nav {
         }
         if (liveHostAv) liveHostAv.src = activeLiveFeed.avatar || '';
         if (liveHostName) liveHostName.textContent = (activeLiveFeed.creator || '@creator');
-        if (liveHostViewers) liveHostViewers.textContent = (activeLiveFeed.liveBadge || '').replace(/^[^·]*·\s*/, '') || '1.2K 观看';
+        if (liveHostViewers) liveHostViewers.textContent = formatLiveHostOnline(activeLiveFeed);
         var rankUsers = rankUsersFor(activeLiveFeed);
         if (liveRankA1) liveRankA1.src = rankUsers[0].avatar || '';
         if (liveRankA2) liveRankA2.src = rankUsers[1].avatar || '';
@@ -4113,14 +4252,14 @@ body.h5-search-open .top-nav {
             var title = btn.getAttribute('data-preview-title') || '直播预告';
             var time = btn.getAttribute('data-preview-time') || '';
             if (btn.classList.contains('is-subscribed')) {
-                showToast('已预约 · 开播前将通过系统消息提醒您');
+                showToast('已预约 · 开播前将收到系统提醒');
                 return;
             }
             var list = loadReminds();
             if (id && list.indexOf(id) === -1) list.push(id);
             saveReminds(list);
             markSubscribed(btn);
-            showToast('已加入系统消息 · ' + creator + '「' + title + '」' + (time ? ' · ' + time : '') + ' 开播前提醒您');
+            showToast('预约成功 · 开播前将通过系统消息提醒');
         };
     })();
 
@@ -4637,6 +4776,69 @@ body.h5-search-open .top-nav {
             openLiveShareSheet();
         });
     }
+    if (liveMoreClose) {
+        liveMoreClose.addEventListener('click', function () {
+            closeLiveMoreSheet();
+        });
+    }
+    if (liveMoreBack) {
+        liveMoreBack.addEventListener('click', function () {
+            resetLiveMoreView();
+        });
+    }
+    if (liveMoreReportReasons) {
+        liveMoreReportReasons.addEventListener('change', syncLiveMoreReportSubmit);
+    }
+    if (liveMoreReportSubmit) {
+        liveMoreReportSubmit.addEventListener('click', function () {
+            var R = window.FL_ContentReport;
+            if (!R) {
+                showToast('举报功能暂不可用');
+                return;
+            }
+            var checked = liveMoreReportReasons && liveMoreReportReasons.querySelector('input[name="flLiveMoreReportReason"]:checked');
+            if (!checked) {
+                showToast('请选择举报原因');
+                return;
+            }
+            var meta = liveItemReportMeta();
+            var desc = (liveMoreReportDesc && liveMoreReportDesc.value || '').trim();
+            closeLiveMoreSheet();
+            R.submitReport({
+                reason: checked.value,
+                desc: desc,
+                type: meta.type,
+                contentId: meta.contentId,
+                contentTitle: meta.contentTitle,
+                toast: showToast
+            });
+        });
+    }
+    document.querySelectorAll('[data-live-more]').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var kind = btn.getAttribute('data-live-more');
+            if (kind === 'report') {
+                openLiveMoreReport();
+                return;
+            }
+            if (kind === 'share') {
+                closeLiveMoreSheet();
+                window.setTimeout(function () {
+                    openLiveShareSheet();
+                }, 0);
+            }
+        });
+    });
+    if (liveMoreSheet) {
+        liveMoreSheet.addEventListener('click', function (e) { e.stopPropagation(); });
+    }
+    if (liveRoomSheetBackdrop) {
+        liveRoomSheetBackdrop.addEventListener('click', function () {
+            closeLiveModalSheets();
+        });
+    }
     if (liveAudienceSlots) {
         liveAudienceSlots.addEventListener('click', function (e) {
             var slot = e.target.closest('.obs-audience-slot.empty');
@@ -4714,11 +4916,13 @@ body.h5-search-open .top-nav {
     if (liveShareClose) {
         liveShareClose.addEventListener('click', function () {
             if (liveShareSheet) liveShareSheet.classList.remove('show');
+            syncLiveRoomSheetBackdrop();
         });
     }
     if (liveGiftClose) {
         liveGiftClose.addEventListener('click', function () {
             if (liveGiftSheet) liveGiftSheet.classList.remove('show');
+            syncLiveRoomSheetBackdrop();
         });
     }
     if (liveShareGrid) {
@@ -4805,6 +5009,7 @@ body.h5-search-open .top-nav {
     var liveTapLastY = 0;
     function handleLiveRoomDoubleCheer(e) {
         if (!liveRoomOverlay || !liveRoomOverlay.classList.contains('show') || !activeLiveFeed) return;
+        if (liveLongPressSuppressCheer) return;
         if (isLiveInteractiveTarget(e.target)) return;
         var cx = e.clientX;
         var cy = e.clientY;
@@ -4822,6 +5027,76 @@ body.h5-search-open .top-nav {
         liveTapLastAt = now;
         liveTapLastX = cx;
         liveTapLastY = cy;
+    }
+    var liveLongPressTimer = null;
+    var liveLongPressPointerId = null;
+    var liveLongPressStartX = 0;
+    var liveLongPressStartY = 0;
+    var liveLongPressFired = false;
+    var liveLongPressSuppressCheer = false;
+    var LIVE_LONG_PRESS_MS = 480;
+
+    function clearLiveLongPress() {
+        if (liveLongPressTimer) {
+            clearTimeout(liveLongPressTimer);
+            liveLongPressTimer = null;
+        }
+        liveLongPressPointerId = null;
+        if (liveRoomPlayer) liveRoomPlayer.classList.remove('is-live-press-hold');
+    }
+    function fireLiveLongPressMenu() {
+        liveLongPressFired = true;
+        liveLongPressSuppressCheer = true;
+        setTimeout(function () { liveLongPressSuppressCheer = false; }, 450);
+        if (navigator.vibrate) {
+            try { navigator.vibrate(12); } catch (err) { /* ignore */ }
+        }
+        openLiveMoreSheet();
+        if (liveRoomPlayer) liveRoomPlayer.classList.remove('is-live-press-hold');
+    }
+    function beginLiveLongPress(e) {
+        if (!liveRoomOverlay || !liveRoomOverlay.classList.contains('show')) return;
+        if (!isLiveLongPressTarget(e.target)) return;
+        if (liveLongPressTimer) return;
+        var pt = e.touches && e.touches[0] ? e.touches[0] : e;
+        if (typeof pt.clientX !== 'number') return;
+        liveLongPressFired = false;
+        liveLongPressPointerId = e.pointerId != null ? e.pointerId : (pt.identifier != null ? pt.identifier : 0);
+        liveLongPressStartX = pt.clientX;
+        liveLongPressStartY = pt.clientY;
+        if (liveRoomPlayer) liveRoomPlayer.classList.add('is-live-press-hold');
+        liveLongPressTimer = setTimeout(fireLiveLongPressMenu, LIVE_LONG_PRESS_MS);
+    }
+    function moveLiveLongPress(e) {
+        if (!liveLongPressTimer) return;
+        var pt = e.touches && e.touches[0] ? e.touches[0] : e;
+        if (typeof pt.clientX !== 'number') return;
+        var dx = pt.clientX - liveLongPressStartX;
+        var dy = pt.clientY - liveLongPressStartY;
+        if (Math.abs(dx) > 18 || Math.abs(dy) > 18) clearLiveLongPress();
+    }
+    function endLiveLongPress(e) {
+        if (liveLongPressFired) {
+            if (e && e.cancelable) e.preventDefault();
+            e && e.stopPropagation();
+        }
+        if (!liveLongPressFired) clearLiveLongPress();
+        liveLongPressFired = false;
+    }
+    if (liveRoomOverlay) {
+        liveRoomOverlay.addEventListener('touchstart', beginLiveLongPress, { capture: true, passive: true });
+        liveRoomOverlay.addEventListener('touchmove', moveLiveLongPress, { capture: true, passive: true });
+        liveRoomOverlay.addEventListener('touchend', endLiveLongPress, { capture: true, passive: false });
+        liveRoomOverlay.addEventListener('touchcancel', clearLiveLongPress, { capture: true, passive: true });
+        liveRoomOverlay.addEventListener('pointerdown', beginLiveLongPress, { capture: true, passive: true });
+        liveRoomOverlay.addEventListener('pointermove', moveLiveLongPress, { capture: true, passive: true });
+        liveRoomOverlay.addEventListener('pointerup', endLiveLongPress, { capture: true, passive: false });
+        liveRoomOverlay.addEventListener('pointercancel', clearLiveLongPress, { capture: true, passive: true });
+        liveRoomOverlay.addEventListener('contextmenu', function (e) {
+            if (!isLiveLongPressTarget(e.target)) return;
+            e.preventDefault();
+            openLiveMoreSheet();
+        }, { capture: true });
     }
     if (liveRoomPlayer) {
         liveRoomPlayer.addEventListener('dblclick', function (e) {
@@ -4858,8 +5133,8 @@ body.h5-search-open .top-nav {
             if (v > max) return max;
             return v;
         }
-        function ballW() { return rewardBall.offsetWidth || 72; }
-        function ballH() { return rewardBall.offsetHeight || 72; }
+        function ballW() { return rewardBall.offsetWidth || 46; }
+        function ballH() { return rewardBall.offsetHeight || 46; }
         function vw() { return window.innerWidth || 375; }
         function vh() { return window.innerHeight || 812; }
         function minTop() { return cssVarPx('--status-bar-height', 20) + 4; }

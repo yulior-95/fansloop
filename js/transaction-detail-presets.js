@@ -36,9 +36,9 @@
                     ['实际到账', '+ $5.00', true]
                 ],
                 timeline: [
-                    ['粉丝打赏成功', '18:51:08', true],
-                    ['平台确认收款', '18:51:10', true],
-                    ['收入入账', '18:51:12', true]
+                    ['粉丝打赏成功', '09:28:01', true],
+                    ['平台确认收款', '09:28:03', true],
+                    ['收入到账可提现', '09:28:05', true]
                 ],
                 chain: [
                     ['结算币种', 'USDT (TRC20)'],
@@ -81,10 +81,9 @@
                 ],
                 calc: [],
                 timeline: [
-                    ['下单', '19:08:32', true],
-                    ['链上确认', '19:08:45', true],
-                    ['平台扣分成', '19:08:46', true],
-                    ['已结算', '19:08:46', true]
+                    ['订阅自动扣款', '08:12:09', true],
+                    ['平台确认订单', '08:12:11', true],
+                    ['收入到账', '08:12:12', true]
                 ],
                 chain: [
                     ['网络', 'USDT-TRC20 (Tron)'],
@@ -126,9 +125,9 @@
                     ['最终到账', '+ 100.00 USDT', true]
                 ],
                 timeline: [
-                    ['发起支付', '10:18:20', true],
-                    ['通道确认', '10:18:40', true],
-                    ['余额到账', '10:18:46', true]
+                    ['用户转账发起', '18:41:22', true],
+                    ['链上确认达到阈值', '18:41:56', true],
+                    ['充值到账', '18:42:00', true]
                 ],
                 chain: [
                     ['通道单号', 'RC-20260424-1018', true],
@@ -163,10 +162,10 @@
                     ['实际到账', '¥3,532.25', true]
                 ],
                 timeline: [
-                    ['提交提现申请', '14:22:18', true],
-                    ['KYC/风控校验通过', '14:22:25', true],
-                    ['银行打款成功', '14:35:02', true],
-                    ['到账完成', '14:35:18', true]
+                    ['提交提现申请', '23:58:16', true],
+                    ['KYC/风控校验通过', '23:58:22', true],
+                    ['链上广播成功', '23:58:35', true],
+                    ['到账完成', '23:59:08', true]
                 ],
                 chain: [
                     ['打款批次', 'WD-20260425-1422', true],
@@ -207,9 +206,9 @@
                     ['创作者实收', '+ $30.00', true]
                 ],
                 timeline: [
-                    ['礼物送出', '12:08:45', true],
-                    ['直播场次结算', '12:10:00', true],
-                    ['收入到账', '12:10:02', true]
+                    ['观众购票成功', '02:14:42', true],
+                    ['平台确认订单', '02:14:45', true],
+                    ['收入到账', '02:14:46', true]
                 ],
                 chain: [
                     ['结算币种', 'USDT'],
@@ -329,7 +328,7 @@
                     ['创作者佣金实收', '+ $12.80', true]
                 ],
                 timeline: [
-                    ['买家签收', '05:29:00', true],
+                    ['买家完成签收', '05:29:00', true],
                     ['佣金回传结算', '05:30:12', true],
                     ['佣金到账', '05:30:15', true]
                 ],
@@ -341,13 +340,63 @@
                 note: '联盟佣金按订单签收后自动回传结算。',
                 primary: ['查看联盟选品', 'affiliate-catalog.html', 'fa-bag-shopping']
             },
-            subpay: { alias: 'sub' },
-            tipout: { alias: 'tip' },
+            subpay: {
+                alias: 'sub',
+                timeline: [
+                    ['发起订阅支付', '14:32:01', true],
+                    ['链上确认', '14:32:18', true],
+                    ['权益已开通', '14:32:20', true]
+                ]
+            },
+            tipout: {
+                alias: 'tip',
+                timeline: [
+                    ['发起打赏', '15:42:00', true],
+                    ['创作者已收款', '15:42:03', true]
+                ]
+            },
             settle: { alias: 'sub' },
-            fee: { alias: 'tip' },
-            fiat: { alias: 'recharge' },
-            unlock: { alias: 'digital' }
+            fee: {
+                alias: 'tip',
+                timeline: [
+                    ['结算任务触发', '17:00:01', true],
+                    ['扣费执行', '17:00:06', true],
+                    ['账变入账', '17:00:08', true]
+                ]
+            },
+            fiat: {
+                alias: 'recharge',
+                timeline: [
+                    ['发起支付', '10:27:40', true],
+                    ['通道确认', '10:27:55', true],
+                    ['余额到账', '10:28:00', true]
+                ]
+            },
+            unlock: {
+                alias: 'digital',
+                timeline: [
+                    ['发起购买', '22:18:00', true],
+                    ['支付确认', '22:18:04', true],
+                    ['内容已解锁', '22:18:05', true]
+                ]
+            }
         };
+    }
+
+    function resolveTimelineType(type) {
+        var map = buildMap('');
+        var seen = {};
+        while (type && map[type] && !seen[type]) {
+            seen[type] = true;
+            var cfg = map[type];
+            if (cfg.timeline && cfg.timeline.length) return cfg.timeline.slice();
+            type = cfg.alias;
+        }
+        return (map.sub && map.sub.timeline ? map.sub.timeline.slice() : []);
+    }
+
+    function getTimeline(type) {
+        return resolveTimelineType(type || 'tip');
     }
 
     function resolveParams(params) {
@@ -371,13 +420,21 @@
     function getConfig(type, order) {
         var map = buildMap(order);
         var cfg = map[type] || map.sub;
-        if (cfg.alias) cfg = map[cfg.alias] || map.sub;
+        if (cfg.alias) {
+            var own = map[type] || {};
+            var base = map[cfg.alias] || map.sub;
+            cfg = Object.assign({}, base, own);
+            delete cfg.alias;
+        }
+        var ownTimeline = map[type] && map[type].timeline;
+        if (ownTimeline && ownTimeline.length) cfg.timeline = ownTimeline.slice();
         return cfg;
     }
 
     win.TransactionDetailPresets = {
         buildMap: buildMap,
         resolveParams: resolveParams,
-        getConfig: getConfig
+        getConfig: getConfig,
+        getTimeline: getTimeline
     };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -200,6 +200,7 @@ body {
 
 <div class="home-indicator"></div>
 <script src="../js/digital-h5-nav.js"></script>
+<script src="../js/transaction-detail-presets.js"></script>
 <script>
 (function () {
     var params = new URLSearchParams(location.search);
@@ -406,6 +407,10 @@ body {
     };
     var cfg = MAP[type] || MAP.tip;
     if (cfg.alias) cfg = MAP[cfg.alias] || MAP.tip;
+    if (window.TransactionDetailPresets && TransactionDetailPresets.getTimeline) {
+        var sharedTimeline = TransactionDetailPresets.getTimeline(type);
+        if (sharedTimeline.length) cfg.timeline = sharedTimeline;
+    }
     cfg = patchCfg(cfg, ORDER_PATCH[order]);
 
     function $(id) { return document.getElementById(id); }
