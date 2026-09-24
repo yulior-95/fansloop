@@ -29,11 +29,12 @@
         { id: 'other', label: '以上没有我想举报的类型', full: true }
     ];
 
+    var REPORT_SHEET_TITLE = '举报';
     var TITLE_MAP = {
-        video: '举报视频',
-        image: '举报图文',
-        live: '举报直播',
-        content: '举报内容'
+        video: REPORT_SHEET_TITLE,
+        image: REPORT_SHEET_TITLE,
+        live: REPORT_SHEET_TITLE,
+        content: REPORT_SHEET_TITLE
     };
 
     var state = {
@@ -111,12 +112,28 @@
         }, 2200);
     }
 
+    function isH5PhoneShell() {
+        var body = document.body;
+        if (!body) return false;
+        var rect = body.getBoundingClientRect();
+        if (!rect.width || rect.width > 420) return false;
+        if (rect.height > 920) return false;
+        return true;
+    }
+
+    function syncH5ShellClass() {
+        var h5 = isH5PhoneShell();
+        if (overlay) overlay.classList.toggle('fl-report-overlay--h5', h5);
+        if (toastEl) toastEl.classList.toggle('fl-report-toast--h5', h5);
+    }
+
     function ensureToast() {
         if (toastEl) return;
         toastEl = document.createElement('div');
         toastEl.className = 'fl-report-toast';
         toastEl.setAttribute('role', 'status');
         document.body.appendChild(toastEl);
+        syncH5ShellClass();
     }
 
     function reasonHtml(radioName) {
@@ -174,7 +191,7 @@
         overlay.innerHTML =
             '<div class="fl-report-modal" role="dialog" aria-modal="true" aria-labelledby="flReportTitle">' +
             '<div class="fl-report-hd">' +
-            '<h3 id="flReportTitle">举报内容</h3>' +
+            '<h3 id="flReportTitle">举报</h3>' +
             '<button type="button" class="fl-report-close" data-fl-report-close aria-label="关闭">' +
             '<i class="fa-solid fa-xmark"></i></button></div>' +
             '<div class="fl-report-bd">' +
@@ -188,6 +205,7 @@
             '<button type="button" class="fl-report-submit" id="flReportSubmit" disabled>提交</button>' +
             '</div></div>';
         document.body.appendChild(overlay);
+        syncH5ShellClass();
 
         overlay.addEventListener('click', function (e) {
             if (e.target === overlay) close();
@@ -227,9 +245,10 @@
         state.onDone = typeof opts.onDone === 'function' ? opts.onDone : null;
         state.toastFn = typeof opts.toast === 'function' ? opts.toast : null;
 
-        var title = opts.title || TITLE_MAP[state.type] || TITLE_MAP.content;
+        var title = opts.title || REPORT_SHEET_TITLE;
         overlay.querySelector('#flReportTitle').textContent = title;
         resetForm();
+        syncH5ShellClass();
         overlay.classList.add('is-open');
         overlay.setAttribute('aria-hidden', 'false');
         document.body.classList.add('fl-report-open');
@@ -337,6 +356,7 @@
         resolveType: resolveType,
         REASONS: REASONS,
         LOG_KEY: LOG_KEY,
-        TITLE_MAP: TITLE_MAP
+        TITLE_MAP: TITLE_MAP,
+        REPORT_SHEET_TITLE: REPORT_SHEET_TITLE
     };
 })(window);

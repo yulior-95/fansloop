@@ -370,6 +370,9 @@
                 renderAdminCandidates();
                 updateAdminCap();
             }
+            if (id === 'lhCohostSheet' && window.H5LiveHostCohost && H5LiveHostCohost.syncToolbarState) {
+                H5LiveHostCohost.syncToolbarState();
+            }
         }
     }
     function closeSheet(id) {
@@ -408,16 +411,33 @@
         giftFloatOn = on;
         if (!on && giftFloat) giftFloat.innerHTML = '';
     });
-    toggleSwitch(document.getElementById('lhSwitchMicApply'), function (on) {
+    function setMicApplyOnState(on, silent) {
+        if (on && window.H5LiveHostCohost && H5LiveHostCohost.isCohostMode && H5LiveHostCohost.isCohostMode()) {
+            toast('主播连麦进行中，不可与观众上麦同时开启');
+            return;
+        }
         micApplyOn = on;
+        var sw = document.getElementById('lhSwitchMicApply');
+        if (sw) {
+            sw.classList.toggle('on', on);
+            sw.textContent = on ? '开' : '关';
+            sw.setAttribute('aria-pressed', on ? 'true' : 'false');
+        }
         if (!on) {
             micQueue = [];
-            toast('已关闭观众申请连麦');
-        } else {
+            if (!silent) toast('已关闭观众申请连麦');
+        } else if (!silent) {
             toast('观众连麦已开启 · 有申请将弹出提示');
             closeSheet('lhCohostSheet');
         }
         updateMicLiveChrome();
+        if (window.H5LiveHostCohost && H5LiveHostCohost.syncToolbarState) {
+            H5LiveHostCohost.syncToolbarState();
+        }
+    }
+
+    toggleSwitch(document.getElementById('lhSwitchMicApply'), function (on) {
+        setMicApplyOnState(on, false);
     });
 
     function updateMicPendingBadge() {
@@ -462,9 +482,15 @@
 
     function updateMicLiveChrome() {
         var slotsEl = document.getElementById('lhAudienceSlotsLive');
-        if (slotsEl) slotsEl.hidden = !isLive || !micApplyOn;
+        var cohostBlock = window.H5LiveHostCohost && H5LiveHostCohost.isCohostMode && H5LiveHostCohost.isCohostMode();
+        if (slotsEl) slotsEl.hidden = !isLive || !micApplyOn || cohostBlock;
+        if (cohostBlock) {
+            var banner = document.getElementById('lhMicApplyBanner');
+            if (banner) banner.hidden = true;
+        } else {
+            updateMicApplyBanner();
+        }
         renderAudienceSlots();
-        updateMicApplyBanner();
     }
 
     function renderAudienceSlots() {
@@ -526,6 +552,10 @@
     }
 
     function addMicApply(name) {
+        if (window.H5LiveHostCohost && H5LiveHostCohost.isCohostMode && H5LiveHostCohost.isCohostMode()) {
+            toast('主播连麦进行中，不可接收观众上麦');
+            return;
+        }
         if (!micApplyOn) {
             toast('当前未开启观众连麦');
             return;
@@ -715,6 +745,7 @@
 
     document.getElementById('lhEndConfirm')?.addEventListener('click', function () {
         isLive = false;
+        if (window.H5LiveHostCohost && H5LiveHostCohost.exitCohost) H5LiveHostCohost.exitCohost();
         if (micSimTimer) clearTimeout(micSimTimer);
         micQueue = [];
         updateMicLiveChrome();
@@ -731,4 +762,15 @@
     document.getElementById('lhSummaryDone')?.addEventListener('click', function () {
         location.href = 'create.html';
     });
+
+    if (window.H5LiveHostCohost) {
+        H5LiveHostCohost.init({
+            toast: toast,
+            myName: session.hostDisplay || 'Luna 🌙',
+            getMicApplyOn: function () { return micApplyOn; },
+            setMicApplyOn: setMicApplyOnState,
+            getIsLive: function () { return isLive; },
+            onCohostChange: function () { updateMicLiveChrome(); }
+        });
+    }
 })();

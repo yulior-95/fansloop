@@ -17,10 +17,19 @@
         cohost: false,
         audienceMic: false,
         pk: false,
-        pkType: "gift"
+        pkSettling: false,
+        pkType: "gift",
+        pkDurSec: 180,
+        pkRemaining: 0,
+        pkScoreA: 1240,
+        pkScoreB: 892,
+        lastPkWinner: ""
     };
 
     var stage, dynamic, btnMatch, btnDirected, btnAud, btnPk, matchTimer, modalRoot;
+    var pkTimerId = null;
+    var pkScoreTickId = null;
+    var pkSettleAutoDismiss = null;
 
     function $(id) {
         return document.getElementById(id);
@@ -105,21 +114,232 @@
         );
     }
 
+    function formatPkScore(n, pkType) {
+        var v = Math.max(0, Math.floor(n || 0));
+        if (pkType === "like") return String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function formatPkTimer(sec) {
+        sec = Math.max(0, sec | 0);
+        var m = String(Math.floor(sec / 60)).padStart(2, "0");
+        var s = String(sec % 60).padStart(2, "0");
+        return m + ":" + s;
+    }
+
+    function pkBarPct(a, b) {
+        var sum = a + b;
+        if (sum <= 0) return 50;
+        return Math.round((a / sum) * 100);
+    }
+
+    function pkScoreUnitSuffix() {
+        return state.pkType === "like" ? "" : " USDT";
+    }
+
     function pkHudHtml() {
-        var unit = state.pkType === "like" ? "" : " USDT";
+        var unit = pkScoreUnitSuffix();
+        var pctA = pkBarPct(state.pkScoreA, state.pkScoreB);
+        var timerText = state.pkSettling ? "00:00" : formatPkTimer(state.pkRemaining || state.pkDurSec);
         return (
-            '<div class="obs-pk-hud obs-pk-hud--dock">' +
+            '<div class="obs-pk-hud obs-pk-hud--dock' +
+            (state.pkSettling ? " is-frozen" : "") +
+            '">' +
             '<div class="obs-pk-dock">' +
             '<div class="obs-pk-dock-col obs-pk-dock-col--a">' +
-            '<div class="obs-pk-dock-head"><span class="obs-pk-dock-name">Luna 🌙</span><span class="obs-pk-dock-score">1,240' + unit + "</span></div>" +
-            '<div class="obs-pk-bar obs-pk-bar--a"><span style="width:58%"></span></div>' +
+            '<div class="obs-pk-dock-head"><span class="obs-pk-dock-name">Luna 🌙</span>' +
+            '<span class="obs-pk-dock-score" id="hostPkScoreA">' +
+            formatPkScore(state.pkScoreA, state.pkType) +
+            unit +
+            "</span></div>" +
+            '<div class="obs-pk-bar obs-pk-bar--a"><span id="hostPkBarA" style="width:' +
+            pctA +
+            '%"></span></div>' +
             "</div>" +
-            '<div class="obs-pk-dock-mid"><span class="obs-pk-timer">02:47</span></div>' +
+            '<div class="obs-pk-dock-mid"><span class="obs-pk-timer" id="hostPkTimer">' +
+            timerText +
+            "</span></div>" +
             '<div class="obs-pk-dock-col obs-pk-dock-col--b">' +
-            '<div class="obs-pk-dock-head"><span class="obs-pk-dock-name">夜雨听弦</span><span class="obs-pk-dock-score">892' + unit + "</span></div>" +
-            '<div class="obs-pk-bar obs-pk-bar--b"><span style="width:42%"></span></div>' +
+            '<div class="obs-pk-dock-head"><span class="obs-pk-dock-name">夜雨听弦</span>' +
+            '<span class="obs-pk-dock-score" id="hostPkScoreB">' +
+            formatPkScore(state.pkScoreB, state.pkType) +
+            unit +
+            "</span></div>" +
+            '<div class="obs-pk-bar obs-pk-bar--b"><span id="hostPkBarB" style="width:' +
+            (100 - pctA) +
+            '%"></span></div>' +
             "</div></div></div>"
         );
+    }
+
+    function updateHostPkHud() {
+        var unit = pkScoreUnitSuffix();
+        var pctA = pkBarPct(state.pkScoreA, state.pkScoreB);
+        var scoreA = document.getElementById("hostPkScoreA");
+        var scoreB = document.getElementById("hostPkScoreB");
+        var barA = document.getElementById("hostPkBarA");
+        var barB = document.getElementById("hostPkBarB");
+        if (scoreA) scoreA.textContent = formatPkScore(state.pkScoreA, state.pkType) + unit;
+        if (scoreB) scoreB.textContent = formatPkScore(state.pkScoreB, state.pkType) + unit;
+        if (barA) barA.style.width = pctA + "%";
+        if (barB) barB.style.width = 100 - pctA + "%";
+    }
+
+    function stopPkSimulation() {
+        clearInterval(pkTimerId);
+        clearInterval(pkScoreTickId);
+        pkTimerId = null;
+        pkScoreTickId = null;
+    }
+
+    function clearPkSettlementUi() {
+        clearTimeout(pkSettleAutoDismiss);
+        pkSettleAutoDismiss = null;
+        if (!stage) return;
+        stage.classList.remove("host-stage--pk-settle");
+        stage.querySelectorAll(".host-pk-settle-flash").forEach(function (el) {
+            el.remove();
+        });
+    }
+
+    function markPkWinnerCells(winnerSide) {
+        var inj = stage && stage.querySelector(".host-cohost-inject");
+        if (!inj) return;
+        var cells = inj.querySelectorAll(".host-cohost-cell");
+        if (cells.length < 2) return;
+        cells[0].classList.toggle("is-pk-winner", winnerSide === "a");
+        cells[0].classList.toggle("is-pk-loser", winnerSide === "b");
+        cells[1].classList.toggle("is-pk-winner", winnerSide === "b");
+        cells[1].classList.toggle("is-pk-loser", winnerSide === "a");
+    }
+
+    function pkSettlementOverlayHtml(winnerSide) {
+        var unit = pkScoreUnitSuffix();
+        var aName = "Luna 🌙";
+        var bName = "夜雨听弦";
+        var aScore = formatPkScore(state.pkScoreA, state.pkType) + unit;
+        var bScore = formatPkScore(state.pkScoreB, state.pkType) + unit;
+        var winnerName = winnerSide === "a" ? aName : bName;
+        var winnerScore = winnerSide === "a" ? aScore : bScore;
+        var winnerAv = winnerSide === "a" ? I.luna : I.night;
+        var confetti = "";
+        for (var i = 0; i < 18; i += 1) {
+            confetti += '<span class="host-pk-confetti-piece" style="--i:' + i + '"></span>';
+        }
+        return (
+            '<div class="host-pk-settle-flash" role="dialog" aria-labelledby="hostPkSettleTitle">' +
+            '<div class="host-pk-confetti" aria-hidden="true">' +
+            confetti +
+            "</div>" +
+            '<div class="host-pk-settle-card">' +
+            '<div class="host-pk-settle-badge"><i class="fa-solid fa-flag-checkered"></i> PK 结算</div>' +
+            '<div class="host-pk-settle-winner">' +
+            '<div class="host-pk-settle-crown"><i class="fa-solid fa-crown"></i></div>' +
+            '<div class="host-pk-settle-av" style="background-image:url(\'' +
+            winnerAv +
+            "')\"></div>" +
+            '<h3 id="hostPkSettleTitle">' +
+            winnerName +
+            " 获胜</h3>" +
+            '<p class="host-pk-settle-score">' +
+            winnerScore +
+            "</p></div>" +
+            '<div class="host-pk-settle-vs-row">' +
+            '<div class="host-pk-settle-side host-pk-settle-side--a' +
+            (winnerSide === "a" ? " is-win" : " is-lose") +
+            '"><span class="nm">' +
+            aName +
+            '</span><span class="sc">' +
+            aScore +
+            '</span><span class="tag">' +
+            (winnerSide === "a" ? "胜" : "负") +
+            "</span></div>" +
+            '<div class="host-pk-settle-mid">VS</div>' +
+            '<div class="host-pk-settle-side host-pk-settle-side--b' +
+            (winnerSide === "b" ? " is-win" : " is-lose") +
+            '"><span class="nm">' +
+            bName +
+            '</span><span class="sc">' +
+            bScore +
+            '</span><span class="tag">' +
+            (winnerSide === "b" ? "胜" : "负") +
+            "</span></div></div>" +
+            '<p class="host-pk-settle-note">本局计入直播收益（演示 T+1~3）</p>' +
+            '<div class="host-pk-settle-actions">' +
+            '<button type="button" class="btn btn-primary btn-sm btn-block" data-pk-settle-dismiss>关闭</button>' +
+            "</div></div></div>"
+        );
+    }
+
+    function dismissPkSettlement() {
+        if (!state.pkSettling) return;
+        clearPkSettlementUi();
+        var winner = state.lastPkWinner;
+        state.pk = false;
+        state.pkSettling = false;
+        injectStage(cohostStageHtml(false));
+        renderCohostMembers();
+        syncToolbarState();
+        toast(winner ? "PK 已结束 · " + winner + " 获胜" : "PK 已结束");
+    }
+
+    function triggerPkEnd() {
+        if (!state.pk || state.pkSettling) return;
+        stopPkSimulation();
+        state.pkSettling = true;
+        var winnerSide = state.pkScoreA >= state.pkScoreB ? "a" : "b";
+        state.lastPkWinner = winnerSide === "a" ? "Luna 🌙" : "夜雨听弦";
+        markPkWinnerCells(winnerSide);
+        updateHostPkHud();
+        var timerEl = document.getElementById("hostPkTimer");
+        if (timerEl) {
+            timerEl.textContent = "00:00";
+            timerEl.classList.remove("is-urgent");
+        }
+        var hud = stage && stage.querySelector(".obs-pk-hud--dock");
+        if (hud) hud.classList.add("is-frozen");
+        if (stage) {
+            stage.classList.add("host-stage--pk-settle");
+            stage.insertAdjacentHTML("beforeend", pkSettlementOverlayHtml(winnerSide));
+        }
+        renderCohostMembers();
+        pkSettleAutoDismiss = setTimeout(function () {
+            if (state.pkSettling) dismissPkSettlement();
+        }, 12000);
+    }
+
+    function startPkSimulation() {
+        stopPkSimulation();
+        state.pkRemaining = state.pkDurSec || 180;
+        updateHostPkHud();
+        var timerEl = document.getElementById("hostPkTimer");
+        if (timerEl) timerEl.textContent = formatPkTimer(state.pkRemaining);
+
+        pkTimerId = setInterval(function () {
+            state.pkRemaining = Math.max(0, state.pkRemaining - 1);
+            var el = document.getElementById("hostPkTimer");
+            if (el) {
+                el.textContent = formatPkTimer(state.pkRemaining);
+                el.classList.toggle("is-urgent", state.pkRemaining > 0 && state.pkRemaining <= 30);
+            }
+            if (state.pkRemaining <= 0) triggerPkEnd();
+        }, 1000);
+
+        pkScoreTickId = setInterval(function () {
+            if (state.pkSettling) return;
+            if (Math.random() > 0.45) {
+                state.pkScoreA +=
+                    state.pkType === "like"
+                        ? Math.floor(Math.random() * 40 + 8)
+                        : Math.floor(Math.random() * 30 + 5);
+            } else {
+                state.pkScoreB +=
+                    state.pkType === "like"
+                        ? Math.floor(Math.random() * 35 + 6)
+                        : Math.floor(Math.random() * 28 + 4);
+            }
+            updateHostPkHud();
+        }, 2800);
     }
 
     function cohostStageHtml(withPk) {
@@ -171,11 +391,22 @@
     }
 
     function renderCohostMembers() {
-        var pkHint = state.pk
-            ? '<p class="host-cohost-hint" style="color:#fde68a;margin-bottom:8px"><i class="fa-solid fa-bolt"></i> PK 进行中 · ' +
-              (state.pkType === "like" ? "点赞总个数" : "礼物总金额") +
-              "</p>"
-            : "";
+        var pkHint = "";
+        if (state.pkSettling) {
+            pkHint =
+                '<p class="host-cohost-hint host-cohost-hint--pk-settle"><i class="fa-solid fa-trophy"></i> PK 结算中 · ' +
+                (state.lastPkWinner || "—") +
+                " 获胜 · 点击「关闭」结束结算</p>";
+        } else if (state.pk) {
+            pkHint =
+                '<p class="host-cohost-hint host-cohost-hint--pk" style="margin-bottom:8px"><i class="fa-solid fa-bolt"></i> PK 进行中 · ' +
+                (state.pkType === "like" ? "点赞总个数" : "礼物总金额") +
+                " · " +
+                formatPkTimer(state.pkRemaining || state.pkDurSec) +
+                "</p>" +
+                '<button type="button" class="btn btn-secondary btn-sm btn-block" id="hostPkDemoEnd" style="margin-bottom:10px">' +
+                '<i class="fa-solid fa-flag-checkered"></i> 结束 PK（演示）</button>';
+        }
         setDynamic(
             pkHint +
             '<div class="host-cohost-members">' +
@@ -205,7 +436,10 @@
     function exitCohost() {
         state.cohost = false;
         state.pk = false;
+        state.pkSettling = false;
         state.matching = false;
+        stopPkSimulation();
+        clearPkSettlementUi();
         clearStageInject();
         setCohostToolbarDisabled(false);
         setDynamic("");
@@ -215,7 +449,7 @@
 
     function renderAudienceQueue() {
         setDynamic(
-            '<p class="host-cohost-hint"><i class="fa-solid fa-toggle-on" style="color:#6ee7b7"></i> 观众上麦已开启 · 默认 2 席</p>' +
+            '<p class="host-cohost-hint host-cohost-hint--on"><i class="fa-solid fa-toggle-on"></i> 观众上麦已开启 · 默认 2 席</p>' +
             '<div class="host-cohost-queue-item" data-queue="fan01">' +
             '<div class="av" style="background-image:url(\'' +
             I.fan +
@@ -340,7 +574,7 @@
                         toast("已向 " + selected + " 发送连麦邀请");
                         closeModal();
                         setDynamic(
-                            '<p class="host-cohost-hint" style="color:#fde68a"><i class="fa-solid fa-hourglass-half"></i> 等待 ' +
+                            '<p class="host-cohost-hint host-cohost-hint--wait"><i class="fa-solid fa-hourglass-half"></i> 等待 ' +
                             selected +
                             " 接受邀请…</p>"
                         );
@@ -387,6 +621,8 @@
                             x.classList.remove("active");
                         });
                         span.classList.add("active");
+                        var m = (span.textContent || "").match(/(\d+)/);
+                        state.pkDurSec = m ? parseInt(m[1], 10) * 60 : 180;
                     });
                 });
                 var send = root.querySelector("#hostPkSend");
@@ -433,11 +669,17 @@
 
     function startPk() {
         state.pk = true;
+        state.pkSettling = false;
+        state.pkScoreA = 1240;
+        state.pkScoreB = 892;
+        state.pkRemaining = state.pkDurSec || 180;
         closeModal();
+        clearPkSettlementUi();
         injectStage(cohostStageHtml(true));
         renderCohostMembers();
         syncToolbarState();
-        toast("PK 已开始");
+        startPkSimulation();
+        toast("PK 已开始 · " + formatPkTimer(state.pkRemaining));
     }
 
     function startRandomMatch() {
@@ -449,7 +691,7 @@
         state.matching = true;
         setCohostToolbarDisabled(true);
         setDynamic(
-            '<p class="host-cohost-hint" style="color:#fde68a"><i class="fa-solid fa-spinner fa-spin"></i> 随机匹配中 · 已等待 0s</p>'
+            '<p class="host-cohost-hint host-cohost-hint--wait"><i class="fa-solid fa-spinner fa-spin"></i> 随机匹配中 · 已等待 0s</p>'
         );
         var sec = 0;
         matchTimer = setInterval(function () {
@@ -487,6 +729,10 @@
     }
 
     function onDynamicClick(e) {
+        if (e.target.closest("#hostPkDemoEnd")) {
+            triggerPkEnd();
+            return;
+        }
         var exit = e.target.closest(".host-cohost-exit");
         if (exit) {
             exitCohost();
@@ -540,6 +786,10 @@
         if (dynamic) dynamic.addEventListener("click", onDynamicClick);
         if (stage) {
             stage.addEventListener("click", function (e) {
+                if (e.target.closest("[data-pk-settle-dismiss]")) {
+                    dismissPkSettlement();
+                    return;
+                }
                 if (e.target.closest(".host-cohost-exit")) exitCohost();
             });
         }

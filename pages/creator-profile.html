@@ -7,18 +7,60 @@
 <link rel="stylesheet" href="../css/common.css">
 <script src="../js/h5-theme-boot.js"></script>
 <style>
+/* 顶栏沉浸 · 封面延伸至状态栏/导航下方（对齐 Web cp-cover / .cover） */
+body.page-creator-profile-h5 .status-bar {
+    background: transparent !important;
+    pointer-events: none;
+}
+body.page-creator-profile-h5 .status-bar .time,
+body.page-creator-profile-h5 .status-bar .right {
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+}
 .banner {
     position: relative;
-    width: 100%; height: 200px;
+    width: 100%;
+    height: calc(220px + var(--status-bar-height) + var(--nav-bar-height));
+    min-height: 288px;
+    margin-top: calc(-1 * (var(--status-bar-height) + var(--nav-bar-height)));
     overflow: hidden;
+    flex-shrink: 0;
 }
-.banner img { width: 100%; height: 100%; object-fit: cover; }
+.banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    display: block;
+}
 .banner::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 30%, rgba(10,10,18,0.95) 100%);
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.35) 0%,
+        rgba(0, 0, 0, 0.08) 38%,
+        rgba(10, 10, 18, 0.55) 72%,
+        rgba(10, 10, 18, 0.95) 100%
+    );
+}
+:root[data-theme='light'] body.page-creator-profile-h5 .banner::after {
+    background: linear-gradient(
+        180deg,
+        rgba(15, 18, 32, 0.28) 0%,
+        rgba(15, 18, 32, 0.06) 38%,
+        rgba(243, 245, 250, 0.72) 78%,
+        var(--bg-primary) 100%
+    );
 }
 
-.nav-bar.nav-bar--hero { z-index: 110; }
+body.page-creator-profile-h5 .nav-bar.nav-bar--hero {
+    z-index: 110;
+    background: transparent !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
 .nav-bar.nav-bar--hero .nav-btn {
     width: 34px;
     height: 34px;
@@ -69,7 +111,7 @@
 
 .profile-head {
     position: relative;
-    margin-top: -60px;
+    margin-top: -72px;
     padding: 0 16px;
     z-index: 2;
 }
@@ -306,6 +348,66 @@
     padding: 0 12px; margin: 8px 0 12px; color: var(--text-primary); background: var(--bg-card);
 }
 
+/* 直播 / 预约（对齐 Web cp-aside 首卡） */
+.cp-live-card {
+    margin: 0 16px 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    background: linear-gradient(180deg, rgba(220, 38, 38, 0.08), var(--bg-card));
+}
+.cp-live-card__hd {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #fca5a5;
+    line-height: 1.25;
+}
+.cp-live-card__hd .dt {
+    width: 3px;
+    height: 14px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #dc2626, #f59e0b);
+}
+.cp-live-card__hd i {
+    color: #f87171;
+    font-size: 13px;
+}
+.cp-live-card__body {
+    margin: 0 0 10px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    line-height: 1.55;
+}
+.cp-live-card__btn {
+    width: 100%;
+    min-height: 40px;
+    font-weight: 700;
+}
+.cp-live-card--live {
+    border-color: rgba(239, 68, 68, 0.45);
+    background: linear-gradient(180deg, rgba(220, 38, 38, 0.14), var(--bg-card));
+}
+.cp-live-card--live .cp-live-card__hd { color: #fecaca; }
+.cp-live-card--live .cp-live-card__body { color: var(--text-secondary); }
+:root[data-theme='light'] .cp-live-card {
+    background: linear-gradient(180deg, rgba(254, 226, 226, 0.65), var(--bg-card));
+    border-color: rgba(220, 38, 38, 0.22);
+}
+:root[data-theme='light'] .cp-live-card__hd {
+    color: #b91c1c;
+}
+:root[data-theme='light'] .cp-live-card__hd i {
+    color: #dc2626;
+}
+:root[data-theme='light'] .cp-live-card__body {
+    color: var(--text-secondary);
+}
+
 /* 订阅卡片 */
 .sub-card {
     margin: 16px;
@@ -526,7 +628,7 @@
 <link rel="stylesheet" href="../css/digital-h5.css">
 <link rel="stylesheet" href="../css/h5-share-sheets.css">
 </head>
-<body>
+<body class="page-creator-profile-h5">
 
 <div class="status-bar dark-mode">
     <span class="time">9:41</span>
@@ -613,6 +715,19 @@
             <span class="cp-cta-sub-label">订阅会员</span>
         </button>
     </div>
+
+    <!-- 直播预约 · 对齐 Web aside-card -->
+    <section class="cp-live-card" id="cpLiveCard" aria-labelledby="cpLiveCardTitle">
+        <h3 class="cp-live-card__hd" id="cpLiveCardTitle">
+            <span class="dt" aria-hidden="true"></span>
+            <i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>
+            <span id="cpLiveCardHead">暂无直播</span>
+        </h3>
+        <p class="cp-live-card__body" id="cpLiveCardBody">下次开播：周日 19:00<br>主题：京都樱花季的拍摄技巧</p>
+        <button type="button" class="btn btn-secondary btn-sm cp-live-card__btn" id="cpLiveRemindBtn">
+            <i class="fa-regular fa-bell"></i> 提前预约
+        </button>
+    </section>
 
     <!-- 订阅卡 -->
     <div class="sub-card" id="cpSubCard">
@@ -978,6 +1093,17 @@
     var cpSubCardBtn = document.getElementById('cpSubCardBtn');
     if (cpCtaSubscribe) cpCtaSubscribe.addEventListener('click', openCreatorSubscribe);
     if (cpSubCardBtn) cpSubCardBtn.addEventListener('click', openCreatorSubscribe);
+
+    var cpLiveRemindBtn = document.getElementById('cpLiveRemindBtn');
+    if (cpLiveRemindBtn) {
+        cpLiveRemindBtn.addEventListener('click', function () {
+            cpLiveRemindBtn.disabled = true;
+            cpLiveRemindBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> 已预约';
+            if (DigitalH5Nav && DigitalH5Nav.toast) {
+                DigitalH5Nav.toast('已预约 · 开播前将通过 App 推送提醒');
+            }
+        });
+    }
     if (subscribeApi) {
         subscribeApi.syncSubscribeCta(cpCtaSubscribe);
         syncSubCardUI();

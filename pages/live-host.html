@@ -25,6 +25,8 @@ body.page-h5-live-host .status-bar .right { text-shadow: 0 1px 4px rgba(0,0,0,.5
 </div>
 
 <div class="lh-root lh-root--tap" id="lhRoot" role="button" tabindex="0" aria-label="摄像头预览，点击查看创作者主页"></div>
+<div class="lh-cohost-layer" id="lhCohostLayer" hidden aria-hidden="true"></div>
+<div id="lhObsModalHost"></div>
 <div class="obs-audience-slots lh-host-audience-slots" id="lhAudienceSlotsLive" hidden aria-label="观众连麦席位"></div>
 <div class="lh-mic-apply-banner" id="lhMicApplyBanner" hidden role="dialog" aria-labelledby="lhMicApplyTitle">
     <div class="lh-mic-apply-inner">
@@ -107,7 +109,7 @@ body.page-h5-live-host .status-bar .right { text-shadow: 0 1px 4px rgba(0,0,0,.5
         <div class="sh"><h3>直播工具</h3><button type="button" id="lhMoreClose">关闭</button></div>
         <div class="lh-more-grid">
             <button type="button" class="lh-more-item" data-lh-more="chat"><span class="ic"><i class="fa-regular fa-comments"></i></span>弹幕</button>
-            <button type="button" class="lh-more-item" data-lh-more="cohost"><span class="ic"><i class="fa-solid fa-link"></i></span>连麦</button>
+            <button type="button" class="lh-more-item" data-lh-more="cohost"><span class="ic"><i class="fa-solid fa-link"></i></span>连麦&amp;PK</button>
             <button type="button" class="lh-more-item" data-lh-more="admin"><span class="ic"><i class="fa-solid fa-user-shield"></i></span>房管</button>
             <button type="button" class="lh-more-item" data-lh-more="share"><span class="ic"><i class="fa-solid fa-share-nodes"></i></span>分享</button>
         </div>
@@ -130,15 +132,28 @@ body.page-h5-live-host .status-bar .right { text-shadow: 0 1px 4px rgba(0,0,0,.5
 </div>
 
 <div class="lh-sheet-ovl" id="lhCohostSheet">
-    <div class="lh-sheet">
-        <div class="sh"><h3>观众连麦</h3><button type="button" data-lh-sheet-close="lhCohostSheet">关闭</button></div>
-        <p class="lh-sheet-lead">此处仅开启或关闭连麦。开启后请返回直播画面；有新申请时会在画面底部弹出，可直接同意或拒绝。</p>
-        <div class="lh-switch-row">
-            <span>允许观众申请连麦</span>
-            <button type="button" class="lh-switch on" id="lhSwitchMicApply" aria-pressed="true">开</button>
+    <div class="lh-sheet lh-sheet-tall">
+        <div class="sh"><h3>连麦 &amp; PK</h3><button type="button" data-lh-sheet-close="lhCohostSheet">关闭</button></div>
+        <p class="lh-sheet-lead">与 Web 主播控制台一致：主播连麦（随机/指定）与观众上麦<strong>不可同时</strong>；PK 须先完成主播连麦。</p>
+        <div class="lh-cohost-toolbar">
+            <button type="button" class="btn btn-primary btn-sm" id="lhBtnRandomMatch"><i class="fa-solid fa-shuffle"></i> 随机匹配</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="lhBtnDirected"><i class="fa-solid fa-user-plus"></i> 指定连麦</button>
         </div>
-        <p class="lh-sheet-note">最多 2 人同时上麦 · 满员时需先下麦再接新申请</p>
-        <button type="button" class="btn btn-secondary btn-sm" id="lhMicDemoApply" style="width:100%;margin-top:10px"><i class="fa-solid fa-user-plus"></i> 模拟观众申请（演示）</button>
+        <div class="lh-cohost-toolbar">
+            <button type="button" class="btn btn-secondary btn-sm" id="lhBtnAudienceMic"><i class="fa-solid fa-microphone-lines"></i> 观众上麦</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="lhBtnPk" disabled title="需先完成主播连麦"><i class="fa-solid fa-hand-fist"></i> 发起 PK</button>
+        </div>
+        <div class="lh-cohost-dynamic" id="lhCohostDynamic"></div>
+        <p class="lh-sheet-note lh-cohost-footnote">最多 3 位主播连麦 · 观众上麦默认 2 席</p>
+        <div class="lh-cohost-audience-block">
+            <div class="lh-queue-hd">观众上麦设置</div>
+            <div class="lh-switch-row">
+                <span>允许观众申请连麦</span>
+                <button type="button" class="lh-switch on" id="lhSwitchMicApply" aria-pressed="true">开</button>
+            </div>
+            <p class="lh-sheet-note">有新申请时会在直播画面底部弹出，可直接同意或拒绝</p>
+            <button type="button" class="btn btn-secondary btn-sm" id="lhMicDemoApply" style="width:100%;margin-top:8px"><i class="fa-solid fa-user-plus"></i> 模拟观众申请（演示）</button>
+        </div>
     </div>
 </div>
 
@@ -221,6 +236,7 @@ body.page-h5-live-host .status-bar .right { text-shadow: 0 1px 4px rgba(0,0,0,.5
 <div class="home-indicator"></div>
 </div><!-- .lh-stage -->
 <script src="../js/digital-h5-nav.js"></script>
+<script src="../js/h5-live-host-cohost.js"></script>
 <script src="../js/h5-live-host-page.js"></script>
 </body>
 </html>

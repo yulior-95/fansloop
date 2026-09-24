@@ -143,8 +143,50 @@
     font-size: 12px;
     font-weight: 700;
 }
+/* 举报 · 与首页 feed-more-sheet 一致 */
+.cd-report-sheet.feed-more-sheet {
+    height: auto;
+    max-height: 82%;
+    z-index: 126;
+}
+.cd-report-sheet .hs-body {
+    padding: 10px 16px calc(16px + env(safe-area-inset-bottom, 0));
+}
+.cd-report-sheet .feed-more-report .fl-report-bd {
+    padding: 0 2px 4px;
+    max-height: min(52vh, 360px);
+    overflow-y: auto;
+}
+.cd-report-sheet .feed-more-report .fl-report-ft {
+    padding: 12px 0 4px;
+}
+.cd-report-sheet .hs-head .feed-more-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: inherit;
+    margin-right: 8px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+.cd-report-sheet .hs-head .t {
+    flex: 1;
+    text-align: center;
+    margin-right: 32px;
+}
+:root[data-theme='light'] .cd-report-sheet .hs-head .feed-more-back {
+    background: var(--bg-inset);
+    color: var(--text-secondary);
+}
 </style>
+<link rel="stylesheet" href="../css/h5-share-sheets.css">
 <link rel="stylesheet" href="../css/h5-light-theme.css">
+<link rel="stylesheet" href="../css-web/content-report.css">
 </head>
 <body class="page-content-detail-h5">
 
@@ -189,8 +231,31 @@
     <button type="button" id="cdCommentSend">发送</button>
 </div>
 
+<div class="home-overlay" id="cdOverlay" aria-hidden="true"></div>
+<div class="home-sheet feed-more-sheet is-report cd-report-sheet" id="cdReportSheet" aria-hidden="true">
+    <div class="hs-head">
+        <button type="button" class="feed-more-back" id="cdReportBack" aria-label="关闭"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="t" id="cdReportTitle">举报</div>
+        <button class="x" type="button" id="cdReportClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="hs-body">
+        <div class="feed-more-report">
+            <div class="fl-report-bd">
+                <span class="fl-report-label">举报原因<span class="req">*</span></span>
+                <div class="fl-report-reasons" id="cdReportReasons"></div>
+                <span class="fl-report-label">举报描述</span>
+                <textarea class="fl-report-desc" id="cdReportDesc" maxlength="500" placeholder="请详细描述举报原因，便于平台判断违规情况"></textarea>
+            </div>
+            <div class="fl-report-ft">
+                <button type="button" class="fl-report-submit" id="cdReportSubmit" disabled>提交</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="home-indicator"></div>
 <script src="../js/digital-h5-nav.js"></script>
+<script src="../js-web/content-report.js"></script>
 <script>
 (function () {
     var SAMPLE = [
@@ -208,6 +273,8 @@
         var q = params();
         if (q.get('title')) p.title = q.get('title');
         if (q.get('from')) p.from = q.get('from');
+        if (q.get('id')) p.id = q.get('id');
+        if (q.get('type')) p.type = q.get('type');
         return p;
     }
     function renderComments(list) {
@@ -267,7 +334,106 @@
     }
     qs('cdForward')?.addEventListener('click', function () { toast('已复制分享链接（原型）'); });
     qs('cdShare')?.addEventListener('click', function () { toast('已复制分享链接（原型）'); });
-    qs('cdReport')?.addEventListener('click', function () { toast('已提交举报（原型）'); });
+    var cdOverlay = qs('cdOverlay');
+    var cdReportSheet = qs('cdReportSheet');
+    var cdReportTitle = qs('cdReportTitle');
+    var cdReportReasons = qs('cdReportReasons');
+    var cdReportDesc = qs('cdReportDesc');
+    var cdReportSubmit = qs('cdReportSubmit');
+    var cdReportReasonsReady = false;
+    var cdReportMeta = { type: 'image', contentId: '', contentTitle: '' };
+
+    function cdReportContentMeta() {
+        var R = window.FL_ContentReport;
+        var cid = data.id || data.contentId ||
+            params().get('id') ||
+            ('cd-' + String(data.title || 'post').replace(/\s+/g, '_').slice(0, 48));
+        var reportType = R && R.resolveType ? R.resolveType(data.type || data.kind, 'image') : 'image';
+        if (data.kind === 'video' || data.type === 'video') reportType = 'video';
+        return {
+            type: reportType,
+            contentId: String(cid),
+            contentTitle: data.title || (qs('cdTitle') && qs('cdTitle').textContent) || ''
+        };
+    }
+    function syncCdReportOverlay() {
+        if (!cdOverlay) return;
+        var open = cdReportSheet && cdReportSheet.classList.contains('show');
+        cdOverlay.classList.toggle('show', open);
+        if (cdReportSheet) cdReportSheet.setAttribute('aria-hidden', open ? 'false' : 'true');
+        cdOverlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+    }
+    function resetCdReportForm() {
+        if (cdReportReasons) {
+            cdReportReasons.querySelectorAll('input[name="cdReportReason"]').forEach(function (el) {
+                el.checked = false;
+            });
+        }
+        if (cdReportDesc) cdReportDesc.value = '';
+        if (cdReportSubmit) cdReportSubmit.disabled = true;
+    }
+    function closeCdReportSheet() {
+        if (cdReportSheet) cdReportSheet.classList.remove('show');
+        resetCdReportForm();
+        syncCdReportOverlay();
+    }
+    function ensureCdReportReasons() {
+        var R = window.FL_ContentReport;
+        if (!R || !cdReportReasons || cdReportReasonsReady) return;
+        cdReportReasons.innerHTML = R.reasonHtml('cdReportReason');
+        cdReportReasonsReady = true;
+    }
+    function syncCdReportSubmit() {
+        if (!cdReportSubmit || !cdReportReasons) return;
+        var checked = cdReportReasons.querySelector('input[name="cdReportReason"]:checked');
+        cdReportSubmit.disabled = !checked;
+    }
+    function openCdReportSheet() {
+        var R = window.FL_ContentReport;
+        if (!R) {
+            toast('举报功能暂不可用');
+            return;
+        }
+        cdReportMeta = cdReportContentMeta();
+        ensureCdReportReasons();
+        resetCdReportForm();
+        if (cdReportTitle) cdReportTitle.textContent = R.REPORT_SHEET_TITLE || '举报';
+        if (cdReportSheet) cdReportSheet.classList.add('show');
+        syncCdReportOverlay();
+    }
+    if (cdReportReasons) cdReportReasons.addEventListener('change', syncCdReportSubmit);
+    qs('cdReportBack')?.addEventListener('click', closeCdReportSheet);
+    qs('cdReportClose')?.addEventListener('click', closeCdReportSheet);
+    if (cdOverlay) {
+        cdOverlay.addEventListener('click', function () {
+            if (cdReportSheet && cdReportSheet.classList.contains('show')) closeCdReportSheet();
+        });
+    }
+    if (cdReportSubmit) {
+        cdReportSubmit.addEventListener('click', function () {
+            var R = window.FL_ContentReport;
+            if (!R) {
+                toast('举报功能暂不可用');
+                return;
+            }
+            var checked = cdReportReasons && cdReportReasons.querySelector('input[name="cdReportReason"]:checked');
+            if (!checked) {
+                toast('请选择举报原因');
+                return;
+            }
+            var desc = (cdReportDesc && cdReportDesc.value || '').trim();
+            closeCdReportSheet();
+            R.submitReport({
+                reason: checked.value,
+                desc: desc,
+                type: cdReportMeta.type,
+                contentId: cdReportMeta.contentId,
+                contentTitle: cdReportMeta.contentTitle,
+                toast: toast
+            });
+        });
+    }
+    qs('cdReport')?.addEventListener('click', openCdReportSheet);
     qs('cdCommentSend')?.addEventListener('click', function () {
         var inp = qs('cdCommentInput');
         var t = (inp && inp.value || '').trim();

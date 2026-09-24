@@ -6,7 +6,7 @@
     global.__flMallBenefitsScenesInit = true;
 
     var SELF_AVATAR_NEEDLE = 'photo-1494790108377-be9c29b29330';
-    var AVATAR_SELECTOR = '.h-avatar, .av, .av-xs, .av-sm, .av-md, .av-lg, .av-xl, .av-mini';
+    var AVATAR_SELECTOR = '.h-avatar, .av, .av-xs, .av-sm, .av-md, .av-lg, .av-xl, .av-mini, .avatar-ring[data-fl-self-avatar]';
     var avatarObserver = null;
     var avatarObserverTimer = null;
 
@@ -35,6 +35,7 @@
         if (el.closest('.ph-row') && el.classList.contains('av-xl')) return true;
         if (el.closest('.cm-input-bar') && el.classList.contains('av')) return true;
         if (el.hasAttribute('data-fl-self-avatar')) return true;
+        if (el.classList.contains('avatar-ring') && el.closest('.profile-top')) return true;
         return false;
     }
 
@@ -156,7 +157,7 @@
             el.classList.toggle('av-frame-neon', active);
         });
 
-        var info = qs('.ph-row .info');
+        var info = qs('.ph-row .info') || qs('.profile-top .p-head .info');
         if (info) {
             var row = qs('#mbAvatarEquippedRow', info);
             if (!frame) {

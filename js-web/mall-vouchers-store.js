@@ -164,6 +164,36 @@
         return v && (v.type === 'ppv_trial' || v.type === 'ppv_discount');
     }
 
+    function mergeGuestVouchersIntoDemoUser() {
+        if (!isDemoUser()) return false;
+        try {
+            var guestRaw = localStorage.getItem(LS_KEY_PREFIX + '_guest');
+            if (!guestRaw) return false;
+            var guestList = JSON.parse(guestRaw);
+            if (!Array.isArray(guestList) || !guestList.length) return false;
+            var key = storageKey();
+            var raw = localStorage.getItem(key);
+            var userList = raw ? JSON.parse(raw) : initialVouchers();
+            var ids = {};
+            userList.forEach(function (v) { ids[v.id] = true; });
+            var merged = false;
+            guestList.forEach(function (v) {
+                if (!v || ids[v.id]) return;
+                userList.unshift(v);
+                ids[v.id] = true;
+                merged = true;
+            });
+            localStorage.removeItem(LS_KEY_PREFIX + '_guest');
+            if (merged) {
+                writeAll(userList);
+                dispatchBenefitsChanged();
+            }
+            return merged;
+        } catch (e) {
+            return false;
+        }
+    }
+
     function readAll() {
         try {
             var key = storageKey();
@@ -173,8 +203,12 @@
                 if (legacy) {
                     var parsed = JSON.parse(legacy);
                     writeAll(parsed);
-                    return parsed;
+                    mergeGuestVouchersIntoDemoUser();
+                    raw = localStorage.getItem(key);
+                    if (raw) return JSON.parse(raw);
                 }
+                mergeGuestVouchersIntoDemoUser();
+                raw = localStorage.getItem(key);
             }
             if (!raw) return null;
             return JSON.parse(raw);
@@ -277,6 +311,7 @@
     }
 
     function list() {
+        if (isDemoUser()) mergeGuestVouchersIntoDemoUser();
         var data = readAll();
         if (!data) {
             data = initialVouchers();
@@ -410,10 +445,11 @@
     }
 
     function getEquippedAvatarFrame() {
-        return list().find(function (v) {
-            if (!isAvatarFrame(v) || v.status !== 'active' || isExpired(v)) return false;
-            return v.equipped !== false;
-        }) || null;
+        var active = list().filter(function (v) {
+            return isAvatarFrame(v) && v.status === 'active' && !isExpired(v);
+        });
+        return active.find(function (v) { return v.equipped === true; }) ||
+            active.find(function (v) { return v.equipped !== false; }) || null;
     }
 
     function getActiveCommentHighlight() {

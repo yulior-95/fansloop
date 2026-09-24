@@ -118,20 +118,58 @@ body { background: var(--bg-primary); }
     left: 20px; right: 20px;
     bottom: 88px;
     z-index: 5;
-    max-height: 230px;
-    overflow: auto;
-    padding-right: 2px;
-    scrollbar-width: thin;
+    max-height: min(42vh, 268px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 12px 12px 0;
+    border-radius: 14px;
+    background: rgba(15, 18, 32, 0.58);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+}
+.drafts-section::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 32px;
+    border-radius: 0 0 14px 14px;
+    pointer-events: none;
+    background: linear-gradient(to top, rgba(15, 18, 32, 0.92) 0%, rgba(15, 18, 32, 0) 100%);
+}
+.drafts-section-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 12px;
+}
+.drafts-section-scroll::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
 }
 .drafts-section .head {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 12px;
+    flex-shrink: 0;
+    margin-bottom: 10px;
 }
 .drafts-section .head .title {
-    font-size: 14px; font-weight: 600;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
 }
 .drafts-section .head .more {
-    font-size: 12px; color: var(--text-tertiary);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
     cursor: pointer;
 }
 
@@ -139,6 +177,7 @@ body { background: var(--bg-primary); }
     display: flex; align-items: center; gap: 10px;
     padding: 10px;
     background: var(--bg-card);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     margin-bottom: 8px;
 }
@@ -160,12 +199,16 @@ body { background: var(--bg-primary); }
 }
 .draft-row .d-info { flex: 1; min-width: 0; }
 .draft-row .d-title {
-    font-size: 13px; font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
     overflow: hidden; text-overflow: ellipsis;
     white-space: nowrap;
 }
 .draft-row .d-meta {
-    font-size: 11px; color: var(--text-tertiary);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
     margin-top: 2px;
 }
 .draft-row[data-preview] { cursor: pointer; }
@@ -178,10 +221,15 @@ body { background: var(--bg-primary); }
     margin: 8px 0 10px;
     padding-top: 6px;
 }
-.audit-head .title { font-size: 13px; font-weight: 600; }
+.audit-head .title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
 .audit-head .badge {
     font-size: 10px;
-    color: #FCA5A5;
+    font-weight: 700;
+    color: #fecaca;
     padding: 2px 8px;
     border: 1px solid rgba(239,68,68,.35);
     border-radius: 999px;
@@ -206,7 +254,8 @@ body { background: var(--bg-primary); }
 }
 .audit-row .t {
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
+    color: var(--text-primary);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -214,12 +263,16 @@ body { background: var(--bg-primary); }
 .audit-row .m {
     margin-top: 4px;
     font-size: 11px;
-    color: #FCA5A5;
-    white-space: nowrap;
+    font-weight: 600;
+    line-height: 1.45;
+    color: #fca5a5;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
 }
-.audit-row.reviewing .m { color: #FDE68A; }
+.audit-row.reviewing .m { color: #fde68a; }
 .audit-actions {
     display: flex;
     gap: 8px;
@@ -227,17 +280,48 @@ body { background: var(--bg-primary); }
 }
 .audit-btn {
     flex: 1;
-    height: 28px;
+    min-width: 0;
+    height: 32px;
     border-radius: 9px;
     font-size: 11px;
+    font-weight: 700;
     border: 1px solid var(--border-color);
     background: var(--bg-card);
     color: var(--text-primary);
 }
 .audit-btn.danger {
     border-color: rgba(239,68,68,.35);
-    color: #FCA5A5;
-    background: rgba(239,68,68,.08);
+    color: #fecaca;
+    background: rgba(239,68,68,.12);
+}
+
+:root[data-theme='light'] .drafts-section {
+    background: rgba(255, 255, 255, 0.96);
+    border-color: var(--border-color);
+    box-shadow: 0 8px 24px rgba(15, 18, 32, 0.08);
+}
+:root[data-theme='light'] .drafts-section::after {
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0) 100%);
+}
+:root[data-theme='light'] .audit-row {
+    background: #fef2f2;
+    border-color: rgba(220, 38, 38, 0.22);
+}
+:root[data-theme='light'] .audit-row.reviewing {
+    background: #fffbeb;
+    border-color: rgba(217, 119, 6, 0.28);
+}
+:root[data-theme='light'] .audit-row .m { color: #b91c1c; }
+:root[data-theme='light'] .audit-row.reviewing .m { color: #a16207; }
+:root[data-theme='light'] .audit-head .badge {
+    color: #991b1b;
+    background: #fef2f2;
+    border-color: #fca5a5;
+}
+:root[data-theme='light'] .audit-btn.danger {
+    color: #991b1b;
+    background: #fff;
+    border-color: #fca5a5;
 }
 
 .preview-ovl {
@@ -439,7 +523,7 @@ body { background: var(--bg-primary); }
 </style>
 <link rel="stylesheet" href="../css/h5-light-theme.css">
 </head>
-<body>
+<body class="page-h5-create">
 
 <div class="create-bg"></div>
 
@@ -494,6 +578,7 @@ body { background: var(--bg-primary); }
         <span class="title">草稿箱 · 2</span>
         <span class="more" id="draftMoreBtn">查看全部 <i class="fa-solid fa-chevron-right" style="font-size:10px"></i></span>
     </div>
+    <div class="drafts-section-scroll">
     <div class="draft-row" data-preview="1" data-type="video" data-go="create-video.html?from=draft" data-title="涩谷夜景完整版 vlog 剪辑" data-meta="视频 · 00:58 · 2 天前保存" data-desc="东京夜拍夜景合集，已完成剪辑与配乐，待补充标签后即可发布。" data-cover="https://images.unsplash.com/photo-1492288991661-058aa541ff43?w=1200&q=80">
         <div class="d-cover">
             <img src="https://images.unsplash.com/photo-1492288991661-058aa541ff43?w=200&q=80">
@@ -557,6 +642,7 @@ body { background: var(--bg-primary); }
             <button type="button" class="audit-btn" data-action="edit-reject">去编辑</button>
             <button type="button" class="audit-btn danger" data-action="cancel-reject">取消</button>
         </div>
+    </div>
     </div>
 </div>
 

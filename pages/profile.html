@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="../css/common.css">
 <link rel="stylesheet" href="../css-web/profile-works.css">
 <link rel="stylesheet" href="../css-web/profile-live-sessions.css">
+<link rel="stylesheet" href="../css-web/mall-benefits-scenes.css">
 <script src="../js/h5-theme-boot.js"></script>
 <style>
 .app-content {
@@ -102,6 +103,12 @@ body.page-profile-h5 .profile-scroll-body {
     padding: 3px;
     background: var(--brand-gradient);
     border-radius: 50%;
+    flex-shrink: 0;
+    overflow: visible;
+}
+.profile-top .p-head .avatar-ring.av-frame-neon {
+    background: transparent !important;
+    padding: 0;
 }
 .profile-top .p-head .avatar-ring img {
     width: 80px; height: 80px;
@@ -860,7 +867,7 @@ body.page-profile-h5 #pfSectionMyContent { scroll-margin-top: 8px; }
 
         <div class="profile-top">
             <div class="p-head">
-                <div class="avatar-ring">
+                <div class="avatar-ring" data-fl-self-avatar id="pfAvatarRing">
                     <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80" alt="">
                     <span class="role-badge pf-role-badge" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
                 </div>
@@ -1443,6 +1450,8 @@ body.page-profile-h5 #pfSectionMyContent { scroll-margin-top: 8px; }
 <script src="../js-web/profile-cover-sync.js"></script>
 <script src="../js-web/profile-creator-cert.js"></script>
 <script src="../js-web/mall-commerce-config-store.js"></script>
+<script src="../js-web/mall-vouchers-store.js"></script>
+<script src="../js-web/mall-benefits-scenes.js"></script>
 <script>
 (function () {
     function toast(msg) {
@@ -1670,8 +1679,22 @@ body.page-profile-h5 #pfSectionMyContent { scroll-margin-top: 8px; }
     }
     syncKyc();
     document.addEventListener('visibilitychange', function () {
-        if (!document.hidden) syncKyc();
+        if (!document.hidden) {
+            syncKyc();
+            if (window.MallBenefitsScenes && MallBenefitsScenes.applyAvatarFrameScene) {
+                MallBenefitsScenes.applyAvatarFrameScene();
+            }
+        }
     });
+    window.addEventListener('pageshow', function () {
+        if (window.MallBenefitsScenes && MallBenefitsScenes.applyAll) {
+            MallBenefitsScenes.applyAll();
+        }
+    });
+    if (window.MallBenefitsScenes && MallBenefitsScenes.applyAll) {
+        setTimeout(function () { MallBenefitsScenes.applyAll(); }, 0);
+        setTimeout(function () { MallBenefitsScenes.applyAll(); }, 400);
+    }
 
 })();
 </script>
