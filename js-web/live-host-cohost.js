@@ -26,7 +26,9 @@
         lastPkWinner: ""
     };
 
-    var stage, dynamic, btnMatch, btnDirected, btnAud, btnPk, matchTimer, modalRoot;
+    var stage, dynamic, btnMatch, btnDirected, btnAud, btnPk, modalRoot;
+    var matchTickTimer = null;
+    var matchConnectTimer = null;
     var pkTimerId = null;
     var pkScoreTickId = null;
     var pkSettleAutoDismiss = null;
@@ -421,10 +423,41 @@
         );
     }
 
+    function clearMatchingTimers() {
+        if (matchTickTimer) {
+            clearInterval(matchTickTimer);
+            matchTickTimer = null;
+        }
+        if (matchConnectTimer) {
+            clearTimeout(matchConnectTimer);
+            matchConnectTimer = null;
+        }
+    }
+
+    function matchingWaitHtml() {
+        return (
+            '<div class="host-cohost-match-wait">' +
+            '<p class="host-cohost-hint host-cohost-hint--wait" id="hostMatchWaitHint">' +
+            '<i class="fa-solid fa-spinner fa-spin"></i> 随机匹配中 · 已等待 0s</p>' +
+            '<button type="button" class="btn btn-secondary btn-sm btn-block" id="hostCancelRandomMatch">' +
+            '<i class="fa-solid fa-xmark"></i> 取消匹配</button></div>'
+        );
+    }
+
+    function cancelRandomMatch() {
+        if (!state.matching) return;
+        clearMatchingTimers();
+        state.matching = false;
+        setCohostToolbarDisabled(false);
+        setDynamic("");
+        syncToolbarState();
+        toast("已取消随机匹配");
+    }
+
     function connectCohost(partnerName) {
+        clearMatchingTimers();
         state.matching = false;
         state.cohost = true;
-        clearTimeout(matchTimer);
         setCohostToolbarDisabled(true);
         injectStage(cohostStageHtml(false));
         renderCohostMembers();
@@ -434,6 +467,7 @@
     }
 
     function exitCohost() {
+        clearMatchingTimers();
         state.cohost = false;
         state.pk = false;
         state.pkSettling = false;
@@ -690,19 +724,20 @@
         }
         state.matching = true;
         setCohostToolbarDisabled(true);
-        setDynamic(
-            '<p class="host-cohost-hint host-cohost-hint--wait"><i class="fa-solid fa-spinner fa-spin"></i> 随机匹配中 · 已等待 0s</p>'
-        );
+        setDynamic(matchingWaitHtml());
         var sec = 0;
-        matchTimer = setInterval(function () {
+        matchTickTimer = setInterval(function () {
+            if (!state.matching) return;
             sec += 1;
-            var hint = dynamic && dynamic.querySelector(".host-cohost-hint");
+            var hint = document.getElementById("hostMatchWaitHint");
             if (hint) {
                 hint.innerHTML =
                     '<i class="fa-solid fa-spinner fa-spin"></i> 随机匹配中 · 已等待 ' + sec + "s";
             }
         }, 1000);
-        setTimeout(function () {
+        matchConnectTimer = setTimeout(function () {
+            matchConnectTimer = null;
+            if (!state.matching) return;
             connectCohost("夜雨听弦");
         }, 2200);
         syncToolbarState();
@@ -729,6 +764,10 @@
     }
 
     function onDynamicClick(e) {
+        if (e.target.closest("#hostCancelRandomMatch")) {
+            cancelRandomMatch();
+            return;
+        }
         if (e.target.closest("#hostPkDemoEnd")) {
             triggerPkEnd();
             return;
