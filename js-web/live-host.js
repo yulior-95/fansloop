@@ -576,6 +576,30 @@
         }
     }
 
+    /* 舞台监听音频开关（合流/预览音量 · 原型） */
+    var btnHostAudio = document.getElementById("btnHostAudio");
+    var hostAudioOn = true;
+
+    function setHostAudioOn(on) {
+        hostAudioOn = !!on;
+        if (hostStage) hostStage.classList.toggle("is-host-audio-muted", !hostAudioOn);
+        if (!btnHostAudio) return;
+        btnHostAudio.classList.toggle("is-muted", !hostAudioOn);
+        btnHostAudio.setAttribute("aria-pressed", hostAudioOn ? "true" : "false");
+        btnHostAudio.title = hostAudioOn ? "关闭监听" : "开启监听";
+        btnHostAudio.innerHTML = hostAudioOn
+            ? '<i class="fa-solid fa-volume-high"></i>'
+            : '<i class="fa-solid fa-volume-xmark"></i>';
+    }
+
+    if (btnHostAudio) {
+        setHostAudioOn(true);
+        btnHostAudio.addEventListener("click", function () {
+            setHostAudioOn(!hostAudioOn);
+            toast(hostAudioOn ? "已开启舞台监听" : "已关闭舞台监听");
+        });
+    }
+
     /* 房管文字发言（主播通过直播语音互动，不发文字弹幕） */
     var emojis = ["😀", "😂", "🔥", "❤️", "👏", "🎉", "🎵", "✨", "💜", "🙏", "😎", "🤩", "💯", "🎁", "🚀"];
     var adminEmojiPop = document.getElementById("hostAdminEmojiPop");
