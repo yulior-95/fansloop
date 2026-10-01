@@ -445,6 +445,7 @@
 <link rel="stylesheet" href="../css-web/obs-cohost-pk.css">
 <link rel="stylesheet" href="../css-web/live-pip-placeholder.css">
 <link rel="stylesheet" href="../css-web/live-detail-extra.css">
+<link rel="stylesheet" href="../css-web/live-player-volume.css">
 <link rel="stylesheet" href="../css-web/content-report.css">
 <link rel="stylesheet" href="../css-web/gift-tip-bonus.css">
 <link rel="stylesheet" href="../css-web/dev-glass-note.css">
@@ -546,6 +547,7 @@
                     <div class="wait-stream-strip" id="waitStreamStrip"><i class="fa-solid fa-circle-notch fa-spin"></i> 等待 OBS 推流信号… 连接成功后画面将自动播放</div>
                     <div class="cam-hint-strip" id="camHintStrip">摄像头链路已就绪（原型）：采集画面将送入直播间。</div>
                     <div class="danmaku-layer gift-fly-layer" id="danmakuLayer" aria-label="礼物打赏飘屏"></div>
+                    <div class="ld-stream-muted-hint" id="ldStreamMutedHint" aria-hidden="true"><i class="fa-solid fa-volume-xmark"></i> 直播间声音已关闭</div>
                     <div class="top-overlay">
                         <span class="live-pill" id="liveStatusPill"><span class="dot"></span> LIVE</span>
                         <span class="viewers"><i class="fa-regular fa-eye"></i> 2,486 在线</span>
@@ -555,7 +557,16 @@
                             <span class="orig" id="ldSubOrig"></span>
                         </div>
                         <div class="top-actions">
-                            <button type="button" class="btn-vol" id="btnPlayerVol" title="音量"><i class="fa-solid fa-volume-high"></i></button>
+                            <div class="ld-vol-wrap">
+                                <button type="button" class="btn-vol" id="btnPlayerVol" title="音量" aria-haspopup="true" aria-expanded="false" aria-controls="ldVolPop"><i class="fa-solid fa-volume-high"></i></button>
+                                <div class="ld-vol-pop" id="ldVolPop" role="dialog" aria-label="音量">
+                                    <div class="ld-vol-pop-row">
+                                        <i class="fa-solid fa-volume-low ld-vol-pop-ic" aria-hidden="true"></i>
+                                        <input type="range" id="ldVolRange" min="0" max="100" step="1" value="80" aria-label="音量滑条">
+                                        <span class="ld-vol-pop-val" id="ldVolVal">80%</span>
+                                    </div>
+                                </div>
+                            </div>
                             <button type="button" id="btnLdGaTranslate" title="弹幕翻译"><i class="fa-solid fa-language"></i></button>
                             <span class="dev-glass-wrap dev-glass-wrap--translate-tip dev-glass-wrap--align-end dev-glass-wrap--pop-below dev-glass-wrap--layer-top">
                                 <span class="dev-glass-sphere" tabindex="0" aria-describedby="devLdGaTranslateTip">
@@ -1068,6 +1079,7 @@
 <script src="../js-web/chat-sensitive-words-store.js"></script>
 <script src="../js-web/live-pip-placeholder.js"></script>
 <script src="../js-web/content-report.js"></script>
+<script src="../js-web/live-player-volume.js"></script>
 <script src="../js-web/live-detail.js"></script>
 <script src="../js-web/live-detail-cohost.js"></script>
 <script src="../js-web/live-detail-accessibility.js"></script>

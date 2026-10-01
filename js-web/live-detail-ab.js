@@ -835,6 +835,11 @@
     var player = qs("ldAbPlayer");
     var giftFlyLayer = qs("ldAbGiftFly");
     var btnVol = qs("ldAbBtnVol");
+    var volPop = qs("ldAbVolPop");
+    var volRange = qs("ldAbVolRange");
+    var volVal = qs("ldAbVolVal");
+    var volHint = qs("ldAbStreamMutedHint");
+    var liveVolApi = null;
     var btnGear = qs("ldAbBtnGear");
     var gearPop = qs("ldAbSettingsPop");
     var btnExpand = qs("ldAbBtnExpand");
@@ -846,16 +851,23 @@
     var dmOpacity = 0.75;
     var dmHidden = false;
 
-    if (btnVol && player) {
-        btnVol.addEventListener("click", function () {
-            var muted = player.classList.toggle("is-muted");
-            btnVol.innerHTML = muted
-                ? '<i class="fa-solid fa-volume-xmark"></i>'
-                : '<i class="fa-solid fa-volume-high"></i>';
-            if (window.FLWebIcons && window.FLWebIcons.refresh) {
-                window.FLWebIcons.refresh(btnVol);
+    if (btnVol && player && window.FL_LivePlayerVolume) {
+        liveVolApi = window.FL_LivePlayerVolume.bind({
+            btn: btnVol,
+            player: player,
+            pop: volPop,
+            range: volRange,
+            valEl: volVal,
+            hintEl: volHint,
+            toast: toast,
+            storageKey: "fl_live_detail_ab_vol_v1",
+            onChange: function (state, skipToast) {
+                if (btnVol && volPop) {
+                    btnVol.setAttribute("aria-expanded", volPop.classList.contains("open") ? "true" : "false");
+                }
+                if (skipToast) return;
+                if (state.muted || state.level <= 0) toast("已静音");
             }
-            toast(muted ? "已静音" : "已恢复音量");
         });
     }
 
@@ -873,6 +885,7 @@
         function closeSettings() {
             gearPop.classList.remove("open");
             if (btnGear) btnGear.classList.remove("is-active");
+            if (liveVolApi && liveVolApi.closePop) liveVolApi.closePop();
         }
 
         function updateRangeTrack(input) {
@@ -887,6 +900,7 @@
 
         btnGear.addEventListener("click", function (e) {
             e.stopPropagation();
+            if (liveVolApi && liveVolApi.closePop) liveVolApi.closePop();
             var opening = !gearPop.classList.contains("open");
             gearPop.classList.toggle("open", opening);
             btnGear.classList.toggle("is-active", opening);

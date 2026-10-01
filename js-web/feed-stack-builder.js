@@ -404,6 +404,72 @@
         );
     }
 
+    function buildLiveDemoSlide(item, i, opts) {
+        opts = opts || {};
+        var guest = !!opts.guest;
+        var D = global.FL_LIVE_FEED_DEMO;
+        if (!item || !D) return "";
+        var c = {
+            name: item.hostName,
+            av: "photo-1500648767791-00dcc994a43e",
+            lv: 7,
+            tags: item.tags || ["演示"],
+            verified: true
+        };
+        var coverUrl = item.cover;
+        var href = D.webDetailHref(item);
+        var query = D.toQuery(item);
+        var bodyInner = wrapPostText(
+            "🔴 " + esc(item.sceneLabel) +
+            '<br><span class="hashtag">' + esc(item.viewer + " 端观看") + "</span>" +
+            (item.audienceMic ? ' <span class="hashtag">#观众连麦</span>' : ' <span class="hashtag">#无观众连麦</span>')
+        );
+        var overlay =
+            '<div class="post-media-live-overlay">' +
+            '<span class="tag tag-danger"><span class="live-pulse"></span>直播中</span>' +
+            '<span class="feed-live-scene-badge">' + esc(item.sceneLabel) + "</span>" +
+            '<span class="live-viewers"><i class="fa-solid fa-eye"></i> 演示</span>' +
+            '<span class="feed-live-enter-hint"><i class="fa-solid fa-play"></i> 点击进入直播间</span>' +
+            "</div>";
+        var media =
+            '<div class="post-media-wrap"><div class="post-media post-media--center post-media--live feed-live-tap" data-live-status="live" data-creator="' +
+            esc(c.name) +
+            '" data-live-query="' +
+            esc(query) +
+            '">' +
+            overlay +
+            '<img class="feed-live-cover" src="' +
+            esc(coverUrl) +
+            '" alt=""></div></div>';
+        bodyInner += media;
+        return (
+            '<div class="feed-stack-slide" data-feed-id="stack-live-' + i + '">' +
+            '<article class="post-card post-card--immersive" data-post-type="live" data-live-status="live"' +
+            ' data-host-slug="' +
+            esc(item.hostSlug) +
+            '" data-creator="' +
+            esc(c.name) +
+            '" data-creator-av="https://images.unsplash.com/' +
+            c.av +
+            '?w=120"' +
+            ' data-creator-lv="' +
+            c.lv +
+            '" data-creator-tags="' +
+            esc((c.tags || []).join(" · ")) +
+            '" data-detail-href="' +
+            esc(href) +
+            '" data-live-query="' +
+            esc(query) +
+            '">' +
+            buildHead(c, i, { guest: guest, type: "live", liveStatus: "live", stackKind: "live" }) +
+            '<div class="post-card-body">' +
+            bodyInner +
+            "</div>" +
+            buildActions(i, guest, "live", "live") +
+            "</article></div>"
+        );
+    }
+
     function buildSlide(i, stackKind, opts) {
         opts = opts || {};
         var guest = !!opts.guest;
@@ -464,13 +530,25 @@
     function fillTrack(trackId, stackKind, opts) {
         var track = document.getElementById(trackId);
         if (!track) return 0;
-        var n = parseInt(track.getAttribute('data-build'), 10) || COUNT;
         var html = '';
         var R = global.FL_ContentReport;
-        for (var i = 0; i < n; i++) {
-            var fid = 'stack-' + stackKind + '-' + i;
-            if (R && R.isReported(fid)) continue;
-            html += buildSlide(i, stackKind, opts);
+        var built = 0;
+        if (stackKind === 'live' && global.FL_LIVE_FEED_DEMO && global.FL_LIVE_FEED_DEMO.items) {
+            var demos = global.FL_LIVE_FEED_DEMO.items;
+            for (var d = 0; d < demos.length; d++) {
+                var fidLive = 'stack-live-' + d;
+                if (R && R.isReported(fidLive)) continue;
+                html += buildLiveDemoSlide(demos[d], d, opts);
+                built++;
+            }
+        } else {
+            var n = parseInt(track.getAttribute('data-build'), 10) || COUNT;
+            for (var i = 0; i < n; i++) {
+                var fid = 'stack-' + stackKind + '-' + i;
+                if (R && R.isReported(fid)) continue;
+                html += buildSlide(i, stackKind, opts);
+                built++;
+            }
         }
         track.innerHTML = html;
         if (global.FL_applyPostTextClamp) {
@@ -479,7 +557,7 @@
         if (global.FL_applyLivePreviewReminds) {
             global.FL_applyLivePreviewReminds();
         }
-        return n;
+        return built;
     }
 
     global.FL_buildFeedStacks = function (opts) {

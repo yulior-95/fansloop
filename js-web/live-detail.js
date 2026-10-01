@@ -413,6 +413,11 @@
     var player = document.getElementById("livePlayer");
     var danmakuLayer = document.getElementById("danmakuLayer");
     var btnVol = document.getElementById("btnPlayerVol");
+    var volPop = document.getElementById("ldVolPop");
+    var volRange = document.getElementById("ldVolRange");
+    var volVal = document.getElementById("ldVolVal");
+    var volHint = document.getElementById("ldStreamMutedHint");
+    var liveVolApi = null;
     var btnGear = document.getElementById("btnPlayerGear");
     var gearPop = document.getElementById("ldSettingsPop");
     var btnExpand = document.getElementById("btnPlayerExpand");
@@ -420,16 +425,23 @@
     var pipWin = document.getElementById("livePipWin");
     var dmAreaMode = "scroll";
 
-    if (btnVol && player) {
-        btnVol.addEventListener("click", function () {
-            var muted = player.classList.toggle("is-muted");
-            btnVol.innerHTML = muted
-                ? '<i class="fa-solid fa-volume-xmark"></i>'
-                : '<i class="fa-solid fa-volume-high"></i>';
-            if (window.FLWebIcons && window.FLWebIcons.refresh) {
-                window.FLWebIcons.refresh(btnVol);
+    if (btnVol && player && window.FL_LivePlayerVolume) {
+        liveVolApi = window.FL_LivePlayerVolume.bind({
+            btn: btnVol,
+            player: player,
+            pop: volPop,
+            range: volRange,
+            valEl: volVal,
+            hintEl: volHint,
+            toast: toast,
+            storageKey: "fl_live_detail_vol_v1",
+            onChange: function (state, skipToast) {
+                if (btnVol && volPop) {
+                    btnVol.setAttribute("aria-expanded", volPop.classList.contains("open") ? "true" : "false");
+                }
+                if (skipToast) return;
+                if (state.muted || state.level <= 0) toast("已静音");
             }
-            toast(muted ? "已静音" : "已恢复音量");
         });
     }
     if (btnGear && gearPop) {
@@ -445,6 +457,7 @@
         function closeDanmakuSettings() {
             gearPop.classList.remove("open");
             btnGear.classList.remove("is-active");
+            if (liveVolApi && liveVolApi.closePop) liveVolApi.closePop();
         }
 
         function updateRangeTrack(input) {
@@ -458,6 +471,7 @@
 
         btnGear.addEventListener("click", function (e) {
             e.stopPropagation();
+            if (liveVolApi && liveVolApi.closePop) liveVolApi.closePop();
             var opening = !gearPop.classList.contains("open");
             gearPop.classList.toggle("open", opening);
             btnGear.classList.toggle("is-active", opening);
@@ -879,12 +893,48 @@
         });
     }
 
-    /* 申请上麦 · 本页为允许上麦演示直播间（其他页面不改动） */
+    /* 申请上麦 · 方案 A：NovaPlay 开坐席，夜雨听弦 / solo_web 关；与 live-detail-cohost 规则一致 */
     (function initApplyMic() {
         var btn = document.getElementById("btnApplyMic");
         if (!btn) return;
 
+        function schemeAAudienceMicOn() {
+            try {
+                var p = new URLSearchParams(location.search);
+                if (p.get("audMic") === "demo") return true;
+                if (p.get("cohost")) return false;
+                var sceneId = p.get("scene");
+                if (sceneId === "solo_web") return false;
+                if (sceneId === "solo_h5") return true;
+                if (sceneId && window.FL_LIVE_FEED_DEMO && FL_LIVE_FEED_DEMO.getScene) {
+                    var it = FL_LIVE_FEED_DEMO.getScene(sceneId);
+                    if (it) return !!it.audienceMic;
+                }
+                var host = p.get("host");
+                if (!host && window.LiveViewHost && LiveViewHost.getCurrent) {
+                    host = LiveViewHost.getCurrent().slug;
+                }
+                host = String(host || "novaplay").toLowerCase();
+                if (host === "yeyu") return false;
+                if (host === "novaplay" || host === "nova") return true;
+            } catch (e) { /* ignore */ }
+            return false;
+        }
+
         var slots = document.getElementById("ldAudienceSlots");
+        var micGroup = btn.closest(".ac-mic-group");
+        if (!schemeAAudienceMicOn()) {
+            if (slots) {
+                slots.hidden = true;
+                slots.setAttribute("hidden", "");
+            }
+            if (micGroup) {
+                micGroup.hidden = true;
+                micGroup.setAttribute("hidden", "");
+            }
+            return;
+        }
+
         var micBar = document.getElementById("ldMicBar");
         var rejectBanner = document.getElementById("ldMicRejectBanner");
         var fanAv = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80";

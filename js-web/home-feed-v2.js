@@ -16,7 +16,7 @@
         setTimeout(function () { t.remove(); }, 2400);
     }
 
-    var FEED_BUILD_VERSION = '18';
+    var FEED_BUILD_VERSION = '19';
 
     var CREATOR_LIVE_HOST = {
         '山野食光': 'shanye',

@@ -460,6 +460,12 @@
     function hrefFromFeedArticle(article, liveTap, status, navId) {
         if (status === "ended") return VIEWER_LIVE_PAGE;
         navId = navId || "home";
+        var liveQuery =
+            (article && article.getAttribute("data-live-query")) ||
+            (liveTap && liveTap.getAttribute("data-live-query"));
+        if (liveQuery) {
+            return VIEWER_LIVE_PAGE + "?" + liveQuery;
+        }
         var creator =
             (liveTap && liveTap.getAttribute("data-creator")) ||
             (article && article.getAttribute("data-creator"));

@@ -118,7 +118,10 @@
     };
 
     function img(id, w) {
-        return "https://images.unsplash.com/" + id + "?w=" + (w || 1200) + "&q=80";
+        if (!id) return "";
+        var s = String(id);
+        if (s.indexOf("http://") === 0 || s.indexOf("https://") === 0) return s;
+        return "https://images.unsplash.com/" + s + "?w=" + (w || 1200) + "&q=80";
     }
 
     function isAbPage() {
@@ -131,10 +134,57 @@
     }
 
     function shouldRunCohostModule() {
-        if (isAbPage()) return getRoomSlug() === "shanye";
-        var slug = getRoomSlug();
         var p = readParams();
-        return slug === "yeyu" || p.get("demo") === "cohost" || !!p.get("cohost");
+        if (p.get("cohost") || p.get("audMic") || p.get("scene")) return true;
+        if (isAbPage()) return getRoomSlug() === "shanye";
+        return p.get("demo") === "cohost";
+    }
+
+    /** 方案 A：NovaPlay 默认开观众坐席；夜雨听弦 / solo_web 演示关；方案 B 仍按 AB_LIVE_FEATURES */
+    function schemeAAudienceMicByHostSlug(slug) {
+        slug = String(slug || "").toLowerCase();
+        if (slug === "yeyu") return false;
+        if (slug === "novaplay" || slug === "nova") return true;
+        return false;
+    }
+
+    function audienceMicEnabledForRoom() {
+        if (isAbPage()) {
+            var slug = getRoomSlug();
+            if (slug === "yeyu") return true;
+            if (slug === "shanye") return false;
+            return false;
+        }
+        var p = readParams();
+        if (p.get("audMic") === "demo") return true;
+        if (p.get("cohost")) return false;
+        var sceneId = p.get("scene");
+        if (sceneId) {
+            var demo = global.FL_LIVE_FEED_DEMO;
+            if (demo && demo.getScene) {
+                var item = demo.getScene(sceneId);
+                if (item) return !!item.audienceMic;
+            }
+            if (sceneId === "solo_web") return false;
+            if (sceneId === "solo_h5") return true;
+        }
+        return schemeAAudienceMicByHostSlug(getRoomSlug());
+    }
+
+    function scenePresetHosts(mode) {
+        var demo = global.FL_LIVE_FEED_DEMO;
+        if (!demo || !demo.getScene) return null;
+        var sceneId = readParams().get("scene");
+        if (!sceneId) return null;
+        var item = demo.getScene(sceneId);
+        if (!item || !item.sceneHosts || !item.sceneHosts.length) return null;
+        return item.sceneHosts.map(function (h) {
+            return {
+                name: h.name + (h.platform ? " · " + h.platform : ""),
+                av: h.avatar,
+                cover: h.cover || h.avatar
+            };
+        });
     }
 
     function getPlayer() {
@@ -231,10 +281,7 @@
         if (p.get("audMic") === "demo" && !p.get("cohost")) return "";
         var cohost = p.get("cohost");
         var slug = getRoomSlug();
-        if (cohost) {
-            if (isAbPage() && slug !== "shanye") return "";
-            return cohost;
-        }
+        if (cohost) return cohost;
         if (isAbPage()) {
             if (slug === "shanye") return "2";
             return "";
@@ -557,6 +604,7 @@
         var slug = getRoomSlug();
         var presets = getHostPresets(slug);
         var hosts = [];
+        var sceneHosts = scenePresetHosts(mode);
         var pkOpts = opts.pkOpts || resolvePkOptions();
         var cellsHtml = "";
         var overlayHtml = "";
@@ -573,14 +621,14 @@
         }
 
         if (mode === "3") {
-            hosts = presets.three;
+            hosts = sceneHosts && sceneHosts.length >= 3 ? sceneHosts.slice(0, 3) : presets.three;
             markPlayerCohost(player, "3");
             hosts.forEach(function (h, i) {
                 cellsHtml += buildCell(h, i === 0);
             });
             overlayHtml = renderCohostTop(3, 3);
         } else if (mode === "2" || mode === "2pk") {
-            hosts = presets.two;
+            hosts = sceneHosts && sceneHosts.length >= 2 ? sceneHosts.slice(0, 2) : presets.two;
             markPlayerCohost(player, "2");
             hosts.forEach(function (h) {
                 cellsHtml += buildCell(h, false);
@@ -1020,7 +1068,7 @@
 
     function boot(override) {
         override = override || {};
-        if (isAbPage() && getRoomSlug() !== "shanye") return;
+        if (!shouldRunCohostModule()) return;
 
         var p = readParams();
         var audMicOnly =
@@ -1050,7 +1098,7 @@
             state.pkPhase = "";
             state.matching = false;
             state.audMic = false;
-            setAudienceMicUi(true);
+            setAudienceMicUi(audienceMicEnabledForRoom());
             syncAbCohostPill(false);
             updateAbViewerCohostChrome(0, 3);
             restoreAbPlayerBg();
@@ -1080,7 +1128,10 @@
 
     function init() {
         mountAbCohostViewerUi();
-        if (!shouldRunCohostModule()) return;
+        if (!shouldRunCohostModule()) {
+            if (!isAbPage()) setAudienceMicUi(audienceMicEnabledForRoom());
+            return;
+        }
         mountDemoBar();
         boot();
     }
@@ -1091,6 +1142,7 @@
         isHostCohostActive: isHostCohostActive,
         isShanyeAbRoom: isShanyeAbRoom,
         shouldRun: shouldRunCohostModule,
+        isAudienceMicRoom: audienceMicEnabledForRoom,
         resetAbAudienceView: resetAbAudienceView,
         isPkActive: function () { return state.pkPhase === "active"; },
         getState: function () { return Object.assign({}, state); }

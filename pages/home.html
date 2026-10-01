@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../css/common.css">
 <link rel="stylesheet" href="../css-web/content-report.css">
+<link rel="stylesheet" href="../css-web/live-player-volume.css">
 <link rel="stylesheet" href="../css/h5-content-report.css">
 <script src="../js/h5-theme-boot.js"></script>
 <style>
@@ -111,6 +112,23 @@ body { touch-action: pan-y; }
     display: inline-flex;
     align-items: center;
     gap: 5px;
+}
+.feed-live-scene-pill {
+    display: inline-block;
+    margin: 6px 0 4px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    background: rgba(168, 85, 247, 0.18);
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    color: #e9d5ff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.35;
+}
+:root[data-theme='light'] .feed-live-scene-pill {
+    background: rgba(124, 58, 237, 0.1);
+    border-color: rgba(124, 58, 237, 0.28);
+    color: #5b21b6;
 }
 .feed-live-preview-card .lp-remind.is-subscribed {
     background: rgba(16, 185, 129, 0.35);
@@ -2459,7 +2477,16 @@ body.h5-search-open .top-nav {
                     <img class="rk-av" id="liveRankA2" src="" alt="">
                     <img class="rk-av" id="liveRankA3" src="" alt="">
                 </div>
-                <button type="button" class="live-vctrl" id="liveBtnVol" title="关闭直播间声音" aria-pressed="false"><i class="fa-solid fa-volume-high"></i></button>
+                <div class="ld-vol-wrap">
+                    <button type="button" class="live-vctrl" id="liveBtnVol" title="音量" aria-pressed="false" aria-haspopup="true" aria-expanded="false" aria-controls="liveVolPop"><i class="fa-solid fa-volume-high"></i></button>
+                    <div class="ld-vol-pop" id="liveVolPop" role="dialog" aria-label="音量">
+                        <div class="ld-vol-pop-row">
+                            <i class="fa-solid fa-volume-low ld-vol-pop-ic" aria-hidden="true"></i>
+                            <input type="range" id="liveVolRange" min="0" max="100" step="1" value="80" aria-label="音量滑条">
+                            <span class="ld-vol-pop-val" id="liveVolVal">80%</span>
+                        </div>
+                    </div>
+                </div>
                 <button type="button" class="live-vctrl is-on" id="liveBtnTranslate" title="弹幕翻译"><i class="fa-solid fa-language"></i></button>
                 <button type="button" class="live-vctrl" id="liveBtnGear" title="弹幕与无障碍设置"><i class="fa-solid fa-gear"></i></button>
             </div>
@@ -2689,6 +2716,8 @@ body.h5-search-open .top-nav {
 <script src="../js/digital-h5-nav.js"></script>
 <script src="../js/h5-global-search.js"></script>
 <script src="../js-web/content-report.js"></script>
+<script src="../js-web/live-player-volume.js"></script>
+<script src="../js-web/live-feed-demo-catalog.js"></script>
 <script>
 (function () {
     function esc(s) {
@@ -2821,168 +2850,11 @@ body.h5-search-open .top-nav {
                 locked: false
             }
         ],
-        live: [
-            {
-                id: 'live_luna_1',
-                cover: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=900&q=80',
-                creator: '@luna_web3',
-                title: '东京夜拍实时调色演示，欢迎进来互动。',
-                tags: ['#直播中', '#实时调色', '#互动问答'],
-                music: '直播间 · Luna',
-                like: '3.2K',
-                comment: '1.1K',
-                save: '602',
-                avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=80',
-                liveBadge: '直播中 · 1.2K 在线',
-                liveOnline: '1.2K',
-                liveScene: '双人连麦',
-                liveHref: 'live-detail.html?host=yeyu&creator=%E5%A4%9C%E9%9B%A8%E5%90%AC%E5%BC%A6&nav=home',
-                cohosts: [
-                    { name: 'Luna', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&q=80' },
-                    { name: 'Yeyu', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&q=80' }
-                ],
-                danmu: ['这个色调太绝了', '求 LUT 参数', '双人连麦好有氛围'],
-                comments: [
-                    { name: 'Nina', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80', text: '直播画质很稳！' }
-                ],
-                locked: false
-            },
-            {
-                id: 'live_nova_1',
-                feedType: 'live-preview',
-                previewId: 'nova-doc-2200',
-                previewTime: '2026-05-23（周六）22:00 开播',
-                previewSub: '图文预告 · 请注意开播时间',
-                cover: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=900&q=80',
-                creator: '@nova_room',
-                title: '今晚 22:00 开播，聊聊纪录片拍摄流程。',
-                tags: ['#直播预告', '#预约提醒', '#纪录片'],
-                music: '直播预告 · Nova',
-                like: '1.8K',
-                comment: '642',
-                save: '309',
-                avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80',
-                liveBadge: '直播预告',
-                comments: [
-                    { name: 'Ryo', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80', text: '已预约，等你开播。' }
-                ],
-                locked: false
-            },
-            {
-                id: 'live_yeyu_preview_1',
-                feedType: 'live-preview',
-                previewVariant: 'text',
-                previewId: 'yeyu-jazz-0525',
-                previewTime: '2026-05-25（周三）20:30 开播',
-                previewSub: '纯文字预告 · 请注意开播时间',
-                cover: '',
-                creator: '@yeyu_music',
-                title: '周末爵士夜 · 曲目单已整理好，欢迎预约提醒。',
-                tags: ['#爵士夜', '#直播预告', '#预约提醒'],
-                music: '直播预告 · 夜雨听弦',
-                like: '920',
-                comment: '188',
-                save: '76',
-                avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80',
-                liveBadge: '直播预告',
-                comments: [
-                    { name: 'Mina', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=80', text: '已点预约，到时见。' }
-                ],
-                locked: false
-            },
-            {
-                id: 'live_alex_1',
-                cover: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=900&q=80',
-                creator: '@alex_cut',
-                title: '夜景电影感调色全流程（精简版）。',
-                tags: ['#直播回放', '#调色教学', '#后期'],
-                music: '直播回放 · Alex',
-                like: '2.7K',
-                comment: '518',
-                save: '221',
-                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80',
-                liveBadge: '直播回放 · 可观看',
-                liveScene: '单人直播（无人连麦）',
-                liveHref: 'live-detail.html',
-                danmu: ['回放也很清晰', '这个步骤记住了', '收藏回看'],
-                comments: [
-                    { name: 'Rena', avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=120&q=80', text: '回放也很有价值。' }
-                ],
-                locked: false
-            },
-            {
-                id: 'live_aria_1',
-                cover: 'https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=900&q=80',
-                creator: '@aria_lab',
-                title: '深夜电台测试场：双人连麦互动问答。',
-                tags: ['#直播中', '#双人连麦', '#问答'],
-                music: '直播间 · Aria',
-                like: '1.4K',
-                comment: '302',
-                save: '98',
-                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80',
-                liveBadge: '直播中 · 856 在线',
-                liveOnline: '856',
-                liveScene: '双人连麦',
-                liveHref: 'live-detail.html?host=yeyu&creator=%E5%A4%9C%E9%9B%A8%E5%90%AC%E5%BC%A6&nav=home',
-                cohosts: [
-                    { name: 'Aria', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&q=80' },
-                    { name: 'Guest', avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300&q=80' }
-                ],
-                danmu: ['连麦节奏很好', '声音好稳', '蹲后半场'],
-                comments: [
-                    { name: 'Iris', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=80', text: '这一场很舒服。' }
-                ],
-                locked: false
-            },
-            {
-                id: 'live_kenji_1',
-                cover: 'https://images.unsplash.com/photo-1521336575822-6da63fb45455?w=900&q=80',
-                creator: '@kenji_shot',
-                title: '跨国创作圆桌：多人连麦创作复盘。',
-                tags: ['#直播中', '#多人连麦', '#创作复盘'],
-                music: '直播间 · Kenji',
-                like: '2.1K',
-                comment: '744',
-                save: '201',
-                avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&q=80',
-                liveBadge: '直播中 · 2.3K 在线',
-                liveOnline: '2.3K',
-                liveScene: '多人连麦',
-                liveHref: 'live-detail.html?host=coffee&creator=%E5%92%96%E5%95%A1%E5%BA%97%E4%B8%BB&nav=home',
-                cohosts: [
-                    { name: 'Kenji', avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=300&q=80' },
-                    { name: 'Mate-1', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&q=80' },
-                    { name: 'Mate-2', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80' }
-                ],
-                danmu: ['多人连麦很热闹', '信息量很大', '已截图重点'],
-                comments: [
-                    { name: 'May', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&q=80', text: '今晚内容很硬核。' }
-                ],
-                locked: false
-            },
-            {
-                id: 'live_nova_solo_1',
-                cover: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=900&q=80',
-                creator: '@nova_room',
-                title: '无人连麦场：单人沉浸式夜景拍摄直播。',
-                tags: ['#直播中', '#无人连麦', '#沉浸式'],
-                music: '直播间 · Nova',
-                like: '980',
-                comment: '211',
-                save: '73',
-                avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80',
-                liveBadge: '直播中 · 412 在线',
-                liveOnline: '412',
-                liveScene: '单人直播（无人连麦）',
-                liveHref: 'live-detail.html',
-                danmu: ['安静看直播好舒服', '画面太干净了', '收藏等回放'],
-                comments: [
-                    { name: 'Bo', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80', text: '这场太沉浸了。' }
-                ],
-                locked: false
-            }
-        ]
+        live: (function () {
+            var D = window.FL_LIVE_FEED_DEMO;
+            if (!D || !D.items || !D.toH5Feed) return [];
+            return D.items.map(function (it) { return D.toH5Feed(it); });
+        })()
     };
 
     Object.keys(feedGroups).forEach(function (k) {
@@ -3077,6 +2949,7 @@ body.h5-search-open .top-nav {
                 '<div class="feed-info">' +
                     '<div class="creator"><span class="name" data-action="creator-profile">' + esc(f.creator) + '</span><span class="badge badge-brand"><i class="fa-solid fa-crown"></i> Pro</span></div>' +
                     '<div class="title expandable' + titleCls + '" data-action="toggle-title">' + esc(f.title) + '</div>' +
+                    (f.liveScene ? '<div class="feed-live-scene-pill">' + esc(f.liveScene) + '</div>' : '') +
                     '<div class="tags">' + tagsHtml + '</div>' +
                     previewCardHtml +
                     '<div class="music-info"><i class="fa-solid fa-' + (isPreview ? 'calendar-check' : 'music') + '"></i><span>' + esc(f.music) + '</span></div>' +
@@ -3222,8 +3095,15 @@ body.h5-search-open .top-nav {
     var selectedPlanPrice = 16;
     var selectedPromo = '';
     var liveMuted = false;
+    var liveVolApi = null;
 
     function syncLiveStreamVolumeUi() {
+        if (liveVolApi && liveVolApi.syncUi) {
+            liveVolApi.syncUi(true);
+            var st = liveVolApi.getState ? liveVolApi.getState() : null;
+            liveMuted = st ? (st.muted || st.level <= 0) : liveMuted;
+            return;
+        }
         if (liveRoomPlayer) liveRoomPlayer.classList.toggle('is-stream-muted', liveMuted);
         if (liveRoomMutedHint) liveRoomMutedHint.setAttribute('aria-hidden', liveMuted ? 'false' : 'true');
         if (liveRoomVideo) {
@@ -3231,15 +3111,6 @@ body.h5-search-open .top-nav {
             if (!liveMuted && liveRoomVideo.src && liveRoomVideo.paused) {
                 liveRoomVideo.play().catch(function () { /* autoplay policy */ });
             }
-        }
-        if (liveBtnVol) {
-            liveBtnVol.classList.remove('is-on');
-            liveBtnVol.classList.toggle('is-muted-vol', liveMuted);
-            liveBtnVol.setAttribute('aria-pressed', liveMuted ? 'true' : 'false');
-            liveBtnVol.title = liveMuted ? '打开直播间声音' : '关闭直播间声音';
-            liveBtnVol.innerHTML = liveMuted
-                ? '<i class="fa-solid fa-volume-xmark"></i>'
-                : '<i class="fa-solid fa-volume-high"></i>';
         }
     }
     var liveTranslateOn = true;
@@ -3435,10 +3306,14 @@ body.h5-search-open .top-nav {
             if (liveAudienceSlots) liveAudienceSlots.hidden = true;
             return;
         }
-        if (h5LiveHostCohostActive()) {
+        var audienceMicRoom = !!activeLiveFeed.audienceMic;
+        if (h5LiveHostCohostActive() || !audienceMicRoom) {
             if (liveAudienceSlots) {
                 liveAudienceSlots.hidden = true;
                 liveAudienceSlots.setAttribute('hidden', '');
+            }
+            if (!audienceMicRoom && liveMicState !== 'idle') {
+                resetLiveMicUi();
             }
             return;
         }
@@ -3530,11 +3405,25 @@ body.h5-search-open .top-nav {
         }
         if (liveRoomOverlay) liveRoomOverlay.classList.remove('show');
     }
-    function renderCohostStage() {
+    function renderCohostStage(item) {
         if (!liveCohostStage) return;
+        item = item || activeLiveFeed;
         liveCohostStage.className = 'live-cohost-stage';
         liveCohostStage.classList.remove('show', 'mode-two', 'mode-three');
         liveCohostStage.innerHTML = '';
+        if (!item || !item.cohostMode) return;
+        var panes = item.cohosts || [];
+        if (panes.length < 2) return;
+        var mode = item.cohostMode === '3' ? 'mode-three' : 'mode-two';
+        liveCohostStage.classList.add('show', mode);
+        panes.slice(0, item.cohostMode === '3' ? 3 : 2).forEach(function (h, i) {
+            var pane = document.createElement('div');
+            var extra = mode === 'mode-three' ? (i === 0 ? ' first' : i === 1 ? ' second' : ' third') : '';
+            pane.className = 'cohost-pane' + extra;
+            var imgSrc = h.cover || h.avatar || '';
+            pane.innerHTML = '<img src="' + esc(imgSrc) + '" alt=""><span class="lb">' + esc(h.name || '连麦') + '</span>';
+            liveCohostStage.appendChild(pane);
+        });
     }
     function syncDanmuAreaLayers() {
         if (liveDanmuLayer) liveDanmuLayer.setAttribute('data-dm-area', dmAreaMode || 'scroll');
@@ -3980,6 +3869,7 @@ body.h5-search-open .top-nav {
         syncLiveMicVisibility();
         liveRoomOverlay.classList.add('show');
         liveMuted = false;
+        if (liveVolApi && liveVolApi.setState) liveVolApi.setState({ level: 80, muted: false });
         liveTranslateOn = true;
         liveDanmuHidden = false;
         syncLiveStreamVolumeUi();
@@ -4669,12 +4559,24 @@ body.h5-search-open .top-nav {
             openLiveHostCreatorProfile();
         });
     }
-    if (liveBtnVol) {
-        liveBtnVol.addEventListener('click', function (e) {
-            e.stopPropagation();
-            liveMuted = !liveMuted;
-            syncLiveStreamVolumeUi();
-            showToast(liveMuted ? '已关闭直播间声音' : '已打开直播间声音');
+    if (liveBtnVol && liveRoomPlayer && window.FL_LivePlayerVolume) {
+        liveVolApi = window.FL_LivePlayerVolume.bind({
+            btn: liveBtnVol,
+            player: liveRoomPlayer,
+            pop: document.getElementById('liveVolPop'),
+            range: document.getElementById('liveVolRange'),
+            valEl: document.getElementById('liveVolVal'),
+            hintEl: liveRoomMutedHint,
+            videoEl: liveRoomVideo,
+            toast: showToast,
+            storageKey: 'fl_h5_live_room_vol_v1',
+            onChange: function (state) {
+                liveMuted = state.muted || state.level <= 0;
+                if (liveBtnVol) {
+                    var pop = document.getElementById('liveVolPop');
+                    liveBtnVol.setAttribute('aria-expanded', pop && pop.classList.contains('open') ? 'true' : 'false');
+                }
+            }
         });
     }
     if (liveBtnTranslate) {
