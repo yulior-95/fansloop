@@ -153,12 +153,6 @@
                 renderDots();
                 return;
             }
-            if (buffers.set === '123456') {
-                toast('请勿使用过于简单的密码');
-                buffers.set = '';
-                shakeDots();
-                return;
-            }
             firstPwd = buffers.set;
             buffers.confirm = '';
             setPane('confirm');

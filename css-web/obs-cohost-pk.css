@@ -179,8 +179,9 @@
 .live-player.live-player--cohost-2 {
     display: grid !important;
     grid-template-columns: 1fr 1fr;
+    gap: 1px;
     aspect-ratio: 16/9;
-    background: #000 !important;
+    background: #0a0a0a !important;
     background-image: none !important;
 }
 
@@ -205,10 +206,13 @@
 .live-cohost-cell {
     position: relative;
     overflow: hidden;
-    background: #111;
-    background-size: cover;
-    background-position: center;
+    background: #0c0c0c center/cover no-repeat;
     min-height: 0;
+}
+
+.live-cohost-cell--platform-h5,
+.host-cohost-cell--platform-h5 {
+    background-position: center 22%;
 }
 
 .host-stage--cohost-3 .host-cohost-cell--main,
@@ -221,8 +225,36 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.3), transparent 45%, rgba(0, 0, 0, 0.55));
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.28), transparent 42%, rgba(0, 0, 0, 0.5));
     pointer-events: none;
+    z-index: 1;
+}
+.live-cohost-platform,
+.host-cohost-platform {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(6px);
+}
+.live-cohost-platform--h5,
+.host-cohost-platform--h5 {
+    background: rgba(59, 130, 246, 0.75);
+    border-color: rgba(147, 197, 253, 0.45);
+}
+.live-cohost-platform--web,
+.host-cohost-platform--web {
+    background: rgba(168, 85, 247, 0.75);
+    border-color: rgba(216, 180, 254, 0.45);
 }
 
 .host-cohost-label,
@@ -1534,4 +1566,140 @@ body.ld-host-cohost-active #ldMicBar {
 
 .host-cohost-hint--pk-settle {
     margin-bottom: 8px;
+}
+
+/* ===== 观众端 PK · 截图布局（上：连麦双屏 / 下：底栏 PK + 助力条） ===== */
+.obs-pk-hud--viewer-dock {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    border-radius: 0 0 12px 12px;
+}
+.obs-pk-timer--gold {
+    color: #fbbf24 !important;
+    text-shadow: 0 0 12px rgba(251, 191, 36, 0.45);
+    font-weight: 900;
+}
+.obs-pk-dock-head--reverse {
+    flex-direction: row-reverse;
+}
+.obs-pk-dock-role {
+    font-size: 11px;
+    letter-spacing: 0.02em;
+}
+
+.live-pk-assist {
+    padding: 12px 14px 10px;
+    background: rgba(8, 8, 14, 0.92);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.live-pk-assist-hint {
+    margin: 0 0 10px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.88);
+}
+.live-pk-assist-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.live-pk-assist-tag {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(251, 191, 36, 0.22);
+    color: #fde68a;
+    font-size: 10px;
+    font-weight: 800;
+}
+.live-pk-assist-btn {
+    border: 0;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.live-pk-assist-btn--gift {
+    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    color: #1a1a2e;
+}
+.live-pk-assist-btn--ghost {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.live-player--cohost-pk-viewer .live-cohost-cell {
+    min-height: 0;
+}
+.live-player.live-player--cohost-2.live-player--cohost-pk-viewer.is-pk-active,
+.ld-ab-player.ld-ab-player--cohost-2.live-player--cohost-pk-viewer.is-pk-active {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: minmax(200px, 1fr) auto auto;
+    gap: 0;
+    aspect-ratio: auto;
+    width: 100%;
+    height: auto;
+    min-height: 320px;
+    max-height: none;
+    flex: 0 0 auto;
+    align-self: stretch;
+    background: #0a0a0a !important;
+    overflow: visible;
+    border-radius: 12px;
+}
+.live-player--cohost-pk-viewer.is-pk-active .live-cohost-cell:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+}
+.live-player--cohost-pk-viewer.is-pk-active .live-cohost-cell:nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+}
+.live-player--cohost-pk-viewer.is-pk-active .obs-pk-hud--viewer-dock {
+    grid-column: 1 / span 2;
+    grid-row: 2;
+    margin: 0;
+    border-radius: 0;
+}
+.live-player--cohost-pk-viewer.is-pk-active .live-pk-assist {
+    grid-column: 1 / span 2;
+    grid-row: 3;
+    border-radius: 0 0 12px 12px;
+}
+.live-player--cohost-pk-viewer.is-pk-active .live-cohost-top,
+.live-player--cohost-pk-viewer.is-pk-active .live-cohost-platform,
+.live-player--cohost-pk-viewer.is-pk-active .live-cohost-label {
+    display: none;
+}
+
+.ld-ab-player.live-player--cohost-pk-viewer.is-pk-active {
+    overflow: visible;
+}
+.ld-ab-video-col:has(.live-player--cohost-pk-viewer.is-pk-active) {
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+}
+.ld-ab-player.live-player--cohost-pk-viewer.is-pk-active .ld-ab-cohost-stage {
+    grid-column: 1 / span 2;
+    grid-row: 1;
+    min-height: 0;
+}
+.ld-ab-player.live-player--cohost-pk-viewer.is-pk-active .obs-pk-hud--viewer-dock {
+    grid-column: 1 / span 2;
+    grid-row: 2;
+}
+.ld-ab-player.live-player--cohost-pk-viewer.is-pk-active .live-pk-assist {
+    grid-column: 1 / span 2;
+    grid-row: 3;
+}
+.ld-ab-player.live-player--cohost-pk-viewer.is-pk-active .ld-ab-cohost-stage .live-cohost-label,
+.ld-ab-player.live-player--cohost-pk-viewer.is-pk-active .ld-ab-cohost-stage .live-cohost-platform {
+    display: none;
 }

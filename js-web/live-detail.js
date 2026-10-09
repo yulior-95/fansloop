@@ -916,7 +916,7 @@
                 }
                 host = String(host || "novaplay").toLowerCase();
                 if (host === "yeyu") return false;
-                if (host === "novaplay" || host === "nova") return true;
+                if (host === "novaplay" || host === "nova") return false;
             } catch (e) { /* ignore */ }
             return false;
         }

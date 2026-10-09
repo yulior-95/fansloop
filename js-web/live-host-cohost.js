@@ -347,14 +347,16 @@
     function cohostStageHtml(withPk) {
         var pk = withPk || state.pk ? pkHudHtml() : "";
         return (
-            '<div class="host-cohost-cell" style="background-image:url(\'' +
+            '<div class="host-cohost-cell host-cohost-cell--platform-web" style="background-image:url(\'' +
             I.jazz +
-            "')\"><div class=\"host-cohost-label\"><span class=\"av\" style=\"background-image:url('" +
+            "')\"><span class=\"host-cohost-platform host-cohost-platform--web\">Web</span>" +
+            '<div class="host-cohost-label"><span class="av" style="background-image:url(\'' +
             I.luna +
             "')\"></span> Luna 🌙（我）</div></div>" +
-            '<div class="host-cohost-cell" style="background-image:url(\'' +
+            '<div class="host-cohost-cell host-cohost-cell--platform-h5" style="background-image:url(\'' +
             I.concert +
-            "')\"><div class=\"host-cohost-label\"><span class=\"av\" style=\"background-image:url('" +
+            "');background-position:center 22%;\"><span class=\"host-cohost-platform host-cohost-platform--h5\">H5</span>" +
+            '<div class="host-cohost-label"><span class="av" style="background-image:url(\'' +
             I.night +
             "')\"></span> 夜雨听弦</div></div>" +
             '<div class="host-cohost-top"><span class="host-cohost-chip host-cohost-chip--link">' +

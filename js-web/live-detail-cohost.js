@@ -43,6 +43,24 @@
         }
     };
 
+    /** Web 连麦 H5 · 推流实景（与 FL_LIVE_FEED_DEMO.novaplay_h5_web_cohost 一致） */
+    var NOVAPLAY_CROSS_COHOST = [
+        {
+            slug: "novaplay",
+            name: "NovaPlay",
+            platform: "Web",
+            av: "photo-1535713875002-d1d0cf377fde",
+            cover: "photo-1542751371-adc38448a05e"
+        },
+        {
+            slug: "yeyu",
+            name: "夜雨听弦",
+            platform: "H5",
+            av: "photo-1573496359142-b8d87734a5a2",
+            cover: "photo-1516280440614-37939bbacd81"
+        }
+    ];
+
     var LIVE_PICKER_HOSTS = [
         { slug: "coffee", name: "咖啡店主", category: "生活直播", viewers: "642", av: "photo-1500648767791-00dcc994a43e" },
         { slug: "yeyu", name: "夜雨听弦", category: "音乐直播", viewers: "1,284", av: "photo-1500648767791-00dcc994a43e" },
@@ -133,19 +151,60 @@
         return isAbPage() && getRoomSlug() === "shanye";
     }
 
+    function isSchemeANovaplayCrossCohost() {
+        if (isAbPage()) return false;
+        var p = readParams();
+        if (p.get("audMic") === "demo") return false;
+        var scene = p.get("scene");
+        if (scene === "solo_web") return false;
+        var slug = getRoomSlug();
+        return slug === "novaplay" || slug === "nova";
+    }
+
     function shouldRunCohostModule() {
         var p = readParams();
         if (p.get("cohost") || p.get("audMic") || p.get("scene")) return true;
         if (isAbPage()) return getRoomSlug() === "shanye";
+        if (isSchemeANovaplayCrossCohost()) return true;
         return p.get("demo") === "cohost";
     }
 
-    /** 方案 A：NovaPlay 默认开观众坐席；夜雨听弦 / solo_web 演示关；方案 B 仍按 AB_LIVE_FEATURES */
     function schemeAAudienceMicByHostSlug(slug) {
         slug = String(slug || "").toLowerCase();
         if (slug === "yeyu") return false;
-        if (slug === "novaplay" || slug === "nova") return true;
+        if (slug === "novaplay" || slug === "nova") return false;
         return false;
+    }
+
+    function mapSceneHostsToCells(hosts) {
+        return hosts.map(function (h) {
+            return {
+                slug: h.slug,
+                name: (h.name || "") + (h.platform ? " · " + h.platform : ""),
+                platform: h.platform,
+                av: h.avatar || h.av,
+                cover: h.cover || h.avatar
+            };
+        });
+    }
+
+    function getNovaplayCrossHostsForCells() {
+        var demo = global.FL_LIVE_FEED_DEMO;
+        if (demo && demo.getScene) {
+            var item = demo.getScene("novaplay_h5_web_cohost");
+            if (item && item.sceneHosts && item.sceneHosts.length >= 2) {
+                return mapSceneHostsToCells(item.sceneHosts.slice(0, 2));
+            }
+        }
+        return NOVAPLAY_CROSS_COHOST.map(function (h) {
+            return {
+                slug: h.slug,
+                name: h.name + " · " + h.platform,
+                platform: h.platform,
+                av: h.av,
+                cover: h.cover
+            };
+        });
     }
 
     function audienceMicEnabledForRoom() {
@@ -172,19 +231,15 @@
     }
 
     function scenePresetHosts(mode) {
-        var demo = global.FL_LIVE_FEED_DEMO;
-        if (!demo || !demo.getScene) return null;
         var sceneId = readParams().get("scene");
-        if (!sceneId) return null;
+        if (!sceneId && isSchemeANovaplayCrossCohost()) {
+            return getNovaplayCrossHostsForCells();
+        }
+        var demo = global.FL_LIVE_FEED_DEMO;
+        if (!demo || !demo.getScene || !sceneId) return null;
         var item = demo.getScene(sceneId);
         if (!item || !item.sceneHosts || !item.sceneHosts.length) return null;
-        return item.sceneHosts.map(function (h) {
-            return {
-                name: h.name + (h.platform ? " · " + h.platform : ""),
-                av: h.avatar,
-                cover: h.cover || h.avatar
-            };
-        });
+        return mapSceneHostsToCells(item.sceneHosts);
     }
 
     function getPlayer() {
@@ -207,7 +262,9 @@
         if (!player) return;
         player.classList.remove(
             "live-player--cohost-2", "live-player--cohost-3",
+            "live-player--cohost-cross", "live-player--cohost-pk-viewer",
             "ld-ab-player--cohost-2", "ld-ab-player--cohost-3",
+            "ld-ab-player--cohost-cross",
             "is-cohost-matching", "is-pk-active", "is-pk-pending"
         );
     }
@@ -279,6 +336,7 @@
     function resolveMode() {
         var p = readParams();
         if (p.get("audMic") === "demo" && !p.get("cohost")) return "";
+        if (p.get("scene") === "solo_web") return "";
         var cohost = p.get("cohost");
         var slug = getRoomSlug();
         if (cohost) return cohost;
@@ -286,6 +344,7 @@
             if (slug === "shanye") return "2";
             return "";
         }
+        if (isSchemeANovaplayCrossCohost()) return "2";
         if (p.get("demo") === "cohost") return cohost || "2";
         return "";
     }
@@ -298,17 +357,41 @@
     }
 
     function buildCell(host, isMain) {
-        var cls = "live-cohost-cell" + (isMain ? " live-cohost-cell--main" : "");
+        var platKey = host.platform === "H5" ? "h5" : host.platform === "Web" ? "web" : "";
+        var cls =
+            "live-cohost-cell" +
+            (isMain ? " live-cohost-cell--main" : "") +
+            (platKey ? " live-cohost-cell--platform-" + platKey : "");
+        var coverUrl = img(host.cover, 1400);
         var liveTag = isAbPage()
             ? ""
             : '<span class="live-cohost-live-tag"><span class="dot"></span> LIVE</span>';
-        return (
-            '<div class="' + cls + '" style="background-image:url(\'' + img(host.cover, 1400) + '\')">' +
-            liveTag +
+        var plat = host.platform
+            ? '<span class="live-cohost-platform live-cohost-platform--' +
+              (host.platform === "H5" ? "h5" : "web") +
+              '">' +
+              esc(host.platform) +
+              "</span>"
+            : "";
+        var label =
             '<div class="live-cohost-label">' +
             '<span class="av" style="background-image:url(\'' + img(host.av, 80) + '\')"></span> ' +
             esc(host.name) +
-            "</div></div>"
+            "</div>";
+        var pos =
+            host.platform === "H5" ? " background-position:center 22%;" : "";
+        return (
+            '<div class="' +
+            cls +
+            '" style="background-image:url(\'' +
+            coverUrl +
+            "');" +
+            pos +
+            '">' +
+            liveTag +
+            plat +
+            label +
+            "</div>"
         );
     }
 
@@ -395,36 +478,73 @@
     function renderPkHud(hostA, hostB, opts) {
         opts = opts || {};
         var pkType = opts.pkType || "gift";
-        var typeLabel = pkType === "like" ? "点赞总个数" : "礼物总金额";
-        var typeIcon = pkType === "like" ? "fa-thumbs-up" : "fa-gift";
+        var demo = global.FL_LIVE_FEED_DEMO;
+        var sceneId = readParams().get("scene");
+        var pkDemo = demo && demo.getScene && sceneId ? (demo.getScene(sceneId) || {}).pkDemo : null;
+        var timerEl = document.getElementById("ldPkTimer");
+        var timerText = timerEl ? timerEl.textContent : null;
+        if (!timerText && pkDemo && pkDemo.timer) timerText = pkDemo.timer;
+        if (!timerText) {
+            var durSec = opts.pkDurSec || 180;
+            timerText =
+                String(Math.floor(durSec / 60)).padStart(2, "0") +
+                ":" +
+                String(durSec % 60).padStart(2, "0");
+        }
+        if (demo && demo.renderViewerPkDockHtml) {
+            return demo.renderViewerPkDockHtml({
+                id: "ldPkHud",
+                scoreA: state.pkScoreA,
+                scoreB: state.pkScoreB,
+                timer: timerText,
+                labelA: (pkDemo && pkDemo.labelA) || "直播",
+                labelB: (pkDemo && pkDemo.labelB) || "嘉宾",
+                pkType: pkType
+            });
+        }
         var scoreA = state.pkScoreA;
         var scoreB = state.pkScoreB;
         var pctA = pkBarPct(scoreA, scoreB);
-        var durLabel = opts.pkDurLabel || "3 分钟";
-        var durSec = opts.pkDurSec || 180;
-        var mm = String(Math.floor(durSec / 60)).padStart(2, "0");
-        var ss = String(durSec % 60).padStart(2, "0");
         return (
-            '<div class="obs-pk-hud obs-pk-hud--live" id="ldPkHud" data-pk-type="' + pkType + '">' +
-            '<div class="obs-pk-mode-row">' +
-            '<span class="obs-pk-mode-chip"><i class="fa-solid ' + typeIcon + '"></i> PK · ' + esc(typeLabel) + "</span>" +
-            '<span class="obs-pk-dur-chip"><i class="fa-regular fa-clock"></i> ' + esc(durLabel) + "</span>" +
-            '<span class="dev-glass-wrap dev-glass-wrap--inline dev-glass-wrap--pop-below">' +
-            '<span class="dev-glass-sphere" tabindex="0" aria-describedby="devPkLiveTip">' +
-            '<span class="dev-glass-sphere-shine"></span>' +
-            '<span class="dev-glass-sphere-txt">To 研发</span></span>' +
-            '<span class="dev-glass-pop dev-glass-pop--wide" id="devPkLiveTip" role="tooltip">' +
-            PK_DEV_TIP +
-            "</span></span></div>" +
-            '<div class="obs-pk-timer" id="ldPkTimer" data-sec="' + durSec + '">' + mm + ":" + ss + "</div>" +
-            '<div class="obs-pk-bars">' +
-            '<div class="obs-pk-bar-wrap">' +
-            '<div class="obs-pk-bar-meta"><span>' + esc(hostA.name) + '</span><span id="ldPkScoreA">' + formatPkScore(scoreA, pkType) + "</span></div>" +
-            '<div class="obs-pk-bar obs-pk-bar--a"><span id="ldPkBarA" style="width:' + pctA + '%"></span></div></div>' +
-            '<div class="obs-pk-vs">VS</div>' +
-            '<div class="obs-pk-bar-wrap">' +
-            '<div class="obs-pk-bar-meta"><span>' + esc(hostB.name) + '</span><span id="ldPkScoreB">' + formatPkScore(scoreB, pkType) + "</span></div>" +
-            '<div class="obs-pk-bar obs-pk-bar--b"><span id="ldPkBarB" style="width:' + (100 - pctA) + '%"></span></div></div>' +
+            '<div class="obs-pk-hud obs-pk-hud--dock obs-pk-hud--viewer-dock" id="ldPkHud">' +
+            '<div class="obs-pk-dock">' +
+            '<div class="obs-pk-dock-col obs-pk-dock-col--a">' +
+            '<div class="obs-pk-dock-head"><span class="obs-pk-dock-role">直播</span>' +
+            '<span class="obs-pk-dock-score" id="ldPkScoreA">' +
+            formatPkScore(scoreA, pkType) +
+            (pkType === "like" ? "" : " USDT") +
+            "</span></div>" +
+            '<div class="obs-pk-bar obs-pk-bar--a"><span id="ldPkBarA" style="width:' +
+            pctA +
+            '%"></span></div></div>' +
+            '<div class="obs-pk-dock-mid"><span class="obs-pk-timer obs-pk-timer--gold" id="ldPkTimer">' +
+            esc(timerText) +
+            "</span></div>" +
+            '<div class="obs-pk-dock-col obs-pk-dock-col--b">' +
+            '<div class="obs-pk-dock-head obs-pk-dock-head--reverse">' +
+            '<span class="obs-pk-dock-score" id="ldPkScoreB">' +
+            formatPkScore(scoreB, pkType) +
+            (pkType === "like" ? "" : " USDT") +
+            '</span><span class="obs-pk-dock-role">嘉宾</span></div>' +
+            '<div class="obs-pk-bar obs-pk-bar--b"><span id="ldPkBarB" style="width:' +
+            (100 - pctA) +
+            '%"></span></div></div></div></div>'
+        );
+    }
+
+    function renderPkAssistStrip() {
+        var demo = global.FL_LIVE_FEED_DEMO;
+        if (demo && demo.renderViewerPkAssistHtml) {
+            return demo.renderViewerPkAssistHtml({ giftBtnId: "ldPkAssistGiftBtn" });
+        }
+        return (
+            '<div class="live-pk-assist">' +
+            '<p class="live-pk-assist-hint">为喜欢的主播送礼助力 PK</p>' +
+            '<div class="live-pk-assist-actions">' +
+            '<span class="live-pk-assist-tag">直播</span>' +
+            '<button type="button" class="live-pk-assist-btn live-pk-assist-btn--gift" id="ldPkAssistGiftBtn">' +
+            '<i class="fa-solid fa-gift"></i> 礼物</button>' +
+            '<button type="button" class="live-pk-assist-btn live-pk-assist-btn--ghost">关注</button>' +
             "</div></div>"
         );
     }
@@ -478,10 +598,13 @@
         var chip = extraChip
             ? '<span class="host-cohost-chip host-cohost-chip--pk">' + extraChip + "</span>"
             : "";
+        var linkLabel = isSchemeANovaplayCrossCohost()
+            ? "Web 连麦 H5 · 双路推流"
+            : "连麦中 · " + count + "/" + max;
         return (
             '<div class="live-cohost-top" id="ldCohostTop">' +
-            '<span class="host-cohost-chip host-cohost-chip--link"><i class="fa-solid fa-link"></i> 连麦中 · ' +
-            count + "/" + max +
+            '<span class="host-cohost-chip host-cohost-chip--link"><i class="fa-solid fa-link"></i> ' +
+            linkLabel +
             "</span>" +
             chip +
             "</div>"
@@ -597,8 +720,20 @@
         state.matching = mode === "matching";
         state.audMic = !!opts.audMic;
         if (opts.pkPhase === "active") {
-            state.pkScoreA = state.pkType === "like" ? 1280 : 1240;
-            state.pkScoreB = state.pkType === "like" ? 960 : 892;
+            var scenePk = null;
+            var demo = global.FL_LIVE_FEED_DEMO;
+            var sid = readParams().get("scene");
+            if (demo && demo.getScene && sid) {
+                var sc = demo.getScene(sid);
+                if (sc && sc.pkDemo) scenePk = sc.pkDemo;
+            }
+            if (scenePk && scenePk.scoreA != null && scenePk.scoreB != null) {
+                state.pkScoreA = scenePk.scoreA;
+                state.pkScoreB = scenePk.scoreB;
+            } else {
+                state.pkScoreA = state.pkType === "like" ? 1280 : 1240;
+                state.pkScoreB = state.pkType === "like" ? 960 : 892;
+            }
         }
 
         var slug = getRoomSlug();
@@ -639,11 +774,15 @@
                 topChip = '<i class="fa-solid fa-hourglass-half"></i> PK 待全员同意';
                 overlayHtml += renderPkPendingStrip(hosts, pkOpts);
             } else if (opts.pkPhase === "active") {
-                player.classList.add("is-pk-active");
-                topChip = '<i class="fa-solid fa-hand-fist"></i> PK 进行中';
+                player.classList.add("is-pk-active", "live-player--cohost-pk-viewer");
                 overlayHtml += renderPkHud(hosts[0], hosts[1], pkOpts);
+                overlayHtml += renderPkAssistStrip();
+            } else {
+                player.classList.remove("live-player--cohost-pk-viewer");
             }
-            overlayHtml += renderCohostTop(2, 3, topChip);
+            if (opts.pkPhase !== "active") {
+                overlayHtml += renderCohostTop(2, 3, topChip);
+            }
         } else {
             updateRoomBadge("", []);
             notifyHostCohostChange();
@@ -1132,8 +1271,25 @@
             if (!isAbPage()) setAudienceMicUi(audienceMicEnabledForRoom());
             return;
         }
-        mountDemoBar();
+        if (!isSchemeANovaplayCrossCohost()) mountDemoBar();
         boot();
+        if (isSchemeANovaplayCrossCohost()) {
+            document.body.classList.add("ld-novaplay-cross-cohost");
+        }
+        if (!document.documentElement._pkAssistGiftWired) {
+            document.documentElement._pkAssistGiftWired = true;
+            document.addEventListener("click", function (e) {
+                var btn = e.target.closest("#ldPkAssistGiftBtn");
+                if (!btn) return;
+                var tip = document.getElementById("btnTip");
+                if (tip) {
+                    tip.click();
+                    return;
+                }
+                var ov = document.getElementById("ldGiftOverlay");
+                if (ov) ov.classList.add("show");
+            });
+        }
     }
 
     global.LiveDetailCohost = {

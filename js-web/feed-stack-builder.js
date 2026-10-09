@@ -431,6 +431,54 @@
             '<span class="live-viewers"><i class="fa-solid fa-eye"></i> 演示</span>' +
             '<span class="feed-live-enter-hint"><i class="fa-solid fa-play"></i> 点击进入直播间</span>' +
             "</div>";
+        var mediaInner = "";
+        if (item.cohostMode && item.sceneHosts && item.sceneHosts.length >= 2) {
+            var panes = item.sceneHosts.slice(0, item.cohostMode === "3" ? 3 : 2);
+            var pkFooter = "";
+            if (item.cohostPk && item.pkDemo && panes.length >= 2 && D.renderViewerPkDockHtml) {
+                var pkD = item.pkDemo;
+                pkFooter =
+                    D.renderViewerPkDockHtml({
+                        scoreA: pkD.scoreA,
+                        scoreB: pkD.scoreB,
+                        timer: pkD.timer || "00:00",
+                        labelA: pkD.labelA || "直播",
+                        labelB: pkD.labelB || "嘉宾",
+                        pkType: pkD.type || "gift"
+                    }) +
+                    (D.renderViewerPkAssistHtml
+                        ? D.renderViewerPkAssistHtml().replace(
+                              'class="live-pk-assist-btn live-pk-assist-btn--gift"',
+                              'class="live-pk-assist-btn live-pk-assist-btn--gift" disabled'
+                          )
+                        : "");
+            }
+            var paneHtml = panes
+                .map(function (h) {
+                    var pk = h.platform === "H5" ? "h5" : h.platform === "Web" ? "web" : "";
+                    var cov = esc(h.cover || h.avatar || coverUrl);
+                    return (
+                        '<div class="feed-cohost-pane' +
+                        (pk ? " feed-cohost-pane--" + pk : "") +
+                        '" style="background-image:url(\'' +
+                        cov +
+                        "')\"></div>"
+                    );
+                })
+                .join("");
+            mediaInner =
+                '<div class="feed-cohost-preview feed-cohost-preview--' +
+                (item.cohostMode === "3" ? "3" : "2") +
+                (item.cohostPk ? " feed-cohost-preview--pk" : "") +
+                '">' +
+                (item.cohostPk
+                    ? '<div class="feed-cohost-pk-video">' + paneHtml + "</div>" + pkFooter
+                    : paneHtml) +
+                "</div>";
+        } else {
+            mediaInner =
+                '<img class="feed-live-cover" src="' + esc(coverUrl) + '" alt="">';
+        }
         var media =
             '<div class="post-media-wrap"><div class="post-media post-media--center post-media--live feed-live-tap" data-live-status="live" data-creator="' +
             esc(c.name) +
@@ -438,9 +486,8 @@
             esc(query) +
             '">' +
             overlay +
-            '<img class="feed-live-cover" src="' +
-            esc(coverUrl) +
-            '" alt=""></div></div>';
+            mediaInner +
+            "</div></div>";
         bodyInner += media;
         return (
             '<div class="feed-stack-slide" data-feed-id="stack-live-' + i + '">' +

@@ -289,11 +289,11 @@
     function cohostStageHtml(withPk) {
         var pk = withPk || state.pk ? pkHudHtml() : '';
         return '<div class="lh-cohost-grid">' +
-            '<div class="lh-cohost-cell" style="background-image:url(\'' + I.jazz + '\')">' +
+            '<div class="lh-cohost-cell lh-cohost-cell--h5" style="background-image:url(\'' + I.jazz + '\')">' +
             '<div class="lh-cohost-label"><span class="av" style="background-image:url(\'' + I.me + '\')"></span> ' +
-            state.myName + '（我）</div></div>' +
-            '<div class="lh-cohost-cell" style="background-image:url(\'' + I.concert + '\')">' +
-            '<div class="lh-cohost-label"><span class="av" style="background-image:url(\'' + I.night + '\')"></span> 夜雨听弦</div></div>' +
+            state.myName + '（我 · H5）</div></div>' +
+            '<div class="lh-cohost-cell lh-cohost-cell--web" style="background-image:url(\'' + I.concert + '\')">' +
+            '<div class="lh-cohost-label"><span class="av" style="background-image:url(\'' + I.night + '\')"></span> 夜雨听弦 · Web</div></div>' +
             '</div>' +
             '<div class="lh-cohost-top">' +
             '<span class="lh-cohost-chip lh-cohost-chip--link"><i class="fa-solid fa-link"></i> 连麦中 · 2/3</span>' +

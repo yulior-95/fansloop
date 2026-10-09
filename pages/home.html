@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="../css-web/content-report.css">
 <link rel="stylesheet" href="../css-web/live-player-volume.css">
 <link rel="stylesheet" href="../css/h5-content-report.css">
+<link rel="stylesheet" href="../css-web/obs-cohost-pk.css">
 <script src="../js/h5-theme-boot.js"></script>
 <style>
 body { background: #000; }
@@ -1025,7 +1026,11 @@ body.h5-search-open .top-nav {
     z-index: 1;
     pointer-events: none;
 }
-.live-room-player img {
+.live-room-player #liveRoomCover,
+.live-room-player .live-room-video {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -1033,9 +1038,10 @@ body.h5-search-open .top-nav {
     -webkit-touch-callout: none;
     user-select: none;
 }
-.live-room-player .live-room-video {
-    -webkit-touch-callout: none;
-    user-select: none;
+.live-room-player.is-cohost-active #liveRoomCover,
+.live-room-player.is-cohost-active .live-room-video {
+    visibility: hidden;
+    pointer-events: none;
 }
 .live-room-backdrop {
     position: absolute;
@@ -1052,18 +1058,48 @@ body.h5-search-open .top-nav {
 }
 .live-cohost-stage {
     position: absolute;
-    left: 0;
-    right: 0;
-    top: calc(var(--status-bar-height) + 46px);
-    bottom: calc(var(--tab-bar-height) + 150px);
+    inset: 0;
     z-index: 2;
     display: none;
     gap: 0;
     background: #000;
     overflow: hidden;
 }
+.live-room-player.is-cohost-pk-active .live-cohost-pk-stack {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--status-bar-height) + 44px);
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    max-height: none;
+    overflow: visible;
+    border-radius: 0;
+}
+.live-room-player.is-cohost-pk-active .live-cohost-stage {
+    position: relative;
+    inset: auto;
+    flex: 0 0 auto;
+    height: clamp(200px, 40vh, 340px);
+    min-height: 200px;
+    max-height: 340px;
+    border-radius: 0;
+}
+.live-room-player.is-cohost-pk-active .live-cohost-stage .cohost-pane .lb,
+.live-room-player.is-cohost-pk-active .live-cohost-stage .cohost-plat {
+    display: none;
+}
+.live-room-player.is-cohost-pk-active .obs-pk-hud--viewer-dock {
+    flex-shrink: 0;
+}
 .live-cohost-stage.show { display: grid; }
-.live-cohost-stage.mode-two { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+.live-cohost-stage.mode-two {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+    gap: 1px;
+    background: #0a0a0a;
+}
 .live-cohost-stage.mode-three { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
 .live-cohost-stage.mode-three .cohost-pane.first {
     grid-column: 1;
@@ -1089,16 +1125,40 @@ body.h5-search-open .top-nav {
     object-fit: cover;
     display: block;
 }
+.cohost-pane--h5 img {
+    object-position: center 22%;
+}
 .cohost-pane .lb {
     position: absolute;
     left: 6px;
     bottom: 6px;
+    right: 6px;
     padding: 2px 7px;
     border-radius: 999px;
     background: rgba(0,0,0,0.55);
     color: #fff;
     font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
+.cohost-pane .cohost-plat {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    z-index: 2;
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: #fff;
+}
+.cohost-pane .cohost-plat--h5 { background: rgba(59, 130, 246, 0.85); }
+.cohost-pane .cohost-plat--web { background: rgba(168, 85, 247, 0.85); }
+:root[data-theme='light'] .cohost-pane .cohost-plat--h5 { background: rgba(37, 99, 235, 0.9); }
+:root[data-theme='light'] .cohost-pane .cohost-plat--web { background: rgba(124, 58, 237, 0.9); }
 .live-room-danmu {
     position: absolute;
     left: 10px;
@@ -1152,17 +1212,34 @@ body.h5-search-open .top-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 6px;
     z-index: 10;
+}
+.live-host-chip {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    min-width: 0;
+    flex: 1 1 auto;
+    height: 36px;
+    padding-right: 3px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.42);
+    backdrop-filter: blur(6px);
+    overflow: hidden;
 }
 .live-host-mini {
     display: flex;
     align-items: center;
-    gap: 8px;
+    flex-wrap: nowrap;
+    gap: 6px;
     min-width: 0;
-    padding: 3px 8px 3px 3px;
-    border-radius: 999px;
-    background: rgba(0,0,0,0.42);
-    backdrop-filter: blur(6px);
+    flex: 1 1 auto;
+    height: 100%;
+    padding: 0 4px 0 3px;
+    border-radius: 0;
+    background: transparent;
+    backdrop-filter: none;
     cursor: pointer;
     border: 0;
     text-align: left;
@@ -1171,45 +1248,101 @@ body.h5-search-open .top-nav {
 }
 .live-host-mini:active { opacity: 0.88; }
 .live-host-mini .av {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    flex-shrink: 0;
+    aspect-ratio: 1;
     border-radius: 50%;
     border: 1px solid rgba(255,255,255,0.35);
     object-fit: cover;
+    object-position: center;
+}
+.live-host-mini .meta {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0;
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+    line-height: 1.15;
 }
 .live-host-mini .nm {
     font-size: 11px;
     color: #fff;
     font-weight: 700;
+    width: 100%;
+    min-width: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 120px;
 }
 .live-host-mini .vw {
-    font-size: 10px;
-    color: rgba(255,255,255,0.74);
-    margin-top: 1px;
+    font-size: 9px;
+    color: rgba(255,255,255,0.72);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
-.live-top-actions { display: flex; align-items: flex-start; gap: 8px; }
+.live-top-follow-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 26px;
+    padding: 0 8px;
+    margin-left: 2px;
+    border-radius: 999px;
+    border: 0;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    background: linear-gradient(135deg, #a855f7, #7c3aed);
+    cursor: pointer;
+}
+.live-top-follow-btn:active { opacity: 0.9; }
+.live-top-follow-btn.is-active {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+}
+.live-top-follow-btn .lbl { white-space: nowrap; }
+.live-top-follow-btn i { font-size: 9px; }
+.live-top-actions {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 4px;
+}
 .live-rank-avatars {
     display: flex;
     align-items: center;
     gap: 0;
-    margin-right: 2px;
+    margin-right: 0;
     border-radius: 999px;
     background: rgba(0,0,0,0.42);
-    padding: 3px 5px;
+    padding: 2px 4px;
     backdrop-filter: blur(6px);
 }
 .live-rank-avatars .rk-av {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    min-height: 16px;
+    flex-shrink: 0;
+    aspect-ratio: 1;
     border-radius: 50%;
     border: 1px solid rgba(255,255,255,0.35);
     object-fit: cover;
+    object-position: center;
     cursor: pointer;
-    margin-left: -4px;
+    margin-left: -3px;
 }
 .live-rank-avatars .rk-av:first-child { margin-left: 0; }
 .live-rank-avatars .rk-av:nth-child(1) { border-color: rgba(250,204,21,0.9); }
@@ -1221,6 +1354,14 @@ body.h5-search-open .top-nav {
     backdrop-filter: blur(6px);
     border: 1px solid rgba(255,255,255,0.1);
 }
+.live-player-top .live-vctrl {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    font-size: 11px;
+}
+.live-player-top .live-vctrl i { font-size: 11px; line-height: 1; }
+.live-player-top .ld-vol-wrap .live-vctrl { width: 26px; height: 26px; }
 .live-vctrl {
     width: 34px; height: 34px; border: 0; border-radius: 10px;
     background: rgba(0,0,0,0.45); color: #fff;
@@ -1234,11 +1375,18 @@ body.h5-search-open .top-nav {
 .live-top-left {
     display: flex;
     align-items: center;
-    gap: 8px;
+    flex-wrap: nowrap;
+    gap: 5px;
     min-width: 0;
-    flex: 1;
+    flex: 1 1 auto;
+    overflow: hidden;
 }
-.live-back-btn { flex-shrink: 0; }
+.live-back-btn {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+}
 .live-room-player.is-stream-muted #liveRoomCover {
     filter: saturate(0.88);
 }
@@ -1938,10 +2086,21 @@ body.h5-search-open .top-nav {
     font-size: 11px;
     color: rgba(255,255,255,0.86);
     background: rgba(255,255,255,0.09);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.gift-tab i {
+    font-size: 10px;
+    opacity: 0.92;
 }
 .gift-tab.on {
     background: rgba(236,72,153,0.86);
     color: #fff;
+}
+.gift-modal-note i.fa-gift {
+    margin-right: 6px;
+    color: #fbbf24;
 }
 .gift-grid {
     display: grid;
@@ -1953,16 +2112,36 @@ body.h5-search-open .top-nav {
     border-radius: 12px;
     background: rgba(255,255,255,0.05);
     color: #fff;
-    min-height: 86px;
+    min-height: 96px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 5px;
+    gap: 6px;
     font-size: 11px;
+    padding: 8px 4px;
 }
-.gift-card .emoji { font-size: 18px; line-height: 1; }
-.gift-card .price { font-size: 10px; color: rgba(255,255,255,0.75); }
+.gift-card .gift-ic {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.28);
+    flex-shrink: 0;
+}
+.gift-ic--rose { background: linear-gradient(145deg, #fb7185, #e11d48); }
+.gift-ic--beer { background: linear-gradient(145deg, #fcd34d, #d97706); }
+.gift-ic--cake { background: linear-gradient(145deg, #f9a8d4, #db2777); }
+.gift-ic--heartbox { background: linear-gradient(145deg, #f472b6, #a855f7); }
+.gift-ic--rocket { background: linear-gradient(145deg, #60a5fa, #4f46e5); }
+.gift-ic--diamond { background: linear-gradient(145deg, #67e8f9, #0284c7); }
+.gift-ic--unicorn { background: linear-gradient(145deg, #c4b5fd, #7c3aed); }
+.gift-card .gift-nm { font-size: 11px; font-weight: 600; line-height: 1.2; }
+.gift-card .price { font-size: 10px; color: rgba(255,255,255,0.75); font-weight: 700; }
 .gift-card.on {
     border-color: rgba(168,85,247,0.95);
     box-shadow: inset 0 0 0 1px rgba(168,85,247,0.45);
@@ -1988,6 +2167,10 @@ body.h5-search-open .top-nav {
     color: #fff;
     font-size: 12px;
     font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 .lts-tabs {
     display: flex;
@@ -2084,6 +2267,29 @@ body.h5-search-open .top-nav {
 }
 :root[data-theme='light'] body.h5-feed-dark .lssp-item {
     border-bottom-color: rgba(15, 18, 32, 0.1) !important;
+}
+:root[data-theme='light'] body.h5-feed-dark .gift-modal-note,
+:root[data-theme='light'] body.h5-feed-dark .gift-target-row .name,
+:root[data-theme='light'] body.h5-feed-dark .gift-card,
+:root[data-theme='light'] body.h5-feed-dark .gift-card .gift-nm,
+:root[data-theme='light'] body.h5-feed-dark .gift-foot .txt {
+    color: #0F1220 !important;
+}
+:root[data-theme='light'] body.h5-feed-dark .gift-target-row .sub,
+:root[data-theme='light'] body.h5-feed-dark .gift-card .price {
+    color: #5C657C !important;
+}
+:root[data-theme='light'] body.h5-feed-dark .gift-card {
+    background: #EEF1F8 !important;
+    border-color: rgba(15, 18, 32, 0.1) !important;
+}
+:root[data-theme='light'] body.h5-feed-dark .gift-tab {
+    background: #E8ECF6 !important;
+    color: #3A4158 !important;
+}
+:root[data-theme='light'] body.h5-feed-dark .gift-tab.on {
+    background: rgba(236, 72, 153, 0.15) !important;
+    color: #be185d !important;
 }
 :root[data-theme='light'] body.h5-feed-dark .feed-more-sheet .feed-more-row,
 :root[data-theme='light'] body.h5-feed-dark .live-more-sheet .feed-more-row,
@@ -2463,13 +2669,18 @@ body.h5-search-open .top-nav {
         <div class="live-player-top">
             <div class="live-top-left">
                 <button type="button" class="live-vctrl live-back-btn" id="liveBtnBack" title="返回" aria-label="返回"><i class="fa-solid fa-chevron-left"></i></button>
-                <button type="button" class="live-host-mini" id="liveHostMini" title="查看创作者主页">
-                    <img class="av" id="liveHostAv" src="" alt="">
-                    <div>
-                        <div class="nm" id="liveHostName">@creator</div>
-                        <div class="vw" id="liveHostViewers">1.2K 在线</div>
-                    </div>
-                </button>
+                <div class="live-host-chip">
+                    <button type="button" class="live-host-mini" id="liveHostMini" title="查看创作者主页">
+                        <img class="av" id="liveHostAv" src="" alt="">
+                        <div class="meta">
+                            <div class="nm" id="liveHostName">@creator</div>
+                            <div class="vw" id="liveHostViewers">1.2K 在线</div>
+                        </div>
+                    </button>
+                    <button type="button" class="live-top-follow-btn" id="liveHostFollowBtn" title="关注">
+                        <i class="fa-regular fa-bell"></i><span class="lbl">关注</span>
+                    </button>
+                </div>
             </div>
             <div class="live-top-actions">
                 <div class="live-rank-avatars" id="liveRankAvatars" title="打赏榜单">
@@ -2586,7 +2797,7 @@ body.h5-search-open .top-nav {
                 <button type="button" class="lms-close" id="liveGiftClose"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="lms-body">
-                <div class="gift-modal-note">礼物会以飘屏 / 全屏特效送达，并出现在创作者打赏榜前列 🎁</div>
+                <div class="gift-modal-note"><i class="fa-solid fa-gift"></i>礼物会以飘屏 / 全屏特效送达，并出现在创作者打赏榜前列</div>
                 <div class="gift-modal-note" id="liveGiftNotice">你刚刚送出 钻石礼物！</div>
                 <div class="gift-target-row">
                     <div class="left">
@@ -2599,24 +2810,24 @@ body.h5-search-open .top-nav {
                     <span class="gift-badge">直播打赏</span>
                 </div>
                 <div class="gift-tabs">
-                    <button type="button" class="gift-tab on">热门</button>
-                    <button type="button" class="gift-tab">心意</button>
-                    <button type="button" class="gift-tab">助力</button>
-                    <button type="button" class="gift-tab">豪华</button>
-                    <button type="button" class="gift-tab">限定</button>
+                    <button type="button" class="gift-tab on"><i class="fa-solid fa-fire"></i>热门</button>
+                    <button type="button" class="gift-tab"><i class="fa-solid fa-heart"></i>心意</button>
+                    <button type="button" class="gift-tab"><i class="fa-solid fa-rocket"></i>助力</button>
+                    <button type="button" class="gift-tab"><i class="fa-solid fa-gem"></i>豪华</button>
+                    <button type="button" class="gift-tab"><i class="fa-solid fa-clock"></i>限定</button>
                 </div>
                 <div class="gift-grid" id="liveGiftGrid">
-                    <button type="button" class="gift-card on" data-gift-name="玫瑰" data-gift-price="1"><span class="emoji">🌹</span><span>玫瑰</span><span class="price">1 USDT</span></button>
-                    <button type="button" class="gift-card" data-gift-name="啤酒" data-gift-price="3"><span class="emoji">🍻</span><span>啤酒</span><span class="price">3 USDT</span></button>
-                    <button type="button" class="gift-card" data-gift-name="蛋糕" data-gift-price="5"><span class="emoji">🎂</span><span>蛋糕</span><span class="price">5 USDT</span></button>
-                    <button type="button" class="gift-card" data-gift-name="心意盒" data-gift-price="9"><span class="emoji">💝</span><span>心意盒</span><span class="price">9 USDT</span></button>
-                    <button type="button" class="gift-card" data-gift-name="火箭" data-gift-price="50"><span class="emoji">🚀</span><span>火箭</span><span class="price">50 USDT</span></button>
-                    <button type="button" class="gift-card" data-gift-name="钻石" data-gift-price="200"><span class="emoji">💎</span><span>钻石</span><span class="price">200 USDT</span></button>
-                    <button type="button" class="gift-card" data-gift-name="独角兽" data-gift-price="288"><span class="emoji">🦄</span><span>独角兽</span><span class="price">288 USDT</span></button>
+                    <button type="button" class="gift-card on" data-gift-name="玫瑰" data-gift-price="1"><span class="gift-ic gift-ic--rose"><i class="fa-solid fa-heart"></i></span><span class="gift-nm">玫瑰</span><span class="price">1 USDT</span></button>
+                    <button type="button" class="gift-card" data-gift-name="啤酒" data-gift-price="3"><span class="gift-ic gift-ic--beer"><i class="fa-solid fa-beer-mug-empty"></i></span><span class="gift-nm">啤酒</span><span class="price">3 USDT</span></button>
+                    <button type="button" class="gift-card" data-gift-name="蛋糕" data-gift-price="5"><span class="gift-ic gift-ic--cake"><i class="fa-solid fa-cake-candles"></i></span><span class="gift-nm">蛋糕</span><span class="price">5 USDT</span></button>
+                    <button type="button" class="gift-card" data-gift-name="心意盒" data-gift-price="9"><span class="gift-ic gift-ic--heartbox"><i class="fa-solid fa-gift"></i></span><span class="gift-nm">心意盒</span><span class="price">9 USDT</span></button>
+                    <button type="button" class="gift-card" data-gift-name="火箭" data-gift-price="50"><span class="gift-ic gift-ic--rocket"><i class="fa-solid fa-rocket"></i></span><span class="gift-nm">火箭</span><span class="price">50 USDT</span></button>
+                    <button type="button" class="gift-card" data-gift-name="钻石" data-gift-price="200"><span class="gift-ic gift-ic--diamond"><i class="fa-solid fa-gem"></i></span><span class="gift-nm">钻石</span><span class="price">200 USDT</span></button>
+                    <button type="button" class="gift-card" data-gift-name="独角兽" data-gift-price="288"><span class="gift-ic gift-ic--unicorn"><i class="fa-solid fa-wand-magic-sparkles"></i></span><span class="gift-nm">独角兽</span><span class="price">288 USDT</span></button>
                 </div>
                 <div class="gift-foot">
                     <div class="txt" id="liveGiftSelectedText">已选：玫瑰 · 1 USDT</div>
-                    <button type="button" class="gift-send-btn" id="liveGiftSendNow">立即送出</button>
+                    <button type="button" class="gift-send-btn" id="liveGiftSendNow"><i class="fa-solid fa-paper-plane"></i> 立即送出</button>
                 </div>
             </div>
         </div>
@@ -2717,7 +2928,7 @@ body.h5-search-open .top-nav {
 <script src="../js/h5-global-search.js"></script>
 <script src="../js-web/content-report.js"></script>
 <script src="../js-web/live-player-volume.js"></script>
-<script src="../js-web/live-feed-demo-catalog.js"></script>
+<script src="../js-web/live-feed-demo-catalog.js?v=20261007"></script>
 <script>
 (function () {
     function esc(s) {
@@ -2851,9 +3062,14 @@ body.h5-search-open .top-nav {
             }
         ],
         live: (function () {
-            var D = window.FL_LIVE_FEED_DEMO;
-            if (!D || !D.items || !D.toH5Feed) return [];
-            return D.items.map(function (it) { return D.toH5Feed(it); });
+            try {
+                var D = window.FL_LIVE_FEED_DEMO;
+                if (!D || !D.items || !D.toH5Feed) return [];
+                return D.items.map(function (it) { return D.toH5Feed(it); });
+            } catch (e) {
+                console.error('[home] live feed catalog failed', e);
+                return [];
+            }
         })()
     };
 
@@ -2978,6 +3194,8 @@ body.h5-search-open .top-nav {
         if (window.DigitalH5Nav && DigitalH5Nav.toast) DigitalH5Nav.toast(msg);
     }
 
+    buildTrack();
+
     var overlay = document.getElementById('homeOverlay');
     var commentSheet = document.getElementById('commentSheet');
     var shareSheet = document.getElementById('shareSheet');
@@ -3010,6 +3228,7 @@ body.h5-search-open .top-nav {
     var liveRoomMutedHint = document.getElementById('liveRoomMutedHint');
     var liveBtnBack = document.getElementById('liveBtnBack');
     var liveHostMini = document.getElementById('liveHostMini');
+    var liveHostFollowBtn = document.getElementById('liveHostFollowBtn');
     var liveHostAv = document.getElementById('liveHostAv');
     var liveHostName = document.getElementById('liveHostName');
     var liveHostViewers = document.getElementById('liveHostViewers');
@@ -3403,7 +3622,49 @@ body.h5-search-open .top-nav {
             liveCohostStage.classList.remove('show', 'mode-two', 'mode-three');
             liveCohostStage.innerHTML = '';
         }
+        if (liveRoomPlayer) {
+            liveRoomPlayer.classList.remove('is-cohost-active', 'is-cohost-pk-active');
+        }
+        if (liveRoomPlayer) {
+            var pkStack = liveRoomPlayer.querySelector('#liveCohostPkStack');
+            if (pkStack) pkStack.remove();
+            if (liveCohostStage && liveCohostStage.parentNode === liveRoomPlayer) {
+                /* stage stays in player */
+            } else if (liveCohostStage && liveCohostStage.parentNode) {
+                liveRoomPlayer.appendChild(liveCohostStage);
+            }
+        }
+        if (liveRoomCover) liveRoomCover.style.opacity = '';
         if (liveRoomOverlay) liveRoomOverlay.classList.remove('show');
+    }
+    function renderLiveCohostPkHud(item) {
+        if (!liveRoomPlayer || !liveCohostStage || !item || !item.cohostPk) return;
+        var D = window.FL_LIVE_FEED_DEMO;
+        var pk = item.pkDemo || {};
+        liveRoomPlayer.classList.add('is-cohost-pk-active');
+        var stack = liveRoomPlayer.querySelector('#liveCohostPkStack');
+        if (!stack) {
+            stack = document.createElement('div');
+            stack.id = 'liveCohostPkStack';
+            stack.className = 'live-cohost-pk-stack';
+            liveRoomPlayer.appendChild(stack);
+        }
+        stack.innerHTML = '';
+        stack.appendChild(liveCohostStage);
+        if (D && D.renderViewerPkDockHtml) {
+            stack.insertAdjacentHTML(
+                'beforeend',
+                D.renderViewerPkDockHtml({
+                    id: 'liveCohostPkHud',
+                    scoreA: pk.scoreA,
+                    scoreB: pk.scoreB,
+                    timer: pk.timer || '00:00',
+                    labelA: pk.labelA || '直播',
+                    labelB: pk.labelB || '嘉宾',
+                    pkType: pk.type || 'gift'
+                })
+            );
+        }
     }
     function renderCohostStage(item) {
         if (!liveCohostStage) return;
@@ -3411,9 +3672,17 @@ body.h5-search-open .top-nav {
         liveCohostStage.className = 'live-cohost-stage';
         liveCohostStage.classList.remove('show', 'mode-two', 'mode-three');
         liveCohostStage.innerHTML = '';
-        if (!item || !item.cohostMode) return;
+        var cohostActive = false;
+        if (!item || !item.cohostMode) {
+            if (liveRoomPlayer) liveRoomPlayer.classList.remove('is-cohost-active');
+            return;
+        }
         var panes = item.cohosts || [];
-        if (panes.length < 2) return;
+        if (panes.length < 2) {
+            if (liveRoomPlayer) liveRoomPlayer.classList.remove('is-cohost-active');
+            return;
+        }
+        cohostActive = true;
         var mode = item.cohostMode === '3' ? 'mode-three' : 'mode-two';
         liveCohostStage.classList.add('show', mode);
         panes.slice(0, item.cohostMode === '3' ? 3 : 2).forEach(function (h, i) {
@@ -3421,9 +3690,32 @@ body.h5-search-open .top-nav {
             var extra = mode === 'mode-three' ? (i === 0 ? ' first' : i === 1 ? ' second' : ' third') : '';
             pane.className = 'cohost-pane' + extra;
             var imgSrc = h.cover || h.avatar || '';
-            pane.innerHTML = '<img src="' + esc(imgSrc) + '" alt=""><span class="lb">' + esc(h.name || '连麦') + '</span>';
+            var label = h.name || '连麦';
+            var plat = '';
+            if (label.indexOf(' · H5') >= 0) plat = 'H5';
+            else if (label.indexOf(' · Web') >= 0) plat = 'Web';
+            var platHtml = plat
+                ? '<span class="cohost-plat cohost-plat--' + plat.toLowerCase() + '">' + plat + '</span>'
+                : '';
+            pane.classList.add(plat ? 'cohost-pane--' + plat.toLowerCase() : '');
+            pane.innerHTML =
+                '<img src="' + esc(imgSrc) + '" alt="">' +
+                platHtml +
+                '<span class="lb">' + esc(label) + '</span>';
             liveCohostStage.appendChild(pane);
         });
+        if (liveRoomPlayer) liveRoomPlayer.classList.toggle('is-cohost-active', cohostActive);
+        if (liveRoomCover && cohostActive) liveRoomCover.style.opacity = '';
+        if (cohostActive && item.cohostPk) {
+            renderLiveCohostPkHud(item);
+        } else if (liveRoomPlayer) {
+            liveRoomPlayer.classList.remove('is-cohost-pk-active');
+            var pkStackEl = liveRoomPlayer.querySelector('#liveCohostPkStack');
+            if (pkStackEl) pkStackEl.remove();
+            if (liveCohostStage && liveCohostStage.parentNode !== liveRoomPlayer) {
+                liveRoomPlayer.appendChild(liveCohostStage);
+            }
+        }
     }
     function syncDanmuAreaLayers() {
         if (liveDanmuLayer) liveDanmuLayer.setAttribute('data-dm-area', dmAreaMode || 'scroll');
@@ -3838,6 +4130,16 @@ body.h5-search-open .top-nav {
         if (badge.indexOf('预告') >= 0) return '未开播';
         return '—';
     }
+    function syncLiveHostFollowBtn() {
+        if (!liveHostFollowBtn) return;
+        var st = (activeLiveFeed && activeLiveFeed.__state) || {};
+        var on = !!st.followed;
+        liveHostFollowBtn.classList.toggle('is-active', on);
+        liveHostFollowBtn.innerHTML = on
+            ? '<i class="fa-solid fa-check"></i><span class="lbl">已关注</span>'
+            : '<i class="fa-regular fa-bell"></i><span class="lbl">关注</span>';
+        liveHostFollowBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
     function openLiveRoom(item) {
         activeLiveFeed = item || null;
         if (!activeLiveFeed || !liveRoomOverlay) return;
@@ -3860,6 +4162,7 @@ body.h5-search-open .top-nav {
         if (liveHostAv) liveHostAv.src = activeLiveFeed.avatar || '';
         if (liveHostName) liveHostName.textContent = (activeLiveFeed.creator || '@creator');
         if (liveHostViewers) liveHostViewers.textContent = formatLiveHostOnline(activeLiveFeed);
+        syncLiveHostFollowBtn();
         var rankUsers = rankUsersFor(activeLiveFeed);
         if (liveRankA1) liveRankA1.src = rankUsers[0].avatar || '';
         if (liveRankA2) liveRankA2.src = rankUsers[1].avatar || '';
@@ -4557,6 +4860,17 @@ body.h5-search-open .top-nav {
         liveHostMini.addEventListener('click', function (e) {
             e.stopPropagation();
             openLiveHostCreatorProfile();
+        });
+    }
+    if (liveHostFollowBtn) {
+        liveHostFollowBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (!activeLiveFeed) return;
+            var st = activeLiveFeed.__state || (activeLiveFeed.__state = { followed: false, liked: false, saved: false, titleExpanded: false });
+            st.followed = !st.followed;
+            syncLiveHostFollowBtn();
+            showToast(st.followed ? '已关注' : '已取消关注');
+            buildTrack();
         });
     }
     if (liveBtnVol && liveRoomPlayer && window.FL_LivePlayerVolume) {
