@@ -65,6 +65,9 @@
         try {
             global.dispatchEvent(new CustomEvent('fl-auth-prototype-ready'));
         } catch (e) { /* ignore */ }
+        if (global.FLUserAssets && global.FLUserAssets.getAssets) {
+            try { global.FLUserAssets.getAssets(); } catch (e) { /* ignore */ }
+        }
         if (cb) cb();
     }
 

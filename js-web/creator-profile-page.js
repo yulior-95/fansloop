@@ -415,6 +415,223 @@
         return 'creator-profile:' + String(name).replace(/\s+/g, '_').slice(0, 48);
     }
 
+    var TIER_PLAN_PRICE = { monthly: '28', quarterly: '75', annual: '268' };
+
+    var TIER_BTN_UNSUBSCRIBED = {
+        monthly: { html: '<i class="fa-solid fa-bolt"></i> 立即订阅', open: true },
+        quarterly: { html: '<i class="fa-solid fa-bolt"></i> 立即订阅', open: true },
+        annual: { html: '<i class="fa-solid fa-gem"></i> 立即订阅', open: true }
+    };
+
+    var TIER_BTN_UPGRADE = {
+        quarterly: { html: '<i class="fa-solid fa-bolt"></i> 立即订阅', open: true },
+        annual: { html: '<i class="fa-solid fa-gem"></i> 升级挚友', open: true }
+    };
+
+    function tierPlanTypeFromEl(tier, btn) {
+        var planType = btn && btn.getAttribute('data-tier-plan');
+        if (planType) return planType;
+        if (tier.classList.contains('t1')) return 'monthly';
+        if (tier.classList.contains('t2')) return 'quarterly';
+        if (tier.classList.contains('t3')) return 'annual';
+        return 'monthly';
+    }
+
+    function wireTierSubscribeButton(btn, planType, copy) {
+        var ctx = creatorSubContext();
+        btn.classList.remove('is-tier-current', 'is-tier-included');
+        btn.disabled = false;
+        btn.classList.add('btn-open-subscribe');
+        btn.setAttribute('data-tier-plan', planType);
+        if (ctx.name) btn.setAttribute('data-creator', ctx.name);
+        if (ctx.uid) btn.setAttribute('data-creator-uid', ctx.uid);
+        if (ctx.av) btn.setAttribute('data-av', ctx.av);
+        if (TIER_PLAN_PRICE[planType]) btn.setAttribute('data-plan', TIER_PLAN_PRICE[planType]);
+        if (copy && copy.open) btn.innerHTML = copy.html;
+    }
+
+    function creatorSubContext() {
+        var mainBtn = document.querySelector('.cp-act-subscribe');
+        return {
+            uid: mainBtn && mainBtn.getAttribute('data-creator-uid'),
+            name: getCreatorName(),
+            av: mainBtn && mainBtn.getAttribute('data-av')
+        };
+    }
+
+    function readCreatorSubscription() {
+        var ctx = creatorSubContext();
+        var store = global.FLFanCreatorSubs;
+        if (!store || !store.get) return null;
+        return store.get(ctx.uid, ctx.name);
+    }
+
+    function planUnit(planType) {
+        if (planType === 'annual') return 'USDT/年';
+        if (planType === 'quarterly') return 'USDT/季';
+        return 'USDT/月';
+    }
+
+    function planMemberLabel(planType) {
+        var store = global.FLFanCreatorSubs;
+        var base = store && store.planLabel ? store.planLabel(planType) : planType;
+        return base + '会员';
+    }
+
+    function resetMainSubscribeButton() {
+        var btn = document.querySelector('.cp-act-subscribe.btn-open-subscribe');
+        if (!btn) return;
+        btn.classList.remove('is-subscribed');
+        btn.removeAttribute('data-sub-mode');
+        btn.setAttribute('data-plan', '28');
+        var labelEl = btn.querySelector('.cp-act-sub__label');
+        var metaEl = btn.querySelector('.cp-act-sub__meta');
+        var priceB = btn.querySelector('.cp-act-sub__price b');
+        var priceSmall = btn.querySelector('.cp-act-sub__price small');
+        var icon = btn.querySelector('.cp-act-sub__main > i');
+        if (labelEl) labelEl.textContent = '订阅会员';
+        if (metaEl) metaEl.textContent = '解锁专属内容与直播';
+        if (priceB) priceB.textContent = '28';
+        if (priceSmall) priceSmall.textContent = 'USDT/月';
+        if (icon) icon.className = 'fa-solid fa-crown';
+    }
+
+    function applyUnsubscribedTierButtons() {
+        document.querySelectorAll('.sub-tier-row .sub-tier').forEach(function (tier) {
+            var btn = tier.querySelector('button');
+            if (!btn) return;
+            var planType = tierPlanTypeFromEl(tier, btn);
+            var copy = TIER_BTN_UNSUBSCRIBED[planType];
+            wireTierSubscribeButton(btn, planType, copy);
+        });
+    }
+
+    function resetCreatorSubscriptionDemo() {
+        var ctx = creatorSubContext();
+        var store = global.FLFanCreatorSubs;
+        if (store && store.remove) store.remove(ctx.uid, ctx.name);
+        if (global.FLSubscribeUpgradeDemo && global.FLSubscribeUpgradeDemo.reset) {
+            global.FLSubscribeUpgradeDemo.reset();
+        }
+        applyCreatorSubscriptionState(null);
+        try {
+            global.dispatchEvent(new CustomEvent('fl-creator-sub-reset', { detail: { uid: ctx.uid, name: ctx.name } }));
+        } catch (e) { /* ignore */ }
+    }
+
+    function maybeResetSubscriptionFromQuery() {
+        try {
+            var q = new URLSearchParams(global.location.search);
+            if (q.get('fl_reset_sub') !== '1' && q.get('fl_unsub') !== '1') return false;
+        } catch (e) {
+            return false;
+        }
+        resetCreatorSubscriptionDemo();
+        try {
+            var q2 = new URLSearchParams(global.location.search);
+            q2.delete('fl_reset_sub');
+            q2.delete('fl_unsub');
+            var next =
+                global.location.pathname +
+                (q2.toString() ? '?' + q2.toString() : '') +
+                global.location.hash;
+            global.history.replaceState(null, '', next);
+        } catch (e) { /* ignore */ }
+        toast('已恢复为未订阅，可重新走订阅流程');
+        return true;
+    }
+
+    function applyMainSubscribeButton(sub) {
+        var btn = document.querySelector('.cp-act-subscribe.btn-open-subscribe');
+        if (!btn || !sub || !sub.planType) return;
+        var ctx = creatorSubContext();
+        var price = sub.price != null ? sub.price : btn.getAttribute('data-plan');
+        btn.classList.add('is-subscribed');
+        btn.setAttribute('data-sub-mode', 'renew');
+        if (price != null) btn.setAttribute('data-plan', String(price));
+        if (ctx.name) btn.setAttribute('data-creator', ctx.name);
+        if (ctx.uid) btn.setAttribute('data-creator-uid', ctx.uid);
+        if (ctx.av) btn.setAttribute('data-av', ctx.av);
+
+        var labelEl = btn.querySelector('.cp-act-sub__label');
+        var metaEl = btn.querySelector('.cp-act-sub__meta');
+        var priceB = btn.querySelector('.cp-act-sub__price b');
+        var priceSmall = btn.querySelector('.cp-act-sub__price small');
+        var icon = btn.querySelector('.cp-act-sub__main > i');
+        if (labelEl) labelEl.textContent = planMemberLabel(sub.planType);
+        if (metaEl) metaEl.textContent = '专属内容已解锁 · 当前等级';
+        if (priceB) priceB.textContent = String(price != null ? price : '');
+        if (priceSmall) priceSmall.textContent = planUnit(sub.planType);
+        if (icon) icon.className = sub.planType === 'annual' ? 'fa-solid fa-gem' : 'fa-solid fa-crown';
+    }
+
+    function applySubTierButtons(sub) {
+        if (!sub || !sub.planType) return;
+        var rankMap = (global.FLFanCreatorSubs && global.FLFanCreatorSubs.PLAN_RANK) || {
+            monthly: 1,
+            quarterly: 2,
+            annual: 3
+        };
+        var activeRank = rankMap[sub.planType] || 1;
+        document.querySelectorAll('.sub-tier-row .sub-tier').forEach(function (tier) {
+            var btn = tier.querySelector('button');
+            if (!btn) return;
+            var planType = btn.getAttribute('data-tier-plan');
+            if (!planType) {
+                if (tier.classList.contains('t1')) planType = 'monthly';
+                else if (tier.classList.contains('t2')) planType = 'quarterly';
+                else if (tier.classList.contains('t3')) planType = 'annual';
+            }
+            var tierRank = rankMap[planType] || 0;
+            btn.classList.remove('is-tier-current', 'is-tier-included', 'btn-open-subscribe');
+            btn.disabled = false;
+
+            if (tierRank < activeRank) {
+                btn.disabled = true;
+                btn.classList.add('is-tier-included');
+                btn.textContent = '已包含';
+                return;
+            }
+            if (tierRank === activeRank) {
+                btn.disabled = true;
+                btn.classList.add('is-tier-current');
+                btn.textContent = '当前等级';
+                return;
+            }
+            var copy = TIER_BTN_UPGRADE[planType];
+            if (copy && copy.open) wireTierSubscribeButton(btn, planType, copy);
+        });
+    }
+
+    function applyCreatorSubscriptionState(sub) {
+        if (sub === undefined) sub = readCreatorSubscription();
+        if (!sub || !sub.planType) {
+            resetMainSubscribeButton();
+            applyUnsubscribedTierButtons();
+            return;
+        }
+        applyMainSubscribeButton(sub);
+        applySubTierButtons(sub);
+    }
+
+    function onSubscribePaid(e) {
+        var detail = (e && e.detail) || {};
+        var ctx = creatorSubContext();
+        var matchUid = detail.creatorUserId && ctx.uid && detail.creatorUserId === ctx.uid;
+        var matchName = detail.creator && detail.creator === ctx.name;
+        if (!matchUid && !matchName) return;
+        var sub = readCreatorSubscription();
+        if (!sub && detail.planType && global.FLFanCreatorSubs) {
+            sub = global.FLFanCreatorSubs.upsert({
+                creatorUid: ctx.uid,
+                creatorName: ctx.name,
+                planType: detail.planType,
+                price: detail.price
+            });
+        }
+        applyCreatorSubscriptionState(sub);
+    }
+
     function initCoverTools() {
         var btnShare = document.getElementById('cpCoverBtnShare');
         if (btnShare) {
@@ -450,6 +667,10 @@
         initTipRank();
         syncTipStats();
         global.addEventListener('fl-tip-sent', syncTipStats);
+        if (!maybeResetSubscriptionFromQuery()) {
+            applyCreatorSubscriptionState();
+        }
+        global.addEventListener('fl-subscribe-paid', onSubscribePaid);
         initCoverTools();
 
         var btnDm = document.getElementById('cpBtnDm');
@@ -495,6 +716,8 @@
             });
         }
     }
+
+    global.FLCreatorProfileResetSub = resetCreatorSubscriptionDemo;
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
     else init();

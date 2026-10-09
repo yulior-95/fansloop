@@ -6,6 +6,8 @@
     var DEMO_UID = 'demo_uid_882910';
     /** 新注册 / 零余额账号一次性发放的演示 USDT（便于购买、订阅等闭环） */
     var STARTER_LIVE_USDT = 500;
+    /** 原型演示：每个账号一次性 +50,000 USDT */
+    var PROTOTYPE_TOPUP_USDT = 50000;
 
     function newUserAssets() {
         return {
@@ -70,6 +72,28 @@
         global.FLUserRegistry.persistAccount(account);
     }
 
+    function grantPrototypeTopup50kIfNeeded(account) {
+        if (!account || !account.assets) return;
+        var a = account.assets;
+        if (a.prototypeTopup50kV1) return;
+        var amount = PROTOTYPE_TOPUP_USDT;
+        var next = Math.round(((a.liveUsdt || 0) + amount) * 100) / 100;
+        account.assets = Object.assign({}, a, {
+            liveUsdt: next,
+            usdtBalance: next,
+            walletUsd: next,
+            monthlyRecharge: (a.monthlyRecharge || 0) + amount,
+            prototypeTopup50kV1: true
+        });
+        global.FLUserRegistry.persistAccount(account);
+        try {
+            global.dispatchEvent(new CustomEvent('fl-wallet-credited', {
+                detail: { amount: amount, balance: next }
+            }));
+            global.dispatchEvent(new CustomEvent('fl-user-assets-change', { detail: account.assets }));
+        } catch (e) { /* ignore */ }
+    }
+
     function ensureAssets(account) {
         if (!account) return null;
         if (!account.assets) {
@@ -87,6 +111,7 @@
         } else if (account.isNewUser) {
             grantStarterUsdtIfNeeded(account);
         }
+        grantPrototypeTopup50kIfNeeded(account);
         return account.assets;
     }
 
@@ -215,6 +240,21 @@
         var num = Math.round(Number(n || 0) * 100) / 100;
         return num % 1 === 0 ? String(num) : num.toFixed(2);
     }
+
+    function demoWalletCredit(usdt) {
+        var next = creditRecharge(usdt);
+        try {
+            global.dispatchEvent(new CustomEvent('fl-wallet-credited', {
+                detail: { amount: Number(usdt) || 0, balance: next }
+            }));
+        } catch (e) { /* ignore */ }
+        return next;
+    }
+
+    global.FLDemoWallet = {
+        credit: demoWalletCredit,
+        getBalance: getLiveUsdt
+    };
 
     global.FLUserAssets = {
         DEMO_UID: DEMO_UID,

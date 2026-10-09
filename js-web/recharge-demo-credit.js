@@ -37,16 +37,13 @@
         if (input) input.value = String(amt);
         var btn = document.getElementById('btnRechargeDemoCredit');
         if (!btn) return;
-        btn.addEventListener('click', function () {
-            var n = parseFloat(input && input.value);
-            if (isNaN(n) || n <= 0) {
-                toast('请输入有效充值金额');
-                return;
-            }
+        function doCredit(n) {
             var w = global.LiveWalletStore;
             var assets = global.FLUserAssets;
             var bal;
-            if (assets && assets.creditRecharge) {
+            if (global.FLDemoWallet && global.FLDemoWallet.credit) {
+                bal = global.FLDemoWallet.credit(n);
+            } else if (assets && assets.creditRecharge) {
                 bal = assets.creditRecharge(n);
             } else if (w) {
                 bal = w.add(n);
@@ -62,7 +59,24 @@
                     window.location.href = decodeURIComponent(ret);
                 }, 1200);
             }
+        }
+
+        btn.addEventListener('click', function () {
+            var n = parseFloat(input && input.value);
+            if (isNaN(n) || n <= 0) {
+                toast('请输入有效充值金额');
+                return;
+            }
+            doCredit(n);
         });
+
+        var btn50k = document.getElementById('btnRechargeDemoCredit50k');
+        if (btn50k) {
+            btn50k.addEventListener('click', function () {
+                if (input) input.value = '50000';
+                doCredit(50000);
+            });
+        }
     }
 
     if (document.readyState === 'loading') {

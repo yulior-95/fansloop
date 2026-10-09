@@ -145,17 +145,31 @@
         return UPGRADE_DEMO.creatorNames.indexOf(state.creator) >= 0;
     }
 
+    function getActiveSubPlanType() {
+        if (!isUpgradeCreator()) return null;
+        var store = global.FLFanCreatorSubs;
+        if (store && store.get) {
+            var sub = store.get(state.creatorUserId, state.creator);
+            if (sub && sub.planType && PLAN_RANK[sub.planType]) return sub.planType;
+        }
+        return null;
+    }
+
     function getUpgradeCredit() {
         if (state.mode === 'renew') return null;
         if (!isUpgradeCreator()) return null;
+        var currentPlan = getActiveSubPlanType();
+        if (!currentPlan) return null;
         var planType = getSelectedPlanType();
-        var curRank = PLAN_RANK[UPGRADE_DEMO.currentPlan] || 0;
+        var curRank = PLAN_RANK[currentPlan] || 0;
         var nextRank = PLAN_RANK[planType] || 0;
         if (nextRank <= curRank) return null;
+        var label =
+            currentPlan === 'monthly' ? '月付' : currentPlan === 'quarterly' ? '季付' : '年付';
         return {
             remainDays: UPGRADE_DEMO.remainDays,
             creditAmount: UPGRADE_DEMO.creditAmount,
-            currentPlanLabel: UPGRADE_DEMO.currentPlan === 'monthly' ? '月付' : UPGRADE_DEMO.currentPlan
+            currentPlanLabel: label
         };
     }
 
@@ -817,8 +831,28 @@
         }
         showSubStep('subStep2');
         toast(state.mode === 'renew' ? '支付成功，续费已生效' : '支付成功，订阅已生效');
+        var paidPlanType = getSelectedPlanType();
+        if (global.FLFanCreatorSubs && global.FLFanCreatorSubs.upsert) {
+            global.FLFanCreatorSubs.upsert({
+                creatorUid: state.creatorUserId,
+                creatorName: state.creator,
+                planType: paidPlanType,
+                price: price,
+                basePrice: base
+            });
+        }
+        if (isUpgradeCreator() && PLAN_RANK[paidPlanType]) {
+            UPGRADE_DEMO.currentPlan = paidPlanType;
+        }
         try {
-            global.dispatchEvent(new CustomEvent('fl-subscribe-paid', { detail: { creator: state.creator } }));
+            global.dispatchEvent(new CustomEvent('fl-subscribe-paid', {
+                detail: {
+                    creator: state.creator,
+                    creatorUserId: state.creatorUserId,
+                    planType: paidPlanType,
+                    price: price
+                }
+            }));
         } catch (e) { /* ignore */ }
     }
 
@@ -997,8 +1031,13 @@
     }
 
     window.FL_openSubscribeModal = openSubscribeModal;
+    function resetUpgradeDemoPlan() {
+        UPGRADE_DEMO.currentPlan = 'monthly';
+    }
+
     window.FL_openSubscribeForCreator = openSubscribeForCreator;
     window.FL_closeSubscribeModal = closeSubscribeModal;
+    window.FLSubscribeUpgradeDemo = { reset: resetUpgradeDemoPlan };
 
     if (!document.body.getAttribute('data-subscribe-delegate')) {
         document.body.setAttribute('data-subscribe-delegate', '1');
