@@ -30,8 +30,8 @@
 
     var PREVIEW_SEC = 12;
 
-    function img(id, w) {
-        return 'https://images.unsplash.com/' + id + '?w=' + (w || 800) + '&q=85';
+    function img(coverKey, w) {
+        return T.coverUrl ? T.coverUrl(coverKey, w || 800) : '';
     }
 
     function esc(s) { return T.esc(s); }
@@ -220,6 +220,14 @@
                 '<img src="' + cover + '" alt="" class="dd-media-sr" tabindex="-1" />'
             );
         }
+        if (p.imageLayout === 'grid-2' && p.coverAlt) {
+            return (
+                '<div class="dd-media-grid2">' +
+                '<img src="' + img(p.cover, 1200) + '" alt="" />' +
+                '<img src="' + img(p.coverAlt, 1200) + '" alt="" />' +
+                '</div>'
+            );
+        }
         return '<img src="' + img(p.cover, 1600) + '" alt="' + esc(p.title) + '">';
     }
 
@@ -253,7 +261,7 @@
             '<button type="button" class="dd-rail-btn" data-dd-save><i class="fa-regular fa-bookmark"></i><span>收藏</span></button>' +
             '<button type="button" class="dd-rail-btn" data-dd-report title="举报"><i class="fa-regular fa-flag"></i><span>举报</span></button></aside>' +
             '<footer class="dd-bottom"><h1 class="dd-title">' + esc(p.title) + '</h1>' +
-            (locked ? excerptHtml(p) : '') +
+            (locked ? excerptHtml(p) : (p.caption ? '<p class="dd-caption">' + esc(p.caption) + '</p>' : '')) +
             '<div class="dd-tags">' + buildTagsHtml(p) + '</div></footer>' +
             '<div class="dd-comments-backdrop"></div>' +
             '<aside class="dd-comments-panel" aria-label="评论">' +

@@ -17,13 +17,32 @@
         drag: null
     };
 
-    function img(id, w) {
-        return 'https://images.unsplash.com/' + id + '?w=' + (w || 600) + '&q=80';
+    function img(coverKey, w, h) {
+        return T.coverUrl ? T.coverUrl(coverKey, w, h) : '';
+    }
+
+    function posterDims(p) {
+        var w = 1200;
+        if (p.h5CoverAspect === '16/9') return { w: w, h: Math.round(w * 9 / 16) };
+        if (p.h5CoverAspect === '9/16') return { w: w, h: Math.round(w * 16 / 9) };
+        if (p.h5CoverAspect === '4/5') return { w: w, h: Math.round(w * 5 / 4) };
+        return { w: w, h: null };
     }
 
     function getPost(id) {
         return state.videos.find(function (p) { return p.id === id; }) ||
             T.posts.find(function (p) { return p.id === id; });
+    }
+
+    function postDurationSec(p) {
+        if (!p) return 0;
+        var n = Number(p.durationSec);
+        return n > 0 && isFinite(n) ? n : 0;
+    }
+
+    function applyDurationFromPost(p) {
+        var sec = postDurationSec(p);
+        if (sec) state.duration = sec;
     }
 
     function getIndex(id) {
@@ -71,6 +90,7 @@
 
     function toolbarHtml(opts) {
         opts = opts || {};
+        var durText = opts.durationText || '0:00';
         var pipBtn = opts.inPip
             ? '<button type="button" class="disc-vp-btn disc-vp-pip" data-action="pip" aria-label="悬浮播放"><i class="fa-solid fa-clone"></i></button>'
             : '<button type="button" class="disc-vp-btn disc-vp-pip" data-action="pip-open" aria-label="悬浮播放"><i class="fa-solid fa-clone"></i></button>';
@@ -78,7 +98,7 @@
             '<div class="disc-vp-toolbar" data-disc-vp-controls>' +
             '<button type="button" class="disc-vp-btn disc-vp-play" data-action="toggle-play" aria-label="播放">' +
             '<i class="fa-solid fa-play"></i></button>' +
-            '<div class="disc-vp-time"><span data-role="current">0:00</span><span class="sep">/</span><span data-role="duration">0:00</span></div>' +
+            '<div class="disc-vp-time"><span data-role="current">0:00</span><span class="sep">/</span><span data-role="duration">' + durText + '</span></div>' +
             '<button type="button" class="disc-vp-btn disc-vp-mute is-muted" data-action="toggle-mute" aria-label="开启声音">' +
             '<i class="fa-solid fa-volume-xmark"></i><i class="fa-solid fa-volume-high"></i></button>' +
             pipBtn + '</div>'
@@ -95,14 +115,19 @@
     }
 
     function buildVideoCoverInner(p) {
-        var poster = img(p.cover, 1200);
+        var pd = posterDims(p);
+        var poster = img(p.cover, pd.w, pd.h);
         var src = p.videoSrc || '';
+        var durSec = postDurationSec(p);
+        var durText = durSec ? fmt(durSec) : '0:00';
+        var vpClass = 'disc-vp' + (p.h5Demo === 'video' ? ' disc-vp--h5-frame' : '');
         return (
-            '<div class="disc-vp" data-disc-vp data-video-id="' + p.id + '">' +
+            '<div class="' + vpClass + '" data-disc-vp data-video-id="' + p.id + '"' +
+            (durSec ? ' data-duration-sec="' + durSec + '"' : '') + '>' +
             '<video class="disc-vp-video" playsinline loop muted preload="metadata" ' +
             'poster="' + poster + '"' + (src ? ' data-src="' + src + '"' : '') + '></video>' +
             '<div class="disc-vp-poster" style="background-image:url(\'' + poster + '\')"></div>' +
-            toolbarHtml({ inPip: false }) +
+            toolbarHtml({ inPip: false, durationText: durText }) +
             progressRailHtml() + '</div>'
         );
     }
@@ -261,6 +286,7 @@
         if (!p) return;
         state.activeId = id;
         if (opts.resetTime) state.current = 0;
+        applyDurationFromPost(p);
         if (opts.keepPaused) state.playing = false;
         else if (opts.autoplay !== false) state.playing = true;
 

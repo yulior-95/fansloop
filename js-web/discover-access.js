@@ -54,6 +54,7 @@
         var likes = parseLikes(p);
         var comments = typeof p.comments === 'number' ? p.comments : 0;
         var boost = p.featured ? 800 : 0;
+        if (p.h5Demo === 'image' || p.h5Demo === 'video') boost += 3500;
         return likes + comments * 2 + boost;
     }
 

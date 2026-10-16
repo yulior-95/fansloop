@@ -11,8 +11,25 @@
     var HOT = (window.FL_CONTENT_TAXONOMY && window.FL_CONTENT_TAXONOMY.HOT_ID) || 'hot';
     var activeCat = HOT;
 
-    function img(id, w) {
-        return 'https://images.unsplash.com/' + id + '?w=' + (w || 600) + '&q=80';
+    function img(coverKey, w) {
+        return T.coverUrl ? T.coverUrl(coverKey, w) : '';
+    }
+
+    function coverBgAttr(p, hero) {
+        if (!p) return '';
+        if (p.h5Demo) return ' style="background-color:#0a0a0f;"';
+        if (!p.cover) return '';
+        var u = img(p.cover, hero ? 1200 : 600);
+        if (!u) return '';
+        return ' style="background-image:url(\'' + u.replace(/'/g, '%27') + '\');"';
+    }
+
+    function coverDims(p, hero) {
+        var w = hero ? 1200 : 600;
+        if (p.h5CoverAspect === '16/9') return { w: w, h: Math.round(w * 9 / 16) };
+        if (p.h5CoverAspect === '9/16') return { w: w, h: Math.round(w * 16 / 9) };
+        if (p.h5CoverAspect === '4/5') return { w: w, h: Math.round(w * 5 / 4) };
+        return { w: w, h: null };
     }
 
     function isVideoPost(p) {
@@ -26,6 +43,28 @@
         return pool.find(function (p) { return p.featured; }) ||
             pool.find(function (p) { return p.type === 'video'; }) ||
             pool[0];
+    }
+
+    function buildImageCoverInner(p, hero) {
+        var dims = coverDims(p, hero);
+        var coverUrl = T.coverUrl(p.cover, dims.w, dims.h);
+        var imgClass = 'ct-cover-img' + (p.h5Demo === 'image' ? ' ct-cover-img--h5' : '');
+        if (p.imageLayout === 'grid-2' && p.coverAlt) {
+            var u2 = T.coverUrl(p.coverAlt, dims.w, dims.h);
+            return (
+                '<div class="ct-cover-grid2">' +
+                '<img class="ct-cover-img ct-cover-img--cell" src="' + coverUrl + '" alt="" loading="lazy" decoding="async" ' +
+                'onerror="if(this.dataset.fb)return;this.dataset.fb=1;this.src=\'' + T.coverUrl(p.id + '-a', dims.w, dims.h).replace(/'/g, '%27') + '\';" />' +
+                '<img class="ct-cover-img ct-cover-img--cell" src="' + u2 + '" alt="" loading="lazy" decoding="async" ' +
+                'onerror="if(this.dataset.fb)return;this.dataset.fb=1;this.src=\'' + T.coverUrl(p.id + '-b', dims.w, dims.h).replace(/'/g, '%27') + '\';" />' +
+                '</div>'
+            );
+        }
+        var fallback = T.coverUrl(p.id + '-cover', dims.w, dims.h);
+        return (
+            '<img class="' + imgClass + '" src="' + coverUrl + '" alt="" loading="eager" decoding="async" ' +
+            'onerror="if(this.dataset.fb)return;this.dataset.fb=1;this.src=\'' + fallback.replace(/'/g, '%27') + '\';" />'
+        );
     }
 
     function buildTileHtml(p, opts) {
@@ -52,18 +91,18 @@
             if (p.duration && video) stats += '<span><i class="fa-solid fa-clock"></i> ' + p.duration + '</span>';
         }
 
-        var coverUrl = img(p.cover, hero ? 1200 : 600);
         var coverMedia = (video && VP && VP.buildVideoCoverInner)
             ? VP.buildVideoCoverInner(p)
-            : '<img class="ct-cover-img" src="' + coverUrl + '" alt="" loading="lazy" decoding="async" />';
+            : buildImageCoverInner(p, hero);
         var tileClass = 'content-tile' +
             (hero ? ' content-tile--hero' : '') +
             (video ? ' content-tile--video' : '') +
+            (p.h5Demo ? ' content-tile--h5-demo' : '') +
             (teaser ? ' content-tile--paid' : '');
 
         return (
             '<article class="' + tileClass + '" data-post-id="' + p.id + '" tabindex="0" role="button" aria-label="查看：' + T.esc(p.title) + '">' +
-            '<div class="ct-cover">' +
+            '<div class="ct-cover"' + coverBgAttr(p, hero) + '>' +
             coverMedia +
             (tags ? '<div class="ct-tags">' + tags + '</div>' : '') +
             '<div class="ct-meta' + (video ? ' ct-meta--video' : '') + '">' +

@@ -148,9 +148,107 @@
             av: 'photo-1494790108377-be9c29b29330', cover: 'photo-1483985988354-763728e1935b',
             categoryId: 'styling-creative', primaryCategory: 'visual', categories: ['visual', 'interact'], hashtags: ['换装挑战', '穿搭'],
             likes: '4.1k', comments: 528, views: '31k', type: 'video', duration: '3 分钟', durationSec: 180,
+            videoFormat: 'landscape',
             videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4'
+        },
+        {
+            id: 'p18', title: '晨间咖啡与手帐 · 今日三件小确幸', author: '咖啡店主', handle: '@coffeetalk',
+            av: 'photo-1500648767791-00dcc994a43e', cover: 'photo-1497935586351-b67b8498134d',
+            categoryId: 'daily-share', primaryCategory: 'daily', categories: ['daily', 'life'], hashtags: ['咖啡', 'Vlog'],
+            imageLayout: 'single',
+            caption: '一杯拿铁、一页手帐、窗边的光。#创作者日常 #咖啡 —— 对齐 H5 单图图文动态样式。',
+            likes: '1.4k', comments: 198, views: '12k', type: 'image'
+        },
+        {
+            id: 'p19', title: '东京探店 · 双图对比（白天 / 夜晚）', author: 'Lens 旅记', handle: '@lensjourney',
+            av: 'photo-1438761681033-6461ffad8d80', cover: 'photo-1523906834658-6e24ef2386f4',
+            coverAlt: 'photo-1517248135467-4c7edcad34c4',
+            categoryId: 'travel-log', primaryCategory: 'life', categories: ['life', 'visual'], hashtags: ['京都', '旅行摄影'],
+            imageLayout: 'grid-2',
+            caption: '同一家喫茶店 14:00 与 21:30，H5 双图 grid-2 卡片测试。',
+            likes: 892, comments: 76, views: '7.3k', type: 'image'
+        },
+        {
+            id: 'p20', title: '【横屏】胶片调色全过程 · 15 分钟', author: '夜间速写', handle: '@nightsketch',
+            av: 'photo-1502685104226-ee32379fefbe', cover: 'photo-1542038784456-1a64e0aa128e',
+            categoryId: 'photo-art', primaryCategory: 'visual', categories: ['visual', 'fun'],
+            videoFormat: 'landscape',
+            likes: 620, comments: 88, views: '4.8k', type: 'video', duration: '15 分钟', durationSec: 900,
+            videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
+        },
+        {
+            id: 'p21', title: '【竖屏】30 秒街拍走位示范', author: 'Luna Style', handle: '@lunastyle',
+            av: 'photo-1494790108377-be9c29b29330', cover: 'photo-1469334031218-e382a71b716b',
+            categoryId: 'styling-creative', primaryCategory: 'visual', categories: ['visual', 'interact'], hashtags: ['换装挑战', '穿搭'],
+            videoFormat: 'vertical',
+            likes: '5.2k', comments: 612, views: '48k', type: 'video', duration: '0:30', durationSec: 30,
+            videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4'
+        },
+        {
+            id: 'p22', title: '春日棚拍 · 双图预告（订阅解锁 9 张）', author: 'Luna 🌙', handle: '@lunamoon',
+            creatorId: 'c_luna', av: 'photo-1494790108377-be9c29b29330', cover: 'photo-1494790108377-be9c29b29330',
+            coverAlt: 'photo-1515886657613-9f3525f2ccb7',
+            categoryId: 'photo-portrait', primaryCategory: 'visual', categories: ['visual'],
+            imageLayout: 'grid-2',
+            caption: '先放出封面拼图，完整 9 张 RAW 与 Lightroom 预设见订阅帖。',
+            premium: true, payType: 'subscribe', subscribePrice: 28, paidPostCount: 9,
+            summary: '棚拍九图 + 调色预设，订阅解锁全部高清原图。',
+            likes: 980, comments: 134, views: '8.1k', type: 'image'
+        },
+        {
+            id: 'p23', title: '【竖屏】开合跳跟练 · 45 秒', author: 'FitCoach', handle: '@fitc',
+            av: 'photo-1500648767791-00dcc994a43e', cover: 'photo-1571019614242-c5c5dee9f50b',
+            categoryId: 'fitness-train', primaryCategory: 'life', categories: ['life', 'daily'],
+            hashtags: ['健身打卡'],
+            videoFormat: 'vertical',
+            likes: 720, comments: 45, views: '6.2k', type: 'video', duration: '0:45', durationSec: 45,
+            videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4'
+        },
+        {
+            id: 'p24', title: '深夜修图工作台 · 单图长文', author: '山野食光', handle: '@yamano',
+            av: 'photo-1487412720507-e7ab37603c6f', cover: 'photo-1517694712202-14dd9538aa90',
+            categoryId: 'photo-art', primaryCategory: 'visual', categories: ['visual', 'knowledge'],
+            imageLayout: 'single',
+            caption: '从导入、降噪到局部调色，一张夜景人像的完整思路。@nightrain 问的噪点问题也在文末。',
+            likes: '2.0k', comments: 267, views: '16k', type: 'image'
+        },
+        {
+            id: 'p25', title: '[H5适配] 图文动态 · 探店笔记', author: 'Luna Style', handle: '@lunastyle',
+            av: 'photo-1494790108377-be9c29b29330', cover: 'h5-demo-image-post-cover',
+            categoryId: 'daily-share', primaryCategory: 'daily', categories: ['daily', 'life', 'hot'],
+            hashtags: ['创作者日常', '咖啡'],
+            imageLayout: 'single', h5Demo: 'image', h5ImagePost: true, h5CoverAspect: '4/5',
+            caption: '对齐 H5 Feed 图文：单图封面 + 正文与 #话题。今日探店三家，光线从阴到晴，参数在评论区。',
+            likes: '8.8k', comments: 520, views: '42k', type: 'image'
+        },
+        {
+            id: 'p26', title: '[H5适配] 视频作品 · 15 秒预览', author: 'NovaPlay', handle: '@novaplay',
+            av: 'photo-1535713875002-d1d0cf377fde', cover: 'h5-demo-video-post-cover',
+            categoryId: 'daily-share', primaryCategory: 'daily', categories: ['daily', 'fun', 'hot'],
+            hashtags: ['Vlog', '换装挑战'],
+            h5Demo: 'video', h5VideoPost: true, h5CoverAspect: '9/16',
+            videoFormat: 'vertical',
+            likes: '7.2k', comments: 410, views: '38k', type: 'video', duration: '0:15', durationSec: 15,
+            videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
         }
     ];
+
+    /** 原型封面：用 cover / coverAlt 字段作稳定 seed（picsum），避免 Unsplash 直链 404 */
+    function coverSeed(coverKey, salt) {
+        var s = String(coverKey || 'discover').trim().replace(/[^a-zA-Z0-9._-]+/g, '-');
+        if (salt) s += '-' + salt;
+        return encodeURIComponent(s.slice(0, 64));
+    }
+
+    function coverUrl(coverKey, w, h) {
+        if (!coverKey) return '';
+        var s = String(coverKey).trim();
+        if (/^https?:\/\//i.test(s)) return s;
+        w = Math.round(Number(w) || 600);
+        /* 与发现页卡片约 263×164 同比例，便于 object-fit:cover 满铺 */
+        h = Math.round(Number(h) || Math.max(360, Math.round(w * 0.624)));
+        return 'https://picsum.photos/seed/' + coverSeed(s) + '/' + w + '/' + h;
+    }
 
     function esc(s) {
         var d = document.createElement('div');
@@ -256,6 +354,7 @@
         filterPosts: filterPosts,
         resolveContentCategory: resolveContentCategory,
         suggestHashtags: suggestHashtags,
+        coverUrl: coverUrl,
         esc: esc
     };
 })(window);
