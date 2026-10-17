@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>广告列表 · GOODFANS 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/ads-admin.css">
+  <link rel="stylesheet" href="css/ads-admin-hifi.css">
+</head>
+<body data-admin-page="ads-list">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 广告管理 / 广告列表</span></div>
+      <div class="admin-header-right">
+        <a href="ads-index.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-table-columns"></i> 原型平铺</a>
+        <a href="ads-ops-create.html" class="ant-btn ant-btn-primary ant-btn-sm"><i class="fa-solid fa-wand-magic-sparkles"></i> 运营创建</a>
+        <select class="ant-input ant-input-sm ad-header-role" id="adAdminRole" title="原型角色">
+          <option value="operator">运营</option>
+          <option value="reviewer">审核</option>
+          <option value="finance">财务</option>
+          <option value="super">超管</option>
+        </select>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face" alt=""><span>广告运营 · Mia</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">广告列表</h1>
+      <p class="admin-page-desc">支持按来源、审核、投放、广告位筛选；操作列可查看详情、暂停 / 恢复、下架（写入操作日志）。</p>
+
+      <div class="admin-toolbar">
+        <div class="field field-grow"><label>关键词</label><input class="ant-input" id="adFilterQ" placeholder="编号 / 名称 / 广告主 UID" style="width:100%"></div>
+        <div class="field"><label>来源</label><select class="ant-input" id="adFilterSource" style="width:140px"><option value="">全部</option><option value="user">用户自主</option><option value="platform">平台运营</option></select></div>
+        <div class="field"><label>审核状态</label><select class="ant-input" id="adFilterAudit" style="width:130px"><option value="">全部</option><option value="draft">草稿</option><option value="pending_review">待审核</option><option value="approved">已通过</option><option value="rejected">已拒绝</option></select></div>
+        <div class="field"><label>投放状态</label><select class="ant-input" id="adFilterDelivery" style="width:130px"><option value="">全部</option><option value="pending_start">待开始</option><option value="delivering">投放中</option><option value="paused">已暂停</option><option value="ended">已结束</option><option value="removed">已下架</option></select></div>
+        <div class="field"><label>广告位</label><select class="ant-input" id="adFilterSlot" style="width:150px"><option value="">全部</option><option value="home_banner">首页 Banner</option><option value="feed_video">短视频信息流</option><option value="live_room">直播间推广</option></select></div>
+        <button type="button" class="ant-btn ant-btn-primary" id="adBtnFilter"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
+        <button type="button" class="ant-btn" id="adBtnReset">重置</button>
+      </div>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-small ant-table-bordered">
+            <table style="width:100%">
+              <thead class="ant-table-thead"><tr><th class="admin-col-index">#</th><th>编号</th><th>名称 / 素材</th><th>广告主 UID</th><th>来源</th><th>类型</th><th>广告位</th><th>预算</th><th>支付</th><th>审核</th><th>投放</th><th>创建时间</th><th style="width:200px">操作</th></tr></thead>
+              <tbody class="ant-table-tbody" id="adTableBody" data-pager="js"></tbody>
+            </table>
+          </div>
+          <div id="adTablePager"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="../js/ad-system-store.js"></script>
+<script src="../js/ad-system-api.js"></script>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="js/admin-pagination.js"></script>
+<script src="js/ad-admin-layout.js"></script>
+<script src="js/ad-admin-actions.js"></script>
+<script src="js/ad-admin-pages.js"></script>
+</body>
+</html>

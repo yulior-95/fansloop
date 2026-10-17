@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>广告中心 · 设置</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/ad-system.css">
+<script src="../js/h5-theme-boot.js"></script>
+<style>
+.nav-bar{background:var(--bg-primary)}
+.app-content{padding-top:calc(var(--status-bar-height) + var(--nav-bar-height));padding-bottom:calc(var(--tab-bar-height) + 16px)}
+#adToast{position:fixed;left:50%;transform:translateX(-50%);bottom:100px;background:rgba(0,0,0,.85);color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:99}
+#adToast.show{opacity:1}
+.field{margin:12px 16px}
+.field label{display:block;font-size:12px;color:var(--text-secondary);margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;padding:10px;border-radius:10px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary)}
+.bar{position:fixed;left:0;right:0;bottom:0;padding:12px 16px 28px;background:rgba(10,10,18,.95);border-top:1px solid var(--border-color);display:flex;gap:8px;z-index:50}
+</style>
+<link rel="stylesheet" href="../css/h5-light-theme.css">
+</head>
+<body class="page-settings page-settings-h5" data-ad-shell="settings">
+
+<div class="status-bar"><span class="time">9:41</span></div>
+<div class="nav-bar solid">
+  <div class="nav-left"><div class="nav-btn" id="adSettingsBack"><i class="fa-solid fa-chevron-left"></i></div></div>
+  <div class="nav-title" id="adSettingsNavTitle">广告中心</div>
+</div>
+
+<div id="adSettingsStage">
+  <section class="ad-set-view on" data-ad-view="center">
+    <div class="app-content">
+      <div class="ad-hero" id="adQualBanner" hidden style="margin:8px 16px;padding:14px;border-radius:12px;border:1px solid var(--border-color);background:var(--bg-card)"></div>
+      <div class="ad-hero">
+        <div class="row"><div class="metric"><div class="l">可用余额 (USDT)</div><div class="v" id="adBal">—</div></div><div class="metric"><div class="l">冻结</div><div class="v" id="adFrozen">—</div></div></div>
+        <div class="row" style="margin-top:12px"><div class="metric"><div class="l">投放中</div><div class="v" id="adActive">—</div></div><div class="metric"><div class="l">待审核</div><div class="v" id="adPending">—</div></div><div class="metric"><div class="l">曝光</div><div class="v" id="adImp">—</div></div></div>
+        <div class="row" style="margin-top:8px;font-size:11px;color:var(--text-tertiary)">资质 <span id="adAdvStatus">—</span> · 待支付 <span id="adPendingPay">0</span> · 点击 <span id="adClk">—</span> · 消耗 <span id="adSpend">—</span></div>
+      </div>
+      <div class="ad-actions">
+        <button type="button" class="btn btn-primary" onclick="FLAdUser.adGo('create')"><i class="fa-solid fa-plus"></i> 创建广告</button>
+        <button type="button" class="btn btn-secondary" onclick="FLAdUser.adGo('wallet')"><i class="fa-solid fa-wallet"></i> 账户</button>
+      </div>
+      <div class="ad-filter">
+        <button type="button" class="on" data-ad-filter="">全部</button>
+        <button type="button" data-ad-filter="pending_review">待审核</button>
+        <button type="button" data-ad-filter="active">投放中</button>
+        <button type="button" data-ad-filter="paused">已暂停</button>
+        <button type="button" data-ad-filter="rejected">驳回</button>
+      </div>
+      <div id="adListMount"></div>
+    </div>
+  </section>
+
+  <section class="ad-set-view" data-ad-view="create">
+    <div class="ad-wizard-steps" style="padding:8px 16px 0"><span data-step="1" class="on">1</span><span data-step="2">2</span><span data-step="3">3</span><span data-step="4">4</span><span data-step="5">5</span><span data-step="6">6</span><span data-step="7">7</span></div>
+    <form id="adCreateForm">
+      <section class="ad-step-panel on" data-step="1"><div class="field"><label>广告名称</label><input name="name" required></div><div class="field"><label>类型</label><select name="type"><option>品牌曝光</option><option>直播引流</option></select></div><div class="field"><label>标题</label><input name="title"></div><div class="field"><label>文案</label><textarea name="copy" rows="3"></textarea></div><div class="bar"><button type="button" class="btn btn-primary" style="flex:1" data-next>下一步</button></div></section>
+      <section class="ad-step-panel" data-step="2"><div class="field"><label>素材</label><input type="file" id="adMaterialInput" accept="image/*"><div id="adMaterialPreview" style="height:120px;margin-top:8px;background:var(--bg-inset);border-radius:12px"></div></div><div class="bar"><button type="button" class="btn btn-secondary" data-prev>上一步</button><button type="button" class="btn btn-primary" style="flex:1" data-next>下一步</button></div></section>
+      <section class="ad-step-panel" data-step="3"><div class="field"><label>广告位</label><select name="slotCode"><option value="feed_video">信息流</option><option value="home_banner">Banner</option></select></div><div class="field"><label>落地</label><select name="landingType"><option value="live">直播间</option><option value="external">外链</option></select></div><div class="field"><label>链接</label><input name="landingUrl"></div><div class="bar"><button type="button" class="btn btn-secondary" data-prev>上一步</button><button type="button" class="btn btn-primary" style="flex:1" data-next>下一步</button></div></section>
+      <section class="ad-step-panel" data-step="4"><div class="field"><label>开始</label><input type="datetime-local" name="startAt"></div><div class="field"><label>结束</label><input type="datetime-local" name="endAt"></div><div class="field"><label>地区</label><select name="region"><option>全部</option></select></div><div class="bar"><button type="button" class="btn btn-secondary" data-prev>上一步</button><button type="button" class="btn btn-primary" style="flex:1" data-next>下一步</button></div></section>
+      <section class="ad-step-panel" data-step="5"><div class="field"><label>套餐</label><select name="packageId"></select></div><p style="font-size:12px;padding:0 16px">应付 <strong id="adPackagePrice">—</strong></p><div class="bar"><button type="button" class="btn btn-secondary" data-prev>上一步</button><button type="button" class="btn btn-primary" style="flex:1" data-next>下一步</button></div></section>
+      <section class="ad-step-panel" data-step="6"><p style="padding:16px;font-size:13px">模拟支付。<button type="button" id="adPayFailDemo" class="btn btn-secondary">支付失败演示</button> <button type="button" class="btn btn-link" onclick="FLAdUser.adGo('wallet')">充值</button></p><div class="bar"><button type="button" class="btn btn-secondary" data-prev>上一步</button><button type="button" class="btn btn-primary" style="flex:1" id="adMockPay">确认支付</button></div></section>
+      <section class="ad-step-panel" data-step="7"><div class="bar"><button type="button" class="btn btn-secondary" id="adSaveDraft">草稿</button><button type="button" class="btn btn-primary" style="flex:1" id="adSubmitReview">提交审核</button></div></section>
+    </form>
+  </section>
+
+  <section class="ad-set-view" data-ad-view="detail">
+    <div class="app-content" id="adDetailRoot"></div>
+    <div class="app-content ops" style="padding-top:0;display:flex;flex-wrap:wrap;gap:8px">
+      <button type="button" class="btn btn-secondary" id="adBtnStats">数据</button>
+      <button type="button" class="btn btn-secondary" id="adBtnPause">暂停</button>
+      <button type="button" class="btn btn-secondary" id="adBtnResume" hidden>恢复</button>
+      <button type="button" class="btn btn-primary" id="adBtnResubmit" hidden>重提</button>
+      <button type="button" class="btn btn-secondary" id="adBtnRefund" hidden>退款</button>
+      <button type="button" class="btn btn-secondary" id="adBtnRemove">下架</button>
+    </div>
+  </section>
+
+  <section class="ad-set-view" data-ad-view="stats">
+    <div class="app-content"><p id="adStatsNote" style="font-size:11px;color:var(--text-tertiary)"></p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="card" style="padding:12px;border-radius:12px;background:var(--bg-card);border:1px solid var(--border-color)"><div class="l" style="font-size:11px;color:var(--text-tertiary)">曝光</div><div class="v" id="stDImp" style="font-size:20px;font-weight:800">—</div></div>
+        <div class="card" style="padding:12px;border-radius:12px;background:var(--bg-card);border:1px solid var(--border-color)"><div class="l" style="font-size:11px;color:var(--text-tertiary)">点击</div><div class="v" id="stDClk" style="font-size:20px;font-weight:800">—</div></div>
+        <div class="card" style="padding:12px;border-radius:12px;background:var(--bg-card);border:1px solid var(--border-color)"><div class="l" style="font-size:11px;color:var(--text-tertiary)">CTR</div><div class="v" id="stDCtr" style="font-size:20px;font-weight:800">—</div></div>
+        <div class="card" style="padding:12px;border-radius:12px;background:var(--bg-card);border:1px solid var(--border-color)"><div class="l" style="font-size:11px;color:var(--text-tertiary)">消耗</div><div class="v" id="stDSpend" style="font-size:20px;font-weight:800">—</div></div>
+        <div class="card" style="padding:12px;border-radius:12px;background:var(--bg-card);border:1px solid var(--border-color);grid-column:1/-1"><div class="l" style="font-size:11px;color:var(--text-tertiary)">转化</div><div class="v" id="stDConv" style="font-size:20px;font-weight:800">—</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ad-set-view" data-ad-view="wallet">
+    <div class="app-content">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div class="card" style="padding:12px;border-radius:12px;background:var(--bg-card);border:1px solid var(--border-color)"><div style="font-size:11px;color:var(--text-tertiary)">可用</div><div id="wBal" style="font-size:18px;font-weight:800">—</div></div>
+        <div class="card" style="padding:12px;border-radius:12px;background:var(--bg-card);border:1px solid var(--border-color)"><div style="font-size:11px;color:var(--text-tertiary)">冻结</div><div id="wFrozen" style="font-size:18px;font-weight:800">—</div></div>
+        <div class="card" style="padding:12px;border-radius:12px;background:var(--bg-card);border:1px solid var(--border-color)"><div style="font-size:11px;color:var(--text-tertiary)">已消费</div><div id="wSpent" style="font-size:18px;font-weight:800">—</div></div>
+        <div class="card" style="padding:12px;border-radius:12px;background:var(--bg-card);border:1px solid var(--border-color)"><div style="font-size:11px;color:var(--text-tertiary)">已退款</div><div id="wRefunded" style="font-size:18px;font-weight:800">—</div></div>
+      </div>
+      <button type="button" class="btn btn-primary" id="wRecharge" style="width:100%">模拟充值</button>
+      <div id="wFinList" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <section class="ad-set-view" data-ad-view="apply">
+    <div class="app-content">
+      <form id="adApplyForm">
+        <div class="field"><label>主体名称</label><input name="companyName" required></div>
+        <div class="field"><label>联系邮箱</label><input name="contact" type="email" required></div>
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:16px">提交申请</button>
+      </form>
+    </div>
+  </section>
+</div>
+
+<div id="adToast"></div>
+<script src="../js/digital-h5-nav.js"></script>
+<script src="../js/ad-system-store.js"></script>
+<script src="../js/ad-system-api.js"></script>
+<script src="../js/ad-system-user.js"></script>
+<script src="../js/ad-settings-shell.js"></script>
+</body>
+</html>

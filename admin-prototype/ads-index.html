@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>广告管理 · 高保真原型平铺 · GOODFANS 运营后台</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root { --line:#e8e8e8; --bg:#f0f2f5; --head:#001529; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:rgba(0,0,0,.88); }
+    .ads-index-top { position:sticky; top:0; z-index:30; background:var(--head); color:#fff; padding:20px 28px; border-bottom:1px solid rgba(255,255,255,.08); }
+    .ads-index-top h1 { margin:0; font-size:20px; font-weight:700; display:flex; align-items:center; gap:10px; }
+    .ads-index-top p { margin:10px 0 0; font-size:13px; line-height:1.65; opacity:.78; max-width:960px; }
+    .ads-index-top code { background:rgba(255,255,255,.12); padding:2px 6px; border-radius:4px; font-size:12px; }
+    .ads-index-doc { max-width:1200px; margin:0 auto; padding:24px 24px 0; }
+    .ads-index-doc h2 { font-size:14px; margin:0 0 12px; color:#1677ff; display:flex; align-items:center; gap:8px; }
+    .ads-index-grid3 { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-bottom:28px; }
+    .ads-index-card { background:#fff; border:1px solid var(--line); border-radius:8px; padding:16px 18px; font-size:13px; line-height:1.65; color:rgba(0,0,0,.65); }
+    .ads-index-card h3 { margin:0 0 8px; font-size:13px; color:rgba(0,0,0,.88); }
+    .ads-index-gallery { max-width:1920px; margin:0 auto; padding:8px 20px 48px; }
+    .ads-index-gallery > h2 { font-size:13px; font-weight:700; color:rgba(0,0,0,.45); text-transform:uppercase; letter-spacing:.06em; margin:0 0 16px; }
+    .ads-index-tiles { display:grid; grid-template-columns:repeat(auto-fill,minmax(1360px,1fr)); gap:20px; }
+    .ads-index-tile { background:#fff; border:1px solid var(--line); border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.06); }
+    .ads-index-tile-head { padding:10px 14px; border-bottom:1px solid #f0f0f0; font-size:12px; display:flex; justify-content:space-between; align-items:center; background:#fafafa; }
+    .ads-index-tile-head b { font-weight:600; color:rgba(0,0,0,.88); }
+    .ads-index-tile-head span { color:rgba(0,0,0,.45); font-family:ui-monospace,Menlo,monospace; }
+    .ads-index-tile iframe { width:100%; height:820px; border:0; display:block; background:#fff; }
+  </style>
+</head>
+<body>
+<header class="ads-index-top">
+  <h1><i class="fa-solid fa-rectangle-ad"></i> 广告管理 · 高保真原型平铺入口</h1>
+  <p>11 个子页面均为独立 HTML，采用 Ant Design 4 CSS + <code>admin-shell.css</code> + 共享脚本 <code>js/ad-admin-pages.js</code>。数据层 <code>../js/ad-system-store.js</code>（localStorage）。下方 iframe 平铺预览，可直接作为 React/Vue + Ant Design 开发参照。</p>
+</header>
+
+<section class="ads-index-doc">
+  <h2><i class="fa-solid fa-layer-group"></i> 信息架构</h2>
+  <div class="ads-index-grid3">
+    <div class="ads-index-card"><h3>投放运营</h3>概览 → 列表 / 审核 → 运营创建；广告位与套餐配置支撑 C 端展示与下单。</div>
+    <div class="ads-index-card"><h3>客户与资质</h3>广告主管理、资质审核与平台 UID 打通，限制创建与账户状态联动。</div>
+    <div class="ads-index-card"><h3>财务与风控</h3>充值消耗流水、数据统计导出、风控事件与策略开关（原型可交互）。</div>
+  </div>
+</section>
+
+<section class="ads-index-gallery">
+  <h2><i class="fa-solid fa-table-columns"></i> 界面平铺预览</h2>
+  <div class="ads-index-tiles" id="tiles"></div>
+</section>
+
+<script>
+var pages = [
+  ['广告概览', 'ads-overview.html'],
+  ['广告列表', 'ads-list.html'],
+  ['广告审核', 'ads-review.html'],
+  ['运营广告创建', 'ads-ops-create.html'],
+  ['广告位管理', 'ads-slots.html'],
+  ['套餐配置', 'ads-packages.html'],
+  ['广告主管理', 'ads-advertisers.html'],
+  ['资质审核', 'ads-advertiser-qual.html'],
+  ['广告财务管理', 'ads-finance.html'],
+  ['广告数据统计', 'ads-stats.html'],
+  ['广告风控管理', 'ads-risk.html']
+];
+document.getElementById('tiles').innerHTML = pages.map(function (p) {
+  return '<article class="ads-index-tile"><div class="ads-index-tile-head"><b>' + p[0] + '</b><span>' + p[1] + '</span></div><iframe src="' + p[1] + '" title="' + p[0] + '" loading="lazy"></iframe></article>';
+}).join('');
+</script>
+</body>
+</html>

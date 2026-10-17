@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>广告财务管理 · GOODFANS 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/ads-admin.css">
+  <link rel="stylesheet" href="css/ads-admin-hifi.css">
+</head>
+<body data-admin-page="ads-finance">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 广告管理 / 广告财务</span></div>
+      <div class="admin-header-right">
+        <select class="ant-input ant-input-sm ad-header-role" id="adAdminRole"><option value="finance">财务</option><option value="operator">运营</option><option value="super">超管</option></select>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=face" alt=""><span>财务 · Wang</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">广告财务管理</h1>
+      <p class="admin-page-desc">演示账户可用余额、冻结金额与充值 / 支付 / 退款流水。真实结算规则见 <code>docs/ad-system-requirements.md</code> 待确认项。</p>
+
+      <div class="ad-hifi-stat-row">
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon green"><i class="fa-solid fa-wallet"></i></span><div class="ant-statistic-title">可用余额</div><div class="ant-statistic-content-value" id="adFinBalance">—</div></div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon orange"><i class="fa-solid fa-lock"></i></span><div class="ant-statistic-title">冻结金额</div><div class="ant-statistic-content-value" style="color:#fa8c16" id="adFinFrozen">—</div></div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon blue"><i class="fa-solid fa-rotate"></i></span><div class="ant-statistic-title">退款处理中</div><div class="ant-statistic-content-value">0 USDT</div></div></div>
+      </div>
+
+      <div class="admin-toolbar">
+        <div class="field"><label>流水类型</label><select class="ant-input" style="width:140px"><option>全部</option><option>recharge</option><option>pay</option><option>refund</option></select></div>
+        <div class="field"><label>UID</label><input class="ant-input" placeholder="广告主 UID" style="width:160px"></div>
+        <div class="field"><label>日期</label><input class="ant-input" type="date" style="width:160px"></div>
+        <button type="button" class="ant-btn ant-btn-primary"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
+        <button type="button" class="ant-btn"><i class="fa-solid fa-download"></i> 导出</button>
+      </div>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-small ant-table-bordered">
+            <table style="width:100%">
+              <thead class="ant-table-thead"><tr><th class="admin-col-index">#</th><th>订单号</th><th>UID</th><th>类型</th><th>金额</th><th>状态</th><th>时间</th></tr></thead>
+              <tbody class="ant-table-tbody" id="adFinBody" data-pager="js"></tbody>
+            </table>
+          </div>
+          <div id="adFinPager"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="../js/ad-system-store.js"></script>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="js/admin-pagination.js"></script>
+<script src="js/ad-admin-layout.js"></script>
+<script src="js/ad-admin-pages.js"></script>
+</body>
+</html>

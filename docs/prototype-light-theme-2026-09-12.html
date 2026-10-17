@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GOODFANS 明亮 / 浅色模式优化 · 2026-09-12</title>
+<style>
+:root {
+    --bg: #0f0f17; --card: #1a1a28; --border: rgba(255,255,255,0.1);
+    --text: rgba(255,255,255,0.92); --muted: rgba(255,255,255,0.55); --accent: #fbbf24;
+    --code-bg: rgba(255,255,255,0.06);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; padding: 32px 20px 80px; }
+.wrap { max-width: 960px; margin: 0 auto; }
+header { margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+header h1 { font-size: 26px; font-weight: 800; }
+header p { color: var(--muted); margin-top: 8px; font-size: 14px; }
+.badge { display: inline-block; margin-top: 10px; padding: 4px 10px; border-radius: 999px; background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.35); color: #fde68a; font-size: 12px; font-weight: 600; }
+.badge-h5 { margin-left: 8px; background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.35); color: #86efac; }
+.badge-web { margin-left: 8px; background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.35); color: #93c5fd; }
+article h2 { font-size: 19px; font-weight: 700; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+article ul, article ol { margin: 10px 0 10px 22px; }
+article li { margin: 6px 0; font-size: 14px; }
+article p { font-size: 14px; margin: 8px 0; color: var(--muted); }
+article table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+article th, article td { border: 1px solid var(--border); padding: 9px 11px; text-align: left; vertical-align: top; }
+article th { background: var(--card); }
+article tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+article code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; background: var(--code-bg); padding: 2px 6px; border-radius: 4px; color: #fde68a; }
+article a { color: #93c5fd; }
+article blockquote { margin: 14px 0; padding: 12px 16px; border-left: 3px solid var(--accent); background: rgba(251,191,36,0.08); color: var(--muted); font-size: 13.5px; border-radius: 0 8px 8px 0; }
+.toc { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 24px; }
+.toc h2 { font-size: 14px; margin: 0 0 10px; border: none; padding: 0; }
+.toc ol { margin: 0 0 0 18px; font-size: 13px; }
+.toc li { margin: 4px 0; }
+.toc a { color: var(--text); text-decoration: none; }
+.toc a:hover { color: #fde68a; }
+.tag-yes { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.4); color: #86efac; }
+.tag-part { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.4); color: #93c5fd; }
+.tag-no { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--muted); }
+.link-list { margin: 0; padding: 0; list-style: none; }
+.link-list li { margin: 4px 0; font-size: 13px; }
+footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+    <h1>明亮 / 浅色模式优化汇总</h1>
+    <p>摘录自 <a href="prototype-changelog-2026-09-12.html">需求说明 · 2026-09-12</a> · 对比基准：上次记录（≤ 2026-09-10）</p>
+    <p>范围：仅浅色主题可读性与相关页面表现；不含邮箱密码登录、二维码、隐私下线等非主题项。</p>
+    <span class="badge">浅色 / 明亮</span>
+    <span class="badge badge-h5">H5</span>
+    <span class="badge badge-web">Web</span>
+</header>
+
+<nav class="toc">
+    <h2>目录</h2>
+    <ol>
+        <li><a href="#intro">说明与验收方式</a></li>
+        <li><a href="#infra">基础设施（全站）</a></li>
+        <li><a href="#pages">业务页优化一览</a></li>
+        <li><a href="#map">与 changelog 章节对应</a></li>
+        <li><a href="#verify">建议验收路径</a></li>
+    </ol>
+</nav>
+
+<article>
+<h2 id="intro">1. 说明与验收方式</h2>
+<blockquote>
+    2026-09-10 之前：H5 浅色多为页内零散覆盖、易 FOUC；Web 仅部分调整 <code>--danger-light</code>；暗色 pastel 常直接当浅色正文色，白底上弹层与状态标签看不清。2026-09-12 将<strong style="color:#fff">功能色收到主题变量</strong>，并补齐 H5 全局浅色表与首屏 boot。
+</blockquote>
+<ul>
+    <li><strong>H5</strong>：在 <a href="../pages/settings-display.html">设置 · 显示</a> 切浅色（<code>html[data-theme="light"]</code> / <code>h5_settings_theme</code>），刷新目标页。</li>
+    <li><strong>Web</strong>：在 <a href="../pages-web/settings-display.html">设置 · 显示</a> 切浅色（<code>html[data-fl-theme="light"]</code>），刷新目标页。</li>
+</ul>
+
+<h2 id="infra">2. 基础设施（全站生效）</h2>
+<table>
+    <thead><tr><th>调整内容</th><th>对应页面 / 资源链接</th></tr></thead>
+    <tbody>
+        <tr>
+            <td>H5 首屏同步主题，避免浅色 FOUC；全局浅色覆盖表</td>
+            <td>
+                <a href="../css/h5-light-theme.css">css/h5-light-theme.css</a> ·
+                <a href="../js/h5-theme-boot.js">js/h5-theme-boot.js</a><br>
+                示例页：<a href="../pages/login.html">H5 登录</a> · <a href="../pages/settings.html">H5 设置</a>
+            </td>
+        </tr>
+        <tr>
+            <td>H5 浅色规则同步进公共样式尾部</td>
+            <td><a href="../css/common.css">css/common.css</a></td>
+        </tr>
+        <tr>
+            <td>Web 浅色 success / warning / info 等功能色变量补齐（红 / 绿 / 琥珀 / 蓝统一语义）</td>
+            <td>
+                <a href="../css-web/global-display-prefs.css">css-web/global-display-prefs.css</a> ·
+                <a href="../css-web/common-web.css">css-web/common-web.css</a>
+            </td>
+        </tr>
+        <tr>
+            <td>浅色白底上不得直接使用暗色 pastel 作正文色；统一语义色：支出 <code>#b91c1c</code>、成功 <code>#047857</code>、警告 <code>#92400E</code>、信息 <code>#1D4ED8</code></td>
+            <td>
+                全站 H5 / Web（上表 CSS）<br>
+                切换入口：<a href="../pages/settings-display.html">H5 显示设置</a> · <a href="../pages-web/settings-display.html">Web 显示设置</a>
+            </td>
+        </tr>
+        <tr>
+            <td>全局 <code>.cancel</code> 不得在浅色下被刷成灰底按钮块（订阅搜索「取消」为特例，见下表）</td>
+            <td>多页；重点 <a href="../pages/subscriptions.html">H5 订阅</a></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 id="pages">3. 业务页浅色优化一览</h2>
+<table>
+    <thead><tr><th>调整内容</th><th>对应页面链接</th></tr></thead>
+    <tbody>
+        <tr>
+            <td>评论 / 分享 / 私信 / 订阅半层：浅色白底深字；遮罩与半层不溢出 375×812 机框；分享半层可滚、最大高度约 82%</td>
+            <td><a href="../pages/home.html">H5 首页</a></td>
+        </tr>
+        <tr>
+            <td>信息流可保持黑底；<code>ensureReadableTextInLightTheme</code> 跳过 <code>.home-overlay</code> / <code>.home-sheet</code> / <code>.live-modal-sheet</code> 等，避免语义色被刷成正文色</td>
+            <td><a href="../pages/home.html">H5 首页</a></td>
+        </tr>
+        <tr>
+            <td>查找创作者：「取消」在搜索胶囊外侧，紫色文字、无灰底块</td>
+            <td><a href="../pages/subscriptions.html">H5 订阅</a></td>
+        </tr>
+        <tr>
+            <td>赞 / 评 / 藏 / 分享半层浅色下与首页一致（白底深字）</td>
+            <td><a href="../pages/subscriptions.html">H5 订阅</a></td>
+        </tr>
+        <tr>
+            <td>列表支出金额（如 <code>-200.00</code>）与「本月提现」同红 <code>#b91c1c</code>，不再使用 <code>#FCA5A5</code></td>
+            <td><a href="../pages/funds-history.html">H5 充提记录</a></td>
+        </tr>
+        <tr>
+            <td>「已到账」深绿字 + 浅绿底；「入账中」深琥珀字 + 浅琥珀底；暗色标签也统一为绿 / 琥珀</td>
+            <td>
+                <a href="../pages/funds-history.html">H5 充提记录</a><br>
+                <a href="../pages/transaction-detail.html">H5 交易详情</a> ·
+                <a href="../pages-web/funds-flow-detail.html">Web 资金流水</a> ·
+                <a href="../pages-web/funds-history.html">Web 充提记录</a>
+            </td>
+        </tr>
+        <tr>
+            <td>登录 / 钱包 / 消息等 H5 页接入 theme boot + 浅色表，正文与标签可读</td>
+            <td>
+                <a href="../pages/login.html">H5 登录</a> ·
+                <a href="../pages/goodfans-wallet-manage.html">H5 钱包</a> ·
+                <a href="../pages/settings.html">H5 设置</a>
+            </td>
+        </tr>
+        <tr>
+            <td>Web 登录弹层随全局浅色变量可读（changelog 验收路径）</td>
+            <td><a href="../pages-web/modal-login-main.html">Web 登录弹层</a></td>
+        </tr>
+        <tr>
+            <td>侧栏收入芯片 <code>.chip--income-month</code>（如 <code>+298.4 USDT</code>）：深琥珀 + 浅琥珀底；<code>--warning-light</code> 重映射；悬停提示深底白字</td>
+            <td>
+                <a href="../pages-web/home.html">Web 首页</a> ·
+                <a href="../pages-web/subscriptions.html">Web 订阅</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 id="map">4. 与 2026-09-12 changelog 章节对应</h2>
+<table>
+    <thead><tr><th>changelog 章节</th><th>是否计入本文</th></tr></thead>
+    <tbody>
+        <tr><td>§2 浅色主题可读性</td><td><span class="tag-yes">是 · 主体</span></td></tr>
+        <tr><td>§4 首页分享与弹层（浅色半层、可读性脚本例外）</td><td><span class="tag-yes">是</span></td></tr>
+        <tr><td>§5 订阅（「取消」浅色；半层浅色）</td><td><span class="tag-part">部分</span></td></tr>
+        <tr><td>§6 充提记录状态色</td><td><span class="tag-yes">是</span></td></tr>
+        <tr><td>§9 Web 侧栏收入芯片</td><td><span class="tag-yes">是</span></td></tr>
+        <tr><td>§3 邮箱密码 · §7 二维码 · §8 下线隐藏账户</td><td><span class="tag-no">否</span></td></tr>
+    </tbody>
+</table>
+
+<h2 id="verify">5. 建议验收路径（仅浅色）</h2>
+<ol>
+    <li>H5：<a href="../pages/settings-display.html">显示设置</a> → 浅色 → <a href="../pages/home.html">首页</a>、<a href="../pages/subscriptions.html">订阅</a>、<a href="../pages/funds-history.html">充提</a>、<a href="../pages/profile.html">我的</a> — 正文 / 标签可读；半层白底且在机框内。</li>
+    <li>Web：<a href="../pages-web/settings-display.html">显示设置</a> → 浅色 → <a href="../pages-web/home.html">首页</a>（侧栏芯片）→ <a href="../pages-web/funds-history.html">充提</a> 核对状态色与 H5 语义一致。</li>
+</ol>
+<p>完整需求说明见 <a href="prototype-changelog-2026-09-12.html">prototype-changelog-2026-09-12.html</a>。</p>
+</article>
+
+<footer>
+    GOODFANS 静态原型 · 明亮 / 浅色模式摘录 · 2026-09-12 · 源文档：<a href="prototype-changelog-2026-09-12.html">2026-09-12 需求说明</a>
+</footer>
+</div>
+</body>
+</html>

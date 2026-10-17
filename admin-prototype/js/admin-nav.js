@@ -159,6 +159,23 @@
       ]
     },
     {
+      title: "广告管理",
+      items: [
+        { key: "ads-index", href: "ads-index.html", icon: "fa-table-columns", label: "原型平铺入口" },
+        { key: "ads-overview", href: "ads-overview.html", icon: "fa-chart-pie", label: "广告概览" },
+        { key: "ads-list", href: "ads-list.html", icon: "fa-rectangle-ad", label: "广告列表" },
+        { key: "ads-review", href: "ads-review.html", icon: "fa-clipboard-check", label: "广告审核" },
+        { key: "ads-ops-create", href: "ads-ops-create.html", icon: "fa-wand-magic-sparkles", label: "运营广告创建" },
+        { key: "ads-slots", href: "ads-slots.html", icon: "fa-table-cells-large", label: "广告位管理" },
+        { key: "ads-packages", href: "ads-packages.html", icon: "fa-box-open", label: "套餐配置" },
+        { key: "ads-advertisers", href: "ads-advertisers.html", icon: "fa-user-tag", label: "广告主管理" },
+        { key: "ads-advertiser-qual", href: "ads-advertiser-qual.html", icon: "fa-id-badge", label: "资质审核" },
+        { key: "ads-finance", href: "ads-finance.html", icon: "fa-file-invoice-dollar", label: "广告财务管理" },
+        { key: "ads-stats", href: "ads-stats.html", icon: "fa-chart-line", label: "广告数据统计" },
+        { key: "ads-risk", href: "ads-risk.html", icon: "fa-shield-halved", label: "广告风控管理" }
+      ]
+    },
+    {
       title: "双商城",
       items: [
         { key: "mall-digital-review", href: "mall-digital-review.html", icon: "fa-gem", label: "数字商品审核" },

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>运营广告创建 · GOODFANS 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/ads-admin.css">
+  <link rel="stylesheet" href="css/ads-admin-hifi.css">
+</head>
+<body data-admin-page="ads-ops-create">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 广告管理 / 运营广告创建</span></div>
+      <div class="admin-header-right">
+        <a href="ads-index.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-table-columns"></i> 原型平铺</a>
+        <a href="ads-list.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-list"></i> 广告列表</a>
+        <select class="ant-input ant-input-sm" id="adAdminRole" title="原型：切换角色测试权限" style="width:120px">
+          <option value="operator">运营</option>
+          <option value="super">超管</option>
+        </select>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>广告运营</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">运营广告创建</h1>
+      <p class="admin-page-desc">
+        <span class="ant-tag ant-tag-blue">平台运营投放</span>
+        与用户自主广告区分展示；授权发布仍走系统安全检查（原型）。
+      </p>
+
+      <form id="adOpsForm" autocomplete="off">
+        <div class="ant-card ant-card-bordered ad-ops-card">
+          <div class="ant-card-head"><div class="ant-card-head-title">基本信息</div></div>
+          <div class="ant-card-body">
+            <div class="ant-row ad-ops-row">
+              <div class="ant-col ant-col-12">
+                <div class="ant-form-item">
+                  <label class="ad-ops-label" for="opsName">广告名称 <span class="ad-ops-req">*</span></label>
+                  <input class="ant-input" id="opsName" name="name" required placeholder="例如：春季活动 Banner" style="width:100%">
+                </div>
+              </div>
+              <div class="ant-col ant-col-12">
+                <div class="ant-form-item">
+                  <label class="ad-ops-label" for="opsType">广告类型</label>
+                  <select class="ant-input" id="opsType" name="type" style="width:100%">
+                    <option>品牌曝光</option>
+                    <option>活动推广</option>
+                    <option>直播引流</option>
+                  </select>
+                </div>
+              </div>
+              <div class="ant-col ant-col-12">
+                <div class="ant-form-item">
+                  <label class="ad-ops-label" for="opsSlot">广告位</label>
+                  <select class="ant-input" id="opsSlot" name="slotCode" style="width:100%">
+                    <option value="home_banner">首页 Banner</option>
+                    <option value="feed_video">短视频信息流</option>
+                    <option value="live_room">直播间推广</option>
+                  </select>
+                </div>
+              </div>
+              <div class="ant-col ant-col-12">
+                <div class="ant-form-item">
+                  <label class="ad-ops-label" for="opsPriority">展示优先级</label>
+                  <input class="ant-input" id="opsPriority" type="number" name="priority" value="10" min="1" max="99" style="width:100%">
+                  <div class="ad-ops-hint">数值越大越优先（同广告位内）</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ant-card ant-card-bordered ad-ops-card">
+          <div class="ant-card-head"><div class="ant-card-head-title">素材与文案</div></div>
+          <div class="ant-card-body">
+            <div class="ant-row ad-ops-row">
+              <div class="ant-col ant-col-16">
+                <div class="ant-form-item">
+                  <label class="ad-ops-label" for="opsMaterial">素材 URL</label>
+                  <input class="ant-input" id="opsMaterial" name="materialUrl" placeholder="https://…" style="width:100%">
+                  <div class="ad-ops-hint">支持 https 图片；留空将使用演示占位图</div>
+                </div>
+                <div class="ant-form-item">
+                  <label class="ad-ops-label" for="opsTitle">标题</label>
+                  <input class="ant-input" id="opsTitle" name="title" maxlength="40" style="width:100%">
+                </div>
+                <div class="ant-form-item">
+                  <label class="ad-ops-label" for="opsCopy">文案</label>
+                  <textarea class="ant-input" id="opsCopy" name="copy" rows="3" style="width:100%;min-height:72px;resize:vertical"></textarea>
+                </div>
+              </div>
+              <div class="ant-col ant-col-8">
+                <div class="ant-form-item">
+                  <label class="ad-ops-label">素材预览</label>
+                  <div class="ad-ops-preview" id="opsPreview">
+                    <img id="opsPreviewImg" src="https://picsum.photos/seed/ops-ad-preview/480/270" alt="素材预览">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ant-card ant-card-bordered ad-ops-card">
+          <div class="ant-card-head"><div class="ant-card-head-title">落地与投放周期</div></div>
+          <div class="ant-card-body">
+            <div class="ant-row ad-ops-row">
+              <div class="ant-col ant-col-8">
+                <div class="ant-form-item">
+                  <label class="ad-ops-label" for="opsLandingType">落地类型</label>
+                  <select class="ant-input" id="opsLandingType" name="landingType" style="width:100%">
+                    <option value="activity">活动页</option>
+                    <option value="live">直播间</option>
+                    <option value="external">外链</option>
+                  </select>
+                </div>
+              </div>
+              <div class="ant-col ant-col-16">
+                <div class="ant-form-item">
+                  <label class="ad-ops-label" for="opsLandingUrl">落地链接</label>
+                  <input class="ant-input" id="opsLandingUrl" name="landingUrl" placeholder="站内路径或 https://…" style="width:100%">
+                </div>
+              </div>
+              <div class="ant-col ant-col-12">
+                <div class="ant-form-item">
+                  <label class="ad-ops-label" for="opsStart">开始时间</label>
+                  <input class="ant-input" id="opsStart" type="datetime-local" name="startAt" style="width:100%">
+                </div>
+              </div>
+              <div class="ant-col ant-col-12">
+                <div class="ant-form-item">
+                  <label class="ad-ops-label" for="opsEnd">结束时间</label>
+                  <input class="ant-input" id="opsEnd" type="datetime-local" name="endAt" style="width:100%">
+                </div>
+              </div>
+              <div class="ant-col ant-col-12">
+                <div class="ant-form-item">
+                  <label class="ad-ops-label" for="opsBudget">预算（USDT）</label>
+                  <input class="ant-input" id="opsBudget" type="number" name="budgetTotal" value="0" min="0" step="1" style="width:100%">
+                  <div class="ad-ops-hint">平台自营填 0 表示不计费</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ant-card ant-card-bordered ad-ops-card">
+          <div class="ant-card-body ad-ops-footer">
+            <button type="button" class="ant-btn" id="opsBtnDraft"><i class="fa-regular fa-floppy-disk"></i> 保存草稿</button>
+            <button type="button" class="ant-btn ant-btn-primary" id="opsBtnSubmit"><i class="fa-solid fa-paper-plane"></i> 提交审核</button>
+            <button type="button" class="ant-btn ant-btn-primary" id="opsBtnPublish"><i class="fa-solid fa-bolt"></i> 授权直接发布</button>
+            <span class="ad-ops-hint" style="margin-left:8px">「授权直接发布」需超管角色（右上角切换）</span>
+          </div>
+        </div>
+        <input type="hidden" name="submitType" id="opsSubmitType" value="draft">
+      </form>
+    </main>
+  </div>
+</div>
+<script src="../js/ad-system-store.js"></script>
+<script src="../js/ad-system-api.js"></script>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="js/ad-admin-layout.js"></script>
+<script src="js/ad-admin-actions.js"></script>
+<script src="js/ad-admin-pages.js"></script>
+</body>
+</html>

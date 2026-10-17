@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>广告概览 · GOODFANS 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/ads-admin.css">
+  <link rel="stylesheet" href="css/ads-admin-hifi.css">
+</head>
+<body data-admin-page="ads-overview">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 广告管理 / 广告概览</span></div>
+      <div class="admin-header-right">
+        <a href="ads-index.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-table-columns"></i> 原型平铺</a>
+        <a href="ads-review.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-clipboard-check"></i> 待审核 <span class="ant-badge ant-badge-count" id="statPendingLink">0</span></a>
+        <a href="ads-ops-create.html" class="ant-btn ant-btn-primary ant-btn-sm"><i class="fa-solid fa-plus"></i> 运营创建</a>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face" alt=""><span>广告运营 · Mia</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">广告概览</h1>
+      <p class="admin-page-desc">关键指标、近 7 日趋势与来源结构。对接 API 后替换 <code>FLAdStore.adminOverview()</code> 返回值即可。</p>
+
+      <div class="ad-quick-links">
+        <a class="ant-btn ant-btn-sm" href="ads-list.html"><i class="fa-solid fa-list"></i> 广告列表</a>
+        <a class="ant-btn ant-btn-sm" href="ads-stats.html"><i class="fa-solid fa-chart-line"></i> 数据统计</a>
+        <a class="ant-btn ant-btn-sm" href="ads-finance.html"><i class="fa-solid fa-file-invoice-dollar"></i> 财务</a>
+      </div>
+
+      <div class="ad-hifi-stat-row">
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon blue"><i class="fa-solid fa-rectangle-ad"></i></span><div class="ant-statistic-title">广告总数</div><div class="ant-statistic-content-value" id="statTotal">—</div></div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon orange"><i class="fa-solid fa-hourglass-half"></i></span><div class="ant-statistic-title">待审核</div><div class="ant-statistic-content-value" style="color:#fa8c16" id="statPending">—</div></div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon green"><i class="fa-solid fa-bullhorn"></i></span><div class="ant-statistic-title">投放中</div><div class="ant-statistic-content-value" style="color:#52c41a" id="statActive">—</div></div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon purple"><i class="fa-solid fa-eye"></i></span><div class="ant-statistic-title">今日曝光</div><div class="ant-statistic-content-value" id="statImp">—</div></div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon blue"><i class="fa-solid fa-hand-pointer"></i></span><div class="ant-statistic-title">今日点击</div><div class="ant-statistic-content-value" id="statClk">—</div></div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon red"><i class="fa-solid fa-coins"></i></span><div class="ant-statistic-title">今日消耗 (USDT)</div><div class="ant-statistic-content-value" id="statSpend">—</div></div></div>
+      </div>
+
+      <div class="ant-row" style="margin:0 -8px">
+        <div class="ant-col ant-col-16" style="padding:8px">
+          <div class="ant-card ant-card-bordered ad-hifi-card-table">
+            <div class="ant-card-head"><div class="ant-card-head-title">近 7 日投放趋势</div><div class="ant-card-extra">曝光量（演示）</div></div>
+            <div class="ant-card-body"><div class="ad-chart-bar-labeled" id="adTrendBars"></div></div>
+          </div>
+        </div>
+        <div class="ant-col ant-col-8" style="padding:8px">
+          <div class="ant-card ant-card-bordered ad-hifi-card-table">
+            <div class="ant-card-head"><div class="ant-card-head-title">广告来源占比</div></div>
+            <div class="ant-card-body" id="adSourcePie">
+              <div class="ad-source-split">
+                <div class="ad-source-donut" id="adSourceDonut" style="--user-pct:60%"></div>
+                <ul class="ad-source-legend">
+                  <li><span class="dot" style="background:#1677ff"></span> 用户自主投放 · <b id="adSourceUserCount">0</b> 条</li>
+                  <li><span class="dot" style="background:#13c2c2"></span> 平台运营投放 · <b id="adSourcePlatformCount">0</b> 条</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ant-card ant-card-bordered ad-hifi-card-table" style="margin-top:16px">
+        <div class="ant-card-head"><div class="ant-card-head-title">广告位曝光示意</div></div>
+        <div class="ant-card-body">
+          <div class="ant-row">
+            <div class="ant-col ant-col-8" style="padding:8px"><div class="ad-slot-preview"><img src="https://images.unsplash.com/photo-1611162617474-5b21e939e986?w=640&h=360&fit=crop" alt="首页 Banner 示意"></div><p style="font-size:12px;color:rgba(0,0,0,.45);margin:8px 0 0">首页 Banner · 16:9</p></div>
+            <div class="ant-col ant-col-8" style="padding:8px"><div class="ad-slot-preview"><img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=700&fit=crop" alt="信息流示意"></div><p style="font-size:12px;color:rgba(0,0,0,.45);margin:8px 0 0">短视频信息流 · 9:16</p></div>
+            <div class="ant-col ant-col-8" style="padding:8px"><div class="ad-slot-preview"><img src="https://images.unsplash.com/photo-1516321497487-4a4188962395?w=640&h=360&fit=crop" alt="直播间推广"></div><p style="font-size:12px;color:rgba(0,0,0,.45);margin:8px 0 0">直播间推广 · 横条 / 小卡</p></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="../js/ad-system-store.js"></script>
+<script src="../js/ad-system-api.js"></script>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="js/ad-admin-layout.js"></script>
+<script src="js/ad-admin-actions.js"></script>
+<script src="js/ad-admin-pages.js"></script>
+</body>
+</html>

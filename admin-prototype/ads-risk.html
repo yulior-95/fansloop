@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>广告风控 · GOODFANS 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/ads-admin.css">
+  <link rel="stylesheet" href="css/ads-admin-hifi.css">
+</head>
+<body data-admin-page="ads-risk">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 广告管理 / 风控</span></div>
+      <div class="admin-header-right">
+        <a href="risk-sensitive-words.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-shield"></i> 敏感词库</a>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>风控 · Alex</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">广告风控管理</h1>
+      <p class="admin-page-desc">链接域名校验、频次拦截与人工处置记录；与 C 端 FLAdService.validateLink / 展示层联动（原型）。</p>
+
+      <div class="ant-row" style="margin:0 -8px 16px">
+        <div class="ant-col ant-col-12" style="padding:8px">
+          <div class="ant-card ant-card-bordered">
+            <div class="ant-card-head"><div class="ant-card-head-title"><i class="fa-solid fa-link" style="color:#1677ff;margin-right:8px"></i>落地链接策略</div></div>
+            <div class="ant-card-body">
+              <div class="ad-switch-row"><div><strong>拦截 javascript: 协议</strong><p>创建 / 审核时校验，拒绝写入</p></div><span class="ad-switch on" data-switch role="switch" aria-checked="true"></span></div>
+              <div class="ad-switch-row"><div><strong>风险域名黑名单</strong><p>evil-phish.test、malware.demo（演示）</p></div><span class="ad-switch on" data-switch role="switch" aria-checked="true"></span></div>
+              <div class="ant-form-item" style="margin-top:12px"><label style="font-size:12px;color:rgba(0,0,0,.45)">新增黑名单域名</label><div style="display:flex;gap:8px;margin-top:6px"><input class="ant-input" placeholder="example.com" style="flex:1"><button type="button" class="ant-btn ant-btn-primary">添加</button></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="ant-col ant-col-12" style="padding:8px">
+          <div class="ant-card ant-card-bordered">
+            <div class="ant-card-head"><div class="ant-card-head-title"><i class="fa-solid fa-gauge-high" style="color:#1677ff;margin-right:8px"></i>展示频次</div></div>
+            <div class="ant-card-body">
+              <div class="ad-switch-row"><div><strong>单用户日 cap（信息流）</strong><p>默认每日最多 3 次展示</p></div><span class="ad-switch on" data-switch role="switch" aria-checked="true"></span></div>
+              <div class="ant-form-item"><label>直播间单场上限</label><input class="ant-input" type="number" value="4" style="width:100%;margin-top:6px"></div>
+              <button type="button" class="ant-btn ant-btn-primary" style="margin-top:8px">保存策略</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-small ant-table-bordered">
+            <table style="width:100%">
+              <thead class="ant-table-thead"><tr><th class="admin-col-index">#</th><th>类型</th><th>关联广告</th><th>说明</th><th>状态</th><th>时间</th><th>操作</th></tr></thead>
+              <tbody class="ant-table-tbody" id="adRiskBody" data-pager="js"></tbody>
+            </table>
+          </div>
+          <div id="adRiskPager"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="../js/ad-system-store.js"></script>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="js/admin-pagination.js"></script>
+<script src="js/ad-admin-layout.js"></script>
+<script src="js/ad-admin-actions.js"></script>
+<script src="js/ad-admin-pages.js"></script>
+</body>
+</html>

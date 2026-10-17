@@ -27,7 +27,8 @@
             title: "创作者",
             titleKey: "set_grp_creator",
             items: [
-                { id: "subscription", label: "会员订阅设置", i18nKey: "set_nav_subscription", href: "settings-subscription.html", icon: "fa-solid fa-crown" }
+                { id: "subscription", label: "会员订阅设置", i18nKey: "set_nav_subscription", href: "settings-subscription.html", icon: "fa-solid fa-crown" },
+                { id: "ad-center", label: "广告中心", i18nKey: "set_nav_ad_center", href: "settings-ad.html", icon: "fa-solid fa-rectangle-ad" }
             ]
         },
         {
@@ -51,6 +52,11 @@
         "settings-privacy.html": "privacy",
         "settings-display.html": "display",
         "settings-subscription.html": "subscription",
+        "settings-ad.html": "ad-center",
+        "ad-center.html": "ad-center",
+        "ad-create.html": "ad-center",
+        "ad-detail.html": "ad-center",
+        "ad-stats.html": "ad-center",
         "after-sales.html": "support",
         "settings-about.html": "about",
         "settings-terms.html": "terms"

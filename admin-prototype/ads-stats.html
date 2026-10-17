@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>广告数据统计 · GOODFANS 运营后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
+  <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/ads-admin.css">
+  <link rel="stylesheet" href="css/ads-admin-hifi.css">
+</head>
+<body data-admin-page="ads-stats">
+<div class="admin-app">
+  <aside class="admin-sider" id="adminSider"></aside>
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 广告管理 / 数据统计</span></div>
+      <div class="admin-header-right">
+        <button type="button" class="ant-btn ant-btn-primary ant-btn-sm" id="adStatsExport"><i class="fa-solid fa-download"></i> 导出报表</button>
+        <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face" alt=""><span>广告运营 · Mia</span></div>
+      </div>
+    </header>
+    <main class="admin-content">
+      <h1 class="admin-page-title">广告数据统计</h1>
+      <p class="admin-page-desc">汇总曝光、点击、CTR、消耗与转化；明细表可按广告维度下钻（数据来自各广告 stats 字段）。</p>
+
+      <div class="admin-toolbar">
+        <div class="field"><label>统计周期</label><select class="ant-input" style="width:140px"><option>近 7 日</option><option>近 30 日</option><option>自定义</option></select></div>
+        <div class="field"><label>来源</label><select class="ant-input" style="width:130px"><option>全部</option><option>用户自主</option><option>平台运营</option></select></div>
+        <button type="button" class="ant-btn ant-btn-primary">应用</button>
+      </div>
+
+      <div class="ad-hifi-stat-row">
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon purple"><i class="fa-solid fa-eye"></i></span><div class="ant-statistic-title">总曝光</div><div class="ant-statistic-content-value" id="stImp">—</div></div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon blue"><i class="fa-solid fa-hand-pointer"></i></span><div class="ant-statistic-title">总点击</div><div class="ant-statistic-content-value" id="stClk">—</div></div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon green"><i class="fa-solid fa-percent"></i></span><div class="ant-statistic-title">CTR</div><div class="ant-statistic-content-value" id="stCtr">—</div></div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon red"><i class="fa-solid fa-coins"></i></span><div class="ant-statistic-title">总消耗 USDT</div><div class="ant-statistic-content-value" id="stSpend">—</div></div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon orange"><i class="fa-solid fa-bullseye"></i></span><div class="ant-statistic-title">转化</div><div class="ant-statistic-content-value" id="stConv">—</div></div></div>
+      </div>
+
+      <div class="ant-row" style="margin:0 -8px 16px">
+        <div class="ant-col ant-col-12" style="padding:8px">
+          <div class="ant-card ant-card-bordered"><div class="ant-card-head"><div class="ant-card-head-title">点击趋势（演示）</div></div><div class="ant-card-body"><div class="ad-chart-bar-labeled"><div class="bar-col"><span class="bar" style="height:35%"></span><em>Mon</em></div><div class="bar-col"><span class="bar" style="height:50%"></span><em>Tue</em></div><div class="bar-col"><span class="bar" style="height:45%"></span><em>Wed</em></div><div class="bar-col"><span class="bar" style="height:70%"></span><em>Thu</em></div><div class="bar-col"><span class="bar" style="height:62%"></span><em>Fri</em></div><div class="bar-col"><span class="bar" style="height:88%"></span><em>Sat</em></div><div class="bar-col"><span class="bar" style="height:76%"></span><em>Sun</em></div></div></div></div>
+        </div>
+        <div class="ant-col ant-col-12" style="padding:8px">
+          <div class="ant-card ant-card-bordered"><div class="ant-card-head"><div class="ant-card-head-title">素材表现 Top（示意）</div></div><div class="ant-card-body"><img src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=320&fit=crop" alt="营销数据分析示意" style="width:100%;border-radius:4px;border:1px solid #f0f0f0"></div></div>
+        </div>
+      </div>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-small ant-table-bordered">
+            <table style="width:100%">
+              <thead class="ant-table-thead"><tr><th class="admin-col-index">#</th><th>编号</th><th>名称</th><th>来源</th><th>曝光</th><th>点击</th><th>CTR</th><th>消耗</th><th>转化</th></tr></thead>
+              <tbody class="ant-table-tbody" id="adStatsBody" data-pager="js"></tbody>
+            </table>
+          </div>
+          <div id="adStatsPager"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="../js/ad-system-store.js"></script>
+<script src="js/admin-nav.js"></script>
+<script src="js/admin-modal.js"></script>
+<script src="js/admin-pagination.js"></script>
+<script src="js/ad-admin-layout.js"></script>
+<script src="js/ad-admin-pages.js"></script>
+</body>
+</html>
