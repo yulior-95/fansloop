@@ -740,15 +740,31 @@
     font-size: 12px; color: var(--t-secondary); line-height: 1.55;
 }
 .live-preview-hint i { color: #60A5FA; margin-right: 6px; }
-.live-preview-cover {
+.live-preview-cover,
+.cr-cover-upload {
     aspect-ratio: 16/9; border-radius: var(--r-md); background-size: cover; background-position: center;
-    border: 1.5px dashed var(--border-strong); margin-top: 12px; position: relative; cursor: pointer; overflow: hidden;
+    background-color: var(--bg-input);
+    border: 1.5px dashed var(--border-strong); margin-top: 8px; position: relative; cursor: pointer; overflow: hidden;
 }
-.live-preview-cover .chg {
+.cr-cover-upload.has-cover,
+.live-preview-cover.has-cover { border-style: solid; border-color: rgba(16, 185, 129, 0.45); }
+.cr-cover-upload .cr-cover-placeholder {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 8px; color: var(--t-tertiary); font-size: 12px; pointer-events: none;
+}
+.cr-cover-upload .cr-cover-placeholder i { font-size: 26px; color: #93C5FD; }
+.cr-cover-field { margin-top: 16px; }
+.cr-cover-field .field-label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.cr-cover-field .field-label span:last-child { font-size: 11px; font-weight: 500; color: var(--t-tertiary); }
+.cr-cover-hint { font-size: 11px; color: var(--t-tertiary); margin-top: 8px; line-height: 1.45; }
+.live-preview-cover .chg,
+.cr-cover-upload .chg {
     position: absolute; right: 10px; bottom: 10px; font-size: 11px; font-weight: 600;
     padding: 6px 10px; border-radius: 8px; background: rgba(0,0,0,0.55);
-    border: 1px solid rgba(255,255,255,0.15); color: #fff;
+    border: 1px solid rgba(255,255,255,0.15); color: #fff; z-index: 2;
 }
+.cr-cover-upload .chg { display: none; }
+.cr-cover-upload.has-cover .chg { display: inline-flex; align-items: center; gap: 6px; }
 .live-preview-time { margin-top: 14px; }
 .live-preview-time label {
     display: block; font-size: 12px; font-weight: 600; color: var(--t-secondary); margin-bottom: 8px;
@@ -1355,6 +1371,16 @@
                         </div>
                         <p id="videoStatus" style="font-size:11px;color:var(--t-tertiary);margin-top:10px">尚未上传</p>
 
+                        <div class="cr-cover-field">
+                            <label class="field-label"><span><i class="fa-regular fa-image"></i> 封面图</span><span>建议 16:9</span></label>
+                            <div class="cr-cover-upload live-preview-cover" id="videoCoverUpload" role="button" tabindex="0" title="上传封面图">
+                                <span class="cr-cover-placeholder"><i class="fa-regular fa-image"></i><span>点击上传封面图</span><span style="font-size:11px">用于发现页 / Feed 展示</span></span>
+                                <span class="chg"><i class="fa-regular fa-image"></i> 更换封面</span>
+                            </div>
+                            <input type="file" id="videoCoverInput" accept="image/*" hidden />
+                            <p class="cr-cover-hint"><i class="fa-solid fa-circle-info"></i> 可与视频首帧不同；未上传时将使用转码首帧（原型演示）。</p>
+                        </div>
+
                         <!-- 内容类别 · 三级单选 -->
                         <div class="cat-field">
                             <span class="cat-field-label"><i class="fa-solid fa-sitemap"></i> 内容类别 <span class="cat-req">必选</span></span>
@@ -1385,14 +1411,26 @@
                         <div id="liveNowBlock">
                             <input class="title-input" id="liveNowTitle" placeholder="直播标题" value="深夜爵士 · 即兴钢琴" />
                             <textarea class="editor-text" id="liveNowDesc" placeholder="直播简介…">今晚即兴爵士，欢迎点歌；支持 USDT 打赏与礼物。</textarea>
+                            <div class="cr-cover-field">
+                                <label class="field-label"><span><i class="fa-regular fa-image"></i> 直播封面</span><span>建议 16:9</span></label>
+                                <div class="cr-cover-upload live-preview-cover" id="liveNowCoverUpload" role="button" tabindex="0" title="上传直播封面">
+                                    <span class="cr-cover-placeholder"><i class="fa-regular fa-image"></i><span>点击上传直播封面</span><span style="font-size:11px">展示在直播列表 / 详情</span></span>
+                                    <span class="chg"><i class="fa-regular fa-image"></i> 更换封面</span>
+                                </div>
+                                <input type="file" id="liveNowCoverInput" accept="image/*" hidden />
+                            </div>
                             <p style="font-size:12px;color:var(--t-secondary);margin-top:12px;line-height:1.55"><i class="fa-solid fa-display" style="color:#A855F7"></i> 使用 <strong style="color:#fff">OBS 推流</strong> 开播，配置见下方「直播配置」。</p>
                         </div>
                         <div id="livePreviewBlock" style="display:none">
                             <span class="live-preview-badge"><i class="fa-solid fa-bullhorn"></i> 图文预告 · 非直播间</span>
                             <input class="title-input" id="livePreviewTitle" placeholder="预告标题" value="周末爵士夜 · 直播预告" />
                             <textarea class="editor-text" id="livePreviewText" placeholder="写点什么告诉粉丝…">本周六 21:00 即兴爵士直播，欢迎提前预约提醒；本场为内容预告，点击不会进入直播间。</textarea>
-                            <div class="live-preview-cover" id="livePreviewCover" style="background-image:url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1200&q=80')" title="点击更换封面">
-                                <span class="chg"><i class="fa-regular fa-image"></i> 更换封面</span>
+                            <div class="cr-cover-field" style="margin-top:0">
+                                <label class="field-label"><span><i class="fa-regular fa-image"></i> 预告封面</span><span>建议 16:9</span></label>
+                                <div class="live-preview-cover cr-cover-upload" id="livePreviewCover" role="button" tabindex="0" title="点击更换封面">
+                                    <span class="cr-cover-placeholder" style="display:none"><i class="fa-regular fa-image"></i><span>点击上传预告封面</span></span>
+                                    <span class="chg"><i class="fa-regular fa-image"></i> 更换封面</span>
+                                </div>
                             </div>
                             <input type="file" id="livePreviewCoverInput" accept="image/*" hidden />
                             <div class="live-preview-time">
@@ -1718,6 +1756,7 @@
 <script src="../js-web/create-category-select.js"></script>
 <script src="../js/creator-subscription-store.js"></script>
 <script src="../js-web/dev-glass-viewport.js"></script>
+<script src="../js-web/create-cover-upload.js"></script>
 <script src="../js-web/create-studio.js"></script>
 <script src="../js-web/create-audience-visibility.js"></script>
 <script src="../js-web/create-studio-live.js"></script>

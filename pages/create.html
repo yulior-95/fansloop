@@ -29,11 +29,27 @@ body { background: var(--bg-primary); }
     z-index: 10;
 }
 
-.create-title {
+.create-main {
     position: absolute;
-    top: calc(var(--status-bar-height) + 40px);
-    left: 20px; right: 20px;
+    top: var(--status-bar-height);
+    left: 0;
+    right: 0;
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
     z-index: 5;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 40px 20px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    box-sizing: border-box;
+}
+
+.create-title {
+    position: relative;
+    flex-shrink: 0;
 }
 .create-title h1 {
     font-size: 26px;
@@ -47,11 +63,11 @@ body { background: var(--bg-primary); }
 }
 
 .type-wrap {
-    position: absolute;
-    top: calc(var(--status-bar-height) + 108px);
-    left: 20px; right: 20px;
-    z-index: 5;
-    display: flex; flex-direction: column; gap: 10px;
+    flex-shrink: 0;
+    margin-top: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .type-card {
@@ -114,11 +130,10 @@ body { background: var(--bg-primary); }
 
 /* 近期草稿 */
 .drafts-section {
-    position: absolute;
-    left: 20px; right: 20px;
-    bottom: 88px;
-    z-index: 5;
+    flex: 1;
+    min-height: 160px;
     max-height: min(42vh, 268px);
+    margin-top: 20px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -538,6 +553,7 @@ body { background: var(--bg-primary); }
 
 <div class="close-top" data-back="profile.html"><i class="fa-solid fa-xmark"></i></div>
 
+<div class="create-main">
 <div class="create-title">
     <h1>开始 <span class="gradient-text">创作</span></h1>
     <p>你的每一次发布都上链存证，收益零抽成到账</p>
@@ -644,6 +660,7 @@ body { background: var(--bg-primary); }
         </div>
     </div>
     </div>
+</div>
 </div>
 
 <div class="bottom-tip">

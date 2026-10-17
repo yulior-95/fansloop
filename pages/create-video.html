@@ -15,6 +15,9 @@ input,textarea,select{width:100%;background:var(--bg-card);border:1px solid var(
 textarea{min-height:100px;resize:vertical}
 .zone{aspect-ratio:16/9;border-radius:12px;border:1.5px dashed var(--border-strong);background:var(--bg-card);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--text-tertiary);cursor:pointer}
 .zone.ok{border-style:solid;border-color:rgba(16,185,129,.5);background-size:cover;background-position:center;align-items:flex-end;justify-content:space-between;padding:10px}
+.zone.cover-zone.ok{align-items:flex-end;justify-content:flex-end;padding:10px}
+.zone.cover-zone.ok .cover-empty{display:none}
+.cover-empty{pointer-events:none;text-align:center}
 .oktag{font-size:11px;padding:4px 8px;border-radius:999px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);color:#6EE7B7}
 .line{display:flex;gap:8px;align-items:center}
 .line code{flex:1;background:var(--bg-inset);border:1px solid var(--border-color);border-radius:8px;padding:8px 10px;font-size:11px;color:#7c3aed;word-break:break-all}
@@ -68,6 +71,7 @@ textarea{min-height:100px;resize:vertical}
 </head>
 <body>
 <input id="videoInput" type="file" accept="video/*" hidden>
+<input id="coverInput" type="file" accept="image/*" hidden>
 <div class="status-bar"><span class="time">9:41</span><span class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span></div>
 <div class="nav-bar solid">
   <div class="nav-left"><div class="nav-btn" data-back="create.html"><i class="fa-solid fa-chevron-left"></i></div></div>
@@ -77,6 +81,14 @@ textarea{min-height:100px;resize:vertical}
 <div class="app-content">
   <div class="zone" id="videoZone"><i class="fa-solid fa-cloud-arrow-up" style="font-size:30px;color:#a78bfa"></i><div>拖拽或点击上传视频</div><div style="font-size:11px">支持 MP4 / MOV，最大 4GB</div></div>
   <div class="tip" id="videoStatus">当前未上传视频</div>
+
+  <div class="field">
+    <div class="lb"><span>封面图</span><span style="font-size:11px;color:var(--text-tertiary)">建议 16:9</span></div>
+    <div class="zone cover-zone" id="coverZone">
+      <div class="cover-empty"><i class="fa-regular fa-image" style="font-size:28px;color:#a78bfa"></i><div>点击上传封面图</div><div style="font-size:11px">用于发现页 / Feed 展示</div></div>
+    </div>
+    <div class="tip">可与视频首帧不同；未上传时将使用转码首帧（原型）。</div>
+  </div>
 
   <div class="field"><div class="lb"><span>标题</span><span id="titleCount">0 / 20</span></div><input id="titleInput" maxlength="20" placeholder="请输入视频标题（最多20字）"></div>
   <div class="field"><div class="lb"><span>视频简介</span><span id="descCount">0 / 3000</span></div><textarea id="descInput" maxlength="3000" placeholder="请输入视频简介（最多3000字）"></textarea></div>
@@ -182,9 +194,38 @@ textarea{min-height:100px;resize:vertical}
     if(hasFree){ hasSub=false; hasPpv=false; moneyGrid.querySelector('[data-mode="sub"]').classList.remove('on'); moneyGrid.querySelector('[data-mode="ppv"]').classList.remove('on'); }
     rowPpv.classList.toggle('show',hasPpv);
   }
-  function setUploaded(){ zone.classList.add('ok'); zone.style.backgroundImage='url("https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=900&q=80")'; zone.innerHTML='<span class="oktag"><i class="fa-solid fa-circle-check"></i> 上传成功</span><button type="button" class="sbtn" id="editCoverBtn">编辑封面</button>'; status.textContent='视频上传成功，可继续编辑标题、简介和权限'; document.getElementById('editCoverBtn').addEventListener('click',function(e){e.stopPropagation();toast('封面编辑已打开（原型）');}); }
+  var coverZone=document.getElementById('coverZone'), coverInput=document.getElementById('coverInput');
+  function setUploaded(){
+    zone.classList.add('ok');
+    zone.style.backgroundImage='url("https://picsum.photos/seed/h5-video-upload/900/506")';
+    zone.innerHTML='<span class="oktag"><i class="fa-solid fa-circle-check"></i> 上传成功</span>';
+    status.textContent='视频上传成功，请上传封面并完善标题、简介';
+  }
+  function applyCover(url){
+    if(!coverZone) return;
+    if(url){
+      coverZone.classList.add('ok');
+      coverZone.style.backgroundImage='url("'+url+'")';
+      coverZone.innerHTML='<span class="oktag"><i class="fa-solid fa-circle-check"></i> 封面已设置</span><span class="sbtn" style="margin-left:8px">更换</span>';
+    }else{
+      coverZone.classList.remove('ok');
+      coverZone.style.backgroundImage='';
+      coverZone.innerHTML='<div class="cover-empty"><i class="fa-regular fa-image" style="font-size:28px;color:#a78bfa"></i><div>点击上传封面图</div><div style="font-size:11px">用于发现页 / Feed 展示</div></div>';
+    }
+  }
   zone.addEventListener('click', function(){ if(!zone.classList.contains('ok')) input.click(); });
   input.addEventListener('change', function(){ if(input.files&&input.files[0]) setUploaded(); input.value=''; });
+  if(coverZone&&coverInput){
+    coverZone.addEventListener('click', function(){ coverInput.click(); });
+    coverInput.addEventListener('change', function(){
+      if(coverInput.files&&coverInput.files[0]){
+        var r=new FileReader();
+        r.onload=function(e){ applyCover(e.target.result); toast('封面已更新'); };
+        r.readAsDataURL(coverInput.files[0]);
+      }
+      coverInput.value='';
+    });
+  }
   ['dragenter','dragover'].forEach(function(ev){ zone.addEventListener(ev,function(e){ e.preventDefault(); });});
   zone.addEventListener('drop', function(e){ e.preventDefault(); if(e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]) setUploaded(); });
   title.addEventListener('input', counters); desc.addEventListener('input', counters); counters();

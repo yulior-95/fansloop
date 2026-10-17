@@ -122,19 +122,7 @@
         if (e.target === obsGuideOverlay) obsGuideOverlay.classList.remove('show');
     });
 
-    livePreviewCover?.addEventListener('click', function () {
-        livePreviewCoverInput?.click();
-    });
-    livePreviewCoverInput?.addEventListener('change', function () {
-        var f = livePreviewCoverInput.files && livePreviewCoverInput.files[0];
-        if (!f) return;
-        var reader = new FileReader();
-        reader.onload = function (ev) {
-            livePreviewCover.style.backgroundImage = "url('" + ev.target.result + "')";
-        };
-        reader.readAsDataURL(f);
-        livePreviewCoverInput.value = '';
-    });
+    /* 封面上传 · create-cover-upload.js */
 
     /* 直播标签：回车添加、点击 × 移除 */
     var liveTagInput = document.getElementById('liveTagInput');

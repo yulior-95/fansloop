@@ -1315,7 +1315,7 @@
 
                 videoZone.classList.add('has-video');
 
-                videoZone.style.backgroundImage = "url('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1200&q=80')";
+                videoZone.style.backgroundImage = "url('https://picsum.photos/seed/video-upload-thumb/1200/675')";
 
                 var st = document.getElementById('videoStatus');
 

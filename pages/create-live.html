@@ -12,28 +12,19 @@
 html.h5-create-live-page{
   min-height:100%;
   min-height:100dvh;
-  display:flex;
-  justify-content:center;
-  align-items:stretch;
-  background:var(--bg-secondary);
-}
-:root[data-theme='light'] html.h5-create-live-page{
-  background:#e4e7ee;
+  background:var(--bg-primary);
 }
 body.page-create-live{
   position:relative;
-  flex:0 0 auto;
-  width:100%;
-  max-width:430px;
   min-height:100vh;
   min-height:100dvh;
   height:100vh;
   height:100dvh;
   margin:0;
   overflow:hidden;
-  box-shadow:0 0 0 1px var(--border-color),0 12px 48px rgba(0,0,0,.18);
+  background:var(--bg-primary);
 }
-body.page-no-tab-bar.page-create-live .app-content{
+body.page-create-live .app-content{
   padding:calc(var(--status-bar-height) + var(--nav-bar-height)) 16px calc(96px + env(safe-area-inset-bottom, 12px)) !important;
 }
 .seg{display:flex;gap:8px;margin-bottom:12px}
@@ -130,6 +121,11 @@ textarea{min-height:68px;resize:vertical}
     <button type="button" id="tabPreview"><i class="fa-regular fa-calendar-check"></i> 直播预告</button>
   </div>
 
+  <div class="field">
+    <div class="lb"><span>封面图</span><span style="font-size:11px;color:var(--text-tertiary)">建议 16:9</span></div>
+    <div class="cover" id="cover"><i class="fa-regular fa-image" style="font-size:28px;color:#a78bfa"></i><div>点击上传封面</div><div style="font-size:11px">直播列表 / 预告图文 / 详情</div></div>
+  </div>
+
   <div id="blockNow">
     <div class="field"><input id="titleInputNow" placeholder="直播标题" value="深夜爵士 · 即兴钢琴"></div>
     <div class="field"><textarea id="descInputNow" placeholder="直播简介…">今晚即兴爵士，欢迎点歌；支持 USDT 打赏与礼物。</textarea></div>
@@ -140,7 +136,6 @@ textarea{min-height:68px;resize:vertical}
     <span class="preview-badge"><i class="fa-solid fa-bullhorn"></i> 图文预告 · 非直播间</span>
     <div class="field"><input id="titleInputPreview" placeholder="预告标题" value="周末爵士夜 · 直播预告"></div>
     <div class="field"><textarea id="descInputPreview" placeholder="写点什么告诉粉丝…">本周六 21:00 即兴爵士直播，欢迎提前预约提醒；本场为内容预告，点击不会进入直播间。</textarea></div>
-    <div class="cover" id="cover"><i class="fa-regular fa-image" style="font-size:28px;color:#a78bfa"></i><div>点击更换封面</div><div style="font-size:11px">建议 16:9</div></div>
     <div class="field">
       <div class="lb"><span><i class="fa-regular fa-clock"></i> 计划开播时间（仅展示在预告图文）</span></div>
       <input id="scheduleInput" type="datetime-local" step="60">
@@ -303,7 +298,7 @@ textarea{min-height:68px;resize:vertical}
 
   if(cover){
     cover.onclick=function(){ coverInput.click(); };
-    applyCover('https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1200&q=80');
+    applyCover('https://picsum.photos/seed/h5-live-cover-default/1200/675');
   }
   coverInput.onchange=function(){
     if(coverInput.files&&coverInput.files[0]){
