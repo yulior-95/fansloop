@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -6,28 +6,28 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="../js-web/fl-theme-boot.js"></script>
 <link rel="stylesheet" href="../css-web/common-web.css">
+<link rel="stylesheet" href="../css-web/fl-global-toast.css">
 <script>try{if(localStorage.getItem('fl_sidebar_collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed-pre')}catch(e){}</script>
 <style>
 .td-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
 @media (max-width: 1280px) { .td-grid { grid-template-columns: 1fr; } .td-aside { display: none; } }
 
 .td-hero {
+    background:
+      radial-gradient(ellipse 700px 400px at 80% 20%, rgba(251,191,36,0.18), transparent 60%),
+      radial-gradient(ellipse 700px 400px at 10% 90%, rgba(168,85,247,0.16), transparent 60%),
+      linear-gradient(135deg, #2D1B69, #4A1063);
+    border: 1px solid var(--border-strong);
     border-radius: var(--r-xl);
-    overflow: hidden;
+    padding: 32px;
     margin-bottom: 22px;
     position: relative;
-    height: 340px;
-    background: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=1600') center/cover;
-}
-.td-hero::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(180deg, rgba(7,7,13,0.2) 0%, rgba(7,7,13,0.85) 100%);
+    overflow: hidden;
 }
 .td-hero .hero-content {
-    position: absolute;
-    bottom: 28px; left: 32px; right: 32px;
-    z-index: 2;
-    display: flex; align-items: flex-end; justify-content: space-between;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
     gap: 24px;
 }
 .td-hero .hero-l h1 {
@@ -35,7 +35,7 @@
     font-weight: 900;
     letter-spacing: -1px;
     margin-bottom: 8px;
-    text-shadow: 0 4px 18px rgba(0,0,0,0.5);
+    color: #fff;
 }
 .td-hero .hero-l h1 .hashtag {
     background: linear-gradient(90deg, #FBBF24, #F472B6);
@@ -52,17 +52,6 @@
 .td-hero .hero-l .stats span { display: inline-flex; align-items: center; gap: 6px; }
 .td-hero .hero-l .stats b { color: #fff; font-weight: 700; font-variant-numeric: tabular-nums; }
 .td-hero .hero-r { display: flex; gap: 8px; }
-.td-hero .hero-r .btn-follow {
-    background: var(--brand-grad);
-    color: #fff;
-    padding: 0 22px;
-    height: 42px;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 13px;
-    box-shadow: 0 12px 30px rgba(168,85,247,0.4);
-    display: inline-flex; align-items: center; gap: 8px;
-}
 .td-hero .hero-r .btn-share {
     height: 42px; padding: 0 16px;
     background: rgba(255,255,255,0.1);
@@ -76,10 +65,10 @@
 }
 
 .td-hero .float-pill {
-    position: absolute;
-    top: 24px; left: 32px;
-    z-index: 2;
-    display: flex; gap: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
 }
 .td-hero .float-pill .fp {
     padding: 6px 14px;
@@ -101,8 +90,8 @@
     margin-bottom: 18px;
 }
 .td-tabs .tt {
-    padding: 12px 18px;
-    font-size: 13.5px;
+    padding: 12px 14px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--t-tertiary);
     cursor: pointer;
@@ -129,27 +118,8 @@
 .post-head .av { width: 42px; height: 42px; border-radius: 50%; background-size: cover; background-position: center; flex-shrink: 0; }
 .post-head .info { flex: 1; min-width: 0; }
 .post-head .info .nm { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-.post-head .info .nm .pro {
-    font-size: 9px;
-    padding: 2px 6px;
-    background: linear-gradient(135deg, rgba(251,191,36,0.18), rgba(245,158,11,0.06));
-    border: 1px solid rgba(251,191,36,0.3);
-    color: var(--warning-light);
-    border-radius: 4px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-}
 .post-head .info .meta { font-size: 11.5px; color: var(--t-tertiary); display: flex; gap: 10px; align-items: center; margin-top: 2px; }
 .post-head .info .meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--t-quaternary); }
-.post-head .more {
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    background: var(--bg-input);
-    color: var(--t-tertiary);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; cursor: pointer;
-}
-
 .post-text {
     font-size: 14px;
     line-height: 1.65;
@@ -158,59 +128,31 @@
 }
 .post-text .hashtag { color: var(--brand-purple); font-weight: 600; cursor: pointer; }
 
-.post-media-grid {
-    display: grid;
-    gap: 4px;
+/* 多媒体：与首页 Feed 卡片一致（home.html · feed-stack-builder）— 单图或 grid-2 双列，无 g3 左大右小 */
+.post-card .post-media {
+    background: #000;
     border-radius: 12px;
     overflow: hidden;
     margin-bottom: 12px;
-    width: 100%;
-    align-items: stretch;
-    background: #0a0a0f;
 }
-.post-media-grid.g3 { grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; aspect-ratio: 16/10; }
-.post-media-grid.g3 > :first-child { grid-row: span 2; }
-.post-media-grid.g4 { grid-template-columns: 1fr 1fr; aspect-ratio: 16/10; }
-.post-media-grid.g1 { aspect-ratio: 16/9; }
-.post-media-cell {
-    position: relative;
-    min-width: 0;
-    min-height: 0;
-    overflow: hidden;
-    background: #0a0a0f;
+.post-card .post-media img { width: 100%; display: block; }
+.post-card .post-media.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
 }
-.post-media-cell img {
+.post-card .post-media.grid-2 img { height: 240px; object-fit: cover; }
+.post-card .post-media.post-media--video { position: relative; background: #000; }
+.post-card .post-media--video .td-topic-video {
     width: 100%;
-    height: 100%;
     display: block;
-    object-fit: cover;
-    object-position: center;
+    max-height: 420px;
+    background: #000;
+    vertical-align: top;
 }
-.post-media-grid--video .post-media-play,
-.post-media-grid--video .post-media-duration {
+.post-card .post-media--video .post-media-duration {
     position: absolute;
     pointer-events: none;
-}
-.post-media-grid--video .post-media-play {
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.post-media-grid--video .post-media-play .play-btn {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 22px;
-    padding-left: 4px;
-}
-.post-media-grid--video .post-media-duration {
     bottom: 12px;
     right: 12px;
     background: rgba(0,0,0,0.7);
@@ -220,6 +162,40 @@
     font-size: 11px;
     font-weight: 700;
 }
+.post-card .post-media.post-media--live { position: relative; cursor: pointer; }
+.post-card .post-media--live img { height: 280px; object-fit: cover; }
+.post-card .td-live-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 14px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 42%, rgba(0,0,0,0.45) 100%);
+    pointer-events: none;
+}
+.post-card .td-live-overlay .live-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.post-card .td-live-overlay .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(239,68,68,0.92);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+}
+.post-card .td-live-overlay .live-viewers { color: #fff; font-size: 12px; font-weight: 600; }
+.post-card .td-live-overlay .live-hint {
+    margin-top: auto;
+    color: rgba(255,255,255,0.92);
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.td-tab-panel[hidden] { display: none !important; }
 
 .post-actions {
     display: flex; align-items: center; gap: 22px;
@@ -232,8 +208,11 @@
     display: inline-flex; align-items: center; gap: 6px;
     cursor: pointer; transition: 0.15s;
 }
+.post-actions span { cursor: pointer; }
 .post-actions span:hover { color: var(--t-primary); }
 .post-actions .liked { color: var(--brand-pink); }
+.post-actions .saved { color: #A855F7; }
+.post-actions .saved i { color: #A855F7; }
 .post-actions .tip-cta {
     margin-left: auto;
     padding: 6px 14px;
@@ -272,27 +251,6 @@
 }
 .creator-row button.subbed { background: rgba(255,255,255,0.06); color: var(--t-secondary); }
 
-.related-topic {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    margin-bottom: 6px;
-    cursor: pointer;
-}
-.related-topic:hover { border-color: var(--border-strong); background: var(--bg-hover); }
-.related-topic .tag-ic {
-    width: 30px; height: 30px;
-    border-radius: 8px;
-    background: rgba(168,85,247,0.18);
-    color: #C084FC;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px;
-}
-.related-topic .info { flex: 1; min-width: 0; }
-.related-topic .info .ti { font-size: 12px; font-weight: 600; }
-.related-topic .info .sub { font-size: 10.5px; color: var(--t-tertiary); margin-top: 1px; }
 </style>
 
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
@@ -371,23 +329,19 @@
         <div class="td-hero">
             <div class="float-pill">
                 <span class="fp fire"><i class="fa-solid fa-fire"></i> 本周 TOP 1</span>
-                <span class="fp"><i class="fa-solid fa-camera"></i> 摄影 · 旅行</span>
                 <span class="fp"><i class="fa-solid fa-arrow-trend-up"></i> +186%</span>
             </div>
             <div class="hero-content">
                 <div class="hero-l">
                     <h1><span class="hashtag">#</span> 富士山日出</h1>
-                    <p>4 月里日本各地摄影师纷纷上山，分享凌晨 4 点的零下世界与火红地平线——已有 18,600+ 帖子和 4.2M 浏览参与本话题。</p>
                     <div class="stats">
                         <span><i class="fa-solid fa-fire"></i> <b>18,624</b> 帖</span>
                         <span><i class="fa-regular fa-eye"></i> <b>4.2M</b> 浏览</span>
                         <span><i class="fa-solid fa-user-group"></i> <b>1,824</b> 创作者</span>
-                        <span><i class="fa-regular fa-clock"></i> 持续 8 天</span>
                     </div>
                 </div>
                 <div class="hero-r">
-                    <button class="btn-follow"><i class="fa-solid fa-bell"></i> 关注话题</button>
-                    <button class="btn-share"><i class="fa-solid fa-arrow-up-right-from-square"></i> 分享</button>
+                    <button type="button" class="btn-share"><i class="fa-solid fa-arrow-up-right-from-square"></i> 分享</button>
                 </div>
             </div>
         </div>
@@ -395,33 +349,35 @@
         <div class="td-grid">
             <div>
                 <!-- 排序 / 筛选 -->
-                <div class="td-tabs">
-                    <div class="tt active"><i class="fa-solid fa-video"></i> 视频 <span class="cnt">486</span></div>
-                    <div class="tt"><i class="fa-solid fa-tower-broadcast"></i> 直播 <span class="cnt">12</span></div>
+                <div class="td-tabs" role="tablist" aria-label="话题内容类型">
+                    <div class="tt active" role="tab" aria-selected="true" tabindex="0" data-td-tab="image"><i class="fa-solid fa-image"></i> 图文 <span class="cnt">126</span></div>
+                    <div class="tt" role="tab" aria-selected="false" tabindex="-1" data-td-tab="video"><i class="fa-solid fa-video"></i> 视频 <span class="cnt">486</span></div>
+                    <div class="tt" role="tab" aria-selected="false" tabindex="-1" data-td-tab="live"><i class="fa-solid fa-tower-broadcast"></i> 正在进行的直播 <span class="cnt">12</span></div>
                 </div>
+
+                <div class="td-tab-panels" id="tdTabPanels">
+                <div class="td-tab-panel" data-td-panel="image" role="tabpanel">
 
                 <!-- 帖子 #1 -->
                 <div class="post-card">
                     <div class="post-head">
                         <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120')"></div>
                         <div class="info">
-                            <div class="nm">Luna 🌙 <span class="fl-badge fl-badge--creator" title="认证创作者" aria-label="认证创作者"><i class="fa-solid fa-palette"></i></span> <span class="pro">优质</span></div>
+                            <div class="nm">Luna 🌙 <span class="fl-badge fl-badge--creator" title="认证创作者" aria-label="认证创作者"><i class="fa-solid fa-palette"></i></span></div>
                             <div class="meta"><span>摄影师 · 创作者 LV7</span><span class="dot"></span><span>8 分钟前</span><span class="dot"></span><span><i class="fa-solid fa-location-dot"></i> 富士山五合目</span></div>
                         </div>
-                        <div class="more"><i class="fa-solid fa-ellipsis"></i></div>
                     </div>
                     <div class="post-text">清晨 5:40，云海被风轻轻吹散，每一帧都是冻出来的浪漫。35mm 定焦，三个小时，三张可用——分享给所有在等日出的你。<br/><span class="hashtag"># 富士山日出</span> <span class="hashtag"># 旅行摄影</span> <span class="hashtag"># 日出</span></div>
-                    <div class="post-media-grid g3">
-                        <div class="post-media-cell"><img src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=1200" alt="" loading="lazy" decoding="async"></div>
-                        <div class="post-media-cell"><img src="https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=800" alt="" loading="lazy" decoding="async"></div>
-                        <div class="post-media-cell"><img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800" alt="" loading="lazy" decoding="async"></div>
+                    <div class="post-media grid-2">
+                        <img src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=1200" alt="" loading="lazy" decoding="async">
+                        <img src="https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=800" alt="" loading="lazy" decoding="async">
                     </div>
                     <div class="post-actions">
-                        <span class="liked"><i class="fa-solid fa-heart"></i> 2,418</span>
-                        <span><i class="fa-regular fa-comment"></i> 186</span>
-                        <span><i class="fa-regular fa-bookmark"></i> 412</span>
-                        <span><i class="fa-solid fa-arrow-up-right-from-square"></i> 分享</span>
-                        <span class="tip-cta"><i class="fa-solid fa-gift"></i> 打赏</span>
+                        <span class="like-act liked"><i class="fa-solid fa-heart"></i> 2,418</span>
+                        <span class="comment-act"><i class="fa-regular fa-comment"></i> 186</span>
+                        <span class="bookmark-act"><i class="fa-regular fa-bookmark"></i> 412</span>
+                        <span class="share-act"><i class="fa-solid fa-arrow-up-right-from-square"></i> 分享</span>
+                        <span class="tip-cta tip-act"><i class="fa-solid fa-gift"></i> 打赏</span>
                     </div>
                 </div>
 
@@ -433,44 +389,16 @@
                             <div class="nm">Aria <span class="fl-badge fl-badge--creator" title="认证创作者" aria-label="认证创作者"><i class="fa-solid fa-palette"></i></span></div>
                             <div class="meta"><span>胶片摄影师</span><span class="dot"></span><span>32 分钟前</span><span class="dot"></span><span><i class="fa-solid fa-location-dot"></i> 河口湖</span></div>
                         </div>
-                        <div class="more"><i class="fa-solid fa-ellipsis"></i></div>
                     </div>
                     <div class="post-text">用 Hasselblad 500CM + Portra 400，晨雾在画面里更显胶片质感。湖面反射的色温接近 7200K，胶片自带的温度让画面非常治愈。</div>
-                    <div class="post-media-grid g4">
-                        <div class="post-media-cell"><img src="https://images.unsplash.com/photo-1542435503-956c469947f6?w=800" alt="" loading="lazy" decoding="async"></div>
-                        <div class="post-media-cell"><img src="https://images.unsplash.com/photo-1551763150-a3b62f3c4b50?w=800" alt="" loading="lazy" decoding="async"></div>
+                    <div class="post-media grid-2">
+                        <img src="https://images.unsplash.com/photo-1542435503-956c469947f6?w=800" alt="" loading="lazy" decoding="async">
+                        <img src="https://images.unsplash.com/photo-1551763150-a3b62f3c4b50?w=800" alt="" loading="lazy" decoding="async">
                     </div>
                     <div class="post-actions">
                         <span><i class="fa-regular fa-heart"></i> 1,624</span>
                         <span><i class="fa-regular fa-comment"></i> 92</span>
                         <span><i class="fa-regular fa-bookmark"></i> 318</span>
-                        <span><i class="fa-solid fa-arrow-up-right-from-square"></i> 分享</span>
-                        <span class="tip-cta"><i class="fa-solid fa-gift"></i> 打赏</span>
-                    </div>
-                </div>
-
-                <!-- 帖子 #3 (视频) -->
-                <div class="post-card">
-                    <div class="post-head">
-                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=120')"></div>
-                        <div class="info">
-                            <div class="nm">Echo</div>
-                            <div class="meta"><span>视频博主</span><span class="dot"></span><span>1 小时前</span><span class="dot"></span><span><i class="fa-solid fa-video"></i> 视频 · 4:32</span></div>
-                        </div>
-                        <div class="more"><i class="fa-solid fa-ellipsis"></i></div>
-                    </div>
-                    <div class="post-text">凌晨 3 点出发，4 个小时车程，富士山五合目登顶 vlog 全记录。这次拍到了百年一遇的火烧云！</div>
-                    <div class="post-media-grid g1 post-media-grid--video">
-                        <div class="post-media-cell">
-                            <img src="https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=1200" alt="" loading="lazy" decoding="async">
-                            <div class="post-media-play"><div class="play-btn"><i class="fa-solid fa-play"></i></div></div>
-                            <div class="post-media-duration">4:32</div>
-                        </div>
-                    </div>
-                    <div class="post-actions">
-                        <span><i class="fa-regular fa-heart"></i> 3,224</span>
-                        <span><i class="fa-regular fa-comment"></i> 218</span>
-                        <span><i class="fa-regular fa-bookmark"></i> 526</span>
                         <span><i class="fa-solid fa-arrow-up-right-from-square"></i> 分享</span>
                         <span class="tip-cta"><i class="fa-solid fa-gift"></i> 打赏</span>
                     </div>
@@ -484,11 +412,10 @@
                             <div class="nm">Maya</div>
                             <div class="meta"><span>旅行博主</span><span class="dot"></span><span>2 小时前</span></div>
                         </div>
-                        <div class="more"><i class="fa-solid fa-ellipsis"></i></div>
                     </div>
                     <div class="post-text">附上一张五合目附近的咖啡馆地图 ☕，凌晨等日出冷得发抖，但喝到温热的咖啡那一刻，整个旅程都被治愈了。</div>
-                    <div class="post-media-grid g1">
-                        <div class="post-media-cell"><img src="https://images.unsplash.com/photo-1493612276216-ee3925520721?w=1200" alt="" loading="lazy" decoding="async"></div>
+                    <div class="post-media">
+                        <img src="https://images.unsplash.com/photo-1493612276216-ee3925520721?w=1200" alt="" loading="lazy" decoding="async">
                     </div>
                     <div class="post-actions">
                         <span><i class="fa-regular fa-heart"></i> 824</span>
@@ -500,6 +427,120 @@
                 </div>
 
                 <div style="text-align: center; padding: 24px"><button class="btn btn-secondary"><i class="fa-solid fa-rotate"></i> 加载更多帖子</button></div>
+                </div>
+
+                <div class="td-tab-panel" data-td-panel="video" role="tabpanel" hidden>
+
+                <div class="post-card">
+                    <div class="post-head">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=120')"></div>
+                        <div class="info">
+                            <div class="nm">Echo</div>
+                            <div class="meta"><span>视频博主</span><span class="dot"></span><span>1 小时前</span><span class="dot"></span><span><i class="fa-solid fa-video"></i> 4:32</span></div>
+                        </div>
+                    </div>
+                    <div class="post-text">凌晨 3 点出发，富士山五合目登顶 vlog 全记录。这次拍到了百年一遇的火烧云！<br/><span class="hashtag"># 富士山日出</span></div>
+                    <div class="post-media post-media--video">
+                        <video class="td-topic-video" playsinline controls preload="metadata" poster="https://images.unsplash.com/photo-1542642745-f03d8e3aa54c?w=1200&q=80">
+                            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+                        </video>
+                        <div class="post-media-duration">4:32</div>
+                    </div>
+                    <div class="post-actions">
+                        <span><i class="fa-regular fa-heart"></i> 3,224</span>
+                        <span><i class="fa-regular fa-comment"></i> 218</span>
+                        <span><i class="fa-regular fa-bookmark"></i> 526</span>
+                        <span><i class="fa-solid fa-arrow-up-right-from-square"></i> 分享</span>
+                        <span class="tip-cta"><i class="fa-solid fa-gift"></i> 打赏</span>
+                    </div>
+                </div>
+
+                <div class="post-card">
+                    <div class="post-head">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120')"></div>
+                        <div class="info">
+                            <div class="nm">Ken <span class="fl-badge fl-badge--creator" title="认证创作者" aria-label="认证创作者"><i class="fa-solid fa-palette"></i></span></div>
+                            <div class="meta"><span>延时摄影</span><span class="dot"></span><span>昨天</span><span class="dot"></span><span><i class="fa-solid fa-video"></i> 2:18</span></div>
+                        </div>
+                    </div>
+                    <div class="post-text">五合目 30 秒延时：从星轨到第一缕金光。<span class="hashtag"># 富士山日出</span></div>
+                    <div class="post-media post-media--video">
+                        <video class="td-topic-video" playsinline controls preload="metadata" poster="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80">
+                            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+                        </video>
+                        <div class="post-media-duration">2:18</div>
+                    </div>
+                    <div class="post-actions">
+                        <span><i class="fa-regular fa-heart"></i> 1,892</span>
+                        <span><i class="fa-regular fa-comment"></i> 74</span>
+                        <span><i class="fa-regular fa-bookmark"></i> 301</span>
+                        <span><i class="fa-solid fa-arrow-up-right-from-square"></i> 分享</span>
+                        <span class="tip-cta"><i class="fa-solid fa-gift"></i> 打赏</span>
+                    </div>
+                </div>
+
+                <div style="text-align: center; padding: 24px"><button class="btn btn-secondary"><i class="fa-solid fa-rotate"></i> 加载更多视频</button></div>
+                </div>
+
+                <div class="td-tab-panel" data-td-panel="live" role="tabpanel" hidden>
+
+                <div class="post-card">
+                    <div class="post-head">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120')"></div>
+                        <div class="info">
+                            <div class="nm">Luna 🌙 <span class="fl-badge fl-badge--creator" title="认证创作者" aria-label="认证创作者"><i class="fa-solid fa-palette"></i></span></div>
+                            <div class="meta"><span>摄影师</span><span class="dot"></span><span>正在直播</span><span class="dot"></span><span><i class="fa-solid fa-location-dot"></i> 富士山五合目</span></div>
+                        </div>
+                    </div>
+                    <div class="post-text">实时看云海与日出 · 户外机位，欢迎连麦问机位与参数。</div>
+                    <div class="post-media post-media--live" onclick="location.href='live-detail.html'" role="link" tabindex="0">
+                        <img src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=1200" alt="" loading="lazy" decoding="async">
+                        <div class="td-live-overlay">
+                            <div class="live-row">
+                                <span class="live-badge"><i class="fa-solid fa-circle" style="font-size:7px"></i> 直播中</span>
+                                <span class="live-viewers"><i class="fa-solid fa-eye"></i> 2,841</span>
+                            </div>
+                            <span class="live-hint"><i class="fa-solid fa-play"></i> 点击进入直播间</span>
+                        </div>
+                    </div>
+                    <div class="post-actions">
+                        <span><i class="fa-regular fa-heart"></i> 968</span>
+                        <span><i class="fa-regular fa-comment"></i> 412</span>
+                        <span class="tip-cta"><i class="fa-solid fa-gift"></i> 送礼</span>
+                        <span><i class="fa-solid fa-arrow-up-right-from-square"></i> 分享</span>
+                    </div>
+                </div>
+
+                <div class="post-card">
+                    <div class="post-head">
+                        <div class="av" style="background-image: url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120')"></div>
+                        <div class="info">
+                            <div class="nm">Yuki</div>
+                            <div class="meta"><span>户外向导</span><span class="dot"></span><span>正在直播</span></div>
+                        </div>
+                    </div>
+                    <div class="post-text">河口湖机位实况 · 带你看逆富士与晨雾。</div>
+                    <div class="post-media post-media--live" onclick="location.href='live-detail.html'" role="link" tabindex="0">
+                        <img src="https://images.unsplash.com/photo-1542435503-956c469947f6?w=1200" alt="" loading="lazy" decoding="async">
+                        <div class="td-live-overlay">
+                            <div class="live-row">
+                                <span class="live-badge"><i class="fa-solid fa-circle" style="font-size:7px"></i> 直播中</span>
+                                <span class="live-viewers"><i class="fa-solid fa-eye"></i> 1,206</span>
+                            </div>
+                            <span class="live-hint"><i class="fa-solid fa-play"></i> 点击进入直播间</span>
+                        </div>
+                    </div>
+                    <div class="post-actions">
+                        <span><i class="fa-regular fa-heart"></i> 524</span>
+                        <span><i class="fa-regular fa-comment"></i> 189</span>
+                        <span class="tip-cta"><i class="fa-solid fa-gift"></i> 送礼</span>
+                        <span><i class="fa-solid fa-arrow-up-right-from-square"></i> 分享</span>
+                    </div>
+                </div>
+
+                <div style="text-align: center; padding: 24px"><button class="btn btn-secondary"><i class="fa-solid fa-rotate"></i> 加载更多直播</button></div>
+                </div>
+                </div>
             </div>
 
             <!-- 右侧 -->
@@ -557,17 +598,6 @@
                     <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--t-tertiary); margin-top: 8px">
                         <span>4/19</span><span>4/22</span><span>4/25</span><span>今天</span>
                     </div>
-                    <div style="margin-top: 12px; padding: 10px 12px; background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.18); border-radius: 8px; font-size: 11.5px; color: var(--success-light); display: flex; gap: 7px; align-items: center">
-                        <i class="fa-solid fa-arrow-trend-up"></i> 持续上升 8 天 · 周环比 +186%
-                    </div>
-                </div>
-
-                <div class="aside-card">
-                    <h4><span class="dt"></span>相关话题</h4>
-                    <div class="related-topic" onclick="location.href='topic-detail.html'"><div class="tag-ic"><i class="fa-solid fa-hashtag"></i></div><div class="info"><div class="ti">京都之春</div><div class="sub">4.8K 帖 · 旅行摄影</div></div></div>
-                    <div class="related-topic" onclick="location.href='topic-detail.html'"><div class="tag-ic"><i class="fa-solid fa-hashtag"></i></div><div class="info"><div class="ti">银盐时代</div><div class="sub">3.4K 帖 · 胶片摄影</div></div></div>
-                    <div class="related-topic" onclick="location.href='topic-detail.html'"><div class="tag-ic"><i class="fa-solid fa-hashtag"></i></div><div class="info"><div class="ti">城市街拍</div><div class="sub">7.6K 帖 · 摄影</div></div></div>
-                    <div class="related-topic" onclick="location.href='topic-detail.html'"><div class="tag-ic"><i class="fa-solid fa-hashtag"></i></div><div class="info"><div class="ti">日落余晖</div><div class="sub">5.2K 帖 · 自然</div></div></div>
                 </div>
             </aside>
 
@@ -576,9 +606,31 @@
 
 </div>
 
+<div class="toast-host-f" id="toastHostF" aria-live="polite"></div>
+<div id="flStandaloneModalRoot" class="fl-modal--default" aria-hidden="true" style="display:none;position:fixed;inset:0;z-index:99999;align-items:center;justify-content:center;padding:clamp(12px,3vw,24px);background:rgba(0,0,0,0.58);backdrop-filter:blur(10px);">
+    <iframe title="GOODFANS 弹窗" style="width:min(940px,calc(100vw - 32px));height:min(920px,calc(100vh - 32px));border:none;border-radius:var(--r-xl);background:transparent;box-shadow:0 28px 70px rgba(0,0,0,0.5);pointer-events:auto;"></iframe>
+</div>
+
+<script>
+(function () {
+    window.toast = function (msg) {
+        var host = document.getElementById('toastHostF');
+        if (!host) return;
+        var t = document.createElement('div');
+        t.className = 'toast-f';
+        t.textContent = msg;
+        host.appendChild(t);
+        setTimeout(function () { t.remove(); }, 2400);
+    };
+})();
+</script>
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>
 <script src="../js-web/page-back-nav.js"></script>
 <script src="../js-web/web-icons.js"></script>
+<script src="../js-web/fl-interaction-modal.js"></script>
+<script src="../js-web/gift-modal-context.js"></script>
+<script src="../js/topic-detail-tabs.js"></script>
+<script src="../js-web/topic-detail-page.js"></script>
 </body>
 </html>

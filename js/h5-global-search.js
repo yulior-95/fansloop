@@ -3,12 +3,17 @@
  */
 (function (global) {
     var HISTORY_KEY = 'fl_search_history';
-    var HOT_TOPICS = [
-        { t: '# 富士山日出', sub: '2.1k 帖子 · 趋势 +18%', href: 'search.html?q=' + encodeURIComponent('富士山日出') },
-        { t: '# Web3 创作者经济', sub: '8.4k 帖子', href: 'search.html?q=' + encodeURIComponent('Web3 创作者经济') },
-        { t: '# 春日 Vlog', sub: '1.2k 帖子', href: 'search.html?q=' + encodeURIComponent('春日 Vlog') },
-        { t: '# 一首歌的故事', sub: '920 帖子', href: 'search.html?q=' + encodeURIComponent('一首歌的故事') }
-    ];
+    function hotTopicsForDrop() {
+        if (typeof global.FL_getTopicsLeaderboardHotTopics === 'function') {
+            return global.FL_getTopicsLeaderboardHotTopics(4);
+        }
+        return [
+            { t: '# 富士山日出', sub: '18.6K 帖 · 趋势 +186%', href: 'topic-detail.html' },
+            { t: '# Apex 大师之路', sub: '12.4K 帖 · 趋势 +98%', href: 'topic-detail.html' },
+            { t: '# 雨夜小提琴', sub: '9.8K 帖 · 趋势 +72%', href: 'topic-detail.html' },
+            { t: '# 城市街拍', sub: '7.6K 帖 · 趋势 +38%', href: 'topic-detail.html' }
+        ];
+    }
     var RECOMMEND_FOLLOW = [
         { n: '银盐时代', h: '摄影 · 1.2k 粉丝', av: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80', href: 'creator-profile.html' },
         { n: '夜间速写', h: '绘画 · 856 粉丝', av: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80', href: 'creator-profile.html' },
@@ -16,9 +21,9 @@
     ];
     var GS_ITEMS = [
         { t: '创作者 Luna', sub: '@luna · 认证创作者', href: 'creator-profile.html' },
-        { t: '# 富士山日出', sub: '话题 · 2.1k 帖子', href: 'search.html?q=' + encodeURIComponent('富士山日出') },
-        { t: '京都樱花摄影教程', sub: '内容 · Lens 旅记', href: 'search.html?q=' + encodeURIComponent('京都樱花') },
-        { t: 'Web3 创作者经济', sub: '话题', href: 'search.html?q=' + encodeURIComponent('Web3 创作者经济') }
+        { t: '# 富士山日出', sub: '话题 · 18.6K 帖子', href: 'topic-detail.html' },
+        { t: '京都樱花摄影教程', sub: '内容 · Lens 旅记', href: 'video-detail.html' },
+        { t: 'Web3 创作者经济', sub: '话题', href: 'topics.html' }
     ];
 
     function toast(msg) {
@@ -109,8 +114,9 @@
         }
         html += '</div>';
 
-        html += '<div class="h5-gs-sec"><div class="h5-gs-hd"><span>热门话题</span></div>';
-        HOT_TOPICS.forEach(function (x) {
+        html += '<div class="h5-gs-sec"><div class="h5-gs-hd"><span>热门话题</span>' +
+            '<button type="button" class="h5-gs-link" data-href="topics.html">更多</button></div>';
+        hotTopicsForDrop().forEach(function (x) {
             html += '<button type="button" class="h5-gs-row" data-href="' + esc(x.href) + '">' +
                 '<i class="fa-solid fa-fire" style="color:#F472B6"></i>' +
                 '<span class="info"><span class="n">' + esc(x.t) + '</span><span class="h">' + esc(x.sub) + '</span></span></button>';
@@ -118,7 +124,7 @@
         html += '</div>';
 
         html += '<div class="h5-gs-sec"><div class="h5-gs-hd"><span>推荐关注</span>' +
-            '<button type="button" class="h5-gs-link" data-href="search.html">搜索页</button></div>';
+            '<button type="button" class="h5-gs-link" data-href="topics.html">热门话题</button></div>';
         RECOMMEND_FOLLOW.forEach(function (x) {
             html += '<button type="button" class="h5-gs-row" data-href="' + esc(x.href) + '">' +
                 '<span class="av" style="background-image:url(\'' + x.av + '\')"></span>' +

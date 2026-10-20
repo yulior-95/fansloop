@@ -43,193 +43,79 @@
 .topic-hero .hs .v { font-size: 22px; font-weight: 800; letter-spacing: -0.4px; }
 .topic-hero .hs .k { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-/* 排行榜 hero */
-.tp-rank {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 28px;
+/* 话题排行榜列表（无封面） */
+.tp-leaderboard {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
 }
-.tp-rank .rk {
+.tp-lb-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--r-lg);
-    padding: 18px;
-    position: relative;
-    overflow: hidden;
     cursor: pointer;
     transition: 0.18s;
 }
-.tp-rank .rk:hover { transform: translateY(-3px); border-color: var(--border-strong); }
-.tp-rank .rk::before {
-    content: '';
-    position: absolute;
-    top: -30px; right: -30px;
-    width: 130px; height: 130px;
-    border-radius: 50%;
-    opacity: 0.18;
-}
-.tp-rank .rk.r1::before { background: radial-gradient(circle, #FBBF24, transparent 70%); }
-.tp-rank .rk.r2::before { background: radial-gradient(circle, #C0C0C0, transparent 70%); }
-.tp-rank .rk.r3::before { background: radial-gradient(circle, #CD7F32, transparent 70%); }
-.tp-rank .rk-no {
-    position: absolute;
-    top: 14px; right: 16px;
-    font-size: 56px;
+.tp-lb-row:hover { border-color: var(--border-strong); background: rgba(168,85,247,0.04); }
+.tp-lb-rank {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 15px;
     font-weight: 900;
-    color: rgba(255,255,255,0.04);
-    letter-spacing: -3px;
-    z-index: 0;
-    line-height: 1;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
 }
-.tp-rank .rk-medal {
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    display: inline-flex; align-items: center; justify-content: center;
+.tp-lb-rank.rank-1 { background: linear-gradient(145deg, #fde047, #f59e0b); font-size: 18px; }
+.tp-lb-rank.rank-2 { background: linear-gradient(145deg, #f1f5f9, #94a3b8); color: #1e293b; font-size: 17px; }
+.tp-lb-rank.rank-3 { background: linear-gradient(145deg, #fdba74, #c2410c); font-size: 17px; }
+.tp-lb-rank.rank-top {
+    background: linear-gradient(145deg, rgba(168,85,247,0.95), rgba(236,72,153,0.85));
     font-size: 14px;
-    color: #fff;
-    margin-bottom: 12px;
-    position: relative; z-index: 1;
-    box-shadow: 0 6px 14px rgba(0,0,0,0.3);
+    letter-spacing: -0.5px;
 }
-.tp-rank .rk.r1 .rk-medal { background: linear-gradient(135deg, #FBBF24, #F59E0B); }
-.tp-rank .rk.r2 .rk-medal { background: linear-gradient(135deg, #E5E7EB, #9CA3AF); }
-.tp-rank .rk.r3 .rk-medal { background: linear-gradient(135deg, #FB923C, #B45309); }
-.tp-rank .rk h3 { font-size: 18px; font-weight: 800; margin-bottom: 4px; position: relative; z-index: 1; }
-.tp-rank .rk p { font-size: 12px; color: var(--t-tertiary); margin-bottom: 14px; line-height: 1.5; position: relative; z-index: 1; }
-.tp-rank .rk .rk-foot {
-    display: flex; align-items: center; gap: 14px;
-    font-size: 11px; color: var(--t-tertiary);
-    position: relative; z-index: 1;
-}
-.tp-rank .rk .rk-foot .grow { color: var(--success-light); font-weight: 700; }
-
-/* 分类 */
-.cat-row {
-    display: flex; gap: 6px; flex-wrap: wrap;
-    margin-bottom: 22px;
-    padding: 8px;
-    background: var(--bg-card);
+.tp-lb-rank.rank-plain {
+    background: transparent;
+    box-shadow: none;
     border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    width: fit-content;
-}
-.cat-row .ch {
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 12.5px;
     color: var(--t-tertiary);
-    cursor: pointer;
-    display: flex; align-items: center; gap: 6px;
-}
-.cat-row .ch.active { background: var(--brand-grad); color: #fff; font-weight: 600; box-shadow: 0 4px 10px rgba(168,85,247,0.3); }
-
-/* 话题列表 */
-.tp-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 16px;
-}
-
-.tp-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    overflow: hidden;
-    transition: 0.18s;
-    cursor: pointer;
-    position: relative;
-}
-.tp-card:hover { transform: translateY(-3px); border-color: var(--border-strong); box-shadow: 0 12px 30px rgba(0,0,0,0.4); }
-
-.tp-card .cover {
-    aspect-ratio: 16/8;
-    background-size: cover;
-    background-position: center;
-    position: relative;
-}
-.tp-card .cover::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,0.1) 30%, rgba(0,0,0,0.7));
-}
-.tp-card .cover .top {
-    position: absolute;
-    top: 12px; left: 12px; right: 12px;
-    display: flex; justify-content: space-between; align-items: center;
-    z-index: 2;
-}
-.tp-card .cover .hash {
-    padding: 5px 11px;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 999px;
-    color: #fff;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
 }
-.tp-card .cover .heat {
-    padding: 4px 10px;
-    background: linear-gradient(135deg, #EF4444, #F59E0B);
-    border-radius: 6px;
-    color: #fff;
-    font-size: 10.5px;
-    font-weight: 700;
-    display: flex; align-items: center; gap: 5px;
+.tp-lb-main { flex: 1; min-width: 0; }
+.tp-lb-title { font-size: 15px; font-weight: 800; margin-bottom: 6px; }
+.tp-lb-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 11.5px;
+    color: var(--t-tertiary);
 }
-.tp-card .cover .bot {
-    position: absolute;
-    bottom: 12px; left: 14px; right: 14px;
-    z-index: 2;
-    color: #fff;
-}
-.tp-card .cover .bot h3 {
-    font-size: 17px;
+.tp-lb-stats i { margin-right: 4px; opacity: 0.85; }
+.tp-lb-grow {
+    flex-shrink: 0;
+    font-size: 13px;
     font-weight: 800;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.5);
-    margin-bottom: 4px;
+    color: var(--success-light);
 }
-.tp-card .cover .bot .sub {
-    font-size: 12px;
-    color: rgba(255,255,255,0.85);
-}
-.tp-card .body { padding: 14px 16px; }
-.tp-card .body .meta {
-    display: flex; align-items: center; gap: 14px;
-    font-size: 11.5px;
-    color: var(--t-tertiary);
-    margin-bottom: 10px;
-}
-.tp-card .body .av-stack {
-    display: inline-flex;
-    margin-right: 6px;
-}
-.tp-card .body .recent {
-    background: rgba(168,85,247,0.06);
-    border: 1px solid rgba(168,85,247,0.18);
-    border-radius: 8px;
-    padding: 8px 11px;
-    font-size: 11.5px;
-    line-height: 1.5;
-    color: var(--t-secondary);
-    display: flex; gap: 6px;
-}
-.tp-card .body .recent i { color: #C084FC; font-size: 11px; margin-top: 2px; }
-.tp-card .body .recent .qt { color: var(--t-primary); font-weight: 600; }
+.tp-lb-grow.is-down { color: #f87171; }
+.tp-lb-grow.is-flat { color: var(--t-tertiary); font-weight: 700; }
+.tp-lb-row.is-lazy-hidden,
+.h5-lb-row.is-lazy-hidden { display: none; }
+.tp-lb-sentinel { height: 1px; }
 
-.tp-card .new-badge {
-    position: absolute;
-    top: 12px; right: 12px;
-    padding: 3px 9px;
-    background: linear-gradient(135deg, #06B6D4, #3B82F6);
-    border-radius: 999px;
-    color: #fff;
-    font-size: 10px;
-    font-weight: 700;
-    z-index: 3;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-}
 </style>
 
 <link rel="stylesheet" href="../css-web/global-lang-switch.css">
@@ -305,276 +191,636 @@
         </div>
 
         <div class="topic-hero">
-            <h2><span class="fire"><i class="fa-solid fa-fire"></i></span>正在燃起的 360+ 话题</h2>
-            <p>从摄影、音乐、游戏到 Web3 行业讨论——GOODFANS 的每一条热门话题都聚集着数千位创作者和粉丝在实时讨论。</p>
+            <h2><span class="fire"><i class="fa-solid fa-fire"></i></span>正在燃起的 <span id="topicsHeroTotal">…</span> 话题</h2>
+            <p>GOODFANS 的每一条热门话题都聚集着数千位创作者和粉丝在实时讨论。</p>
             <div class="hero-stats">
-                <div class="hs"><div class="v">360</div><div class="k">活跃话题</div></div>
+                <div class="hs"><div class="v">360</div><div class="k">本周活跃话题</div></div>
                 <div class="hs"><div class="v">42.6K</div><div class="k">今日新增帖子</div></div>
                 <div class="hs"><div class="v">1.8M</div><div class="k">本周参与人次</div></div>
                 <div class="hs"><div class="v">28</div><div class="k">直播中</div></div>
             </div>
         </div>
 
-        <!-- TOP 3 -->
+        <!-- 上线：本周前 50 名；原型共 50 条：首屏 5 + 懒加载 9 次 × 5 条 -->
         <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 14px; display: flex; align-items: center; gap: 10px">
             <span style="width: 4px; height: 18px; background: var(--brand-grad); border-radius: 2px"></span>
-            本周风云榜 TOP 3
+            排行前50名的话题
         </h3>
-        <div class="tp-rank">
-            <div class="rk r1" onclick="location.href='topic-detail.html'">
-                <span class="rk-no">01</span>
-                <div class="rk-medal"><i class="fa-solid fa-crown"></i></div>
-                <h3># 富士山日出</h3>
-                <p>4 月里日本各地摄影师纷纷上山，分享凌晨 4 点的零下世界与火红地平线。</p>
-                <div class="rk-foot">
-                    <span><i class="fa-solid fa-fire"></i> 18.6K 帖</span>
-                    <span><i class="fa-regular fa-eye"></i> 4.2M</span>
-                    <span class="grow"><i class="fa-solid fa-arrow-trend-up"></i> +186%</span>
+        <div class="tp-leaderboard">
+            <div class="tp-lb-row" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-1" title="第 1 名"><i class="fa-solid fa-crown"></i></div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 富士山日出</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>18.6K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>4.2M 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>1.8K 创作者</span>
+                    </div>
                 </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +186%</div>
             </div>
-            <div class="rk r2" onclick="location.href='topic-detail.html'">
-                <span class="rk-no">02</span>
-                <div class="rk-medal"><i class="fa-solid fa-medal"></i></div>
-                <h3># Apex 大师之路</h3>
-                <p>赛季末冲分高峰，主播们直播开黑，弹幕实时围观，付费助阵榜单刷新中。</p>
-                <div class="rk-foot">
-                    <span><i class="fa-solid fa-fire"></i> 12.4K 帖</span>
-                    <span><i class="fa-regular fa-eye"></i> 3.1M</span>
-                    <span class="grow"><i class="fa-solid fa-arrow-trend-up"></i> +98%</span>
+            <div class="tp-lb-row" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-2" title="第 2 名"><i class="fa-solid fa-medal"></i></div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># Apex 大师之路</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>12.4K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>3.1M 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>28 创作者</span>
+                    </div>
                 </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +98%</div>
             </div>
-            <div class="rk r3" onclick="location.href='topic-detail.html'">
-                <span class="rk-no">03</span>
-                <div class="rk-medal"><i class="fa-solid fa-award"></i></div>
-                <h3># 雨夜小提琴</h3>
-                <p>独立音乐人 Mason 引爆雨夜街头音乐挑战，已有 80+ 创作者参与翻奏。</p>
-                <div class="rk-foot">
-                    <span><i class="fa-solid fa-fire"></i> 9.8K 帖</span>
-                    <span><i class="fa-regular fa-eye"></i> 2.6M</span>
-                    <span class="grow"><i class="fa-solid fa-arrow-trend-up"></i> +72%</span>
+            <div class="tp-lb-row" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-3" title="第 3 名"><i class="fa-solid fa-award"></i></div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 雨夜小提琴</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>9.8K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>2.6M 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>820 创作者</span>
+                    </div>
                 </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +72%</div>
+            </div>
+            <div class="tp-lb-row" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-top">04</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 城市街拍</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>7.6K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>2.1M 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>1.2K 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +38%</div>
+            </div>
+            <div class="tp-lb-row" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-top">05</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># Solidity 入门</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>6.2K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>1.8M 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>412 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +56%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-top">06</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 周五咖啡馆</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>5.1K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>1.4M 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>286 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +42%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-top">07</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 京都之春</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>4.8K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>1.1M 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>620 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +28%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-top">08</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 银盐时代</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>3.4K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>890K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>318 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +24%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-top">09</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 京都拉面图鉴</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>2.8K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>720K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>240 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +18%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-top">10</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># Web3 创作者经济</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>2.4K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>650K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>198 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +15%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">11</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 深夜电台</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>2.2K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>610K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>176 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +14%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">12</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 公路电影</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>2.0K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>580K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>162 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +13%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">13</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 北欧极简家</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>1.9K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>540K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>148 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +12%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">14</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 手冲咖啡课</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>1.8K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>510K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>136 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +11%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">15</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 马拉松首秀</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>1.7K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>480K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>124 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +10%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">16</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 无人机航拍</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>1.6K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>450K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>118 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +9%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">17</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 复古游戏机</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>1.5K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>420K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>106 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +8%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">18</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 独立音乐人</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>1.4K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>390K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>98 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +8%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">19</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 露营装备党</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>1.3K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>360K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>92 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +7%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">20</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 猫咪行为学</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>1.2K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>340K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>86 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +7%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">21</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 二手胶片机</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>1.1K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>320K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>78 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +6%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">22</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 阳台园艺</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>1.0K 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>300K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>72 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +6%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">23</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 极简衣橱</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>980 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>280K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>68 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +5%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">24</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 城市骑行</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>920 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>260K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>64 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +5%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">25</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 播客入门</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>860 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>240K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>58 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +4%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">26</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 水彩慢生活</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>820 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>220K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>54 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +4%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">27</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 黑胶收藏</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>780 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>200K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>48 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +3%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">28</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 街头滑板</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>740 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>186K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>44 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +3%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">29</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 开源协作</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>710 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>172K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>40 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +2%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">30</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 周末市集</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>680 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>160K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>36 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +2%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">31</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 晨跑打卡</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>660 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>158K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>34 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +2%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">32</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 古风汉服</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>653 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>156K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>34 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +2%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">33</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 机甲模型</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>646 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>154K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>33 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +2%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">34</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 小众播客</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>639 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>152K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>33 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +2%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">35</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 城市露营</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>632 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>150K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>32 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +2%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">36</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 胶片冲洗</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>625 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>148K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>32 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +2%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">37</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 室内绿植</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>618 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>146K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>31 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +2%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">38</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 精酿啤酒</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>611 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>144K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>31 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +2%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">39</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 古典吉他</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>604 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>142K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>30 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +2%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">40</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 街霸格斗</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>597 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>140K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>30 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +2%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">41</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 考研日记</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>590 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>138K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>29 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +1%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">42</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 减脂餐</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>583 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>136K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>29 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +1%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">43</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 国风插画</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>576 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>134K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>28 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +1%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">44</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 二手市集</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>569 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>132K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>28 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +1%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">45</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 地下 Live</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>562 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>130K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>27 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +1%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">46</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 桌面搭案</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>555 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>128K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>27 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +1%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">47</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 飞蝇钓</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>548 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>126K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>26 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +1%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">48</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 地铁阅读</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>541 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>124K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>26 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow"><i class="fa-solid fa-arrow-trend-up"></i> +1%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">49</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 独立播客</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>534 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>122K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>25 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow is-down"><i class="fa-solid fa-arrow-trend-down"></i> -8%</div>
+            </div>
+            <div class="tp-lb-row is-lazy-hidden" onclick="location.href='topic-detail.html'">
+                <div class="tp-lb-rank rank-plain">50</div>
+                <div class="tp-lb-main">
+                    <div class="tp-lb-title"># 夜跑安全</div>
+                    <div class="tp-lb-stats">
+                        <span><i class="fa-solid fa-fire"></i>527 帖</span>
+                        <span><i class="fa-regular fa-eye"></i>120K 浏览</span>
+                        <span><i class="fa-solid fa-user-group"></i>25 创作者</span>
+                    </div>
+                </div>
+                <div class="tp-lb-grow is-flat"><i class="fa-solid fa-minus"></i> 持平</div>
             </div>
         </div>
 
-        <!-- 分类 -->
-        <div class="cat-row">
-            <div class="ch active"><i class="fa-solid fa-fire"></i> 全部</div>
-            <div class="ch"><i class="fa-solid fa-camera"></i> 摄影</div>
-            <div class="ch"><i class="fa-solid fa-music"></i> 音乐</div>
-            <div class="ch"><i class="fa-solid fa-gamepad"></i> 游戏</div>
-            <div class="ch"><i class="fa-solid fa-utensils"></i> 美食</div>
-            <div class="ch"><i class="fa-solid fa-plane"></i> 旅行</div>
-            <div class="ch"><i class="fa-solid fa-microchip"></i> Web3</div>
-            <div class="ch"><i class="fa-solid fa-paintbrush"></i> 艺术</div>
-        </div>
-
-        <!-- 话题卡片 grid -->
-        <div class="tp-grid">
-
-            <div class="tp-card" onclick="location.href='topic-detail.html'">
-                <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=600')">
-                    <div class="top">
-                        <span class="hash"># 富士山日出</span>
-                        <span class="heat"><i class="fa-solid fa-fire"></i> HOT</span>
-                    </div>
-                    <div class="bot"><h3>富士山五合目 · 零下 4℃ 的清晨</h3><div class="sub">18.6K 帖 · 摄影 · 旅行</div></div>
-                </div>
-                <div class="body">
-                    <div class="meta">
-                        <span class="av-stack">
-                            <span class="av av-xs" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></span>
-                            <span class="av av-xs" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></span>
-                            <span class="av av-xs" style="background-image: url('https://images.unsplash.com/photo-1463453091185-61582044d556?w=80')"></span>
-                        </span>
-                        <span>+1.8K 创作者</span>
-                        <span style="margin-left: auto; color: var(--success-light); font-weight: 700"><i class="fa-solid fa-arrow-trend-up"></i> +186%</span>
-                    </div>
-                    <div class="recent">
-                        <i class="fa-solid fa-quote-left"></i>
-                        <span><span class="qt">Luna 🌙</span> 刚刚发布：清晨 5:40，云海被风轻轻吹散，每一帧都是冻出来的浪漫…</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tp-card" onclick="location.href='topic-detail.html'">
-                <span class="new-badge">直播中</span>
-                <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600')">
-                    <div class="top">
-                        <span class="hash"># Apex 大师之路</span>
-                        <span class="heat" style="background: linear-gradient(135deg,#DC2626,#F59E0B)"><i class="fa-solid fa-circle"></i> LIVE 28</span>
-                    </div>
-                    <div class="bot"><h3>赛季末冲分高峰夜</h3><div class="sub">12.4K 帖 · 游戏直播</div></div>
-                </div>
-                <div class="body">
-                    <div class="meta">
-                        <span class="av-stack">
-                            <span class="av av-xs" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80')"></span>
-                            <span class="av av-xs" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></span>
-                        </span>
-                        <span>28 主播开播</span>
-                        <span style="margin-left: auto; color: var(--success-light); font-weight: 700"><i class="fa-solid fa-arrow-trend-up"></i> +98%</span>
-                    </div>
-                    <div class="recent">
-                        <i class="fa-solid fa-quote-left"></i>
-                        <span><span class="qt">NovaPlay</span> 正在直播：周五开黑 · 准点上分到大师！</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tp-card" onclick="location.href='topic-detail.html'">
-                <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=600')">
-                    <div class="top">
-                        <span class="hash"># 雨夜小提琴</span>
-                        <span class="heat"><i class="fa-solid fa-fire"></i> HOT</span>
-                    </div>
-                    <div class="bot"><h3>独立音乐人 80+ 参与翻奏挑战</h3><div class="sub">9.8K 帖 · 音乐</div></div>
-                </div>
-                <div class="body">
-                    <div class="meta">
-                        <span class="av-stack">
-                            <span class="av av-xs" style="background-image: url('https://images.unsplash.com/photo-1463453091185-61582044d556?w=80')"></span>
-                            <span class="av av-xs" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80')"></span>
-                        </span>
-                        <span>820 创作者</span>
-                        <span style="margin-left: auto; color: var(--success-light); font-weight: 700"><i class="fa-solid fa-arrow-trend-up"></i> +72%</span>
-                    </div>
-                    <div class="recent"><i class="fa-solid fa-quote-left"></i><span><span class="qt">Mason</span> 在暴雨中即兴的现场，已被翻奏 36 次。</span></div>
-                </div>
-            </div>
-
-            <div class="tp-card" onclick="location.href='topic-detail.html'">
-                <span class="new-badge">NEW</span>
-                <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1551434678-e076c223a692?w=600')">
-                    <div class="top">
-                        <span class="hash"># Solidity 入门</span>
-                        <span class="heat" style="background: linear-gradient(135deg,#3B82F6,#06B6D4)"><i class="fa-solid fa-microchip"></i> Web3</span>
-                    </div>
-                    <div class="bot"><h3>从零写一个 NFT 智能合约</h3><div class="sub">6.2K 帖 · 教程</div></div>
-                </div>
-                <div class="body">
-                    <div class="meta">
-                        <span class="av-stack">
-                            <span class="av av-xs" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80')"></span>
-                            <span class="av av-xs" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80')"></span>
-                        </span>
-                        <span>412 创作者</span>
-                        <span style="margin-left: auto; color: var(--success-light); font-weight: 700"><i class="fa-solid fa-arrow-trend-up"></i> +56%</span>
-                    </div>
-                    <div class="recent"><i class="fa-solid fa-quote-left"></i><span><span class="qt">DevHub</span> 发布完整教程，已被 2.1K 用户收藏。</span></div>
-                </div>
-            </div>
-
-            <div class="tp-card" onclick="location.href='topic-detail.html'">
-                <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1493612276216-ee3925520721?w=600')">
-                    <div class="top">
-                        <span class="hash"># 周五咖啡馆</span>
-                        <span class="heat" style="background: linear-gradient(135deg,#A855F7,#EC4899)"><i class="fa-solid fa-microphone"></i> 谈话</span>
-                    </div>
-                    <div class="bot"><h3>关于成长的几件小事 · 第 4 期</h3><div class="sub">5.1K 帖 · 谈话</div></div>
-                </div>
-                <div class="body">
-                    <div class="meta">
-                        <span class="av-stack">
-                            <span class="av av-xs" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80')"></span>
-                        </span>
-                        <span>286 创作者</span>
-                        <span style="margin-left: auto; color: var(--success-light); font-weight: 700"><i class="fa-solid fa-arrow-trend-up"></i> +42%</span>
-                    </div>
-                    <div class="recent"><i class="fa-solid fa-quote-left"></i><span><span class="qt">Echo</span> 周四直播深度对谈，9.8K 在线观看。</span></div>
-                </div>
-            </div>
-
-            <div class="tp-card" onclick="location.href='topic-detail.html'">
-                <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=600')">
-                    <div class="top">
-                        <span class="hash"># 城市街拍</span>
-                        <span class="heat"><i class="fa-solid fa-camera"></i> 摄影</span>
-                    </div>
-                    <div class="bot"><h3>地铁里的色彩与故事</h3><div class="sub">7.6K 帖 · 摄影</div></div>
-                </div>
-                <div class="body">
-                    <div class="meta">
-                        <span class="av-stack">
-                            <span class="av av-xs" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></span>
-                            <span class="av av-xs" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80')"></span>
-                        </span>
-                        <span>1.2K 创作者</span>
-                        <span style="margin-left: auto; color: var(--success-light); font-weight: 700"><i class="fa-solid fa-arrow-trend-up"></i> +38%</span>
-                    </div>
-                    <div class="recent"><i class="fa-solid fa-quote-left"></i><span><span class="qt">Aria</span> 的胶片长卷被推荐到首页，连续 3 天热度上升。</span></div>
-                </div>
-            </div>
-
-            <div class="tp-card" onclick="location.href='topic-detail.html'">
-                <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1497636577773-f1231844b336?w=600')">
-                    <div class="top">
-                        <span class="hash"># 京都之春</span>
-                        <span class="heat"><i class="fa-solid fa-plane"></i> 旅行</span>
-                    </div>
-                    <div class="bot"><h3>樱花季的祇园清晨</h3><div class="sub">4.8K 帖 · 旅行</div></div>
-                </div>
-                <div class="body">
-                    <div class="meta">
-                        <span class="av-stack">
-                            <span class="av av-xs" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80')"></span>
-                        </span>
-                        <span>620 创作者</span>
-                        <span style="margin-left: auto; color: var(--success-light); font-weight: 700"><i class="fa-solid fa-arrow-trend-up"></i> +28%</span>
-                    </div>
-                    <div class="recent"><i class="fa-solid fa-quote-left"></i><span><span class="qt">Luna 🌙</span> 在祇园拍摄的清晨长卷被推送到关注列表。</span></div>
-                </div>
-            </div>
-
-            <div class="tp-card" onclick="location.href='topic-detail.html'">
-                <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1542435503-956c469947f6?w=600')">
-                    <div class="top">
-                        <span class="hash"># 银盐时代</span>
-                        <span class="heat"><i class="fa-solid fa-camera-retro"></i> 胶片</span>
-                    </div>
-                    <div class="bot"><h3>暗房工作流复活计划</h3><div class="sub">3.4K 帖 · 摄影</div></div>
-                </div>
-                <div class="body">
-                    <div class="meta">
-                        <span class="av-stack">
-                            <span class="av av-xs" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80')"></span>
-                        </span>
-                        <span>318 创作者</span>
-                        <span style="margin-left: auto; color: var(--success-light); font-weight: 700"><i class="fa-solid fa-arrow-trend-up"></i> +24%</span>
-                    </div>
-                    <div class="recent"><i class="fa-solid fa-quote-left"></i><span><span class="qt">Aria</span> 的暗房教程已经吸引 612 个新粉丝订阅。</span></div>
-                </div>
-            </div>
-
-            <div class="tp-card" onclick="location.href='topic-detail.html'">
-                <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600')">
-                    <div class="top">
-                        <span class="hash"># 京都拉面图鉴</span>
-                        <span class="heat"><i class="fa-solid fa-utensils"></i> 美食</span>
-                    </div>
-                    <div class="bot"><h3>本月探店 24 家拉面店</h3><div class="sub">2.8K 帖 · 美食</div></div>
-                </div>
-                <div class="body">
-                    <div class="meta">
-                        <span class="av-stack">
-                            <span class="av av-xs" style="background-image: url('https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80')"></span>
-                        </span>
-                        <span>240 创作者</span>
-                        <span style="margin-left: auto; color: var(--success-light); font-weight: 700"><i class="fa-solid fa-arrow-trend-up"></i> +18%</span>
-                    </div>
-                    <div class="recent"><i class="fa-solid fa-quote-left"></i><span><span class="qt">Maya</span> 创建了拉面店地图，已被 612 人保存。</span></div>
-                </div>
-            </div>
-
-        </div>
-
-        <div style="text-align: center; padding: 36px">
-            <button class="btn btn-secondary"><i class="fa-solid fa-rotate"></i> 加载更多话题</button>
+        <div id="tpLbSentinel" class="tp-lb-sentinel" aria-hidden="true"></div>
+        <div class="tp-lb-load-more" style="text-align: center; padding: 36px">
+            <button type="button" id="tpLbLoadMore" class="btn btn-secondary"><i class="fa-solid fa-rotate"></i> 加载更多话题</button>
         </div>
 
     </main>
 
 </div>
 
+<script src="../js/topics-hero.js"></script>
+<script src="../js/topics-leaderboard-lazy.js"></script>
+<script src="../js/topics-leaderboard-catalog.js"></script>
 <script src="../js-web/global-search.js"></script>
 <script src="../js-web/app-sidebar-global.js"></script>
 <script src="../js-web/page-back-nav.js"></script>

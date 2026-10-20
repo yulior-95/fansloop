@@ -216,6 +216,8 @@
                 }
             });
         }
+
+        return { open: openMain, close: closeAll };
     }
 
     global.H5ShareSheets = { init: init };

@@ -198,15 +198,35 @@
         }
     }
 
+    function applyPendingContext(host) {
+        var ctx = global.FL_pendingShareContext;
+        if (!ctx || !host) return;
+        var ti = host.querySelector('.share-preview .ti');
+        if (ti && ctx.title) ti.textContent = ctx.title;
+        var byWrap = host.querySelector('.share-preview .by');
+        if (byWrap && ctx.by) {
+            var nameSpan = byWrap.querySelector('span:not(.av)');
+            if (nameSpan) nameSpan.textContent = ctx.by;
+        }
+        var thumb = host.querySelector('.share-preview .thumb');
+        if (thumb && ctx.thumb) {
+            if (thumb.tagName === 'IMG') thumb.src = ctx.thumb;
+            else thumb.style.backgroundImage = 'url("' + ctx.thumb + '")';
+        }
+        var urlEl = host.querySelector('.link-card .url');
+        if (urlEl && ctx.url) urlEl.textContent = ctx.url;
+    }
+
     function init(host) {
         host = host || document.body;
+        applyPendingContext(host);
         bindDismiss(host);
         bindPoster(host);
         bindCopy(host);
         bindShareDm(host);
     }
 
-    global.FLShareModalInline = { init: init };
+    global.FLShareModalInline = { init: init, applyPendingContext: applyPendingContext };
 
     function autoInitStandalone() {
         if (document.getElementById('flStandaloneModalRoot')) return;

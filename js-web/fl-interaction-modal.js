@@ -433,8 +433,18 @@
       });
   }
 
+  function shouldDelegateModalToParent() {
+    if (!window.parent || window.parent === window) return false;
+    try {
+      if (window.parent.FL_acceptsGoodfansModal === true) return true;
+      var href = window.parent.location && window.parent.location.href ? window.parent.location.href : '';
+      if (/yanshi-web\.html/i.test(href)) return true;
+    } catch (_) { /* cross-origin */ }
+    return false;
+  }
+
   window.FL_openInteractionModal = function (page) {
-    if (window.parent && window.parent !== window) {
+    if (shouldDelegateModalToParent()) {
       try {
         window.parent.postMessage({ type: 'goodfans-open-modal', page: page }, '*');
         return;

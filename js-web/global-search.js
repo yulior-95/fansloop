@@ -2,12 +2,17 @@
  * 全站全局搜索 · 下拉（历史 / 热门 / 推荐关注）
  */
 (function () {
-    var HOT_TOPICS = [
-        { t: '# 富士山日出', sub: '2.1k 帖子 · 趋势 +18%', href: 'topic-detail.html' },
-        { t: '# Web3 创作者经济', sub: '8.4k 帖子', href: 'topics.html' },
-        { t: '# 春日 Vlog', sub: '1.2k 帖子', href: 'topic-detail.html' },
-        { t: '# 一首歌的故事', sub: '920 帖子', href: 'topic-detail.html' }
-    ];
+    function hotTopicsForDrop() {
+        if (typeof window.FL_getTopicsLeaderboardHotTopics === 'function') {
+            return window.FL_getTopicsLeaderboardHotTopics(4);
+        }
+        return [
+            { t: '# 富士山日出', sub: '18.6K 帖 · 趋势 +186%', href: 'topic-detail.html' },
+            { t: '# Apex 大师之路', sub: '12.4K 帖 · 趋势 +98%', href: 'topic-detail.html' },
+            { t: '# 雨夜小提琴', sub: '9.8K 帖 · 趋势 +72%', href: 'topic-detail.html' },
+            { t: '# 城市街拍', sub: '7.6K 帖 · 趋势 +38%', href: 'topic-detail.html' }
+        ];
+    }
     var RECOMMEND_FOLLOW = [
         { n: '银盐时代', h: '摄影 · 1.2k 粉丝', av: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80' },
         { n: '夜间速写', h: '绘画 · 856 粉丝', av: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80' },
@@ -15,7 +20,7 @@
     ];
     var GS_ITEMS = [
         { t: '创作者 Luna', sub: '@luna · 认证创作者', href: 'profile.html' },
-        { t: '# 富士山日出', sub: '话题 · 2.1k 帖子', href: 'topic-detail.html' },
+        { t: '# 富士山日出', sub: '话题 · 18.6K 帖子', href: 'topic-detail.html' },
         { t: '京都樱花摄影教程', sub: '内容 · Lens 旅记', href: 'discover.html' },
         { t: 'Web3 创作者经济', sub: '话题', href: 'topics.html' }
     ];
@@ -80,8 +85,8 @@
             }
             html += '</div>';
 
-            html += '<div class="gs-drop-sec"><div class="gs-sec-hd"><span>热门话题</span></div>';
-            HOT_TOPICS.forEach(function (x) {
+            html += '<div class="gs-drop-sec"><div class="gs-sec-hd"><span>热门话题</span><a href="topics.html" class="gs-sec-more">更多</a></div>';
+            hotTopicsForDrop().forEach(function (x) {
                 html += '<button type="button" class="gs-drop-row" data-href="' + x.href + '"><i class="fa-solid fa-fire" style="color:#F472B6"></i><span class="info"><span class="n">' + x.t + '</span><span class="h">' + x.sub + '</span></span></button>';
             });
             html += '</div>';

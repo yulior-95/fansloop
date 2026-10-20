@@ -28,7 +28,7 @@
             titleKey: "set_grp_creator",
             items: [
                 { id: "subscription", label: "会员订阅设置", i18nKey: "set_nav_subscription", href: "settings-subscription.html", icon: "fa-solid fa-crown" },
-                { id: "ad-center", label: "广告中心", i18nKey: "set_nav_ad_center", href: "settings-ad.html", icon: "fa-solid fa-rectangle-ad" }
+                { id: "ad-center", label: "广告中心", i18nKey: "set_nav_ad_center", href: "settings.html?panel=ad", icon: "fa-solid fa-rectangle-ad", embedAd: true }
             ]
         },
         {
@@ -74,6 +74,12 @@
         if (document.body.dataset.settingsNavActive) {
             return document.body.dataset.settingsNavActive;
         }
+        try {
+            var qPanel = new URLSearchParams(location.search).get("panel");
+            if (qPanel === "ad" || document.body.getAttribute("data-settings-panel") === "ad") {
+                return "ad-center";
+            }
+        } catch (e) { /* file:// */ }
         var page = (location.pathname.split("/").pop() || "settings.html").split("?")[0];
         if (page === "settings-display.html" && location.hash === "#ga-global-access") {
             return "global-access";
@@ -102,6 +108,8 @@
             onclick = "";
         } else if (item.static) {
             onclick = "";
+        } else if (item.embedAd) {
+            onclick = ' data-ad-nav="1" role="button" tabindex="0" style="cursor:pointer"';
         } else if (!isActive) {
             onclick = ' onclick="location.href=\'' + item.href.replace(/'/g, "\\'") + '\'"';
         }
@@ -129,29 +137,37 @@
         return html;
     }
 
+    function jsWebBase() {
+        var scripts = document.getElementsByTagName("script");
+        for (var i = 0; i < scripts.length; i++) {
+            var src = scripts[i].src || "";
+            if (src.indexOf("settings-nav") >= 0) {
+                return src.replace(/\/js-web\/settings-nav\.js.*$/, "/js-web/");
+            }
+        }
+        return "../js-web/";
+    }
+
     function mount() {
         var activeId = resolveActiveId();
         var html = renderNav(activeId);
+        var base = jsWebBase();
         document.querySelectorAll("[data-settings-nav]").forEach(function (el) {
             el.innerHTML = html;
             el.setAttribute("aria-label", tr("set_nav_aria", "设置导航"));
         });
         document.dispatchEvent(new CustomEvent("settings-nav-mounted"));
         if (!document.querySelector('script[src*="settings-app-header.js"]')) {
-            var s = document.createElement('script');
-            var base = '';
-            var scripts = document.getElementsByTagName('script');
-            for (var i = 0; i < scripts.length; i++) {
-                var src = scripts[i].src || '';
-                if (src.indexOf('settings-nav') >= 0) {
-                    base = src.replace(/\/js-web\/settings-nav\.js.*$/, '/js-web/');
-                    break;
-                }
-            }
-            s.src = (base || '../js-web/') + 'settings-app-header.js';
+            var s = document.createElement("script");
+            s.src = base + "settings-app-header.js";
             document.body.appendChild(s);
         } else if (window.FL_applySettingsAppHeader) {
             window.FL_applySettingsAppHeader();
+        }
+        if (!document.querySelector('script[src*="settings-ad-embed.js"]')) {
+            var embed = document.createElement("script");
+            embed.src = base + "settings-ad-embed.js";
+            document.body.appendChild(embed);
         }
     }
 

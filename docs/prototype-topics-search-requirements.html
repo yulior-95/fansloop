@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GOODFANS 话题与搜索 · 需求说明</title>
+<style>
+:root {
+    --bg: #0f0f17; --card: #1a1a28; --border: rgba(255,255,255,0.1);
+    --text: rgba(255,255,255,0.92); --muted: rgba(255,255,255,0.55); --accent: #a855f7;
+    --code-bg: rgba(255,255,255,0.06);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 32px 20px 80px; }
+.wrap { max-width: 960px; margin: 0 auto; }
+header { margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+header h1 { font-size: 26px; font-weight: 800; }
+header p { color: var(--muted); margin-top: 8px; font-size: 14px; }
+.badge { display: inline-block; margin-top: 10px; padding: 4px 10px; border-radius: 999px; background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.35); color: #c4b5fd; font-size: 12px; font-weight: 600; margin-right: 8px; }
+article h2 { font-size: 19px; font-weight: 700; margin: 36px 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+article h3 { font-size: 14px; font-weight: 700; margin: 18px 0 8px; color: #e9d5ff; }
+article h4 { font-size: 13px; font-weight: 700; margin: 14px 0 6px; color: #ddd6fe; }
+article p, article li { font-size: 14px; color: var(--muted); }
+article ul { margin: 8px 0 8px 20px; }
+article li { margin: 5px 0; }
+article table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+article th, article td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+article table table.hero-formula { margin: 8px 0 0; font-size: 12px; }
+article table table.hero-formula th { background: rgba(255,255,255,0.04); font-size: 11px; }
+article table table.hero-formula code { font-size: 11px; }
+article th { background: var(--card); color: var(--text); }
+article code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; background: var(--code-bg); padding: 2px 6px; border-radius: 4px; color: #f0abfc; }
+article pre { font-family: ui-monospace, Consolas, monospace; font-size: 12px; background: var(--code-bg); padding: 12px 14px; border-radius: 8px; overflow-x: auto; margin: 10px 0; color: #e9d5ff; line-height: 1.5; border: 1px solid var(--border); }
+article .logic { margin: 10px 0; padding: 12px 14px; background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; font-size: 13px; color: var(--muted); line-height: 1.65; }
+article .logic ol, article .logic ul { margin: 6px 0 6px 18px; }
+article .logic li { margin: 4px 0; }
+article .dev-ref { font-size: 12px; color: var(--muted); margin-top: 8px; }
+article a { color: #93c5fd; }
+.note { margin: 12px 0; padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(168,85,247,0.08); border-radius: 0 8px 8px 0; font-size: 13px; color: var(--muted); }
+footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+    <h1>话题广场 · 话题详情 · 搜索热门</h1>
+    <p>Web 端三处入口的需求说明（展示 / 交互 / 数据）。原型当前以静态 HTML + 少量 JS 为主，无后端聚合。</p>
+    <span class="badge">Web topics / detail</span>
+    <span class="badge">H5 topics / detail</span>
+    <span class="badge">global-search.js</span>
+</header>
+
+<article>
+
+<!-- ========== 1 TOPICS ========== -->
+<h2 id="topics">1. 热门话题广场 · <a href="../pages-web/topics.html">topics.html</a></h2>
+
+<h3>页面结构</h3>
+<p style="font-size:13px;color:var(--muted);margin:0 0 10px">第二列「<strong style="color:var(--text)">原型定位</strong>」：在话题广场 HTML 里对应哪一块，主要写<strong>类名、层级</strong>（方便和 <code>topics.html</code> 对照改样式、接数据）；不是给用户看的产品文案。</p>
+<table>
+    <thead><tr><th>区域</th><th>原型定位（类名与层级）</th><th>内容与规则</th></tr></thead>
+    <tbody>
+        <tr><td>面包屑</td><td><code>main.app-main &gt; .crumb</code></td><td>首页 → 发现 → 热门话题</td></tr>
+        <tr>
+            <td>Hero 汇总</td>
+            <td><code>.topic-hero</code> 标题 + 副文案<br><code>.hero-stats</code> 四格 <code>.hs:nth-child(1..4) &gt; .v</code></td>
+            <td>
+                <p style="margin:0 0 8px"><strong>上线：</strong>下面每一格数字都由后台<strong>按规则实时统计</strong>，接口「话题汇总统计」返回后写入页面，<strong>不能</strong>在页面里写死。                <strong>共用说法（全文统一）：</strong><br>
+                · <strong>有效话题</strong>：符合 <a href="#valid-topic-total">§1.3</a> 的话题（已发布、未下架、用户看得见、审核通过等），同一个话题只算一次。<br>
+                · <strong>本周</strong>：北京时间，从本周一 0 点起，到下周周一 0 点止（与排行榜一致）。<br>
+                · <strong>今天</strong>：北京时间当天 0 点到次日 0 点。<br>
+                四指标细则见上表。</p>
+                <table class="hero-formula">
+                    <thead><tr><th>页面展示</th><th>统计时间范围</th><th>怎么算（通俗说明）</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td>正在燃起的 <strong>话题个数</strong></td>
+                            <td>当前时刻</td>
+                            <td>数一数：全站现在有多少个<strong>有效话题</strong>。老话题只要仍有效就算，和本周有没有新帖无关。这个数字和下面四格<strong>不是同一个含义</strong>。</td>
+                        </tr>
+                        <tr>
+                            <td>本周活跃话题</td>
+                            <td>本周</td>
+                            <td>在<strong>有效话题</strong>里，再数：本周有没有「动静」。满足任一即可算活跃：<br>
+                                ① 本周有人在该话题下<strong>发了新帖</strong>（已公开发布）；或<br>
+                                ② 本周在该话题下有过<strong>互动</strong>：有人点赞、评论、转发，或进入绑定了该话题的直播间（新发帖已在 ① 里）。<br>
+                                <strong>结果：</strong>满足 ① 或 ② 的话题各算 1 个，最后数一共有多少个。只有浏览、本周既没发帖也没互动的话题<strong>不算</strong>活跃。</td>
+                        </tr>
+                        <tr>
+                            <td>今日新增帖子</td>
+                            <td>今天</td>
+                            <td>数一数：今天新发布、且<strong>至少带一个有效话题标签</strong>的帖子有多少条。只算公开发布的帖；一条帖即使打了多个话题标签，也只算<strong>一条</strong>。进行中的直播场次不算在这里。</td>
+                        </tr>
+                        <tr>
+                            <td>本周参与人次</td>
+                            <td>本周</td>
+                            <td>数一数：本周在<strong>有效话题</strong>下发生了多少次「参与行为」（不是去重人数）。<br>
+                                · <strong>互动类</strong>（点赞、评论、转发、带话题发帖、进直播间等）：用户每做一次算 1 次，同一人做 10 次就算 10 次。<br>
+                                · <strong>浏览类</strong>（打开话题页、在话题下刷帖等）：同一人、同一话题、同一天里无论打开多少次，<strong>最多只计 1 次</strong>，用来防刷。<br>
+                                与排行榜排序用的「本周互动次数」不是同一个指标（口径见 §1.1），这里按上面规则纯累加次数。</td>
+                        </tr>
+                        <tr>
+                            <td>直播中</td>
+                            <td>打开页面这一刻</td>
+                            <td>数一数：此刻正在直播、且<strong>至少关联一个有效话题</strong>的直播间有多少间。已下播的不算；一间房绑多个话题仍算<strong>一间</strong>。不是本周开播总场次，会随时间变。</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr><td>排行前50名的话题</td><td><code>main.app-main &gt; h3</code> 小节标题 + <code>.tp-leaderboard</code>（H5：<code>.h5-sec-title</code> + <code>.h5-tp-leaderboard</code>）</td><td>纵向列表 <code>.tp-lb-row</code> / <code>.h5-lb-row</code>：仅展示本周排序<strong>第 1～50 名</strong>；每行名次、<code># 话题名</code>、<code>.tp-lb-stats</code>（帖 / 浏览 / 创作者）、<code>.tp-lb-grow</code>。名次样式见 §1.2</td></tr>
+        <tr><td>列表续载</td><td><code>#tpLbSentinel</code> + <code>#tpLbLoadMore</code></td><td><strong>上线：</strong>首批一页（如 20 条）；滚到底或点按钮加载下一页直到第 50 名。<strong>原型：</strong>共 <strong>50</strong> 条——首屏 5 条 + 隐藏 45 条（<code>.is-lazy-hidden</code>），每批 5、可懒加载 <strong>9 次</strong> 后显示「已加载全部话题」</td></tr>
+    </tbody>
+</table>
+
+<h3 id="rank-formula">1.1 排行前50名的话题 · 排序逻辑</h3>
+<p><strong>产品规则：</strong>广场主区只有<strong>一条列表</strong>（<code>.tp-leaderboard</code>），标题为「<strong>排行前50名的话题</strong>」。按 §1.1 算出完整序后，<strong>只展示前 50 名</strong>（rank 1～50），第 51 名及以后不在本页出现。首屏先出一页，之后通过<strong>滚到底</strong>或<strong>点「加载更多话题」</strong>懒加载下一页，直到第 50 名。第 1～3 名、第 4～10 名用更醒目的名次样式（§1.2），11～50 为普通序号。</p>
+<p><strong>统计时间：</strong>与全文「本周」一致（北京时间周一 0 点～下周一 0 点）；若全站改用「滚动近 7 天」，排行榜与 Hero 须同一口径。</p>
+<div class="logic">
+    <strong>先算每个有效话题在本周的三项数</strong>（只统计挂在该话题下、且发生在本周内的事件）：<br>
+    · <strong>互动次数</strong>：点赞、评论、转发、新发帖、进入绑该话题的直播间——每发生一次计 1 次（同一人重复操作也计多次；<strong>不算</strong>纯打开话题页、刷列表的浏览）。<br>
+    · <strong>有效发帖数</strong>（列表「N 帖」、排名第二 tie-break）：见 §1.2「有效发帖数怎么数」。<br>
+    · <strong>浏览人数</strong>：打开该话题页或话题下帖子详情的人数，按用户去重。<br>
+    <strong>怎么排名（不用配分值、不用加权公式）：</strong><br>
+    1. 先看<strong>互动次数</strong>，多的靠前；<br>
+    2. 一样多，比<strong>有效发帖数</strong>；<br>
+    3. 还一样，比<strong>浏览人数</strong>。<br>
+    排好序后取<strong>前 50 名</strong>进入本页列表（rank 1～50）。接口按<strong>分页</strong>返回这 50 条，前端按 rank 顺序拼接并懒加载至第 50 名。
+</div>
+<p>每行展示的「18.6K 帖」「4.2M 浏览」同属<strong>本周</strong>：帖数 = <strong>有效发帖数</strong>；浏览 = 本周话题页 + 帖详情浏览量（次数或去重，全站统一）。原型 HTML 共 <strong>50</strong> 行，与 <code>topics.html</code> 一致。</p>
+<p class="dev-ref">接口对照：分页排行榜（cursor/offset + pageSize），每条含 rank、话题名、本周互动次数、有效发帖数、浏览人数、本周创作者数、趋势%、算数时间；另有 hasMore 或 total（字段名研发自定）。</p>
+
+<h3 id="grow-formula">1.1.1 「+186% / +98%」· 趋势百分比（<code>.tp-lb-grow</code>）</h3>
+<p>排行榜每一行右侧的「+百分之几」为<strong>同一套趋势</strong>。</p>
+<div class="logic">
+    <strong>「核心量」是什么、怎么算：</strong>就是该话题的<strong>互动次数</strong>（§1.1 排名比大小的第一项），算法如下——在对应时间窗口内，挂在该话题下且计入互动的事件：<strong>点赞、评论、转发、新发帖、进入绑该话题的直播间</strong>，<strong>每发生一次计 1</strong>（同一人重复也算）。<strong>新发一条带该话题的帖 = 计 1 次互动</strong>，发帖已经算在里面，不会少算。<br>
+    趋势用的核心量<strong>不单独改用</strong>「有效发帖数」「浏览人数」那两个排序辅助项（避免和互动次数各算各的、口径打架）；<strong>不计</strong>纯浏览（打开话题页、刷列表）；不做加权。<br>
+    <strong>趋势怎么算：</strong><br>
+    1. 先算该话题<strong>本周</strong>窗口内的互动次数（即本周核心量）。<br>
+    2. 再算<strong>上周</strong>等长窗口内的互动次数（上周核心量）。<br>
+    3. 若上周核心量为 0，按产品约定处理（建议视为大幅涨或显示「—」）。<br>
+    4. 算「涨了多少」：用本周核心量减去上周核心量，再除以上周核心量，得到比例后换成百分数（上周几乎是 0 时，除数按 1 处理，避免算不出来）。<br>
+    5. 展示规则（对称阈值约 ±5%）：<br>
+    · 涨幅 &gt; 约 5%：<code>.tp-lb-grow.is-up</code>，上箭头 + 「+整数%」（上限建议 999%）；<br>
+    · 跌幅 &gt; 约 5%：<code>.tp-lb-grow.is-down</code>，下箭头 + 「-整数%」；<br>
+    · 涨跌均在约 ±5% 内：<code>.tp-lb-grow.is-flat</code>，文案「持平」（无箭头或横线 icon）；<br>
+    · 也可按产品选择「几乎不动」时不展示该格。
+</div>
+<p><strong>举例（Apex +98%）：</strong>上周互动次数一千，本周一千九百八十，相当于在上周基础上涨了约九成八，页面上写 +98%。</p>
+<p><strong>原型：</strong>数字手写；榜内样例含涨（多数行）、<strong>第 49 名 -8%</strong>、<strong>第 50 名 持平</strong>；上线由统计任务定时刷新。</p>
+
+<h3 id="grid-formula">1.2 排行榜列表 · <code>.tp-leaderboard</code> 展示</h3>
+<p><strong>布局：</strong>单列列表，一行一个话题（Web <code>.tp-lb-row</code>，H5 <code>.h5-lb-row</code>）。共 <strong>50</strong> 行（本周前 50 名），靠懒加载分批出现在页面上。</p>
+<div class="logic">
+    <strong>名次样式（左侧 <code>.tp-lb-rank</code>）：</strong><br>
+    · <strong>第 1～3 名</strong>：华丽图标位——金/银/铜渐变底 + 图标（原型：皇冠、奖牌、奖杯）。<br>
+    · <strong>第 4～10 名</strong>：华丽数字位——品牌渐变底 + 两位序号（04～10）。<br>
+    · <strong>第 11 名及以后</strong>：统一样式——描边方框 + 普通序号（11、12…），无渐变。<br>
+    上线时由接口字段 <strong>rank</strong> 决定用哪套样式；前端按 rank 数值切换 class（<code>rank-1|2|3</code>、<code>rank-top</code>、<code>rank-plain</code>）。
+</div>
+<div class="logic">
+    <strong>懒加载（两种触发，逻辑相同）：</strong><br>
+    ① <strong>滚动：</strong>用户用滚轮或触控把列表滚到接近底部（监听底部哨兵 <code>#tpLbSentinel</code> 进入视口）→ 请求并追加下一页；<br>
+    ② <strong>点击：</strong>点「加载更多话题」按钮（<code>#tpLbLoadMore</code>）→ 同样追加下一页。<br>
+    打开页面先请求第 1 页（如 rank 1～20）；重复上述触发直到没有更多或 rank 已到 N。rank 连续不重复。名次样式按全局 rank（1～3 图标、4～10 华丽数字、11+ 普通框）。加载中应防重复请求。
+</div>
+<h4 id="valid-post-count">有效发帖数怎么数（单话题 · 列表「N 帖」· 排名 tie-break）</h4>
+<div class="logic">
+    <strong>统计窗口：</strong>与 §1.1 相同，默认<strong>本周</strong>（北京时间周一 0 点～下周一 0 点）。<br>
+    <strong>计数对象：</strong>在该话题下、且<strong>同时满足</strong>下面条件的帖子，每条计 <strong>1</strong>：<br>
+    ① 在窗口内<strong>首次公开发布</strong>（不是草稿、不是定时未到点）；<br>
+    ② 当前对用户<strong>可见</strong>（与全站帖子可见规则一致）；<br>
+    ③ 至少关联一个<strong>有效话题</strong>（§1.3），且关联关系里<strong>包含本话题</strong>；<br>
+    ④ 同一条帖子打了多个话题标签，在本话题下<strong>仍只计 1 条</strong>；<br>
+    ⑤ 纯「正在直播」场次若不算帖子类型，则<strong>不计入</strong>（与 Hero「今日新增帖子」一致）。<br>
+    <strong>展示：</strong>列表行 <code>.tp-lb-stats</code> 里的「N 帖」用该数。
+</div>
+<p><strong>单行字段（<code>.tp-lb-row</code>）：</strong></p>
+<table>
+    <thead><tr><th>页面上看到</th><th>数据从哪来</th></tr></thead>
+    <tbody>
+        <tr><td>左：名次 ICON / 数字</td><td>接口 <strong>rank</strong>；样式规则见上（1～3 图标，4～10 华丽数字，11+ 普通数字）</td></tr>
+        <tr><td>「# 话题名」</td><td>话题名称</td></tr>
+        <tr><td>18.6K 帖 · 4.2M 浏览 · 1.8K 创作者</td><td>本周<strong>有效发帖数</strong>、本周浏览量、本周参与创作者数（去重）；文案统一，不用「主播开播」等异化说法</td></tr>
+        <tr><td>右：+186%</td><td>§1.1.1 趋势百分比</td></tr>
+    </tbody>
+</table>
+<p><strong>原型</strong>：HTML 共 50 行（rank 1～50），首屏 5 行；6～10 为 <code>rank-top</code>，11～50 为 <code>rank-plain</code>；每批懒加载 5 行。</p>
+
+<h3>交互逻辑</h3>
+<table>
+    <thead><tr><th>操作</th><th>行为（当前原型）</th></tr></thead>
+    <tbody>
+        <tr><td>点击 <code>.tp-lb-row</code></td><td>跳转话题详情页（原型网址不带话题标识）</td></tr>
+        <tr><td>滚到底 / 点「加载更多」</td><td>两种触发共用 <code>topics-leaderboard-lazy.js</code>；原型每批 5 行、共 9 轮至 rank 50，按钮变「已加载全部」。Hero 标题 N 为有效话题总数，<strong>不</strong>随列表加载条数变化。<strong>首屏不自动续载</strong>：须用户先滚动主区域后，哨兵进入视口才加载下一批</td></tr>
+        <tr><td>顶栏搜索</td><td>见 §3</td></tr>
+    </tbody>
+</table>
+
+<h3 id="valid-topic-total">1.3 有效话题 · 定义与计数（Hero 标题「话题个数」）</h3>
+<p>标题里的<strong>话题个数</strong> = 全站当前<strong>算数进有效话题</strong>的有多少个。与用户能点进详情、能在广场被发现一致。和 Hero 四格里的「本周活跃话题」<strong>不是一回事</strong>：老话题本周没动静仍可能有效；已下架/未过审的即使本周有帖也<strong>不算有效</strong>。</p>
+
+<h4>1.3.1 什么算「有效」（须同时满足）</h4>
+<table>
+    <thead><tr><th>序号</th><th>条件</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td>1</td><td>已发布</td><td>不是草稿、不是创建到一半；运营创建的官方话题也要正式发布后才有效</td></tr>
+        <tr><td>2</td><td>未下架</td><td>运营下架、违规下架、删号连带隐藏等 → 无效</td></tr>
+        <tr><td>3</td><td>对用户可见</td><td>广场/搜索等场景下普通用户能发现；仅链接可见、仅粉丝、仅内部测试 → 无效</td></tr>
+        <tr><td>4</td><td>审核通过</td><td>待审核、已驳回 → 无效；审核通过后再计入有效话题</td></tr>
+        <tr><td>5</td><td>未合并到别的话题</td><td>重复话题合并后，只保留主话题一条，从话题不再单独计数</td></tr>
+    </tbody>
+</table>
+
+<h4>1.3.2 什么不算有效（任一命中即排除）</h4>
+<table>
+    <thead><tr><th>场景</th><th>处理</th></tr></thead>
+    <tbody>
+        <tr><td>草稿、定时发布未到点</td><td>不计入标题「话题个数」；到点发布后下一统计周期计入</td></tr>
+        <tr><td>地域/年龄策略不可见（用户未登录时用默认策略）</td><td>全站话题个数按<strong>默认可见集</strong>统计，不按单个用户个性化缩小（避免每人标题数字不同）</td></tr>
+        <tr><td>仅搜索可见、广场列表故意不展示</td><td>若产品允许「能搜不能上广场」，需单独配置；<strong>一期建议</strong>：只要公开且审核通过就算有效（与能否上列表无关）</td></tr>
+        <tr><td>测试 / 内部话题</td><td>一律无效</td></tr>
+        <tr><td>软删除、封禁账号名下且无迁移</td><td>无效</td></tr>
+    </tbody>
+</table>
+
+<h4>1.3.3 怎么数「话题个数」</h4>
+<div class="logic">
+    <strong>逻辑：</strong>在数据库里找出<strong>同时满足 §1.3.1 全部条件</strong>的话题，每个话题 ID 只计一次，得到的总数就是标题上的「话题个数」。<br>
+    与话题列表、分页用的「可展示话题」过滤条件<strong>必须一致</strong>，避免标题写 400、列表却只有 350 的矛盾。<br>
+    结果可缓存 1～5 分钟；有话题上架、下架、审核通过时刷新缓存。
+</div>
+<p class="dev-ref">接口对照：话题汇总统计接口返回「有效话题总数」等字段（研发自定英文字段名）。</p>
+
+<h4>1.3.4 标题上数字怎么展示</h4>
+<table>
+    <thead><tr><th>真实个数</th><th>页面上怎么写</th></tr></thead>
+    <tbody>
+        <tr><td>不到 100</td><td>写准确数字，如「9 话题」</td></tr>
+        <tr><td>100～999</td><td>可向下取整到十位并加「+」，如 367 展示「360+」（表示至少这么多）</td></tr>
+        <tr><td>1000 及以上</td><td>可向下取整到百位并加「+」，如 1840 展示「1800+」</td></tr>
+    </tbody>
+</table>
+<p>原型脚本 <code>topics-hero.js</code> 仅对榜单行个数做上述格式化；上线后个数来自接口，格式规则不变。</p>
+
+<!-- ========== 2 DETAIL ========== -->
+<h2 id="detail">2. 单话题详情 · <a href="../pages-web/topic-detail.html">topic-detail.html</a></h2>
+<p>Web：<code>pages-web/topic-detail.html</code>（内联 <code>.td-*</code> 样式）。H5：<code>pages/topic-detail.html</code> + <code>css/h5-topics.css</code>。脚本：<a href="../js/topic-detail-tabs.js">topic-detail-tabs.js</a>（Tab）、Web 分享 <a href="../js-web/topic-detail-page.js">topic-detail-page.js</a>、H5 分享 <a href="../js/h5-topic-share.js">h5-topic-share.js</a>。演示话题固定「富士山日出」，与广场榜第 1、搜索热门一致。</p>
+
+<h3>展示逻辑</h3>
+<table>
+    <thead><tr><th>区域</th><th>Web（<code>.td-*</code>）</th><th>H5（<code>.h5-td-*</code>）</th></tr></thead>
+    <tbody>
+        <tr><td>顶栏 / 导航</td><td>全局顶栏 + 面包屑：首页 → <a href="../pages-web/topics.html">热门话题</a> →「富士山日出」</td><td>状态栏 + 返回（<code>data-back="topics.html"</code>）+ 标题「富士山日出」</td></tr>
+        <tr><td>Hero</td><td><code>.td-hero</code>：与广场同紫渐变；pill「本周 TOP 1」「+186%」；<code># 富士山日出</code>；<b>18,624</b> 帖 / <b>4.2M</b> 浏览 / <b>1,824</b> 创作者。无封面图、无简介、无品类 pill、Hero 无「持续 N 天」</td><td><code>.h5-td-hero</code>：同上 pill 与三统计</td></tr>
+        <tr><td>Hero 操作</td><td>仅 <code>.btn-share</code>「分享」</td><td><code>#tdH5BtnShare</code>「分享」</td></tr>
+        <tr><td>主栏 Tab</td><td colspan="2"><code>.td-tabs</code> / <code>.h5-td-tabs</code> 三项：<strong>图文 126</strong>、<strong>视频 486</strong>、<strong>正在进行的直播 12</strong>（默认图文）。面板 <code>#tdTabPanels</code> / <code>#h5TdTabPanels</code>，<code>data-td-panel="image" | "video" | "live"</code>，由 <code>topic-detail-tabs.js</code> 切换</td></tr>
+        <tr><td>帖子卡片</td><td><code>.post-card</code>：头区、正文、<code>.post-media</code>、<code>.post-actions</code></td><td><code>.h5-td-post</code>：头区、正文、<code>.h5-td-media</code>、<code>.h5-td-actions-row</code></td></tr>
+        <tr><td>列表续载</td><td colspan="2">向下滑动<strong>懒加载</strong>：当前 Tab 列表接近底部时追加下一页（与广场榜 §1.2 相同思路：底部哨兵 / 防重复请求）。原型 HTML 仍保留「加载更多帖子 / 视频 / 直播」按钮作样式占位，<strong>未接分页脚本</strong>，首屏展示全部 demo 条</td></tr>
+        <tr><td>侧栏 / 附属区块</td><td>宽屏 <code>.td-aside</code>（≤1280px 隐藏）：创作者 TOP 4 人、话题热度折线图 + 横轴日期。TOP 口径见 <a href="#td-creator-top">下节</a>；曲线见 <a href="#td-trend-aside">热度曲线</a></td><td>主列表下方：创作者 TOP 2 人；无热度曲线；<strong>无</strong>相关话题模块</td></tr>
+    </tbody>
+</table>
+
+<h4 id="td-creator-top">本话题创作者 TOP · 帖数 / 互动量（侧栏 <code>.creator-row .s</code>）</h4>
+<div class="logic">
+    <strong>统计窗口：</strong>与话题广场一致，默认<strong>本周</strong>（北京时间周一 0 点～下周一 0 点）；与 Hero「18,624 帖」等同窗口，除非产品单独定义「累计」入口（本页 Hero 带「本周 TOP」时不使用全站累计）。<br>
+    <strong>帖数（如「42 帖」）：</strong>在该窗口内，<strong>创作者 U</strong> 在本话题 T 下的<strong>有效发帖数</strong>——规则同 §1.2「有效发帖数怎么数」：每条满足可见、已发布、关联 T 的帖子计 1，同帖多标签在 T 下仍计 1；纯直播场次不计入帖数。<br>
+    公式：帖数(U,T) = COUNT(帖子 P | P.creator=U ∧ P 关联话题 T ∧ P 满足 §1.2 有效帖条件)<br>
+    <strong>互动量（如「12.6K 互动」）：</strong>在同一窗口内，仅统计<strong>上述有效帖</strong>（及可选：绑定话题 T 且主播为 U 的<strong>进行中/已结束直播</strong>，若产品把进房计互动）上发生的<strong>互动次数</strong>，与 §1.1.1 核心量一致：点赞、评论、转发、进绑定该话题的直播间等<strong>各计 1 次</strong>（同用户重复操作仍计，除非产品去重）。<br>
+    公式：互动量(U,T) = Σ 互动事件 e（e 归属 U 的内容且归属话题 T，且 e 类型 ∈ 互动类型集合）<br>
+    <strong>排行：</strong>在本话题下对所有创作者按<strong>互动量降序</strong>（tie-break 可用帖数、再创作者 id）；取前 N 名展示（Web 原型 N=4，H5 样例 N=2）。<br>
+    <strong>展示：</strong>互动量可 K/M 缩写（12.6K）；帖数为整数 +「帖」。
+</div>
+<h4 id="td-trend-aside">侧栏「话题热度趋势」· 曲线</h4>
+<div class="logic">
+    <strong>展示什么：</strong>Web 侧栏卡片「话题热度趋势」——折线 + 下方横轴日期（原型为 4/19～今天），用形状表达话题 T 在一段时间内<strong>热不热、往哪走</strong>；无额外摘要文案条。<br>
+    <strong>纵轴（上线）：</strong>按<strong>自然日</strong>汇总话题 T 的<strong>互动次数</strong>（与 §1.1.1 核心量同口径：赞、评、转、新帖、进绑定 T 的直播等，各计 1）。常用近 <strong>7～30 天</strong> 各一个点，连成折线；Y 轴可线性刻度或自适应，产品统一即可。<br>
+    <strong>读图：</strong>点越高 = 当日互动越多；线往上 = 近期变热，往下 = 变冷。Hero / 广场上的「+186%」是<strong>周环比一个数</strong>，不在侧栏重复展示；若要与曲线互证，用户自行对比最近 7 天斜率与 §1.1.1 即可。<br>
+    <strong>原型：</strong>SVG 折线与填充区为<strong>固定装饰</strong>，未绑定接口序列；横轴日期手写。H5 详情无此卡片。
+</div>
+
+<h3>交互逻辑</h3>
+<table>
+    <thead><tr><th>操作</th><th>行为（当前原型）</th></tr></thead>
+    <tbody>
+        <tr><td>Tab 切换</td><td><code>FL_bindTopicDetailTabs</code>：切换 <code>image</code> / <code>video</code> / <code>live</code>；不改 URL</td></tr>
+        <tr><td>分享</td><td>Web：<code>topic-detail-page.js</code> → <code>FL_openInteractionModal('share-modal.html')</code>；默认「# 富士山日出 · 热门话题」、18.6K 帖 · +186%、<code>goodfans.io/t/mt-fuji-sunrise</code>。H5：<code>h5-topic-share.js</code> + <code>[data-h5-topic-share]</code></td></tr>
+        <tr><td>进直播间</td><td>直播封面 → <code>live-detail.html</code></td></tr>
+        <tr><td>赞</td><td>Web / H5：<code>topic-detail-page.js</code> / <code>h5-topic-detail-actions.js</code> 切换 <code>.liked</code>、实空心图标，Toast「点赞成功 / 已取消点赞」（与首页 Feed 一致，不改数字）</td></tr>
+        <tr><td>评</td><td>Web：<code>FL_openInteractionModal('comment-modal.html')</code> 页内弹层。H5：底部 <code>#tdCommentSheet</code> 评论半层 + 示例列表 / 发送 Toast</td></tr>
+        <tr><td>藏</td><td>Web / H5：切换 <code>.saved</code>、书签实空心，Toast「收藏成功 / 已取消收藏」</td></tr>
+        <tr><td>打赏 / 送礼</td><td>Web：非直播帖 <code>FL_openGiftModal</code>（<code>gift-modal-context.js</code>，ctx=feed）；直播 Tab 帖 ctx=live。H5：<code>H5TipSheet</code> + <code>#tdTipSheet</code>，目标创作者取自帖子头像行</td></tr>
+        <tr><td>弹窗承载</td><td>Web：话题页内 <code>#flStandaloneModalRoot</code> 内联打开评/赏/分享；仅在 <code>yanshi-web.html</code> 壳 iframe 内才 <code>postMessage</code> 交给父页（<code>index-web</code> 预览框内也在本 iframe 弹层）</td></tr>
+        <tr><td>列表懒加载</td><td>产品：滚动接近底部按当前 Tab 追加下一页；原型未接脚本，demo 一次全显，底部按钮仅样式</td></tr>
+        <tr><td>侧栏「关注」</td><td>创作者 TOP 行内按钮静态，无逻辑</td></tr>
+        <tr><td>返回</td><td>Web 面包屑 / 历史；H5 <code>data-back</code>；映射父页 <code>topics.html</code></td></tr>
+    </tbody>
+</table>
+
+<h3>多媒体布局</h3>
+<p class="logic"><strong>图文 Tab</strong> 与首页 Feed 一致：1 张 <code>.post-media</code>；2 张 <code>.grid-2</code>（无 <code>g3</code>）。<strong>视频 Tab</strong>：<code>.post-media--video</code> 内嵌原生 <code>&lt;video controls&gt;</code> 样例（演示 MP4 与 <code>feed-stack-builder.js</code> 同源），<code>poster</code> 为封面图，右下角可保留时长文案；用户点击控件播放/暂停。<strong>直播 Tab</strong>：<code>.post-media--live</code> + 直播中浮层，点击进直播间。</p>
+
+<h3>数据 / 计算逻辑</h3>
+<table>
+    <thead><tr><th>页面上看到</th><th>原型</th><th>上线怎么算</th></tr></thead>
+    <tbody>
+        <tr><td>话题身份</td><td>固定富士山，URL 无参数</td><td>URL 带话题 ID，接口拉元数据</td></tr>
+        <tr><td>TOP 1 / +186%</td><td>Hero pill 写死</td><td>同广场 <code>rank</code>、§1.1.1</td></tr>
+        <tr><td>18,624 / 4.2M / 1,824</td><td>Hero 写死</td><td>§1.2 本周帖/浏览/创作者；与 18.6K 缩写同口径</td></tr>
+        <tr><td>Tab 126 / 486 / 12</td><td>角标写死</td><td>图文帖数、话题下视频帖数、当前进行中直播场次</td></tr>
+        <tr><td>列表面板</td><td>各 Tab 独立静态 HTML，首屏 demo 全展示</td><td>分类型 API（image / video / live）；默认时间倒序；滚动懒加载分页</td></tr>
+        <tr><td>侧栏 TOP 帖数 / 互动</td><td>写死「42 帖 · 12.6K 互动」等</td><td>§2 <a href="#td-creator-top">创作者 TOP 公式</a></td></tr>
+        <tr><td>侧栏热度曲线</td><td>SVG 装饰 + 横轴日期</td><td>§2 <a href="#td-trend-aside">按日互动折线</a></td></tr>
+    </tbody>
+</table>
+
+<!-- ========== 3 SEARCH ========== -->
+<h2 id="h5">4. H5 对齐（与 Web 同跳转）</h2>
+<table>
+    <thead><tr><th>Web</th><th>H5</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td><a href="../pages-web/topics.html">pages-web/topics.html</a></td><td><a href="../pages/topics.html">pages/topics.html</a></td><td>Hero +「排行前50名的话题」懒加载（滚到底或点按钮）；<a href="../js/topics-leaderboard-lazy.js">topics-leaderboard-lazy.js</a>；H5：<code>h5-topics.css</code></td></tr>
+        <tr><td><a href="../pages-web/topic-detail.html">pages-web/topic-detail.html</a></td><td><a href="../pages/topic-detail.html">pages/topic-detail.html</a></td><td>Hero、分享、Tab 126/486/12（<code>topic-detail-tabs.js</code>）；Web 侧栏含趋势图；H5 侧栏在流底部</td></tr>
+        <tr><td><a href="../js-web/global-search.js">js-web/global-search.js</a></td><td><a href="../js/h5-global-search.js">js/h5-global-search.js</a></td><td>共用 <code>fl_search_history</code>；热门话题点击进 <code>topic-detail.html</code> / <code>topics.html</code>（不再进 search?q=）</td></tr>
+    </tbody>
+</table>
+<p>H5 搜索浮层入口：<a href="../pages/home.html">pages/home.html</a> 顶栏搜索 → <code>#h5SearchPanel</code>。</p>
+
+<h2 id="search">3. 顶栏搜索下拉 · 热门话题段 · Web <a href="../js-web/global-search.js">global-search.js</a> / H5 <a href="../js/h5-global-search.js">h5-global-search.js</a></h2>
+<p>Web：挂载于 <code>.app-header .h-search-unified</code> 内 <code>.gs-drop</code>。H5：首页搜索浮层 <code>#h5GlobalSearchDrop</code>。完整下拉含：历史搜索 → <strong>热门话题</strong> → 推荐关注 →（有输入时）搜索结果。</p>
+
+<h3>展示逻辑</h3>
+<table>
+    <thead><tr><th>项</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td>触发</td><td>搜索框 focus / click / input 时渲染并加 <code>.gs-drop.show</code></td></tr>
+        <tr><td>热门话题段</td><td>标题「热门话题」+ 右侧 <a href="topics.html">更多</a> 进入广场；每行：火焰 icon + 话题名 + 副文案（帖数、可选趋势）</td></tr>
+        <tr><td>条数与来源</td><td>固定展示 <strong>4</strong> 条：取自话题广场<strong>本周排行榜前 4 名</strong>（与 §1 <code>.tp-leaderboard</code> 行序一致）。原型由 <a href="../js/topics-leaderboard-catalog.js">topics-leaderboard-catalog.js</a> 提供：<code>FL_getTopicsLeaderboardHotTopics(4)</code>；在广场页优先解析 DOM 行，其它页用与榜同步的兜底数据（当前为：富士山日出、Apex 大师之路、雨夜小提琴、城市街拍）</td></tr>
+        <tr><td>关闭</td><td>点击搜索区域外移除 <code>.show</code>；Enter 提交后关闭</td></tr>
+    </tbody>
+</table>
+
+<h3>交互逻辑</h3>
+<table>
+    <thead><tr><th>操作</th><th>行为</th></tr></thead>
+    <tbody>
+        <tr><td>点击热门话题行</td><td><code>location.href = data-href</code>（与对应榜行 <code>onclick</code> 一致；原型榜 1～4 均为 <code>topic-detail.html</code>，演示详情仍固定富士山）</td></tr>
+        <tr><td>点击行</td><td><strong>不会</strong>把话题名填入搜索框（与「历史标签」不同）</td></tr>
+        <tr><td>Enter</td><td><code>pushHistory</code> + toast「已搜索：…」+ 关闭下拉（<strong>不跳转</strong>搜索结果页）</td></tr>
+        <tr><td>历史清空</td><td>仅影响 <code>fl_search_history</code>，不影响热门话题段</td></tr>
+        <tr><td>输入关键词</td><td>额外渲染「搜索结果」段：对常量 <code>GS_ITEMS</code> 做子串匹配（大小写不敏感）</td></tr>
+    </tbody>
+</table>
+
+<h3>数据 / 计算逻辑</h3>
+<table>
+    <thead><tr><th>内容</th><th>原型</th><th>上线怎么来</th></tr></thead>
+    <tbody>
+        <tr><td>热门话题 4 条</td><td>排行榜前 4（catalog 兜底 + 广场页 DOM）</td><td>与 §1 排行榜同一接口取 <code>rank 1…4</code>，缓存几分钟；可加轻量个性化</td></tr>
+        <tr><td>副文案帖数、趋势</td><td>来自榜行「帖」与 <code>+N%</code></td><td>帖数 = 该话题本周<strong>有效发帖数</strong>（§1.2）；趋势 = §1.1.1</td></tr>
+        <tr><td>点击跳转</td><td>写死页面路径</td><td>带话题标识的详情页或广场</td></tr>
+        <tr><td>历史搜索</td><td>浏览器本地存最多 8 条，新搜的排前</td><td>可跟账号同步；与「热门话题」段独立</td></tr>
+        <tr><td>输入时的搜索结果</td><td>本地 4 条演示数据模糊匹配</td><td>搜索接口：创作者、内容、话题混合排序</td></tr>
+        <tr><td>推荐关注</td><td>写死几个创作者</td><td>发现页/关注关系策略</td></tr>
+    </tbody>
+</table>
+
+<h3>三处数据关系（须一致）</h3>
+<p>同一话题（如富士山）在广场榜、详情 Hero、搜索下拉的帖数与趋势须一致；详情页可用精确整数（18,624）与列表 K 缩写（18.6K）并存。</p>
+<table>
+    <thead><tr><th>入口</th><th>富士山帖数（原型）</th><th>趋势（原型）</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td>搜索下拉</td><td>18.6K 帖子</td><td>+186%</td><td><code>global-search.js</code> / H5 同源</td></tr>
+        <tr><td>topics 榜第 1 行</td><td>18.6K 帖</td><td>+186%</td><td>与详情 Hero 同一故事</td></tr>
+        <tr><td>topic-detail Hero</td><td>18,624 帖</td><td>+186%（Hero pill）</td><td>上线均为<strong>本周</strong>口径</td></tr>
+    </tbody>
+</table>
+
+<h2 id="files">主要文件</h2>
+<ul>
+    <li><a href="../pages-web/topics.html">pages-web/topics.html</a> · <a href="../pages/topics.html">pages/topics.html</a> — 话题广场</li>
+    <li><a href="../pages-web/topic-detail.html">pages-web/topic-detail.html</a> · <a href="../pages/topic-detail.html">pages/topic-detail.html</a> — 话题详情</li>
+    <li><a href="../css/h5-topics.css">css/h5-topics.css</a> — H5 话题页样式</li>
+    <li><a href="../js/topics-hero.js">topics-hero.js</a> · <a href="../js/topics-leaderboard-lazy.js">topics-leaderboard-lazy.js</a> · <a href="../js/topics-leaderboard-catalog.js">topics-leaderboard-catalog.js</a> — Hero 个数、排行榜懒加载、搜索热门前 4</li>
+    <li><a href="../js-web/global-search.js">js-web/global-search.js</a> · <a href="../js/h5-global-search.js">js/h5-global-search.js</a> — 搜索下拉</li>
+    <li><a href="../css-web/global-search.css">css-web/global-search.css</a> — <code>.gs-drop-sec</code> 等样式</li>
+    <li><a href="../js-web/page-back-nav.js">js-web/page-back-nav.js</a> — 子页返回</li>
+    <li><a href="../js/topic-detail-tabs.js">js/topic-detail-tabs.js</a> — 详情 Tab（Web + H5）</li>
+    <li><a href="../js-web/topic-detail-page.js">js-web/topic-detail-page.js</a> · <a href="../js/h5-topic-share.js">js/h5-topic-share.js</a> — 详情分享</li>
+</ul>
+
+</article>
+
+<footer>
+    GOODFANS 静态原型 · 话题与搜索需求说明 · 覆盖 topics / topic-detail / 搜索热门段
+</footer>
+</div>
+</body>
+</html>

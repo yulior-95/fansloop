@@ -42,9 +42,16 @@
         });
         document.body.setAttribute('data-ad-page', view === 'center' ? 'center' : view);
         setCrumb(view);
-        var q = params.id ? '?view=' + encodeURIComponent(view) + '&id=' + encodeURIComponent(params.id) : (view === 'center' ? '' : '?view=' + encodeURIComponent(view));
+        var page = (location.pathname.split('/').pop() || 'settings.html').split('?')[0];
+        var sp = new URLSearchParams();
+        if (global.FLSettingsAdEmbed && FLSettingsAdEmbed.isOpen && FLSettingsAdEmbed.isOpen()) {
+            sp.set('panel', 'ad');
+        }
+        if (view !== 'center') sp.set('view', view);
+        if (params.id) sp.set('id', params.id);
+        var q = sp.toString();
         try {
-            history.replaceState({ adView: view, id: params.id || '' }, '', 'settings-ad.html' + q);
+            history.replaceState({ adView: view, id: params.id || '' }, '', page + (q ? '?' + q : ''));
         } catch (e) { /* file:// */ }
         if (global.FLAdUser && FLAdUser.bootView) FLAdUser.bootView(view, params);
         return true;
@@ -52,10 +59,19 @@
 
     function go(view, params) {
         if (show(view, params)) return;
-        var q = '';
-        if (params && params.id) q = '?view=' + encodeURIComponent(view) + '&id=' + encodeURIComponent(params.id);
-        else if (view && view !== 'center') q = '?view=' + encodeURIComponent(view);
-        location.href = 'settings-ad.html' + q;
+        if (global.FLSettingsAdEmbed && FLSettingsAdEmbed.open) {
+            FLSettingsAdEmbed.open(view, params || {});
+            return;
+        }
+        var sp = new URLSearchParams();
+        sp.set('panel', 'ad');
+        if (params && params.id) {
+            sp.set('view', view);
+            sp.set('id', params.id);
+        } else if (view && view !== 'center') {
+            sp.set('view', view);
+        }
+        location.href = 'settings.html?' + sp.toString();
     }
 
     function onBack() {
@@ -64,7 +80,11 @@
             show('center', {});
             return;
         }
-        location.href = document.body.classList.contains('page-settings-h5') ? 'settings.html' : 'settings.html';
+        if (global.FLSettingsAdEmbed && FLSettingsAdEmbed.isOpen && FLSettingsAdEmbed.isOpen()) {
+            FLSettingsAdEmbed.close();
+            return;
+        }
+        location.href = 'settings.html';
     }
 
     function boot() {

@@ -11,9 +11,16 @@
             FLAdSettings.go(view, params);
             return;
         }
-        if (document.body.getAttribute('data-ad-shell') === 'settings') {
-            var q = params.id ? '?view=' + encodeURIComponent(view) + '&id=' + encodeURIComponent(params.id) : (view === 'center' ? '' : '?view=' + encodeURIComponent(view));
-            location.href = 'settings-ad.html' + q;
+        if (document.body.getAttribute('data-ad-shell') === 'settings' || (document.body.classList.contains('page-settings') && document.querySelector('.set-grid'))) {
+            if (global.FLSettingsAdEmbed && FLSettingsAdEmbed.open) {
+                FLSettingsAdEmbed.open(view, params);
+                return;
+            }
+            var sp = new URLSearchParams();
+            sp.set('panel', 'ad');
+            if (view !== 'center') sp.set('view', view);
+            if (params.id) sp.set('id', params.id);
+            location.href = 'settings.html?' + sp.toString();
             return;
         }
         var q = params.id ? '?id=' + encodeURIComponent(params.id) : '';
