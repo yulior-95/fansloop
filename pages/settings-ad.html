@@ -12,10 +12,8 @@
 .app-content{padding-top:calc(var(--status-bar-height) + var(--nav-bar-height));padding-bottom:calc(var(--tab-bar-height) + 16px)}
 #adToast{position:fixed;left:50%;transform:translateX(-50%);bottom:100px;background:rgba(0,0,0,.85);color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:99}
 #adToast.show{opacity:1}
-.field{margin:12px 16px}
-.field label{display:block;font-size:12px;color:var(--text-secondary);margin-bottom:6px}
-.field input,.field select,.field textarea{width:100%;padding:10px;border-radius:10px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary)}
-.bar{position:fixed;left:0;right:0;bottom:0;padding:12px 16px 28px;background:rgba(10,10,18,.95);border-top:1px solid var(--border-color);display:flex;gap:8px;z-index:50}
+.bar{position:fixed;left:0;right:0;bottom:0;padding:12px 16px 28px;background:var(--bg-primary);border-top:1px solid var(--border-color);display:flex;gap:8px;z-index:50}
+.page-settings-h5 .ad-form{max-width:none;padding:0}
 </style>
 <link rel="stylesheet" href="../css/h5-light-theme.css">
 </head>
@@ -29,25 +27,51 @@
 
 <div id="adSettingsStage">
   <section class="ad-set-view on" data-ad-view="center">
-    <div class="app-content">
-      <div class="ad-hero" id="adQualBanner" hidden style="margin:8px 16px;padding:14px;border-radius:12px;border:1px solid var(--border-color);background:var(--bg-card)"></div>
-      <div class="ad-hero">
-        <div class="row"><div class="metric"><div class="l">可用余额 (USDT)</div><div class="v" id="adBal">—</div></div><div class="metric"><div class="l">冻结</div><div class="v" id="adFrozen">—</div></div></div>
-        <div class="row" style="margin-top:12px"><div class="metric"><div class="l">投放中</div><div class="v" id="adActive">—</div></div><div class="metric"><div class="l">待审核</div><div class="v" id="adPending">—</div></div><div class="metric"><div class="l">曝光</div><div class="v" id="adImp">—</div></div></div>
-        <div class="row" style="margin-top:8px;font-size:11px;color:var(--text-tertiary)">资质 <span id="adAdvStatus">—</span> · 待支付 <span id="adPendingPay">0</span> · 点击 <span id="adClk">—</span> · 消耗 <span id="adSpend">—</span></div>
+    <div class="app-content ad-center-wrap">
+      <div class="ad-center-head">
+        <div class="ad-center-role" id="adRoleStrip"></div>
+        <div class="ad-center-toolbar" id="adCenterToolbar">
+          <button type="button" class="btn btn-primary" id="adBtnCreate" onclick="FLAdUser.tryCreate()"><i class="fa-solid fa-plus"></i> 创建广告</button>
+          <button type="button" class="btn btn-secondary" id="adBtnWallet" onclick="FLAdUser.adGo('wallet')"><i class="fa-solid fa-wallet"></i> 广告账户</button>
+          <button type="button" class="btn btn-secondary" id="adBtnApplyQual" hidden onclick="FLAdUser.adGo('apply')"><i class="fa-solid fa-id-card"></i> 申请广告主</button>
+        </div>
       </div>
-      <div class="ad-actions">
-        <button type="button" class="btn btn-primary" onclick="FLAdUser.adGo('create')"><i class="fa-solid fa-plus"></i> 创建广告</button>
-        <button type="button" class="btn btn-secondary" onclick="FLAdUser.adGo('wallet')"><i class="fa-solid fa-wallet"></i> 账户</button>
+      <div class="ad-hero ad-qual-banner" id="adQualBanner" hidden></div>
+      <div class="ad-web-grid">
+      <div class="ad-card ad-center-panel ad-overview" id="adCenterOverview">
+        <div class="ad-overview-top">
+          <h3 class="ad-overview-title">账户与投放</h3>
+          <button type="button" class="btn btn-ghost btn-sm ad-overview-link" onclick="FLAdUser.adGo('wallet')">账户明细</button>
+        </div>
+        <div class="ad-overview-hero">
+          <div class="ad-overview-hero-label">可用余额</div>
+          <div class="ad-overview-hero-row"><span class="ad-overview-hero-value" id="adBal">—</span><span class="ad-overview-hero-unit">USDT</span></div>
+          <div class="ad-overview-hero-meta">冻结 <strong id="adFrozen">—</strong> USDT</div>
+        </div>
+        <div class="ad-overview-chips">
+          <div class="ad-overview-chip"><span class="chip-val" id="adActive">—</span><span class="chip-lbl">投放中</span></div>
+          <div class="ad-overview-chip"><span class="chip-val" id="adPending">—</span><span class="chip-lbl">待审核</span></div>
+          <div class="ad-overview-chip"><span class="chip-val" id="adPendingPay">—</span><span class="chip-lbl">待支付</span></div>
+        </div>
+        <div class="ad-overview-perf">
+          <div class="perf-col"><span class="perf-num" id="adImp">—</span><span class="perf-lbl">曝光</span></div>
+          <div class="perf-col"><span class="perf-num" id="adClk">—</span><span class="perf-lbl">点击</span></div>
+          <div class="perf-col"><span class="perf-num" id="adSpend">—</span><span class="perf-lbl">消耗 USDT</span></div>
+        </div>
       </div>
-      <div class="ad-filter">
-        <button type="button" class="on" data-ad-filter="">全部</button>
-        <button type="button" data-ad-filter="pending_review">待审核</button>
-        <button type="button" data-ad-filter="active">投放中</button>
-        <button type="button" data-ad-filter="paused">已暂停</button>
-        <button type="button" data-ad-filter="rejected">驳回</button>
+      <div class="ad-card ad-center-panel ad-center-panel--list">
+        <h3 class="ad-panel-title">我的广告</h3>
+        <div class="ad-filter">
+          <button type="button" class="on" data-ad-filter="">全部</button>
+          <button type="button" data-ad-filter="unpaid">待支付</button>
+          <button type="button" data-ad-filter="pending_review">待审核</button>
+          <button type="button" data-ad-filter="active">投放中</button>
+          <button type="button" data-ad-filter="paused">已暂停</button>
+          <button type="button" data-ad-filter="rejected">驳回</button>
+        </div>
+        <div id="adListMount"></div>
       </div>
-      <div id="adListMount"></div>
+      </div>
     </div>
   </section>
 
@@ -103,11 +127,16 @@
 
   <section class="ad-set-view" data-ad-view="apply">
     <div class="app-content">
-      <form id="adApplyForm">
-        <div class="field"><label>主体名称</label><input name="companyName" required></div>
-        <div class="field"><label>联系邮箱</label><input name="contact" type="email" required></div>
-        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:16px">提交申请</button>
-      </form>
+      <div class="set-card ad-set-card">
+        <div class="ssh"><div class="ic-circle"><i class="fa-solid fa-id-card"></i></div><div><h3>申请广告主</h3></div></div>
+        <div class="body">
+          <form id="adApplyForm" class="ad-form">
+            <div class="ad-field"><label for="adApplyCompanyH5">主体名称</label><input id="adApplyCompanyH5" name="companyName" required placeholder="公司或品牌全称"></div>
+            <div class="ad-field"><label for="adApplyEmailH5">联系邮箱</label><input id="adApplyEmailH5" name="contact" type="email" required placeholder="name@company.com"></div>
+            <div class="ad-form-actions"><button type="submit" class="btn btn-primary btn-block">提交申请</button></div>
+          </form>
+        </div>
+      </div>
     </div>
   </section>
 </div>

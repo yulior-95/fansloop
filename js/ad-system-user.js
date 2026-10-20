@@ -40,38 +40,194 @@
 
     function label(map, key) { return map[key] || key; }
 
+    function esc(s) {
+        if (s == null) return '';
+        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+    }
+
+    function slotName(code) {
+        var slots = FLAdStore.getSlots();
+        for (var i = 0; i < slots.length; i++) {
+            if (slots[i].code === code) return slots[i].name;
+        }
+        return code || '—';
+    }
+
+    function fmtDateRange(start, end) {
+        function d(iso) {
+            if (!iso) return '—';
+            return iso.slice(0, 10).replace(/-/g, '/');
+        }
+        if (!start && !end) return '排期未定';
+        return d(start) + ' – ' + d(end);
+    }
+
+    function isApprovedAdvertiser(status) {
+        return status === 'approved';
+    }
+
+    function badgeClass(kind, key) {
+        if (kind === 'audit') {
+            if (key === 'rejected') return 'audit-reject';
+            if (key === 'pending_review') return 'audit-pending';
+            if (key === 'approved') return 'audit-ok';
+            if (key === 'draft') return 'audit-draft';
+        }
+        if (kind === 'pay') {
+            if (key === 'unpaid') return 'pay-unpaid';
+        }
+        if (kind === 'del') {
+            if (key === 'delivering' || key === 'active') return 'del-live';
+            if (key === 'paused') return 'del-pause';
+            if (key === 'ended' || key === 'removed') return 'del-end';
+        }
+        return '';
+    }
+
+    function renderAdRowHtml(a) {
+        FLAdStore.load();
+        var thumb = a.materialUrl
+            ? "background-image:url('" + esc(a.materialUrl) + "')"
+            : 'background-color:var(--bg-inset,#1a1a24)';
+        var line2 = esc(a.title || a.type || '');
+        var badges =
+            '<span class="ad-badge ' + badgeClass('audit', a.auditStatus) + '">' + esc(label(FLAdStore.AUDIT_STATUS, a.auditStatus)) + '</span>' +
+            (a.payStatus && a.payStatus !== 'none' ? '<span class="ad-badge ' + badgeClass('pay', a.payStatus) + '">' + esc(label(FLAdStore.PAY_STATUS, a.payStatus)) + '</span>' : '') +
+            '<span class="ad-badge ' + badgeClass('del', a.deliveryStatus) + '">' + esc(label(FLAdStore.DELIVERY_STATUS, a.deliveryStatus)) + '</span>';
+        var subParts = [slotName(a.slotCode), fmtDateRange(a.startAt, a.endAt)];
+        if (a.packageName) subParts.push(a.packageName);
+        var imp = a.stats && a.stats.impressions ? a.stats.impressions : 0;
+        if (imp > 0) subParts.push(imp.toLocaleString() + ' 曝光');
+        var price = a.priceUsdt != null ? a.priceUsdt : (a.budgetTotal || '');
+        var side =
+            '<div class="ad-row-side">' +
+            (price !== '' ? '<span class="ad-row-price">' + esc(String(price)) + ' USDT</span>' : '') +
+            (a.stats && a.stats.spend ? '<span class="ad-row-stat">消耗 ' + esc(a.stats.spend.toLocaleString()) + '</span>' : '') +
+            '</div>';
+        return '<article class="ad-row" data-ad-id="' + esc(a.id) + '">' +
+            '<div class="thumb" style="' + thumb + '"></div>' +
+            '<div class="meta">' +
+            '<div class="ad-row-head"><div class="t">' + esc(a.name) + '</div><span class="ad-row-id">' + esc(a.id) + '</span></div>' +
+            (line2 ? '<div class="ad-row-line2">' + line2 + '</div>' : '') +
+            '<div class="ad-row-badges">' + badges + '</div>' +
+            '<div class="ad-row-sub">' + esc(subParts.join(' · ')) + '</div>' +
+            '</div>' + side + '</article>';
+    }
+
+    function roleMeta(status) {
+        var st = status || 'none';
+        if (st === 'approved') {
+            return { pill: 'is-ok', icon: 'fa-circle-check', text: '广告主 · 已通过' };
+        }
+        if (st === 'pending') {
+            return { pill: 'is-warn', icon: 'fa-hourglass-half', text: '广告主 · 审核中' };
+        }
+        if (st === 'rejected') {
+            return { pill: 'is-warn', icon: 'fa-circle-xmark', text: '广告主 · 已驳回' };
+        }
+        if (st === 'restricted' || st === 'disabled') {
+            return { pill: 'is-warn', icon: 'fa-ban', text: '广告主 · ' + label(FLAdStore.ADVERTISER_STATUS, st) };
+        }
+        return { pill: 'is-muted', icon: 'fa-user', text: '普通用户' };
+    }
+
+    function renderRoleStrip(sum) {
+        var strip = qs('#adRoleStrip');
+        if (!strip) return;
+        var m = roleMeta(sum.advertiserStatus);
+        strip.innerHTML = '<span class="pill ' + m.pill + '"><i class="fa-solid ' + m.icon + '"></i> ' + m.text + '</span>';
+    }
+
+    function syncCenterToolbar(sum) {
+        var approved = sum.advertiserStatus === 'approved';
+        var canApply = sum.advertiserStatus === 'none' || sum.advertiserStatus === 'rejected';
+        var createBtn = qs('#adBtnCreate');
+        var applyBtn = qs('#adBtnApplyQual');
+        var walletBtn = qs('#adBtnWallet');
+        if (createBtn) {
+            createBtn.disabled = !approved;
+            createBtn.title = approved ? '' : (FLAdService.canCreatePaidAd(UID).message || '');
+        }
+        if (applyBtn) {
+            applyBtn.hidden = !canApply;
+            applyBtn.style.display = canApply ? '' : 'none';
+            applyBtn.setAttribute('aria-hidden', canApply ? 'false' : 'true');
+        }
+        if (walletBtn) walletBtn.disabled = sum.advertiserStatus === 'none';
+        if (createBtn && !createBtn.getAttribute('data-create-bound')) {
+            createBtn.setAttribute('data-create-bound', '1');
+            createBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                tryCreate();
+            });
+        }
+    }
+
+    function tryCreate() {
+        var gate = FLAdService.canCreatePaidAd(UID);
+        if (!gate.ok) {
+            toast(gate.message);
+            if (sumNeedsApply()) adGo('apply');
+            return;
+        }
+        adGo('create');
+    }
+
+    function sumNeedsApply() {
+        var sum = FLAdStore.accountSummary(UID);
+        return sum.advertiserStatus === 'none' || sum.advertiserStatus === 'rejected';
+    }
+
     function centerGate() {
         var sum = FLAdStore.accountSummary(UID);
         var banner = qs('#adQualBanner');
-        if (!banner) return;
-        if (sum.advertiserStatus === 'none' || sum.advertiserStatus === 'rejected') {
-            banner.hidden = false;
-            banner.innerHTML = '<p>投放付费广告需先申请广告主资质。</p><button type="button" class="btn btn-primary" id="adGoApply">申请广告主</button>';
-            qs('#adGoApply').onclick = function () { adGo('apply'); };
-        } else if (sum.advertiserStatus === 'pending') {
-            banner.hidden = false;
-            banner.innerHTML = '<p>资质审核中，通过后可创建并购买套餐。</p>';
-        } else banner.hidden = true;
+        if (banner) {
+            banner.hidden = true;
+            banner.innerHTML = '';
+            if (sum.advertiserStatus === 'rejected') {
+                var adv = FLAdService.advertiser(UID);
+                if (adv && adv.rejectReason) {
+                    banner.hidden = false;
+                    banner.innerHTML = '<span class="ad-qual-reason">' + esc(adv.rejectReason) + '</span>';
+                }
+            } else if (sum.advertiserStatus === 'pending') {
+                banner.hidden = false;
+                banner.innerHTML = '<span class="ad-qual-reason">资质审核中</span>';
+            } else if (sum.advertiserStatus === 'restricted' || sum.advertiserStatus === 'disabled') {
+                banner.hidden = false;
+                banner.innerHTML = '<span class="ad-qual-reason">账户' + esc(label(FLAdStore.ADVERTISER_STATUS, sum.advertiserStatus)) + '，请联系平台处理</span>';
+            }
+        }
+        var overview = qs('#adCenterOverview');
+        var grid = qs('.ad-center-wrap .ad-web-grid');
+        var approved = isApprovedAdvertiser(sum.advertiserStatus);
+        if (overview) overview.hidden = !approved;
+        if (grid) grid.classList.toggle('ad-web-grid--solo', !approved);
     }
 
     function renderCenter() {
-        centerGate();
         var sum = FLAdStore.accountSummary(UID);
-        var map = {
-            adBal: sum.balance,
-            adFrozen: sum.frozen,
-            adActive: sum.activeCount,
-            adPending: sum.pendingAudit,
-            adPendingPay: sum.pendingPay || 0,
-            adImp: sum.impressions,
-            adClk: sum.clicks,
-            adSpend: sum.spent || sum.spend,
-            adAdvStatus: label(FLAdStore.ADVERTISER_STATUS, sum.advertiserStatus)
-        };
-        Object.keys(map).forEach(function (id) {
-            var el = document.getElementById(id);
-            if (el) el.textContent = typeof map[id] === 'number' ? map[id].toLocaleString() : map[id];
-        });
+        centerGate();
+        renderRoleStrip(sum);
+        syncCenterToolbar(sum);
+        if (isApprovedAdvertiser(sum.advertiserStatus)) {
+            var map = {
+                adBal: sum.balance,
+                adFrozen: sum.frozen,
+                adActive: sum.activeCount,
+                adPending: sum.pendingAudit,
+                adPendingPay: sum.pendingPay || 0,
+                adImp: sum.impressions,
+                adClk: sum.clicks,
+                adSpend: sum.spent || sum.spend
+            };
+            Object.keys(map).forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) el.textContent = typeof map[id] === 'number' ? map[id].toLocaleString() : map[id];
+            });
+        }
+        var legacyStatus = qs('#adAdvStatus');
+        if (legacyStatus) legacyStatus.textContent = label(FLAdStore.ADVERTISER_STATUS, sum.advertiserStatus);
         renderList('adListMount', '');
     }
 
@@ -85,12 +241,11 @@
         else if (filter === 'ended') list = list.filter(function (a) { return a.deliveryStatus === 'ended'; });
         else if (filter === 'rejected') list = list.filter(function (a) { return a.auditStatus === 'rejected'; });
         else if (filter === 'unpaid') list = list.filter(function (a) { return a.payStatus === 'unpaid'; });
-        mount.innerHTML = list.map(function (a) {
-            var thumb = a.materialUrl ? "background-image:url('" + a.materialUrl + "')" : 'background:#222';
-            return '<article class="ad-row" data-ad-id="' + a.id + '"><div class="thumb" style="' + thumb + '"></div><div class="meta"><div class="t">' + a.name + '</div><div class="s">' +
-                label(FLAdStore.AUDIT_STATUS, a.auditStatus) + ' · ' + label(FLAdStore.PAY_STATUS, a.payStatus) + ' · ' + label(FLAdStore.DELIVERY_STATUS, a.deliveryStatus) +
-                (a.packageName ? ' · ' + a.packageName : '') + '</div></div></article>';
-        }).join('') || '<p style="padding:16px;color:var(--text-tertiary);font-size:13px">暂无广告</p>';
+        if (!list.length) {
+            mount.innerHTML = '<div class="ad-center-empty">暂无广告</div>';
+            return;
+        }
+        mount.innerHTML = list.map(function (a) { return renderAdRowHtml(a); }).join('');
         mount.querySelectorAll('[data-ad-id]').forEach(function (row) {
             row.onclick = function () { adGo('detail', { id: row.getAttribute('data-ad-id') }); };
         });
@@ -129,8 +284,11 @@
         });
         var list = qs('#wFinList');
         if (list) {
+            var finLabel = { recharge: '充值', refund: '退款', freeze: '冻结', spend: '消耗', pay: '支付', ad_purchase: '购买套餐' };
             list.innerHTML = FLAdStore.load().finance.slice(0, 20).map(function (f) {
-                return '<div class="ad-row" style="cursor:default"><div class="meta"><div class="t">' + f.type + ' · ' + f.orderNo + '</div><div class="s">' + f.amount + ' · ' + f.status + ' · ' + f.at.slice(0, 16) + '</div></div></div>';
+                var ti = finLabel[f.type] || f.type;
+                return '<div class="ad-row" style="cursor:default"><div class="meta"><div class="t">' + ti + ' · ' + esc(f.orderNo) + '</div><div class="s">' +
+                    (f.amount > 0 ? '+' : '') + f.amount + ' USDT · ' + f.status + ' · ' + f.at.slice(0, 16) + '</div></div></div>';
             }).join('');
         }
         qs('#wRecharge') && (qs('#wRecharge').onclick = function () {
@@ -152,7 +310,28 @@
         sel.onchange = function () {
             var p = FLAdService.getPackage(sel.value);
             if (p && priceEl) priceEl.textContent = p.priceUsdt + ' USDT（价格快照）';
+            syncScheduleEndFromPackage();
         };
+    }
+
+    function toDatetimeLocalValue(d) {
+        var pad = function (n) { return String(n).padStart(2, '0'); };
+        return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+
+    function syncScheduleEndFromPackage() {
+        var startEl = qs('[name="startAt"]');
+        var endEl = qs('[name="endAt"]');
+        var pkgSel = qs('[name="packageId"]');
+        if (!startEl || !endEl || !pkgSel || !pkgSel.value || !startEl.value) return;
+        var pkg = FLAdService.getPackage(pkgSel.value);
+        if (!pkg) return;
+        var start = new Date(startEl.value);
+        if (isNaN(start.getTime())) return;
+        endEl.value = toDatetimeLocalValue(new Date(start.getTime() + pkg.durationDays * 86400000));
+        endEl.readOnly = true;
+        var hint = qs('#adScheduleHint');
+        if (hint) hint.textContent = '结束时间 = 开始 + ' + pkg.durationDays + ' 天（套餐「' + pkg.name + '」）';
     }
 
     function initWizard() {
@@ -161,6 +340,8 @@
         var gate = FLAdService.canCreatePaidAd(UID);
         if (!gate.ok && !location.search.includes('demo=1')) {
             toast(gate.message);
+            setTimeout(function () { adGo('center'); }, 600);
+            return;
         }
         var step = 1;
         var draft = {
@@ -172,6 +353,7 @@
             step = n;
             document.querySelectorAll('.ad-step-panel').forEach(function (p) { p.classList.toggle('on', Number(p.getAttribute('data-step')) === n); });
             document.querySelectorAll('.ad-wizard-steps span').forEach(function (s) { s.classList.toggle('on', Number(s.getAttribute('data-step')) <= n); });
+            if (n === 5) syncScheduleEndFromPackage();
         }
         document.querySelectorAll('[data-next]').forEach(function (b) {
             b.onclick = function () {
@@ -187,6 +369,8 @@
         var slotSel = qs('[name="slotCode"]');
         if (slotSel) slotSel.onchange = function () { populatePackages(slotSel.value); };
         populatePackages(slotSel ? slotSel.value : 'feed_video');
+        var startEl = qs('[name="startAt"]');
+        if (startEl) startEl.addEventListener('change', syncScheduleEndFromPackage);
 
         qs('#adSaveDraft') && (qs('#adSaveDraft').onclick = function () {
             collect(draft);
@@ -202,8 +386,10 @@
             if (paying) { toast('支付处理中，请勿重复点击（幂等演示）'); return; }
             collect(draft);
             draft.id = draft.id || FLAdStore.nextAdId();
-            FLAdStore.upsertAd(draft);
             var pkgId = qs('[name="packageId"]').value;
+            var sch = FLAdService.applyPackageSchedule(draft, pkgId);
+            if (!sch.ok) { toast(sch.message); return; }
+            FLAdStore.upsertAd(draft);
             var ord = FLAdService.createOrder(draft.id, pkgId, UID);
             if (!ord.ok) { toast(ord.message); return; }
             paying = true;
@@ -258,12 +444,24 @@
         FLAdStore.upsertAd(ad);
         var root = qs('#adDetailRoot');
         if (!root) return;
-        root.innerHTML = '<h2 style="margin:0 0 8px">' + ad.name + '</h2><p style="font-size:12px;color:var(--text-tertiary)">' + ad.id + ' · v' + ad.contentVersion + '</p>' +
-            '<div style="height:160px;border-radius:12px;background:url(' + ad.materialUrl + ') center/cover;margin:12px 0"></div>' +
-            '<p><b>' + ad.title + '</b><br>' + ad.copy + '</p>' +
+        var order = FLAdStore.getOrders(UID).filter(function (o) { return o.adId === id; })[0];
+        var refundLine = '';
+        var refundQuote = null;
+        if (order && (ad.payStatus === 'paid' || ad.payStatus === 'partial_refunded')) {
+            refundQuote = FLAdService.syncOrderRefundable(order.id);
+        }
+        if (refundQuote && refundQuote.ok && refundQuote.maxRefundNow > 0) {
+            refundLine = '<p class="ad-muted" style="margin-top:10px">可退约 <strong>' + refundQuote.maxRefundNow.toFixed(2) + '</strong> USDT · 已消耗 ' +
+                refundQuote.consumedDays + '/' + refundQuote.durationDays + ' 天 · ' + refundQuote.formulaText + '</p>';
+        }
+        root.innerHTML = '<h2 style="margin:0 0 8px">' + esc(ad.name) + '</h2><p style="font-size:12px;color:var(--text-tertiary)">' + esc(ad.id) + ' · v' + ad.contentVersion +
+            (ad.packageName ? ' · ' + esc(ad.packageName) : '') + '</p>' +
+            '<div style="height:160px;border-radius:12px;background:url(' + esc(ad.materialUrl) + ') center/cover;margin:12px 0"></div>' +
+            '<p><b>' + esc(ad.title) + '</b><br>' + esc(ad.copy) + '</p>' +
             '<p style="font-size:12px">审核：' + label(FLAdStore.AUDIT_STATUS, ad.auditStatus) + '<br>支付：' + label(FLAdStore.PAY_STATUS, ad.payStatus) +
-            '<br>投放：' + label(FLAdStore.DELIVERY_STATUS, ad.deliveryStatus) + '</p>' +
-            (ad.rejectReason ? '<p style="color:#f87171;font-size:12px">驳回：' + ad.rejectReason + '</p>' : '') +
+            '<br>投放：' + label(FLAdStore.DELIVERY_STATUS, ad.deliveryStatus) + '<br>排期：' + esc(fmtDateRange(ad.startAt, ad.endAt)) + '</p>' +
+            refundLine +
+            (ad.rejectReason ? '<p style="color:#f87171;font-size:12px">驳回：' + esc(ad.rejectReason) + '</p>' : '') +
             (ad.versions && ad.versions.length ? '<p style="font-size:11px;color:var(--text-tertiary)">内容变更后将重新审核（共 ' + ad.versions.length + ' 个历史版本）</p>' : '');
 
         qs('#adBtnStats') && (qs('#adBtnStats').onclick = function () { adGo('stats', { id: id }); });
@@ -280,11 +478,17 @@
         });
         qs('#adBtnResubmit') && (qs('#adBtnResubmit').onclick = function () { adGo('create', { id: id }); });
         qs('#adBtnRefund') && (qs('#adBtnRefund').onclick = function () {
-            var order = FLAdStore.getOrders(UID).filter(function (o) { return o.adId === id; })[0];
-            if (!order) { toast('无关联订单'); return; }
-            var amt = order.refundableAmount - order.refundedAmount;
-            if (!confirm('申请退款 ' + amt.toFixed(2) + ' USDT？（规则：待业务确认）')) return;
-            var r = FLAdService.refundOrder(order.id, amt, '未开始投放用户取消', 'rf-' + order.id);
+            var orderRow = FLAdStore.getOrders(UID).filter(function (o) { return o.adId === id; })[0];
+            if (!orderRow) { toast('无关联订单'); return; }
+            var q = FLAdService.syncOrderRefundable(orderRow.id);
+            if (!q.ok) { toast(q.message); return; }
+            var amt = q.maxRefundNow;
+            if (amt <= 0) { toast('当前无可退金额'); return; }
+            var msg = '按套餐剩余天数退款 ' + amt.toFixed(2) + ' USDT？\n' + q.formulaText +
+                '\n（已消耗 ' + q.consumedDays + ' 天，剩余 ' + q.remainingDays + ' 天' +
+                (q.feeRate ? '，含 ' + Math.round(q.feeRate * 100) + '% 手续费' : '') + '）';
+            if (!confirm(msg)) return;
+            var r = FLAdService.refundOrder(orderRow.id, amt, '用户申请退款', 'rf-' + orderRow.id + '-' + amt);
             toast(r.ok ? '退款处理中（模拟）' : r.message);
             setTimeout(function () { initDetail({ id: id }); }, 900);
         });
@@ -297,7 +501,15 @@
         if (qs('#adBtnPause')) qs('#adBtnPause').hidden = ad.deliveryStatus !== 'delivering' && ad.deliveryStatus !== 'active';
         if (qs('#adBtnResume')) qs('#adBtnResume').hidden = ad.deliveryStatus !== 'paused';
         if (qs('#adBtnResubmit')) qs('#adBtnResubmit').hidden = ad.auditStatus !== 'rejected';
-        if (qs('#adBtnRefund')) qs('#adBtnRefund').hidden = ad.deliveryStatus !== 'pending_start' || ad.payStatus !== 'paid';
+        if (qs('#adBtnRefund')) {
+            var showRf = false;
+            if (order && (ad.payStatus === 'paid' || ad.payStatus === 'partial_refunded')) {
+                var rq = refundQuote || FLAdService.syncOrderRefundable(order.id);
+                showRf = rq.ok && rq.maxRefundNow > 0 &&
+                    (ad.deliveryStatus === 'pending_start' || ad.deliveryStatus === 'delivering' || ad.deliveryStatus === 'paused' || ad.deliveryStatus === 'active');
+            }
+            qs('#adBtnRefund').hidden = !showRf;
+        }
     }
 
     function initStats(params) {
@@ -333,7 +545,7 @@
         if (mode === 'center') bindFilters();
     }
 
-    global.FLAdUser = { toast: toast, renderCenter: renderCenter, bootView: bootView, adGo: adGo };
+    global.FLAdUser = { toast: toast, renderCenter: renderCenter, bootView: bootView, adGo: adGo, tryCreate: tryCreate };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
     else boot();
 })(window);

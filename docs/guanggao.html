@@ -65,6 +65,7 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
         <li><a href="#s3">现有项目集成说明</a></li>
         <li><a href="#s4">涉及的端、角色与权限</a></li>
         <li><a href="#s5">三端页面清单</a></li>
+        <li><a href="#s5-user-center">用户广告中心（信息架构）</a></li>
         <li><a href="#s6">核心实体与字段</a></li>
         <li><a href="#s7">广告位与素材规范</a></li>
         <li><a href="#s8">业务流程图</a></li>
@@ -121,11 +122,12 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
 <table>
     <thead><tr><th>角色</th><th>能力（一期）</th></tr></thead>
     <tbody>
-        <tr><td>普通用户</td><td>浏览广告、不感兴趣/举报；<strong>无广告主资格不可购套餐</strong></td></tr>
-        <tr><td>广告主</td><td>创编、套餐支付、管理广告、查看自有资金与统计</td></tr>
+        <tr><td>普通用户</td><td>浏览广告、不感兴趣/举报；<strong>无广告主资格不可购套餐、不可创编</strong></td></tr>
+        <tr><td>广告主</td><td>同一 <code>uid</code> 可申请并挂载广告主身份；通过后创编、套餐支付、管理广告、查看<strong>自有</strong>资金与统计</td></tr>
         <tr><td>后台</td><td>分模块操作；原型用 <code>localStorage.fl_ad_admin_role</code>（<code>operator</code> / <code>finance</code> / <code>super</code>）模拟越权拦截（如改套餐价需 <code>super</code>）</td></tr>
     </tbody>
 </table>
+<blockquote>产品原则（一期）：<strong>任意登录用户可申请成为广告主</strong>，但<strong>付费投放仅对已审核通过的广告主（及后台平台运营）开放</strong>；与创作者发内容、普通用户消费内容分离。</blockquote>
 <p>数据隔离（原型）：演示账号 <code>U102938</code> 仅见自有广告、订单与流水。</p>
 
 <h2 id="s5">五、三端页面清单</h2>
@@ -159,6 +161,21 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
     </tbody>
 </table>
 <p><strong>创编步骤</strong>：基础信息 → 素材 → 广告位与落地 → 投放时间与地域/语言 → <strong>套餐</strong> → <strong>支付</strong> → <strong>提交审核</strong>。</p>
+
+<h3 id="s5-user-center">5.3 用户广告中心 · 信息架构（<code>settings-ad</code> / 设置内嵌 <code>#settingsAdPanel</code>）</h3>
+<p>入口：设置侧栏「广告中心」（<code>data-ad-nav="1"</code>）→ Web 内嵌 <code>js-web/settings-ad-embed.js</code> + <code>js/ad-system-user.js</code>；H5 独立 <a href="../pages/settings-ad.html">settings-ad.html</a>。单页多视图：<code>center</code> · <code>create</code> · <code>detail</code> · <code>stats</code> · <code>wallet</code> · <code>apply</code>（<code>ad-settings-shell.js</code>）。</p>
+<blockquote><strong>界面原则：</strong>产品页<strong>不展示</strong>长篇规则/流程说明（广告主定义、与创作者区别等写在本文档）；页内仅用<strong>状态标签、数字、按钮、Toast</strong>表达可执行信息与拦截原因。</blockquote>
+<table>
+    <thead><tr><th>区块</th><th>说明</th></tr></thead>
+    <tbody>
+        <tr><td>身份标签</td><td><code>#adRoleStrip</code> 单行 pill：普通用户 / 广告主 · 审核中 / 已通过 / 已驳回 / 限制（无副文案）</td></tr>
+        <tr><td>资质条</td><td><code>#adQualBanner</code>：必要时仅短状态 + 操作按钮（申请/重新申请）；驳回可带一行 <code>rejectReason</code></td></tr>
+        <tr><td>工具栏</td><td><strong>创建广告</strong>（仅 <code>approved</code> 可点，否则 Toast）· <strong>广告账户</strong> · <strong>申请广告主</strong>（未申请/驳回时显示）</td></tr>
+        <tr><td>账户与投放概览</td><td>左栏（Web 双栏）：余额、冻结、投放中、待审核、待支付；曝光/点击/消耗数字</td></tr>
+        <tr><td>我的广告</td><td>右栏：筛选 + 列表 → <code>detail</code>；空列表仅「暂无广告」</td></tr>
+    </tbody>
+</table>
+<p><strong>与后台关系：</strong>用户侧仅管理<strong>来源 <code>user</code></strong> 的广告与自有流水；平台广告在 <code>ads-ops-create.html</code>，不在广告中心创建。</p>
 
 <h2 id="s6">六、核心实体与字段（摘要）</h2>
 <table>
@@ -228,10 +245,18 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
     <li>不允许的操作由 API 返回 <strong>明确中文原因</strong>（<code>js/ad-system-api.js</code>）。</li>
 </ul>
 
-<h3>9.2 资金字段</h3>
-<p>区分：<strong>可用余额</strong>、<strong>冻结</strong>、<strong>已消费</strong>、<strong>已退款</strong>；订单 <strong>应付/实付/累计已退/当前可退</strong>。一期套餐为<strong style="color:#fff">一口价</strong>，不按曝光/点击动态扣费。</p>
-<p><strong>暂停</strong>：停止展示，一期原型<strong>不自动退款</strong>；恢复时校验资质、审核版本、周期与支付。<br>
-<strong>退款</strong>：未支付订单可取消；已付未开始可申请退款（比例与时效<strong>待业务确认</strong>）；已投放主动下架不自动全额退。</p>
+<h3>9.2 套餐、排期与计费口径</h3>
+<ul>
+    <li><strong>套餐</strong>：广告位 + 周期天数 + 一口价；订单 <code>priceSnapshot</code> 快照。</li>
+    <li><strong>排期</strong>：用户填开始时间；<strong>结束 = 开始 + 套餐天数</strong>（选套餐后自动写入，提审校验）。</li>
+    <li>一期<strong>一口价</strong>，不按曝光/点击二次扣费。</li>
+</ul>
+<h3>9.3 资金字段与退款公式（原型 <code>FLAdService.computeRefundQuote</code>）</h3>
+<p>未开投（<code>pending_start</code> 且未到 <code>startAt</code>）：<strong>全额退</strong>，手续费 0%。</p>
+<p>已开投（<code>delivering</code> / <code>paused</code>）：设套餐天数 <code>D</code>，已消耗天数 <code>D_used</code>（自 <code>startAt</code> 起按天<strong>向上取整</strong>，上限 <code>D</code>），剩余 <code>D_rem = D − D_used</code>，手续费率 <code>f = 5%</code>（<code>REFUND_SERVICE_FEE_RATE</code>）：</p>
+<p style="font-family:ui-monospace,monospace;font-size:13px">R_max = round(实付 × (D_rem / D) × (1 − f), 2)<br>本次可退 = max(0, R_max − 已退)</p>
+<p><strong>示例</strong>：199 USDT · 7 天 · 已消耗 4 天 → R_max ≈ 199×(3/7)×0.95 ≈ <strong>80.93 USDT</strong>。</p>
+<p><strong>暂停</strong>不自动退款；<strong>ended/removed</strong> 通常无可退。退款后无可退余量时广告 <code>removed</code>。</p>
 
 <h2 id="s10">十、统计、风控与审计</h2>
 <ul>
@@ -275,7 +300,8 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
         <tr><td>2</td><td>审核驳回 → 查看原因 → 修改 → 重审</td></tr>
         <tr><td>3</td><td>余额不足 → 充值 → 再支付</td></tr>
         <tr><td>4</td><td>投放中暂停 → 恢复（含失败提示用例）</td></tr>
-        <tr><td>5</td><td>待开始 + 已付 → 申请退款 → 流水一致</td></tr>
+        <tr><td>5</td><td>待开始 + 已付 → 全额退 → 流水一致</td></tr>
+        <tr><td>5b</td><td>投放中 → 按剩余天数比例退款（含 5% 手续费）</td></tr>
         <tr><td>6</td><td>通过后改素材 → 版本 +1、重审</td></tr>
         <tr><td>7</td><td>重复支付同一订单</td></tr>
         <tr><td>8</td><td>运营改套餐价 vs 历史订单快照</td></tr>
@@ -301,7 +327,7 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
 <p>以下影响研发与财务方案，<strong style="color:#fff">不得写死为已确定规则</strong>；原型中用配置项或「待业务确认」文案占位。</p>
 <ol>
     <li>广告主准入材料与 KYC 是否复用现有实名体系。</li>
-    <li>已投放订单主动下架/违规下架的<strong>退款比例、时效、到账方式</strong>。</li>
+    <li>违规/运营下架是否沿用同一退款公式；真实<strong>到账时效</strong>（原型为即时回广告账户）。</li>
     <li>转化事件（进房等）的<strong>统计口径与去重规则</strong>。</li>
     <li>直播间广告<strong>频次上限</strong>与仅运营可投是否长期成立。</li>
     <li>运营<strong>免人工审核</strong>白名单范围与安全校验清单。</li>

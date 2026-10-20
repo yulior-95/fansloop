@@ -7,6 +7,119 @@
 
     var RISK_DOMAIN_BLOCK = ['evil-phish.test', 'malware.demo'];
     var IDEM = {};
+    var MS_DAY = 86400000;
+    /** 开投后按剩余天数退款时的手续费率（原型默认 5%） */
+    var REFUND_SERVICE_FEE_RATE = 0.05;
+
+    function toMs(iso) {
+        if (!iso) return null;
+        var t = new Date(iso).getTime();
+        return isNaN(t) ? null : t;
+    }
+
+    function computeRefundQuote(order, ad, nowMs) {
+        nowMs = nowMs == null ? Date.now() : nowMs;
+        if (!order || !ad) return { ok: false, message: '订单或广告不存在' };
+        var paid = order.paidAmount || order.priceSnapshot || 0;
+        var refunded = order.refundedAmount || 0;
+        var dur = order.durationDays || 7;
+        if (order.payStatus !== 'paid' && order.payStatus !== 'partial_refunded') {
+            return { ok: false, message: '订单未支付成功' };
+        }
+        var startMs = toMs(ad.startAt);
+        if (!startMs) return { ok: false, message: '请先设置投放开始时间' };
+
+        var consumed = 0;
+        var feeRate = 0;
+        var ds = ad.deliveryStatus;
+
+        if (ds === 'pending_start' && nowMs < startMs) {
+            consumed = 0;
+            feeRate = 0;
+        } else if (ds === 'delivering' || ds === 'paused' || ds === 'active') {
+            var endCap = startMs + dur * MS_DAY;
+            var adEnd = toMs(ad.endAt);
+            if (adEnd) endCap = Math.min(endCap, adEnd);
+            var evalNow = Math.min(nowMs, endCap);
+            var elapsed = evalNow - startMs;
+            consumed = elapsed <= 0 ? 0 : Math.min(dur, Math.ceil(elapsed / MS_DAY));
+            feeRate = REFUND_SERVICE_FEE_RATE;
+        } else if (ds === 'pending_start' && nowMs >= startMs) {
+            consumed = 0;
+            feeRate = 0;
+        } else if (ds === 'ended' || ds === 'removed') {
+            consumed = dur;
+            feeRate = REFUND_SERVICE_FEE_RATE;
+        } else {
+            return { ok: false, message: '当前状态不可申请退款' };
+        }
+
+        var remaining = Math.max(0, dur - consumed);
+        var gross = remaining <= 0 ? 0 : paid * (remaining / dur) * (1 - feeRate);
+        gross = Math.round(gross * 100) / 100;
+        var maxNow = Math.round(Math.max(0, gross - refunded) * 100) / 100;
+
+        return {
+            ok: true,
+            durationDays: dur,
+            consumedDays: consumed,
+            remainingDays: remaining,
+            feeRate: feeRate,
+            paidAmount: paid,
+            refundedAmount: refunded,
+            grossRefundable: gross,
+            maxRefundNow: maxNow,
+            formulaText: remaining <= 0
+                ? '套餐天数已消耗完毕，无可退金额'
+                : '实付 ' + paid + ' × (' + remaining + '÷' + dur + ') × (1-' + Math.round(feeRate * 100) + '%)'
+        };
+    }
+
+    function computeRefundQuoteForOrder(orderId, nowMs) {
+        var data = FLAdStore.load();
+        var order = (data.orders || []).filter(function (o) { return o.id === orderId; })[0];
+        if (!order) return { ok: false, message: '订单不存在' };
+        var ad = FLAdStore.getAd(order.adId);
+        return computeRefundQuote(order, ad, nowMs);
+    }
+
+    function syncOrderRefundable(orderId, nowMs) {
+        var data = FLAdStore.load();
+        var order = (data.orders || []).filter(function (o) { return o.id === orderId; })[0];
+        if (!order) return null;
+        var ad = FLAdStore.getAd(order.adId);
+        var q = computeRefundQuote(order, ad, nowMs);
+        if (q.ok) order.refundableAmount = q.grossRefundable;
+        FLAdStore.save(data);
+        return q;
+    }
+
+    function applyPackageSchedule(ad, packageId) {
+        var pkg = getPackage(packageId);
+        if (!pkg) return fail('套餐不存在');
+        if (!ad.startAt) return fail('请设置投放开始时间');
+        var startMs = toMs(ad.startAt);
+        if (!startMs) return fail('开始时间格式无效');
+        ad.endAt = new Date(startMs + pkg.durationDays * MS_DAY).toISOString();
+        ad.packageId = pkg.id;
+        return ok({ endAt: ad.endAt, durationDays: pkg.durationDays });
+    }
+
+    function validatePackageSchedule(ad) {
+        var pkg = getPackage(ad.packageId);
+        if (!pkg || !ad.startAt) return ok();
+        var startMs = toMs(ad.startAt);
+        var expectedEnd = startMs + pkg.durationDays * MS_DAY;
+        if (!ad.endAt) {
+            ad.endAt = new Date(expectedEnd).toISOString();
+            return ok();
+        }
+        var endMs = toMs(ad.endAt);
+        if (Math.abs(endMs - expectedEnd) > 120000) {
+            return fail('结束时间须为开始时间 +' + pkg.durationDays + ' 天（与所选套餐一致）');
+        }
+        return ok();
+    }
 
     function fail(msg) { return { ok: false, message: msg }; }
     function ok(data) { return { ok: true, data: data || {} }; }
@@ -166,7 +279,6 @@
             d2.account.spent = (d2.account.spent || 0) + o2.priceSnapshot;
             o2.payStatus = 'paid';
             o2.paidAmount = o2.priceSnapshot;
-            o2.refundableAmount = o2.priceSnapshot;
             o2.paidAt = new Date().toISOString();
             o2.idempotencyPaid = idempotencyKey;
             d2.finance.unshift({
@@ -186,6 +298,8 @@
                 FLAdStore.upsertAd(ad);
             }
             FLAdStore.save(d2);
+            syncOrderRefundable(orderId);
+            d2 = FLAdStore.load();
             global.dispatchEvent(new CustomEvent('fl-ad-store-changed'));
         }, 800);
 
@@ -212,8 +326,15 @@
         var order = (data.orders || []).filter(function (o) { return o.id === orderId; })[0];
         if (!order) return fail('订单不存在');
         if (order.payStatus !== 'paid' && order.payStatus !== 'partial_refunded') return fail('订单不可退款');
-        var max = order.refundableAmount - (order.refundedAmount || 0);
-        if (amount <= 0 || amount > max) return fail('可退金额不足，当前最多可退 ' + max.toFixed(2) + ' USDT');
+        var ad = FLAdStore.getAd(order.adId);
+        syncOrderRefundable(orderId);
+        order = FLAdStore.load().orders.filter(function (o) { return o.id === orderId; })[0];
+        var quote = computeRefundQuote(order, ad);
+        if (!quote.ok) return fail(quote.message);
+        var max = quote.maxRefundNow;
+        if (amount <= 0 || amount > max + 0.001) {
+            return fail('可退金额不足，当前最多可退 ' + max.toFixed(2) + ' USDT（' + quote.formulaText + '）');
+        }
         order.payStatus = 'refund_processing';
         FLAdStore.save(data);
         setTimeout(function () {
@@ -221,10 +342,22 @@
             var o2 = d2.orders.filter(function (o) { return o.id === orderId; })[0];
             if (!o2) return;
             o2.refundedAmount = (o2.refundedAmount || 0) + amount;
-            o2.refundableAmount = Math.max(0, o2.paidAmount - o2.refundedAmount);
             d2.account.balance += amount;
             d2.account.refunded = (d2.account.refunded || 0) + amount;
-            o2.payStatus = o2.refundableAmount <= 0 ? 'refunded' : 'partial_refunded';
+            d2.account.spent = Math.max(0, (d2.account.spent || 0) - amount);
+            syncOrderRefundable(orderId);
+            o2 = d2.orders.filter(function (o) { return o.id === orderId; })[0];
+            var leftRef = (o2.refundableAmount || 0) - (o2.refundedAmount || 0);
+            o2.payStatus = leftRef <= 0.001 ? 'refunded' : 'partial_refunded';
+            var adRf = FLAdStore.getAd(o2.adId);
+            if (adRf && leftRef <= 0.001) {
+                adRf.deliveryStatus = 'removed';
+                adRf.payStatus = o2.payStatus;
+                FLAdStore.upsertAd(adRf);
+            } else if (adRf && (adRf.deliveryStatus === 'delivering' || adRf.deliveryStatus === 'paused')) {
+                adRf.deliveryStatus = 'removed';
+                FLAdStore.upsertAd(adRf);
+            }
             d2.finance.unshift({
                 id: 'FIN-RF-' + Date.now(),
                 uid: o2.uid,
@@ -281,6 +414,8 @@
         var v = validateLink(ad.landingUrl);
         if (!v.ok) return v;
         if (!ad.materialUrl) return fail('请上传素材');
+        var sch = validatePackageSchedule(ad);
+        if (!sch.ok) return sch;
         ad.auditStatus = 'pending_review';
         FLAdStore.upsertAd(ad);
         return ok();
@@ -396,7 +531,13 @@
         adminRole: adminRole,
         requireAdminPerm: requireAdminPerm,
         mockRecharge: mockRecharge,
-        getPackage: getPackage
+        getPackage: getPackage,
+        REFUND_SERVICE_FEE_RATE: REFUND_SERVICE_FEE_RATE,
+        computeRefundQuote: computeRefundQuote,
+        computeRefundQuoteForOrder: computeRefundQuoteForOrder,
+        syncOrderRefundable: syncOrderRefundable,
+        applyPackageSchedule: applyPackageSchedule,
+        validatePackageSchedule: validatePackageSchedule
     };
 
     var _getDel = FLAdStore.getDeliveringAds;
