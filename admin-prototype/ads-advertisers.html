@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
+<script src="../js/force-http-preview.js"></script>
+
+<meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>广告主管理 · GOODFANS 运营后台</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
@@ -16,27 +18,46 @@
   <aside class="admin-sider" id="adminSider"></aside>
   <div class="admin-main">
     <header class="admin-header">
-      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 广告管理 / 广告主管理</span></div>
+<div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 广告管理 / 广告主管理</span></div>
       <div class="admin-header-right">
-        <a href="ads-advertiser-qual.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-id-badge"></i> 资质审核</a>
         <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face" alt=""><span>广告运营 · Mia</span></div>
       </div>
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">广告主管理</h1>
-      <p class="admin-page-desc">复用平台 UID，不重复建设用户体系。账户状态影响创建广告、支付与投放（见 FLAdService.canCreatePaidAd）。</p>
+      <p class="admin-page-desc">复用平台 UID，不重复建设用户体系。待审核可直接通过 / 驳回；已通过可限制发布。账户状态影响创建广告、支付与投放。</p>
 
       <div class="admin-toolbar">
-        <div class="field field-grow"><label>UID / 主体名称</label><input class="ant-input" placeholder="搜索广告主" style="width:100%"></div>
-        <div class="field"><label>账户状态</label><select class="ant-input" style="width:140px"><option>全部</option><option>正常</option><option>受限</option><option>禁用</option></select></div>
-        <button type="button" class="ant-btn ant-btn-primary"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
+        <div class="field field-grow"><label>UID / 主体名称</label><input class="ant-input" id="advFilterQ" placeholder="搜索广告主" style="width:100%"></div>
+        <div class="field"><label>账户状态</label><select class="ant-input" id="advFilterStatus" style="width:140px"><option value="">全部</option><option value="approved">已通过</option><option value="pending">待审核</option><option value="restricted">受限</option><option value="disabled">禁用</option><option value="rejected">已驳回</option></select></div>
+        <button type="button" class="ant-btn ant-btn-primary" id="advBtnSearch"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
       </div>
 
       <div class="ant-card ant-card-bordered">
         <div class="ant-card-body" style="padding-top:0">
           <div class="ant-table ant-table-small ant-table-bordered">
             <table style="width:100%">
-              <thead class="ant-table-thead"><tr><th class="admin-col-index">#</th><th>UID</th><th>主体名称</th><th>账户状态</th><th>广告数</th><th>累计充值</th><th>累计消耗</th><th>违规次数</th><th style="width:180px">操作</th></tr></thead>
+              <thead class="ant-table-thead"><tr>
+                <th class="admin-col-index">#</th>
+                <th>UID</th>
+                <th>主体名称</th>
+                <th>账户状态</th>
+                <th>广告数
+                  <span class="ad-stat-tip ad-th-tip" tabindex="0" aria-label="广告数说明">
+                    <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+                    <span class="ad-stat-tip-pop" role="tooltip"><b>公式</b>：COUNT(广告) WHERE <code>advertiserUid</code> = 该广告主 UID。<br><b>口径</b>：含全部上架审核 / 投放状态，以及用户侧已删、后台留档的广告；不含平台运营投放（<code>PLATFORM</code>）。</span>
+                  </span>
+                </th>
+                <th>累计充值</th>
+                <th>累计消耗</th>
+                <th>违规次数
+                  <span class="ad-stat-tip ad-th-tip ad-th-tip--end" tabindex="0" aria-label="违规次数说明">
+                    <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+                    <span class="ad-stat-tip-pop" role="tooltip"><b>公式</b>：广告主字段 <code>violationCount</code> 累计值。<br><b>口径</b>：平台认定的违规次数之和（如素材违规下架、落地页黑名单、用户有效举报立案等）；资质驳回本身不计违规。达到阈值时可联动「限制发布」。</span>
+                  </span>
+                </th>
+                <th style="width:180px">操作</th>
+              </tr></thead>
               <tbody class="ant-table-tbody" id="adAdvBody" data-pager="js"></tbody>
             </table>
           </div>
@@ -47,10 +68,11 @@
   </div>
 </div>
 <script src="../js/ad-system-store.js"></script>
-<script src="js/admin-nav.js"></script>
+<script src="../js/ad-system-api.js"></script>
+<script src="js/admin-nav.js?v=20261104c"></script>
 <script src="js/admin-modal.js"></script>
 <script src="js/admin-pagination.js"></script>
 <script src="js/ad-admin-layout.js"></script>
-<script src="js/ad-admin-pages.js"></script>
+<script src="js/ad-admin-pages.js?v=20261110advqual"></script>
 </body>
 </html>

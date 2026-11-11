@@ -190,25 +190,32 @@
     if (o.width) modalEl.style.maxWidth = o.width + "px";
     else modalEl.style.maxWidth = "";
     footEl.innerHTML = "";
-    var buttons =
-      o.footer && o.footer.length
-        ? o.footer
-        : [{ text: "关闭", primary: true, onClick: close }];
-    buttons.forEach(function (f) {
-      var b = document.createElement("button");
-      b.type = "button";
-      var cls = "ant-btn ant-btn-sm ";
-      if (f.danger) cls += "ant-btn-danger";
-      else if (f.primary) cls += "ant-btn-primary";
-      else cls += "ant-btn";
-      b.className = cls;
-      b.textContent = f.text || "按钮";
-      b.addEventListener("click", function (ev) {
-        if (f.onClick) f.onClick(ev);
-        else close();
+    if (typeof o.footer === "string") {
+      footEl.innerHTML = o.footer;
+      footEl.querySelectorAll("[data-modal-close]").forEach(function (b) {
+        b.addEventListener("click", close);
       });
-      footEl.appendChild(b);
-    });
+    } else {
+      var buttons =
+        o.footer && o.footer.length
+          ? o.footer
+          : [{ text: "关闭", primary: true, onClick: close }];
+      buttons.forEach(function (f) {
+        var b = document.createElement("button");
+        b.type = "button";
+        var cls = "ant-btn ant-btn-sm ";
+        if (f.danger) cls += "ant-btn-danger";
+        else if (f.primary) cls += "ant-btn-primary";
+        else cls += "ant-btn";
+        b.className = cls;
+        b.textContent = f.text || "按钮";
+        b.addEventListener("click", function (ev) {
+          if (f.onClick) f.onClick(ev);
+          else close();
+        });
+        footEl.appendChild(b);
+      });
+    }
     root.classList.add("is-open");
     root.setAttribute("aria-hidden", "false");
     document.body.classList.add("fl-modal-open");
@@ -344,12 +351,38 @@
     });
   }
 
+  function confirm(msg, onOk, onCancel) {
+    open({
+      title: "确认",
+      body: "<p style='margin:0;color:rgba(0,0,0,.65)'>" + esc(msg) + "</p>",
+      footer: [
+        {
+          text: "取消",
+          onClick: function () {
+            close();
+            if (onCancel) onCancel();
+          }
+        },
+        {
+          text: "确定",
+          primary: true,
+          danger: true,
+          onClick: function () {
+            close();
+            if (onOk) onOk();
+          }
+        }
+      ]
+    });
+  }
+
   window.AdminModal = {
     open: open,
     close: close,
     toast: toast,
     notify: notify,
     message: notify,
+    confirm: confirm,
     confirmGoogle: confirmGoogle,
     wireModalTabs: wireModalTabs,
     esc: esc
@@ -357,9 +390,16 @@
 })();
 
 (function () {
+  if (document.body && document.body.getAttribute("data-admin-page") === "login") return;
   if (document.querySelector('script[src*="admin-uid-link.js"]')) return;
-  if (!document.querySelector('script[src*="users-list-page.js"]')) {
-    document.write('<script src="js/users-list-page.js"><\/script>');
+  function append(src) {
+    var s = document.createElement("script");
+    s.src = src;
+    s.async = false;
+    (document.body || document.head).appendChild(s);
   }
-  document.write('<script src="js/admin-uid-link.js"><\/script>');
+  if (!document.querySelector('script[src*="users-list-page.js"]')) {
+    append("js/users-list-page.js");
+  }
+  append("js/admin-uid-link.js");
 })();

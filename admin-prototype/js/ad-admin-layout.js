@@ -7,10 +7,12 @@
     function bindRoleSelect(selectId) {
         var sel = document.getElementById(selectId);
         if (!sel) return;
-        sel.value = localStorage.getItem('fl_ad_admin_role') || 'operator';
+        var stored = localStorage.getItem('fl_ad_admin_role') || 'super';
+        if (sel.querySelector('option[value="' + stored + '"]')) sel.value = stored;
+        else sel.value = sel.options[0] ? sel.options[0].value : stored;
         sel.onchange = function () {
             localStorage.setItem('fl_ad_admin_role', sel.value);
-            if (global.AdminModal && AdminModal.toast) AdminModal.toast('原型角色：' + sel.value);
+            location.reload();
         };
     }
 

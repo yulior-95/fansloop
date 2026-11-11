@@ -27,7 +27,7 @@
             return mutate(id, function (ad) {
                 ad.auditStatus = 'rejected';
                 ad.rejectReason = reason;
-                ad.deliveryStatus = 'pending';
+                ad.deliveryStatus = 'pending_start';
                 ad.auditLog.push({ at: new Date().toISOString(), by: by || '审核员', action: '审核拒绝', note: reason });
             });
         },
@@ -44,9 +44,18 @@
             });
         },
         remove: function (id, reason) {
+            /* 与 FLAdService.adminRemoveAd 对齐：标记平台下架，避免用户端误走「自行申请退款」文案 */
+            if (global.FLAdService && FLAdService.adminRemoveAd) {
+                var r = FLAdService.adminRemoveAd(id, reason || '运营下架', 'forfeit');
+                return !!(r && r.ok);
+            }
             return mutate(id, function (ad) {
                 ad.deliveryStatus = 'removed';
-                global.FLAdStore.pushOpLog({ action: '下架广告', target: id, reason: reason || '' });
+                ad.removedReason = String(reason || '运营下架').trim() || '运营下架';
+                ad.removedAt = new Date().toISOString();
+                ad.removedBy = 'platform';
+                ad.removedFeeAction = 'forfeit';
+                global.FLAdStore.pushOpLog({ action: '运营强制下架', target: id, reason: ad.removedReason + ' · 费用=forfeit' });
             });
         },
         savePlatformAd: function (payload) {

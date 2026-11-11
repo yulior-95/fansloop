@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
+<script src="../js/force-http-preview.js"></script>
+
+<meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>登录 · GOODFANS 运营后台</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
@@ -16,7 +18,7 @@
       <h1>GOODFANS 运营后台</h1>
       <p>使用成员账号、登录密码与谷歌验证器登录</p>
     </div>
-    <form class="admin-login-form" id="adminLoginForm" autocomplete="on">
+    <form class="admin-login-form" id="adminLoginForm" autocomplete="on" novalidate>
       <div id="adminLoginErr" class="admin-login-err" role="alert"></div>
       <div class="admin-login-field">
         <label for="loginAccount">账号</label>
@@ -45,7 +47,7 @@
 <script>
 (function () {
   var session = window.AdminAuth && AdminAuth.getSession();
-  if (session) {
+  if (session && !session.prototype) {
     var p = new URLSearchParams(location.search);
     location.href = p.get("redirect") || "dashboard.html";
   }

@@ -7,6 +7,7 @@
 
   var ROLES = {
     ROLE_OPS: { label: '活动运营', canDevActivities: false },
+    ROLE_RISK: { label: '风控', canDevActivities: false },
     ROLE_DEV: { label: '研发', canDevActivities: true },
     ROLE_ROOT: { label: '超级管理员', canDevActivities: true }
   };

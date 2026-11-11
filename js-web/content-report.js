@@ -29,12 +29,24 @@
         { id: 'other', label: '以上没有我想举报的类型', full: true }
     ];
 
+    /** 广告举报快捷选项（H5 / WEB 信息流、Banner 共用） */
+    var AD_REASONS = [
+        { id: 'false_claim', label: '虚假宣传' },
+        { id: 'fraud', label: '诈骗诱导' },
+        { id: 'porn', label: '色情低俗' },
+        { id: 'spam', label: '骚扰广告 / 频繁出现' },
+        { id: 'rights', label: '侵犯权益 / 抄袭' },
+        { id: 'minor', label: '涉及未成年' },
+        { id: 'other', label: '其他问题', full: true }
+    ];
+
     var REPORT_SHEET_TITLE = '举报';
     var TITLE_MAP = {
         video: REPORT_SHEET_TITLE,
         image: REPORT_SHEET_TITLE,
         live: REPORT_SHEET_TITLE,
-        content: REPORT_SHEET_TITLE
+        content: REPORT_SHEET_TITLE,
+        ad: '举报广告'
     };
 
     var state = {
@@ -42,7 +54,8 @@
         contentId: null,
         contentTitle: '',
         onDone: null,
-        toastFn: null
+        toastFn: null,
+        reasons: REASONS
     };
 
     var overlay = null;
@@ -136,9 +149,10 @@
         syncH5ShellClass();
     }
 
-    function reasonHtml(radioName) {
+    function reasonHtml(radioName, reasons) {
         radioName = radioName || 'flReportReason';
-        return REASONS.map(function (r) {
+        reasons = reasons || REASONS;
+        return reasons.map(function (r) {
             return (
                 '<label class="fl-report-reason' + (r.full ? ' is-full' : '') + '">' +
                 '<input type="radio" name="' + radioName + '" value="' + r.id + '">' +
@@ -149,9 +163,16 @@
 
     var LOG_KEY = 'fl_content_report_logs_v1';
 
-    function reasonLabelOf(id) {
-        for (var i = 0; i < REASONS.length; i++) {
-            if (REASONS[i].id === id) return REASONS[i].label;
+    function reasonLabelOf(id, reasons) {
+        reasons = reasons || state.reasons || REASONS;
+        for (var i = 0; i < reasons.length; i++) {
+            if (reasons[i].id === id) return reasons[i].label;
+        }
+        for (var j = 0; j < REASONS.length; j++) {
+            if (REASONS[j].id === id) return REASONS[j].label;
+        }
+        for (var k = 0; k < AD_REASONS.length; k++) {
+            if (AD_REASONS[k].id === id) return AD_REASONS[k].label;
         }
         return id || '—';
     }
@@ -244,9 +265,18 @@
         state.contentTitle = opts.contentTitle || opts.title || '';
         state.onDone = typeof opts.onDone === 'function' ? opts.onDone : null;
         state.toastFn = typeof opts.toast === 'function' ? opts.toast : null;
+        state.reasons = opts.reasons || (state.type === 'ad' ? AD_REASONS : REASONS);
 
-        var title = opts.title || REPORT_SHEET_TITLE;
+        var title = opts.title || TITLE_MAP[state.type] || REPORT_SHEET_TITLE;
         overlay.querySelector('#flReportTitle').textContent = title;
+        var reasonBox = overlay.querySelector('#flReportReasons');
+        if (reasonBox) reasonBox.innerHTML = reasonHtml('flReportReason', state.reasons);
+        var desc = overlay.querySelector('#flReportDesc');
+        if (desc) {
+            desc.placeholder = state.type === 'ad'
+                ? '可补充说明，便于平台核实（选填）'
+                : '请详细描述举报原因，便于平台判断违规情况';
+        }
         resetForm();
         syncH5ShellClass();
         overlay.classList.add('is-open');
@@ -321,6 +351,31 @@
         var reasonId = checked.value;
         var desc = (overlay.querySelector('#flReportDesc').value || '').trim();
         var done = state.onDone;
+
+        /* 广告举报：写入广告风控 risk，供后台 ads-risk 展示 */
+        if (state.type === 'ad') {
+            if (!window.FLAdService || !FLAdService.reportAd) {
+                showToast('广告举报服务未就绪');
+                return;
+            }
+            var adRes = FLAdService.reportAd(state.contentId, {
+                reasonId: reasonId,
+                reason: reasonLabelOf(reasonId, state.reasons),
+                desc: desc,
+                source: 'user'
+            });
+            if (!adRes.ok) {
+                showToast(adRes.message || '提交失败');
+                return;
+            }
+            showToast('举报已提交');
+            close();
+            setTimeout(function () {
+                if (typeof done === 'function') done(adRes.data || adRes);
+            }, 280);
+            return;
+        }
+
         submitReport({
             reason: reasonId,
             desc: desc,
@@ -355,6 +410,7 @@
         reasonLabelOf: reasonLabelOf,
         resolveType: resolveType,
         REASONS: REASONS,
+        AD_REASONS: AD_REASONS,
         LOG_KEY: LOG_KEY,
         TITLE_MAP: TITLE_MAP,
         REPORT_SHEET_TITLE: REPORT_SHEET_TITLE

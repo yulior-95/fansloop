@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
+<script src="../js/force-http-preview.js"></script>
+
+<meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>广告数据统计 · GOODFANS 运营后台</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
@@ -16,7 +18,7 @@
   <aside class="admin-sider" id="adminSider"></aside>
   <div class="admin-main">
     <header class="admin-header">
-      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 广告管理 / 数据统计</span></div>
+<div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 广告管理 / 数据统计</span></div>
       <div class="admin-header-right">
         <button type="button" class="ant-btn ant-btn-primary ant-btn-sm" id="adStatsExport"><i class="fa-solid fa-download"></i> 导出报表</button>
         <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face" alt=""><span>广告运营 · Mia</span></div>
@@ -24,36 +26,77 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">广告数据统计</h1>
-      <p class="admin-page-desc">汇总曝光、点击、CTR、消耗与转化；明细表可按广告维度下钻（数据来自各广告 stats 字段）。</p>
+      <p class="admin-page-desc">平台侧汇总曝光 / 点击 / CTR / 消耗 / 转化。汇总维度默认「全部广告 · 累计」；明细按单条广告下钻。正式环境按日汇总；原型为种子累计值，周期/来源筛选未接数。</p>
 
       <div class="admin-toolbar">
-        <div class="field"><label>统计周期</label><select class="ant-input" style="width:140px"><option>近 7 日</option><option>近 30 日</option><option>自定义</option></select></div>
-        <div class="field"><label>来源</label><select class="ant-input" style="width:130px"><option>全部</option><option>用户自主</option><option>平台运营</option></select></div>
-        <button type="button" class="ant-btn ant-btn-primary">应用</button>
+        <div class="field"><label>统计周期</label><select class="ant-input" style="width:140px" title="正式按日表过滤；原型未接数"><option>累计（原型）</option><option disabled>近 7 日</option><option disabled>近 30 日</option><option disabled>自定义</option></select></div>
+        <div class="field"><label>来源</label><select class="ant-input" style="width:130px" title="正式按 source 过滤；原型未接数"><option>全部</option><option disabled>用户自主</option><option disabled>平台运营</option></select></div>
+        <button type="button" class="ant-btn ant-btn-primary" disabled title="原型：筛选未接数">应用</button>
       </div>
 
       <div class="ad-hifi-stat-row">
-        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon purple"><i class="fa-solid fa-eye"></i></span><div class="ant-statistic-title">总曝光</div><div class="ant-statistic-content-value" id="stImp">—</div></div></div>
-        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon blue"><i class="fa-solid fa-hand-pointer"></i></span><div class="ant-statistic-title">总点击</div><div class="ant-statistic-content-value" id="stClk">—</div></div></div>
-        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon green"><i class="fa-solid fa-percent"></i></span><div class="ant-statistic-title">CTR</div><div class="ant-statistic-content-value" id="stCtr">—</div></div></div>
-        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon red"><i class="fa-solid fa-coins"></i></span><div class="ant-statistic-title">总消耗 USDT</div><div class="ant-statistic-content-value" id="stSpend">—</div></div></div>
-        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon orange"><i class="fa-solid fa-bullseye"></i></span><div class="ant-statistic-title">转化</div><div class="ant-statistic-content-value" id="stConv">—</div></div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body">
+          <span class="ad-hifi-stat-icon purple"><i class="fa-solid fa-eye"></i></span>
+          <div class="ant-statistic-title">总曝光
+            <span class="ad-stat-tip" tabindex="0" aria-label="总曝光说明">
+              <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+              <span class="ad-stat-tip-pop" role="tooltip"><b>含义</b>：广告进入可视区并满足曝光条件的次数（有效曝光）。<br><b>维度</b>：广告 ID + 日；本卡 = 所选范围内各广告合计。<br><b>公式</b>：Σ <code>stats.impressions</code>。<br><b>异常</b>：风控标记为异常流量的曝光不计入有效值（正式）；原型种子未扣减。<br><b>可采集</b>：客户端可视曝光埋点（≥50% 面积、≥1s 等）上报 <code>adId/slot/uid/ts</code>；日频控只限展示，不改此计数口径。</span>
+            </span>
+          </div>
+          <div class="ant-statistic-content-value" id="stImp">—</div>
+        </div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body">
+          <span class="ad-hifi-stat-icon blue"><i class="fa-solid fa-hand-pointer"></i></span>
+          <div class="ant-statistic-title">总点击
+            <span class="ad-stat-tip" tabindex="0" aria-label="总点击说明">
+              <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+              <span class="ad-stat-tip-pop" role="tooltip"><b>含义</b>：用户点击广告可点击区域（Banner / 信息流卡 / CTA）的次数（有效点击）。<br><b>维度</b>：广告 ID + 日；本卡合计。<br><b>公式</b>：Σ <code>stats.clicks</code>。<br><b>异常</b>：同会话短时连点合并；风控异常点击不计入有效值（正式）。原型为累计种子。<br><b>可采集</b>：点击事件埋点上报 <code>adId/slot/landingType/ts</code>；与曝光共用归因 ID。</span>
+            </span>
+          </div>
+          <div class="ant-statistic-content-value" id="stClk">—</div>
+        </div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body">
+          <span class="ad-hifi-stat-icon green"><i class="fa-solid fa-percent"></i></span>
+          <div class="ant-statistic-title">CTR
+            <span class="ad-stat-tip" tabindex="0" aria-label="CTR 说明">
+              <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+              <span class="ad-stat-tip-pop" role="tooltip"><b>含义</b>：有效点击率。<br><b>维度</b>：与汇总曝光/点击同一筛选范围；明细表按单条广告算。<br><b>公式</b>：有效点击 ÷ 有效曝光 × 100%；曝光为 0 → 0%。<br><b>异常</b>：分子分母均用「有效」口径，异常流量两边都不进。<br><b>可采集</b>：派生指标，无需单独埋点。</span>
+            </span>
+          </div>
+          <div class="ant-statistic-content-value" id="stCtr">—</div>
+        </div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body">
+          <span class="ad-hifi-stat-icon red"><i class="fa-solid fa-coins"></i></span>
+          <div class="ant-statistic-title">总消耗 USDT
+            <span class="ad-stat-tip" tabindex="0" aria-label="总消耗说明">
+              <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+              <span class="ad-stat-tip-pop" role="tooltip"><b>含义</b>：已从「冻结」结转为「已消费」的广告费用（USDT）。<br><b>维度</b>：订单 / 广告；本卡按广告 <code>stats.spend</code> 合计（应与账变对齐）。<br><b>公式</b>：Σ 已结转金额；一口价按排期结束/下架/退款结算，<b>不按曝光·点击计费</b>。<br><b>异常</b>：退款成功回冲消耗；风控暂停不自动结转。<br><b>可采集</b>：以资金账变 <code>type=spend/refund</code> 与订单冻结字段为权威源；非客户端行为埋点。</span>
+            </span>
+          </div>
+          <div class="ant-statistic-content-value" id="stSpend">—</div>
+        </div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body">
+          <span class="ad-hifi-stat-icon orange"><i class="fa-solid fa-bullseye"></i></span>
+          <div class="ant-statistic-title">转化
+            <span class="ad-stat-tip" tabindex="0" aria-label="转化说明">
+              <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+              <span class="ad-stat-tip-pop" role="tooltip"><b>含义</b>：点击后、带广告归因的目标达成次数。<br><b>维度</b>：广告 ID + 日；本卡 Σ <code>stats.conversions</code>。<br><b>一期可追踪事件</b>：<code>creator</code>→到达主播主页 PV；<code>external</code>→外链跳出成功。进直播间归因窗口<strong>待业务确认</strong>。<br><b>异常</b>：异常点击链路下的转化不计。<br><b>可采集</b>：落地页/主页打开须带 <code>adId</code>；原型为模拟数，正式勿当真实转化。</span>
+            </span>
+          </div>
+          <div class="ant-statistic-content-value" id="stConv">—</div>
+        </div></div>
       </div>
 
-      <div class="ant-row" style="margin:0 -8px 16px">
-        <div class="ant-col ant-col-12" style="padding:8px">
-          <div class="ant-card ant-card-bordered"><div class="ant-card-head"><div class="ant-card-head-title">点击趋势（演示）</div></div><div class="ant-card-body"><div class="ad-chart-bar-labeled"><div class="bar-col"><span class="bar" style="height:35%"></span><em>Mon</em></div><div class="bar-col"><span class="bar" style="height:50%"></span><em>Tue</em></div><div class="bar-col"><span class="bar" style="height:45%"></span><em>Wed</em></div><div class="bar-col"><span class="bar" style="height:70%"></span><em>Thu</em></div><div class="bar-col"><span class="bar" style="height:62%"></span><em>Fri</em></div><div class="bar-col"><span class="bar" style="height:88%"></span><em>Sat</em></div><div class="bar-col"><span class="bar" style="height:76%"></span><em>Sun</em></div></div></div></div>
-        </div>
-        <div class="ant-col ant-col-12" style="padding:8px">
-          <div class="ant-card ant-card-bordered"><div class="ant-card-head"><div class="ant-card-head-title">素材表现 Top（示意）</div></div><div class="ant-card-body"><img src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=320&fit=crop" alt="营销数据分析示意" style="width:100%;border-radius:4px;border:1px solid #f0f0f0"></div></div>
-        </div>
+      <div class="ant-card ant-card-bordered" style="margin-bottom:16px">
+        <div class="ant-card-head"><div class="ant-card-head-title">点击趋势（演示）</div></div>
+        <div class="ant-card-body"><div class="ad-chart-bar-labeled"><div class="bar-col"><span class="bar" style="height:35%"></span><em>Mon</em></div><div class="bar-col"><span class="bar" style="height:50%"></span><em>Tue</em></div><div class="bar-col"><span class="bar" style="height:45%"></span><em>Wed</em></div><div class="bar-col"><span class="bar" style="height:70%"></span><em>Thu</em></div><div class="bar-col"><span class="bar" style="height:62%"></span><em>Fri</em></div><div class="bar-col"><span class="bar" style="height:88%"></span><em>Sat</em></div><div class="bar-col"><span class="bar" style="height:76%"></span><em>Sun</em></div></div></div>
       </div>
 
       <div class="ant-card ant-card-bordered">
         <div class="ant-card-body" style="padding-top:0">
           <div class="ant-table ant-table-small ant-table-bordered">
             <table style="width:100%">
-              <thead class="ant-table-thead"><tr><th class="admin-col-index">#</th><th>编号</th><th>名称</th><th>来源</th><th>曝光</th><th>点击</th><th>CTR</th><th>消耗</th><th>转化</th></tr></thead>
+              <thead class="ant-table-thead"><tr><th class="admin-col-index">#</th><th>编号</th><th>名称</th><th>来源</th><th>曝光</th><th>点击</th><th>CTR</th><th>消耗</th><th>转化</th><th style="width:88px">操作</th></tr></thead>
               <tbody class="ant-table-tbody" id="adStatsBody" data-pager="js"></tbody>
             </table>
           </div>
@@ -63,11 +106,12 @@
     </main>
   </div>
 </div>
-<script src="../js/ad-system-store.js"></script>
-<script src="js/admin-nav.js"></script>
+<script src="../js/ad-system-store.js?v=20261110stats"></script>
+<script src="../js/ad-system-api.js?v=20261110stats"></script>
+<script src="js/admin-nav.js?v=20261104c"></script>
 <script src="js/admin-modal.js"></script>
 <script src="js/admin-pagination.js"></script>
 <script src="js/ad-admin-layout.js"></script>
-<script src="js/ad-admin-pages.js"></script>
+<script src="js/ad-admin-pages.js?v=20261110stats"></script>
 </body>
 </html>

@@ -1141,7 +1141,8 @@
   }
 
   if (tbody) {
-    document.querySelector("main.admin-content").addEventListener("click", function (e) {
+    var contentRoot = document.querySelector("main.admin-content") || document;
+    contentRoot.addEventListener("click", function (e) {
     var detailBtn = e.target.closest(".js-user-detail");
     if (detailBtn) {
       openUserDetail(detailBtn.getAttribute("data-uid"));

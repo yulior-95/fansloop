@@ -36,6 +36,7 @@
 
     var MAIN_PAGES = {
         'home.html': 1,
+        'home': 1,
         'guest-home.html': 1,
         'subscriptions.html': 1,
         'discover.html': 1,
@@ -173,11 +174,13 @@
         var L = loc();
         var path = String(L.pathname || '').replace(/\\/g, '/');
         var name = path.split('/').pop() || '';
-        if (!name || name.indexOf('.html') < 0) {
+        if (!name || name.indexOf('.') < 0) {
             name = String(L.href || '').split('/').pop() || '';
             name = name.split('?')[0].split('#')[0];
         }
-        return String(name || '').split('?')[0].split('#')[0];
+        name = String(name || '').split('?')[0].split('#')[0].toLowerCase();
+        if (name && name.indexOf('.') < 0) name += '.html';
+        return name;
     }
 
     function resolveFallback(name) {

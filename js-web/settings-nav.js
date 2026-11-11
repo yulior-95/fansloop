@@ -159,19 +159,46 @@
         document.dispatchEvent(new CustomEvent("settings-nav-mounted"));
         if (!document.querySelector('script[src*="settings-app-header.js"]')) {
             var s = document.createElement("script");
-            s.src = base + "settings-app-header.js";
+            s.src = base + "settings-app-header.js?v=20261104e";
             document.body.appendChild(s);
         } else if (window.FL_applySettingsAppHeader) {
             window.FL_applySettingsAppHeader();
         }
         if (!document.querySelector('script[src*="settings-ad-embed.js"]')) {
             var embed = document.createElement("script");
-            embed.src = base + "settings-ad-embed.js";
+            embed.src = base + "settings-ad-embed.js?v=20261110h5fix";
             document.body.appendChild(embed);
         }
     }
 
-    window.FL_applySettingsNavI18n = function () {
+    /** 只刷新高亮，避免整树重挂触发顶栏 ensure 重复插入 */
+    function syncActiveOnly() {
+        var activeId = resolveActiveId();
+        document.querySelectorAll("[data-settings-nav]").forEach(function (nav) {
+            var items = nav.querySelectorAll(".nav-item");
+            var idx = 0;
+            GROUPS.forEach(function (group) {
+                group.items.forEach(function (item) {
+                    var el = items[idx++];
+                    if (!el) return;
+                    var on = item.id === activeId;
+                    el.classList.toggle("active", on);
+                    var arrow = el.querySelector(".arrow");
+                    if (on && !arrow) {
+                        el.insertAdjacentHTML("beforeend", '<span class="arrow"><i class="fa-solid fa-chevron-right"></i></span>');
+                    } else if (!on && arrow) {
+                        arrow.remove();
+                    }
+                });
+            });
+        });
+    }
+
+    window.FL_applySettingsNavI18n = function (opts) {
+        if (opts && opts.activeOnly) {
+            syncActiveOnly();
+            return;
+        }
         mount();
     };
 

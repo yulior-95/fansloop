@@ -28,7 +28,7 @@
 
     var STORAGE_KEY = 'fl_sidebar_collapsed';
     var NAV_CONTEXT_KEY = 'fl_sidebar_nav_context';
-    var SIDEBAR_SHELL_CACHE_KEY = 'fl_sidebar_shell_v3';
+    var SIDEBAR_SHELL_CACHE_KEY = 'fl_sidebar_shell_v6';
     var SIDEBAR_LEGACY_NAV_IDS = { 'my-appeals': true };
 
     function detectScriptBase() {
@@ -223,7 +223,9 @@
         '</div>';
 
     function currentPageName() {
-        return (location.pathname.split('/').pop() || 'home.html').split('?')[0].toLowerCase();
+        var file = (location.pathname.split('/').pop() || 'home.html').split('?')[0].toLowerCase();
+        if (file && file.indexOf('.') < 0) file += '.html';
+        return file || 'home.html';
     }
 
     function detectActiveNavId(page) {
@@ -559,11 +561,11 @@
             html += '<div class="s-section">' + t(group.sectionKey, group.section) + '</div>';
             group.items.forEach(function (item) {
                 var cls = 's-item' + (item.id === activeId ? ' active' : '');
-                html += '<div class="' + cls + '" data-nav-id="' + item.id + '" onclick="location.href=\'' + item.href + '\'">' +
+                html += '<a class="' + cls + '" href="' + item.href + '" data-nav-id="' + item.id + '" data-nav-href="' + item.href + '">' +
                     '<span class="ic"><i class="' + item.icon + '"></i></span>' +
                     '<span class="lb">' + t(item.i18nKey, item.label) + '</span>' +
                     buildIndicatorHtml(item) +
-                    '</div>';
+                    '</a>';
             });
         });
         return html;
@@ -618,7 +620,168 @@
         }
     }
 
+    function goSidebarHref(href) {
+        if (!href) return;
+        var url = href;
+        try {
+            url = new URL(href, location.href).href;
+        } catch (err) { /* keep href */ }
+        try {
+            window.top.location.href = url;
+        } catch (err2) {
+            location.href = url;
+        }
+    }
+
+    function sidebarHrefForRow(row) {
+        if (!row) return '';
+        var dataHref = row.getAttribute('data-nav-href');
+        if (dataHref) return dataHref;
+        var id = row.getAttribute('data-nav-id');
+        var gi, ii, items;
+        if (id) {
+            for (gi = 0; gi < SIDEBAR_NAV.length; gi++) {
+                items = SIDEBAR_NAV[gi].items;
+                for (ii = 0; ii < items.length; ii++) {
+                    if (items[ii].id === id) return items[ii].href;
+                }
+            }
+        }
+        var oc = row.getAttribute('onclick') || '';
+        var m = oc.match(/location\.href\s*=\s*['"]([^'"]+)['"]/);
+        if (m) return m[1];
+        var lb = row.querySelector('.lb');
+        var label = lb ? String(lb.textContent || '').replace(/\s+/g, ' ').trim() : '';
+        var labelMap = {
+            '首页': 'home.html',
+            '首頁': 'home.html',
+            'Home': 'home.html',
+            'Start': 'home.html',
+            '订阅': 'subscriptions.html',
+            '訂閱': 'subscriptions.html',
+            'Subscriptions': 'subscriptions.html',
+            'Abos': 'subscriptions.html',
+            '发现': 'discover.html',
+            '發現': 'discover.html',
+            'Discover': 'discover.html',
+            'Entdecken': 'discover.html',
+            '创建内容': 'create.html',
+            '創建內容': 'create.html',
+            'Create': 'create.html',
+            'Erstellen': 'create.html',
+            '消息': 'messages.html',
+            '訊息': 'messages.html',
+            'Messages': 'messages.html',
+            'Nachrichten': 'messages.html',
+            '通知': 'notifications.html?tab=unread',
+            'Notifications': 'notifications.html?tab=unread',
+            'Benachrichtigungen': 'notifications.html?tab=unread',
+            '钱包': 'wallet.html',
+            '錢包': 'wallet.html',
+            'Wallet': 'wallet.html',
+            '创作者收入': 'creator-income.html',
+            '創作者收入': 'creator-income.html',
+            'Creator income': 'creator-income.html',
+            'Creator-Einnahmen': 'creator-income.html',
+            '积分商城': 'points-mall.html',
+            '積分商城': 'points-mall.html',
+            'Points mall': 'points-mall.html',
+            'Punkte-Shop': 'points-mall.html',
+            '账变记录': 'transactions.html',
+            '帳變記錄': 'transactions.html',
+            'Transactions': 'transactions.html',
+            'Transaktionen': 'transactions.html',
+            '我的主页': 'profile.html',
+            '我的主頁': 'profile.html',
+            'My profile': 'profile.html',
+            'Mein Profil': 'profile.html',
+            '设置': 'settings.html',
+            '設定': 'settings.html',
+            'Settings': 'settings.html',
+            'Einstellungen': 'settings.html'
+        };
+        return labelMap[label] || '';
+    }
+
+    function upgradeSidebarItemToLink(row) {
+        var href = sidebarHrefForRow(row);
+        if (!href || !row || !row.parentNode) return row;
+        row.setAttribute('data-nav-href', href);
+        if (row.tagName === 'A') {
+            row.setAttribute('href', href);
+            row.removeAttribute('onclick');
+            return row;
+        }
+        var a = document.createElement('a');
+        a.className = row.className;
+        Array.prototype.forEach.call(row.attributes, function (attr) {
+            if (attr.name === 'class' || attr.name === 'onclick') return;
+            a.setAttribute(attr.name, attr.value);
+        });
+        a.setAttribute('href', href);
+        a.setAttribute('data-nav-href', href);
+        while (row.firstChild) a.appendChild(row.firstChild);
+        row.parentNode.replaceChild(a, row);
+        return a;
+    }
+
+    function ensureSidebarNavLinks(sidebar) {
+        sidebar = sidebar || document.querySelector('.app-sidebar');
+        if (!sidebar) return;
+        sidebar.querySelectorAll('.s-item').forEach(function (row) {
+            upgradeSidebarItemToLink(row);
+        });
+    }
+
+    function bindSidebarNavClicks() {
+        ensureSidebarNavLinks();
+        if (global.__flSidebarNavClickBound) return;
+        global.__flSidebarNavClickBound = true;
+        document.addEventListener(
+            'click',
+            function (e) {
+                var t = e.target;
+                if (!t || !t.closest) return;
+                if (t.closest('.s-sidebar-toggle, .s-pro-card button, .s-user, [data-fl-pro-upgrade]')) return;
+                var row = t.closest('.app-sidebar .s-item');
+                if (!row || row.classList.contains('is-guest-lock')) return;
+                var href = sidebarHrefForRow(row);
+                if (!href) return;
+                if (row.tagName !== 'A') {
+                    row = upgradeSidebarItemToLink(row) || row;
+                }
+                try {
+                    if (row && row.tagName === 'A') {
+                        row.setAttribute('href', href);
+                        row.setAttribute('data-nav-href', href);
+                    }
+                } catch (err) { /* ignore */ }
+                /* file:// 预览里 preventDefault 后 JS 跳转常被拦；有真实 href 时交给浏览器 */
+                if (row && row.tagName === 'A' && row.getAttribute('href')) {
+                    if (location.protocol === 'file:') return;
+                }
+                if (e.cancelable) e.preventDefault();
+                if (e.stopPropagation) e.stopPropagation();
+                goSidebarHref(href);
+            },
+            true
+        );
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            var t = e.target;
+            if (!t || !t.closest) return;
+            var row = t.closest('.app-sidebar .s-item');
+            if (!row) return;
+            var href = sidebarHrefForRow(row);
+            if (!href) return;
+            e.preventDefault();
+            goSidebarHref(href);
+        });
+    }
+
     function bindSidebarNavInteractions() {
+        ensureSidebarNavLinks();
+        bindSidebarNavClicks();
         if (typeof bindSidebarNotificationItems === 'function') {
             bindSidebarNotificationItems();
         }
@@ -644,6 +807,7 @@
             syncSidebarActiveState(sidebar, activeId);
             applySidebarIndicators(sidebar);
             applySidebarI18n();
+            bindSidebarNavInteractions();
             return;
         }
         var hydrated = tryHydrateSidebarFromCache(sidebar, activeId);
@@ -764,11 +928,18 @@
     function init() {
         var shell = document.querySelector('.app-shell');
         if (!shell) return;
+        try {
+            var cached = sessionStorage.getItem(SIDEBAR_SHELL_CACHE_KEY);
+            if (cached && cached.indexOf('data-nav-href') < 0) {
+                sessionStorage.removeItem(SIDEBAR_SHELL_CACHE_KEY);
+            }
+        } catch (e) { /* ignore */ }
         injectSidebarBottomAssets();
         var sidebar = shell.querySelector('.app-sidebar');
         if (!sidebar) return;
         if (!sidebar.id) sidebar.id = 'app-sidebar';
         bindSidebarNavTipPortal();
+        bindSidebarNavClicks();
         renderUnifiedSidebarNav(sidebar);
         ensureToggle(shell, sidebar);
         applyState(shell, isCollapsed() || document.documentElement.classList.contains('sidebar-collapsed-pre'));
@@ -835,7 +1006,9 @@
             var lb = item.querySelector('.lb');
             if (!lb || lb.textContent.trim() !== '通知') return;
             if (item.classList.contains('is-guest-lock')) return;
-            item.setAttribute('onclick', "location.href='" + NF_UNREAD_URL + "'");
+            item.setAttribute('data-nav-href', NF_UNREAD_URL);
+            if (item.tagName === 'A') item.setAttribute('href', NF_UNREAD_URL);
+            else item.setAttribute('onclick', "location.href='" + NF_UNREAD_URL + "'");
         });
     }
 

@@ -264,11 +264,17 @@ html.sidebar-collapsed-pre .app-shell,
     padding: 18px 14px 24px;
     display: flex; flex-direction: column;
     position: relative;
+    z-index: 60;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     min-height: 0;
     height: 100%;
     overflow-x: clip;
     overflow-y: auto;
     transition: padding 0.22s ease;
+    pointer-events: auto;
+    isolation: isolate;
 }
 
 /* 侧栏展开/收起按钮 */
@@ -455,6 +461,10 @@ html.sidebar-collapsed-pre .app-sidebar,
     letter-spacing: 0;
 }
 
+a.s-item {
+    text-decoration: none;
+    color: inherit;
+}
 .s-item {
     padding: 10px 8px 10px 10px;
     border-radius: var(--r-md);
@@ -540,6 +550,7 @@ html.sidebar-collapsed-pre .app-sidebar,
 .app-sidebar[data-fl-nav-unified="1"] > .s-item,
 .app-sidebar[data-fl-nav-unified="1"] > .s-bottom {
     opacity: 1;
+    pointer-events: auto;
 }
 /* 统一侧栏渲染前隐藏静态占位 chip，避免 +$28 闪屏 */
 .app-sidebar:not([data-fl-nav-unified]) .s-item[onclick*="creator-income"] > .chip {
@@ -686,6 +697,8 @@ html.sidebar-collapsed-pre .app-sidebar,
 /* ---------- Main ---------- */
 .app-main {
     grid-area: main;
+    position: relative;
+    z-index: 1;
     padding: var(--main-padding-y, 28px) var(--main-padding-x, 32px) var(--main-padding-bottom, 60px);
     overflow-x: hidden;
     overflow-y: auto;
@@ -693,6 +706,7 @@ html.sidebar-collapsed-pre .app-sidebar,
     width: 100%;
     min-height: 0;
     -webkit-overflow-scrolling: touch;
+    pointer-events: auto;
 }
 .app-main.narrow { padding: 28px 36px 60px; }
 .app-main.wide   { padding: 28px 48px 80px; }
@@ -1595,4 +1609,32 @@ html[data-fl-theme="light"] #flStandaloneModalRoot {
 }
 #flStandaloneModalRoot.fl-modal--inline > iframe {
     display: none !important;
+}
+
+.inline-overlay:not(.show),
+.inline-overlay:not(.show) *,
+.filter-drawer-mask:not(.show),
+.filter-drawer:not(.show),
+.filter-drawer:not(.show) *,
+.feed-img-lightbox:not(.is-open),
+.feed-img-lightbox:not(.is-open) *,
+.fl-pro-upgrade-overlay:not(.show),
+.fl-pro-upgrade-overlay:not(.show) *,
+.hp-drawer-mask:not(.is-open),
+.hp-drawer:not(.is-open),
+.hp-drawer:not(.is-open) *,
+#flStandaloneModalRoot[style*="display: none"],
+#flStandaloneModalRoot[style*="display:none"],
+#flStandaloneModalRoot[style*="display: none"] *,
+#flStandaloneModalRoot[style*="display:none"] * {
+    pointer-events: none !important;
+}
+.app-sidebar {
+    pointer-events: auto !important;
+    z-index: 80 !important;
+}
+.app-sidebar .s-item,
+.app-sidebar a.s-item {
+    pointer-events: auto !important;
+    cursor: pointer;
 }

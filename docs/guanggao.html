@@ -46,7 +46,7 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
 <div class="wrap">
 <header>
     <h1>广告系统一期 · 需求说明</h1>
-    <p>与仓库内 HTML 原型一致；Markdown 源：<a href="ad-system-requirements.md">ad-system-requirements.md</a></p>
+    <p>与仓库内 HTML 原型一致；Markdown 源：<a href="ad-system-requirements.md">ad-system-requirements.md</a> · <strong style="color:#fff">完整 HTML 版：</strong><a href="ad-system-requirements.html">ad-system-requirements.html</a>（推荐研发阅读）</p>
     <blockquote style="margin-top:14px">
         数据：<code>localStorage</code> 键 <code>fl_ad_system_v2</code>（重置：<code>localStorage.removeItem('fl_ad_system_v2')</code>）<br>
         脚本：<a href="../js/ad-system-store.js">js/ad-system-store.js</a>（模型）· <a href="../js/ad-system-api.js">js/ad-system-api.js</a>（规则）· <a href="../js/ad-system-user.js">js/ad-system-user.js</a>（用户端 UI）
@@ -67,7 +67,7 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
         <li><a href="#s5">三端页面清单</a></li>
         <li><a href="#s5-user-center">用户广告中心（信息架构）</a></li>
         <li><a href="#s6">核心实体与字段</a></li>
-        <li><a href="#s7">广告位与素材规范</a></li>
+        <li><a href="#s7">广告位、素材与投放展示逻辑</a></li>
         <li><a href="#s8">业务流程图</a></li>
         <li><a href="#s9">状态定义</a></li>
         <li><a href="#s10">统计、风控与审计</a></li>
@@ -141,11 +141,10 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
         <tr><td><a href="../admin-prototype/ads-ops-create.html">ads-ops-create.html</a></td><td>平台广告；草稿/提审/授权发布</td></tr>
         <tr><td><a href="../admin-prototype/ads-slots.html">ads-slots.html</a></td><td>广告位规格、间隔、启停</td></tr>
         <tr><td><a href="../admin-prototype/ads-packages.html">ads-packages.html</a></td><td>固定套餐价格与可售状态；改价记日志，<strong>不影响历史订单 priceSnapshot</strong></td></tr>
-        <tr><td><a href="../admin-prototype/ads-advertiser-qual.html">ads-advertiser-qual.html</a></td><td>广告主资质审核</td></tr>
-        <tr><td><a href="../admin-prototype/ads-advertisers.html">ads-advertisers.html</a></td><td>广告主列表、限制发布（演示）</td></tr>
-        <tr><td><a href="../admin-prototype/ads-finance.html">ads-finance.html</a></td><td>余额、冻结、流水（只读）</td></tr>
+        <tr><td><a href="../admin-prototype/ads-advertisers.html">ads-advertisers.html</a></td><td>广告主管理（资质通过/驳回、限制发布）</td></tr>
+        <tr><td><a href="../admin-prototype/users-ledger.html">users-ledger.html</a></td><td>账变记录（含广告充值/冻结/消耗/退款）</td></tr>
         <tr><td><a href="../admin-prototype/ads-stats.html">ads-stats.html</a></td><td>汇总、明细、导出演示</td></tr>
-        <tr><td><a href="../admin-prototype/ads-risk.html">ads-risk.html</a></td><td>举报/异常流量、联动暂停</td></tr>
+        <tr><td><a href="../admin-prototype/ads-risk.html">ads-risk.html</a></td><td>三广告位日频次（含 Banner）、风控触发事件、联动暂停</td></tr>
         <tr><td><a href="../admin-prototype/ads-index.html">ads-index.html</a></td><td>iframe 平铺评审</td></tr>
     </tbody>
 </table>
@@ -156,11 +155,11 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
     <tbody>
         <tr><td>广告中心（设置内）</td><td><a href="../pages/settings-ad.html">pages/settings-ad.html</a></td><td><a href="../pages-web/settings-ad.html">pages-web/settings-ad.html</a></td></tr>
         <tr><td>旧入口跳转</td><td><code>pages/ad-*.html</code></td><td><code>pages-web/ad-*.html</code></td></tr>
-        <tr><td>信息流 / Banner</td><td><a href="../js/ad-system-display.js">ad-system-display.js</a> + home</td><td><a href="../js-web/ad-system-display-web.js">ad-system-display-web.js</a> + home</td></tr>
+        <tr><td>信息流 / Banner 展示</td><td><a href="../js/ad-system-display.js">ad-system-display.js</a> + pages/home（Banner 轮播 + Feed）</td><td><a href="../js-web/ad-system-display-web.js">ad-system-display-web.js</a> + pages-web/home（Banner 轮播 + 竖滑原生帖）</td></tr>
         <tr><td>直播间推广卡</td><td><a href="../js/ad-system-display-live.js">ad-system-display-live.js</a> + live-detail</td><td>同逻辑（WEB 直播页可按需挂载）</td></tr>
     </tbody>
 </table>
-<p><strong>创编步骤</strong>：基础信息 → 素材 → 广告位与落地 → 投放时间与地域/语言 → <strong>套餐</strong> → <strong>支付</strong> → <strong>提交审核</strong>。</p>
+<p><strong>创编步骤</strong>：基础信息 → 素材 → 广告位与落地 → 投放时间 → <strong>套餐</strong> → <strong>支付</strong> → <strong>提交审核</strong>（一期统一投放，无地域/语言定向）。</p>
 
 <h3 id="s5-user-center">5.3 用户广告中心 · 信息架构（<code>settings-ad</code> / 设置内嵌 <code>#settingsAdPanel</code>）</h3>
 <p>入口：设置侧栏「广告中心」（<code>data-ad-nav="1"</code>）→ Web 内嵌 <code>js-web/settings-ad-embed.js</code> + <code>js/ad-system-user.js</code>；H5 独立 <a href="../pages/settings-ad.html">settings-ad.html</a>。单页多视图：<code>center</code> · <code>create</code> · <code>detail</code> · <code>stats</code> · <code>wallet</code> · <code>apply</code>（<code>ad-settings-shell.js</code>）。</p>
@@ -170,37 +169,80 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
     <tbody>
         <tr><td>身份标签</td><td><code>#adRoleStrip</code> 单行 pill：普通用户 / 广告主 · 审核中 / 已通过 / 已驳回 / 限制（无副文案）</td></tr>
         <tr><td>资质条</td><td><code>#adQualBanner</code>：必要时仅短状态 + 操作按钮（申请/重新申请）；驳回可带一行 <code>rejectReason</code></td></tr>
-        <tr><td>工具栏</td><td><strong>创建广告</strong>（仅 <code>approved</code> 可点，否则 Toast）· <strong>广告账户</strong> · <strong>申请广告主</strong>（未申请/驳回时显示）</td></tr>
-        <tr><td>账户与投放概览</td><td>左栏（Web 双栏）：余额、冻结、投放中、待审核、待支付；曝光/点击/消耗数字</td></tr>
+        <tr><td>工具栏</td><td><strong>创建广告</strong>（仅 <code>approved</code> 可点，否则 Toast）· <strong>申请广告主</strong>（未申请/驳回时显示）；通知在导航右侧</td></tr>
+        <tr><td>账户与投放概览</td><td>左栏（Web 双栏）：余额、冻结、投放中、待审核；曝光/点击/消耗数字</td></tr>
         <tr><td>我的广告</td><td>右栏：筛选 + 列表 → <code>detail</code>；空列表仅「暂无广告」</td></tr>
     </tbody>
 </table>
 <p><strong>与后台关系：</strong>用户侧仅管理<strong>来源 <code>user</code></strong> 的广告与自有流水；平台广告在 <code>ads-ops-create.html</code>，不在广告中心创建。</p>
+<blockquote style="border-left:3px solid #fa8c16;padding:8px 12px;background:rgba(250,140,22,.08)">
+<strong>【研发批注】用户删除 = 软删，后台必须留档。</strong>
+已下架广告可在详情点「删除」：仅置 <code>userDeleted=true</code>，广告主列表不可见；<strong>禁止物理删库</strong>。后台广告管理 / 订单 / 支付退款 / 审核与操作日志永久保留；管理端列表仍可见并可标「用户已删除」。API：<code>FLAdService.deleteAdForUser</code>。
+</blockquote>
+<blockquote style="border-left:3px solid #1890ff;padding:8px 12px;background:rgba(24,144,255,.08)">
+<strong>【研发批注】暂停。</strong>
+仅<strong>投放中</strong>可暂停。竞价广告普遍有 Pause；一口价排期须<strong>冻结剩余天数 + 恢复顺延 endAt</strong>（本原型已按此实现）。若不想处理排期/退款耦合，可砍用户暂停，仅保留下架+退款，暂停留给运营风控。
+</blockquote>
 
 <h2 id="s6">六、核心实体与字段（摘要）</h2>
 <table>
     <thead><tr><th>实体</th><th>要点</th></tr></thead>
     <tbody>
         <tr><td><strong>Advertiser</strong></td><td><code>uid</code>、<code>accountStatus</code>、申请信息、驳回原因、违规次数</td></tr>
-        <tr><td><strong>Ad</strong></td><td>来源 <code>user</code>/<code>platform</code>、素材/文案/链接、<code>auditStatus</code>、<code>payStatus</code>、<code>deliveryStatus</code>、<code>contentVersion</code>、<code>versions[]</code></td></tr>
+        <tr><td><strong>Ad</strong></td><td>来源 <code>user</code>/<code>platform</code>、<code>brandLogoUrl</code>（品牌头像）、素材/文案/链接、<code>auditStatus</code>、<code>payStatus</code>、<code>deliveryStatus</code>、<code>contentVersion</code>、<code>versions[]</code>；已下架后用户可软删 <code>userDeleted</code>（见下）</td></tr>
         <tr><td><strong>Order</strong></td><td><code>priceSnapshot</code>（下单时套餐价）、支付/退款状态、幂等键</td></tr>
         <tr><td><strong>Package</strong></td><td>广告位、时长、现价、<code>enabled</code>；历史订单不随改价变化</td></tr>
         <tr><td><strong>FinanceLedger</strong></td><td>充值/购买/退款；唯一单号；<strong>不可删改</strong>（原型）</td></tr>
         <tr><td><strong>Risk / OpLog</strong></td><td>异常事件、操作人/时间/原因</td></tr>
     </tbody>
 </table>
-<p><strong>校验（原型已实现）</strong>：必填项；链接禁 <code>javascript:</code>、风险域名拦截；<strong>支付成功后才可</strong> <code>submitForReview</code>；敏感字段变更触发 <strong>新版本 + 重新审核</strong>。</p>
+<p><strong>校验（原型已实现）</strong>：必填项；<strong>品牌头像 / LOGO</strong>（正方形图，边长 ≥ 200px）；素材格式/大小/比例（按广告位）；链接禁 <code>javascript:</code>、风险域名拦截；<strong>支付成功后才可</strong> <code>submitForReview</code>；敏感字段（含 <code>brandLogoUrl</code> / 素材 / 标题 / 文案 / 落地）变更触发 <strong>新版本 + 重新审核</strong>。</p>
 
-<h2 id="s7">七、广告位与素材规范</h2>
+<h2 id="s7">七、广告位、素材与投放展示逻辑</h2>
+<p>完整条文见 <a href="ad-system-requirements.md">ad-system-requirements.md §7</a>。摘要如下。</p>
+
+<h3>7.1 广告位与素材规范</h3>
 <table>
     <thead><tr><th>编码</th><th>位置</th><th>素材</th><th>标识</th></tr></thead>
     <tbody>
-        <tr><td><code>feed_video</code></td><td>短视频信息流</td><td>9:16 或 1:1 图/视频</td><td>「赞助」</td></tr>
-        <tr><td><code>home_banner</code></td><td>首页 Banner 区</td><td>16:9 静图</td><td>「广告」</td></tr>
-        <tr><td><code>live_room</code></td><td>直播画面下、互动区上</td><td>小卡 / 横条</td><td>「广告」</td></tr>
+        <tr><td><code>feed_video</code></td><td>短视频 / 推荐信息流（WEB 竖滑 + H5 Feed）</td><td>最多 6 张图 <strong>或</strong> 1 段视频；须填文案</td><td>「广告」</td></tr>
+        <tr><td><code>home_banner</code></td><td>首页 Banner（<strong>WEB 与 H5 均展示</strong>）</td><td><strong>仅图片</strong> JPG/PNG/WebP ≤500KB；WEB 推荐 1920×240、H5 推荐 750×200；通栏矮条可关闭</td><td>「广告」</td></tr>
+        <tr><td><code>live_room</code></td><td>直播画面下、互动区上</td><td>小卡 / 横条；一期仅平台运营</td><td>「广告」</td></tr>
     </tbody>
 </table>
-<p>不得伪装成 UGC；不得点击空白区域隐藏跳转。暂停/下架/到期后展示组件应同步停止（原型：<code>fl-ad-store-changed</code> 刷新）。</p>
+<p>创编选择投放位置后展示 <strong style="color:#fff">WEB / H5 样式预览</strong>（<code>#adSlotStylePreview</code>）。须上传品牌 LOGO。</p>
+
+<h3>7.2–7.3 可展示条件与投放机制</h3>
+<p>完整算法见需求文档 <strong style="color:#fff">§7.3.1 匹配投放算法（研发必读）</strong>、<strong style="color:#fff">§7.7</strong>。摘要：</p>
+<ol>
+  <li><strong>过滤</strong>：审核通过 / 已支付 / 投放中 / 排期内 / 未超日频控（一期无地域定向）。</li>
+  <li><strong>打分</strong>：<code>score = (0.55×matchScore + 0.25×priority/10 + 0.2) × 1/(1+当日曝光)</code>；兴趣是加权，不是硬过滤。</li>
+  <li><strong>截断</strong>：按位 <code>maxPerSession</code> 取 Top N，禁止全量塞入。</li>
+  <li><strong>铺排</strong>：信息流隔 5 插 1；Banner Top5 + 5s 轮播；直播间 Top1。</li>
+</ol>
+<p><strong style="color:#fff">100 条 Banner 在投：</strong>只取排序后 Top <strong>5</strong> 进轮播；其余本轮不出，靠公平降权与下次重排换血；单条另受日频控（默认 Banner 8 次/用户/日）。</p>
+<table>
+    <thead><tr><th>广告位</th><th>密度 / 上限</th><th>形态</th></tr></thead>
+    <tbody>
+        <tr><td><code>feed_video</code></td><td>至少隔 5 条内容；单次最多 3 条</td><td>原生帖插入，无候选不留空</td></tr>
+        <tr><td><code>home_banner</code></td><td>同屏最多 5 条；5s 轮播</td><td>WEB 高约 120px / H5 约 88px；可关闭；无则隐藏</td></tr>
+        <tr><td><code>live_room</code></td><td>单次最多 1 条</td><td>直播间推广条</td></tr>
+    </tbody>
+</table>
+<p>接口：<code>getDeliveringAds</code> / <code>rankAdsForDelivery</code> / <code>DELIVERY_RULES</code>。轮播定时器只切已截断列表，不在每次 5s 切页时全库重排。</p>
+
+<h3>7.4–7.5 WEB / H5 首页</h3>
+<p>WEB：<a href="../js-web/ad-system-display-web.js">ad-system-display-web.js</a> — Banner 轮播 + 信息流原生帖。<br>
+H5：<a href="../js/ad-system-display.js">ad-system-display.js</a> — 同位能力。共用 <code>DELIVERY_RULES</code>。</p>
+
+<h3>7.6 投给哪些用户</h3>
+<p>一期统一投放：投给正在浏览对应页面、未超频控、无近期负反馈的观众；兴趣仅参与排序加权。广告主受限账号的广告不出。详见需求文档 §7.6。</p>
+
+<h3>7.7 内容理解与兴趣匹配</h3>
+<p><code>matchScore = |contentTags ∩ interests| / max(|contentTags|, 1)</code>（0~1）。无标签按 0 分，仍可投。一期禁止做成「全量随机轮播」或「按创建时间硬塞」。正式建议：向量召回 → 粗排 → 精排 → 重排。详见需求文档 §7.7。</p>
+
+<h3>7.8 直播间</h3>
+<p><code>live_room</code>：一期仅平台运营可投。</p>
 
 <h2 id="s8">八、业务流程图</h2>
 <h3>8.1 总览（资质 · 创编 · 审核 · 投放）</h3>
@@ -222,32 +264,33 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
 <p>两条发布路径均在<strong style="color:#fff">内容审核</strong>与<strong style="color:#fff">支付/投放条件</strong>处汇合；平台广告 <code>payStatus</code> 可为 <code>none</code>，用户广告必须 <code>paid</code> 方可进入投放链。</p>
 
 <h2 id="s9">九、状态定义（分字段维护）</h2>
-<p>UI 可组合展示（如「审核通过 · 待开始」），<strong style="color:#fff">底层不得混为单一状态</strong>。</p>
+<p>UI 可组合展示，<strong style="color:#fff">底层不得混为单一状态</strong>。<strong style="color:#fff">上架审核与退款审核分列</strong>，详见 <a href="ad-system-requirements.md">需求文档 §9</a>。</p>
 <table>
-    <thead><tr><th>域</th><th>枚举（代码键）</th></tr></thead>
+    <thead><tr><th>域</th><th>枚举 / 展示</th></tr></thead>
     <tbody>
-        <tr><td>审核</td><td><code>draft</code> · <code>pending_review</code> · <code>approved</code> · <code>rejected</code> · <code>revoked</code></td></tr>
-        <tr><td>支付</td><td><code>unpaid</code> · <code>processing</code> · <code>paid</code> · <code>failed</code> · <code>refund_processing</code> · <code>partial_refunded</code> · <code>refunded</code> · <code>refund_failed</code> · <code>none</code>（平台）</td></tr>
+        <tr><td>上架审核 <code>auditStatus</code></td><td><code>none</code> 未提交（—）· <code>pending_review</code> 待审核 · <code>approved</code> 审核通过 · <code>rejected</code> 审核失败</td></tr>
+        <tr><td>退款审核（退款单）</td><td><code>pending</code> / <code>approved</code> / <code>rejected</code> / <code>processing</code> / <code>done</code>；无单显示 —</td></tr>
+        <tr><td>支付</td><td><code>unpaid</code> · <code>processing</code> · <code>paid</code> · <code>failed</code> · <code>refund_*</code> · <code>none</code>（平台）</td></tr>
         <tr><td>投放</td><td><code>pending_start</code> · <code>delivering</code> · <code>paused</code> · <code>ended</code> · <code>removed</code></td></tr>
         <tr><td>广告主账号</td><td><code>pending</code> · <code>approved</code> · <code>rejected</code> · <code>restricted</code> · <code>disabled</code></td></tr>
     </tbody>
 </table>
+<p><strong style="color:#fff">已下架 / 已结束</strong>不得再显示上架「待审核」；下架时关闭待审队列为未提交。退款在财务退款单处理，不改写上架审核结果。</p>
 
 <h3>9.1 状态转换限制（摘要）</h3>
 <ul>
     <li>未支付 → 不可提审、不可投放。</li>
-    <li>未审核通过 → 不可投放。</li>
-    <li>驳回 → 须修改后重审，不可直接开播。</li>
-    <li>审核通过后修改素材/文案/落地链 → <strong>新版本</strong> + <code>pending_review</code>，旧通过状态不延续。</li>
-    <li><code>ended</code> / <code>removed</code> → <strong>不可直接恢复投放</strong>（需新建广告或新业务规则，待确认）。</li>
-    <li>退款总额 ≤ 订单可退金额；重复退款请求幂等。</li>
+    <li>未上架审核通过 → 不可投放。</li>
+    <li>上架驳回 → 须修改后重审，不可直接开投。</li>
+    <li>上架通过后修改素材/文案/落地链 → <strong>新版本</strong> + <code>pending_review</code>。</li>
+    <li><code>ended</code> / <code>removed</code> → 不可直接恢复；同时关闭上架待审队列。</li>
+    <li>退款总额 ≤ 订单可退金额；退款审核与上架审核独立。</li>
     <li>账号 <code>restricted</code> / <code>disabled</code> → 不可创建或恢复投放。</li>
-    <li>不允许的操作由 API 返回 <strong>明确中文原因</strong>（<code>js/ad-system-api.js</code>）。</li>
 </ul>
 
 <h3>9.2 套餐、排期与计费口径</h3>
 <ul>
-    <li><strong>套餐</strong>：广告位 + 周期天数 + 一口价；订单 <code>priceSnapshot</code> 快照。</li>
+    <li><strong>套餐</strong>：广告位 + 投放天数 + <strong>一次付清</strong>（非按自然日逐日扣费）；订单 <code>priceSnapshot</code> 快照。</li>
     <li><strong>排期</strong>：用户填开始时间；<strong>结束 = 开始 + 套餐天数</strong>（选套餐后自动写入，提审校验）。</li>
     <li>一期<strong>一口价</strong>，不按曝光/点击二次扣费。</li>
 </ul>
@@ -259,9 +302,32 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
 <p><strong>暂停</strong>不自动退款；<strong>ended/removed</strong> 通常无可退。退款后无可退余量时广告 <code>removed</code>。</p>
 
 <h2 id="s10">十、统计、风控与审计</h2>
+<p>后台 <code>ads-stats</code> 汇总默认维度：全部广告 · 累计（正式按日表；原型种子累计）。明细按广告 ID。</p>
+<table>
+    <thead><tr><th>指标</th><th>公式</th><th>异常</th><th>研发可采集</th></tr></thead>
+    <tbody>
+        <tr><td>曝光</td><td>Σ <code>stats.impressions</code></td><td>异常流量不计有效（正式）</td><td>✅ 可视曝光埋点</td></tr>
+        <tr><td>点击</td><td>Σ <code>stats.clicks</code></td><td>连点合并；异常点击不计</td><td>✅ CTA 点击埋点</td></tr>
+        <tr><td>CTR</td><td>有效点击 ÷ 有效曝光</td><td>分子分母皆有效口径</td><td>✅ 派生</td></tr>
+        <tr><td>消耗</td><td>冻结结转 Σ（对齐账变）</td><td>退款回冲；非按次计费</td><td>✅ 账变权威源</td></tr>
+        <tr><td>转化</td><td>Σ <code>stats.conversions</code></td><td>异常链路不计</td><td>⚠️ 主页 PV / 外链跳出可采；进房待确认；原型模拟</td></tr>
+    </tbody>
+</table>
+<h3>10.2 风控事件触发（ads-risk 列表）</h3>
+<p>列表 = 已触发记录。类型与研发规则（详见 Markdown §10.2）：</p>
+<table>
+    <thead><tr><th>类型</th><th>触发逻辑</th><th>研发如何保证触发</th></tr></thead>
+    <tbody>
+        <tr><td>用户举报</td><td>C 端点「举报」</td><td>提交写 <code>risk</code>（带 adId/原因）；短时去重</td></tr>
+        <tr><td>异常点击</td><td>短时 CTR 过高 / 同 IP 集中点击等</td><td>滑动窗规则可配（如 5min CTR&gt;18% 且曝光≥50）；命中写事件并标无效点击</td></tr>
+        <tr><td>异常流量</td><td>刷曝光、机器指纹聚集</td><td>曝光增速/指纹聚类规则；标无效曝光</td></tr>
+        <tr><td>域名拦截</td><td>javascript: 或黑名单域名</td><td>创编+提审双检；在投巡检；命中拒写或暂停</td></tr>
+        <tr><td>频次超限</td><td>同用户同广告超日 cap</td><td>三广告位 freqCaps；超限不展示；绕过则写审计事件</td></tr>
+        <tr><td>素材风险</td><td>机审/抽检不合格</td><td>敏感词/鉴黄；未过审不投</td></tr>
+        <tr><td>人工标记</td><td>运营登记</td><td>后台表单写入</td></tr>
+    </tbody>
+</table>
 <ul>
-    <li><strong>统计</strong>：曝光、点击、CTR；进房等转化仅展示<strong>可追踪且原型标注为模拟</strong>的数据；异常点击在 <code>risk</code> 中标记，<strong>不计入有效效果</strong>（演示口径）。</li>
-    <li><strong>风控</strong>：素材/链接风险、异常点击、举报；支持暂停/下架/限制广告主。</li>
     <li><strong>审计</strong>：关键操作写入 <code>opLogs</code>；资金流水只追加，运营不可改删（原型）。</li>
 </ul>
 
@@ -286,7 +352,7 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
         <tr><td>重复点击支付/退款</td><td>幂等，不重复扣款</td></tr>
         <tr><td>支付失败</td><td>可重试；状态 <code>failed</code></td></tr>
         <tr><td>余额不足</td><td>提示差额，引导广告账户模拟充值</td></tr>
-        <tr><td>下架/暂停</td><td>列表与 Feed/Banner/直播卡同步更新</td></tr>
+        <tr><td>下架/暂停</td><td>列表与信息流帖 /（非沉浸 Banner）/ 直播卡同步更新</td></tr>
         <tr><td>危险操作</td><td>二次确认（<code>confirm</code> / <code>AdminModal</code>）</td></tr>
         <tr><td>审核驳回</td><td>必填原因；广告主可见并重提</td></tr>
     </tbody>
@@ -305,7 +371,7 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
         <tr><td>6</td><td>通过后改素材 → 版本 +1、重审</td></tr>
         <tr><td>7</td><td>重复支付同一订单</td></tr>
         <tr><td>8</td><td>运营改套餐价 vs 历史订单快照</td></tr>
-        <tr><td>9</td><td>下架后首页广告消失</td></tr>
+        <tr><td>9</td><td>下架后 WEB 推荐流信息流帖消失；暂停同理</td></tr>
         <tr><td>10</td><td>无资质/受限账号创编被拦截</td></tr>
         <tr><td>11</td><td>风险域名链接被拦截</td></tr>
     </tbody>
@@ -326,17 +392,18 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
 <h2 id="s15">十五、待业务确认事项</h2>
 <p>以下影响研发与财务方案，<strong style="color:#fff">不得写死为已确定规则</strong>；原型中用配置项或「待业务确认」文案占位。</p>
 <ol>
-    <li>广告主准入材料与 KYC 是否复用现有实名体系。</li>
+    <li>广告主准入已复用 KYC（申请前须 <code>approved</code>）；法务版《广告主服务协议》全文待替换原型摘要。</li>
     <li>违规/运营下架是否沿用同一退款公式；真实<strong>到账时效</strong>（原型为即时回广告账户）。</li>
     <li>转化事件（进房等）的<strong>统计口径与去重规则</strong>。</li>
     <li>直播间广告<strong>频次上限</strong>与仅运营可投是否长期成立。</li>
     <li>运营<strong>免人工审核</strong>白名单范围与安全校验清单。</li>
-    <li>地域/语言定向以平台<strong>真实可用数据</strong>为准的最终列表。</li>
+    <li>（已取消）一期不做地域/语言定向。</li>
     <li>真实支付通道、对账与发票流程。</li>
 </ol>
 
 <h2 id="s16">十六、文档维护</h2>
-<p>本文档为广告系统<strong style="color:#fff">唯一需求说明入口</strong>；原型迭代时同步更新 <a href="ad-system-requirements.md">ad-system-requirements.md</a> 与 <a href="../js/ad-system-api.js">js/ad-system-api.js</a> 行为，避免多份文档分叉。HTML 版：<code>docs/guanggao.html</code>。</p>
+<p>本文档为广告系统<strong style="color:#fff">唯一需求说明入口</strong>（Markdown 源：<a href="ad-system-requirements.md">ad-system-requirements.md</a>）；原型迭代时同步更新本章与 <a href="../js/ad-system-api.js">js/ad-system-api.js</a> / <a href="../js-web/ad-system-display-web.js">js-web/ad-system-display-web.js</a> 行为，避免多份文档分叉。</p>
+<p><strong style="color:#fff">近期展示相关变更（须与 §7 保持一致）：</strong> WEB/H5 均展示首页 Banner 轮播；信息流原生帖按密度投放；创编含广告位样式预览；投放排序 + 兴趣匹配；创编必传品牌 LOGO；正文只展示文案；曝光频控 + 会话去重。<strong style="color:#fff">§7.3.1 / §7.7 已写清匹配投放算法</strong>（过滤→打分→截断→铺排；Banner 多条只取 Top5 轮播；禁止全量随机/按创建时间硬塞）。</p>
 
 </article>
 

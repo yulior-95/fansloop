@@ -2,6 +2,19 @@
  * 运营后台 · 侧边栏菜单（配置 + 渲染）
  * 菜单结构变更请只改 AdminNavConfig；admin-hub 通过 flattenForHub() 同步。
  */
+(function () {
+  try {
+    if (typeof location === 'undefined' || location.protocol !== 'file:') return;
+    var href = String(location.href || '').replace(/\\/g, '/');
+    var key = '/web3-app-prototype/';
+    var i = href.toLowerCase().lastIndexOf(key);
+    if (i < 0) return;
+    var rest = href.slice(i + key.length);
+    try { rest = decodeURI(rest); } catch (e) { /* keep */ }
+    if (!rest) rest = 'admin-prototype/index.html';
+    location.replace('http://127.0.0.1:8766/' + rest);
+  } catch (err) { /* ignore */ }
+})();
 (function (global) {
   var GLOBAL_PARAM_PAGES = [
     {
@@ -161,18 +174,17 @@
     {
       title: "广告管理",
       items: [
-        { key: "ads-index", href: "ads-index.html", icon: "fa-table-columns", label: "原型平铺入口" },
         { key: "ads-overview", href: "ads-overview.html", icon: "fa-chart-pie", label: "广告概览" },
         { key: "ads-list", href: "ads-list.html", icon: "fa-rectangle-ad", label: "广告列表" },
         { key: "ads-review", href: "ads-review.html", icon: "fa-clipboard-check", label: "广告审核" },
+        { key: "ads-orders", href: "ads-orders.html", icon: "fa-file-invoice", label: "广告订单" },
+        { key: "ads-refunds", href: "ads-refunds.html", icon: "fa-rotate-left", label: "退款管理" },
         { key: "ads-ops-create", href: "ads-ops-create.html", icon: "fa-wand-magic-sparkles", label: "运营广告创建" },
         { key: "ads-slots", href: "ads-slots.html", icon: "fa-table-cells-large", label: "广告位管理" },
         { key: "ads-packages", href: "ads-packages.html", icon: "fa-box-open", label: "套餐配置" },
         { key: "ads-advertisers", href: "ads-advertisers.html", icon: "fa-user-tag", label: "广告主管理" },
-        { key: "ads-advertiser-qual", href: "ads-advertiser-qual.html", icon: "fa-id-badge", label: "资质审核" },
-        { key: "ads-finance", href: "ads-finance.html", icon: "fa-file-invoice-dollar", label: "广告财务管理" },
         { key: "ads-stats", href: "ads-stats.html", icon: "fa-chart-line", label: "广告数据统计" },
-        { key: "ads-risk", href: "ads-risk.html", icon: "fa-shield-halved", label: "广告风控管理" }
+        { key: "ads-risk", href: "ads-risk.html", icon: "fa-shield-halved", label: "广告风控" }
       ]
     },
     {
@@ -263,6 +275,19 @@
     } catch (e) { /* ignore */ }
   }
 
+  function goHref(href) {
+    if (!href || href.charAt(0) === "#" || href.indexOf("javascript:") === 0) return;
+    var url = href;
+    try {
+      url = new URL(href, window.location.href).href;
+    } catch (err) { /* keep */ }
+    try {
+      (window.top || window).location.href = url;
+    } catch (err2) {
+      window.location.href = url;
+    }
+  }
+
   function bindSiderScroll(menu) {
     var ticking = false;
     menu.addEventListener(
@@ -277,9 +302,20 @@
       },
       { passive: true }
     );
-    menu.querySelectorAll("a[href]").forEach(function (a) {
-      a.addEventListener("click", saveSiderScroll);
-    });
+    menu.addEventListener(
+      "click",
+      function (e) {
+        var a = e.target.closest("a[href]");
+        if (!a || !menu.contains(a)) return;
+        saveSiderScroll();
+        var href = a.getAttribute("href");
+        if (!href || href.charAt(0) === "#") return;
+        if (e.cancelable) e.preventDefault();
+        if (e.stopPropagation) e.stopPropagation();
+        goHref(href);
+      },
+      true
+    );
   }
 
   window.addEventListener("pagehide", saveSiderScroll);
@@ -293,6 +329,9 @@
   CFG.blocks.forEach(function (b) {
     html.push('<div class="admin-menu-group">' + b.title + "</div>");
     b.items.forEach(function (it) {
+      if (it.key.indexOf("ads-") === 0 && window.FLAdService && FLAdService.roleCanMenu && !FLAdService.roleCanMenu(it.key)) {
+        return;
+      }
       var cls = it.key === activeKey ? "active" : "";
       html.push(
         '<a class="' +
@@ -346,18 +385,6 @@
   back.href = resolveBackHref() || CFG.settingsGlobalHref;
   back.setAttribute("aria-label", "返回参数总览");
   back.innerHTML = '<i class="fa-solid fa-arrow-left"></i><span>返回参数总览</span>';
-  back.addEventListener("click", function (e) {
-    var href = resolveBackHref();
-    if (href) {
-      e.preventDefault();
-      location.href = href;
-      return;
-    }
-    if (window.history.length > 1) {
-      e.preventDefault();
-      history.back();
-    }
-  });
   headerLeft.insertBefore(back, headerLeft.firstChild);
 
   var sep = document.createElement("span");
@@ -371,43 +398,28 @@
 })();
 
 (function () {
-  if (window.AdminAuth) return;
-  if (document.querySelector('script[src*="admin-auth.js"]')) return;
-  document.write('<script src="js/admin-auth.js"><\/script>');
-})();
+  function hasScript(fragment) {
+    var list = document.getElementsByTagName("script");
+    var i;
+    for (i = 0; i < list.length; i++) {
+      if ((list[i].src || "").indexOf(fragment) >= 0) return true;
+    }
+    return false;
+  }
 
-(function () {
-  if (window.AdminTodos) return;
-  if (document.querySelector('script[src*="admin-todos.js"]')) return;
-  document.write('<script src="js/admin-todos.js?v=3"><\/script>');
-})();
+  function inject(src, already) {
+    if (already || hasScript(src.replace(/\?.*$/, "").split("/").pop())) return;
+    var s = document.createElement("script");
+    s.src = src;
+    s.async = false;
+    (document.body || document.head).appendChild(s);
+  }
 
-(function () {
-  if (window.AdminPager) return;
-  if (document.querySelector('script[src*="admin-pagination.js"]')) return;
-  document.write('<script src="js/admin-pagination.js"><\/script>');
-})();
-
-(function () {
-  if (window.AdminDatePicker) return;
-  if (document.querySelector('script[src*="admin-date-picker.js"]')) return;
-  document.write('<script src="js/admin-date-picker.js"><\/script>');
-})();
-
-(function () {
-  if (window.AdminFormControls) return;
-  if (document.querySelector('script[src*="admin-form-controls.js"]')) return;
-  document.write('<script src="js/admin-form-controls.js"><\/script>');
-})();
-
-(function () {
-  if (window.AdminFilterToolbar) return;
-  if (document.querySelector('script[src*="admin-filter-toolbar.js"]')) return;
-  document.write('<script src="js/admin-filter-toolbar.js"><\/script>');
-})();
-
-(function () {
-  if (window.AdminExport) return;
-  if (document.querySelector('script[src*="admin-export-tasks.js"]')) return;
-  document.write('<script src="js/admin-export-tasks.js"><\/script>');
+  inject("js/admin-auth.js", window.AdminAuth);
+  inject("js/admin-todos.js?v=3", window.AdminTodos);
+  inject("js/admin-pagination.js", window.AdminPager);
+  inject("js/admin-date-picker.js", window.AdminDatePicker);
+  inject("js/admin-form-controls.js", window.AdminFormControls);
+  inject("js/admin-filter-toolbar.js", window.AdminFilterToolbar);
+  inject("js/admin-export-tasks.js", window.AdminExport);
 })();

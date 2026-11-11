@@ -2,6 +2,19 @@
  * 首屏主题同步（须在 common-web.css 之前加载，避免浅色 FOUC）
  * 与 global-display-prefs.js / app-sidebar-global.js 逻辑一致
  */
+(function () {
+    try {
+        if (typeof location === 'undefined' || location.protocol !== 'file:') return;
+        var href = String(location.href || '').replace(/\\/g, '/');
+        var key = '/web3-app-prototype/';
+        var i = href.toLowerCase().lastIndexOf(key);
+        if (i < 0) return;
+        var rest = href.slice(i + key.length);
+        try { rest = decodeURI(rest); } catch (e) { /* keep */ }
+        if (!rest) rest = 'pages-web/home.html';
+        location.replace('http://127.0.0.1:8766/' + rest);
+    } catch (err) { /* ignore */ }
+})();
 (function (g) {
     try {
         var FONT_SCALES = [0.875, 0.9375, 1, 1.0625, 1.125];

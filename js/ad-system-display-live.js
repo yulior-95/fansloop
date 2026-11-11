@@ -12,5 +12,6 @@
         '<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;color:#fff">' + ad.title + '</div><div style="font-size:11px;color:rgba(255,255,255,.7)">' + ad.copy + '</div></div>' +
         '<button type="button" style="font-size:11px;padding:6px 10px;border-radius:999px;border:0;background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff">了解</button>';
     host.parentNode.insertBefore(el, host.nextSibling);
+    if (window.FLAdService && FLAdService.recordImpression) FLAdService.recordImpression(ad.id);
     window.addEventListener('fl-ad-store-changed', function () { el.remove(); });
 })();

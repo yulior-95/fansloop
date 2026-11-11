@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<script src="../js/force-http-preview.js"></script>
+
 <meta charset="UTF-8">
 <title>首页</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -720,8 +722,10 @@ body.h5-search-open .top-nav {
     transform: translateY(100%);
     transition: transform .24s cubic-bezier(0.22, 0.61, 0.36, 1);
     box-shadow: 0 -14px 40px rgba(0,0,0,0.45);
+    pointer-events: none;
+    visibility: hidden;
 }
-.home-sheet.show { transform: translateY(0); }
+.home-sheet.show { transform: translateY(0); pointer-events: auto; visibility: visible; }
 .home-sheet .hs-head {
     display: flex; align-items: center; justify-content: space-between;
     padding: 12px 16px;
@@ -994,6 +998,10 @@ body.h5-search-open .top-nav {
     opacity: 0;
     pointer-events: none;
     transition: opacity .2s ease;
+}
+.live-room-overlay:not(.show),
+.live-room-overlay:not(.show) * {
+    pointer-events: none !important;
 }
 .live-room-overlay.show {
     opacity: 1;
@@ -2457,25 +2465,25 @@ body.h5-search-open .top-nav {
 
 <!-- 底部 Tab -->
 <div class="tab-bar">
-    <div class="tab-item active">
+    <a class="tab-item active" href="home.html">
         <i class="fa-solid fa-house"></i>
         <span>首页</span>
-    </div>
-    <div class="tab-item">
+    </a>
+    <a class="tab-item" href="subscriptions.html">
         <i class="fa-regular fa-heart"></i>
         <span>订阅</span>
-    </div>
+    </a>
     <div class="tab-create">
-        <div class="create-btn"><i class="fa-solid fa-plus"></i></div>
+        <a class="create-btn" href="create.html"><i class="fa-solid fa-plus"></i></a>
     </div>
-    <div class="tab-item">
+    <a class="tab-item" href="messages.html">
         <i class="fa-regular fa-message"></i>
         <span>消息</span>
-    </div>
-    <div class="tab-item">
+    </a>
+    <a class="tab-item" href="profile.html">
         <i class="fa-regular fa-user"></i>
         <span>我的</span>
-    </div>
+    </a>
 </div>
 
 <!-- 积分商城悬浮球 · 参考番茄小说 + Web3 化 -->
@@ -2927,11 +2935,11 @@ body.h5-search-open .top-nav {
 <div class="home-indicator"></div>
 <script src="../js/ad-system-store.js"></script>
 <script src="../js/ad-system-api.js"></script>
+<script src="../js-web/content-report.js"></script>
 <script src="../js/ad-system-display.js"></script>
-<script src="../js/digital-h5-nav.js"></script>
+<script src="../js/digital-h5-nav.js?v=20261104c"></script>
 <script src="../js/topics-leaderboard-catalog.js"></script>
 <script src="../js/h5-global-search.js"></script>
-<script src="../js-web/content-report.js"></script>
 <script src="../js-web/live-player-volume.js"></script>
 <script src="../js-web/live-feed-demo-catalog.js?v=20261007"></script>
 <script>
@@ -3103,6 +3111,18 @@ body.h5-search-open .top-nav {
         return activeFeeds || [];
     }
 
+    /** 含信息流广告卡的实际竖滑页数（广告由 ad-system-display 注入 DOM） */
+    function feedPageCount() {
+        var n = track.querySelectorAll('.feed-page').length;
+        return n || currentFeeds().length;
+    }
+
+    function clampFeedIndex(i) {
+        var n = feedPageCount();
+        if (!n) return 0;
+        return ((i % n) + n) % n;
+    }
+
     function isLivePreviewFeed(f) {
         return f && (f.feedType === 'live-preview' || (f.liveBadge && String(f.liveBadge).indexOf('直播预告') === 0));
     }
@@ -3181,9 +3201,15 @@ body.h5-search-open .top-nav {
     function buildTrack() {
         var list = currentFeeds();
         track.innerHTML = list.map(pageHtml).join('');
-        if (idx >= list.length) idx = 0;
         applyTrack(false);
         if (window.FL_applyLivePreviewReminds) window.FL_applyLivePreviewReminds();
+        /* Feed 重建后重注广告位（Banner + 信息流） */
+        try {
+            window.dispatchEvent(new CustomEvent('fl-home-feed-ready'));
+            if (window.FLAdDisplayRefresh) window.FLAdDisplayRefresh();
+        } catch (e) { /* ignore */ }
+        idx = clampFeedIndex(idx);
+        applyTrack(false);
     }
 
     function viewportH() {
@@ -4258,10 +4284,11 @@ body.h5-search-open .top-nav {
     function switchFeed(dir) {
         if (anySheetOpen()) return;
         if (lock) return;
-        var list = currentFeeds();
-        if (!list.length) return;
+        var n = feedPageCount();
+        if (!n) return;
         lock = true;
-        idx = (idx + dir + list.length) % list.length;
+        idx = clampFeedIndex(idx + dir);
+        activeFeedIndex = idx;
         dragY = 0;
         applyTrack(true);
         setTimeout(function () { lock = false; }, 320);
@@ -4271,10 +4298,11 @@ body.h5-search-open .top-nav {
         if (anySheetOpen()) return;
         var h = viewportH();
         var threshold = Math.max(56, h * 0.14);
-        var list = currentFeeds();
-        if (!list.length) return;
+        var n = feedPageCount();
+        if (!n) return;
         if (Math.abs(dragY) > threshold) {
-            idx = (idx + (dragY < 0 ? 1 : -1) + list.length) % list.length;
+            idx = clampFeedIndex(idx + (dragY < 0 ? 1 : -1));
+            activeFeedIndex = idx;
         }
         dragY = 0;
         applyTrack(true);

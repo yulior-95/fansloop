@@ -491,7 +491,11 @@
         else if (creator) stashPendingFromCreator(creator);
         var url = hrefFromFeedArticle(article, liveTap, status, navId);
         persistNavContext(navId);
-        global.location.href = url;
+        try {
+            global.location.assign(new URL(url, global.location.href).href);
+        } catch (err) {
+            global.location.href = url;
+        }
         return { href: url };
     }
 

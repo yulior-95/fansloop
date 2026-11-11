@@ -66,8 +66,11 @@
         return base;
     }
 
-    function wrapPostText(innerHtml, extraClass) {
+    function wrapPostText(innerHtml, extraClass, opts) {
         extraClass = extraClass || '';
+        if (opts && opts.plain) {
+            return '<div class="post-text' + extraClass + '"><div class="post-text-inner">' + innerHtml + '</div></div>';
+        }
         return (
             '<div class="post-text post-text--clampable' + extraClass + '">' +
             '<div class="post-text-inner">' + innerHtml + '</div>' +
@@ -344,7 +347,7 @@
                 '<div class="post-media-wrap"><div class="post-media post-media--center post-media--live feed-live-tap' +
                 (ended ? ' is-ended' : '') + '" data-live-status="' + liveStatus + '" data-creator="' + esc(cName) + '"' +
                 (ended ? '' : ' data-host-slug="' + hostSlug + '"') +
-                ' role="button" tabindex="0" title="' +
+                ' title="' +
                 (ended ? '直播已结束' : '进入直播间') + '">' +
                 '<img class="feed-live-cover" src="' + url + '" alt="">' +
                 overlay +
@@ -422,7 +425,9 @@
         var bodyInner = wrapPostText(
             "🔴 " + esc(item.sceneLabel) +
             '<br><span class="hashtag">' + esc(item.viewer + " 端观看") + "</span>" +
-            (item.audienceMic ? ' <span class="hashtag">#观众连麦</span>' : ' <span class="hashtag">#无观众连麦</span>')
+            (item.audienceMic ? ' <span class="hashtag">#观众连麦</span>' : ' <span class="hashtag">#无观众连麦</span>'),
+            '',
+            { plain: true }
         );
         var overlay =
             '<div class="post-media-live-overlay">' +
@@ -482,9 +487,11 @@
         var media =
             '<div class="post-media-wrap"><div class="post-media post-media--center post-media--live feed-live-tap" data-live-status="live" data-creator="' +
             esc(c.name) +
+            '" data-host-slug="' +
+            esc(item.hostSlug) +
             '" data-live-query="' +
             esc(query) +
-            '">' +
+            '" title="进入直播间">' +
             overlay +
             mediaInner +
             "</div></div>";
@@ -509,9 +516,11 @@
             esc(query) +
             '">' +
             buildHead(c, i, { guest: guest, type: "live", liveStatus: "live", stackKind: "live" }) +
-            '<div class="post-card-body">' +
+            '<a class="post-card-body feed-live-card-link" href="' +
+            esc(href) +
+            '">' +
             bodyInner +
-            "</div>" +
+            "</a>" +
             buildActions(i, guest, "live", "live") +
             "</article></div>"
         );
@@ -533,7 +542,7 @@
         var bodyInner = '';
         if (type === 'live') {
             var liveText = stackKind === 'live' && LIVE_TAB_TEASER[c.name] ? LIVE_TAB_TEASER[c.name] : text;
-            bodyInner += wrapPostText((liveStatus === 'ended' ? '📺 ' : '🔴 ') + esc(liveText));
+            bodyInner += wrapPostText((liveStatus === 'ended' ? '📺 ' : '🔴 ') + esc(liveText), '', { plain: true });
         } else if (type === 'live-preview') {
             bodyInner += wrapPostText(esc(text) + '<br>' + tags);
             bodyInner += buildLivePreviewSchedule(i, c, previewVariant, guest);
@@ -557,6 +566,11 @@
         var liveHostSlug = type === 'live' && liveStatus !== 'ended'
             ? (CREATOR_LIVE_HOST[c.name] || 'novaplay')
             : '';
+        var detailHrefVal = type === 'live' ? liveDetailHref(c.name, liveStatus) : detailHref(type, i, c.name, liveStatus);
+        var liveBodyTag = (type === 'live' && liveStatus !== 'ended')
+            ? '<a class="post-card-body feed-live-card-link" href="' + esc(detailHrefVal) + '">'
+            : '<div class="post-card-body">';
+        var liveBodyClose = (type === 'live' && liveStatus !== 'ended') ? '</a>' : '</div>';
 
         return (
             '<div class="feed-stack-slide" data-feed-id="stack-' + stackKind + '-' + i + '">' +
@@ -566,9 +580,9 @@
             (previewVariant ? ' data-preview-variant="' + previewVariant + '"' : '') +
             ' data-creator="' + esc(c.name) + '" data-creator-av="https://images.unsplash.com/' + c.av + '?w=120"' +
             ' data-creator-lv="' + c.lv + '" data-creator-tags="' + esc((c.tags || []).join(' · ')) + '"' +
-            ' data-detail-href="' + (type === 'live' ? liveDetailHref(c.name, liveStatus) : detailHref(type, i, c.name, liveStatus)) + '">' +
+            ' data-detail-href="' + detailHrefVal + '">' +
             buildHead(c, i, { guest: guest, type: type, previewVariant: previewVariant, liveStatus: liveStatus, stackKind: stackKind }) +
-            '<div class="post-card-body">' + bodyInner + '</div>' +
+            liveBodyTag + bodyInner + liveBodyClose +
             buildActions(i, guest, type, liveStatus) +
             '</article></div>'
         );

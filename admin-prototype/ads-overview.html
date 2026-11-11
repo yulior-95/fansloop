@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
+<script src="../js/force-http-preview.js"></script>
+
+<meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>广告概览 · GOODFANS 运营后台</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
@@ -16,11 +18,8 @@
   <aside class="admin-sider" id="adminSider"></aside>
   <div class="admin-main">
     <header class="admin-header">
-      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 广告管理 / 广告概览</span></div>
+<div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 广告管理 / 广告概览</span></div>
       <div class="admin-header-right">
-        <a href="ads-index.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-table-columns"></i> 原型平铺</a>
-        <a href="ads-review.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-clipboard-check"></i> 待审核 <span class="ant-badge ant-badge-count" id="statPendingLink">0</span></a>
-        <a href="ads-ops-create.html" class="ant-btn ant-btn-primary ant-btn-sm"><i class="fa-solid fa-plus"></i> 运营创建</a>
         <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face" alt=""><span>广告运营 · Mia</span></div>
       </div>
     </header>
@@ -28,19 +27,67 @@
       <h1 class="admin-page-title">广告概览</h1>
       <p class="admin-page-desc">关键指标、近 7 日趋势与来源结构。对接 API 后替换 <code>FLAdStore.adminOverview()</code> 返回值即可。</p>
 
-      <div class="ad-quick-links">
-        <a class="ant-btn ant-btn-sm" href="ads-list.html"><i class="fa-solid fa-list"></i> 广告列表</a>
-        <a class="ant-btn ant-btn-sm" href="ads-stats.html"><i class="fa-solid fa-chart-line"></i> 数据统计</a>
-        <a class="ant-btn ant-btn-sm" href="ads-finance.html"><i class="fa-solid fa-file-invoice-dollar"></i> 财务</a>
-      </div>
-
       <div class="ad-hifi-stat-row">
-        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon blue"><i class="fa-solid fa-rectangle-ad"></i></span><div class="ant-statistic-title">广告总数</div><div class="ant-statistic-content-value" id="statTotal">—</div></div></div>
-        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon orange"><i class="fa-solid fa-hourglass-half"></i></span><div class="ant-statistic-title">待审核</div><div class="ant-statistic-content-value" style="color:#fa8c16" id="statPending">—</div></div></div>
-        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon green"><i class="fa-solid fa-bullhorn"></i></span><div class="ant-statistic-title">投放中</div><div class="ant-statistic-content-value" style="color:#52c41a" id="statActive">—</div></div></div>
-        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon purple"><i class="fa-solid fa-eye"></i></span><div class="ant-statistic-title">今日曝光</div><div class="ant-statistic-content-value" id="statImp">—</div></div></div>
-        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon blue"><i class="fa-solid fa-hand-pointer"></i></span><div class="ant-statistic-title">今日点击</div><div class="ant-statistic-content-value" id="statClk">—</div></div></div>
-        <div class="ant-card ant-card-bordered"><div class="ant-card-body"><span class="ad-hifi-stat-icon red"><i class="fa-solid fa-coins"></i></span><div class="ant-statistic-title">今日消耗 (USDT)</div><div class="ant-statistic-content-value" id="statSpend">—</div></div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body">
+          <span class="ad-hifi-stat-icon blue"><i class="fa-solid fa-rectangle-ad"></i></span>
+          <div class="ant-statistic-title">广告总数
+            <span class="ad-stat-tip" tabindex="0" aria-label="广告总数说明">
+              <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+              <span class="ad-stat-tip-pop" role="tooltip"><b>公式</b>：广告库条数合计（含用户已删除留档）。<br><b>口径</b>：不区分上架审核 / 投放状态，后台可见全量广告。</span>
+            </span>
+          </div>
+          <div class="ant-statistic-content-value" id="statTotal">—</div>
+        </div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body">
+          <span class="ad-hifi-stat-icon orange"><i class="fa-solid fa-hourglass-half"></i></span>
+          <div class="ant-statistic-title">待审核
+            <span class="ad-stat-tip" tabindex="0" aria-label="待审核说明">
+              <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+              <span class="ad-stat-tip-pop" role="tooltip"><b>公式</b>：上架审核 = 待审核，且投放 ≠ 已下架 / 已结束。<br><b>口径</b>：仅统计<strong>上架/内容审核</strong>队列；不含退款审核单。</span>
+            </span>
+          </div>
+          <div class="ant-statistic-content-value" style="color:#fa8c16" id="statPending">—</div>
+        </div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body">
+          <span class="ad-hifi-stat-icon green"><i class="fa-solid fa-bullhorn"></i></span>
+          <div class="ant-statistic-title">投放中
+            <span class="ad-stat-tip" tabindex="0" aria-label="投放中说明">
+              <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+              <span class="ad-stat-tip-pop" role="tooltip"><b>公式</b>：投放状态 = 投放中（含历史 active）。<br><b>口径</b>：须已上架审核通过且在排期内正在展示；不含暂停 / 待开始 / 已结束 / 已下架。</span>
+            </span>
+          </div>
+          <div class="ant-statistic-content-value" style="color:#52c41a" id="statActive">—</div>
+        </div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body">
+          <span class="ad-hifi-stat-icon purple"><i class="fa-solid fa-eye"></i></span>
+          <div class="ant-statistic-title">今日曝光
+            <span class="ad-stat-tip" tabindex="0" aria-label="今日曝光说明">
+              <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+              <span class="ad-stat-tip-pop" role="tooltip"><b>公式</b>：今日有效曝光次数之和（同用户同广告受日频控去重后计数）。<br><b>原型</b>：≈ Σ(广告累计曝光) × 8% 模拟「今日」切片；对接后按自然日 UTC+8 汇总 <code>recordImpression</code>。</span>
+            </span>
+          </div>
+          <div class="ant-statistic-content-value" id="statImp">—</div>
+        </div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body">
+          <span class="ad-hifi-stat-icon blue"><i class="fa-solid fa-hand-pointer"></i></span>
+          <div class="ant-statistic-title">今日点击
+            <span class="ad-stat-tip" tabindex="0" aria-label="今日点击说明">
+              <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+              <span class="ad-stat-tip-pop" role="tooltip"><b>公式</b>：今日广告 CTA / Banner 有效点击次数之和。<br><b>原型</b>：≈ Σ(广告累计点击) × 6% 模拟今日；正式按自然日汇总 <code>recordClick</code>。CTR ≈ 今日点击 ÷ 今日曝光。</span>
+            </span>
+          </div>
+          <div class="ant-statistic-content-value" id="statClk">—</div>
+        </div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body">
+          <span class="ad-hifi-stat-icon red"><i class="fa-solid fa-coins"></i></span>
+          <div class="ant-statistic-title">今日消耗 (USDT)
+            <span class="ad-stat-tip" tabindex="0" aria-label="今日消耗说明">
+              <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+              <span class="ad-stat-tip-pop" role="tooltip"><b>公式</b>：今日从冻结转入已消费的 USDT（一口价套餐按排期进度结转，非按次扣费）。<br><b>原型</b>：≈ Σ(广告 stats.spend) × 5% 模拟今日；正式取财务流水 type=spend 且自然日匹配的金额合计。</span>
+            </span>
+          </div>
+          <div class="ant-statistic-content-value" id="statSpend">—</div>
+        </div></div>
       </div>
 
       <div class="ant-row" style="margin:0 -8px">
@@ -67,12 +114,55 @@
       </div>
 
       <div class="ant-card ant-card-bordered ad-hifi-card-table" style="margin-top:16px">
-        <div class="ant-card-head"><div class="ant-card-head-title">广告位曝光示意</div></div>
+        <div class="ant-card-head">
+          <div class="ant-card-head-title">广告位曝光示意</div>
+          <div class="ant-card-extra">线框示意 · 非真实素材</div>
+        </div>
         <div class="ant-card-body">
-          <div class="ant-row">
-            <div class="ant-col ant-col-8" style="padding:8px"><div class="ad-slot-preview"><img src="https://images.unsplash.com/photo-1611162617474-5b21e939e986?w=640&h=360&fit=crop" alt="首页 Banner 示意"></div><p style="font-size:12px;color:rgba(0,0,0,.45);margin:8px 0 0">首页 Banner · 16:9</p></div>
-            <div class="ant-col ant-col-8" style="padding:8px"><div class="ad-slot-preview"><img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=700&fit=crop" alt="信息流示意"></div><p style="font-size:12px;color:rgba(0,0,0,.45);margin:8px 0 0">短视频信息流 · 9:16</p></div>
-            <div class="ant-col ant-col-8" style="padding:8px"><div class="ad-slot-preview"><img src="https://images.unsplash.com/photo-1516321497487-4a4188962395?w=640&h=360&fit=crop" alt="直播间推广"></div><p style="font-size:12px;color:rgba(0,0,0,.45);margin:8px 0 0">直播间推广 · 横条 / 小卡</p></div>
+          <div class="ad-overview-slot-grid">
+            <div class="ad-overview-slot-card">
+              <div class="ad-slot-preview ad-slot-preview--schematic" aria-label="首页 Banner 示意">
+                <div class="ad-slot-mock ad-slot-mock--web ad-slot-mock--overview">
+                  <div class="ad-slot-mock-web-side">
+                    <div class="ad-slot-skel"></div>
+                    <div class="ad-slot-skel short"></div>
+                    <div class="ad-slot-skel short"></div>
+                  </div>
+                  <div class="ad-slot-mock-web-main">
+                    <div class="ad-slot-mock-ad ad-slot-mock-ad--banner">广告 · 首页 Banner</div>
+                    <div class="ad-slot-skel"></div>
+                    <div class="ad-slot-skel"></div>
+                    <div class="ad-slot-skel short"></div>
+                  </div>
+                </div>
+              </div>
+              <p class="ad-overview-slot-caption"><b>首页 Banner</b> · 通栏矮条 · WEB / H5</p>
+            </div>
+            <div class="ad-overview-slot-card">
+              <div class="ad-slot-preview ad-slot-preview--schematic" aria-label="短视频信息流示意">
+                <div class="ad-slot-mock ad-slot-mock--h5 ad-slot-mock--overview">
+                  <div class="ad-slot-mock-phone-bar"></div>
+                  <div class="ad-slot-skel"></div>
+                  <div class="ad-slot-skel short"></div>
+                  <div class="ad-slot-mock-ad ad-slot-mock-ad--feed">广告 · 信息流</div>
+                  <div class="ad-slot-skel"></div>
+                  <div class="ad-slot-skel short"></div>
+                </div>
+              </div>
+              <p class="ad-overview-slot-caption"><b>短视频信息流</b> · 原生帖插入 · 隔 ≥5 条</p>
+            </div>
+            <div class="ad-overview-slot-card">
+              <div class="ad-slot-preview ad-slot-preview--schematic" aria-label="直播间推广示意">
+                <div class="ad-slot-mock ad-slot-mock--overview ad-slot-mock--live-overview">
+                  <div class="ad-slot-mock-live-stage ad-slot-mock-live-stage--skel">
+                    <div class="ad-slot-skel" style="width:40%;margin:0"></div>
+                  </div>
+                  <div class="ad-slot-mock-ad ad-slot-mock-ad--chip">广告 · 小卡</div>
+                  <div class="ad-slot-mock-ad ad-slot-mock-ad--bar">广告 · 底栏横条</div>
+                </div>
+              </div>
+              <p class="ad-overview-slot-caption"><b>直播间推广</b> · 横条 / 小卡 · 仅平台运营</p>
+            </div>
           </div>
         </div>
       </div>
@@ -81,7 +171,7 @@
 </div>
 <script src="../js/ad-system-store.js"></script>
 <script src="../js/ad-system-api.js"></script>
-<script src="js/admin-nav.js"></script>
+<script src="js/admin-nav.js?v=20261104c"></script>
 <script src="js/admin-modal.js"></script>
 <script src="js/ad-admin-layout.js"></script>
 <script src="js/ad-admin-actions.js"></script>

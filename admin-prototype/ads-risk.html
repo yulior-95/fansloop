@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
+<script src="../js/force-http-preview.js"></script>
+
+<meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>广告风控 · GOODFANS 运营后台</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
@@ -16,7 +18,7 @@
   <aside class="admin-sider" id="adminSider"></aside>
   <div class="admin-main">
     <header class="admin-header">
-      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 广告管理 / 风控</span></div>
+<div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 广告管理 / 风控</span></div>
       <div class="admin-header-right">
         <a href="risk-sensitive-words.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-shield"></i> 敏感词库</a>
         <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt=""><span>风控 · Alex</span></div>
@@ -24,36 +26,96 @@
     </header>
     <main class="admin-content">
       <h1 class="admin-page-title">广告风控管理</h1>
-      <p class="admin-page-desc">链接域名校验、频次拦截与人工处置记录；与 C 端 FLAdService.validateLink / 展示层联动（原型）。</p>
+      <p class="admin-page-desc">配置各广告位单用户日展示上限；下方为已触发的风控事件列表（举报、异常点击、域名拦截等），可联动暂停广告。落地链接校验在创编/审核时执行，不在此页维护。</p>
 
-      <div class="ant-row" style="margin:0 -8px 16px">
-        <div class="ant-col ant-col-12" style="padding:8px">
-          <div class="ant-card ant-card-bordered">
-            <div class="ant-card-head"><div class="ant-card-head-title"><i class="fa-solid fa-link" style="color:#1677ff;margin-right:8px"></i>落地链接策略</div></div>
-            <div class="ant-card-body">
-              <div class="ad-switch-row"><div><strong>拦截 javascript: 协议</strong><p>创建 / 审核时校验，拒绝写入</p></div><span class="ad-switch on" data-switch role="switch" aria-checked="true"></span></div>
-              <div class="ad-switch-row"><div><strong>风险域名黑名单</strong><p>evil-phish.test、malware.demo（演示）</p></div><span class="ad-switch on" data-switch role="switch" aria-checked="true"></span></div>
-              <div class="ant-form-item" style="margin-top:12px"><label style="font-size:12px;color:rgba(0,0,0,.45)">新增黑名单域名</label><div style="display:flex;gap:8px;margin-top:6px"><input class="ant-input" placeholder="example.com" style="flex:1"><button type="button" class="ant-btn ant-btn-primary">添加</button></div></div>
+      <div class="ant-card ant-card-bordered" style="margin-bottom:16px">
+        <div class="ant-card-head"><div class="ant-card-head-title"><i class="fa-solid fa-gauge-high" style="color:#1677ff;margin-right:8px"></i>展示频次</div></div>
+        <div class="ant-card-body">
+          <p style="margin:0 0 12px;font-size:12px;color:rgba(0,0,0,.45)">同一用户 · 同一广告 · 每日最多展示次数（三个广告位均生效，含首页 Banner）。</p>
+          <div class="ant-row" style="margin:0 -8px">
+            <div class="ant-col ant-col-8" style="padding:0 8px">
+              <div class="ant-form-item" style="margin-bottom:0"><label>信息流日上限</label><input class="ant-input" id="riskFeedCap" type="number" min="1" value="3" style="width:100%;margin-top:6px"></div>
+            </div>
+            <div class="ant-col ant-col-8" style="padding:0 8px">
+              <div class="ant-form-item" style="margin-bottom:0"><label>首页 Banner 日上限</label><input class="ant-input" id="riskBannerCap" type="number" min="1" value="8" style="width:100%;margin-top:6px"></div>
+            </div>
+            <div class="ant-col ant-col-8" style="padding:0 8px">
+              <div class="ant-form-item" style="margin-bottom:0"><label>直播间日上限</label><input class="ant-input" id="riskLiveCap" type="number" min="1" value="4" style="width:100%;margin-top:6px"></div>
             </div>
           </div>
+          <button type="button" class="ant-btn ant-btn-primary" id="riskFreqSave" style="margin-top:14px">保存策略</button>
         </div>
-        <div class="ant-col ant-col-12" style="padding:8px">
-          <div class="ant-card ant-card-bordered">
-            <div class="ant-card-head"><div class="ant-card-head-title"><i class="fa-solid fa-gauge-high" style="color:#1677ff;margin-right:8px"></i>展示频次</div></div>
-            <div class="ant-card-body">
-              <div class="ad-switch-row"><div><strong>单用户日 cap（信息流）</strong><p>默认每日最多 3 次展示</p></div><span class="ad-switch on" data-switch role="switch" aria-checked="true"></span></div>
-              <div class="ant-form-item"><label>直播间单场上限</label><input class="ant-input" type="number" value="4" style="width:100%;margin-top:6px"></div>
-              <button type="button" class="ant-btn ant-btn-primary" style="margin-top:8px">保存策略</button>
-            </div>
+      </div>
+
+      <div class="ant-card ant-card-bordered" style="margin-bottom:16px">
+        <div class="ant-card-head"><div class="ant-card-head-title">触发类型说明（研发规则摘要）</div></div>
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-small ant-table-bordered">
+            <table style="width:100%">
+              <thead class="ant-table-thead">
+                <tr>
+                  <th>类型</th>
+                  <th>说明列典型文案</th>
+                  <th>触发逻辑</th>
+                  <th>研发规则要点</th>
+                </tr>
+              </thead>
+              <tbody class="ant-table-tbody">
+                <tr>
+                  <td>用户举报</td>
+                  <td>频繁出现；素材低俗；虚假宣传收益</td>
+                  <td>C 端广告「举报」提交</td>
+                  <td>写 risk（adId+原因）；同用户同广告约 10 分钟去重</td>
+                </tr>
+                <tr>
+                  <td>异常点击</td>
+                  <td>短时点击率异常偏高；5 分钟内 CTR &gt; 18%；同 IP 段集中点击</td>
+                  <td>点击流命中阈值</td>
+                  <td>可配：窗长 T、CTR 阈值 θ、最小曝光 M、同 IP 次数 K；命中标无效点击</td>
+                </tr>
+                <tr>
+                  <td>异常流量</td>
+                  <td>短时曝光暴涨且 CTR≈0；机器指纹聚集</td>
+                  <td>曝光流异常</td>
+                  <td>增速相对基线、指纹聚类阈值；命中标无效曝光</td>
+                </tr>
+                <tr>
+                  <td>域名拦截</td>
+                  <td>命中黑名单域名；javascript: 协议拦截</td>
+                  <td>创编/提审校验或在投巡检</td>
+                  <td>禁 javascript:；域名黑名单；入库+提审双检；在投命中则暂停</td>
+                </tr>
+                <tr>
+                  <td>频次超限</td>
+                  <td>单用户日 cap 触发 N 次</td>
+                  <td>同用户同广告超日上限</td>
+                  <td>信息流/Banner/直播间 freqCaps；超限不展示；绕过写审计事件</td>
+                </tr>
+                <tr>
+                  <td>素材风险</td>
+                  <td>敏感图/违禁词；抽检不合格</td>
+                  <td>机审/人审/抽检</td>
+                  <td>敏感词库+鉴黄；未过审不投；在投可暂停</td>
+                </tr>
+                <tr>
+                  <td>人工标记</td>
+                  <td>运营人工标记复核</td>
+                  <td>后台手动登记</td>
+                  <td>选广告+原因写入；可选仅记录或暂停</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
+          <p style="margin:10px 0 0;font-size:12px;color:rgba(0,0,0,.45)">完整字段与默认阈值见需求文档 §10.2。</p>
         </div>
       </div>
 
       <div class="ant-card ant-card-bordered">
+        <div class="ant-card-head"><div class="ant-card-head-title">风控事件（触发记录）</div></div>
         <div class="ant-card-body" style="padding-top:0">
           <div class="ant-table ant-table-small ant-table-bordered">
             <table style="width:100%">
-              <thead class="ant-table-thead"><tr><th class="admin-col-index">#</th><th>类型</th><th>关联广告</th><th>说明</th><th>状态</th><th>时间</th><th>操作</th></tr></thead>
+              <thead class="ant-table-thead"><tr><th class="admin-col-index">#</th><th>类型</th><th>关联广告</th><th>举报原因</th><th>补充说明</th><th>举报人</th><th>状态</th><th>时间</th><th>操作</th></tr></thead>
               <tbody class="ant-table-tbody" id="adRiskBody" data-pager="js"></tbody>
             </table>
           </div>
@@ -64,11 +126,12 @@
   </div>
 </div>
 <script src="../js/ad-system-store.js"></script>
-<script src="js/admin-nav.js"></script>
+<script src="../js/ad-system-api.js"></script>
+<script src="js/admin-nav.js?v=20261104c"></script>
 <script src="js/admin-modal.js"></script>
 <script src="js/admin-pagination.js"></script>
 <script src="js/ad-admin-layout.js"></script>
 <script src="js/ad-admin-actions.js"></script>
-<script src="js/ad-admin-pages.js"></script>
+<script src="js/ad-admin-pages.js?v=20261111risk3"></script>
 </body>
 </html>

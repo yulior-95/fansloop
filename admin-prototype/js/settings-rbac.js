@@ -101,6 +101,88 @@
       ]
     },
     {
+      id: "ads",
+      label: "广告管理",
+      children: [
+        {
+          id: "ads-overview",
+          label: "广告概览",
+          ops: [{ id: "ads-overview-view", label: "查看" }]
+        },
+        {
+          id: "ads-list",
+          label: "广告列表",
+          ops: [
+            { id: "ads-list-view", label: "查看" },
+            { id: "ads-list-pause", label: "暂停 / 恢复 / 下架" }
+          ]
+        },
+        {
+          id: "ads-review",
+          label: "上架审核",
+          ops: [
+            { id: "ads-review-view", label: "查看" },
+            { id: "ads-review-decide", label: "通过 / 驳回" }
+          ]
+        },
+        {
+          id: "ads-orders",
+          label: "广告订单",
+          ops: [{ id: "ads-orders-view", label: "查看" }]
+        },
+        {
+          id: "ads-refunds",
+          label: "退款管理",
+          ops: [
+            { id: "ads-refunds-view", label: "查看" },
+            { id: "ads-refunds-decide", label: "退款审核" }
+          ]
+        },
+        {
+          id: "ads-ops-create",
+          label: "运营广告创建",
+          ops: [
+            { id: "ads-ops-create-view", label: "创建 / 提审" },
+            { id: "ads-ops-publish-skip", label: "授权跳过审核发布" }
+          ]
+        },
+        {
+          id: "ads-slots",
+          label: "广告位 / 套餐",
+          ops: [
+            { id: "ads-slots-view", label: "查看" },
+            { id: "ads-slots-edit", label: "编辑展示规则" },
+            { id: "ads-packages-edit", label: "改价 / 启停套餐" }
+          ]
+        },
+        {
+          id: "ads-advertisers",
+          label: "广告主管理",
+          ops: [
+            { id: "ads-advertisers-view", label: "查看" },
+            { id: "ads-advertisers-qual", label: "资质通过 / 驳回" },
+            { id: "ads-advertisers-restrict", label: "限制 / 解除发布" }
+          ]
+        },
+        {
+          id: "ads-stats",
+          label: "广告数据统计",
+          ops: [
+            { id: "ads-stats-view", label: "查看" },
+            { id: "ads-stats-export", label: "导出" }
+          ]
+        },
+        {
+          id: "ads-risk",
+          label: "广告风控",
+          ops: [
+            { id: "ads-risk-view", label: "查看" },
+            { id: "ads-risk-action", label: "暂停 / 处理" }
+          ]
+        }
+      ]
+    },
+    {
       id: "settings",
       label: "系统设置",
       children: [
@@ -141,6 +223,9 @@
       "user-list-view", "user-list-edit", "user-list-export",
       "order-recharge-view", "order-recharge-export",
       "order-withdraw-view", "order-withdraw-export",
+      "ads-overview-view", "ads-list-view", "ads-list-pause",
+      "ads-ops-create-view", "ads-slots-view", "ads-slots-edit",
+      "ads-advertisers-view", "ads-stats-view", "ads-risk-view", "ads-risk-action",
       "settings-logs-view"
     ],
     ROLE_RISK: [
@@ -151,14 +236,31 @@
       "risk-wl-email-add", "risk-wl-email-edit", "risk-wl-email-delete",
       "risk-wl-fee-add", "risk-wl-fee-edit", "risk-wl-fee-delete",
       "risk-wl-live-add", "risk-wl-live-delete",
-      "risk-wl-content-add", "risk-wl-content-delete"
+      "risk-wl-content-add", "risk-wl-content-delete",
+      "ads-risk-view", "ads-risk-action", "ads-list-view"
+    ],
+    ROLE_AD_REVIEW: [
+      "ads-list-view", "ads-review-view", "ads-review-decide"
+    ],
+    ROLE_AD_FINANCE: [
+      "ads-orders-view", "ads-refunds-view", "ads-refunds-decide",
+      "ads-stats-view", "ads-stats-export"
+    ],
+    ROLE_AD_OPS: [
+      "ads-overview-view", "ads-list-view", "ads-list-pause",
+      "ads-ops-create-view", "ads-slots-view", "ads-slots-edit",
+      "ads-packages-edit", "ads-advertisers-view", "ads-advertisers-qual",
+      "ads-advertisers-restrict", "ads-stats-view", "ads-risk-view"
     ]
   };
 
   var ROLES = [
     { code: "ROLE_ROOT", name: "超级管理员", created: "2024-08-01 10:00", updated: "2026-05-10 18:02", builtin: true },
     { code: "ROLE_OPS", name: "运营", created: "2024-09-12 14:20", updated: "2026-05-09 11:20", builtin: false },
-    { code: "ROLE_RISK", name: "风控", created: "2024-10-05 09:15", updated: "2026-05-08 09:41", builtin: false }
+    { code: "ROLE_RISK", name: "风控", created: "2024-10-05 09:15", updated: "2026-05-08 09:41", builtin: false },
+    { code: "ROLE_AD_OPS", name: "广告运营", created: "2026-03-01 10:00", updated: "2026-11-10 23:30", builtin: false },
+    { code: "ROLE_AD_REVIEW", name: "广告审核", created: "2026-03-01 10:00", updated: "2026-11-10 23:30", builtin: false },
+    { code: "ROLE_AD_FINANCE", name: "广告财务", created: "2026-03-01 10:00", updated: "2026-11-10 23:30", builtin: false }
   ];
 
   var MEMBERS = [

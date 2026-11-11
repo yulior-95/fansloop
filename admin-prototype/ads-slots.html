@@ -1,66 +1,85 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
+<script src="../js/force-http-preview.js"></script>
+
+<meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>广告位管理 · GOODFANS 运营后台</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/admin-shell.css">
   <link rel="stylesheet" href="css/admin-modals.css">
+  <link rel="stylesheet" href="css/mall-dev-glass.css">
   <link rel="stylesheet" href="css/ads-admin.css">
-  <link rel="stylesheet" href="css/ads-admin-hifi.css">
+  <link rel="stylesheet" href="css/ads-admin-hifi.css?v=20261104h">
 </head>
 <body data-admin-page="ads-slots">
 <div class="admin-app">
   <aside class="admin-sider" id="adminSider"></aside>
   <div class="admin-main">
     <header class="admin-header">
-      <div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 广告管理 / 广告位管理</span></div>
+<div class="admin-header-left"><i class="fa-solid fa-bars" style="opacity:.45"></i><span>/ 广告管理 / 广告位管理</span></div>
       <div class="admin-header-right">
         <a href="ads-packages.html" class="ant-btn ant-btn-sm"><i class="fa-solid fa-box-open"></i> 套餐配置</a>
         <div class="admin-header-user"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face" alt=""><span>广告运营 · Mia</span></div>
       </div>
     </header>
     <main class="admin-content">
-      <h1 class="admin-page-title">广告位管理</h1>
-      <p class="admin-page-desc">展示间隔、频次上限与无广告降级策略；停用后 C 端不再请求该 slot（原型数据见 FLAdStore.SLOTS）。</p>
-
-      <div class="ant-row" style="margin:0 -8px 16px">
-        <div class="ant-col ant-col-16" style="padding:8px">
-          <div class="ant-card ant-card-bordered">
-            <div class="ant-card-body" style="padding-top:0">
-              <div class="ant-table ant-table-small ant-table-bordered">
-                <table style="width:100%">
-                  <thead class="ant-table-thead"><tr><th class="admin-col-index">#</th><th>名称</th><th>编码</th><th>页面</th><th>类型</th><th>规格</th><th>间隔 / 频次</th><th>状态</th><th>操作</th></tr></thead>
-                  <tbody class="ant-table-tbody" id="adSlotsBody" data-pager="js"></tbody>
-                </table>
+      <h1 class="admin-page-title mall-dev-glass-head">
+        <span class="mall-dev-glass-head-title">广告位管理</span>
+        <span class="mall-dev-glass-inline" aria-label="研发批注">
+          <span class="mall-dev-glass-wrap">
+            <span class="mall-dev-glass-sphere" tabindex="0" aria-describedby="tipAdSlotFallback">
+              <span class="mall-dev-glass-shine"></span>
+              <span class="mall-dev-glass-txt">无广告时</span>
+            </span>
+            <span class="mall-dev-glass-pop" id="tipAdSlotFallback" role="note">
+              <strong>暂时没有广告可播时，页面会怎么表现？</strong>
+              <div class="formula" style="margin-top:8px">
+                <b>首页 Banner</b>：顶部横幅直接收起来，不会留一条空白。<br>
+                <b>短视频信息流</b>：不硬插广告格，内容继续往下刷，用户感觉不到空档。<br>
+                <b>直播间推广</b>：只给平台运营投放；没有广告时直播间里就不出现推广小卡。
               </div>
-              <div id="adSlotsPager"></div>
-            </div>
+            </span>
+          </span>
+        </span>
+      </h1>
+      <p class="admin-page-desc">管理各广告位出现在哪、多频繁出现。点「效果预览」可对照 H5 / WEB 上的位置；停用后用户端不再展示该广告位。</p>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding-top:0">
+          <div class="ant-table ant-table-small ant-table-bordered ad-slots-table-wrap">
+            <table style="width:100%">
+              <thead class="ant-table-thead">
+                <tr>
+                  <th class="admin-col-index">#</th>
+                  <th>名称</th>
+                  <th>编码</th>
+                  <th>展示位置</th>
+                  <th>类型</th>
+                  <th>规格</th>
+                  <th>间隔 / 频次</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody class="ant-table-tbody" id="adSlotsBody" data-pager="js"></tbody>
+            </table>
           </div>
-        </div>
-        <div class="ant-col ant-col-8" style="padding:8px">
-          <div class="ant-card ant-card-bordered">
-            <div class="ant-card-head"><div class="ant-card-head-title">降级策略说明</div></div>
-            <div class="ant-card-body" style="font-size:13px;line-height:1.65;color:rgba(0,0,0,.65)">
-              <p><span class="ant-tag ant-tag-blue">home_banner</span> 无可用广告时隐藏 Banner 区域，避免留白。</p>
-              <p><span class="ant-tag ant-tag-blue">feed_video</span> 无广告时跳过插入，不影响 Feed 滚动。</p>
-              <p><span class="ant-tag ant-tag-blue">live_room</span> 仅平台运营可投；无广告时不展示小卡。</p>
-              <div class="ad-slot-preview" style="margin-top:12px"><img src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=640&h=360&fit=crop" alt="广告位示意"></div>
-            </div>
-          </div>
+          <div id="adSlotsPager"></div>
         </div>
       </div>
     </main>
   </div>
 </div>
-<script src="../js/ad-system-store.js"></script>
+<script src="../js/ad-system-store.js?v=20261110slotrules"></script>
+<script src="../js/ad-system-api.js?v=20261110slotrules"></script>
 <script src="js/admin-nav.js"></script>
 <script src="js/admin-modal.js"></script>
 <script src="js/admin-pagination.js"></script>
 <script src="js/ad-admin-layout.js"></script>
 <script src="js/ad-admin-actions.js"></script>
-<script src="js/ad-admin-pages.js"></script>
+<script src="js/ad-admin-pages.js?v=20261110slotrules"></script>
 </body>
 </html>

@@ -8,7 +8,8 @@
         detail: '广告详情',
         stats: '广告数据',
         wallet: '广告账户',
-        apply: '广告主申请'
+        apply: '广告主申请',
+        notices: '广告通知'
     };
 
     function isSettingsAdPage() {
@@ -41,6 +42,7 @@
             el.classList.toggle('on', el.getAttribute('data-ad-view') === view);
         });
         document.body.setAttribute('data-ad-page', view === 'center' ? 'center' : view);
+        document.body.setAttribute('data-ad-view', view);
         setCrumb(view);
         var page = (location.pathname.split('/').pop() || 'settings.html').split('?')[0];
         var sp = new URLSearchParams();

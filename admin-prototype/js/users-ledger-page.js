@@ -1,5 +1,5 @@
 /**
- * 账变记录页
+ * 账变记录页（含广告投放 / 退费等资金流水）
  */
 (function () {
   var M = window.AdminModal;
@@ -13,8 +13,25 @@
     "积分消耗",
     "积分获取",
     "充值手续费",
-    "提现手续费"
+    "提现手续费",
+    "广告账户充值",
+    "广告投放冻结",
+    "广告投放消耗",
+    "广告退款",
+    "广告解冻"
   ];
+
+  var AD_TYPE_MAP = {
+    recharge: { type: "广告账户充值", io: "收入" },
+    freeze: { type: "广告投放冻结", io: "支出" },
+    spend: { type: "广告投放消耗", io: "支出" },
+    refund: { type: "广告退款", io: "收入" },
+    unfreeze: { type: "广告解冻", io: "收入" },
+    pay: { type: "广告投放冻结", io: "支出" },
+    adjust: { type: "广告账户充值", io: "收入" }
+  };
+
+  var USDT_RATE = 7.24;
 
   var tbody = document.getElementById("ledgerTbody");
   var pagerMount = document.getElementById("ledgerPager");
@@ -23,7 +40,7 @@
   var filterDate = document.getElementById("ledgerFilterDate");
   var pager = null;
 
-  var ROWS = [
+  var BASE_ROWS = [
     {
       type: "链上充值",
       uid: "882910",
@@ -180,9 +197,19 @@
     return v.toFixed(2);
   }
 
+  function fmtTime(iso) {
+    if (!iso) return "—";
+    return String(iso).slice(0, 19).replace("T", " ");
+  }
+
   function typeTag(type) {
     var cls = "ant-tag";
-    if (type.indexOf("充值") >= 0 && type.indexOf("手续费") < 0) cls += " ant-tag-green";
+    if (type.indexOf("广告") === 0) {
+      if (type.indexOf("退款") >= 0 || type.indexOf("充值") >= 0 || type.indexOf("解冻") >= 0) cls += " ant-tag-green";
+      else if (type.indexOf("冻结") >= 0) cls += " ant-tag-orange";
+      else if (type.indexOf("消耗") >= 0) cls += " ant-tag-red";
+      else cls += " ant-tag-purple";
+    } else if (type.indexOf("充值") >= 0 && type.indexOf("手续费") < 0) cls += " ant-tag-green";
     else if (type.indexOf("提现") >= 0 && type.indexOf("手续费") < 0) cls += " ant-tag-orange";
     else if (type.indexOf("积分") >= 0) cls += " ant-tag-blue";
     else cls += " ant-tag-default";
@@ -195,11 +222,48 @@
     return esc(io || "—");
   }
 
+  function mapAdFinanceRow(f) {
+    var meta = AD_TYPE_MAP[f.type] || { type: "广告账户充值", io: Number(f.amount) >= 0 ? "收入" : "支出" };
+    var qty = Math.abs(Number(f.amount) || 0);
+    var rate = USDT_RATE;
+    return {
+      type: meta.type,
+      uid: String(f.uid || "").replace(/^U/, "") || f.uid,
+      orderId: f.orderNo || f.id || "—",
+      currency: "USDT",
+      rate: rate,
+      qty: qty,
+      io: meta.io,
+      cny: Math.round(qty * rate * 100) / 100,
+      frozenFee: 0,
+      fee: 0,
+      time: fmtTime(f.at),
+      remark: f.note || ("广告资金 · " + meta.type),
+      source: "ad"
+    };
+  }
+
+  function loadAdFinanceRows() {
+    if (!window.FLAdStore || typeof FLAdStore.load !== "function") return [];
+    try {
+      var fin = (FLAdStore.load().finance || []).slice();
+      return fin.map(mapAdFinanceRow);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function allRows() {
+    return BASE_ROWS.concat(loadAdFinanceRows()).sort(function (a, b) {
+      return String(b.time).localeCompare(String(a.time));
+    });
+  }
+
   function getFiltered() {
     var type = filterType ? String(filterType.value || "").trim() : "";
     var uid = filterUid ? String(filterUid.value || "").trim() : "";
     var date = filterDate ? String(filterDate.value || "").trim() : "";
-    return ROWS.filter(function (r) {
+    return allRows().filter(function (r) {
       if (type && r.type !== type) return false;
       if (uid && String(r.uid).indexOf(uid) < 0) return false;
       if (date && String(r.time).indexOf(date) !== 0) return false;
@@ -277,6 +341,17 @@
     }
   }
 
+  function fillTypeOptions() {
+    if (!filterType) return;
+    var cur = filterType.value || "";
+    filterType.innerHTML =
+      '<option value="">全部类型</option>' +
+      LEDGER_TYPES.map(function (t) {
+        return '<option value="' + esc(t) + '">' + esc(t) + "</option>";
+      }).join("");
+    filterType.value = cur;
+  }
+
   function bindFilters() {
     var FT = window.AdminFilterToolbar;
     if (FT) {
@@ -285,9 +360,26 @@
         renderTable();
       });
       FT.onReset("ledgerReset", function () {
+        if (filterType) filterType.value = "";
+        if (filterUid) filterUid.value = "";
+        if (filterDate) filterDate.value = "";
         if (pager) pager.resetPage();
         renderTable();
       });
+    } else {
+      var q = document.getElementById("ledgerQ");
+      var reset = document.getElementById("ledgerReset");
+      if (q) q.onclick = function () {
+        if (pager) pager.resetPage();
+        renderTable();
+      };
+      if (reset) reset.onclick = function () {
+        if (filterType) filterType.value = "";
+        if (filterUid) filterUid.value = "";
+        if (filterDate) filterDate.value = "";
+        if (pager) pager.resetPage();
+        renderTable();
+      };
     }
     if (filterType) filterType.addEventListener("change", function () {
       if (pager) pager.setPage(1);
@@ -302,7 +394,7 @@
       if (!window.AdminExport) return;
       AdminExport.confirm({
         title: "导出账变记录",
-        body: "<p style='margin:0'>支持按当前筛选条件异步导出 Excel，完成后在「导出任务列表」下载。</p>",
+        body: "<p style='margin:0'>支持按当前筛选条件异步导出 Excel，完成后在「导出任务列表」下载。含广告投放冻结 / 消耗 / 退款等类型。</p>",
         exportType: "账变记录",
         sourcePage: "users-ledger.html",
         getConditions: function () {
@@ -324,6 +416,7 @@
     });
   }
 
+  fillTypeOptions();
   bindFilters();
   bindExport();
   renderTable();

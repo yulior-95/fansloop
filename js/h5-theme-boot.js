@@ -2,19 +2,34 @@
  * H5 主题首屏同步 · 须放在 <head>（common.css 之后）以避免浅色 FOUC
  * 与 digital-h5-nav.js 共用 localStorage key: h5_settings_theme
  */
+(function () {
+    try {
+        if (typeof location === 'undefined' || location.protocol !== 'file:') return;
+        var href = String(location.href || '').replace(/\\/g, '/');
+        var key = '/web3-app-prototype/';
+        var i = href.toLowerCase().lastIndexOf(key);
+        if (i < 0) return;
+        var rest = href.slice(i + key.length);
+        try { rest = decodeURI(rest); } catch (e) { /* keep */ }
+        if (!rest) rest = 'pages/home.html';
+        location.replace('http://127.0.0.1:8766/' + rest);
+    } catch (err) { /* ignore */ }
+})();
 (function (global) {
     var H5_MAIN_TAB_PAGES = {
         'home.html': true,
         'fl2-home-after-login.html': true,
         'subscriptions.html': true,
+        'search.html': true,
         'messages.html': true,
         'profile.html': true
     };
 
     function currentPageFile() {
         var path = global.location && global.location.pathname ? global.location.pathname : '';
-        var file = path.split('/').pop() || '';
-        return file.split('?')[0].toLowerCase();
+        var file = (path.split('/').pop() || '').split('?')[0].toLowerCase();
+        if (file && file.indexOf('.') < 0) file += '.html';
+        return file;
     }
 
     function applyH5TabBarPolicy() {

@@ -96,24 +96,27 @@
 
     function go(href) {
         if (!href) return;
-        location.href = href;
+        var url = href;
+        try {
+            url = new URL(href, global.location.href).href;
+        } catch (err) { /* keep */ }
+        try {
+            (global.top || global).location.href = url;
+        } catch (err2) {
+            global.location.href = url;
+        }
     }
 
     function bindClicks(root) {
         var scope = root || document;
         scope.querySelectorAll('[data-go]').forEach(function (el) {
+            var href = el.getAttribute('data-go');
             el.style.cursor = el.style.cursor || 'pointer';
-            el.addEventListener('click', function (e) {
-                if (el.tagName === 'A') return;
-                e.preventDefault();
-                e.stopPropagation();
-                go(el.getAttribute('data-go'));
-            });
+            if (href) upgradeToAnchor(el, href);
         });
         scope.querySelectorAll('[data-back]').forEach(function (el) {
             el.style.cursor = el.style.cursor || 'pointer';
-            el.addEventListener('click', function (e) {
-                e.preventDefault();
+            el.addEventListener('click', function () {
                 var fallback = el.getAttribute('data-back') || 'profile.html';
                 if (history.length > 1) history.back();
                 else go(fallback);
@@ -153,7 +156,7 @@
         });
     }
 
-    function bindTabs() {
+    function tabHrefFromLabel(label) {
         var map = {
             '首页': 'home.html',
             '订阅': 'subscriptions.html',
@@ -161,32 +164,77 @@
             '消息': 'messages.html',
             '我的': 'profile.html'
         };
-        document.querySelectorAll('.tab-bar .tab-item').forEach(function (item) {
-            var span = item.querySelector('span');
-            var label = span ? span.textContent : item.textContent;
-            label = String(label || '').trim();
-            var href = map[label];
-            if (!href) {
-                if (label.indexOf('首页') >= 0) href = map['首页'];
-                else if (label.indexOf('订阅') >= 0) href = map['订阅'];
-                else if (label.indexOf('发现') >= 0) href = map['发现'];
-                else if (label.indexOf('消息') >= 0) href = map['消息'];
-                else if (label.indexOf('我的') >= 0) href = map['我的'];
-            }
-            if (!href) return;
-            item.style.cursor = 'pointer';
-            item.addEventListener('click', function () { go(href); });
-        });
-        var create = document.querySelector('.tab-bar .tab-create, .tab-bar .create-btn');
-        if (create) {
-            var btn = create.classList.contains('create-btn') ? create : create.querySelector('.create-btn') || create;
-            btn.style.cursor = 'pointer';
-            btn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                go('create.html');
-            });
+        label = String(label || '').replace(/\s+/g, ' ').trim();
+        if (map[label]) return map[label];
+        if (label.indexOf('首页') >= 0) return map['首页'];
+        if (label.indexOf('订阅') >= 0) return map['订阅'];
+        if (label.indexOf('发现') >= 0) return map['发现'];
+        if (label.indexOf('消息') >= 0) return map['消息'];
+        if (label.indexOf('我的') >= 0) return map['我的'];
+        return '';
+    }
+
+    function upgradeToAnchor(el, href) {
+        if (!el || !href || !el.parentNode) return el;
+        if (el.tagName === 'A') {
+            el.setAttribute('href', href);
+            return el;
         }
+        var a = document.createElement('a');
+        a.className = el.className;
+        Array.prototype.forEach.call(el.attributes, function (attr) {
+            if (attr.name === 'class' || attr.name === 'onclick') return;
+            a.setAttribute(attr.name, attr.value);
+        });
+        a.setAttribute('href', href);
+        while (el.firstChild) a.appendChild(el.firstChild);
+        el.parentNode.replaceChild(a, el);
+        return a;
+    }
+
+    function bindTabs() {
+        document.querySelectorAll('.tab-bar .tab-item').forEach(function (item) {
+            item.style.cursor = 'pointer';
+            var span = item.querySelector('span');
+            var href = tabHrefFromLabel(span ? span.textContent : item.textContent);
+            if (href) upgradeToAnchor(item, href);
+        });
+        var createBtn = document.querySelector('.tab-bar .create-btn');
+        if (createBtn) {
+            createBtn.style.cursor = 'pointer';
+            upgradeToAnchor(createBtn, 'create.html');
+        }
+        var create = document.querySelector('.tab-bar .tab-create');
+        if (create) create.style.cursor = 'pointer';
         syncTabBarIcons();
+        if (document.documentElement.getAttribute('data-h5-tabs-bound') === '1') return;
+        document.documentElement.setAttribute('data-h5-tabs-bound', '1');
+        document.addEventListener(
+            'click',
+            function (e) {
+                var t = e.target;
+                if (!t || !t.closest) return;
+                var createHit = t.closest('.tab-bar .create-btn, .tab-bar .tab-create');
+                if (createHit) {
+                    if (e.cancelable) e.preventDefault();
+                    if (e.stopPropagation) e.stopPropagation();
+                    go('create.html');
+                    return;
+                }
+                var item = t.closest('.tab-bar .tab-item');
+                if (!item) return;
+                var href = item.getAttribute('href');
+                if (!href) {
+                    var span = item.querySelector('span');
+                    href = tabHrefFromLabel(span ? span.textContent : item.textContent);
+                }
+                if (!href) return;
+                if (e.cancelable) e.preventDefault();
+                if (e.stopPropagation) e.stopPropagation();
+                go(href);
+            },
+            true
+        );
     }
 
     function bindDefaultBackButtons() {
@@ -195,8 +243,7 @@
             if (btn.dataset.autoBackBound === '1') return;
             btn.dataset.autoBackBound = '1';
             btn.style.cursor = btn.style.cursor || 'pointer';
-            btn.addEventListener('click', function (e) {
-                e.preventDefault();
+            btn.addEventListener('click', function () {
                 if (history.length > 1) history.back();
                 else go('profile.html');
             });
@@ -265,14 +312,16 @@
             return;
         }
         var file = (location.pathname.split('/').pop() || '').split('?')[0].toLowerCase();
+        if (file && file.indexOf('.') < 0) file += '.html';
         var main = {
             'home.html': 1,
             'fl2-home-after-login.html': 1,
             'subscriptions.html': 1,
+            'search.html': 1,
             'messages.html': 1,
             'profile.html': 1
         };
-        if (main[file]) body.classList.add('h5-main-tab');
+        if (main[file] || body.getAttribute('data-page') === 'messages-inbox') body.classList.add('h5-main-tab');
         else body.classList.add('page-no-tab-bar');
     }
 

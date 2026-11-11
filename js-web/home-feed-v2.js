@@ -16,7 +16,7 @@
         setTimeout(function () { t.remove(); }, 2400);
     }
 
-    var FEED_BUILD_VERSION = '27';
+    var FEED_BUILD_VERSION = '29';
 
     var CREATOR_LIVE_HOST = {
         '山野食光': 'shanye',
@@ -50,8 +50,17 @@
     function isLiveFeedClickBlocked(target) {
         return !!target.closest(
             '.dev-glass-wrap, .post-actions, .post-head, .follow-btn, .follow-dynamic, ' +
-            '.btn-open-subscribe, .btn-open-ppv, .lp-remind, button, a'
+            '.btn-open-subscribe, .btn-open-ppv, .lp-remind, .post-text-toggle'
         );
+    }
+
+    function assignHref(url) {
+        if (!url) return;
+        try {
+            location.assign(new URL(url, location.href).href);
+        } catch (err) {
+            location.href = url;
+        }
     }
 
     function goLiveFromFeed(article, liveTap, status) {
@@ -66,29 +75,18 @@
             return;
         }
         if (document.body.classList.contains('is-guest-home')) {
-            location.href = 'modal-login-main.html';
+            assignHref('modal-login-main.html');
             return;
         }
+        var url = resolveLiveDetailHref(liveTap, article, status);
         if (window.LiveViewHost && window.LiveViewHost.navigateFromFeed) {
-            window.LiveViewHost.navigateFromFeed(article, liveTap, status);
-            return;
+            var result = window.LiveViewHost.navigateFromFeed(article, liveTap, status);
+            if (result && result.href) return;
         }
-        location.href = resolveLiveDetailHref(liveTap, article, status);
+        assignHref(url);
     }
 
-    function bindLiveFeedCapture() {
-        var root = document.querySelector('.feed-main-col');
-        if (!root || root.getAttribute('data-live-capture') === '1') return;
-        root.setAttribute('data-live-capture', '1');
-        root.addEventListener('click', function (e) {
-            if (isLiveFeedClickBlocked(e.target)) return;
-            var article = e.target.closest('article.post-card[data-post-type="live"]');
-            if (!article) return;
-            e.preventDefault();
-            e.stopPropagation();
-            goLiveFromFeed(article, article.querySelector('.feed-live-tap'));
-        }, true);
-    }
+    function bindLiveFeedCapture() {}
 
     function syncFeedStackVideos(viewport, slideIndex) {
         if (!viewport) return;
@@ -180,20 +178,7 @@
             track.addEventListener('click', function (e) {
                 if (e.target.closest('.dev-glass-wrap')) return;
 
-                var liveTap = e.target.closest('.feed-live-tap');
-                if (liveTap) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    var liveArticleTap = liveTap.closest('article[data-post-type="live"], article[data-creator]');
-                    goLiveFromFeed(liveArticleTap, liveTap, liveTap.getAttribute('data-live-status') || 'live');
-                    return;
-                }
-
-                var liveArticle = e.target.closest('article.post-card[data-post-type="live"]');
-                if (liveArticle && !e.target.closest('.post-actions, .post-head, .follow-btn, .follow-dynamic, .btn-open-subscribe, .btn-open-ppv, .dev-glass-wrap, button, a')) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    goLiveFromFeed(liveArticle, liveArticle.querySelector('.feed-live-tap'), liveArticle.getAttribute('data-live-status') || 'live');
+                if (e.target.closest('a.feed-live-card-link[href], a.feed-live-tap[href]')) {
                     return;
                 }
 
@@ -445,6 +430,8 @@
         ensureFeedStacksBuilt();
         stacks.forEach(function (s) { s.sync(); });
     }
+    /** 广告注入后刷新竖滑页高度与指示器 */
+    window.FL_refreshFeedStacks = refreshAllStacks;
     refreshAllStacks();
     document.addEventListener('DOMContentLoaded', refreshAllStacks);
     if (typeof ResizeObserver !== 'undefined') {

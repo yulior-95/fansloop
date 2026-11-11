@@ -40,8 +40,54 @@
         else actions.appendChild(node);
     }
 
+    /** web-icons 会把 <i class="fa-*"> 换成 SVG，不能只查 i.fa-* */
     function hasIcon(actions, iconClass) {
-        return !!actions.querySelector('i.' + iconClass.split(' ').join('.'));
+        var cls = String(iconClass || '').trim();
+        if (!cls) return false;
+        var parts = cls.split(/\s+/);
+        var sel = 'i.' + parts.join('.');
+        if (actions.querySelector(sel)) return true;
+        var key = parts[parts.length - 1] || '';
+        if (key && actions.querySelector('[class*="' + key + '"], [data-fl-icon*="' + key + '"], svg[data-icon*="' + key + '"]')) {
+            return true;
+        }
+        return false;
+    }
+
+    function findNotifyBtn(actions) {
+        return actions.querySelector('.h-icon[data-fl-header-role="notify"], .h-icon[data-fl-nf-bound="1"], .h-icon[title="通知"]');
+    }
+
+    function findMsgBtn(actions) {
+        return actions.querySelector('.h-icon[data-fl-header-role="messages"], .h-icon[onclick*="messages.html"]');
+    }
+
+    function dedupeHeaderIcons(actions) {
+        var seenNotify = false;
+        var seenMsg = false;
+        Array.prototype.slice.call(actions.querySelectorAll('.h-icon')).forEach(function (btn) {
+            var isMsg = btn.getAttribute('data-fl-header-role') === 'messages' ||
+                (btn.getAttribute('onclick') || '').indexOf('messages.html') >= 0;
+            var isNotify = btn.getAttribute('data-fl-header-role') === 'notify' ||
+                btn.getAttribute('data-fl-nf-bound') === '1' ||
+                btn.getAttribute('title') === '通知' ||
+                (!isMsg && (btn.innerHTML.indexOf('bell') >= 0 || !!btn.querySelector('[class*="fa-bell"], [data-icon*="bell"]')));
+            if (isMsg) {
+                if (seenMsg) btn.remove();
+                else {
+                    seenMsg = true;
+                    btn.setAttribute('data-fl-header-role', 'messages');
+                }
+                return;
+            }
+            if (isNotify) {
+                if (seenNotify) btn.remove();
+                else {
+                    seenNotify = true;
+                    btn.setAttribute('data-fl-header-role', 'notify');
+                }
+            }
+        });
     }
 
     function ensureSearch(header) {
@@ -81,26 +127,35 @@
             header.appendChild(actions);
         }
 
-        if (!hasIcon(actions, 'fa-bell')) {
+        dedupeHeaderIcons(actions);
+
+        var bellHost = findNotifyBtn(actions);
+        if (!bellHost && !hasIcon(actions, 'fa-bell')) {
             var bell = document.createElement('button');
             bell.type = 'button';
             bell.className = 'h-icon';
+            bell.setAttribute('data-fl-header-role', 'notify');
+            bell.setAttribute('title', '通知');
             bell.innerHTML = '<i class="fa-regular fa-bell"></i><span class="dot"></span>';
             beforeAvatar(actions, bell);
-        } else {
-            var bellBtn = actions.querySelector('i.fa-bell');
-            if (bellBtn && !bellBtn.closest('.h-icon').querySelector('.dot')) {
-                bellBtn.closest('.h-icon').insertAdjacentHTML('beforeend', '<span class="dot"></span>');
+        } else if (bellHost) {
+            bellHost.setAttribute('data-fl-header-role', 'notify');
+            if (!bellHost.querySelector('.dot')) {
+                bellHost.insertAdjacentHTML('beforeend', '<span class="dot"></span>');
             }
         }
 
-        if (!hasIcon(actions, 'fa-comments')) {
+        var msgHost = findMsgBtn(actions);
+        if (!msgHost && !hasIcon(actions, 'fa-comments')) {
             var msg = document.createElement('button');
             msg.type = 'button';
             msg.className = 'h-icon';
+            msg.setAttribute('data-fl-header-role', 'messages');
             msg.setAttribute('onclick', "location.href='messages.html'");
             msg.innerHTML = '<i class="fa-regular fa-comments"></i>';
             beforeAvatar(actions, msg);
+        } else if (msgHost) {
+            msgHost.setAttribute('data-fl-header-role', 'messages');
         }
 
         var rechargeLabel = tr('recharge', '充值');
@@ -116,9 +171,15 @@
             var ctaBtn = actions.querySelector('.h-cta');
             if (ctaBtn) {
                 ctaBtn.setAttribute('data-i18n-src', '充值');
-                var icon = ctaBtn.querySelector('i');
+                var icon = ctaBtn.querySelector('i, svg');
+                var keepIcon = icon ? icon.cloneNode(true) : null;
                 ctaBtn.textContent = '';
-                if (icon) ctaBtn.appendChild(icon);
+                if (keepIcon) ctaBtn.appendChild(keepIcon);
+                else {
+                    var bolt = document.createElement('i');
+                    bolt.className = 'fa-solid fa-bolt';
+                    ctaBtn.appendChild(bolt);
+                }
                 ctaBtn.appendChild(document.createTextNode(rechargeLabel));
             }
         }
