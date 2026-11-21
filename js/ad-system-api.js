@@ -193,14 +193,15 @@
         home_banner: {
             allowVideo: false,
             maxImages: 6,
-            maxImageBytes: 512 * 1024,
+            maxImageBytes: 1024 * 1024,
             maxVideoBytes: 0,
-            /* WEB 横幅约 8:1；H5 约 15:4；亦兼容常见通栏比例 */
-            ratios: [[8, 1], [15, 4], [6, 1], [5, 1], [16, 5]],
+            /* 通栏矮条：宽高比 ≥ 2.5 即可；推荐 8:1 / 15:4 等 */
+            ratios: [[8, 1], [15, 4], [6, 1], [5, 1], [4, 1], [3, 1], [16, 5], [21, 9], [16, 9]],
+            minLandscapeRatio: 2.5,
             webSize: '1920×240（亦可 1200×150）',
             h5Size: '750×200',
             formatsLabel: 'JPG / PNG / WebP',
-            hint: '首页 Banner 仅支持图片，不可上传视频。格式 JPG/PNG/WebP；每张 ≤500KB；最多 6 张轮播。分辨率：WEB 推荐 1920×240（或 1200×150），H5 推荐 750×200；比例约 8:1 或 15:4。'
+            hint: '首页 Banner 仅支持图片，不可上传视频。格式 JPG/PNG/WebP；每张 ≤1MB；最多 6 张轮播。分辨率：WEB 推荐 1920×240（或 1200×150），H5 推荐 750×200；须为横向通栏（宽高比 ≥ 2.5）。'
         },
         live_room: {
             allowVideo: false,
@@ -264,9 +265,22 @@
         }
         if (isVideo && !rule.allowVideo) return fail('该广告位仅支持图片素材');
         var maxBytes = isVideo ? rule.maxVideoBytes : rule.maxImageBytes;
-        if (meta.sizeBytes && maxBytes && meta.sizeBytes > maxBytes) return fail('素材文件过大：' + rule.hint);
-        if (meta.width && meta.height && !aspectMatch(meta.width, meta.height, rule.ratios)) {
-            return fail('尺寸比例不符合要求（' + rule.hint + '）');
+        if (meta.sizeBytes && maxBytes && meta.sizeBytes > maxBytes) {
+            var sizeHint = maxBytes >= 1024 * 1024
+                ? (Math.round(maxBytes / (1024 * 1024)) + 'MB')
+                : (Math.round(maxBytes / 1024) + 'KB');
+            return fail((isVideo ? '视频过大，需 ≤' : '图片过大，需 ≤') + sizeHint);
+        }
+        if (meta.width && meta.height) {
+            var ratioOk = aspectMatch(meta.width, meta.height, rule.ratios);
+            if (!ratioOk && slotCode === 'home_banner' && rule.minLandscapeRatio) {
+                ratioOk = (meta.width / meta.height) >= rule.minLandscapeRatio;
+            }
+            if (!ratioOk) {
+                return fail(slotCode === 'home_banner'
+                    ? ('Banner 需为横向通栏图（宽÷高 ≥ ' + (rule.minLandscapeRatio || 2.5) + '，推荐 1920×240）')
+                    : ('尺寸比例不符合要求（' + rule.hint + '）'));
+            }
         }
         return ok({ hint: rule.hint, kind: isVideo ? 'video' : 'image' });
     }

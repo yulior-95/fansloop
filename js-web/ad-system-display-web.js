@@ -318,9 +318,8 @@
             slide.setAttribute('aria-label', '广告 ' + (ad.title || '品牌推广'));
             slide.innerHTML =
                 '<span class="tag">广告</span>' +
-                '<div class="ad-home-banner-inner">' +
-                '<div class="ad-home-banner-copy"><b>' + esc(ad.title || '品牌推广') + '</b></div>' +
-                '<div class="ad-home-banner-art" style="background-image:url(\'' + esc(coverOf(ad)) + '\')"></div>' +
+                '<div class="ad-home-banner-inner ad-home-banner-inner--full">' +
+                '<div class="ad-home-banner-art" role="img" aria-label="' + esc(ad.title || '品牌推广') + '" style="background-image:url(\'' + esc(coverOf(ad)) + '\')"></div>' +
                 '</div>';
             slide.addEventListener('click', function () { openLanding(ad); });
             wrap.appendChild(slide);

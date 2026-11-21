@@ -184,9 +184,8 @@
             el.setAttribute('aria-label', '广告 ' + (ad.title || ''));
             el.innerHTML =
                 '<span class="tag">广告</span>' +
-                '<div class="ad-home-banner-inner">' +
-                '<div class="ad-home-banner-copy"><b>' + (ad.title || '').replace(/</g, '&lt;') + '</b></div>' +
-                '<div class="ad-home-banner-art" style="background-image:url(\'' + coverOf(ad).replace(/'/g, '%27') + '\')"></div>' +
+                '<div class="ad-home-banner-inner ad-home-banner-inner--full">' +
+                '<div class="ad-home-banner-art" role="img" aria-label="' + (ad.title || '').replace(/"/g, '&quot;').replace(/</g, '&lt;') + '" style="background-image:url(\'' + coverOf(ad).replace(/'/g, '%27') + '\')"></div>' +
                 '</div>';
             el.onclick = function () {
                 if (window.FLAdService && FLAdService.recordClick) FLAdService.recordClick(ad.id);

@@ -134,6 +134,7 @@
         '</div>' +
         '<div class="ad-upload-preview" id="adMaterialPreview" hidden></div>' +
         '<button type="button" class="btn btn-secondary btn-sm ad-upload-change" id="adMaterialChange" hidden><i class="fa-solid fa-plus"></i> 继续添加图片</button>' +
+        '<button type="button" class="btn btn-secondary btn-sm ad-upload-demo" id="adMaterialDemo"><i class="fa-solid fa-flask"></i> 使用示例素材</button>' +
         '</div></div>' +
         '<div class="ad-step-actions"><button type="button" class="btn btn-secondary" data-prev>上一步</button><button type="button" class="btn btn-primary" data-next>下一步</button></div></section>' +
         '<section class="ad-step-panel" data-step="4">' +
@@ -185,14 +186,22 @@
 
     function loadScript(src) {
         return new Promise(function (resolve, reject) {
-            if (document.querySelector('script[src="' + src + '"]')) {
+            var existing = document.querySelector('script[src="' + src + '"]');
+            if (existing && existing.getAttribute('data-load-ok') === '1') {
                 resolve();
                 return;
             }
+            if (existing) existing.parentNode.removeChild(existing);
             var s = document.createElement('script');
             s.src = src;
-            s.onload = function () { resolve(); };
-            s.onerror = reject;
+            s.onload = function () {
+                s.setAttribute('data-load-ok', '1');
+                resolve();
+            };
+            s.onerror = function () {
+                if (s.parentNode) s.parentNode.removeChild(s);
+                reject(new Error('load failed: ' + src));
+            };
             document.body.appendChild(s);
         });
     }
@@ -201,7 +210,7 @@
         if (!document.querySelector('link[href*="ad-system.css"]')) {
             var link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = scriptBase() + 'css/ad-system.css?v=20261111preview';
+            link.href = scriptBase() + 'css/ad-system.css?v=20261121mat';
             document.head.appendChild(link);
         }
         if (!document.querySelector('link[href*="dev-glass-note"]')) {
@@ -232,7 +241,7 @@
         if (scriptsLoading) return scriptsLoading;
         var base = scriptBase();
         scriptsLoading = loadScript(base + 'js/ad-system-store.js?v=20261111paycreate')
-            .then(function () { return loadScript(base + 'js/ad-system-api.js?v=20261111expire'); })
+            .then(function () { return loadScript(base + 'js/ad-system-api.js?v=20261121fix'); })
             .then(function () { return loadScript(base + 'js/ad-center-promo-markup.js'); })
             .then(function () { return loadScript(base + 'js/ad-advertiser-terms.js'); })
             .then(function () { return loadScript(base + 'js/ad-advertiser-apply-markup.js'); })
@@ -243,10 +252,19 @@
                     return loadScript(base + 'js-web/dev-glass-viewport.js');
                 }
             })
-            .then(function () { return loadScript(base + 'js/ad-system-user.js?v=20261111opsflow'); })
+            .then(function () { return loadScript(base + 'js/ad-system-user.js?v=20261121fix'); })
             .then(function () { return loadScript(base + 'js/ad-settings-shell.js'); })
             .then(function () {
+                if (!global.FLAdStore || !global.FLAdService || !global.FLAdUser) {
+                    scriptsLoading = null;
+                    throw new Error('ad scripts missing globals');
+                }
                 scriptsLoaded = true;
+            })
+            .catch(function (err) {
+                scriptsLoading = null;
+                scriptsLoaded = false;
+                throw err;
             });
         return scriptsLoading;
     }

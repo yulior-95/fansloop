@@ -998,17 +998,17 @@
                 help.innerHTML =
                     '首页 Banner <strong>仅图片</strong>，不可上传视频。<br>' +
                     '格式：' + esc(rule.formatsLabel || 'JPG / PNG / WebP') +
-                    ' · 每张 ≤500KB · 最多 ' + materialMaxImages(slotCode) + ' 张（轮播）<br>' +
+                    ' · 每张 ≤1MB · 最多 ' + materialMaxImages(slotCode) + ' 张（轮播）<br>' +
                     '分辨率：WEB ' + esc(rule.webSize || '1920×240') +
                     ' · H5 ' + esc(rule.h5Size || '750×200') +
-                    '（按两端首页通栏位展示，过长图会裁切居中）';
+                    ' · 须为横向通栏（宽÷高 ≥ 2.5）';
             } else {
                 help.textContent = '观众实际看到的画面。图片可一次选多张；视频只能上传 1 个，且不可与图片混用。';
             }
         }
         if (formats) {
             if (slotCode === 'home_banner') {
-                formats.textContent = '仅图片 · JPG/PNG/WebP · ≤500KB · WEB 1920×240 / H5 750×200';
+                formats.textContent = '仅图片 · JPG/PNG/WebP · ≤1MB · 横向通栏（≥2.5:1）· WEB 1920×240 / H5 750×200';
             } else if (rule && rule.allowVideo) {
                 formats.textContent = '图片可多选（最多 ' + materialMaxImages(slotCode) + ' 张）· 视频仅 1 个';
             } else {
@@ -1221,16 +1221,58 @@
         renderBrandLogoPreview(draft);
     }
 
+    function useDemoMaterial(draft) {
+        var slotCode = currentSlotCode();
+        var demoUrl = slotCode === 'home_banner'
+            ? '../assets/ads/ad-banner-serum-ha.jpg'
+            : 'https://picsum.photos/seed/ad-feed-demo/720/1280';
+        var demoSize = slotCode === 'home_banner'
+            ? { w: 1200, h: 150 }
+            : { w: 720, h: 1280 };
+        var img = new Image();
+        img.onload = function () {
+            var meta = {
+                url: demoUrl,
+                mimeType: 'image/jpeg',
+                sizeBytes: 120 * 1024,
+                width: img.naturalWidth || demoSize.w,
+                height: img.naturalHeight || demoSize.h,
+                kind: 'image',
+                validated: true
+            };
+            var v = FLAdService.validateMaterial(slotCode, meta);
+            if (!v.ok) {
+                toast(v.message || '示例素材不符合当前广告位规范');
+                return;
+            }
+            draft.materials = [meta];
+            syncDraftMaterials(draft);
+            renderMaterialGallery(draft);
+            toast('已填入示例素材（原型）');
+        };
+        img.onerror = function () {
+            toast('示例素材加载失败');
+        };
+        img.src = demoUrl;
+    }
+
     function bindMaterialUpload(draft) {
         var input = qs('#adMaterialInput');
         var zone = qs('#adMaterialZone');
-        if (!input || input.getAttribute('data-bound') === '1') return;
+        if (!input || input.getAttribute('data-bound') === '1') {
+            renderMaterialGallery(draft);
+            return;
+        }
         input.setAttribute('data-bound', '1');
         if (!Array.isArray(draft.materials)) draft.materials = [];
 
         function openPicker(replaceAll) {
             input.setAttribute('data-replace-all', replaceAll ? '1' : '0');
-            input.click();
+            try {
+                input.click();
+            } catch (err) {
+                toast('无法打开文件选择器，请用下方「使用示例素材」');
+            }
         }
 
         if (zone) {
@@ -1247,6 +1289,12 @@
                     }
                     return;
                 }
+                if (e.target.closest('#adMaterialDemo')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    useDemoMaterial(draft);
+                    return;
+                }
                 if (e.target.closest('#adMaterialChange')) {
                     e.preventDefault();
                     var list = draft.materials || [];
@@ -1255,9 +1303,13 @@
                     openPicker(replace);
                     return;
                 }
-                if (e.target.closest('video') || e.target.closest('.ad-mat-thumb') || e.target.closest('.ad-upload-preview')) return;
+                /* 视频控件 / 缩略图本体不抢点击；预览空白区与占位区均可再次唤起选择器 */
+                if (e.target.closest('video') || e.target.closest('.ad-mat-remove')) return;
                 if (e.target === input) return;
-                openPicker(!(draft.materials && draft.materials.length));
+                var listNow = draft.materials || [];
+                var maxNow = materialMaxImages(currentSlotCode());
+                var replaceAll = !listNow.length || listNow[0].kind === 'video' || listNow.length >= maxNow;
+                openPicker(replaceAll);
             });
             zone.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter' || e.key === ' ') {
