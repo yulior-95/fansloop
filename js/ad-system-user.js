@@ -701,12 +701,23 @@
         });
     }
 
+    /** 套餐选项文案：信息流·7天·有效曝光次数100次——10USDT */
+    function formatPackageOptionLabel(p) {
+        if (!p) return '—';
+        var name = p.name;
+        if (!name || String(name).indexOf('有效曝光') < 0) {
+            var slotShort = p.slotCode === 'home_banner' ? '首页Banner' : (p.slotCode === 'live_room' ? '直播间' : '信息流');
+            name = slotShort + '·' + (p.durationDays || 7) + '天·有效曝光次数' + (p.effectiveImpressions || 0) + '次';
+        }
+        return name + '——' + p.priceUsdt + 'USDT';
+    }
+
     function populatePackages(slotCode) {
         var sel = qs('[name="packageId"]');
         if (!sel) return;
         var pkgs = FLAdStore.getPackages().filter(function (p) { return p.enabled && (!slotCode || p.slotCode === slotCode); });
         sel.innerHTML = pkgs.map(function (p) {
-            return '<option value="' + p.id + '">' + p.name + ' — ' + p.priceUsdt + ' USDT</option>';
+            return '<option value="' + p.id + '">' + formatPackageOptionLabel(p) + '</option>';
         }).join('');
         updatePackageMeta();
         sel.onchange = function () {
@@ -727,7 +738,8 @@
         if (!sel || !el) return;
         var p = FLAdService.getPackage(sel.value);
         if (!p) { el.textContent = ''; return; }
-        el.textContent = '固定套餐 · 投放 ' + p.durationDays + ' 天 · ' + slotLabel(p.slotCode) + ' · 一次支付 ' + p.priceUsdt + ' USDT';
+        el.textContent = '一口价套餐 · 投放 ' + p.durationDays + ' 天 · 有效曝光 ' + (p.effectiveImpressions || 0) +
+            ' 次（同用户多次只计 1 次）· ' + slotLabel(p.slotCode) + ' · 一次支付 ' + p.priceUsdt + ' USDT';
     }
 
     function renderPayConfirm(draft) {
@@ -744,8 +756,9 @@
             '<div class="ad-pay-card-hd"><i class="fa-solid fa-receipt" aria-hidden="true"></i><div><h4>确认支付</h4><p>支付成功后才会创建广告并提交审核</p></div></div>' +
             '<div class="ad-pay-rows">' +
             '<div class="ad-pay-row"><span>广告名称</span><strong>' + esc(name) + '</strong></div>' +
-            '<div class="ad-pay-row"><span>套餐</span><strong>' + esc(pkg ? pkg.name : '—') + '</strong></div>' +
+            '<div class="ad-pay-row"><span>套餐</span><strong>' + esc(pkg ? formatPackageOptionLabel(pkg) : '—') + '</strong></div>' +
             '<div class="ad-pay-row"><span>投放天数</span><strong>' + esc(pkg ? (pkg.durationDays + ' 天') : '—') + '</strong></div>' +
+            '<div class="ad-pay-row"><span>有效曝光</span><strong>' + esc(pkg ? ((pkg.effectiveImpressions || 0) + ' 次') : '—') + '</strong></div>' +
             '<div class="ad-pay-row ad-pay-row--price"><span>应付金额</span><strong>' + esc(String(price)) + ' <small>USDT</small></strong></div>' +
             '</div>' +
             '<div class="ad-pay-balance">' +
@@ -890,12 +903,21 @@
         if (urlField) urlField.hidden = isCreator;
     }
 
+    /** 按广告位显隐：信息流要标题/文案/LOGO；首页 Banner 全隐藏（通栏图即可） */
     function syncCopyField() {
-        var field = qs('#adCopyField');
-        var copyEl = qs('#adFCopy') || qs('[name="copy"]');
         var isFeed = currentSlotCode() === 'feed_video';
-        if (field) field.hidden = !isFeed;
-        if (!isFeed && copyEl) copyEl.value = '';
+        var titleField = qs('#adTitleField');
+        var titleEl = qs('#adFTitle') || qs('[name="title"]');
+        var copyField = qs('#adCopyField');
+        var copyEl = qs('#adFCopy') || qs('[name="copy"]');
+        var logoField = qs('#adBrandLogoField');
+        if (titleField) titleField.hidden = !isFeed;
+        if (copyField) copyField.hidden = !isFeed;
+        if (logoField) logoField.hidden = !isFeed;
+        if (!isFeed) {
+            if (titleEl) titleEl.value = '';
+            if (copyEl) copyEl.value = '';
+        }
     }
 
     /** 创编步骤 2：按广告位切换 WEB / H5 展示样式示意 */
@@ -1457,7 +1479,8 @@
             clearFieldErrors();
             form.querySelectorAll('.ad-step-panel').forEach(function (p) { p.classList.toggle('on', Number(p.getAttribute('data-step')) === n); });
             document.querySelectorAll('.ad-wizard-steps span').forEach(function (s) { s.classList.toggle('on', Number(s.getAttribute('data-step')) <= n); });
-            if (n === 3) syncCopyField();
+            if (n === 1) syncSlotStylePreview();
+            if (n === 2 || n === 3) syncCopyField();
             if (n === 4) syncScheduleEndFromPackage();
             if (n === 5) renderPayConfirm(draft);
         }
@@ -1469,12 +1492,6 @@
         function validateStep(n) {
             clearFieldErrors();
             if (n === 1) {
-                if (!requireField('[name="name"]', '请填写广告名称')) return false;
-                if (!requireField('[name="type"]', '请选择广告类型')) return false;
-                if (!requireField('[name="title"]', '请填写对外标题')) return false;
-                return true;
-            }
-            if (n === 2) {
                 if (!requireField('[name="slotCode"]', '请选择投放位置')) return false;
                 if (!requireField('[name="landingType"]', '请选择用户点广告后去哪')) return false;
                 var landingType = (qs('[name="landingType"]') || {}).value || 'creator';
@@ -1507,15 +1524,32 @@
                 }
                 return true;
             }
+            if (n === 2) {
+                syncCopyField();
+                if (!requireField('[name="name"]', '请填写广告名称')) return false;
+                if (!requireField('[name="type"]', '请选择广告类型')) return false;
+                if (currentSlotCode() === 'feed_video') {
+                    if (!requireField('[name="title"]', '请填写对外标题')) return false;
+                } else {
+                    var titleEl = qs('#adFTitle') || qs('[name="title"]');
+                    if (titleEl) titleEl.value = '';
+                }
+                return true;
+            }
             if (n === 3) {
                 syncCopyField();
-                if (currentSlotCode() === 'feed_video') {
+                var isFeed = currentSlotCode() === 'feed_video';
+                if (isFeed) {
                     if (!requireField('[name="copy"]', '请填写信息流文案')) return false;
-                }
-                if (!draft.brandLogoUrl) {
-                    markFieldInvalid(qs('#adBrandLogoRow'));
-                    toast('请上传品牌头像 / LOGO');
-                    return false;
+                    if (!draft.brandLogoUrl) {
+                        markFieldInvalid(qs('#adBrandLogoRow') || qs('#adBrandLogoField'));
+                        toast('请上传品牌头像 / LOGO');
+                        return false;
+                    }
+                } else {
+                    draft.brandLogoUrl = '';
+                    draft.brandLogoMeta = null;
+                    draft.title = '';
                 }
                 syncDraftMaterials(draft);
                 if (!(draft.materials && draft.materials.length && draft.materialMeta && draft.materialMeta.validated)) {
@@ -1913,11 +1947,11 @@
             '<div><span>排期</span><strong>' + esc(fmtDateRange(ad.startAt, ad.endAt)) + '</strong></div>' +
             '<div><span>广告位</span><strong>' + esc(slotName(ad.slotCode)) + '</strong></div>' +
             '<div><span>落地</span><strong>' + esc(ad.landingType === 'creator' || ad.landingType === 'live' ? '主播主页' : (ad.landingType === 'external' ? '外部网页' : (ad.landingType || '—'))) + '</strong></div>' +
-            '<div><span>对外标题</span><strong>' + esc(ad.title || '—') + '</strong></div>' +
             (ad.slotCode === 'home_banner'
-                ? (ad.copy
-                    ? '<div><span>信息流文案</span><strong>' + esc(ad.copy) + '</strong></div>'
-                    : '<div><span>信息流文案</span><strong class="ad-muted">Banner 位不展示文案</strong></div>')
+                ? '<div><span>对外标题</span><strong class="ad-muted">Banner 位不展示标题</strong></div>'
+                : '<div><span>对外标题</span><strong>' + esc(ad.title || '—') + '</strong></div>') +
+            (ad.slotCode === 'home_banner'
+                ? '<div><span>信息流文案</span><strong class="ad-muted">Banner 位不展示文案</strong></div>'
                 : '<div><span>信息流文案</span><strong>' + esc(ad.copy || '—') + '</strong></div>') +
             '</div></div>' +
             orderHtml +
@@ -1928,20 +1962,24 @@
                 ? '驳回后可改素材文案；若要换套餐，原订单（未开投）将退回余额并当场扣新套餐款，成功后可再提审。'
                 : '已通过的广告须先暂停再改；修改标题/文案后需重新审核。') +
             '</p>' +
-            '<div class="ad-field"><label>品牌头像 / LOGO</label>' +
-            '<p class="ad-muted ad-field-help">信息流顶栏展示；正方形 JPG / PNG / WebP，边长 ≥ 200px</p>' +
-            '<div class="ad-brand-logo-row" id="adEditBrandLogoRow">' +
-            '<div class="ad-brand-logo-preview' + (ad.brandLogoUrl ? ' has-logo' : '') + '" id="adEditBrandLogoPreview"' +
-            (ad.brandLogoUrl ? ' style="background-image:url(\'' + esc(ad.brandLogoUrl).replace(/'/g, '%27') + '\')"' : '') + '>' +
-            (ad.brandLogoUrl ? '' : '<i class="fa-regular fa-image"></i>') + '</div>' +
-            '<div class="ad-brand-logo-actions">' +
-            '<input type="file" id="adEditBrandLogoInput" accept="image/jpeg,image/png,image/webp" hidden>' +
-            '<button type="button" class="btn btn-secondary btn-sm" id="adEditBrandLogoPick"><i class="fa-solid fa-upload"></i> 更换 LOGO</button>' +
-            '</div></div></div>' +
-            '<div class="ad-field"><label for="adEditTitle">对外标题</label>' +
-            '<input id="adEditTitle" type="text" maxlength="80" value="' + esc(ad.title || '') + '" autocomplete="off"></div>' +
-            '<div class="ad-field"><label for="adEditCopy">文案</label>' +
-            '<textarea id="adEditCopy" rows="3" maxlength="500" placeholder="信息流文案；Banner 可留空">' + esc(ad.copy || '') + '</textarea></div>' +
+            (ad.slotCode === 'feed_video'
+                ? '<div class="ad-field" id="adEditBrandLogoField"><label>品牌头像 / LOGO</label>' +
+                  '<p class="ad-muted ad-field-help">信息流顶栏展示；正方形 JPG / PNG / WebP，边长 ≥ 200px</p>' +
+                  '<div class="ad-brand-logo-row" id="adEditBrandLogoRow">' +
+                  '<div class="ad-brand-logo-preview' + (ad.brandLogoUrl ? ' has-logo' : '') + '" id="adEditBrandLogoPreview"' +
+                  (ad.brandLogoUrl ? ' style="background-image:url(\'' + esc(ad.brandLogoUrl).replace(/'/g, '%27') + '\')"' : '') + '>' +
+                  (ad.brandLogoUrl ? '' : '<i class="fa-regular fa-image"></i>') + '</div>' +
+                  '<div class="ad-brand-logo-actions">' +
+                  '<input type="file" id="adEditBrandLogoInput" accept="image/jpeg,image/png,image/webp" hidden>' +
+                  '<button type="button" class="btn btn-secondary btn-sm" id="adEditBrandLogoPick"><i class="fa-solid fa-upload"></i> 更换 LOGO</button>' +
+                  '</div></div></div>'
+                : '') +
+            (ad.slotCode === 'feed_video'
+                ? '<div class="ad-field"><label for="adEditTitle">对外标题</label>' +
+                  '<input id="adEditTitle" type="text" maxlength="80" value="' + esc(ad.title || '') + '" autocomplete="off"></div>' +
+                  '<div class="ad-field"><label for="adEditCopy">文案</label>' +
+                  '<textarea id="adEditCopy" rows="3" maxlength="500" placeholder="信息流文案">' + esc(ad.copy || '') + '</textarea></div>'
+                : '') +
             (ad.landingType === 'external'
                 ? '<div class="ad-field"><label for="adEditUrl">落地页链接</label>' +
                   '<input id="adEditUrl" type="url" value="' + esc(ad.landingUrl || '') + '" placeholder="https://" autocomplete="off"></div>'
@@ -2036,7 +2074,7 @@
                 var curPkg = ad.packageId || '';
                 pkgSel.innerHTML = pkgs.map(function (p) {
                     return '<option value="' + esc(p.id) + '"' + (p.id === curPkg ? ' selected' : '') + '>' +
-                        esc(p.name) + ' · ' + p.priceUsdt + ' USDT · ' + p.durationDays + ' 天</option>';
+                        esc(formatPackageOptionLabel(p)) + '</option>';
                 }).join('');
                 enhanceAdSelect(pkgSel);
             }
@@ -2049,7 +2087,8 @@
             }
             try { panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) { /* ignore */ }
             var titleInput = qs('#adEditTitle');
-            if (titleInput) titleInput.focus();
+            var focusEl = titleInput || qs('#adEditUrl') || qs('#adEditPkg');
+            if (focusEl) focusEl.focus();
         });
         qs('#adEditCancel') && (qs('#adEditCancel').onclick = function () {
             var panel = qs('#adEditPanel');
@@ -2067,7 +2106,7 @@
             var startEl = qs('#adEditStart');
             var title = titleEl ? String(titleEl.value || '').trim() : '';
             var copy = copyEl ? String(copyEl.value || '').trim() : '';
-            if (!title) { toast('请填写对外标题'); return; }
+            if (live.slotCode === 'feed_video' && !title) { toast('请填写对外标题'); return; }
             var packageSwapped = false;
             var canChangePkg = live.auditStatus === 'rejected' || live.auditStatus === 'draft' || live.auditStatus === 'none';
             if (pkgEl && canChangePkg) {
@@ -2095,8 +2134,17 @@
                     live = FLAdStore.getAd(id) || live;
                 }
             }
-            if (!editBrandLogoUrl) { toast('请上传品牌头像 / LOGO'); return; }
-            var patch = { title: title, copy: copy, brandLogoUrl: editBrandLogoUrl };
+            if (live.slotCode === 'feed_video' && !editBrandLogoUrl) { toast('请上传品牌头像 / LOGO'); return; }
+            var patch = {};
+            if (live.slotCode === 'feed_video') {
+                patch.title = title;
+                patch.copy = copy;
+                patch.brandLogoUrl = editBrandLogoUrl;
+            } else {
+                patch.title = '';
+                patch.copy = '';
+                patch.brandLogoUrl = '';
+            }
             if (urlEl) patch.landingUrl = String(urlEl.value || '').trim();
             var r = FLAdService.updateAdContent(id, patch);
             if (!r.ok) { toast(r.message || '保存失败'); return; }

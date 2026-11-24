@@ -137,10 +137,10 @@
     }
 
     var DEMO_CATALOG_VERSION = 7;
-    /** 旧演示广告补齐套餐字段，与用户下单模型对齐 */
-    var DEMO_PACKAGE_MODEL_VERSION = 1;
+    /** 旧演示广告补齐套餐字段；v2 = 天数 + 有效曝光次数一口价 */
+    var DEMO_PACKAGE_MODEL_VERSION = 2;
     /** 首页可展示的投放中样例（信息流 + Banner） */
-    var DEMO_HOME_AD_SHOWCASE_VERSION = 14;
+    var DEMO_HOME_AD_SHOWCASE_VERSION = 15;
     /** 上架审核与投放状态自洽 + 双轨审核口径 */
     var DEMO_AUDIT_CONSISTENCY_VERSION = 2;
     /** 演示账号 U102938 默认「未申请广告主」；升级后从旧 localStorage 移除其资质记录 */
@@ -162,9 +162,9 @@
         var types = ['品牌曝光', '活动推广', '直播引流', '应用推广'];
         var slots = ['feed_video', 'home_banner', 'live_room'];
         var pkgBySlot = {
-            feed_video: { id: 'PKG-FEED-7', name: '信息流 · 7 天', days: 7, price: 199 },
-            home_banner: { id: 'PKG-BANNER-7', name: '首页 Banner · 7 天', days: 7, price: 399 },
-            live_room: { id: 'PKG-LIVE-7', name: '直播间推广 · 7 天', days: 7, price: 499 }
+            feed_video: { id: 'PKG-FEED-7', name: '信息流·7天·有效曝光次数100次', days: 7, impressions: 100, price: 10 },
+            home_banner: { id: 'PKG-BANNER-7', name: '首页Banner·7天·有效曝光次数500次', days: 7, impressions: 500, price: 39 },
+            live_room: { id: 'PKG-LIVE-7', name: '直播间·7天·有效曝光次数200次', days: 7, impressions: 200, price: 49 }
         };
             /* 上架审核与投放状态必须自洽：已下架/已结束不可仍为待审核；未提交≠草稿展示 */
             var audits = ['approved', 'approved', 'pending_review', 'pending_review', 'none', 'rejected', 'approved', 'approved'];
@@ -321,13 +321,13 @@
 
     function seed() {
         var packages = [
-            { id: 'PKG-FEED-7', slotCode: 'feed_video', name: '信息流 · 7 天', durationDays: 7, priceUsdt: 199, enabled: true, version: 1 },
-            { id: 'PKG-FEED-30', slotCode: 'feed_video', name: '信息流 · 30 天', durationDays: 30, priceUsdt: 699, enabled: true, version: 1 },
-            { id: 'PKG-BANNER-7', slotCode: 'home_banner', name: '首页 Banner · 7 天', durationDays: 7, priceUsdt: 399, enabled: true, version: 1 },
-            { id: 'PKG-LIVE-7', slotCode: 'live_room', name: '直播间推广 · 7 天', durationDays: 7, priceUsdt: 499, enabled: true, version: 1 },
-            { id: 'PKG-BANNER-30', slotCode: 'home_banner', name: '首页 Banner · 30 天', durationDays: 30, priceUsdt: 1299, enabled: true, version: 1 },
-            { id: 'PKG-LIVE-30', slotCode: 'live_room', name: '直播间推广 · 30 天', durationDays: 30, priceUsdt: 1599, enabled: false, version: 1 },
-            { id: 'PKG-FEED-14', slotCode: 'feed_video', name: '信息流 · 14 天', durationDays: 14, priceUsdt: 349, enabled: true, version: 1 }
+            { id: 'PKG-FEED-7', slotCode: 'feed_video', name: '信息流·7天·有效曝光次数100次', durationDays: 7, effectiveImpressions: 100, priceUsdt: 10, enabled: true, version: 2 },
+            { id: 'PKG-FEED-14', slotCode: 'feed_video', name: '信息流·14天·有效曝光次数300次', durationDays: 14, effectiveImpressions: 300, priceUsdt: 25, enabled: true, version: 2 },
+            { id: 'PKG-FEED-30', slotCode: 'feed_video', name: '信息流·30天·有效曝光次数1000次', durationDays: 30, effectiveImpressions: 1000, priceUsdt: 69, enabled: true, version: 2 },
+            { id: 'PKG-BANNER-7', slotCode: 'home_banner', name: '首页Banner·7天·有效曝光次数500次', durationDays: 7, effectiveImpressions: 500, priceUsdt: 39, enabled: true, version: 2 },
+            { id: 'PKG-BANNER-30', slotCode: 'home_banner', name: '首页Banner·30天·有效曝光次数2000次', durationDays: 30, effectiveImpressions: 2000, priceUsdt: 119, enabled: true, version: 2 },
+            { id: 'PKG-LIVE-7', slotCode: 'live_room', name: '直播间·7天·有效曝光次数200次', durationDays: 7, effectiveImpressions: 200, priceUsdt: 49, enabled: true, version: 2 },
+            { id: 'PKG-LIVE-30', slotCode: 'live_room', name: '直播间·30天·有效曝光次数800次', durationDays: 30, effectiveImpressions: 800, priceUsdt: 149, enabled: false, version: 2 }
         ];
         return {
             version: 2,
@@ -1076,8 +1076,11 @@
             banner.brandLogoUrl = 'https://images.unsplash.com/photo-1620916562616-fb8c11a6f5d6?auto=format&fit=crop&w=200&h=200&q=80';
             banner.materialUrl = '../assets/ads/ad-banner-serum-ha.jpg';
             banner.materialType = 'image';
+            /* 多图轮播：本地首帧 + 补充横幅样例 */
             banner.materials = [
-                { type: 'image', url: '../assets/ads/ad-banner-serum-ha.jpg' }
+                { type: 'image', url: '../assets/ads/ad-banner-serum-ha.jpg' },
+                { type: 'image', url: 'https://picsum.photos/seed/ad-banner-serum-2/1920/240' },
+                { type: 'image', url: 'https://picsum.photos/seed/ad-banner-serum-3/1920/240' }
             ];
             banner.landingType = 'external';
             banner.landingUrl = 'https://goodfans.io/campaign/skincare-serum';
@@ -1098,7 +1101,8 @@
             banner2.materialUrl = 'https://picsum.photos/seed/ad-banner-member-day/1200/150';
             banner2.materialType = 'image';
             banner2.materials = [
-                { type: 'image', url: 'https://picsum.photos/seed/ad-banner-member-day/1200/150' }
+                { type: 'image', url: 'https://picsum.photos/seed/ad-banner-member-day/1200/150' },
+                { type: 'image', url: 'https://picsum.photos/seed/ad-banner-member-day-b/1200/150' }
             ];
             banner2.landingType = 'external';
             banner2.landingUrl = 'https://goodfans.io/campaign/member-day';
@@ -1144,9 +1148,44 @@
         return data;
     }
 
-    /** 旧演示广告补齐套餐 / 排期，并与订单字段对齐（用户侧创建的广告已有这些字段） */
+    /** 标准套餐目录（天数 + 有效曝光次数一口价） */
+    function catalogPackages() {
+        return [
+            { id: 'PKG-FEED-7', slotCode: 'feed_video', name: '信息流·7天·有效曝光次数100次', durationDays: 7, effectiveImpressions: 100, priceUsdt: 10, enabled: true, version: 2 },
+            { id: 'PKG-FEED-14', slotCode: 'feed_video', name: '信息流·14天·有效曝光次数300次', durationDays: 14, effectiveImpressions: 300, priceUsdt: 25, enabled: true, version: 2 },
+            { id: 'PKG-FEED-30', slotCode: 'feed_video', name: '信息流·30天·有效曝光次数1000次', durationDays: 30, effectiveImpressions: 1000, priceUsdt: 69, enabled: true, version: 2 },
+            { id: 'PKG-BANNER-7', slotCode: 'home_banner', name: '首页Banner·7天·有效曝光次数500次', durationDays: 7, effectiveImpressions: 500, priceUsdt: 39, enabled: true, version: 2 },
+            { id: 'PKG-BANNER-30', slotCode: 'home_banner', name: '首页Banner·30天·有效曝光次数2000次', durationDays: 30, effectiveImpressions: 2000, priceUsdt: 119, enabled: true, version: 2 },
+            { id: 'PKG-LIVE-7', slotCode: 'live_room', name: '直播间·7天·有效曝光次数200次', durationDays: 7, effectiveImpressions: 200, priceUsdt: 49, enabled: true, version: 2 },
+            { id: 'PKG-LIVE-30', slotCode: 'live_room', name: '直播间·30天·有效曝光次数800次', durationDays: 30, effectiveImpressions: 800, priceUsdt: 149, enabled: false, version: 2 }
+        ];
+    }
+
+    /** 旧演示广告补齐套餐 / 排期；v2 起同步有效曝光字段 */
     function applyPackageModelMigration(data) {
         if (!data || (data.demoPackageModelVersion || 0) >= DEMO_PACKAGE_MODEL_VERSION) return data;
+        var catalog = catalogPackages();
+        var catalogById = {};
+        catalog.forEach(function (p) { catalogById[p.id] = p; });
+        /* 用标准目录覆盖同 ID 套餐，保留运营自定义额外套餐 */
+        var merged = [];
+        var seen = {};
+        catalog.forEach(function (p) {
+            merged.push(Object.assign({}, p));
+            seen[p.id] = 1;
+        });
+        (data.packages || []).forEach(function (p) {
+            if (!p || !p.id || seen[p.id]) return;
+            if (p.effectiveImpressions == null) p.effectiveImpressions = Math.max(50, (Number(p.durationDays) || 7) * 20);
+            if (p.name && p.name.indexOf('有效曝光') < 0) {
+                var slotShort = p.slotCode === 'home_banner' ? '首页Banner' : (p.slotCode === 'live_room' ? '直播间' : '信息流');
+                p.name = slotShort + '·' + (p.durationDays || 7) + '天·有效曝光次数' + p.effectiveImpressions + '次';
+            }
+            merged.push(p);
+            seen[p.id] = 1;
+        });
+        data.packages = merged;
+
         var pkgs = data.packages || [];
         var pkgById = {};
         var pkgBySlot = {};
@@ -1159,6 +1198,13 @@
             if (!o || !o.adId) return;
             if (!ordersByAd[o.adId]) ordersByAd[o.adId] = [];
             ordersByAd[o.adId].push(o);
+            if (o.packageId && catalogById[o.packageId]) {
+                var cp = catalogById[o.packageId];
+                if (o.effectiveImpressions == null) o.effectiveImpressions = cp.effectiveImpressions;
+                if (o.packageName && o.packageName.indexOf('有效曝光') < 0) o.packageName = cp.name;
+            } else if (o.effectiveImpressions == null) {
+                o.effectiveImpressions = Math.max(50, (Number(o.durationDays) || 7) * 20);
+            }
         });
         (data.ads || []).forEach(function (ad) {
             var ordList = ordersByAd[ad.id] || [];
@@ -1178,8 +1224,12 @@
                 ad.priceUsdt = fallback.priceUsdt;
             }
             if (ad.packageId && pkgById[ad.packageId]) {
-                if (!ad.packageName) ad.packageName = pkgById[ad.packageId].name;
-                if (ad.priceUsdt == null) ad.priceUsdt = pkgById[ad.packageId].priceUsdt;
+                var pkg = pkgById[ad.packageId];
+                ad.packageName = pkg.name;
+                if (ad.priceUsdt == null) ad.priceUsdt = pkg.priceUsdt;
+                if (ad.effectiveImpressions == null) ad.effectiveImpressions = pkg.effectiveImpressions;
+            } else if (ad.effectiveImpressions == null && ad.source !== 'platform') {
+                ad.effectiveImpressions = Math.max(50, 100);
             }
             if (ad.auditStatus !== 'rejected') ad.rejectReason = '';
             if (!ad.billing || ad.billing === 'cpm') ad.billing = ad.source === 'platform' ? 'ops' : 'package';

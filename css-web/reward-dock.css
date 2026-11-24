@@ -1,267 +1,239 @@
-/* Web · 积分奖励悬浮气泡（可拖拽 / 侧边收起） */
+/* Web · 积分悬浮球（对齐 H5 .reward-ball：紧凑圆环 + 内芯倒计时） */
 .reward-dock {
-    --rd-h: 64px;
+    --rd-size: 52px;
+    --rd-progress: 100;
     position: fixed;
     z-index: 10050;
     box-sizing: border-box;
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 10px;
-    height: var(--rd-h);
-    min-height: var(--rd-h);
-    max-height: var(--rd-h);
-    padding: 0 10px 0 8px;
-    background: rgba(17, 17, 28, 0.94);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(251, 191, 36, 0.38);
-    border-radius: 999px;
-    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45), 0 0 28px rgba(245, 158, 11, 0.18);
+    width: var(--rd-size);
+    height: var(--rd-size);
+    min-width: var(--rd-size);
+    min-height: var(--rd-size);
+    max-width: var(--rd-size);
+    max-height: var(--rd-size);
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    box-shadow: none;
     cursor: grab;
-    text-align: left;
     color: #fff;
-    width: max-content;
-    max-width: min(340px, calc(100vw - 24px));
-    overflow: hidden;
+    overflow: visible;
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
-    transition: box-shadow 0.15s, border-color 0.15s;
     will-change: left, top;
-    line-height: 1.2;
+    line-height: 1;
     font-size: 12px;
+    animation: rdFloatIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    transition: left 0.28s cubic-bezier(0.22, 0.61, 0.36, 1), top 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
-html[data-fl-theme="light"] .reward-dock {
-    background: rgba(255, 255, 255, 0.96);
-    border-color: rgba(180, 83, 9, 0.35);
-    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14), 0 0 20px rgba(245, 158, 11, 0.12);
-    color: #0F172A;
+@keyframes rdFloatIn {
+    from { transform: translateY(12px) scale(0.85); opacity: 0; }
+    to   { transform: translateY(0) scale(1); opacity: 1; }
 }
 .reward-dock:active { cursor: grabbing; }
 .reward-dock.is-dragging {
     transition: none;
-    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.55), 0 0 32px rgba(245, 158, 11, 0.28);
+    transform: scale(1.04);
 }
-html[data-fl-theme="light"] .reward-dock.is-dragging {
-    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.2), 0 0 24px rgba(245, 158, 11, 0.18);
+.reward-dock:active:not(.is-dragging) {
+    transform: scale(0.92);
+    transition: transform 0.12s;
 }
-.reward-dock:hover {
-    border-color: rgba(251, 191, 36, 0.55);
-}
-html[data-fl-theme="light"] .reward-dock:hover {
-    border-color: rgba(180, 83, 9, 0.5);
-}
+
+/* 细进度环 · 对齐 H5 .rb-ring */
 .reward-dock .rd-ring {
+    position: absolute;
+    inset: 0;
     box-sizing: border-box;
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-    min-height: 48px;
-    aspect-ratio: 1 / 1;
     border-radius: 50%;
-    flex: 0 0 48px;
-    --rd-progress: 100;
+    width: auto;
+    height: auto;
+    min-width: 0;
+    min-height: 0;
+    flex: none;
+    padding: 0;
+    overflow: hidden;
     background: conic-gradient(
         from -90deg,
         #fbbf24 0%,
         #f59e0b calc(var(--rd-progress) * 1%),
-        rgba(255, 255, 255, 0.12) calc(var(--rd-progress) * 1%)
+        rgba(255, 255, 255, 0.14) calc(var(--rd-progress) * 1%)
     );
-    padding: 3px;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    isolation: isolate;
+    mask: radial-gradient(circle, transparent 68%, #000 70%);
+    -webkit-mask: radial-gradient(circle, transparent 68%, #000 70%);
+    pointer-events: none;
 }
 html[data-fl-theme="light"] .reward-dock .rd-ring {
     background: conic-gradient(
         from -90deg,
         #f59e0b 0%,
         #d97706 calc(var(--rd-progress) * 1%),
-        rgba(15, 23, 42, 0.12) calc(var(--rd-progress) * 1%)
+        rgba(15, 23, 42, 0.14) calc(var(--rd-progress) * 1%)
     );
 }
-.reward-dock .rd-ring::after {
-    content: '';
-    position: absolute;
-    inset: 3px;
-    border-radius: 50%;
-    background: linear-gradient(145deg, #fef3c7, #f59e0b 50%, #b45309);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
-    z-index: 0;
-    pointer-events: none;
+.reward-dock .rd-ring::after,
+.reward-dock .rd-ring::before {
+    content: none !important;
+    display: none !important;
 }
 .reward-dock .rd-ring > i,
 .reward-dock .rd-ring .rd-ring-ic {
-    position: relative;
-    z-index: 1;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-    font-size: 16px;
-    line-height: 1;
-    color: #78350f;
-    font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro", sans-serif;
-    font-weight: 900;
-    font-style: normal;
-    -webkit-font-smoothing: antialiased;
-    pointer-events: none;
+    display: none !important;
 }
-html[data-fl-theme="light"] .reward-dock .rd-ring > i,
-html[data-fl-theme="light"] .reward-dock .rd-ring .rd-ring-ic {
-    color: #92400e;
-}
-.reward-dock .rd-ring:not(:has(i))::before {
-    content: '\f51e';
-    position: relative;
-    z-index: 1;
-    font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro", sans-serif;
-    font-weight: 900;
-    font-size: 16px;
-    line-height: 1;
-    color: #78350f;
-    pointer-events: none;
-}
-html[data-fl-theme="light"] .reward-dock .rd-ring:not(:has(i))::before {
-    color: #92400e;
-}
-.reward-dock .rd-txt {
-    flex: 1 1 auto;
-    min-width: 0;
-    max-width: 210px;
+
+/* 内芯 · 对齐 H5 .rb-core */
+.reward-dock .rd-core {
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: rgba(12, 12, 18, 0.78);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(251, 191, 36, 0.28);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: center;
-    gap: 2px;
-    padding: 2px 0;
-    overflow: hidden;
+    gap: 0;
+    line-height: 1;
+    transition: inset 0.2s ease, opacity 0.2s ease, border-color 0.15s;
+    z-index: 1;
 }
-.reward-dock .rd-txt .lb {
-    font-size: 10px;
+html[data-fl-theme="light"] .reward-dock .rd-core {
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(180, 83, 9, 0.32);
+    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.14);
+    color: #0f172a;
+}
+.reward-dock .rd-core .coin-icon,
+.reward-dock .rd-core > i,
+.reward-dock .rd-core > svg {
+    width: 14px;
+    height: 14px;
+    min-width: 14px;
+    min-height: 14px;
+    font-size: 14px;
+    color: #fbbf24;
+    stroke: #fbbf24;
+    margin-bottom: 2px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+html[data-fl-theme="light"] .reward-dock .rd-core .coin-icon,
+html[data-fl-theme="light"] .reward-dock .rd-core > i,
+html[data-fl-theme="light"] .reward-dock .rd-core > svg {
+    color: #d97706;
+    stroke: #d97706;
+}
+.reward-dock .rd-countdown,
+.reward-dock .rd-core .tm,
+.reward-dock #rewardTime {
+    font-size: 9px;
     font-weight: 700;
-    color: #fde68a;
-    letter-spacing: 0.3px;
-    line-height: 1.1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-html[data-fl-theme="light"] .reward-dock .rd-txt .lb {
-    color: #92400e;
-}
-.reward-dock .rd-txt .tm {
-    font-size: 18px;
-    font-weight: 900;
+    color: rgba(255, 255, 255, 0.72);
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.4px;
-    line-height: 1.1;
+    letter-spacing: 0;
+    line-height: 1;
     margin: 0;
     white-space: nowrap;
-    color: inherit;
 }
-.reward-dock .rd-hint {
-    font-size: 10px;
-    color: var(--t-tertiary, #94a3b8);
-    margin: 0;
-    line-height: 1.15;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-html[data-fl-theme="light"] .reward-dock .rd-hint {
+html[data-fl-theme="light"] .reward-dock .rd-countdown,
+html[data-fl-theme="light"] .reward-dock .rd-core .tm,
+html[data-fl-theme="light"] .reward-dock #rewardTime {
     color: #64748b;
 }
+
+/* 旧版宽胶囊文案：隐藏，避免残留 */
+.reward-dock .rd-txt,
+.reward-dock .rd-hint {
+    display: none !important;
+}
+
+/* 收起按钮：贴在球外侧的小箭头（Web 桌面保留） */
 .reward-dock .rd-fold {
+    position: absolute;
+    top: 50%;
+    right: -2px;
+    transform: translate(70%, -50%);
     box-sizing: border-box;
-    flex: 0 0 28px;
-    width: 28px;
-    height: 28px;
-    min-width: 28px;
-    min-height: 28px;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
     margin: 0;
     padding: 0;
     border: 0;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(12, 12, 18, 0.88);
+    border: 1px solid rgba(251, 191, 36, 0.35);
     color: #fde68a;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
+    font-size: 9px;
     line-height: 1;
+    z-index: 2;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, background 0.15s;
+}
+.reward-dock:hover .rd-fold,
+.reward-dock:focus-within .rd-fold {
+    opacity: 1;
+    pointer-events: auto;
+}
+.reward-dock.is-side-left .rd-fold {
+    right: auto;
+    left: -2px;
+    transform: translate(-70%, -50%);
 }
 html[data-fl-theme="light"] .reward-dock .rd-fold {
-    background: rgba(146, 64, 14, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(180, 83, 9, 0.35);
     color: #92400e;
 }
 .reward-dock .rd-fold:hover {
-    background: rgba(251, 191, 36, 0.2);
-}
-html[data-fl-theme="light"] .reward-dock .rd-fold:hover {
-    background: rgba(245, 158, 11, 0.22);
+    background: rgba(251, 191, 36, 0.22);
 }
 
-/* 收起到侧边：只露圆形进度环，保持正圆 */
+/* 收起到侧边：只露半圆，环淡出 */
 .reward-dock.is-collapsed {
-    gap: 0;
-    width: 56px;
-    min-width: 56px;
-    max-width: 56px;
-    height: 56px;
-    min-height: 56px;
-    max-height: 56px;
-    padding: 4px;
-    justify-content: center;
+    width: var(--rd-size);
+    height: var(--rd-size);
 }
-.reward-dock.is-collapsed .rd-txt,
 .reward-dock.is-collapsed .rd-fold {
     display: none !important;
 }
 .reward-dock.is-collapsed .rd-ring {
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-    min-height: 48px;
-    flex: 0 0 48px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+.reward-dock.is-collapsed .rd-core {
+    inset: 6px;
+    opacity: 0.92;
 }
 .reward-dock.is-collapsed.is-side-right {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    border-right: 0;
-    padding-right: 0;
+    border-radius: 50%;
 }
 .reward-dock.is-collapsed.is-side-left {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    border-left: 0;
-    padding-left: 0;
+    border-radius: 50%;
 }
 
 .reward-dock.wait-payout .rd-ring {
     animation: rdRingPulse 1.2s ease-in-out infinite;
 }
-.reward-dock.just-paid {
+.reward-dock.just-paid .rd-core {
     border-color: rgba(52, 211, 153, 0.55);
-    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45), 0 0 32px rgba(52, 211, 153, 0.25);
-}
-html[data-fl-theme="light"] .reward-dock.just-paid {
-    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12), 0 0 24px rgba(16, 185, 129, 0.2);
+    box-shadow: 0 2px 14px rgba(52, 211, 153, 0.35);
 }
 @keyframes rdRingPulse {
-    0%,
-    100% {
-        filter: brightness(1);
-    }
-    50% {
-        filter: brightness(1.15);
-    }
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.18); }
 }
 
 #rewardFloatLayer {

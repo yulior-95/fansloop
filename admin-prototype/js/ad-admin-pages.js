@@ -1014,7 +1014,7 @@
         var pageList = pager ? pager.getSlice(list) : list;
         tbody.innerHTML = pageList.map(function (p) {
             var slot = slotName(p.slotCode);
-            return '<tr><td><code>' + esc(p.id) + '</code></td><td>' + esc(slot) + '</td><td><input class="ant-input" style="min-width:120px" data-pkg-name="' + esc(p.id) + '" value="' + esc(p.name) + '"></td><td><input class="ant-input" style="width:72px" data-pkg-days="' + esc(p.id) + '" value="' + p.durationDays + '"> 天</td><td><input class="ant-input" style="width:96px" data-price="' + esc(p.id) + '" value="' + p.priceUsdt + '"></td><td><span class="ad-switch ' + (p.enabled ? 'on' : '') + '" data-switch data-pkg="' + esc(p.id) + '" aria-checked="' + (p.enabled ? 'true' : 'false') + '" role="switch"></span></td><td class="ad-cell-ops"><button type="button" class="ant-btn ant-btn-link ant-btn-sm" data-save="' + esc(p.id) + '">保存</button></td></tr>';
+            return '<tr><td><code>' + esc(p.id) + '</code></td><td>' + esc(slot) + '</td><td><input class="ant-input" style="min-width:160px" data-pkg-name="' + esc(p.id) + '" value="' + esc(p.name) + '"></td><td><input class="ant-input" style="width:72px" data-pkg-days="' + esc(p.id) + '" value="' + p.durationDays + '"> 天</td><td><input class="ant-input" style="width:96px" data-pkg-imps="' + esc(p.id) + '" value="' + (p.effectiveImpressions != null ? p.effectiveImpressions : '') + '"> 次</td><td><input class="ant-input" style="width:96px" data-price="' + esc(p.id) + '" value="' + p.priceUsdt + '"></td><td><span class="ad-switch ' + (p.enabled ? 'on' : '') + '" data-switch data-pkg="' + esc(p.id) + '" aria-checked="' + (p.enabled ? 'true' : 'false') + '" role="switch"></span></td><td class="ad-cell-ops"><button type="button" class="ant-btn ant-btn-link ant-btn-sm" data-save="' + esc(p.id) + '">保存</button></td></tr>';
         }).join('');
         if (window.AdAdminLayout) AdAdminLayout.bindSwitch(tbody.closest('.ant-card') || document);
         tbody.onclick = function (e) {
@@ -1033,17 +1033,19 @@
                 var perm = FLAdService.requireAdminPerm('package');
                 if (!perm.ok) { toast(perm.message); return; }
             }
-            confirmDanger('确认保存套餐名称、周期与价格？已购订单保留 priceSnapshot 不受影响。', function () {
+            confirmDanger('确认保存套餐名称、周期、有效曝光与价格？已购订单保留 priceSnapshot 不受影响。', function () {
                 var id = b.getAttribute('data-save');
                 var inp = document.querySelector('[data-price="' + id + '"]');
                 var nameInp = document.querySelector('[data-pkg-name="' + id + '"]');
                 var daysInp = document.querySelector('[data-pkg-days="' + id + '"]');
+                var impsInp = document.querySelector('[data-pkg-imps="' + id + '"]');
                 var data = FLAdStore.load();
                 data.packages.forEach(function (p) {
                     if (p.id === id) {
                         p.priceUsdt = Number(inp.value);
                         if (nameInp) p.name = nameInp.value.trim() || p.name;
                         if (daysInp) p.durationDays = Math.max(1, Number(daysInp.value) || p.durationDays);
+                        if (impsInp) p.effectiveImpressions = Math.max(1, Number(impsInp.value) || p.effectiveImpressions || 1);
                         p.version = (p.version || 1) + 1;
                     }
                 });
@@ -1067,10 +1069,12 @@
             AdminModal.open({
                 title: '新增套餐',
                 body: '<div style="font-size:13px">' +
-                    '<p><label>名称</label><input class="ant-input" id="pkgNewName" style="width:100%" placeholder="如 信息流 7 天"></p>' +
+                    '<p><label>名称</label><input class="ant-input" id="pkgNewName" style="width:100%" placeholder="如 信息流·7天·有效曝光次数100次"></p>' +
                     '<p><label>广告位</label><select class="ant-input" id="pkgNewSlot" style="width:100%">' + opts + '</select></p>' +
                     '<p><label>投放天数</label><input class="ant-input" id="pkgNewDays" type="number" min="1" value="7" style="width:100%"></p>' +
-                    '<p><label>价格 USDT</label><input class="ant-input" id="pkgNewPrice" type="number" min="1" value="99" style="width:100%"></p>' +
+                    '<p><label>有效曝光次数</label><input class="ant-input" id="pkgNewImps" type="number" min="1" value="100" style="width:100%"></p>' +
+                    '<p class="ad-muted" style="font-size:12px;margin:-4px 0 8px">同一用户多次推送计 1 次；达配额或到期后停投。</p>' +
+                    '<p><label>价格 USDT</label><input class="ant-input" id="pkgNewPrice" type="number" min="1" value="10" style="width:100%"></p>' +
                     '</div>',
                 footer: '<button type="button" class="ant-btn ant-btn-primary" id="pkgNewSave">上架</button>',
                 onMount: function () {
@@ -1083,7 +1087,8 @@
                             slotCode: document.getElementById('pkgNewSlot').value,
                             name: document.getElementById('pkgNewName').value.trim() || '新套餐',
                             durationDays: Number(document.getElementById('pkgNewDays').value) || 7,
-                            priceUsdt: Number(document.getElementById('pkgNewPrice').value) || 99,
+                            effectiveImpressions: Number(document.getElementById('pkgNewImps').value) || 100,
+                            priceUsdt: Number(document.getElementById('pkgNewPrice').value) || 10,
                             enabled: true,
                             version: 1
                         });

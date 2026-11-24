@@ -106,7 +106,8 @@
         ad.packageId = pkg.id;
         ad.packageName = pkg.name;
         ad.priceUsdt = pkg.priceUsdt;
-        return ok({ endAt: ad.endAt, durationDays: pkg.durationDays });
+        ad.effectiveImpressions = pkg.effectiveImpressions || 0;
+        return ok({ endAt: ad.endAt, durationDays: pkg.durationDays, effectiveImpressions: ad.effectiveImpressions });
     }
 
     function validatePackageSchedule(ad) {
@@ -456,6 +457,8 @@
     }
 
     function impressionKey() { return 'fl_ad_impressions_v1'; }
+    /** 有效曝光：按广告去重观众 uid，同用户多次推送只计 1 次 */
+    function effectiveImpKey() { return 'fl_ad_effective_imp_v1'; }
 
     function todayKey() {
         var d = new Date();
@@ -470,6 +473,38 @@
         localStorage.setItem(impressionKey(), JSON.stringify(map));
     }
 
+    function readEffectiveImps() {
+        try { return JSON.parse(localStorage.getItem(effectiveImpKey()) || '{}'); } catch (e) { return {}; }
+    }
+
+    function writeEffectiveImps(map) {
+        localStorage.setItem(effectiveImpKey(), JSON.stringify(map));
+    }
+
+    function effectiveImpressionCount(adId) {
+        var row = readEffectiveImps()[adId];
+        if (!row || !row.viewers) return 0;
+        return Object.keys(row.viewers).length;
+    }
+
+    function packageEffectiveQuota(ad) {
+        if (!ad) return 0;
+        if (ad.effectiveImpressions != null && Number(ad.effectiveImpressions) > 0) {
+            return Number(ad.effectiveImpressions);
+        }
+        var pkg = getPackage(ad.packageId);
+        if (pkg && pkg.effectiveImpressions != null) return Number(pkg.effectiveImpressions) || 0;
+        return 0;
+    }
+
+    /** 有效曝光未达套餐配额（平台广告不计配额） */
+    function underEffectiveQuota(ad) {
+        if (!ad || ad.source === 'platform') return true;
+        var quota = packageEffectiveQuota(ad);
+        if (!quota) return true;
+        return effectiveImpressionCount(ad.id) < quota;
+    }
+
     function recordImpression(adId, viewerId) {
         viewerId = viewerId || 'demo-viewer';
         var map = readImpressions();
@@ -478,6 +513,24 @@
         var day = todayKey();
         map[viewerId][adId][day] = (map[viewerId][adId][day] || 0) + 1;
         writeImpressions(map);
+
+        /* 有效曝光：同一观众全周期只计 1 次 */
+        var eff = readEffectiveImps();
+        eff[adId] = eff[adId] || { viewers: {} };
+        var isNewViewer = !eff[adId].viewers[viewerId];
+        if (isNewViewer) {
+            eff[adId].viewers[viewerId] = 1;
+            writeEffectiveImps(eff);
+            try {
+                var ad = FLAdStore.getAd(adId);
+                if (ad) {
+                    ad.stats = ad.stats || { impressions: 0, clicks: 0, spend: 0, conversions: 0 };
+                    ad.stats.effectiveImpressions = effectiveImpressionCount(adId);
+                    ad.stats.impressions = (Number(ad.stats.impressions) || 0) + 1;
+                    FLAdStore.upsertAd(ad);
+                }
+            } catch (e) { /* ignore */ }
+        }
         return map[viewerId][adId][day];
     }
 
@@ -653,6 +706,7 @@
             slotCode: pkg.slotCode,
             priceSnapshot: pkg.priceUsdt,
             durationDays: pkg.durationDays,
+            effectiveImpressions: pkg.effectiveImpressions || 0,
             payStatus: 'unpaid',
             paidAmount: 0,
             refundedAmount: 0,
@@ -703,6 +757,7 @@
             packageId: pkg.id,
             packageName: pkg.name,
             priceUsdt: pkg.priceUsdt,
+            effectiveImpressions: pkg.effectiveImpressions || 0,
             slotCode: pkg.slotCode || (adFields && adFields.slotCode) || '',
             payStatus: 'unpaid',
             auditStatus: 'none',
@@ -711,7 +766,7 @@
             contentVersion: (adFields && adFields.contentVersion) || 1,
             versions: (adFields && adFields.versions) || [],
             auditLog: (adFields && adFields.auditLog) || [],
-            stats: (adFields && adFields.stats) || { impressions: 0, clicks: 0, spend: 0, conversions: 0 },
+            stats: (adFields && adFields.stats) || { impressions: 0, effectiveImpressions: 0, clicks: 0, spend: 0, conversions: 0 },
             createdAt: (adFields && adFields.createdAt) || new Date().toISOString()
         });
         var sch = applyPackageSchedule(ad, packageId);
@@ -720,7 +775,12 @@
         if (!schPay.ok) return schPay;
         var link = validateLink(ad.landingUrl);
         if (!link.ok) return link;
-        if (!ad.brandLogoUrl) return fail('请上传品牌头像 / LOGO');
+        if (ad.slotCode === 'feed_video' && !ad.brandLogoUrl) return fail('请上传品牌头像 / LOGO');
+        if (ad.slotCode === 'home_banner') {
+            ad.brandLogoUrl = '';
+            ad.copy = '';
+            ad.title = '';
+        }
         var mats = Array.isArray(ad.materials) ? ad.materials : [];
         if (!ad.materialUrl && !mats.length) return fail('请上传素材');
         if (ad.materialMeta && !ad.materialMeta.validated) return fail('请上传符合规范的素材');
@@ -741,6 +801,7 @@
             slotCode: pkg.slotCode,
             priceSnapshot: pkg.priceUsdt,
             durationDays: pkg.durationDays,
+            effectiveImpressions: pkg.effectiveImpressions || 0,
             payStatus: 'unpaid',
             paidAmount: 0,
             refundedAmount: 0,
@@ -1313,6 +1374,7 @@
             slotCode: pkg.slotCode,
             priceSnapshot: price,
             durationDays: pkg.durationDays,
+            effectiveImpressions: pkg.effectiveImpressions || 0,
             payStatus: 'paid',
             paidAmount: price,
             refundedAmount: 0,
@@ -1322,6 +1384,7 @@
             createdAt: new Date().toISOString(),
             idempotencyPaid: 'pkg-swap-' + adId + '-' + Date.now()
         };
+        ad.effectiveImpressions = pkg.effectiveImpressions || 0;
         data.orders = data.orders || [];
         data.orders.unshift(newOrder);
         data.finance = data.finance || [];
@@ -1393,8 +1456,13 @@
             var v = validateLink(patch.landingUrl);
             if (!v.ok) return v;
         }
-        if (patch.brandLogoUrl !== undefined && !String(patch.brandLogoUrl || '').trim()) {
+        if (ad.slotCode === 'feed_video' && patch.brandLogoUrl !== undefined && !String(patch.brandLogoUrl || '').trim()) {
             return fail('请上传品牌头像 / LOGO');
+        }
+        if (ad.slotCode === 'home_banner') {
+            ad.brandLogoUrl = '';
+            ad.title = '';
+            ad.copy = '';
         }
         FLAdStore.upsertAd(ad);
         return ok({ ad: ad, reReview: needsReReview });
@@ -1406,7 +1474,7 @@
         if (ad.payStatus !== 'paid') return fail('请先完成套餐支付');
         var v = validateLink(ad.landingUrl);
         if (!v.ok) return v;
-        if (!ad.brandLogoUrl) return fail('请上传品牌头像 / LOGO');
+        if (ad.slotCode === 'feed_video' && !ad.brandLogoUrl) return fail('请上传品牌头像 / LOGO');
         var mats = Array.isArray(ad.materials) ? ad.materials : [];
         if (!ad.materialUrl && !mats.length) return fail('请上传素材');
         if (ad.materialMeta) {
@@ -1708,6 +1776,7 @@
             if (adv && (adv.accountStatus === 'restricted' || adv.accountStatus === 'disabled')) return false;
             if (!audienceMatches(a, ctx)) return false;
             if (!underFreqCap(a, ctx.viewerId)) return false;
+            if (!underEffectiveQuota(a)) return false;
             return true;
         });
         if (slotCode) return rankAdsForDelivery(list, slotCode, ctx);
@@ -1813,6 +1882,9 @@
         adminDecideRefund: adminDecideRefund,
         adminReviewAd: adminReviewAd,
         recordImpression: recordImpression,
+        effectiveImpressionCount: effectiveImpressionCount,
+        underEffectiveQuota: underEffectiveQuota,
+        packageEffectiveQuota: packageEffectiveQuota,
         roleCanMenu: roleCanMenu,
         saveRbac: saveRbac,
         saveTargeting: saveTargeting,

@@ -5,7 +5,7 @@
     var scriptsLoaded = false;
     var scriptsLoading = null;
     var openFlag = false;
-    var AD_STAGE_REV = 50;
+    var AD_STAGE_REV = 52;
 
     function bindAdGoButtons(root) {
         (root || document).querySelectorAll('[data-ad-go]').forEach(function (btn) {
@@ -68,14 +68,9 @@
         '<div class="ad-filter"><button type="button" class="on" data-ad-filter="">全部</button><button type="button" data-ad-filter="pending_review">审核中</button><button type="button" data-ad-filter="pending_start">待开始</button><button type="button" data-ad-filter="active">投放中</button><button type="button" data-ad-filter="paused">已暂停</button><button type="button" data-ad-filter="ended">已结束</button><button type="button" data-ad-filter="rejected">已驳回</button></div>' +
         '<div id="adListMount"></div></div></div></div></section>' +
         '<section class="ad-set-view" data-ad-view="create"><div class="set-card ad-set-card"><div class="ssh"><div class="ic-circle"><i class="fa-solid fa-bullhorn"></i></div><div><h3>创建广告</h3></div></div><div class="body">' +
-        '<div class="ad-wizard-steps"><span data-step="1" class="on">1 基础</span><span data-step="2">2 目标</span><span data-step="3">3 素材</span><span data-step="4">4 套餐</span><span data-step="5">5 支付</span></div>' +
+        '<div class="ad-wizard-steps"><span data-step="1" class="on">1 目标</span><span data-step="2">2 基础</span><span data-step="3">3 素材</span><span data-step="4">4 套餐</span><span data-step="5">5 支付</span></div>' +
         '<form id="adCreateForm" class="ad-form">' +
         '<section class="ad-step-panel on" data-step="1">' +
-        '<div class="ad-field"><label for="adFName">广告名称</label><input id="adFName" name="name" required placeholder="例如：春季品牌推广" autocomplete="off"></div>' +
-        '<div class="ad-field"><label for="adFType">类型</label><select id="adFType" name="type" class="ad-select-native"><option value="品牌曝光">品牌曝光</option><option value="直播引流">直播引流</option></select></div>' +
-        '<div class="ad-field"><label for="adFTitle">标题</label><input id="adFTitle" name="title" placeholder="例如：升级 Creator Pro" autocomplete="off"></div>' +
-        '<div class="ad-step-actions"><button type="button" class="btn btn-primary" data-next>下一步</button></div></section>' +
-        '<section class="ad-step-panel" data-step="2">' +
         '<div class="ad-field"><label for="adFSlot">投放位置</label><select id="adFSlot" name="slotCode" class="ad-select-native"></select></div>' +
         '<div class="ad-field ad-slot-style-preview" id="adSlotStylePreview">' +
         '<label>展示样式预览</label>' +
@@ -106,13 +101,18 @@
         '<label for="adFUrl">网页地址</label>' +
         '<input id="adFUrl" name="landingUrl" placeholder="https://example.com" autocomplete="off">' +
         '<p class="ad-muted ad-field-help">请填写以 https:// 开头的完整网址。</p></div>' +
+        '<div class="ad-step-actions"><button type="button" class="btn btn-primary" data-next>下一步</button></div></section>' +
+        '<section class="ad-step-panel" data-step="2">' +
+        '<div class="ad-field"><label for="adFName">广告名称</label><input id="adFName" name="name" required placeholder="例如：春季品牌推广" autocomplete="off"></div>' +
+        '<div class="ad-field"><label for="adFType">类型</label><select id="adFType" name="type" class="ad-select-native"><option value="品牌曝光">品牌曝光</option><option value="直播引流">直播引流</option></select></div>' +
+        '<div class="ad-field" id="adTitleField"><label for="adFTitle">标题</label><input id="adFTitle" name="title" placeholder="例如：升级 Creator Pro" autocomplete="off"></div>' +
         '<div class="ad-step-actions"><button type="button" class="btn btn-secondary" data-prev>上一步</button><button type="button" class="btn btn-primary" data-next>下一步</button></div></section>' +
         '<section class="ad-step-panel" data-step="3">' +
         '<div class="ad-field" id="adCopyField" hidden>' +
         '<label for="adFCopy">信息流文案</label>' +
         '<textarea id="adFCopy" name="copy" rows="3" placeholder="会展示在信息流图文 / 视频贴的文案位置"></textarea>' +
         '<p class="ad-muted ad-field-help">仅短视频信息流需要；首页 Banner 不展示这段文案。</p></div>' +
-        '<div class="ad-field"><label>品牌头像 / LOGO</label>' +
+        '<div class="ad-field" id="adBrandLogoField" hidden><label>品牌头像 / LOGO</label>' +
         '<p class="ad-muted ad-field-help" style="margin:0 0 8px">展示在信息流广告顶栏，建议正方形 JPG / PNG / WebP，边长 ≥ 200px。</p>' +
         '<div class="ad-brand-logo-row" id="adBrandLogoRow">' +
         '<div class="ad-brand-logo-preview" id="adBrandLogoPreview" aria-hidden="true"><i class="fa-regular fa-image"></i></div>' +
@@ -240,9 +240,9 @@
         if (scriptsLoaded) return Promise.resolve();
         if (scriptsLoading) return scriptsLoading;
         var base = scriptBase();
-        scriptsLoading = loadScript(base + 'js/ad-system-store.js?v=20261111paycreate')
-            .then(function () { return loadScript(base + 'js/ad-system-api.js?v=20261121fix'); })
-            .then(function () { return loadScript(base + 'js/ad-center-promo-markup.js'); })
+        scriptsLoading = loadScript(base + 'js/ad-system-store.js?v=20261125pkg')
+            .then(function () { return loadScript(base + 'js/ad-system-api.js?v=20261125notitle'); })
+            .then(function () { return loadScript(base + 'js/ad-center-promo-markup.js?v=20261125pkg'); })
             .then(function () { return loadScript(base + 'js/ad-advertiser-terms.js'); })
             .then(function () { return loadScript(base + 'js/ad-advertiser-apply-markup.js'); })
             .then(function () { return loadScript(base + 'js/ad-advertiser-apply-glass.js'); })
@@ -252,7 +252,7 @@
                     return loadScript(base + 'js-web/dev-glass-viewport.js');
                 }
             })
-            .then(function () { return loadScript(base + 'js/ad-system-user.js?v=20261121fix'); })
+            .then(function () { return loadScript(base + 'js/ad-system-user.js?v=20261125notitle'); })
             .then(function () { return loadScript(base + 'js/ad-settings-shell.js'); })
             .then(function () {
                 if (!global.FLAdStore || !global.FLAdService || !global.FLAdUser) {

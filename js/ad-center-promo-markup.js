@@ -10,7 +10,7 @@
         '<p class="ad-promo-lead">提交主体信息并通过资质审核后，即可创建广告并购买套餐。</p>' +
         '<ul class="ad-promo-list">' +
         '<li><strong>多场景曝光</strong><span>首页 Banner、短视频信息流等原生广告位</span></li>' +
-        '<li><strong>固定套餐</strong><span>按广告位与投放天数打包定价，一次付清；投放期内不再按曝光/点击扣费</span></li>' +
+        '<li><strong>固定套餐</strong><span>广告位 + 投放天数 + 有效曝光次数一口价，一次付清；同用户多次推送只计 1 次有效曝光</span></li>' +
         '<li><strong>独立广告账户</strong><span>USDT 充值、冻结与退款与主钱包分离</span></li>' +
         '<li><strong>数据可追踪</strong><span>曝光、点击与消耗在中心与详情页随时查看</span></li>' +
         '</ul>' +

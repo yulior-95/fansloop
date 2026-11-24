@@ -11,7 +11,7 @@
 
     var link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '../css-web/reward-dock.css';
+    link.href = '../css-web/reward-dock.css?v=20261125h5ball2';
     document.head.appendChild(link);
 
     var dock = document.createElement('div');
@@ -20,13 +20,13 @@
     dock.setAttribute('role', 'button');
     dock.setAttribute('tabindex', '0');
     dock.setAttribute('aria-expanded', 'true');
-    dock.title = '拖拽移动 · 箭头收起侧边 · 点击进积分商城';
+    dock.setAttribute('aria-label', '积分商城');
+    dock.title = '拖拽移动 · 悬停收起 · 点击进积分商城';
     dock.innerHTML =
-        '<div class="rd-ring" id="rewardRing" style="--rd-progress:100"><i class="fa-solid fa-coins"></i></div>' +
-        '<div class="rd-txt">' +
-        '<div class="lb"><i class="fa-solid fa-gift" style="margin-right:4px;color:#FBBF24"></i>积分奖励</div>' +
-        '<div class="tm" id="rewardTime">00:45</div>' +
-        '<div class="rd-hint" id="rewardHint">拖拽 · 收起 · 点进商城</div>' +
+        '<div class="rd-ring" id="rewardRing" style="--rd-progress:100" aria-hidden="true"></div>' +
+        '<div class="rd-core">' +
+        '<i class="fa-solid fa-coins coin-icon" aria-hidden="true"></i>' +
+        '<span class="rd-countdown" id="rewardTime">45s</span>' +
         '</div>' +
         '<button type="button" class="rd-fold" title="收起到侧边" aria-label="收起到侧边"><i class="fa-solid fa-chevron-right"></i></button>';
 
@@ -46,18 +46,10 @@
     var left = TOTAL;
     var timer = null;
     var ring = document.getElementById('rewardRing');
-    if (ring && !ring.querySelector('i')) {
-        var ringIc = document.createElement('i');
-        ringIc.className = 'fa-solid fa-coins';
-        ringIc.setAttribute('aria-hidden', 'true');
-        ring.appendChild(ringIc);
-    }
     var timeEl = document.getElementById('rewardTime');
 
     function fmt(sec) {
-        var m = Math.floor(sec / 60);
-        var s = sec % 60;
-        return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+        return Math.max(0, sec) + 's';
     }
     function syncRing() {
         var p = Math.max(0, Math.min(100, (left / TOTAL) * 100));
@@ -69,7 +61,7 @@
             clearInterval(timer);
             timer = null;
             left = 0;
-            if (timeEl) timeEl.textContent = '00:00';
+            if (timeEl) timeEl.textContent = '0s';
             syncRing();
             var burst = document.createElement('div');
             burst.className = 'reward-float-burst';

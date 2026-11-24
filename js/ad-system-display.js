@@ -51,13 +51,74 @@
             if (mats[i] && mats[i].poster) return mats[i].poster;
         }
         for (i = 0; i < mats.length; i++) {
-            if (mats[i] && mats[i].url && mats[i].type !== 'video' && !isVideoUrl(mats[i].url)) {
+            if (mats[i] && mats[i].url && mats[i].type !== 'video' && mats[i].kind !== 'video' && !isVideoUrl(mats[i].url)) {
                 return mats[i].url;
             }
         }
         if (ad.materialUrl && !isVideoUrl(ad.materialUrl)) return ad.materialUrl;
         if (mats[0] && mats[0].url && !isVideoUrl(mats[0].url)) return mats[0].url;
         return ad.materialUrl || '';
+    }
+
+    function materialsOf(ad) {
+        if (ad.materials && ad.materials.length) return ad.materials;
+        if (ad.materialUrl) {
+            return [{
+                url: ad.materialUrl,
+                type: ad.materialType || (isVideoUrl(ad.materialUrl) ? 'video' : 'image')
+            }];
+        }
+        return [];
+    }
+
+    /** Banner 多图轮播：投放中广告的每张图片各一帧（最多 6 张/广告） */
+    function bannerImageSlides(ads) {
+        var maxPerAd = 6;
+        try {
+            var rule = window.FLAdService && FLAdService.MATERIAL_RULES && FLAdService.MATERIAL_RULES.home_banner;
+            if (rule && rule.maxImages) maxPerAd = rule.maxImages;
+        } catch (e) { /* ignore */ }
+        var slides = [];
+        (ads || []).forEach(function (ad) {
+            var imgs = materialsOf(ad).filter(function (m) {
+                return m && m.url && m.type !== 'video' && m.kind !== 'video' && !isVideoUrl(m.url);
+            }).slice(0, maxPerAd);
+            if (!imgs.length) {
+                var fallback = coverOf(ad);
+                if (fallback) slides.push({ ad: ad, url: fallback });
+                return;
+            }
+            imgs.forEach(function (m) {
+                slides.push({ ad: ad, url: m.url });
+            });
+        });
+        return slides;
+    }
+
+    function startBannerCarousel(wrap, slides) {
+        if (!wrap || !slides || slides.length < 2) return;
+        var dots = document.createElement('div');
+        dots.className = 'ad-home-banner-dots';
+        slides.forEach(function (_, i) {
+            var d = document.createElement('span');
+            d.className = 'ad-home-banner-dot' + (i === 0 ? ' is-on' : '');
+            dots.appendChild(d);
+        });
+        wrap.appendChild(dots);
+        var idx = 0;
+        var rotateMs = deliveryRules('home_banner').rotateMs || 5000;
+        clearBannerTimer();
+        bannerTimer = setInterval(function () {
+            var els = wrap.querySelectorAll('.ad-home-banner');
+            var dotEls = wrap.querySelectorAll('.ad-home-banner-dot');
+            if (els.length < 2) return;
+            els[idx].classList.remove('is-on');
+            if (dotEls[idx]) dotEls[idx].classList.remove('is-on');
+            idx = (idx + 1) % els.length;
+            els[idx].classList.add('is-on');
+            if (dotEls[idx]) dotEls[idx].classList.add('is-on');
+            recordImpressionOnce(els[idx].getAttribute('data-ad-id'));
+        }, rotateMs);
     }
 
     function deliveringAds(slot) {
@@ -169,7 +230,8 @@
     function injectBanner() {
         var banners = pickSlotAds('home_banner');
         var host = bannerHost();
-        if (!banners.length || !host || bannerDismissed()) return;
+        var slides = bannerImageSlides(banners);
+        if (!slides.length || !host || bannerDismissed()) return;
         if (document.getElementById('flAdHomeBanner')) return;
 
         var wrap = document.createElement('div');
@@ -177,15 +239,17 @@
         wrap.className = 'ad-home-banner-carousel ad-home-banner-carousel--h5 ad-home-banner-carousel--dock';
         wrap.setAttribute('data-ad-slot', 'home_banner');
 
-        banners.forEach(function (ad, i) {
+        slides.forEach(function (item, i) {
+            var ad = item.ad;
             var el = document.createElement('div');
             el.className = 'ad-home-banner' + (i === 0 ? ' is-on' : '');
             el.setAttribute('data-ad-id', ad.id);
+            el.setAttribute('data-mat-idx', String(i));
             el.setAttribute('aria-label', '广告 ' + (ad.title || ''));
             el.innerHTML =
                 '<span class="tag">广告</span>' +
                 '<div class="ad-home-banner-inner ad-home-banner-inner--full">' +
-                '<div class="ad-home-banner-art" role="img" aria-label="' + (ad.title || '').replace(/"/g, '&quot;').replace(/</g, '&lt;') + '" style="background-image:url(\'' + coverOf(ad).replace(/'/g, '%27') + '\')"></div>' +
+                '<div class="ad-home-banner-art" role="img" aria-label="' + (ad.title || '').replace(/"/g, '&quot;').replace(/</g, '&lt;') + '" style="background-image:url(\'' + String(item.url || '').replace(/'/g, '%27') + '\')"></div>' +
                 '</div>';
             el.onclick = function () {
                 if (window.FLAdService && FLAdService.recordClick) FLAdService.recordClick(ad.id);
@@ -207,29 +271,7 @@
         };
         wrap.appendChild(closeBtn);
 
-        if (banners.length > 1) {
-            var dots = document.createElement('div');
-            dots.className = 'ad-home-banner-dots';
-            banners.forEach(function (_, i) {
-                var d = document.createElement('span');
-                d.className = 'ad-home-banner-dot' + (i === 0 ? ' is-on' : '');
-                dots.appendChild(d);
-            });
-            wrap.appendChild(dots);
-            var idx = 0;
-            var rotateMs = deliveryRules('home_banner').rotateMs || 5000;
-            bannerTimer = setInterval(function () {
-                var slides = wrap.querySelectorAll('.ad-home-banner');
-                var dotEls = wrap.querySelectorAll('.ad-home-banner-dot');
-                if (slides.length < 2) return;
-                slides[idx].classList.remove('is-on');
-                if (dotEls[idx]) dotEls[idx].classList.remove('is-on');
-                idx = (idx + 1) % slides.length;
-                slides[idx].classList.add('is-on');
-                if (dotEls[idx]) dotEls[idx].classList.add('is-on');
-                recordImpressionOnce(slides[idx].getAttribute('data-ad-id'));
-            }, rotateMs);
-        }
+        startBannerCarousel(wrap, slides);
 
         host.parent.insertBefore(wrap, host.before);
         placeBannerBelowTopNav(wrap);

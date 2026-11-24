@@ -100,10 +100,10 @@
             return window.innerHeight || 768;
         }
         function dockW() {
-            return dock.offsetWidth || (isCollapsed ? 56 : 220);
+            return dock.offsetWidth || 52;
         }
         function dockH() {
-            return dock.offsetHeight || 64;
+            return dock.offsetHeight || 52;
         }
 
         function fabAvoidBottom() {
@@ -342,12 +342,23 @@
 
     function ensureRingIcon(dock) {
         if (!dock) return;
+        var core = dock.querySelector('.rd-core');
+        if (core) {
+            if (!core.querySelector('i, .coin-icon')) {
+                var ic = document.createElement('i');
+                ic.className = 'fa-solid fa-coins coin-icon';
+                ic.setAttribute('aria-hidden', 'true');
+                core.insertBefore(ic, core.firstChild);
+            }
+            return;
+        }
+        /* 兼容旧胶囊结构 */
         var ring = dock.querySelector('.rd-ring');
         if (!ring || ring.querySelector('i')) return;
-        var ic = document.createElement('i');
-        ic.className = 'fa-solid fa-coins';
-        ic.setAttribute('aria-hidden', 'true');
-        ring.appendChild(ic);
+        var legacy = document.createElement('i');
+        legacy.className = 'fa-solid fa-coins';
+        legacy.setAttribute('aria-hidden', 'true');
+        ring.appendChild(legacy);
     }
 
     function ensureFoldButton(dock) {

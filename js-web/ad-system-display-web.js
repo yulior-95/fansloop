@@ -61,8 +61,58 @@
 
     function isVideoMat(m) {
         if (!m) return false;
-        if (m.type === 'video') return true;
+        if (m.type === 'video' || m.kind === 'video') return true;
         return /(\.mp4|\.webm|\.mov)(\?|$)/i.test(m.url || '');
+    }
+
+    /** Banner 多图轮播：每个投放中广告的图片素材各成一帧（最多 6 张/广告） */
+    function bannerImageSlides(ads) {
+        var maxPerAd = 6;
+        try {
+            var rule = window.FLAdService && FLAdService.MATERIAL_RULES && FLAdService.MATERIAL_RULES.home_banner;
+            if (rule && rule.maxImages) maxPerAd = rule.maxImages;
+        } catch (e) { /* ignore */ }
+        var slides = [];
+        (ads || []).forEach(function (ad) {
+            var imgs = materialsOf(ad).filter(function (m) {
+                return m && m.url && !isVideoMat(m);
+            }).slice(0, maxPerAd);
+            if (!imgs.length) {
+                var fallback = coverOf(ad);
+                if (fallback) slides.push({ ad: ad, url: fallback });
+                return;
+            }
+            imgs.forEach(function (m) {
+                slides.push({ ad: ad, url: m.url });
+            });
+        });
+        return slides;
+    }
+
+    function startBannerCarousel(wrap, slides) {
+        if (!wrap || !slides || slides.length < 2) return;
+        var dots = document.createElement('div');
+        dots.className = 'ad-home-banner-dots';
+        slides.forEach(function (_, i) {
+            var d = document.createElement('span');
+            d.className = 'ad-home-banner-dot' + (i === 0 ? ' is-on' : '');
+            dots.appendChild(d);
+        });
+        wrap.appendChild(dots);
+        var idx = 0;
+        var rotateMs = deliveryRules('home_banner').rotateMs || 5000;
+        clearBannerTimer();
+        bannerTimer = setInterval(function () {
+            var els = wrap.querySelectorAll('.ad-home-banner');
+            var dotEls = wrap.querySelectorAll('.ad-home-banner-dot');
+            if (els.length < 2) return;
+            els[idx].classList.remove('is-on');
+            if (dotEls[idx]) dotEls[idx].classList.remove('is-on');
+            idx = (idx + 1) % els.length;
+            els[idx].classList.add('is-on');
+            if (dotEls[idx]) dotEls[idx].classList.add('is-on');
+            recordImpressionOnce(els[idx].getAttribute('data-ad-id'));
+        }, rotateMs);
     }
 
     function ctaLabel() {
@@ -302,7 +352,8 @@
     function injectBannerAds(ads) {
         var banners = pickSlotAds('home_banner', ads);
         var host = bannerHost();
-        if (!banners.length || !host || bannerDismissed()) return;
+        var slides = bannerImageSlides(banners);
+        if (!slides.length || !host || bannerDismissed()) return;
         if (document.getElementById('flAdWebBanner')) return;
 
         var wrap = document.createElement('div');
@@ -310,16 +361,18 @@
         wrap.className = 'ad-home-banner-carousel ad-home-banner-carousel--web';
         wrap.setAttribute('data-ad-slot', 'home_banner');
 
-        banners.forEach(function (ad, i) {
+        slides.forEach(function (item, i) {
+            var ad = item.ad;
             var slide = document.createElement('button');
             slide.type = 'button';
             slide.className = 'ad-home-banner' + (i === 0 ? ' is-on' : '');
             slide.setAttribute('data-ad-id', ad.id);
+            slide.setAttribute('data-mat-idx', String(i));
             slide.setAttribute('aria-label', '广告 ' + (ad.title || '品牌推广'));
             slide.innerHTML =
                 '<span class="tag">广告</span>' +
                 '<div class="ad-home-banner-inner ad-home-banner-inner--full">' +
-                '<div class="ad-home-banner-art" role="img" aria-label="' + esc(ad.title || '品牌推广') + '" style="background-image:url(\'' + esc(coverOf(ad)) + '\')"></div>' +
+                '<div class="ad-home-banner-art" role="img" aria-label="' + esc(ad.title || '品牌推广') + '" style="background-image:url(\'' + esc(item.url) + '\')"></div>' +
                 '</div>';
             slide.addEventListener('click', function () { openLanding(ad); });
             wrap.appendChild(slide);
@@ -338,31 +391,7 @@
         });
         wrap.appendChild(closeBtn);
 
-        if (banners.length > 1) {
-            var dots = document.createElement('div');
-            dots.className = 'ad-home-banner-dots';
-            banners.forEach(function (_, i) {
-                var d = document.createElement('span');
-                d.className = 'ad-home-banner-dot' + (i === 0 ? ' is-on' : '');
-                dots.appendChild(d);
-            });
-            wrap.appendChild(dots);
-            var idx = 0;
-            var rotateMs = deliveryRules('home_banner').rotateMs || 5000;
-            clearBannerTimer();
-            bannerTimer = setInterval(function () {
-                var slides = wrap.querySelectorAll('.ad-home-banner');
-                var dotEls = wrap.querySelectorAll('.ad-home-banner-dot');
-                if (slides.length < 2) return;
-                slides[idx].classList.remove('is-on');
-                if (dotEls[idx]) dotEls[idx].classList.remove('is-on');
-                idx = (idx + 1) % slides.length;
-                slides[idx].classList.add('is-on');
-                if (dotEls[idx]) dotEls[idx].classList.add('is-on');
-                recordImpressionOnce(slides[idx].getAttribute('data-ad-id'));
-            }, rotateMs);
-        }
-
+        startBannerCarousel(wrap, slides);
         host.parent.insertBefore(wrap, host.before);
     }
 

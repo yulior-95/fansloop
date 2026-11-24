@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="../js-web/fl-theme-boot.js"></script>
 <link rel="stylesheet" href="../css-web/common-web.css">
-<link rel="stylesheet" href="../css-web/reward-dock.css">
+<link rel="stylesheet" href="../css-web/reward-dock.css?v=20261125h5ball">
 <style>
 html, body { height: 100%; width: 100%; overflow: hidden; margin: 0; }
 body { display: grid; grid-template-rows: 1fr; background: var(--bg-app, #0B0B14); }
@@ -338,14 +338,11 @@ body { display: grid; grid-template-rows: 1fr; background: var(--bg-app, #0B0B14
     </div>
 </div>
 
-<div class="reward-dock" id="rewardDock" role="button" tabindex="0" title="拖拽移动 · 箭头收起侧边 · 点击进积分商城" aria-expanded="true">
-    <div class="rd-ring" id="rewardRing" style="--rd-progress:100">
-        <i class="fa-solid fa-coins"></i>
-    </div>
-    <div class="rd-txt">
-        <div class="lb"><i class="fa-solid fa-gift" style="margin-right:4px;color:#FBBF24"></i>积分奖励</div>
-        <div class="tm" id="rewardTime">00:45</div>
-        <div class="rd-hint" id="rewardHint">拖拽 · 收起 · 点进商城</div>
+<div class="reward-dock" id="rewardDock" role="button" tabindex="0" title="拖拽移动 · 悬停收起 · 点击进积分商城" aria-expanded="true" aria-label="积分商城">
+    <div class="rd-ring" id="rewardRing" style="--rd-progress:100" aria-hidden="true"></div>
+    <div class="rd-core">
+        <i class="fa-solid fa-coins coin-icon" aria-hidden="true"></i>
+        <span class="rd-countdown" id="rewardTime">45s</span>
     </div>
     <button type="button" class="rd-fold" title="收起到侧边" aria-label="收起到侧边"><i class="fa-solid fa-chevron-right"></i></button>
 </div>
@@ -610,9 +607,7 @@ function markFirstRewardClaimed() {
 }
 
 function formatTime(sec) {
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
-    return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    return Math.max(0, sec) + 's';
 }
 
 function syncRewardRing() {
@@ -682,7 +677,7 @@ function resumeRewardCountdown() {
             clearInterval(rewardTimer);
             rewardTimer = null;
             rewardLeft = 0;
-            rewardTime.textContent = '00:00';
+            rewardTime.textContent = '0s';
             syncRewardRing();
             if (rewardSuppressed) {
                 rewardDeferredPayout = true;

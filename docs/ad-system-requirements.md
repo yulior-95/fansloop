@@ -10,7 +10,7 @@
 
 在现有直播社交平台中**增量**建设广告能力，不重建产品、不改动无关模块。支持 **广告主自主投放** 与 **平台运营投放**，共用审核、投放、展示与统计。
 
-一期采用 **固定套餐**（按广告位 + 购买周期收费），广告主须 **申请资质并审核通过** 后方可购买套餐并发布付费广告。原型使用模拟数据；支付、审核、投放、到账等未接入真实服务处均在交互中标注为演示。
+一期采用 **固定套餐**（**广告位 + 投放天数 + 有效曝光次数** 一口价，一次付清），广告主须 **申请资质并审核通过** 后方可购买套餐并发布付费广告。原型使用模拟数据；支付、审核、投放、到账等未接入真实服务处均在交互中标注为演示。
 
 ---
 
@@ -136,9 +136,9 @@
 | 用户 · 广告创建 | 广告位、名称、素材、文案、链接 | 7 步创编 `create`；直播间位仅平台可选（`userAllowed: false`） | ✅ |
 | 用户 · 素材校验 | 尺寸、格式、大小、必填、链接 | `FLAdService.validateMaterial` / `validateLink`；创编分步拦截 | ✅ |
 | 用户 · 广告列表 | 全部/审核中/待开始/投放中/暂停/结束/驳回（无「待支付」筛选项） | 中心 `data-ad-filter` + `renderList` | ✅ |
-| 用户 · 套餐选择 | 价格、时长、适用位；**支付成功后才创建广告** | 步骤 5；`createAndPayAd` + 模拟支付 | ✅ |
+| 用户 · 套餐选择 | 价格、天数、**有效曝光次数**、适用位；文案如「信息流·7天·有效曝光次数100次——10USDT」；**支付成功后才创建广告** | 步骤 4；`createAndPayAd` + 模拟支付 | ✅ |
 | 后台 · 广告位 | 信息流/Banner/直播间、启停、展示规则 | `ads-slots.html`；启停 +「展示规则」弹窗 | ✅ |
-| 后台 · 套餐 | 新增、编辑、上下架、价格、时长、适用位 | `ads-packages.html`；新增弹窗 + 行内编辑 + 可售开关 | ✅ |
+| 后台 · 套餐 | 新增、编辑、上下架、价格、天数、**有效曝光次数**、适用位 | `ads-packages.html`；新增弹窗 + 行内编辑 + 可售开关 | ✅ |
 | 后台 · 广告管理 | 列表、详情、筛选、暂停/恢复/下架 | `ads-list.html` / `ads-review.html` | ✅ |
 | 后台 · 广告主 | 信息、UID 关联、资质通过/驳回、账号状态、发布权限 | `ads-advertisers.html` | ✅ |
 | 后台 · 广告审核 | 待审列表、通过、驳回、驳回原因、用户重提审 | `ads-review.html`；用户详情「重新提交审核」 | ✅ |
@@ -173,8 +173,8 @@
 |---|---|
 | **Advertiser** | `uid`、`accountStatus`、申请信息、驳回原因、违规次数 |
 | **Ad** | 来源 `user`/`platform`、`brandLogoUrl`（品牌头像）、素材/文案/链接、`auditStatus`、`payStatus`、`deliveryStatus`、`contentVersion`、`versions[]` |
-| **Order** | `priceSnapshot`（下单时套餐价）、支付/退款状态、幂等键 |
-| **Package** | 广告位、时长、现价、`enabled`；历史订单不随改价变化 |
+| **Order** | `priceSnapshot`（下单时套餐价）、`durationDays`、`effectiveImpressions`、支付/退款状态、幂等键 |
+| **Package** | 广告位、`durationDays`、`effectiveImpressions`（有效曝光配额）、现价、`enabled`；历史订单不随改价变化 |
 | **FinanceLedger** | 充值/购买/退款；唯一单号；**不可删改**（原型） |
 | **Risk / OpLog** | 异常事件、操作人/时间/原因 |
 
@@ -475,9 +475,16 @@ flowchart LR
 
 ### 9.2 套餐、排期与计费口径
 
-- **套餐（Package）**：广告位 + 投放天数 + **一次付清** USDT（非按自然日逐日扣费，非 CPM/CPC）；下单时 `priceSnapshot` 快照，改价不影响历史订单。  
-- **排期**：用户填写 **开始时间**；**结束时间 = 开始 + 套餐 `durationDays`**（创编第 5 步选套餐后自动写入，支付/提审前校验，允许 ±2 分钟误差）。  
-- **投放窗口**：仅在 `[startAt, endAt]` 且审核通过、已支付、`delivering`/`paused` 等状态下展示；**不按曝光/点击二次扣费**（一期一口价）。
+- **套餐（Package）** = **广告位 + 投放天数 + 有效曝光次数配额** + **一次付清** USDT（非按自然日逐日扣费，非按次 CPM/CPC 扣费）；下单时 `priceSnapshot` / `durationDays` / `effectiveImpressions` 快照，改价不影响历史订单。  
+  - 选项文案示例：`信息流·7天·有效曝光次数100次——10USDT`。  
+  - 字段：`durationDays`、`effectiveImpressions`、`priceUsdt`、`slotCode`、`name`。  
+- **有效曝光（Effective Impression）**（计配额口径，与原始展示次数区分）：  
+  1. **同一用户**对同一广告被推送 / 展示 **多次，只计 1 次**有效曝光；  
+  2. **3 个不同用户**各至少被推送 1 次 → 计 **3 次**有效曝光；  
+  3. 实现：按 `adId + viewerId` 去重累计（原型 `FLAdService.recordImpression` → `fl_ad_effective_imp_v1`）；达套餐 `effectiveImpressions` 后该广告不再进入投放候选（`underEffectiveQuota`）。  
+  4. 日频控（`freqCaps`）仍限制「同一用户当日最多展示几次」，**不改变**有效曝光去重定义。  
+- **排期**：用户填写 **开始时间**；**结束时间 = 开始 + 套餐 `durationDays`**（创编选套餐后自动写入，支付/提审前校验，允许 ±2 分钟误差）。  
+- **投放窗口**：仅在 `[startAt, endAt]` 且审核通过、已支付、`delivering`/`paused`、**且有效曝光未达配额** 时展示；到期或有效曝光耗尽即停投；**不按曝光/点击二次扣费**（一期一口价买断天数+有效曝光配额）。
 
 ### 9.3 资金字段与退款公式（已定 · 原型 `FLAdService.computeRefundQuote`）
 
@@ -532,7 +539,8 @@ R_{\max} = \mathrm{round}\Bigl(\mathrm{实付} \times \frac{D_{\mathrm{rem}}}{D}
 
 | 指标 | 公式 / 字段 | 异常口径 | 研发是否可采集 | 说明 |
 |---|---|---|---|---|
-| **曝光** | Σ `stats.impressions` | 风控异常流量 **不计** 有效曝光（正式）；原型种子未扣减 | ✅ 客户端可视曝光埋点（建议 ≥50% 面积且 ≥1s）上报 `adId/slot/uid/ts` | 日频控只限制展示次数，不改变「有效曝光」定义 |
+| **曝光（原始）** | Σ `stats.impressions` | 风控异常流量可剔除 | ✅ 客户端可视曝光埋点上报 | 含同用户重复展示 |
+| **有效曝光** | Σ 去重观众数（`stats.effectiveImpressions` / `effectiveImpressionCount`） | 同用户多次只计 1；达套餐配额停投 | ✅ 与展示埋点同源，按 `adId+viewerId` 去重 | **套餐计配额口径**；见 §9.2 |
 | **点击** | Σ `stats.clicks` | 短时连点合并；异常点击不计有效 | ✅ CTA / Banner / 信息流卡点击埋点，带同一归因 ID | 与曝光同源 `adId` |
 | **CTR** | 有效点击 ÷ 有效曝光 × 100%（曝光=0 → 0%） | 分子分母皆为有效口径 | ✅ 派生，无需单独埋点 | 明细按单条广告算 |
 | **消耗 USDT** | Σ 已结转金额（展示字段 `stats.spend`，应对齐账变） | 退款回冲；暂停不自动结转 | ✅ **权威源 = 资金账变** `spend`/`refund` + 订单冻结结转，**非**按次计费 | 一期一口价，不按曝光/点击扣费 |
