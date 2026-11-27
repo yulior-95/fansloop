@@ -5,7 +5,7 @@
     var scriptsLoaded = false;
     var scriptsLoading = null;
     var openFlag = false;
-    var AD_STAGE_REV = 52;
+    var AD_STAGE_REV = 54;
 
     function bindAdGoButtons(root) {
         (root || document).querySelectorAll('[data-ad-go]').forEach(function (btn) {
@@ -210,7 +210,7 @@
         if (!document.querySelector('link[href*="ad-system.css"]')) {
             var link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = scriptBase() + 'css/ad-system.css?v=20261121mat';
+            link.href = scriptBase() + 'css/ad-system.css?v=20261126creator3';
             document.head.appendChild(link);
         }
         if (!document.querySelector('link[href*="dev-glass-note"]')) {
@@ -252,7 +252,7 @@
                     return loadScript(base + 'js-web/dev-glass-viewport.js');
                 }
             })
-            .then(function () { return loadScript(base + 'js/ad-system-user.js?v=20261125notitle'); })
+            .then(function () { return loadScript(base + 'js/ad-system-user.js?v=20261126creator3'); })
             .then(function () { return loadScript(base + 'js/ad-settings-shell.js'); })
             .then(function () {
                 if (!global.FLAdStore || !global.FLAdService || !global.FLAdUser) {

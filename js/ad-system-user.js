@@ -771,17 +771,32 @@
             '</div>';
     }
 
+    function pushCreator(list, item) {
+        if (!item || !item.label) return;
+        var slugHint = item.slug ? ('host=' + item.slug) : '';
+        if (list.some(function (c) {
+            return c.label === item.label || (slugHint && c.value && c.value.indexOf(slugHint) >= 0);
+        })) return;
+        list.push({
+            value: item.value || ('creator-profile.html?user=' + encodeURIComponent(item.label) +
+                (item.slug ? ('&host=' + encodeURIComponent(item.slug)) : '')),
+            label: item.label,
+            sub: item.sub || '创作者',
+            keywords: String(item.keywords || (item.label + ' ' + (item.slug || ''))).toLowerCase()
+        });
+    }
+
     function demoCreators() {
         var list = [];
         var hosts = (global.FLLiveViewHost && FLLiveViewHost.HOSTS) || null;
         if (hosts) {
             Object.keys(hosts).forEach(function (slug) {
                 var h = hosts[slug];
-                list.push({
-                    value: 'creator-profile.html?user=' + encodeURIComponent(h.name || slug) + '&host=' + encodeURIComponent(slug),
+                pushCreator(list, {
                     label: h.name || slug,
+                    slug: slug,
                     sub: h.roleLabel || h.category || '创作者',
-                    keywords: [h.name, h.slug, h.shortTitle, h.tag, h.category, h.roleLabel].filter(Boolean).join(' ').toLowerCase()
+                    keywords: [h.name, h.slug, h.shortTitle, h.tag, h.category, h.roleLabel].filter(Boolean).join(' ')
                 });
             });
         }
@@ -791,16 +806,18 @@
             { name: 'NovaPlay', slug: 'novaplay', sub: '游戏主播', keywords: 'novaplay nova apex 游戏' },
             { name: 'Lens 旅记', slug: 'lens', sub: '摄影创作者', keywords: 'lens 旅记 京都 摄影' },
             { name: '山野食光', slug: 'shanye', sub: '美食创作者', keywords: '山野食光 shanye 露营 美食' },
+            { name: '代码诗人', slug: 'codesmith', sub: '科技创作者', keywords: '代码诗人 codesmith web3 科技' },
+            { name: '银盐时代', slug: 'yinayan', sub: '胶片创作者', keywords: '银盐时代 yinayan 胶片 人像' },
+            { name: '咖啡店主', slug: 'coffee', sub: '生活创作者', keywords: '咖啡店主 coffee 生活 vlog' },
             { name: 'EchoDJ', slug: 'echodj', sub: '旗下艺人 · 音乐', keywords: 'echodj echo dj 旗下' },
             { name: 'Mira 织梦', slug: 'mira', sub: '旗下艺人 · 生活', keywords: 'mira 织梦 旗下' },
             { name: 'Kaito 海斗', slug: 'kaito', sub: '旗下艺人 · 游戏', keywords: 'kaito 海斗 旗下' }
         ].forEach(function (x) {
-            if (list.some(function (c) { return c.label === x.name || (c.value && c.value.indexOf('host=' + x.slug) >= 0); })) return;
-            list.push({
-                value: 'creator-profile.html?user=' + encodeURIComponent(x.name) + '&host=' + encodeURIComponent(x.slug),
+            pushCreator(list, {
                 label: x.name,
+                slug: x.slug,
                 sub: x.sub,
-                keywords: (x.name + ' ' + x.slug + ' ' + x.keywords).toLowerCase()
+                keywords: x.name + ' ' + x.slug + ' ' + x.keywords
             });
         });
         return list;
@@ -813,10 +830,64 @@
         var picked = qs('#adCreatorPicked');
         var drop = qs('#adCreatorDrop');
         if (!root || !query || !hidden || !picked || !drop) return;
-        if (root.getAttribute('data-bound') === '1') return;
+        var catalog = demoCreators();
+        root._adCreatorCatalog = catalog;
+        if (root.getAttribute('data-bound') === '1') {
+            if (hidden.value) {
+                var keep = catalog.filter(function (c) { return c.value === hidden.value; })[0];
+                if (keep) {
+                    picked.hidden = false;
+                    picked.innerHTML =
+                        '<div class="ad-creator-picked-main"><strong>' + esc(keep.label) + '</strong><span>' + esc(keep.sub || '') + '</span></div>' +
+                        '<button type="button" class="ad-creator-clear" id="adCreatorClear" aria-label="清除已选主播"><i class="fa-solid fa-xmark"></i></button>';
+                }
+            }
+            return;
+        }
         root.setAttribute('data-bound', '1');
 
-        var catalog = demoCreators();
+        var dropHome = drop.parentNode;
+
+        function clearDropPlace() {
+            drop.classList.remove('is-fixed');
+            drop.style.left = '';
+            drop.style.top = '';
+            drop.style.bottom = '';
+            drop.style.width = '';
+            drop.style.maxHeight = '';
+            if (dropHome && drop.parentNode !== dropHome) dropHome.appendChild(drop);
+        }
+
+        function hideDrop() {
+            drop.hidden = true;
+            drop.innerHTML = '';
+            root.classList.remove('is-open');
+            clearDropPlace();
+        }
+
+        function placeDrop() {
+            if (drop.hidden) return;
+            if (drop.parentNode !== document.body) document.body.appendChild(drop);
+            var anchor = query.getBoundingClientRect();
+            var gap = 6;
+            var maxH = 260;
+            var spaceBelow = Math.max(0, window.innerHeight - anchor.bottom - gap - 8);
+            var spaceAbove = Math.max(0, anchor.top - gap - 8);
+            var openUp = spaceAbove >= 160 && (spaceBelow < 180 || spaceAbove > spaceBelow);
+            var avail = openUp ? spaceAbove : spaceBelow;
+            var height = Math.min(maxH, Math.max(140, avail));
+            drop.classList.add('is-fixed');
+            drop.style.left = Math.round(anchor.left) + 'px';
+            drop.style.width = Math.round(anchor.width) + 'px';
+            drop.style.maxHeight = Math.round(height) + 'px';
+            if (openUp) {
+                drop.style.top = 'auto';
+                drop.style.bottom = Math.round(window.innerHeight - anchor.top + gap) + 'px';
+            } else {
+                drop.style.bottom = 'auto';
+                drop.style.top = Math.round(anchor.bottom + gap) + 'px';
+            }
+        }
 
         function setPicked(item) {
             if (!item) {
@@ -824,6 +895,7 @@
                 picked.hidden = true;
                 picked.innerHTML = '';
                 query.value = '';
+                hideDrop();
                 return;
             }
             hidden.value = item.value;
@@ -832,44 +904,56 @@
                 '<div class="ad-creator-picked-main"><strong>' + esc(item.label) + '</strong><span>' + esc(item.sub || '') + '</span></div>' +
                 '<button type="button" class="ad-creator-clear" id="adCreatorClear" aria-label="清除已选主播"><i class="fa-solid fa-xmark"></i></button>';
             query.value = '';
-            drop.hidden = true;
-            drop.innerHTML = '';
+            hideDrop();
         }
 
-        function renderDrop(q) {
+        function renderDrop(q, forceSuggest) {
             var key = String(q || '').trim().toLowerCase();
+            var hits;
             if (!key) {
-                drop.hidden = true;
-                drop.innerHTML = '';
-                return;
+                if (!forceSuggest) {
+                    hideDrop();
+                    return;
+                }
+                hits = catalog.slice(0, 8);
+            } else {
+                hits = catalog.filter(function (c) {
+                    return (c.keywords || '').indexOf(key) >= 0 || (c.label || '').toLowerCase().indexOf(key) >= 0;
+                }).slice(0, 8);
             }
-            var hits = catalog.filter(function (c) {
-                return (c.keywords || '').indexOf(key) >= 0 || (c.label || '').toLowerCase().indexOf(key) >= 0;
-            }).slice(0, 8);
             if (!hits.length) {
                 drop.hidden = false;
+                root.classList.add('is-open');
                 drop.innerHTML = '<div class="ad-creator-empty">未找到「' + esc(q) + '」，换个昵称试试</div>';
+                placeDrop();
                 return;
             }
             drop.hidden = false;
-            drop.innerHTML = hits.map(function (c) {
+            root.classList.add('is-open');
+            drop.innerHTML = (forceSuggest && !key
+                ? '<div class="ad-creator-empty" style="padding:6px 12px 4px">可选主播（点选或继续输入筛选）</div>'
+                : '') + hits.map(function (c) {
                 return '<button type="button" class="ad-creator-option" data-value="' + esc(c.value) + '">' +
                     '<strong>' + esc(c.label) + '</strong><span>' + esc(c.sub || '') + '</span></button>';
             }).join('');
+            placeDrop();
         }
 
         query.addEventListener('input', function () {
-            renderDrop(query.value);
+            renderDrop(query.value, true);
         });
         query.addEventListener('focus', function () {
-            if (query.value.trim()) renderDrop(query.value);
+            renderDrop(query.value, true);
+        });
+        query.addEventListener('click', function () {
+            renderDrop(query.value, true);
         });
         drop.addEventListener('click', function (e) {
             var btn = e.target.closest('.ad-creator-option');
             if (!btn) return;
             e.preventDefault();
             var val = btn.getAttribute('data-value');
-            var item = catalog.filter(function (c) { return c.value === val; })[0];
+            var item = (root._adCreatorCatalog || catalog).filter(function (c) { return c.value === val; })[0];
             if (item) setPicked(item);
         });
         picked.addEventListener('click', function (e) {
@@ -879,10 +963,19 @@
             query.focus();
         });
         document.addEventListener('click', function (e) {
-            if (!root.contains(e.target)) {
-                drop.hidden = true;
+            if (!root.contains(e.target) && !drop.contains(e.target)) {
+                hideDrop();
             }
         });
+        window.addEventListener('resize', function () {
+            if (!drop.hidden) placeDrop();
+        });
+        var stage = document.getElementById('adSettingsStage');
+        if (stage) {
+            stage.addEventListener('scroll', function () {
+                if (!drop.hidden) placeDrop();
+            }, { passive: true });
+        }
 
         if (hidden.value) {
             var existing = catalog.filter(function (c) { return c.value === hidden.value; })[0];
