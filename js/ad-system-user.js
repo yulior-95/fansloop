@@ -421,26 +421,28 @@
         var list = FLAdStore.getAds({ uid: UID, excludeUserDeleted: true }).map(function (a) {
             return (FLAdService.healAdPayOrderConsistency && FLAdService.healAdPayOrderConsistency(a.id)) || a;
         }).filter(Boolean).filter(function (a) {
-            return a.payStatus !== 'unpaid' && a.payStatus !== 'failed' && a.payStatus !== 'processing';
+            return a.source !== 'platform' &&
+                a.payStatus !== 'unpaid' && a.payStatus !== 'failed' && a.payStatus !== 'processing';
         });
-        if (filter === 'pending_review') list = list.filter(function (a) { return a.auditStatus === 'pending_review'; });
-        else if (filter === 'pending_start') {
-            /* 已通过且尚未开投（与主状态「待开始」一致；不含仍在审核中的） */
+        if (filter === 'pending_review') {
+            list = list.filter(function (a) { return resolvePrimaryStatus(a).key === 'pending_review'; });
+        } else if (filter === 'pending_start') {
+            list = list.filter(function (a) { return resolvePrimaryStatus(a).key === 'pending_start'; });
+        } else if (filter === 'active') {
+            list = list.filter(function (a) { return resolvePrimaryStatus(a).key === 'delivering'; });
+        } else if (filter === 'paused') {
+            /* 退款审核中虽可能仍为 paused 投放态，但不进「已暂停」筛，避免与底栏矩阵混淆 */
+            list = list.filter(function (a) { return resolvePrimaryStatus(a).key === 'paused'; });
+        } else if (filter === 'ended' || filter === 'removed') {
             list = list.filter(function (a) {
-                return a.auditStatus === 'approved' &&
-                    (a.deliveryStatus === 'pending_start' || a.deliveryStatus === 'pending');
+                var k = resolvePrimaryStatus(a).key;
+                return k === 'ended' || k === 'removed';
             });
+        } else if (filter === 'rejected') {
+            list = list.filter(function (a) { return resolvePrimaryStatus(a).key === 'rejected'; });
+        } else if (filter === 'unpaid') {
+            list = [];
         }
-        else if (filter === 'active') list = list.filter(function (a) { return a.deliveryStatus === 'delivering' || a.deliveryStatus === 'active'; });
-        else if (filter === 'paused') list = list.filter(function (a) { return a.deliveryStatus === 'paused'; });
-        else if (filter === 'ended' || filter === 'removed') {
-            /* 「已结束」筛选项合并自然结束与主动下架 */
-            list = list.filter(function (a) {
-                return a.deliveryStatus === 'ended' || a.deliveryStatus === 'removed';
-            });
-        }
-        else if (filter === 'rejected') list = list.filter(function (a) { return a.auditStatus === 'rejected'; });
-        else if (filter === 'unpaid') list = [];
         if (!list.length) {
             var sum = FLAdStore.accountSummary(UID);
             var hint = sum.advertiserStatus === 'none'
@@ -1929,6 +1931,8 @@
         healRemovedMeta(ad);
 
         var alertHtml = '';
+        var refundInFlight = primary.key === 'refund_pending' ||
+            !!(ticket && (ticket.status === 'pending' || ticket.status === 'processing'));
         if (ad.deliveryStatus === 'removed') {
             var byPlatform = ad.removedBy === 'platform';
             var bySystem = ad.removedBy === 'system';
@@ -1954,6 +1958,8 @@
                 feeLine +
                 (canSoftDelete ? '可点下方「删除」从你的列表移除（后台仍留档）。' : '') +
                 '</p></div></div>';
+        } else if (refundInFlight) {
+            /* 退款进度由下方 ticket 卡片展示；勿再提示「请点申请退款」 */
         } else {
             if (!schedulePayCheck.ok) {
                 alertHtml += '<div class="ad-detail-alert is-danger"><i class="fa-solid fa-clock"></i><div><strong>排期不可支付</strong><p>' +
@@ -2312,25 +2318,22 @@
             toast(r.ok ? '已从列表删除' : r.message);
             if (r.ok) adGo('center');
         });
-        var refundLocked = !!(FLAdService.findRefundInFlight && FLAdService.findRefundInFlight(id)) ||
-            !!(ticket && (ticket.status === 'pending' || ticket.status === 'processing'));
-
         /*
-         * 详情底栏按钮矩阵（以 WEB 为准，H5 共用同一套显隐）
-         * 待审核(paid)           → 申请退款
-         * 待开始(approved+paid)  → 数据、申请退款
-         * 投放中                 → 数据、暂停
-         * 已暂停                 → 数据、恢复、修改、申请退款
-         * 退款审核中             → 仅「数据」
-         * 审核失败(paid)         → 修改、重新提交审核、申请退款
-         * 已结束 / 已下架        → 数据、删除
+         * 详情底栏按钮矩阵（以 WEB 为准，H5 共用同一套显隐；以 resolvePrimaryStatus 为准）
+         * 待审核           → 申请退款
+         * 待开始           → 数据、申请退款
+         * 投放中           → 数据、暂停
+         * 已暂停           → 数据、恢复、修改、申请退款
+         * 退款审核中       → 仅「数据」
+         * 审核失败         → 修改、重新提交审核、申请退款
+         * 已结束 / 已下架  → 数据、删除
          * 用户侧不下架；投放中须先暂停再退款
          */
         var detailView = document.querySelector('.ad-set-view[data-ad-view="detail"]');
         var opsBar = (detailView && (detailView.querySelector('.ad-detail-ops') || detailView.querySelector('.ad-set-actions'))) ||
             qs('.ad-detail-ops') || qs('.ad-set-actions');
-        function detailBtn(id) {
-            return (opsBar && opsBar.querySelector('#' + id)) || document.getElementById(id);
+        function detailBtn(btnId) {
+            return (opsBar && opsBar.querySelector('#' + btnId)) || document.getElementById(btnId);
         }
         function setDetailBtn(el, on, title) {
             if (!el) return;
@@ -2344,63 +2347,49 @@
             if (title !== undefined) el.title = title || '';
         }
 
-        var isDelivering = ad.deliveryStatus === 'delivering' || ad.deliveryStatus === 'active';
-        var isPaused = ad.deliveryStatus === 'paused';
-        var isClosed = ad.deliveryStatus === 'ended' || ad.deliveryStatus === 'removed';
-        var isApproved = ad.auditStatus === 'approved';
-        var isRejected = ad.auditStatus === 'rejected';
-        var isPendingReview = ad.auditStatus === 'pending_review';
-
-        setDetailBtn(detailBtn('adBtnStats'), isApproved);
-        setDetailBtn(
-            detailBtn('adBtnPause'),
-            !refundLocked && isDelivering,
-            refundLocked ? '退款审核中不可暂停' : ''
-        );
-        setDetailBtn(
-            detailBtn('adBtnResume'),
-            !refundLocked && isPaused,
-            refundLocked ? '退款审核中不可恢复' : ''
-        );
-        var canEdit = !refundLocked && (
-            ad.auditStatus === 'draft' || ad.auditStatus === 'none' || isRejected ||
-            (isApproved && isPaused)
-        );
-        setDetailBtn(
-            detailBtn('adBtnEdit'),
-            canEdit,
-            refundLocked
-                ? '退款审核中不可修改'
-                : (isDelivering ? '投放中不可修改，请先暂停' : '')
-        );
-        setDetailBtn(detailBtn('adBtnPay'), false);
-        setDetailBtn(
-            detailBtn('adBtnResubmit'),
-            isRejected && ad.payStatus === 'paid'
-        );
-        /* 用户侧不下架：下架仅运营后台 */
-        setDetailBtn(detailBtn('adBtnRemove'), false);
-        setDetailBtn(
-            detailBtn('adBtnDelete'),
-            isClosed,
-            '仅从你的列表移除；后台订单与投放记录留档'
-        );
+        var pk = primary.key;
+        var isPaid = ad.payStatus === 'paid' || ad.payStatus === 'partial_refunded';
+        var showStats = pk === 'pending_start' || pk === 'delivering' || pk === 'paused' ||
+            pk === 'refund_pending' || pk === 'ended' || pk === 'removed';
+        var showPause = pk === 'delivering';
+        var showResume = pk === 'paused';
+        var showEdit = pk === 'paused' || pk === 'rejected' || pk === 'none' ||
+            pk === 'unpaid' || pk === 'unpaid_expired';
+        var showResubmit = pk === 'rejected' && isPaid;
+        var showDelete = pk === 'ended' || pk === 'removed';
+        var refundEligible = pk === 'pending_review' || pk === 'pending_start' ||
+            pk === 'paused' || pk === 'rejected';
         var showRf = false;
-        var hasPendingRf = ticket && ticket.status === 'pending';
-        if (!hasPendingRf && !isClosed && !isDelivering && order && (ad.payStatus === 'paid' || ad.payStatus === 'partial_refunded')) {
+        if (refundEligible && isPaid && order) {
             var rq = refundQuote;
             if (!rq || typeof rq.ok === 'undefined') {
                 rq = FLAdService.syncOrderRefundable(order.id);
             }
-            /* 待审核/待开始/已暂停/审核失败(pending_start)：有可退才显示；投放中不显示 */
-            var delOk = ad.deliveryStatus === 'pending_start' || isPaused;
-            showRf = !!(rq && rq.ok && rq.maxRefundNow > 0 && delOk);
+            showRf = !!(rq && rq.ok && rq.maxRefundNow > 0);
         }
+
+        setDetailBtn(detailBtn('adBtnStats'), showStats);
+        setDetailBtn(detailBtn('adBtnPause'), showPause, '');
+        setDetailBtn(detailBtn('adBtnResume'), showResume, '');
+        setDetailBtn(
+            detailBtn('adBtnEdit'),
+            showEdit,
+            pk === 'delivering' ? '投放中不可修改，请先暂停' : (pk === 'refund_pending' ? '退款审核中不可修改' : '')
+        );
+        setDetailBtn(detailBtn('adBtnPay'), false);
+        setDetailBtn(detailBtn('adBtnResubmit'), showResubmit);
+        /* 用户侧不下架：下架仅运营后台 */
+        setDetailBtn(detailBtn('adBtnRemove'), false);
+        setDetailBtn(
+            detailBtn('adBtnDelete'),
+            showDelete,
+            '仅从你的列表移除；后台订单与投放记录留档'
+        );
         var refundBtn = detailBtn('adBtnRefund');
         setDetailBtn(refundBtn, showRf);
         if (refundBtn && showRf) {
             refundBtn.textContent = '申请退款';
-            var rfPrimary = isPendingReview || isRejected;
+            var rfPrimary = pk === 'pending_review' || pk === 'rejected';
             refundBtn.classList.toggle('btn-primary', rfPrimary);
             refundBtn.classList.toggle('btn-secondary', !rfPrimary);
         }

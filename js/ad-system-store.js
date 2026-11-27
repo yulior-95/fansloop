@@ -145,6 +145,8 @@
     var DEMO_AUDIT_CONSISTENCY_VERSION = 2;
     /** 演示账号 U102938 默认「未申请广告主」；升级后从旧 localStorage 移除其资质记录 */
     var DEMO_QUAL_WALKTHROUGH_VERSION = 1;
+    /** 详情底栏按钮矩阵演示样例：待审核/待开始/已暂停（无退款锁） */
+    var DEMO_DETAIL_BTN_MATRIX_VERSION = 2;
 
     function syntheticAdvertisers() {
         return [
@@ -360,7 +362,8 @@
                 { id: 'ORD20261109005', adId: 'AD20261109005', uid: DEMO_UID, packageId: 'PKG-BANNER-7', packageName: '首页 Banner · 7 天', slotCode: 'home_banner', priceSnapshot: 399, durationDays: 7, payStatus: 'paid', paidAmount: 399, refundedAmount: 0, refundableAmount: 399, paidAt: '2026-11-06T10:00:00+08:00', frozen: 399 },
                 { id: 'ORD20261109006', adId: 'AD20261109006', uid: DEMO_UID, packageId: 'PKG-FEED-7', packageName: '信息流 · 7 天', slotCode: 'feed_video', priceSnapshot: 199, durationDays: 7, payStatus: 'paid', paidAmount: 199, refundedAmount: 0, refundableAmount: 80, paidAt: '2026-11-01T08:00:00+08:00', frozen: 199 },
                 { id: 'ORD20261109007', adId: 'AD20261109007', uid: DEMO_UID, packageId: 'PKG-FEED-7', packageName: '信息流 · 7 天', slotCode: 'feed_video', priceSnapshot: 199, durationDays: 7, payStatus: 'paid', paidAmount: 199, refundedAmount: 0, refundableAmount: 90, paidAt: '2026-11-03T09:00:00+08:00', frozen: 199, refundTicketId: 'RF20261109001' },
-                { id: 'ORD20261109008', adId: 'AD20261109008', uid: DEMO_UID, packageId: 'PKG-FEED-30', packageName: '信息流 · 30 天', slotCode: 'feed_video', priceSnapshot: 699, durationDays: 30, payStatus: 'paid', paidAmount: 699, refundedAmount: 0, refundableAmount: 0, paidAt: '2026-10-01T10:00:00+08:00', frozen: 0 }
+                { id: 'ORD20261109008', adId: 'AD20261109008', uid: DEMO_UID, packageId: 'PKG-FEED-30', packageName: '信息流 · 30 天', slotCode: 'feed_video', priceSnapshot: 699, durationDays: 30, payStatus: 'paid', paidAmount: 699, refundedAmount: 0, refundableAmount: 0, paidAt: '2026-10-01T10:00:00+08:00', frozen: 0 },
+                { id: 'ORD20261109009', adId: 'AD20261109009', uid: DEMO_UID, packageId: 'PKG-FEED-30', packageName: '信息流 · 30 天', slotCode: 'feed_video', priceSnapshot: 699, durationDays: 30, payStatus: 'paid', paidAmount: 699, refundedAmount: 0, refundableAmount: 540, paidAt: '2026-11-18T09:10:00+08:00', frozen: 699 }
             ],
             targeting: defaultTargeting(),
             freqCaps: defaultFreqCaps(),
@@ -731,8 +734,8 @@
                     materialType: 'image',
                     landingType: 'creator',
                     landingUrl: 'creator-profile.html',
-                    startAt: '2026-11-12T00:00:00+08:00',
-                    endAt: '2026-11-26T23:59:00+08:00',
+                    startAt: '2026-12-10T00:00:00+08:00',
+                    endAt: '2026-12-24T23:59:00+08:00',
                     audience: { regions: ['全部'], langs: ['zh-CN'], minAge: 18 },
                     budgetTotal: 349,
                     budgetDaily: 25,
@@ -765,8 +768,8 @@
                     materialType: 'image',
                     landingType: 'external',
                     landingUrl: 'https://goodfans.io/campaign/pending-start',
-                    startAt: '2026-11-15T00:00:00+08:00',
-                    endAt: '2026-11-22T23:59:00+08:00',
+                    startAt: '2026-12-05T00:00:00+08:00',
+                    endAt: '2026-12-12T23:59:00+08:00',
                     audience: { regions: ['全部'], langs: ['zh-CN'], minAge: 18 },
                     budgetTotal: 399,
                     budgetDaily: 60,
@@ -893,6 +896,43 @@
                     stats: { impressions: 88000, clicks: 2400, spend: 699, conversions: 310 },
                     createdAt: '2026-09-28T10:00:00+08:00',
                     auditLog: [{ at: '2026-09-29T11:00:00+08:00', by: '审核·Ken', action: '审核通过', note: '已结束样例' }]
+                },
+                {
+                    /* 已暂停样例（无退款锁）：底栏应为 数据、恢复、修改、申请退款 */
+                    id: 'AD20261109009',
+                    name: '冬季护肤礼盒预售',
+                    source: 'user',
+                    advertiserUid: DEMO_UID,
+                    type: '品牌曝光',
+                    slotCode: 'feed_video',
+                    title: '冬季护肤礼盒预售',
+                    copy: '限时组合价，点击查看套装详情',
+                    materialUrl: 'https://picsum.photos/seed/ad-paused-clean/720/1280',
+                    materialType: 'image',
+                    landingType: 'external',
+                    landingUrl: 'https://goodfans.io/campaign/winter-kit',
+                    startAt: '2026-11-20T00:00:00+08:00',
+                    endAt: '2026-12-20T23:59:00+08:00',
+                    audience: { regions: ['全部'], langs: ['zh-CN'], minAge: 18 },
+                    budgetTotal: 199,
+                    budgetDaily: 20,
+                    billing: 'fixed',
+                    payStatus: 'paid',
+                    auditStatus: 'approved',
+                    deliveryStatus: 'paused',
+                    pausedAt: '2026-11-25T15:00:00+08:00',
+                    pauseReason: '临时调整素材',
+                    orderId: 'ORD20261109009',
+                    packageId: 'PKG-FEED-30',
+                    packageName: '信息流 · 30 天',
+                    priceUsdt: 699,
+                    contentVersion: 1,
+                    versions: [],
+                    rejectReason: '',
+                    priority: 4,
+                    stats: { impressions: 4200, clicks: 96, spend: 0, conversions: 8 },
+                    createdAt: '2026-11-18T09:00:00+08:00',
+                    auditLog: [{ at: '2026-11-18T14:00:00+08:00', by: '审核·Ken', action: '审核通过', note: '已暂停样例（可退款）' }]
                 }
             ].concat(syntheticAds()),
             finance: [
@@ -913,6 +953,7 @@
             demoCatalogVersion: DEMO_CATALOG_VERSION,
             demoPackageModelVersion: DEMO_PACKAGE_MODEL_VERSION,
             demoHomeAdShowcaseVersion: DEMO_HOME_AD_SHOWCASE_VERSION,
+            demoDetailBtnMatrixVersion: DEMO_DETAIL_BTN_MATRIX_VERSION,
             opLogs: []
         };
     }
@@ -1259,7 +1300,8 @@
             data = mergeDemoRichness(data);
             data = applyPackageModelMigration(data);
             data = applyHomeAdShowcaseMigration(data);
-            return applyAuditConsistencyMigration(data);
+            data = applyAuditConsistencyMigration(data);
+            return applyDetailBtnMatrixMigration(data);
         } catch (e) {
             return seed();
         }
@@ -1337,6 +1379,89 @@
             }
         });
         data.demoAuditConsistencyVersion = DEMO_AUDIT_CONSISTENCY_VERSION;
+        save(data);
+        return data;
+    }
+
+    /**
+     * 对齐详情底栏按钮矩阵演示态：
+     * - 待审核 / 待开始：排期推到「今天」之后，避免超时未审自动取消
+     * - 已暂停（无退款锁）：独立样例，底栏 数据+恢复+修改+申请退款
+     * - 退款审核中样例（AD20261109007）保持不变
+     */
+    function applyDetailBtnMatrixMigration(data) {
+        if (!data || (data.demoDetailBtnMatrixVersion || 0) >= DEMO_DETAIL_BTN_MATRIX_VERSION) return data;
+        var fresh = seed();
+        var byId = {};
+        (data.ads || []).forEach(function (a) { byId[a.id] = a; });
+        var orderById = {};
+        (data.orders || []).forEach(function (o) { orderById[o.id] = o; });
+
+        function upsertAdFromSeed(id) {
+            var tpl = (fresh.ads || []).filter(function (a) { return a.id === id; })[0];
+            if (!tpl) return;
+            if (byId[id]) {
+                Object.keys(tpl).forEach(function (k) { byId[id][k] = tpl[k]; });
+            } else {
+                data.ads = data.ads || [];
+                data.ads.push(JSON.parse(JSON.stringify(tpl)));
+                byId[id] = data.ads[data.ads.length - 1];
+            }
+        }
+        function upsertOrderFromSeed(id) {
+            var tpl = (fresh.orders || []).filter(function (o) { return o.id === id; })[0];
+            if (!tpl) return;
+            if (orderById[id]) {
+                Object.keys(tpl).forEach(function (k) { orderById[id][k] = tpl[k]; });
+            } else {
+                data.orders = data.orders || [];
+                data.orders.push(JSON.parse(JSON.stringify(tpl)));
+                orderById[id] = data.orders[data.orders.length - 1];
+            }
+        }
+
+        upsertAdFromSeed('AD20261109004');
+        upsertAdFromSeed('AD20261109005');
+        upsertAdFromSeed('AD20261109009');
+        upsertOrderFromSeed('ORD20261109004');
+        upsertOrderFromSeed('ORD20261109005');
+        upsertOrderFromSeed('ORD20261109009');
+
+        /* 清掉超时未审自动退给「待审核」样例留下的票，避免再次锁死 */
+        data.refunds = (data.refunds || []).filter(function (t) {
+            if (!t) return false;
+            if (t.adId === 'AD20261109004' && t.auto) return false;
+            if (t.adId === 'AD20261109005' && t.auto) return false;
+            return true;
+        });
+        if (orderById.ORD20261109004) {
+            orderById.ORD20261109004.payStatus = 'paid';
+            orderById.ORD20261109004.refundedAmount = 0;
+            orderById.ORD20261109004.frozen = orderById.ORD20261109004.paidAmount || 349;
+            delete orderById.ORD20261109004.refundTicketId;
+        }
+
+        data.advertisers = data.advertisers || [];
+        var demoAdv = data.advertisers.filter(function (a) { return a.uid === DEMO_UID; })[0];
+        if (!demoAdv) {
+            data.advertisers.push({
+                uid: DEMO_UID,
+                accountStatus: 'approved',
+                applyAt: '2026-11-01T10:00:00+08:00',
+                companyName: '星海互动传媒',
+                contact: 'ads@xinghai.demo',
+                rejectReason: '',
+                violationCount: 0,
+                totalRecharge: 5000,
+                totalSpend: 897.6
+            });
+        } else if (demoAdv.accountStatus !== 'approved') {
+            /* 详情矩阵演示依赖已通过的广告主；保留其它字段 */
+            demoAdv.accountStatus = 'approved';
+            if (!demoAdv.companyName) demoAdv.companyName = '星海互动传媒';
+        }
+
+        data.demoDetailBtnMatrixVersion = DEMO_DETAIL_BTN_MATRIX_VERSION;
         save(data);
         return data;
     }
