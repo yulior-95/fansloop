@@ -27,15 +27,15 @@
     };
 
     var CHART_PATHS = {
-        '7': 'M0,180 L320,180 L320,180 L0,180 Z',
-        '30': 'M0,180 L320,180 L320,180 L0,180 Z',
-        '90': 'M0,180 L320,180 L320,180 L0,180 Z'
+        '7': 'M0,150 Q40,130 80,118 T160,95 T240,70 T320,58 L320,180 L0,180 Z',
+        '30': 'M0,140 Q30,120 60,108 T120,90 T180,72 T240,54 T320,36 L320,180 L0,180 Z',
+        '90': 'M0,155 Q25,145 50,138 T100,120 T200,88 T280,62 T320,48 L320,180 L0,180 Z'
     };
 
     var CHART_LINES = {
-        '7': 'M0,180 L320,180',
-        '30': 'M0,180 L320,180',
-        '90': 'M0,180 L320,180'
+        '7': 'M0,150 Q40,130 80,118 T160,95 T240,70 T320,58',
+        '30': 'M0,140 Q30,120 60,108 T120,90 T180,72 T240,54 T320,36',
+        '90': 'M0,155 Q25,145 50,138 T100,120 T200,88 T280,62 T320,48'
     };
 
     var CHART_X = {
@@ -406,6 +406,7 @@
             row.style.display = show ? '' : 'none';
             if (show) visible++;
         });
+        syncIncomeEmpty();
         if (filter !== 'all' && visible === 0) {
             showToast('当前筛选暂无匹配记录');
         }
@@ -475,12 +476,28 @@
         host.innerHTML = html;
     }
 
+    function syncIncomeEmpty() {
+        var empty = document.getElementById('ciIncomeEmpty');
+        if (!empty) return;
+        var rows = document.querySelectorAll('.list-card .income-row');
+        var has = false;
+        rows.forEach(function (row) {
+            if (row.style.display === 'none') return;
+            has = true;
+        });
+        empty.hidden = has;
+        empty.style.display = has ? 'none' : '';
+    }
+
     function renderTipIncomeRows() {
         var host = document.getElementById('ciTipIncomeRows');
-        if (!host || !window.FLTipEvents) return;
-        var empty = document.getElementById('ciIncomeEmpty');
-        var events = window.FLTipEvents.getLatest(20);
-        if (empty) empty.style.display = events.length ? 'none' : '';
+        if (!host) {
+            syncIncomeEmpty();
+            return;
+        }
+        var events = window.FLTipEvents && window.FLTipEvents.getLatest
+            ? window.FLTipEvents.getLatest(20)
+            : [];
         host.innerHTML = events.map(function (event) {
             var sender = escHtml(event.sender || '匿名用户');
             var creator = escHtml(event.creator || '创作者');
@@ -493,6 +510,7 @@
                 '<div class="right"><div class="am">+' + fmtUsdt(event.amount) + ' USDT</div><div class="stt"><i class="fa-solid fa-clock"></i> 结算中</div></div>' +
                 '</div>';
         }).join('');
+        syncIncomeEmpty();
     }
 
     function bindIncomeRows() {

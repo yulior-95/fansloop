@@ -9,13 +9,15 @@
         return STORAGE_KEY + '_' + uid;
     }
     const tagWrap = document.getElementById('creatorCertTagWrap');
+    const settingsPill = document.getElementById('settingsRolePill');
     const roleLine = document.getElementById('profileRoleLine');
     const roleBadge = document.querySelector('.ph-row .av-xl .role-badge')
         || document.querySelector('.avatar-ring .role-badge, .avatar-ring .pf-role-badge');
     const sheet = document.getElementById('sheetCreatorCert');
-    const toast = document.getElementById('pfToast');
+    const toast = document.getElementById('pfToast') || document.getElementById('settingsProfileToast');
 
-    if (!tagWrap) return;
+    /* 个人主页标签 或 设置页角色胶囊 + 申请弹窗，任一存在即可 */
+    if (!tagWrap && !(settingsPill && sheet)) return;
 
     const CREATOR_TYPES = [
         { id: 'photo', name: '摄影摄像', icon: 'fa-camera', grad: 'linear-gradient(135deg,#6366F1,#8B5CF6)' },
@@ -88,6 +90,31 @@
         return c.kyc && c.compliance;
     }
 
+    function syncSettingsPill() {
+        if (!settingsPill) return;
+        const status = state.status;
+        settingsPill.classList.remove('is-clickable', 'is-pending', 'is-approved');
+        if (status === 'approved') {
+            settingsPill.classList.add('is-approved');
+            settingsPill.innerHTML = '<i class="fa-solid fa-crown"></i> 认证创作者';
+            settingsPill.removeAttribute('role');
+            settingsPill.removeAttribute('tabindex');
+            settingsPill.title = '';
+        } else if (status === 'pending') {
+            settingsPill.classList.add('is-pending');
+            settingsPill.innerHTML = '<i class="fa-solid fa-hourglass-half"></i> 认证审核中';
+            settingsPill.removeAttribute('role');
+            settingsPill.removeAttribute('tabindex');
+            settingsPill.title = '审核中，请耐心等待';
+        } else {
+            settingsPill.classList.add('is-clickable');
+            settingsPill.innerHTML = '<i class="fa-solid fa-certificate"></i> 未认证创作者 · 去申请';
+            settingsPill.setAttribute('role', 'button');
+            settingsPill.setAttribute('tabindex', '0');
+            settingsPill.title = '点击申请成为创作者';
+        }
+    }
+
     function renderTag() {
         const status = state.status;
         let html = '';
@@ -100,12 +127,15 @@
             html = '<button type="button" class="tag tag-creator-apply" id="creatorCertTag"><i class="fa-solid fa-certificate"></i>申请成为创作者</button>';
         }
 
-        tagWrap.innerHTML = html;
-
-        const el = document.getElementById('creatorCertTag');
-        if (el && status === 'none') {
-            el.addEventListener('click', openCertSheet);
+        if (tagWrap) {
+            tagWrap.innerHTML = html;
+            const el = document.getElementById('creatorCertTag');
+            if (el && status === 'none') {
+                el.addEventListener('click', openCertSheet);
+            }
         }
+
+        syncSettingsPill();
 
         if (roleLine) {
             var walletEl = roleLine.querySelector('[data-wallet-text]');
@@ -282,6 +312,20 @@
 
     function bindSheet() {
         if (!sheet) return;
+
+        if (settingsPill && !settingsPill.getAttribute('data-cert-bound')) {
+            settingsPill.setAttribute('data-cert-bound', '1');
+            settingsPill.addEventListener('click', function () {
+                if (state.status === 'none') openCertSheet();
+            });
+            settingsPill.addEventListener('keydown', function (e) {
+                if (state.status !== 'none') return;
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openCertSheet();
+                }
+            });
+        }
 
         document.getElementById('certBtnClose')?.addEventListener('click', closeCertSheet);
         sheet.addEventListener('click', e => {

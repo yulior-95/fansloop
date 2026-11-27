@@ -2,6 +2,7 @@
  * 创作者收入 · 侧栏 chip / 收入页共享（按账号 + 自然月）
  */
 (function (global) {
+    var DEMO_UID = 'demo_uid_882910';
     var LS_KEY = 'fl_creator_income_v1';
 
     function currentMonthKey() {
@@ -28,20 +29,38 @@
         }
     }
 
-    function getMonthlyUsdt() {
-        var uid = userId();
-        if (!uid) return 0;
+    function demoMonthlyUsdt() {
+        return 298.4;
+    }
 
+    function isDemoUid(uid) {
+        if (uid === DEMO_UID) return true;
         var acc = global.FLUserRegistry && global.FLUserRegistry.getByUserId
             ? global.FLUserRegistry.getByUserId(uid)
             : null;
-        if (acc && acc.email === 'luna@goodfans.io') return 0;
+        return !!(acc && acc.email === 'luna@goodfans.io');
+    }
+
+    function getMonthlyUsdt() {
+        var uid = userId();
+        if (!uid) return demoMonthlyUsdt();
+
+        if (isDemoUid(uid)) {
+            var storedDemo = readStored(uid);
+            if (storedDemo && typeof storedDemo.monthlyUsdt === 'number' && storedDemo.monthlyUsdt > 0) {
+                return storedDemo.monthlyUsdt;
+            }
+            return demoMonthlyUsdt();
+        }
 
         var stored = readStored(uid);
         if (stored && typeof stored.monthlyUsdt === 'number') {
             return stored.monthlyUsdt > 0 ? stored.monthlyUsdt : 0;
         }
 
+        var acc = global.FLUserRegistry && global.FLUserRegistry.getByUserId
+            ? global.FLUserRegistry.getByUserId(uid)
+            : null;
         var isCreator = global.FLIdentity && global.FLIdentity.isCreator
             ? global.FLIdentity.isCreator(acc)
             : acc && acc.role === 'Creator';
@@ -114,6 +133,7 @@
     }
 
     global.FLCreatorIncomeStore = {
+        DEMO_UID: DEMO_UID,
         getMonthlyUsdt: getMonthlyUsdt,
         getSidebarChip: getSidebarChip,
         formatChipText: formatChipText,
