@@ -76,7 +76,7 @@
         },
         {
             code: 'home_banner', name: '首页 Banner', page: '首页顶部（WEB / H5）', types: ['品牌曝光', '活动推广'],
-            spec: '仅 1 张图 JPG/PNG/WebP ≤500KB；推荐 2400×300（8:1）',
+            spec: '仅 1 张图 JPG/PNG/WebP ≤500KB；标准出图 2400×300（8:1，不符报错；小屏等比缩小）',
             rotateSec: 5, maxPerSession: 5, dailyCap: 8, fallbackMode: 'hide', closable: true,
             interval: '多条广告轮播 5s；同屏最多 5 条；可关闭',
             cap: '同用户同广告每日最多 8 次', fallback: '隐藏广告位区域',
@@ -84,7 +84,7 @@
         },
         {
             code: 'live_room', name: '直播间推广', page: '直播间', types: ['品牌曝光', '直播引流'],
-            spec: '仅 1 张图（禁视频）；推荐 1440×160（9:1）铺满推广条',
+            spec: '仅 1 张图（禁视频）；标准出图 1440×160（9:1，不符报错；小屏等比缩小）',
             intervalMin: 15, maxPerSession: 4, dailyCap: 4, fallbackMode: 'none',
             interval: '每 15 分钟可展示 1 次',
             cap: '单场次最多 4 次 · 每日最多 4 次', fallback: '不展示推广',
@@ -158,7 +158,7 @@
     /** 广告通知：每种业务情况各一条样例 */
     var DEMO_NOTICE_CATALOG_VERSION = 1;
     /** Banner/直播间素材规范文案（单图、禁视频、推荐尺寸） */
-    var DEMO_SLOT_SPEC_VERSION = 2;
+    var DEMO_SLOT_SPEC_VERSION = 4;
 
     function syntheticAdvertisers() {
         return [

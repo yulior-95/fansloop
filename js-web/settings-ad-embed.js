@@ -210,7 +210,7 @@
         if (!document.querySelector('link[href*="ad-system.css"]')) {
             var link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = scriptBase() + 'css/ad-system.css?v=20261128readall';
+            link.href = scriptBase() + 'css/ad-system.css?v=20261128size2';
             document.head.appendChild(link);
         }
         if (!document.querySelector('link[href*="dev-glass-note"]')) {
@@ -240,8 +240,8 @@
         if (scriptsLoaded) return Promise.resolve();
         if (scriptsLoading) return scriptsLoading;
         var base = scriptBase();
-        scriptsLoading = loadScript(base + 'js/ad-system-store.js?v=20261128notice1')
-            .then(function () { return loadScript(base + 'js/ad-system-api.js?v=20261128readall'); })
+        scriptsLoading = loadScript(base + 'js/ad-system-store.js?v=20261128size2')
+            .then(function () { return loadScript(base + 'js/ad-system-api.js?v=20261128size2'); })
             .then(function () { return loadScript(base + 'js/ad-center-promo-markup.js?v=20261125pkg'); })
             .then(function () { return loadScript(base + 'js/ad-advertiser-terms.js'); })
             .then(function () { return loadScript(base + 'js/ad-advertiser-apply-markup.js'); })
@@ -252,7 +252,7 @@
                     return loadScript(base + 'js-web/dev-glass-viewport.js');
                 }
             })
-            .then(function () { return loadScript(base + 'js/ad-system-user.js?v=20261128readall'); })
+            .then(function () { return loadScript(base + 'js/ad-system-user.js?v=20261128size2'); })
             .then(function () { return loadScript(base + 'js/ad-settings-shell.js'); })
             .then(function () {
                 if (!global.FLAdStore || !global.FLAdService || !global.FLAdUser) {

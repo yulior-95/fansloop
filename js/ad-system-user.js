@@ -1142,23 +1142,23 @@
                 help.innerHTML =
                     '首页 Banner <strong>仅 1 张图片</strong>，不可上传视频。<br>' +
                     '格式：' + esc(rule.formatsLabel || 'JPG / PNG / WebP') + ' · ≤500KB<br>' +
-                    '推荐尺寸：<strong>' + esc(rule.recommendedSize || '2400×300') + '</strong>（8:1）· 宽 ≥1200 · 宽÷高 ≥6<br>' +
-                    '适配说明：各电脑屏幕用 <code>cover</code> 居中裁切；请把标题/LOGO 放在画面水平居中约 60% 安全区内。';
+                    '标准出图：必须 <strong>' + esc(rule.recommendedSize || '2400×300') + '</strong>（宽高比 ' + esc(rule.aspectLabel || '8:1') + '），其它尺寸将报错。<br>' +
+                    '适配说明：小屏按比例缩小显示，不会糊；WEB / H5 同一张图，不裁剪。';
             } else if (slotCode === 'live_room' && rule) {
                 help.innerHTML =
-                    '直播间推广 <strong>仅 1 张图片</strong>，不可上传视频；展示时<strong>铺满整条</strong>。<br>' +
+                    '直播间推广 <strong>仅 1 张图片</strong>，不可上传视频；不展示标题/LOGO。<br>' +
                     '格式：' + esc(rule.formatsLabel || 'JPG / PNG / WebP') + ' · ≤500KB<br>' +
-                    '推荐尺寸：<strong>' + esc(rule.recommendedSize || '1440×160') + '</strong>（9:1）· 宽 ≥900 · 宽÷高 ≥7<br>' +
-                    '适配说明：WEB / H5 均用 <code>cover</code> 居中铺满；不展示标题/LOGO，请把文案画进素材图的水平居中约 60% 安全区。';
+                    '标准出图：必须 <strong>' + esc(rule.recommendedSize || '1440×160') + '</strong>（宽高比 ' + esc(rule.aspectLabel || '9:1') + '），其它尺寸将报错。<br>' +
+                    '适配说明：小屏按比例缩小显示，不会糊；WEB / H5 同一张图，不裁剪。';
             } else {
                 help.textContent = '观众实际看到的画面。图片可一次选多张；视频只能上传 1 个，且不可与图片混用。';
             }
         }
         if (formats) {
             if (slotCode === 'home_banner') {
-                formats.textContent = '仅 1 张图 · JPG/PNG/WebP · ≤500KB · 推荐 2400×300（8:1）';
+                formats.textContent = '仅 1 张图 · JPG/PNG/WebP · ≤500KB · 必须 2400×300（8:1）';
             } else if (slotCode === 'live_room') {
-                formats.textContent = '仅 1 张图 · 禁视频 · 铺满推广条 · 推荐 1440×160（9:1）';
+                formats.textContent = '仅 1 张图 · 禁视频 · 必须 1440×160（9:1）';
             } else if (rule && rule.allowVideo) {
                 formats.textContent = '图片可多选（最多 ' + maxImg + ' 张）· 视频仅 1 个';
             } else {

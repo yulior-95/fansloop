@@ -209,30 +209,32 @@
             maxImages: 1,
             maxImageBytes: 500 * 1024,
             maxVideoBytes: 0,
-            /* 通栏矮条：一张图 cover 适配各屏；推荐 8:1，宽高比 ≥ 6 */
-            ratios: [[8, 1], [10, 1], [12, 1], [6, 1], [16, 2], [15, 2]],
-            minLandscapeRatio: 6,
-            minWidth: 1200,
+            /* 标准出图 2400×300（8:1）；小屏等比缩小不糊、不裁剪；像素不符即报错 */
+            exactSize: true,
+            requiredWidth: 2400,
+            requiredHeight: 300,
             recommendedSize: '2400×300',
-            webSize: '2400×300（8:1，推荐；亦可 1920×240）',
-            h5Size: '同一张图自动裁切；安全区见提示',
+            aspectLabel: '8:1',
+            webSize: '2400×300（标准出图；WEB/H5 等比缩小，不裁剪）',
+            h5Size: '同 2400×300，按屏宽等比缩小',
             formatsLabel: 'JPG / PNG / WebP',
-            hint: '首页 Banner 仅 1 张图片，不可视频。格式 JPG/PNG/WebP；≤500KB。推荐 2400×300（8:1），最低宽 ≥1200 且宽÷高 ≥6。重要文案/LOGO 放画面水平居中约 60% 安全区内，左右边缘可被宽屏裁切。'
+            hint: '首页 Banner 仅 1 张图，不可视频。JPG/PNG/WebP，≤500KB。须精确上传 2400×300（宽高比 8:1），其它尺寸将报错。展示时按屏宽等比缩小，WEB/H5 同一张图、不裁剪。'
         },
         live_room: {
             allowVideo: false,
             maxImages: 1,
             maxImageBytes: 500 * 1024,
             maxVideoBytes: 0,
-            /* 直播间推广条：一张图铺满整条（WEB≈96px 高 / H5≈64px 高，cover） */
-            ratios: [[9, 1], [10, 1], [12, 1], [8, 1], [16, 2]],
-            minLandscapeRatio: 7,
-            minWidth: 900,
+            /* 标准出图 1440×160（9:1）；小屏等比缩小不糊、不裁剪；像素不符即报错 */
+            exactSize: true,
+            requiredWidth: 1440,
+            requiredHeight: 160,
             recommendedSize: '1440×160',
-            webSize: '1440×160（9:1，推荐；铺满 WEB 推广条）',
-            h5Size: '同一张图 cover 铺满 H5 矮条',
+            aspectLabel: '9:1',
+            webSize: '1440×160（标准出图；WEB/H5 等比缩小，不裁剪）',
+            h5Size: '同 1440×160，按屏宽等比缩小',
             formatsLabel: 'JPG / PNG / WebP',
-            hint: '直播间推广仅 1 张图片，不可上传视频（仅平台运营）。格式 JPG/PNG/WebP；≤500KB。推荐 1440×160（9:1），宽 ≥900 且宽÷高 ≥7。展示时图片铺满整条，不展示标题/LOGO；重要内容放水平居中约 60% 安全区。'
+            hint: '直播间推广仅 1 张图，不可视频（仅平台运营）。JPG/PNG/WebP，≤500KB。须精确上传 1440×160（宽高比 9:1），其它尺寸将报错。展示时按屏宽等比缩小，WEB/H5 同一张图、不裁剪；不展示标题/LOGO。'
         }
     };
 
@@ -294,21 +296,18 @@
                 : (Math.round(maxBytes / 1024) + 'KB');
             return fail((isVideo ? '视频过大，需 ≤' : '图片过大，需 ≤') + sizeHint);
         }
-        if (meta.width && rule.minWidth && meta.width < rule.minWidth) {
-            return fail('图片宽度需 ≥ ' + rule.minWidth + 'px（推荐 ' + (rule.recommendedSize || '') + '）');
-        }
-        if (meta.width && meta.height) {
-            var ratioOk = aspectMatch(meta.width, meta.height, rule.ratios);
-            if (!ratioOk && rule.minLandscapeRatio) {
-                ratioOk = (meta.width / meta.height) >= rule.minLandscapeRatio;
+        if (isImage && rule.exactSize && rule.requiredWidth && rule.requiredHeight) {
+            if (!meta.width || !meta.height) {
+                return fail('无法读取图片尺寸，请重新选择文件');
             }
-            if (!ratioOk) {
-                if (slotCode === 'home_banner') {
-                    return fail('Banner 需为横向通栏图（宽÷高 ≥ ' + (rule.minLandscapeRatio || 6) + '，推荐 ' + (rule.recommendedSize || '2400×300') + '）');
-                }
-                if (slotCode === 'live_room') {
-                    return fail('直播间推广需为横向通栏图（宽÷高 ≥ ' + (rule.minLandscapeRatio || 7) + '，推荐 ' + (rule.recommendedSize || '1440×160') + '，将铺满推广条）');
-                }
+            if (meta.width !== rule.requiredWidth || meta.height !== rule.requiredHeight) {
+                return fail(
+                    '请上传精确尺寸 ' + rule.requiredWidth + '×' + rule.requiredHeight +
+                    ' 的图片（当前 ' + meta.width + '×' + meta.height + '）'
+                );
+            }
+        } else if (meta.width && meta.height && rule.ratios && rule.ratios.length) {
+            if (!aspectMatch(meta.width, meta.height, rule.ratios)) {
                 return fail('尺寸比例不符合要求（' + rule.hint + '）');
             }
         }

@@ -1552,18 +1552,18 @@
             }
             if (matHelp) {
                 if (slot === 'home_banner') {
-                    matHelp.textContent = '首页 Banner 仅 1 张图片（禁视频）。推荐 2400×300（8:1），≤500KB；重要内容放水平居中 60% 安全区，适配不同电脑宽度。';
+                    matHelp.textContent = '首页 Banner 仅 1 张图（禁视频）。标准出图必须 2400×300（8:1），其它尺寸报错；≤500KB。小屏等比缩小不糊；WEB/H5 不裁剪。';
                 } else if (slot === 'live_room') {
-                    matHelp.textContent = '直播间推广仅 1 张图片（禁视频），展示时铺满整条、不展示标题/LOGO。推荐 1440×160（9:1），≤500KB；宽≥900、宽÷高≥7；文案请画进素材安全区。';
+                    matHelp.textContent = '直播间推广仅 1 张图（禁视频），不展示标题/LOGO。标准出图必须 1440×160（9:1），其它尺寸报错；≤500KB。小屏等比缩小不糊；WEB/H5 不裁剪。';
                 } else {
                     matHelp.textContent = '观众实际看到的画面。图片可一次选多张；视频只能上传 1 个，且不可与图片混用。';
                 }
             }
             if (matFormats) {
                 if (slot === 'home_banner') {
-                    matFormats.textContent = '仅 1 张图 · JPG/PNG/WebP · ≤500KB · 推荐 2400×300（8:1）';
+                    matFormats.textContent = '仅 1 张图 · JPG/PNG/WebP · ≤500KB · 必须 2400×300（8:1）';
                 } else if (slot === 'live_room') {
-                    matFormats.textContent = '仅 1 张图 · 禁视频 · 铺满推广条 · 推荐 1440×160（9:1）';
+                    matFormats.textContent = '仅 1 张图 · 禁视频 · 必须 1440×160（9:1）';
                 } else {
                     matFormats.textContent = '图片可多选（最多 ' + max + ' 张）· 视频仅 1 个';
                 }
@@ -1665,17 +1665,51 @@
             }
         }
 
-        function readFile(file) {
+        function readFile(file, slotCode) {
             return new Promise(function (resolve, reject) {
                 var reader = new FileReader();
                 reader.onload = function () {
-                    resolve({
-                        url: String(reader.result || ''),
-                        kind: file.type.indexOf('video/') === 0 ? 'video' : 'image',
-                        mimeType: file.type,
-                        sizeBytes: file.size,
-                        name: file.name
-                    });
+                    var dataUrl = String(reader.result || '');
+                    var kind = file.type.indexOf('video/') === 0 ? 'video' : 'image';
+                    var finish = function (w, h) {
+                        if (slotCode && window.FLAdService && FLAdService.validateMaterial) {
+                            var v = FLAdService.validateMaterial(slotCode, {
+                                mimeType: file.type,
+                                sizeBytes: file.size,
+                                width: w,
+                                height: h
+                            });
+                            if (v && v.ok === false) {
+                                reject(new Error(v.message || '素材不符合规范'));
+                                return;
+                            }
+                        }
+                        resolve({
+                            url: dataUrl,
+                            kind: kind,
+                            mimeType: file.type,
+                            sizeBytes: file.size,
+                            name: file.name,
+                            width: w || 0,
+                            height: h || 0,
+                            validated: true
+                        });
+                    };
+                    if (kind === 'video') {
+                        var video = document.createElement('video');
+                        video.preload = 'metadata';
+                        video.onloadedmetadata = function () {
+                            URL.revokeObjectURL(video.src);
+                            finish(video.videoWidth, video.videoHeight);
+                        };
+                        video.onerror = function () { reject(new Error('无法读取视频')); };
+                        video.src = URL.createObjectURL(file);
+                        return;
+                    }
+                    var img = new Image();
+                    img.onload = function () { finish(img.width, img.height); };
+                    img.onerror = function () { reject(new Error('无法读取图片')); };
+                    img.src = dataUrl;
                 };
                 reader.onerror = function () { reject(new Error('读取失败')); };
                 reader.readAsDataURL(file);
@@ -1734,7 +1768,7 @@
                         var pre = FLAdService.validateMaterial(slot, { mimeType: f.type, sizeBytes: f.size });
                         if (pre && pre.ok === false) return Promise.reject(new Error(pre.message || '素材不符合规范'));
                     }
-                    return readFile(f);
+                    return readFile(f, slot);
                 })).then(function (items) {
                     var hasVideoNew = items.some(function (m) { return m.kind === 'video'; });
                     var hasVideoOld = materials.some(function (m) { return m.kind === 'video'; });

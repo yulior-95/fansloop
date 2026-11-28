@@ -260,12 +260,20 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
 <h2 id="s13-七-广告位-素材与投放展示逻辑">七、广告位、素材与投放展示逻辑</h2>
 <h3 id="s14-7-1-广告位与素材规范">7.1 广告位与素材规范</h3>
 <table><thead><tr><th>编码</th><th>位置</th><th>素材</th><th>标识</th></tr></thead><tbody>
-<tr><td><code>feed_video</code></td><td>短视频 / 推荐信息流（WEB 竖滑 + H5 Feed）</td><td>最多 6 张图 <strong style="color:#fff">或</strong> 1 段视频（不可混传）；信息流须填文案</td><td>「广告」</td></tr>
-<tr><td><code>home_banner</code></td><td>首页 Banner（<strong style="color:#fff">WEB 与 H5 均展示</strong>）</td><td><strong style="color:#fff">仅 1 张图片</strong>（不可视频）；JPG/PNG/WebP；≤500KB；推荐 <strong style="color:#fff">2400×300</strong>（8:1），宽 ≥1200 且宽÷高 ≥6；居中 cover 适配各屏，重要元素放水平 60% 安全区；不展示信息流文案</td><td>「广告」</td></tr>
-<tr><td><code>live_room</code></td><td>直播画面下、互动区上</td><td><strong style="color:#fff">仅 1 张图片</strong>（不可视频）；JPG/PNG/WebP；≤500KB；推荐 <strong style="color:#fff">1440×160</strong>（9:1），宽 ≥900 且宽÷高 ≥7；展示时 <strong style="color:#fff">cover 铺满</strong>整条（WEB / H5），<strong style="color:#fff">不展示标题 / LOGO</strong>；<strong style="color:#fff">一期仅平台运营可投</strong>（<code>userAllowed: false</code>）</td><td>「广告」</td></tr>
+<tr><td><code>feed_video</code></td><td>短视频 / 推荐信息流（WEB 竖滑 + H5 Feed）</td><td>最多 6 张图 <strong style="color:#fff">或</strong> 1 段视频（不可混传）；信息流须填文案；图比例 9:16 或 1:1</td><td>「广告」</td></tr>
+<tr><td><code>home_banner</code></td><td>首页 Banner（<strong style="color:#fff">WEB 与 H5 均展示</strong>）</td><td><strong style="color:#fff">仅 1 张图片</strong>（不可视频）；JPG/PNG/WebP；≤500KB；<strong style="color:#fff">标准出图 2400×300</strong>（宽高比 8:1；宽高不符即 Toast 报错）；展示 <strong style="color:#fff">按屏宽等比缩小、不裁剪</strong>；不展示信息流文案</td><td>「广告」</td></tr>
+<tr><td><code>live_room</code></td><td>直播画面下、互动区上</td><td><strong style="color:#fff">仅 1 张图片</strong>（不可视频）；JPG/PNG/WebP；≤500KB；<strong style="color:#fff">标准出图 1440×160</strong>（宽高比 9:1；宽高不符即 Toast 报错）；展示 <strong style="color:#fff">按屏宽等比缩小、不裁剪</strong>；<strong style="color:#fff">不展示标题 / LOGO</strong>；<strong style="color:#fff">一期仅平台运营可投</strong>（<code>userAllowed: false</code>）</td><td>「广告」</td></tr>
 </tbody></table>
+<p><strong style="color:#fff">素材尺寸口径（产品 + 研发）：</strong></p>
+<table><thead><tr><th>概念</th><th>含义</th></tr></thead><tbody>
+<tr><td>标准出图像素</td><td>Banner <strong style="color:#fff">2400×300</strong>；直播间 <strong style="color:#fff">1440×160</strong>。广告主 / 设计按此出图</td></tr>
+<tr><td>宽高比（8:1 / 9:1）</td><td>只是上述像素的形状说明：<code>2400÷300=8</code>，<code>1440÷160=9</code></td></tr>
+<tr><td>上传校验</td><td>宽、高须与标准像素<strong style="color:#fff">完全一致</strong>，否则报错（例：<code>请上传精确尺寸 2400×300 的图片（当前 …）</code>）</td></tr>
+<tr><td>多屏适配</td><td>小屏 / H5 <strong style="color:#fff">等比缩小</strong>同一张图，从高清缩小一般不糊；<strong style="color:#fff">不裁剪</strong>。容器 <code>aspect-ratio</code> 与素材一致 + <code>background-size: 100% 100%</code></td></tr>
+</tbody></table>
+<p>权威源：<code>FLAdService.MATERIAL_RULES</code>（<code>exactSize</code> / <code>requiredWidth</code> / <code>requiredHeight</code>）。WEB 创编（设置内嵌）与 H5 <code>settings-ad</code>、运营创编共用同一校验与文案。</p>
 <p>创编还须上传 <strong style="color:#fff">品牌头像 / LOGO</strong>（<code>brandLogoUrl</code>）：用于信息流顶栏头像，建议正方形 JPG/PNG/WebP，边长 ≥ 200px；未上传不可进入下一步 / 不可提审。</p>
-<p>创编步骤「投放位置」选择后，须展示 <strong style="color:#fff">WEB / H5 样式预览</strong>（<code>#adSlotStylePreview</code>）：选「首页 Banner」时示意两端通栏矮条位；选「短视频信息流」时示意原生帖插入形态。预览为示意，非实时素材渲染。选 Banner / 直播间时，素材上传区须提示：<strong style="color:#fff">仅 1 张图片、禁视频</strong>、格式、大小与推荐分辨率（Banner <code>2400×300</code>，直播间 <code>1440×160</code> 铺满推广条）。WEB 与 H5 共用 <code>MATERIAL_RULES</code> 与展示脚本。</p>
+<p>创编步骤「投放位置」选择后，须展示 <strong style="color:#fff">WEB / H5 样式预览</strong>（<code>#adSlotStylePreview</code>）。选 Banner / 直播间时，上传区须提示：仅 1 张图、禁视频、格式/大小、<strong style="color:#fff">标准出图像素</strong>（Banner <code>2400×300</code>，直播间 <code>1440×160</code>）及「不符报错 / 小屏等比缩小」。</p>
 <p>不得伪装成普通 UGC；不得点击空白区域隐藏跳转。暂停 / 下架 / 到期后展示组件应同步停止（原型：<code>fl-ad-store-changed</code> 刷新）。</p>
 <h3 id="s15-7-2-可展示条件-fladservice-getdeliveringads">7.2 可展示条件（<code>FLAdService.getDeliveringAds</code>）</h3>
 <p>同时满足才进入展示候选：</p>

@@ -166,7 +166,7 @@
         }
         if (!document.querySelector('script[src*="settings-ad-embed.js"]')) {
             var embed = document.createElement("script");
-            embed.src = base + "settings-ad-embed.js?v=20261128readall";
+            embed.src = base + "settings-ad-embed.js?v=20261128size2";
             document.body.appendChild(embed);
         }
     }
