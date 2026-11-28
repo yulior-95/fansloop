@@ -11,6 +11,37 @@
 
   var MOCK_USERS = [
     {
+      uid: "960671",
+      nickname: "Test01 🎯",
+      username: "test01",
+      email: "test01@qq.com",
+      inviteCode: "T01960",
+      kycStatus: "已认证",
+      updatedAt: "2026-11-26 18:20:00",
+      registeredAt: "2026-11-01 09:00:00",
+      regLocation: "上海市黄浦区",
+      regIp: "203.0.113.67",
+      accountStatus: "正常",
+      walletStatus: "启用",
+      regChannel: "Web",
+      regDevice: "Chrome / macOS",
+      payPasswordSet: true,
+      ledger: [
+        { category: "recharge", time: "2026-11-18 08:12:00", type: "链上充值", currency: "USDT", change: "+200.00", balance: "5,200.00", orderId: "CH960671" },
+        { category: "withdraw", time: "2026-11-16 11:05:00", type: "链上提现", currency: "USDT", change: "-50.00", balance: "5,000.00", orderId: "WD960671" },
+        { category: "points", time: "2026-11-20 16:40:00", type: "积分奖励", currency: "POINT", change: "+120", balance: "8,800", orderId: "RW960671" },
+        { category: "recharge", time: "2026-11-05 09:40:00", type: "数字商品购买", currency: "USDT", change: "-6.00", balance: "5,200.00", orderId: "DO_T01_BUY_OLD" }
+      ],
+      loginLogs: [
+        { time: "2026-11-26 18:20:00", ip: "203.0.113.67", location: "上海市", device: "Chrome / macOS", result: "成功" },
+        { time: "2026-11-25 21:02:11", ip: "203.0.113.67", location: "上海市", device: "Safari / iOS", result: "成功" }
+      ],
+      opLogs: [
+        { time: "2026-11-20 10:00:00", operator: "system", action: "KYC 审核通过", detail: "KYC-TEST01", result: "成功" },
+        { time: "2026-11-18 14:00:00", operator: "审核·Ken", action: "广告主认证通过", detail: "测试广告主 Test01", result: "成功" }
+      ]
+    },
+    {
       uid: "882910",
       nickname: "小岛日和",
       username: "xiaodao_rihe",

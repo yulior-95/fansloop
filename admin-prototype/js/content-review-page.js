@@ -20,6 +20,81 @@
 
   var ROWS = [
     {
+      id: "CR-T01-01",
+      title: "外滩夜色机位",
+      contentPreview: "test01 图文 · 6 张 · 订阅专属",
+      type: "图文",
+      status: "manual_review",
+      submittedAt: "2026-11-26 11:20:00",
+      userId: "960671",
+      userNickname: "Test01 🎯",
+      auditUpdatedAt: "—",
+      lastAuditor: "—",
+      submission: {
+        text: "外滩三个机位，订阅后看完整参数。研发样例，待人工审核。",
+        images: [
+          "https://images.unsplash.com/photo-1474181487882-5abf3f0ba6c2?w=600",
+          "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600"
+        ],
+        tags: ["#thebund", "#shanghai"],
+        visibility: "订阅者可见",
+        location: "中国 · 上海"
+      },
+      user: {
+        uid: "960671",
+        nickname: "Test01 🎯",
+        email: "test01@qq.com",
+        role: "Creator",
+        kyc: "已认证",
+        registeredAt: "2026-11-01 09:00:00"
+      },
+      machine: {
+        at: "2026-11-26 11:20:08",
+        result: "fail",
+        confidence: 0.51,
+        failReasons: ["付费墙文案需人工确认", "地点标签与画面需核对"]
+      },
+      timeline: [
+        { who: "系统机审", at: "2026-11-26 11:20:08", action: "机审完成 · 需人工", note: "置信度 0.51，低于阈值 0.65" },
+        { who: "—", at: "—", action: "等待人工审核", note: "test01 样例" }
+      ]
+    },
+    {
+      id: "CR-T01-02",
+      title: "苏州河骑行日记",
+      contentPreview: "test01 图文 · 已通过",
+      type: "图文",
+      status: "approved",
+      submittedAt: "2026-11-19 09:12:00",
+      userId: "960671",
+      userNickname: "Test01 🎯",
+      auditUpdatedAt: "2026-11-19 09:12:40",
+      lastAuditor: "系统机审",
+      submission: {
+        text: "沿苏州河骑了一圈，公开样例。",
+        images: ["https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600"],
+        tags: ["#vlog", "#shanghai"],
+        visibility: "公开"
+      },
+      user: {
+        uid: "960671",
+        nickname: "Test01 🎯",
+        email: "test01@qq.com",
+        role: "Creator",
+        kyc: "已认证",
+        registeredAt: "2026-11-01 09:00:00"
+      },
+      machine: {
+        at: "2026-11-19 09:12:12",
+        result: "pass",
+        confidence: 0.9,
+        failReasons: []
+      },
+      timeline: [
+        { who: "系统机审", at: "2026-11-19 09:12:12", action: "机审通过并自动上架", note: "test01 样例 · 置信度 0.90" }
+      ]
+    },
+    {
       id: "CR-8821",
       title: "城市夜景组图 #night",
       contentPreview: "东京塔夜景 9 张 · 含定位标签 #night #tokyo",

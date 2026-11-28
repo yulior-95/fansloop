@@ -29,6 +29,42 @@
             expiresAt: '2026-01-15',
             status: 'exhausted',
             creatorUserId: DEMO_UID
+        },
+        {
+            id: 'promo_test01_off',
+            code: 'TEST01OFF',
+            discountType: 'percent',
+            value: 0.85,
+            scope: 'first_month',
+            maxUses: 100,
+            usedCount: 12,
+            expiresAt: '2027-12-31',
+            status: 'active',
+            creatorUserId: 'uid_edcd63ff'
+        },
+        {
+            id: 'promo_test01_fix',
+            code: 'T01FIRST',
+            discountType: 'fixed_first',
+            value: 3,
+            scope: 'first_month',
+            maxUses: 50,
+            usedCount: 50,
+            expiresAt: '2027-06-30',
+            status: 'exhausted',
+            creatorUserId: 'uid_edcd63ff'
+        },
+        {
+            id: 'promo_test01_old',
+            code: 'T01OLD',
+            discountType: 'percent',
+            value: 0.5,
+            scope: 'first_month',
+            maxUses: 20,
+            usedCount: 4,
+            expiresAt: '2026-01-15',
+            status: 'expired',
+            creatorUserId: 'uid_edcd63ff'
         }
     ];
 
@@ -58,9 +94,21 @@
 
     function ensureSeed() {
         var items = readAll();
-        if (items && items.length) return items;
-        writeAll(SEED.slice());
-        return SEED.slice();
+        if (!items) {
+            writeAll(SEED.slice());
+            return SEED.slice();
+        }
+        var ids = {};
+        items.forEach(function (p) { if (p && p.id) ids[p.id] = true; });
+        var changed = false;
+        SEED.forEach(function (s) {
+            if (ids[s.id]) return;
+            items.push(s);
+            ids[s.id] = true;
+            changed = true;
+        });
+        if (changed) writeAll(items);
+        return items;
     }
 
     function normalizeCode(code) {
@@ -211,6 +259,7 @@
             return btn.getAttribute('data-creator-uid');
         }
         var name = String(creatorName || '');
+        if (/Test01/i.test(name)) return 'uid_edcd63ff';
         if (/Luna/i.test(name)) return DEMO_UID;
         var reg = global.FLUserPrototypeRegistry;
         if (reg && reg.getByUserId && reg.DEMO_USER_ID && name.indexOf('Luna') >= 0) {

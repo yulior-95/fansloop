@@ -3,6 +3,7 @@
  */
 (function (global) {
     var DEMO_UID = 'demo_uid_882910';
+    var TEST01_UID = 'uid_edcd63ff';
     var LS_KEY = 'fl_creator_income_v1';
 
     function currentMonthKey() {
@@ -29,16 +30,16 @@
         }
     }
 
-    function demoMonthlyUsdt() {
-        return 298.4;
+    function demoMonthlyUsdt(uid) {
+        return uid === TEST01_UID ? 186.4 : 298.4;
     }
 
     function isDemoUid(uid) {
-        if (uid === DEMO_UID) return true;
+        if (uid === DEMO_UID || uid === TEST01_UID) return true;
         var acc = global.FLUserRegistry && global.FLUserRegistry.getByUserId
             ? global.FLUserRegistry.getByUserId(uid)
             : null;
-        return !!(acc && acc.email === 'luna@goodfans.io');
+        return !!(acc && (acc.email === 'luna@goodfans.io' || acc.email === 'test01@qq.com'));
     }
 
     function getMonthlyUsdt() {
@@ -50,7 +51,7 @@
             if (storedDemo && typeof storedDemo.monthlyUsdt === 'number' && storedDemo.monthlyUsdt > 0) {
                 return storedDemo.monthlyUsdt;
             }
-            return demoMonthlyUsdt();
+            return demoMonthlyUsdt(uid);
         }
 
         var stored = readStored(uid);

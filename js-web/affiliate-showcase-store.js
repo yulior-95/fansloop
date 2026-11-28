@@ -152,8 +152,99 @@
                 status: 'pending',
                 relatedId: '',
                 createdAt: '2026-08-02 16:55'
+            },
+            {
+                id: 'acm_t01_settled_01',
+                clickId: 'clk_t01_01',
+                productId: 'afp_jacket_01',
+                productTitle: 'Urban Tech Softshell Jacket',
+                creatorId: 'uid_edcd63ff',
+                partnerId: 'partner_amazon',
+                platformOrderNo: 'AC202611180901',
+                partnerOrderNo: 'AMZ-960671-11018',
+                orderAmount: 89,
+                commissionRate: 0.05,
+                affiliateGross: 4.45,
+                creatorShare: 3.12,
+                platformShare: 1.33,
+                status: 'settled',
+                relatedId: '',
+                createdAt: '2026-11-18 09:01'
+            },
+            {
+                id: 'acm_t01_pending_02',
+                clickId: 'clk_t01_02',
+                productId: 'afp_camera_03',
+                productTitle: 'Compact Mirrorless Camera Kit',
+                creatorId: 'uid_edcd63ff',
+                partnerId: 'partner_shopify',
+                platformOrderNo: 'AC202611211430',
+                partnerOrderNo: 'SHP-960671-22190',
+                orderAmount: 699,
+                commissionRate: 0.04,
+                affiliateGross: 27.96,
+                creatorShare: 19.57,
+                platformShare: 8.39,
+                status: 'pending',
+                relatedId: '',
+                createdAt: '2026-11-21 14:30'
+            },
+            {
+                id: 'acm_t01_settled_03',
+                clickId: 'clk_t01_03',
+                productId: 'afp_lipstick_02',
+                productTitle: 'Velvet Matte Lipstick · Rose Clay',
+                creatorId: 'uid_edcd63ff',
+                partnerId: 'partner_amazon',
+                platformOrderNo: 'AC202611101100',
+                partnerOrderNo: 'AMZ-960671-33021',
+                orderAmount: 24,
+                commissionRate: 0.08,
+                affiliateGross: 1.92,
+                creatorShare: 1.34,
+                platformShare: 0.58,
+                status: 'settled',
+                relatedId: '',
+                createdAt: '2026-11-10 11:00'
+            },
+            {
+                id: 'acm_t01_reverse_03b',
+                clickId: 'clk_t01_03',
+                productId: 'afp_lipstick_02',
+                productTitle: 'Velvet Matte Lipstick · Rose Clay',
+                creatorId: 'uid_edcd63ff',
+                partnerId: 'partner_amazon',
+                platformOrderNo: 'AC202611121812R',
+                partnerOrderNo: 'AMZ-960671-33021',
+                orderAmount: -24,
+                commissionRate: 0.08,
+                affiliateGross: -1.92,
+                creatorShare: -1.34,
+                platformShare: -0.58,
+                status: 'reverse',
+                relatedId: 'acm_t01_settled_03',
+                remark: 'test01 样例 · 第三方退货冲正',
+                createdAt: '2026-11-12 18:12'
             }
         ];
+    }
+
+    function test01ShowcaseItems() {
+        return [
+            { id: 'shi_t01_1', creatorId: 'uid_edcd63ff', productId: 'afp_jacket_01', pinned: true, addedAt: '2026-11-18 10:00' },
+            { id: 'shi_t01_2', creatorId: 'uid_edcd63ff', productId: 'afp_camera_03', pinned: false, addedAt: '2026-11-18 10:05' },
+            { id: 'shi_t01_3', creatorId: 'uid_edcd63ff', productId: 'afp_lipstick_02', pinned: false, addedAt: '2026-11-19 09:00' }
+        ];
+    }
+
+    function ensureTest01Showcase(data) {
+        if (!data.items) data.items = [];
+        var ids = {};
+        data.items.forEach(function (it) { if (it && it.id) ids[it.id] = true; });
+        test01ShowcaseItems().forEach(function (seed) {
+            if (!ids[seed.id]) data.items.push(seed);
+        });
+        return data;
     }
 
     function defaultSeed() {
@@ -216,6 +307,7 @@
                 var p = JSON.parse(raw);
                 if (p && Array.isArray(p.items)) {
                     ensureDemoCommissions(p);
+                    ensureTest01Showcase(p);
                     write(p);
                     return p;
                 }
@@ -230,12 +322,14 @@
                         return c.id !== 'acm_seed_reversed_04' && c.status !== 'reversed';
                     });
                     ensureDemoCommissions(old);
+                    ensureTest01Showcase(old);
                     write(old);
                     return old;
                 }
             }
         } catch (e) { /* ignore */ }
         var seed = defaultSeed();
+        ensureTest01Showcase(seed);
         write(seed);
         return seed;
     }

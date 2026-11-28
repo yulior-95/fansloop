@@ -62,8 +62,11 @@
     }
 
     function creatorId() {
+        var fromQuery = param('creatorId');
+        if (fromQuery) return fromQuery;
+        if (isManageMode()) return currentUserId();
         var Store = global.DigitalAssetsStore;
-        return param('creatorId') || (Store && Store.DEMO_CREATOR) || 'demo_uid_882910';
+        return (Store && Store.DEMO_CREATOR) || 'demo_uid_882910';
     }
     function isSelfShowcase() {
         return creatorId() === currentUserId();

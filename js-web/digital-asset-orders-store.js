@@ -154,9 +154,91 @@
                 feePercent: 10,
                 status: 'completed',
                 createdAt: '2026-08-07 11:05'
+            },
+            {
+                id: 'DO_T01_SALE_OLD',
+                productId: 'da_t01_img_01',
+                productTitle: '外滩夜色 · 城市夜景合集',
+                coverUrl: covers.vid,
+                assetType: 'image',
+                creatorId: 'uid_edcd63ff',
+                creatorName: 'Test01 🎯',
+                buyerId: DEMO_BUYER,
+                priceUsdt: 3.5,
+                platformFee: 0.35,
+                creatorNet: 3.15,
+                feePercent: 10,
+                status: 'completed',
+                createdAt: '2026-11-01 10:00'
+            },
+            {
+                id: 'DO_T01_SALE_RECENT',
+                productId: 'da_t01_vid_02',
+                productTitle: '苏州河骑行 · 跟拍短片',
+                coverUrl: covers.bundle,
+                assetType: 'video',
+                creatorId: 'uid_edcd63ff',
+                creatorName: 'Test01 🎯',
+                buyerId: 'buyer_k9m0',
+                priceUsdt: 5.5,
+                platformFee: 0.55,
+                creatorNet: 4.95,
+                feePercent: 10,
+                status: 'completed',
+                createdAt: '2026-11-26 14:20'
+            },
+            {
+                id: 'DO_T01_BUY_OLD',
+                productId: 'da_seed_vid_02',
+                productTitle: '城市夜色 · 延时短片',
+                coverUrl: covers.vid,
+                assetType: 'video',
+                creatorId: DEMO_CREATOR,
+                creatorName: 'Luna 🌙',
+                buyerId: 'uid_edcd63ff',
+                priceUsdt: 6,
+                platformFee: 0.6,
+                creatorNet: 5.4,
+                feePercent: 10,
+                status: 'completed',
+                createdAt: '2026-11-05 09:40'
+            },
+            {
+                id: 'DO_T01_BUY_RECENT',
+                productId: 'da_seed_img_01',
+                productTitle: '富士山日出 · 4K 写真合集',
+                coverUrl: covers.img,
+                assetType: 'image',
+                creatorId: DEMO_CREATOR,
+                creatorName: 'Luna 🌙',
+                buyerId: 'uid_edcd63ff',
+                priceUsdt: 4.5,
+                platformFee: 0.45,
+                creatorNet: 4.05,
+                feePercent: 10,
+                status: 'completed',
+                createdAt: '2026-11-26 18:05'
+            },
+            {
+                id: 'DO_T01_BUY_REFUND',
+                productId: 'da_seed_img_03',
+                productTitle: '街头人像 · 黑白胶片风合集',
+                coverUrl: covers.img2,
+                assetType: 'image',
+                creatorId: DEMO_CREATOR,
+                creatorName: 'Luna 🌙',
+                buyerId: 'uid_edcd63ff',
+                priceUsdt: 8,
+                platformFee: 0.8,
+                creatorNet: 7.2,
+                feePercent: 10,
+                status: 'refunded',
+                createdAt: '2026-11-08 12:00'
             }
         ];
-        var entitlements = orders.map(function (o, i) {
+        var entitlements = orders.filter(function (o) {
+            return o.status !== 'refunded';
+        }).map(function (o, i) {
             return {
                 id: 'ent_seed_0' + (i + 1),
                 orderId: o.id,
@@ -289,6 +371,25 @@
         return data;
     }
 
+    /** test01 买卖单：一笔仍在 7 日售后期，其余已过冷静期 */
+    function migrateTest01Dates(data) {
+        if (!data.meta) data.meta = {};
+        if (data.meta.test01CommerceV1) return data;
+        var recent = daysAgoIso(2);
+        var old = daysAgoIso(20);
+        data.orders.forEach(function (o) {
+            if (o.id === 'DO_T01_SALE_RECENT' || o.id === 'DO_T01_BUY_RECENT') o.createdAt = recent;
+            if (o.id === 'DO_T01_SALE_OLD' || o.id === 'DO_T01_BUY_OLD' || o.id === 'DO_T01_BUY_REFUND') o.createdAt = old;
+        });
+        data.orders.forEach(function (o) {
+            if (String(o.id).indexOf('DO_T01_') !== 0) return;
+            syncEntitlementGrantedAt(data, o.id, o.createdAt);
+            syncEarningCreatedAt(data, o.id, o.createdAt);
+        });
+        data.meta.test01CommerceV1 = true;
+        return data;
+    }
+
     function effectiveSettlementStatus(earning, order) {
         if (earning.settlementStatus === 'reversed' || (order && order.status === 'refunded')) return 'reversed';
         if (earning.settlementStatus === 'settled') return 'settled';
@@ -348,6 +449,7 @@
         });
         migrateRefundDemoDates(data);
         migrateOwnedBundleEntitlements(data);
+        migrateTest01Dates(data);
         syncSettlementStates(data);
         return data;
     }
@@ -461,6 +563,10 @@
 
     function defaultCreatorId(creatorId) {
         if (creatorId) return creatorId;
+        if (global.GoodfansAuth && global.GoodfansAuth.getUserId) {
+            var uid = global.GoodfansAuth.getUserId();
+            if (uid) return uid;
+        }
         return global.DigitalAssetsStore && global.DigitalAssetsStore.DEMO_CREATOR
             ? global.DigitalAssetsStore.DEMO_CREATOR
             : DEMO_CREATOR;

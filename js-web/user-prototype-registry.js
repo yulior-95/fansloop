@@ -8,7 +8,7 @@
     var TEST01_EMAIL = 'test01@qq.com';
     var TEST01_USER_ID = 'uid_edcd63ff';
     var TEST01_PUBLIC_UID = '960671';
-    var TEST01_ENSURE_VERSION = 2;
+    var TEST01_ENSURE_VERSION = 3;
 
     /* Identity model: account identity is separate from creator eligibility and
        subscription relationships. `role` remains as a compatibility alias for
@@ -167,8 +167,11 @@
             role: 'Creator',
             accountType: IDENTITY.ACCOUNT_TYPE_USER,
             creatorStatus: IDENTITY.CREATOR_APPROVED,
-            subscriptionRelations: [],
-            bio: '广告联调测试账号 · 默认已完成 KYC 与广告主认证',
+            subscriptionRelations: [
+                { creatorId: 'demo_uid_882910', status: 'active', plan: 'monthly' },
+                { creatorId: 'c_lens', status: 'active', plan: 'quarterly' }
+            ],
+            bio: '研发联调账号 · 创作者橱窗、订单、收入、积分与广告均有样例',
             walletAddress: '0xTE5701a1b2c3d4e5f678901234567890abcd',
             joinedAt: '2026 年 11 月',
             location: '中国 · 上海',
@@ -193,11 +196,11 @@
                     action: 'document_approved',
                     note: '测试账号默认通过'
                 }],
-                payPassword: null,
+                payPassword: '123456',
                 security: {
                     twoFa: false,
-                    withdrawPwdSet: false,
-                    securityScore: 70
+                    withdrawPwdSet: true,
+                    securityScore: 85
                 }
             },
             pointsWallet: {

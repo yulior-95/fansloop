@@ -41,8 +41,11 @@
         if (!body) return;
         var html = '';
         try {
+            var uid = window.GoodfansAuth && window.GoodfansAuth.getUserId
+                ? window.GoodfansAuth.getUserId()
+                : '';
             if (window.DigitalAssetOrdersStore) {
-                window.DigitalAssetOrdersStore.listEarnings().slice(0, 10).forEach(function (e) {
+                window.DigitalAssetOrdersStore.listEarnings(uid || undefined).slice(0, 10).forEach(function (e) {
                     var oid = e.id || 'D' + Date.now();
                     html +=
                         '<tr data-tx-type="digital income" data-tx-kind="digital" data-order="' + esc(oid) + '" data-row-link style="cursor:pointer">' +
@@ -55,7 +58,7 @@
             }
             if (window.AffiliateShowcaseStore) {
                 window.AffiliateShowcaseStore.listCommissions({
-                    creatorId: window.AffiliateShowcaseStore.DEMO_CREATOR
+                    creatorId: uid || window.AffiliateShowcaseStore.DEMO_CREATOR
                 }).slice(0, 10).forEach(function (c) {
                     var oid = c.id || 'A' + Date.now();
                     html +=

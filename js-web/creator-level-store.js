@@ -12,6 +12,7 @@
  */
 (function (global) {
     var DEMO_UID = 'demo_uid_882910';
+    var TEST01_UID = 'uid_edcd63ff';
     var LS_KEY = 'fl_creator_level_v1';
 
     /** 等级档位：creatorSplit = 创作者实得比例（%） */
@@ -56,6 +57,7 @@
         { id: 'c_urban', name: '城市漫游', weekly: { newSubs: 39, tipsUsdt: 1880, engagement: 12100, liveMinutes: 160, posts: 4 } },
         { id: 'c_dawn', name: '晨光胶片', weekly: { newSubs: 41, tipsUsdt: 1860, engagement: 12700, liveMinutes: 175, posts: 3 } },
         { id: DEMO_UID, name: 'Luna 🌙', weekly: { newSubs: 42, tipsUsdt: 1840, engagement: 12890, liveMinutes: 180, posts: 3 } },
+        { id: TEST01_UID, name: 'Test01 🎯', weekly: { newSubs: 16, tipsUsdt: 420, engagement: 3600, liveMinutes: 75, posts: 4 } },
         { id: 'c_coffee', name: '咖啡店主', weekly: { newSubs: 28, tipsUsdt: 980, engagement: 7600, liveMinutes: 120, posts: 4 } },
         { id: 'c_travel', name: '阿Ken旅行', weekly: { newSubs: 24, tipsUsdt: 860, engagement: 6800, liveMinutes: 90, posts: 3 } },
         { id: 'c_film', name: '胶片少女', weekly: { newSubs: 20, tipsUsdt: 720, engagement: 5900, liveMinutes: 60, posts: 2 } },
@@ -67,6 +69,12 @@
             userId: DEMO_UID,
             activeSubscribers: 1287,
             totalWorks: 186,
+            verified: true
+        },
+        'Test01 🎯': {
+            userId: TEST01_UID,
+            activeSubscribers: 86,
+            totalWorks: 12,
             verified: true
         }
     };
@@ -82,10 +90,12 @@
         if (!nameOrId) return DEMO_UID;
         if (CREATOR_METRICS[nameOrId]) return CREATOR_METRICS[nameOrId].userId || nameOrId;
         if (/Luna/i.test(String(nameOrId))) return DEMO_UID;
+        if (/Test01/i.test(String(nameOrId)) || nameOrId === TEST01_UID) return TEST01_UID;
         return nameOrId;
     }
 
     function getMonthlyIncomeUsdt(userId) {
+        if (userId === TEST01_UID) return 186.4;
         if (global.CreatorIncomeStore && global.CreatorIncomeStore.getMonthlyUsdt) {
             return global.CreatorIncomeStore.getMonthlyUsdt();
         }
@@ -103,6 +113,16 @@
                 totalWorks: byName.totalWorks,
                 monthlyIncomeUsdt: getMonthlyIncomeUsdt(DEMO_UID),
                 verified: byName.verified
+            };
+        }
+        var test01 = CREATOR_METRICS['Test01 🎯'];
+        if (key === TEST01_UID && test01) {
+            return {
+                userId: TEST01_UID,
+                activeSubscribers: test01.activeSubscribers,
+                totalWorks: test01.totalWorks,
+                monthlyIncomeUsdt: getMonthlyIncomeUsdt(TEST01_UID),
+                verified: test01.verified
             };
         }
         return {

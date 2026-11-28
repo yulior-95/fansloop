@@ -3,6 +3,17 @@
  */
 (function (global) {
     var DEMO_UID = 'demo_uid_882910';
+    var TEST01_UID = 'uid_edcd63ff';
+    var TEST01_PROFILE_STATS = {
+        works: '4',
+        fans: '860',
+        following: '24',
+        subscribers: '86',
+        income: '$186',
+        worksTab: '4',
+        paidTab: '1',
+        liveTab: '1'
+    };
 
     var LUNA_PROFILE_STATS = {
         works: '142',
@@ -40,6 +51,7 @@
 
     function profileStatsForUser(user) {
         if (!user) return null;
+        if (user.userId === TEST01_UID) return TEST01_PROFILE_STATS;
         if (document.getElementById('profileViewHome')) return LUNA_PROFILE_STATS;
         if (user.userId === DEMO_UID) return LUNA_PROFILE_STATS;
         var h = hashEmail(user.email);

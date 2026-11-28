@@ -13,14 +13,45 @@
     }
 
     function loadRoot() {
+        var root = {};
         try {
             var raw = localStorage.getItem(KEY);
-            if (!raw) return {};
-            var obj = JSON.parse(raw);
-            return obj && typeof obj === 'object' ? obj : {};
-        } catch (e) {
-            return {};
+            if (raw) {
+                var obj = JSON.parse(raw);
+                if (obj && typeof obj === 'object') root = obj;
+            }
+        } catch (e) { /* ignore */ }
+        return ensureTest01Subs(root);
+    }
+
+    function ensureTest01Subs(root) {
+        if (root._test01SubSeed) return root;
+        var uid = 'uid_edcd63ff';
+        var byUser = root[uid] || {};
+        if (!byUser['uid:demo_uid_882910']) {
+            byUser['uid:demo_uid_882910'] = {
+                creatorUid: 'demo_uid_882910',
+                creatorName: 'Luna 🌙',
+                planType: 'monthly',
+                price: 9.9,
+                basePrice: 9.9,
+                updatedAt: Date.parse('2026-11-20T10:00:00+08:00')
+            };
         }
+        if (!byUser['uid:c_lens']) {
+            byUser['uid:c_lens'] = {
+                creatorUid: 'c_lens',
+                creatorName: 'Lens 旅记',
+                planType: 'quarterly',
+                price: 24,
+                basePrice: 28,
+                updatedAt: Date.parse('2026-11-12T10:00:00+08:00')
+            };
+        }
+        root[uid] = byUser;
+        root._test01SubSeed = 1;
+        saveRoot(root);
+        return root;
     }
 
     function saveRoot(root) {

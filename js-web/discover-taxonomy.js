@@ -230,6 +230,33 @@
             videoFormat: 'vertical',
             likes: '7.2k', comments: 410, views: '38k', type: 'video', duration: '0:15', durationSec: 15,
             videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
+        },
+        {
+            id: 'p-t01-bund', title: '外滩夜色机位 · 6 张原图', author: 'Test01', handle: '@test01',
+            creatorId: 'uid_edcd63ff', av: 'photo-1507003211169-0a1dd7228f2d', cover: 'photo-1474181487882-5abf3f0ba6c2',
+            categoryId: 'travel-log', primaryCategory: 'life', categories: ['life', 'visual'], hashtags: ['旅行摄影'],
+            premium: true, payType: 'subscribe', subscribePrice: 9.9, paidPostCount: 6,
+            summary: 'test01 订阅专属样例。外滩三个机位，订阅后看完整图和参数。',
+            likes: 420, comments: 36, views: '2.1k', type: 'image'
+        },
+        {
+            id: 'p-t01-daily', title: '苏州河骑行日记', author: 'Test01', handle: '@test01',
+            creatorId: 'uid_edcd63ff', av: 'photo-1507003211169-0a1dd7228f2d', cover: 'photo-1502602898657-3e91760cbb34',
+            categoryId: 'daily-share', primaryCategory: 'daily', categories: ['daily', 'life'], hashtags: ['Vlog'],
+            likes: 268, comments: 19, views: '1.4k', type: 'image'
+        },
+        {
+            id: 'p-t01-video', title: '弄堂早餐 · 跟拍 90 秒', author: 'Test01', handle: '@test01',
+            creatorId: 'uid_edcd63ff', av: 'photo-1507003211169-0a1dd7228f2d', cover: 'photo-1498654896293-37aacf113fd9',
+            categoryId: 'food-share', primaryCategory: 'life', categories: ['life', 'daily'], hashtags: ['咖啡'],
+            likes: 190, comments: 14, views: '980', type: 'video', duration: '1 分钟', durationSec: 90,
+            videoSrc: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4'
+        },
+        {
+            id: 'p-t01-live', title: 'Test01 夜聊 · 直播中', author: 'Test01', handle: '@test01',
+            creatorId: 'uid_edcd63ff', av: 'photo-1507003211169-0a1dd7228f2d', cover: 'photo-1514525253161-7a46d19cd819',
+            categoryId: 'live-real', primaryCategory: 'interact', categories: ['interact'], hashtags: ['直播预告'],
+            live: true, views: '326 直播观看', type: 'live'
         }
     ];
 
