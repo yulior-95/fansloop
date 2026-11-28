@@ -154,7 +154,7 @@
     /** test01@qq.com 广告主 + 多状态样例广告 */
     var TEST01_AUTH_UID = 'uid_edcd63ff';
     var TEST01_EMAIL = 'test01@qq.com';
-    var DEMO_TEST01_AD_SEED_VERSION = 3;
+    var DEMO_TEST01_AD_SEED_VERSION = 4;
     /** 广告通知：每种业务情况各一条样例 */
     var DEMO_NOTICE_CATALOG_VERSION = 1;
     /** Banner/直播间素材规范文案（单图、禁视频、推荐尺寸） */
@@ -1582,7 +1582,7 @@
             account: {
                 uid: uid,
                 balance: 3200,
-                frozen: 1680,
+                frozen: 1729,
                 spent: 420,
                 refunded: 80,
                 totalRecharge: 5000
@@ -1663,7 +1663,7 @@
                     slotCode: 'home_banner',
                     title: '会员日专属礼遇',
                     copy: '',
-                    materialUrl: 'https://picsum.photos/seed/t01-banner/1200/675',
+                    materialUrl: 'https://picsum.photos/seed/t01-banner/2400/300',
                     materialType: 'image',
                     landingType: 'external',
                     landingUrl: 'https://goodfans.io/campaign/t01-banner',
@@ -1686,6 +1686,39 @@
                     stats: { impressions: 15200, clicks: 420, spend: 0, conversions: 33 },
                     createdAt: '2026-11-17T09:00:00+08:00',
                     auditLog: [{ at: '2026-11-17T15:00:00+08:00', by: '审核·Ken', action: '审核通过', note: 'test01 Banner 投放中' }]
+                },
+                {
+                    id: 'AD-T01-LIVE',
+                    name: '【投放中】直播间品牌条',
+                    source: 'user',
+                    advertiserUid: uid,
+                    type: '直播引流',
+                    slotCode: 'live_room',
+                    title: '',
+                    copy: '',
+                    materialUrl: 'https://picsum.photos/seed/t01-live/1440/160',
+                    materialType: 'image',
+                    landingType: 'external',
+                    landingUrl: 'https://goodfans.io/campaign/t01-live',
+                    startAt: '2026-11-01T00:00:00+08:00',
+                    endAt: '2026-12-31T23:59:00+08:00',
+                    audience: { regions: ['全部'], langs: ['zh-CN'], minAge: 18 },
+                    budgetTotal: 49,
+                    billing: 'fixed',
+                    payStatus: 'paid',
+                    auditStatus: 'approved',
+                    deliveryStatus: 'delivering',
+                    orderId: 'ORD-T01-LIVE',
+                    packageId: 'PKG-LIVE-7',
+                    packageName: '直播间·7天·有效曝光次数200次',
+                    priceUsdt: 49,
+                    contentVersion: 1,
+                    versions: [],
+                    rejectReason: '',
+                    priority: 20,
+                    stats: { impressions: 1200, clicks: 86, spend: 0, conversions: 11 },
+                    createdAt: '2026-11-20T09:00:00+08:00',
+                    auditLog: [{ at: '2026-11-20T15:00:00+08:00', by: '审核·Ken', action: '审核通过', note: 'test01 直播间投放中样例' }]
                 },
                 {
                     id: 'AD-T01-PAUSE',
@@ -1931,6 +1964,7 @@
                 { id: 'ORD-T01-DELIVER', adId: 'AD-T01-DELIVER', uid: uid, packageId: 'PKG-FEED-7', packageName: '信息流 · 7 天', slotCode: 'feed_video', priceSnapshot: 199, durationDays: 7, payStatus: 'paid', paidAmount: 199, refundedAmount: 0, refundableAmount: 120, paidAt: '2026-11-18T09:10:00+08:00', frozen: 199 },
                 { id: 'ORD-T01-DELIVER-2', adId: 'AD-T01-DELIVER-2', uid: uid, packageId: 'PKG-FEED-7', packageName: '信息流 · 7 天', slotCode: 'feed_video', priceSnapshot: 199, durationDays: 7, payStatus: 'paid', paidAmount: 199, refundedAmount: 0, refundableAmount: 150, paidAt: '2026-11-19T09:10:00+08:00', frozen: 199 },
                 { id: 'ORD-T01-BANNER', adId: 'AD-T01-BANNER', uid: uid, packageId: 'PKG-BANNER-7', packageName: '首页 Banner · 7 天', slotCode: 'home_banner', priceSnapshot: 399, durationDays: 7, payStatus: 'paid', paidAmount: 399, refundedAmount: 0, refundableAmount: 280, paidAt: '2026-11-17T09:10:00+08:00', frozen: 399 },
+                { id: 'ORD-T01-LIVE', adId: 'AD-T01-LIVE', uid: uid, packageId: 'PKG-LIVE-7', packageName: '直播间·7天·有效曝光次数200次', slotCode: 'live_room', priceSnapshot: 49, durationDays: 7, payStatus: 'paid', paidAmount: 49, refundedAmount: 0, refundableAmount: 36, paidAt: '2026-11-20T09:10:00+08:00', frozen: 49 },
                 { id: 'ORD-T01-PAUSE', adId: 'AD-T01-PAUSE', uid: uid, packageId: 'PKG-BANNER-7', packageName: '首页 Banner · 7 天', slotCode: 'home_banner', priceSnapshot: 399, durationDays: 7, payStatus: 'paid', paidAmount: 399, refundedAmount: 0, refundableAmount: 280, paidAt: '2026-11-21T10:10:00+08:00', frozen: 399 },
                 { id: 'ORD-T01-REFUND', adId: 'AD-T01-REFUND', uid: uid, packageId: 'PKG-FEED-7', packageName: '信息流 · 7 天', slotCode: 'feed_video', priceSnapshot: 199, durationDays: 7, payStatus: 'paid', paidAmount: 199, refundedAmount: 0, refundableAmount: 90, paidAt: '2026-11-09T11:10:00+08:00', frozen: 199, refundTicketId: 'RF-T01-001' },
                 { id: 'ORD-T01-REVIEW', adId: 'AD-T01-REVIEW', uid: uid, packageId: 'PKG-FEED-14', packageName: '信息流 · 14 天', slotCode: 'feed_video', priceSnapshot: 349, durationDays: 14, payStatus: 'paid', paidAmount: 349, refundedAmount: 0, refundableAmount: 349, paidAt: '2026-11-27T13:10:00+08:00', frozen: 349 },
@@ -2035,6 +2069,26 @@
         upsertById('ads', pack.ads);
         upsertById('orders', pack.orders);
         upsertById('refunds', pack.refunds);
+        /* 直播间一期仅平台运营；test01 样例仍挂在本账号下便于中心列表演示。
+         * 其它投放中的 live_room 让路，保证直播详情页优先出 AD-T01-LIVE。 */
+        (data.ads || []).forEach(function (ad) {
+            if (!ad || ad.slotCode !== 'live_room') return;
+            if (ad.id === 'AD-T01-LIVE') {
+                ad.source = 'user';
+                ad.advertiserUid = uid;
+                ad.payStatus = 'paid';
+                ad.auditStatus = 'approved';
+                ad.deliveryStatus = 'delivering';
+                ad.userDeleted = false;
+                return;
+            }
+            if (ad.deliveryStatus === 'delivering' || ad.deliveryStatus === 'active' ||
+                ad.deliveryStatus === 'pending_start' || ad.deliveryStatus === 'pending') {
+                ad.deliveryStatus = 'paused';
+                ad.pausedAt = ad.pausedAt || '2026-11-20T16:00:00+08:00';
+                ad.pauseReason = ad.pauseReason || '为 test01 直播间样例让路';
+            }
+        });
         /* 通知：该账号只保留「每种情况一条」样例，去掉历史重复 */
         data.notices = (data.notices || []).filter(function (n) { return !n || n.uid !== uid; });
         pack.notices.forEach(function (row) {
