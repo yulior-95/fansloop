@@ -206,24 +206,33 @@
         },
         home_banner: {
             allowVideo: false,
-            maxImages: 6,
-            maxImageBytes: 1024 * 1024,
+            maxImages: 1,
+            maxImageBytes: 500 * 1024,
             maxVideoBytes: 0,
-            /* 通栏矮条：宽高比 ≥ 2.5 即可；推荐 8:1 / 15:4 等 */
-            ratios: [[8, 1], [15, 4], [6, 1], [5, 1], [4, 1], [3, 1], [16, 5], [21, 9], [16, 9]],
-            minLandscapeRatio: 2.5,
-            webSize: '1920×240（亦可 1200×150）',
-            h5Size: '750×200',
+            /* 通栏矮条：一张图 cover 适配各屏；推荐 8:1，宽高比 ≥ 6 */
+            ratios: [[8, 1], [10, 1], [12, 1], [6, 1], [16, 2], [15, 2]],
+            minLandscapeRatio: 6,
+            minWidth: 1200,
+            recommendedSize: '2400×300',
+            webSize: '2400×300（8:1，推荐；亦可 1920×240）',
+            h5Size: '同一张图自动裁切；安全区见提示',
             formatsLabel: 'JPG / PNG / WebP',
-            hint: '首页 Banner 仅支持图片，不可上传视频。格式 JPG/PNG/WebP；每张 ≤1MB；最多 6 张轮播。分辨率：WEB 推荐 1920×240（或 1200×150），H5 推荐 750×200；须为横向通栏（宽高比 ≥ 2.5）。'
+            hint: '首页 Banner 仅 1 张图片，不可视频。格式 JPG/PNG/WebP；≤500KB。推荐 2400×300（8:1），最低宽 ≥1200 且宽÷高 ≥6。重要文案/LOGO 放画面水平居中约 60% 安全区内，左右边缘可被宽屏裁切。'
         },
         live_room: {
             allowVideo: false,
-            maxImages: 4,
-            maxImageBytes: 1024 * 1024,
+            maxImages: 1,
+            maxImageBytes: 500 * 1024,
             maxVideoBytes: 0,
-            ratios: [[4, 3], [16, 9]],
-            hint: '最多 4 张 4:3 或 16:9 图片，每张 ≤1MB（仅平台运营）'
+            /* 直播间推广条：一张图铺满整条（WEB≈96px 高 / H5≈64px 高，cover） */
+            ratios: [[9, 1], [10, 1], [12, 1], [8, 1], [16, 2]],
+            minLandscapeRatio: 7,
+            minWidth: 900,
+            recommendedSize: '1440×160',
+            webSize: '1440×160（9:1，推荐；铺满 WEB 推广条）',
+            h5Size: '同一张图 cover 铺满 H5 矮条',
+            formatsLabel: 'JPG / PNG / WebP',
+            hint: '直播间推广仅 1 张图片，不可上传视频（仅平台运营）。格式 JPG/PNG/WebP；≤500KB。推荐 1440×160（9:1），宽 ≥900 且宽÷高 ≥7。展示时图片铺满整条，不展示标题/LOGO；重要内容放水平居中约 60% 安全区。'
         }
     };
 
@@ -285,15 +294,22 @@
                 : (Math.round(maxBytes / 1024) + 'KB');
             return fail((isVideo ? '视频过大，需 ≤' : '图片过大，需 ≤') + sizeHint);
         }
+        if (meta.width && rule.minWidth && meta.width < rule.minWidth) {
+            return fail('图片宽度需 ≥ ' + rule.minWidth + 'px（推荐 ' + (rule.recommendedSize || '') + '）');
+        }
         if (meta.width && meta.height) {
             var ratioOk = aspectMatch(meta.width, meta.height, rule.ratios);
-            if (!ratioOk && slotCode === 'home_banner' && rule.minLandscapeRatio) {
+            if (!ratioOk && rule.minLandscapeRatio) {
                 ratioOk = (meta.width / meta.height) >= rule.minLandscapeRatio;
             }
             if (!ratioOk) {
-                return fail(slotCode === 'home_banner'
-                    ? ('Banner 需为横向通栏图（宽÷高 ≥ ' + (rule.minLandscapeRatio || 2.5) + '，推荐 1920×240）')
-                    : ('尺寸比例不符合要求（' + rule.hint + '）'));
+                if (slotCode === 'home_banner') {
+                    return fail('Banner 需为横向通栏图（宽÷高 ≥ ' + (rule.minLandscapeRatio || 6) + '，推荐 ' + (rule.recommendedSize || '2400×300') + '）');
+                }
+                if (slotCode === 'live_room') {
+                    return fail('直播间推广需为横向通栏图（宽÷高 ≥ ' + (rule.minLandscapeRatio || 7) + '，推荐 ' + (rule.recommendedSize || '1440×160') + '，将铺满推广条）');
+                }
+                return fail('尺寸比例不符合要求（' + rule.hint + '）');
             }
         }
         return ok({ hint: rule.hint, kind: isVideo ? 'video' : 'image' });
@@ -312,6 +328,62 @@
             } catch (e) { return fail('链接格式无效'); }
         }
         return ok();
+    }
+
+    /** 补全外链协议；拒绝 javascript: */
+    function normalizeExternalUrl(url) {
+        var u = String(url == null ? '' : url).trim();
+        if (!u || /^javascript:/i.test(u)) return '';
+        if (/^https?:\/\//i.test(u)) return u;
+        if (/^\/\//.test(u)) return 'https:' + u;
+        /* baidu.com / www.xx.com/path */
+        if (/^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}([\/?#]|$)/i.test(u)) return 'https://' + u;
+        return u;
+    }
+
+    /**
+     * C 端点击广告落地：
+     * - external：新开系统浏览器 / 新标签打开外链
+     * - creator / live：站内跳转（有 path 则 location，否则 Toast 提示）
+     */
+    function openAdLanding(ad) {
+        if (!ad) return fail('广告不存在');
+        try { recordClick(ad.id); } catch (eClick) { /* ignore */ }
+        var type = ad.landingType || 'external';
+        var raw = ad.landingUrl || '';
+        if (type === 'external') {
+            var href = normalizeExternalUrl(raw);
+            if (!href) return fail('无有效外链');
+            var linkCheck = validateLink(href);
+            if (!linkCheck.ok) return linkCheck;
+            try {
+                var win = global.open(href, '_blank', 'noopener,noreferrer');
+                if (!win) {
+                    /* 弹窗被拦时退化为当前页跳转 */
+                    global.location.href = href;
+                }
+            } catch (eOpen) {
+                try { global.location.href = href; } catch (e2) { return fail('无法打开外链'); }
+            }
+            return ok({ opened: href, mode: 'external' });
+        }
+        if (type === 'creator' || type === 'live') {
+            var path = String(raw || '').trim();
+            if (path && (path.charAt(0) === '/' || /\.html(\?|$)/i.test(path) || /creator|profile|live/i.test(path))) {
+                try {
+                    if (/^https?:\/\//i.test(path)) global.location.href = path;
+                    else global.location.href = path.charAt(0) === '/' ? path : ('../pages-web/' + path.replace(/^\.\//, ''));
+                } catch (eNav) { /* ignore */ }
+                return ok({ opened: path, mode: type });
+            }
+            return ok({ opened: '', mode: type, message: path ? ('进入主播主页：' + path) : '进入主播主页' });
+        }
+        var fallback = normalizeExternalUrl(raw);
+        if (fallback) {
+            try { global.open(fallback, '_blank', 'noopener,noreferrer'); } catch (e3) { /* ignore */ }
+            return ok({ opened: fallback, mode: 'fallback' });
+        }
+        return fail('无跳转目标');
     }
 
     function syncDeliveryFromTime(ad, persist) {
@@ -555,6 +627,19 @@
             } catch (e) { /* ignore */ }
         }
         return map[viewerId][adId][day];
+    }
+
+    function recordClick(adId) {
+        try {
+            var ad = FLAdStore.getAd(adId);
+            if (!ad) return 0;
+            ad.stats = ad.stats || { impressions: 0, clicks: 0, spend: 0, conversions: 0 };
+            ad.stats.clicks = (Number(ad.stats.clicks) || 0) + 1;
+            FLAdStore.upsertAd(ad);
+            return ad.stats.clicks;
+        } catch (e) {
+            return 0;
+        }
     }
 
     function underFreqCap(ad, viewerId) {
@@ -802,7 +887,7 @@
         var link = validateLink(ad.landingUrl);
         if (!link.ok) return link;
         if (ad.slotCode === 'feed_video' && !ad.brandLogoUrl) return fail('请上传品牌头像 / LOGO');
-        if (ad.slotCode === 'home_banner') {
+        if (ad.slotCode === 'home_banner' || ad.slotCode === 'live_room') {
             ad.brandLogoUrl = '';
             ad.copy = '';
             ad.title = '';
@@ -1489,7 +1574,7 @@
         if (ad.slotCode === 'feed_video' && patch.brandLogoUrl !== undefined && !String(patch.brandLogoUrl || '').trim()) {
             return fail('请上传品牌头像 / LOGO');
         }
-        if (ad.slotCode === 'home_banner') {
+        if (ad.slotCode === 'home_banner' || ad.slotCode === 'live_room') {
             ad.brandLogoUrl = '';
             ad.title = '';
             ad.copy = '';
@@ -1871,6 +1956,20 @@
         return ok();
     }
 
+    function markAllNoticesRead(uid) {
+        var data = FLAdStore.load();
+        var u = actorUid(uid);
+        var n = 0;
+        (data.notices || []).forEach(function (row) {
+            if (row && row.uid === u && !row.read) {
+                row.read = true;
+                n++;
+            }
+        });
+        FLAdStore.save(data);
+        return ok({ marked: n, uid: u });
+    }
+
     function mockRecharge(amount, uid) {
         var data = FLAdStore.load();
         var u = actorUid(uid);
@@ -1916,6 +2015,7 @@
         adminDecideRefund: adminDecideRefund,
         adminReviewAd: adminReviewAd,
         recordImpression: recordImpression,
+        recordClick: recordClick,
         effectiveImpressionCount: effectiveImpressionCount,
         underEffectiveQuota: underEffectiveQuota,
         packageEffectiveQuota: packageEffectiveQuota,
@@ -1924,6 +2024,7 @@
         saveTargeting: saveTargeting,
         saveFreqCaps: saveFreqCaps,
         markNoticeRead: markNoticeRead,
+        markAllNoticesRead: markAllNoticesRead,
         pushNotice: pushNotice,
         updateAdContent: updateAdContent,
         changePackageOnRejected: changePackageOnRejected,
@@ -1951,6 +2052,8 @@
         deleteAdForUser: deleteAdForUser,
         reportAd: reportAd,
         getDeliveringAds: getDeliveringAds,
+        normalizeExternalUrl: normalizeExternalUrl,
+        openAdLanding: openAdLanding,
         rankAdsForDelivery: rankAdsForDelivery,
         matchScore: matchScore,
         contentTagsOf: contentTagsOf,

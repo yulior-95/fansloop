@@ -1511,36 +1511,70 @@
         var matInput = document.getElementById('opsMaterialInput');
         var matHelp = document.getElementById('opsMaterialHelp');
         var matFormats = document.getElementById('opsMaterialFormats');
+        var titleField = document.getElementById('opsTitleField');
+        var titleEl = document.getElementById('opsTitle');
+        var titleReq = document.getElementById('opsTitleReq');
+        var titleHint = document.getElementById('opsTitleHint');
+        var logoField = document.getElementById('opsLogoField');
+        var logoReq = document.getElementById('opsLogoReq');
+        var logoHint = document.getElementById('opsLogoHint');
 
         function materialMax() {
             var slot = (slotEl && slotEl.value) || 'home_banner';
             if (window.FLAdService && FLAdService.MATERIAL_RULES && FLAdService.MATERIAL_RULES[slot]) {
-                return FLAdService.MATERIAL_RULES[slot].maxImages || (slot === 'home_banner' ? 5 : 3);
+                return FLAdService.MATERIAL_RULES[slot].maxImages || 1;
             }
-            return slot === 'home_banner' ? 5 : 3;
+            return slot === 'feed_video' ? 6 : 1;
+        }
+
+        function materialRule(slot) {
+            return window.FLAdService && FLAdService.MATERIAL_RULES && FLAdService.MATERIAL_RULES[slot]
+                ? FLAdService.MATERIAL_RULES[slot]
+                : null;
         }
 
         function syncSlotUi() {
             var slot = (slotEl && slotEl.value) || 'home_banner';
-            if (copyField) copyField.hidden = slot !== 'feed_video';
+            var rule = materialRule(slot);
+            var max = materialMax();
+            var isFeed = slot === 'feed_video';
+            if (copyField) copyField.hidden = !isFeed;
+            if (titleField) titleField.hidden = !isFeed;
+            if (titleReq) titleReq.hidden = !isFeed;
+            if (titleHint) titleHint.hidden = isFeed;
+            if (logoField) logoField.hidden = !isFeed;
+            if (logoReq) logoReq.hidden = !isFeed;
+            if (logoHint) logoHint.textContent = isFeed ? '未上传时不可提交' : '该广告位不需要 LOGO';
+            if (!isFeed) {
+                if (titleEl) titleEl.value = '';
+                if (logoUrlEl) logoUrlEl.value = '';
+                if (typeof renderLogo === 'function') renderLogo();
+            }
             if (matHelp) {
                 if (slot === 'home_banner') {
-                    matHelp.textContent = '首页 Banner 仅图片，建议横图；可多张轮播，单张 ≤500KB。';
+                    matHelp.textContent = '首页 Banner 仅 1 张图片（禁视频）。推荐 2400×300（8:1），≤500KB；重要内容放水平居中 60% 安全区，适配不同电脑宽度。';
                 } else if (slot === 'live_room') {
-                    matHelp.textContent = '直播间推广素材；图片可多选，视频仅 1 个且不可与图片混用。';
+                    matHelp.textContent = '直播间推广仅 1 张图片（禁视频），展示时铺满整条、不展示标题/LOGO。推荐 1440×160（9:1），≤500KB；宽≥900、宽÷高≥7；文案请画进素材安全区。';
                 } else {
                     matHelp.textContent = '观众实际看到的画面。图片可一次选多张；视频只能上传 1 个，且不可与图片混用。';
                 }
             }
             if (matFormats) {
-                matFormats.textContent = slot === 'home_banner'
-                    ? ('图片可多选（最多 ' + materialMax() + ' 张）· 不支持视频')
-                    : ('图片可多选（最多 ' + materialMax() + ' 张）· 视频仅 1 个');
+                if (slot === 'home_banner') {
+                    matFormats.textContent = '仅 1 张图 · JPG/PNG/WebP · ≤500KB · 推荐 2400×300（8:1）';
+                } else if (slot === 'live_room') {
+                    matFormats.textContent = '仅 1 张图 · 禁视频 · 铺满推广条 · 推荐 1440×160（9:1）';
+                } else {
+                    matFormats.textContent = '图片可多选（最多 ' + max + ' 张）· 视频仅 1 个';
+                }
             }
             if (matInput) {
-                matInput.accept = slot === 'home_banner'
-                    ? 'image/jpeg,image/png,image/webp'
-                    : 'image/jpeg,image/png,image/webp,video/mp4,video/webm';
+                matInput.accept = (window.FLAdService && FLAdService.materialAccept)
+                    ? FLAdService.materialAccept(slot)
+                    : (rule && rule.allowVideo
+                        ? 'image/jpeg,image/png,image/webp,video/mp4,video/webm'
+                        : 'image/jpeg,image/png,image/webp');
+                matInput.multiple = max > 1;
             }
             populatePackages();
         }
@@ -1739,9 +1773,11 @@
             }
             var fd = new FormData(form);
             if (!fd.get('name')) { toast('请填写广告名称'); return; }
-            if (!fd.get('title')) { toast('请填写对外标题'); return; }
-            var brandLogoUrl = (logoUrlEl && logoUrlEl.value) || '';
-            if (!brandLogoUrl && mode !== 'draft') { toast('请上传品牌头像 / LOGO'); return; }
+            var slotCode = fd.get('slotCode') || 'home_banner';
+            var isFeed = slotCode === 'feed_video';
+            if (isFeed && !fd.get('title')) { toast('请填写对外标题'); return; }
+            var brandLogoUrl = isFeed ? ((logoUrlEl && logoUrlEl.value) || '') : '';
+            if (isFeed && !brandLogoUrl && mode !== 'draft') { toast('请上传品牌头像 / LOGO'); return; }
             if (!materials.length && mode !== 'draft') { toast('请上传广告展示内容'); return; }
 
             var landingType = fd.get('landingType') || 'creator';
@@ -1769,9 +1805,9 @@
             var ad = FLAdAdmin.savePlatformAd({
                 name: fd.get('name'),
                 type: fd.get('type'),
-                slotCode: fd.get('slotCode'),
-                title: fd.get('title'),
-                copy: fd.get('slotCode') === 'feed_video' ? fd.get('copy') : '',
+                slotCode: slotCode,
+                title: isFeed ? fd.get('title') : '',
+                copy: isFeed ? fd.get('copy') : '',
                 brandLogoUrl: brandLogoUrl,
                 materials: materials.slice(),
                 materialUrl: firstMat ? firstMat.url : '',

@@ -71,9 +71,9 @@
         return [];
     }
 
-    /** Banner 多图轮播：投放中广告的每张图片各一帧（最多 6 张/广告） */
+    /** Banner：每条广告取素材帧（规范为每广告 1 张；兼容历史多图） */
     function bannerImageSlides(ads) {
-        var maxPerAd = 6;
+        var maxPerAd = 1;
         try {
             var rule = window.FLAdService && FLAdService.MATERIAL_RULES && FLAdService.MATERIAL_RULES.home_banner;
             if (rule && rule.maxImages) maxPerAd = rule.maxImages;
@@ -174,7 +174,8 @@
 
     function removeInjected() {
         clearBannerTimer();
-        ['flAdHomeBanner', 'flAdFeedCard', 'flAdWebBanner', 'flAdWebFeed', 'flAdLivePromo'].forEach(function (id) {
+        /* flAdLivePromo 由 ad-system-display-live.js 独立管理，勿在此移除 */
+        ['flAdHomeBanner', 'flAdFeedCard', 'flAdWebBanner', 'flAdWebFeed'].forEach(function (id) {
             var el = document.getElementById(id);
             if (el) el.remove();
         });
@@ -252,8 +253,20 @@
                 '<div class="ad-home-banner-art" role="img" aria-label="' + (ad.title || '').replace(/"/g, '&quot;').replace(/</g, '&lt;') + '" style="background-image:url(\'' + String(item.url || '').replace(/'/g, '%27') + '\')"></div>' +
                 '</div>';
             el.onclick = function () {
+                if (window.FLAdService && FLAdService.openAdLanding) {
+                    var res = FLAdService.openAdLanding(ad);
+                    if (res && res.ok === false) toast(res.message || '无法打开链接');
+                    else if (res && res.data && res.data.message) toast(res.data.message);
+                    return;
+                }
                 if (window.FLAdService && FLAdService.recordClick) FLAdService.recordClick(ad.id);
-                toast('跳转：' + (ad.landingUrl || '') + '（原型）');
+                var url = ad.landingUrl || '';
+                if (ad.landingType === 'external' && url) {
+                    var href = /^https?:\/\//i.test(url) ? url : ('https://' + url);
+                    try { window.open(href, '_blank', 'noopener,noreferrer'); } catch (e) { /* ignore */ }
+                    return;
+                }
+                toast(url ? ('跳转：' + url) : '广告跳转');
             };
             wrap.appendChild(el);
             if (i === 0) recordImpressionOnce(ad.id);
@@ -342,8 +355,20 @@
             recordImpressionOnce(feedAd.id);
             page.querySelector('[data-ad-cta]').onclick = function (e) {
                 e.stopPropagation();
+                if (window.FLAdService && FLAdService.openAdLanding) {
+                    var res = FLAdService.openAdLanding(feedAd);
+                    if (res && res.ok === false) toast(res.message || '无法打开链接');
+                    else if (res && res.data && res.data.message) toast(res.data.message);
+                    return;
+                }
                 if (window.FLAdService && FLAdService.recordClick) FLAdService.recordClick(feedAd.id);
-                toast('广告跳转（原型）');
+                var url = feedAd.landingUrl || '';
+                if (feedAd.landingType === 'external' && url) {
+                    var href = /^https?:\/\//i.test(url) ? url : ('https://' + url);
+                    try { window.open(href, '_blank', 'noopener,noreferrer'); } catch (err) { /* ignore */ }
+                    return;
+                }
+                toast(url ? ('广告跳转：' + url) : '广告跳转');
             };
             page.querySelector('[data-ad-hide]').onclick = function (e) {
                 e.stopPropagation();

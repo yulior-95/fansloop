@@ -172,9 +172,14 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
         <tr><td>工具栏</td><td><strong>创建广告</strong>（仅 <code>approved</code> 可点，否则 Toast）· <strong>申请广告主</strong>（未申请/驳回时显示）；通知在导航右侧</td></tr>
         <tr><td>账户与投放概览</td><td>左栏（Web 双栏）：余额、冻结、投放中、待审核；曝光/点击/消耗数字</td></tr>
         <tr><td>我的广告</td><td>右栏：筛选 + 列表 → <code>detail</code>；空列表仅「暂无广告」</td></tr>
+        <tr><td>通知</td><td>视图 <code>notices</code>：支付 / 审核 / 投放 / 退款 / 下架；单条已读 + 全部已读。完整目录见完整版 <a href="./ad-system-requirements.html#s10-5-3-1-广告通知目录-type-标题-触发">§5.3.1</a></td></tr>
     </tbody>
 </table>
 <p><strong>与后台关系：</strong>用户侧仅管理<strong>来源 <code>user</code></strong> 的广告与自有流水；平台广告在 <code>ads-ops-create.html</code>，不在广告中心创建。</p>
+<blockquote style="border-left:3px solid #52c41a;padding:8px 12px;background:rgba(82,196,26,.08)">
+<strong>【研发批注 · 冻结与通知】</strong>
+<strong>不单独做「冻结」通知类型。</strong>资金冻结是账变（支付成功入冻结），已写入「支付成功」正文；明细看广告账户流水。暂停「冻结剩余天数」属排期日历，一期不推通知。
+</blockquote>
 <blockquote style="border-left:3px solid #fa8c16;padding:8px 12px;background:rgba(250,140,22,.08)">
 <strong>【研发批注】用户删除 = 软删，后台必须留档。</strong>
 已下架广告可在详情点「删除」：仅置 <code>userDeleted=true</code>，广告主列表不可见；<strong>禁止物理删库</strong>。后台广告管理 / 订单 / 支付退款 / 审核与操作日志永久保留；管理端列表仍可见并可标「用户已删除」。API：<code>FLAdService.deleteAdForUser</code>。
@@ -206,8 +211,8 @@ footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border
     <thead><tr><th>编码</th><th>位置</th><th>素材</th><th>标识</th></tr></thead>
     <tbody>
         <tr><td><code>feed_video</code></td><td>短视频 / 推荐信息流（WEB 竖滑 + H5 Feed）</td><td>最多 6 张图 <strong>或</strong> 1 段视频；须填文案</td><td>「广告」</td></tr>
-        <tr><td><code>home_banner</code></td><td>首页 Banner（<strong>WEB 与 H5 均展示</strong>）</td><td><strong>仅图片</strong> JPG/PNG/WebP ≤500KB；WEB 推荐 1920×240、H5 推荐 750×200；通栏矮条可关闭</td><td>「广告」</td></tr>
-        <tr><td><code>live_room</code></td><td>直播画面下、互动区上</td><td>小卡 / 横条；一期仅平台运营</td><td>「广告」</td></tr>
+        <tr><td><code>home_banner</code></td><td>首页 Banner（<strong>WEB 与 H5 均展示</strong>）</td><td><strong>仅 1 张图</strong>（禁视频）JPG/PNG/WebP ≤500KB；推荐 2400×300（8:1）；居中 cover 适配各屏</td><td>「广告」</td></tr>
+        <tr><td><code>live_room</code></td><td>直播画面下、互动区上</td><td><strong>仅 1 张图</strong>（禁视频）铺满推广条；推荐 1440×160（9:1）；一期仅平台运营</td><td>「广告」</td></tr>
     </tbody>
 </table>
 <p>创编选择投放位置后展示 <strong style="color:#fff">WEB / H5 样式预览</strong>（<code>#adSlotStylePreview</code>）。须上传品牌 LOGO。</p>

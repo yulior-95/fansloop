@@ -65,9 +65,9 @@
         return /(\.mp4|\.webm|\.mov)(\?|$)/i.test(m.url || '');
     }
 
-    /** Banner 多图轮播：每个投放中广告的图片素材各成一帧（最多 6 张/广告） */
+    /** Banner：每条广告取素材帧（规范为每广告 1 张；兼容历史多图） */
     function bannerImageSlides(ads) {
-        var maxPerAd = 6;
+        var maxPerAd = 1;
         try {
             var rule = window.FLAdService && FLAdService.MATERIAL_RULES && FLAdService.MATERIAL_RULES.home_banner;
             if (rule && rule.maxImages) maxPerAd = rule.maxImages;
@@ -161,17 +161,23 @@
     }
 
     function openLanding(ad) {
+        if (window.FLAdService && FLAdService.openAdLanding) {
+            var res = FLAdService.openAdLanding(ad);
+            if (res && res.ok === false) toast(res.message || '无法打开链接');
+            else if (res && res.data && res.data.message) toast(res.data.message);
+            return;
+        }
         var url = ad.landingUrl || '';
-        if (window.FLAdService && FLAdService.recordClick) FLAdService.recordClick(ad.id);
-        if (ad.landingType === 'external') {
-            toast(url ? ('已唤起系统浏览器打开：' + url + '（原型）') : '外链打开（原型）');
+        if (ad.landingType === 'external' && url) {
+            var href = /^https?:\/\//i.test(url) ? url : ('https://' + url);
+            try { window.open(href, '_blank', 'noopener,noreferrer'); } catch (e) { /* ignore */ }
             return;
         }
         if (ad.landingType === 'creator' || ad.landingType === 'live') {
-            toast(url ? ('进入主播主页：' + url + '（原型）') : '进入主播主页（原型）');
+            toast(url ? ('进入主播主页：' + url) : '进入主播主页');
             return;
         }
-        toast(url ? ('广告跳转：' + url + '（原型）') : '广告跳转（原型）');
+        toast(url ? ('广告跳转：' + url) : '广告跳转');
     }
 
     function deliveringAds(slot) {
@@ -400,12 +406,16 @@
         var track = document.getElementById('feedStackTrack');
         if (!feedAds.length || !track) return;
         if (track.querySelector('.feed-stack-slide--ad')) return;
-        var interval = deliveryRules('feed_video').minContentBetween || 5;
+        var ruleGap = deliveryRules('feed_video').minContentBetween || 5;
+        var contentCount = track.querySelectorAll('.feed-stack-slide:not(.feed-stack-slide--ad)').length;
+        /* 内容不够时缩短间隔，首条广告尽早出现，避免滑很久才看到投放中广告 */
+        var interval = Math.min(ruleGap, Math.max(2, Math.floor(contentCount / (feedAds.length + 1)) || 2));
         feedAds.forEach(function (feedAd, i) {
             var slide = buildFeedAdSlide(feedAd);
             var slides = track.querySelectorAll('.feed-stack-slide:not(.feed-stack-slide--ad)');
             var insertAt = interval * (i + 1) - 1;
             if (slides.length > insertAt) track.insertBefore(slide, slides[insertAt]);
+            else if (slides.length) track.insertBefore(slide, slides[slides.length - 1].nextSibling);
             else track.appendChild(slide);
             recordImpressionOnce(feedAd.id);
         });
@@ -418,11 +428,17 @@
         injectFeedAds(all.length ? all : deliveringAds('feed_video'));
     }
 
+    function refresh() {
+        removeInjected();
+        run();
+    }
+
     function scheduleRun() {
         setTimeout(run, 500);
         setTimeout(run, 1200);
     }
 
+    window.FLAdDisplayRefresh = refresh;
     window.addEventListener('fl-ad-store-changed', function () {
         removeInjected();
         scheduleRun();

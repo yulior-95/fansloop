@@ -148,7 +148,7 @@
         '</form></div></div></section>' +
         '<section class="ad-set-view" data-ad-view="detail"><div class="set-card ad-set-card"><div class="ssh"><button type="button" class="ad-ssh-back" data-ad-go="center" aria-label="返回" title="返回"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button><div><h3>广告详情</h3></div></div><div class="body"><div id="adDetailRoot"></div>' +
         '<div class="ad-set-actions"><button type="button" class="btn btn-secondary" id="adBtnStats" hidden>数据</button><button type="button" class="btn btn-secondary" id="adBtnPause" hidden>暂停</button><button type="button" class="btn btn-secondary" id="adBtnResume" hidden>恢复</button><button type="button" class="btn btn-secondary" id="adBtnEdit" hidden>修改</button><button type="button" class="btn btn-primary" id="adBtnPay" hidden>去支付</button><button type="button" class="btn btn-primary" id="adBtnResubmit" hidden>重新提交审核</button><button type="button" class="btn btn-secondary" id="adBtnRefund" hidden>申请退款</button><button type="button" class="btn btn-secondary" id="adBtnRemove" hidden>下架</button><button type="button" class="btn btn-secondary" id="adBtnDelete" hidden title="仅从列表移除；后台留档">删除</button></div></div></div></section>' +
-        '<section class="ad-set-view" data-ad-view="notices"><div class="set-card ad-set-card"><div class="ssh"><div class="ic-circle"><i class="fa-solid fa-bell"></i></div><div><h3>广告通知</h3></div></div><div class="body" id="adNoticeList"></div></div></section>' +
+        '<section class="ad-set-view" data-ad-view="notices"><div class="set-card ad-set-card"><div class="ssh"><div class="ic-circle"><i class="fa-solid fa-bell"></i></div><div><h3>广告通知</h3></div><button type="button" class="btn btn-secondary ad-notice-read-all" id="adNoticeReadAll" hidden>全部已读</button></div><div class="body" id="adNoticeList"></div></div></section>' +
         '<section class="ad-set-view" data-ad-view="stats"><div class="set-card ad-set-card"><div class="ssh"><div class="ic-circle"><i class="fa-solid fa-chart-line"></i></div><div><h3>投放数据</h3></div></div><div class="body"><p id="adStatsNote" class="ad-muted"></p>' +
         '<div class="ad-web-grid ad-web-grid--stats">' +
         '<div class="ad-stat"><span class="ad-stat-label">曝光</span><span class="ad-stat-value" id="stDImp">—</span></div>' +
@@ -210,7 +210,7 @@
         if (!document.querySelector('link[href*="ad-system.css"]')) {
             var link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = scriptBase() + 'css/ad-system.css?v=20261126creator3';
+            link.href = scriptBase() + 'css/ad-system.css?v=20261128readall';
             document.head.appendChild(link);
         }
         if (!document.querySelector('link[href*="dev-glass-note"]')) {
@@ -240,8 +240,8 @@
         if (scriptsLoaded) return Promise.resolve();
         if (scriptsLoading) return scriptsLoading;
         var base = scriptBase();
-        scriptsLoading = loadScript(base + 'js/ad-system-store.js?v=20261125pkg')
-            .then(function () { return loadScript(base + 'js/ad-system-api.js?v=20261125notitle'); })
+        scriptsLoading = loadScript(base + 'js/ad-system-store.js?v=20261128notice1')
+            .then(function () { return loadScript(base + 'js/ad-system-api.js?v=20261128readall'); })
             .then(function () { return loadScript(base + 'js/ad-center-promo-markup.js?v=20261125pkg'); })
             .then(function () { return loadScript(base + 'js/ad-advertiser-terms.js'); })
             .then(function () { return loadScript(base + 'js/ad-advertiser-apply-markup.js'); })
@@ -252,7 +252,7 @@
                     return loadScript(base + 'js-web/dev-glass-viewport.js');
                 }
             })
-            .then(function () { return loadScript(base + 'js/ad-system-user.js?v=20261126creator3'); })
+            .then(function () { return loadScript(base + 'js/ad-system-user.js?v=20261128readall'); })
             .then(function () { return loadScript(base + 'js/ad-settings-shell.js'); })
             .then(function () {
                 if (!global.FLAdStore || !global.FLAdService || !global.FLAdUser) {

@@ -8,7 +8,7 @@
     var TEST01_EMAIL = 'test01@qq.com';
     var TEST01_USER_ID = 'uid_edcd63ff';
     var TEST01_PUBLIC_UID = '960671';
-    var TEST01_ENSURE_VERSION = 1;
+    var TEST01_ENSURE_VERSION = 2;
 
     /* Identity model: account identity is separate from creator eligibility and
        subscription relationships. `role` remains as a compatibility alias for

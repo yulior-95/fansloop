@@ -267,8 +267,15 @@
         }
         strip.hidden = false;
         var m = roleMeta(st);
+        var email = '';
+        try { email = (global.GoodfansAuth && GoodfansAuth.getEmail && GoodfansAuth.getEmail()) || ''; } catch (eMail) { /* ignore */ }
+        var demoHint = '';
+        if (email === 'test01@qq.com' || (FLAdStore.isDemoAdUid && FLAdStore.isDemoAdUid(UID()))) {
+            demoHint = '<span class="ad-role-demo-hint" title="当前登录账号">' + esc(email || '演示账号') + '</span>';
+        }
         strip.innerHTML =
             '<span class="pill ' + m.pill + '"><i class="fa-solid ' + m.icon + '"></i> ' + m.text + '</span>' +
+            demoHint +
             '<button type="button" class="ad-role-reset" id="adBtnResetAdvertiser" title="原型：重置广告主资质，便于再测申请流程">' +
             '<i class="fa-solid fa-rotate-left"></i> 重置广告主</button>';
         var resetBtn = qs('#adBtnResetAdvertiser');
@@ -1047,14 +1054,14 @@
             h5.innerHTML =
                 '<div class="ad-style-mock-phone">' +
                 '<div class="ad-style-mock-statusbar"></div>' +
-                '<div class="ad-style-mock-banner"><strong>广告 · 首页 Banner</strong><span>H5 通栏约 750×200 · 可关闭</span></div>' +
+                '<div class="ad-style-mock-banner"><strong>广告 · 首页 Banner</strong><span>同一张 8:1 图 · 矮条裁切 · 可关闭</span></div>' +
                 '<div class="ad-style-mock-line"></div><div class="ad-style-mock-line short"></div>' +
                 '</div>';
             web.innerHTML =
                 '<div class="ad-style-mock-web">' +
                 '<div class="ad-style-mock-web-side"></div>' +
                 '<div class="ad-style-mock-web-main">' +
-                '<div class="ad-style-mock-banner"><strong>广告 · 首页 Banner</strong><span>WEB 通栏约 1920×240 · 可关闭</span></div>' +
+                '<div class="ad-style-mock-banner"><strong>广告 · 首页 Banner</strong><span>推荐 2400×300 · 居中 cover</span></div>' +
                 '<div class="ad-style-mock-line"></div><div class="ad-style-mock-line"></div>' +
                 '</div></div>';
             return;
@@ -1128,32 +1135,41 @@
         var input = qs('#adMaterialInput');
         var slotCode = currentSlotCode();
         var rule = FLAdService.MATERIAL_RULES && FLAdService.MATERIAL_RULES[slotCode];
+        var maxImg = materialMaxImages(slotCode);
         if (hint) hint.textContent = rule ? rule.hint : '请上传广告展示内容';
         if (help) {
             if (slotCode === 'home_banner' && rule) {
                 help.innerHTML =
-                    '首页 Banner <strong>仅图片</strong>，不可上传视频。<br>' +
-                    '格式：' + esc(rule.formatsLabel || 'JPG / PNG / WebP') +
-                    ' · 每张 ≤1MB · 最多 ' + materialMaxImages(slotCode) + ' 张（轮播）<br>' +
-                    '分辨率：WEB ' + esc(rule.webSize || '1920×240') +
-                    ' · H5 ' + esc(rule.h5Size || '750×200') +
-                    ' · 须为横向通栏（宽÷高 ≥ 2.5）';
+                    '首页 Banner <strong>仅 1 张图片</strong>，不可上传视频。<br>' +
+                    '格式：' + esc(rule.formatsLabel || 'JPG / PNG / WebP') + ' · ≤500KB<br>' +
+                    '推荐尺寸：<strong>' + esc(rule.recommendedSize || '2400×300') + '</strong>（8:1）· 宽 ≥1200 · 宽÷高 ≥6<br>' +
+                    '适配说明：各电脑屏幕用 <code>cover</code> 居中裁切；请把标题/LOGO 放在画面水平居中约 60% 安全区内。';
+            } else if (slotCode === 'live_room' && rule) {
+                help.innerHTML =
+                    '直播间推广 <strong>仅 1 张图片</strong>，不可上传视频；展示时<strong>铺满整条</strong>。<br>' +
+                    '格式：' + esc(rule.formatsLabel || 'JPG / PNG / WebP') + ' · ≤500KB<br>' +
+                    '推荐尺寸：<strong>' + esc(rule.recommendedSize || '1440×160') + '</strong>（9:1）· 宽 ≥900 · 宽÷高 ≥7<br>' +
+                    '适配说明：WEB / H5 均用 <code>cover</code> 居中铺满；不展示标题/LOGO，请把文案画进素材图的水平居中约 60% 安全区。';
             } else {
                 help.textContent = '观众实际看到的画面。图片可一次选多张；视频只能上传 1 个，且不可与图片混用。';
             }
         }
         if (formats) {
             if (slotCode === 'home_banner') {
-                formats.textContent = '仅图片 · JPG/PNG/WebP · ≤1MB · 横向通栏（≥2.5:1）· WEB 1920×240 / H5 750×200';
+                formats.textContent = '仅 1 张图 · JPG/PNG/WebP · ≤500KB · 推荐 2400×300（8:1）';
+            } else if (slotCode === 'live_room') {
+                formats.textContent = '仅 1 张图 · 禁视频 · 铺满推广条 · 推荐 1440×160（9:1）';
             } else if (rule && rule.allowVideo) {
-                formats.textContent = '图片可多选（最多 ' + materialMaxImages(slotCode) + ' 张）· 视频仅 1 个';
+                formats.textContent = '图片可多选（最多 ' + maxImg + ' 张）· 视频仅 1 个';
             } else {
-                formats.textContent = '图片可多选（最多 ' + materialMaxImages(slotCode) + ' 张）';
+                formats.textContent = maxImg <= 1
+                    ? '仅 1 张图片'
+                    : ('图片可多选（最多 ' + maxImg + ' 张）');
             }
         }
         if (input && FLAdService.materialAccept) {
             input.accept = FLAdService.materialAccept(slotCode);
-            input.multiple = true;
+            input.multiple = maxImg > 1;
         }
     }
 
@@ -1360,11 +1376,13 @@
     function useDemoMaterial(draft) {
         var slotCode = currentSlotCode();
         var demoUrl = slotCode === 'home_banner'
-            ? '../assets/ads/ad-banner-serum-ha.jpg'
-            : 'https://picsum.photos/seed/ad-feed-demo/720/1280';
+            ? 'https://picsum.photos/seed/ad-banner-wide/2400/300'
+            : (slotCode === 'live_room'
+                ? 'https://picsum.photos/seed/ad-live-promo/1440/160'
+                : 'https://picsum.photos/seed/ad-feed-demo/720/1280');
         var demoSize = slotCode === 'home_banner'
-            ? { w: 1200, h: 150 }
-            : { w: 720, h: 1280 };
+            ? { w: 2400, h: 300 }
+            : (slotCode === 'live_room' ? { w: 1440, h: 160 } : { w: 720, h: 1280 });
         var img = new Image();
         img.onload = function () {
             var meta = {
@@ -1732,7 +1750,10 @@
             syncSlotStylePreview();
             syncScheduleEndFromPackage();
             if (draft.materials && draft.materials.length) {
+                var maxKeep = materialMaxImages(slotSel.value);
+                var ruleNow = FLAdService.MATERIAL_RULES && FLAdService.MATERIAL_RULES[slotSel.value];
                 var bad = draft.materials.some(function (m) {
+                    if (m.kind === 'video' && ruleNow && !ruleNow.allowVideo) return true;
                     return !FLAdService.validateMaterial(slotSel.value, m).ok;
                 });
                 if (bad) {
@@ -1741,6 +1762,10 @@
                     renderMaterialGallery(draft);
                     toast('已切换广告位，请按新规范重新上传素材');
                 } else {
+                    if (draft.materials.length > maxKeep) {
+                        draft.materials = draft.materials.slice(0, maxKeep);
+                        toast('该广告位仅支持 ' + maxKeep + ' 张图片，已自动保留前 ' + maxKeep + ' 张');
+                    }
                     syncDraftMaterials(draft);
                     renderMaterialGallery(draft);
                 }
@@ -2447,11 +2472,75 @@
         return { adId: adId, ad: ad, state: 'ok' };
     }
 
+    function ensureNoticeReadAllBtn() {
+        var btn = qs('#adNoticeReadAll');
+        if (btn) return btn;
+        var ssh = document.querySelector('.ad-set-view[data-ad-view="notices"] .ssh');
+        if (ssh) {
+            btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn btn-secondary ad-notice-read-all';
+            btn.id = 'adNoticeReadAll';
+            btn.textContent = '全部已读';
+            btn.hidden = true;
+            ssh.appendChild(btn);
+            return btn;
+        }
+        var noticesView = document.querySelector('.ad-set-view[data-ad-view="notices"]');
+        var mount = qs('#adNoticeList');
+        if (!noticesView || !mount) return null;
+        var bar = noticesView.querySelector('.ad-notice-toolbar');
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.className = 'ad-notice-toolbar';
+            noticesView.insertBefore(bar, mount);
+        }
+        btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn-secondary ad-notice-read-all';
+        btn.id = 'adNoticeReadAll';
+        btn.textContent = '全部已读';
+        btn.hidden = true;
+        bar.appendChild(btn);
+        return btn;
+    }
+
+    function bindNoticeReadAll(unreadCount) {
+        var btn = ensureNoticeReadAllBtn();
+        if (!btn) return;
+        var hasUnread = unreadCount > 0;
+        btn.hidden = !hasUnread;
+        btn.disabled = !hasUnread;
+        btn.onclick = function (e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            if (!hasUnread) return;
+            var res = FLAdService.markAllNoticesRead
+                ? FLAdService.markAllNoticesRead(UID())
+                : { ok: false };
+            if (res && res.ok === false) {
+                toast((res && res.message) || '全部已读失败');
+                return;
+            }
+            var marked = (res && res.data && res.data.marked) || unreadCount;
+            toast(marked ? ('已将 ' + marked + ' 条通知标为已读') : '没有未读通知');
+            try { syncNoticeNav(FLAdStore.accountSummary(UID())); } catch (e2) { /* ignore */ }
+            initNotices();
+        };
+    }
+
     function initNotices() {
         var mount = qs('#adNoticeList');
         if (!mount) return;
-        var list = FLAdStore.getNotices ? FLAdStore.getNotices(UID()) : [];
+        var list = (FLAdStore.getNotices ? FLAdStore.getNotices(UID()) : []).slice();
+        list.sort(function (a, b) {
+            return String(b && b.at || '').localeCompare(String(a && a.at || ''));
+        });
+        var unreadCount = list.filter(function (n) { return n && !n.read; }).length;
         try { syncNoticeNav(FLAdStore.accountSummary(UID())); } catch (e) { /* ignore */ }
+        bindNoticeReadAll(unreadCount);
         if (!list.length) {
             mount.innerHTML = '<div class="ad-center-empty">暂无通知</div>';
             return;
@@ -2461,8 +2550,8 @@
             var dead = target.state === 'missing' || target.state === 'deleted';
             var sub = esc(n.body) + ' · ' + esc((n.at || '').slice(0, 16).replace('T', ' '));
             if (dead) sub += target.state === 'deleted' ? ' · 广告已从列表删除' : ' · 关联广告不可用';
-            return '<div class="ad-row' + (dead ? ' is-muted' : '') + '" data-nt="' + esc(n.id) + '" data-ad-target="' + esc(target.adId) + '" data-ad-state="' + esc(target.state) + '" style="cursor:pointer">' +
-                '<div class="meta"><div class="t">' + esc(n.title) + (n.read ? '' : ' · 未读') + '</div>' +
+            return '<div class="ad-row' + (dead ? ' is-muted' : '') + (n.read ? '' : ' is-unread') + '" data-nt="' + esc(n.id) + '" data-ad-target="' + esc(target.adId) + '" data-ad-state="' + esc(target.state) + '" style="cursor:pointer">' +
+                '<div class="meta"><div class="t">' + esc(n.title) + (n.read ? '' : ' <span class="ad-notice-unread">未读</span>') + '</div>' +
                 '<div class="s">' + sub + '</div></div></div>';
         }).join('');
         mount.querySelectorAll('[data-nt]').forEach(function (row) {
@@ -2574,6 +2663,8 @@
         /* 切换登录账号后重绑广告中心，避免串到上一账号数据 */
         window.addEventListener('goodfans-auth-change', function () {
             try {
+                if (FLUserRegistry && FLUserRegistry.ensureTest01Account) FLUserRegistry.ensureTest01Account();
+                if (FLAdStore && FLAdStore.load) FLAdStore.load();
                 if (document.getElementById('settingsAdPanel') ||
                     document.body.getAttribute('data-ad-shell') === 'settings' ||
                     document.querySelector('.ad-set-view.on')) {

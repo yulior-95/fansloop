@@ -83,6 +83,35 @@ body.page-settings #settingsAdPanel .set-card.ad-set-card .ssh h3 {
     margin: 0;
 }
 
+body.page-settings #settingsAdPanel .set-card.ad-set-card .ssh .ad-notice-read-all {
+    margin-left: auto;
+    flex-shrink: 0;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ad-notice-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 8px 14px 0;
+}
+
+.ad-notice-toolbar .ad-notice-read-all {
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.page-settings-h5 .ad-notice-toolbar {
+    padding: 10px 14px 2px;
+}
+
 body.page-settings #settingsAdPanel .set-card .body {
     padding: 20px 22px 22px;
 }
@@ -153,6 +182,11 @@ body.page-settings #settingsAdPanel .ad-set-view[data-ad-view="create"] .set-car
 .ad-center-role .pill.is-warn { border-color: rgba(251, 191, 36, 0.45); color: #fde68a; background: rgba(251, 191, 36, 0.1); }
 .ad-center-role .pill.is-muted { opacity: 0.9; }
 
+.ad-center-role .ad-role-demo-hint {
+    font-size: 11px;
+    color: var(--text-muted, #94a3b8);
+    opacity: 0.9;
+}
 .ad-center-role .ad-role-reset {
     display: inline-flex;
     align-items: center;
@@ -790,24 +824,34 @@ body.page-settings[data-settings-panel="ad"]:not([data-ad-page="center"]) #adSet
 
 body.page-settings #settingsAdPanel .ad-row,
 .ad-center-panel--list .ad-row {
-    margin: 0 0 8px;
+    margin: 0;
+}
+
+.ad-center-panel--list #adListMount,
+body.page-settings #settingsAdPanel #adListMount {
+    border: 0;
+    background: transparent;
 }
 
 .ad-row {
-    margin: 0 16px 10px;
-    padding: 12px 14px;
-    border-radius: 12px;
-    background: var(--bg-card, var(--bg-elevated));
-    border: 1px solid var(--border-color, var(--border));
+    margin: 0;
+    padding: 14px 16px;
+    border-radius: 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
     display: flex;
     gap: 12px;
     cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
+    transition: background 0.15s;
 }
 
 .ad-row:hover {
     background: var(--bg-hover, rgba(255, 255, 255, 0.04));
-    border-color: var(--border-strong, rgba(168, 85, 247, 0.25));
+}
+
+.ad-row:last-child {
+    border-bottom: 0;
 }
 
 .ad-row .thumb {
@@ -874,16 +918,44 @@ body.page-settings #settingsAdPanel .ad-row,
     opacity: 0.62;
 }
 
+#adNoticeList {
+    border: 0;
+    background: transparent;
+}
+
 #adNoticeList .ad-row {
     margin: 0;
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border-color);
+    padding: 14px 4px 14px 0;
+    border: 0;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
     border-radius: 0;
     background: transparent;
 }
 
+#adNoticeList .ad-row:last-child {
+    border-bottom: 0;
+}
+
+#adNoticeList .ad-row:hover,
 #adNoticeList .ad-row:active {
     background: var(--bg-inset, rgba(255, 255, 255, 0.04));
+}
+
+#adNoticeList .ad-row.is-unread .t {
+    font-weight: 700;
+}
+
+.ad-notice-unread {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    vertical-align: middle;
+    color: #fde68a;
+    background: rgba(251, 191, 36, 0.16);
+    border: 0;
 }
 
 .ad-row .ad-row-side {
@@ -2032,35 +2104,39 @@ body.page-settings #settingsAdPanel .set-card .body .ad-form textarea {
     font-weight: 600;
 }
 
-.page-settings-h5 #adListMount {
+.page-settings-h5 #adListMount,
+.page-settings-h5 #adNoticeList {
     margin: 0 -14px;
     border: 0;
-    border-top: 1px solid var(--border-color);
+    border-top: 0;
     border-radius: 0;
     background: transparent;
     overflow: hidden;
 }
 
-.page-settings-h5 .ad-row {
+.page-settings-h5 .ad-row,
+.page-settings-h5 #adNoticeList .ad-row {
     margin: 0;
     padding: 12px 14px;
     border: 0;
     border-radius: 0;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
     background: transparent;
     align-items: center;
     gap: 10px;
     box-sizing: border-box;
 }
 
-.page-settings-h5 .ad-row:last-child {
+.page-settings-h5 .ad-row:last-child,
+.page-settings-h5 #adNoticeList .ad-row:last-child {
     border-bottom: 0;
 }
 
 .page-settings-h5 .ad-row:hover,
-.page-settings-h5 .ad-row:active {
+.page-settings-h5 .ad-row:active,
+.page-settings-h5 #adNoticeList .ad-row:hover,
+.page-settings-h5 #adNoticeList .ad-row:active {
     background: var(--bg-inset, rgba(255, 255, 255, 0.03));
-    border-color: var(--border-color);
 }
 
 .page-settings-h5 .ad-row .thumb {
@@ -3428,3 +3504,98 @@ body.theme-light .ad-brand-logo-preview.has-logo {
 
 .page-settings-h5 #adApplySubmit.btn-block,
 .page-settings-h5 .ad-form-actions .btn-primary { width: 100%; }
+
+/* —— 直播间推广条（live_room）：同首页 Banner · 铺满 + 左上标签 + 右上关闭 —— */
+.ad-live-promo {
+    position: relative;
+    z-index: 6;
+    margin: 10px 0 12px;
+    height: 96px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+    background: #111827;
+}
+.ad-live-promo-art {
+    position: absolute;
+    inset: 0;
+    background: center / cover no-repeat #1f2937;
+}
+.ad-live-promo-art--fallback {
+    background: linear-gradient(105deg, #1e293b 0%, #334155 55%, #0f172a 100%);
+}
+.ad-live-promo-tag {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 2;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #fde68a;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.55);
+    border: 0;
+    pointer-events: none;
+}
+.ad-live-promo-close {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 8;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    pointer-events: auto !important;
+    -webkit-tap-highlight-color: transparent;
+}
+.ad-live-promo-close i,
+.ad-live-promo-close svg {
+    pointer-events: none;
+}
+.ad-live-promo-close:hover {
+    background: rgba(0, 0, 0, 0.72);
+}
+.ld-ab-video-col > .ad-live-promo,
+.live-grid > div > .ad-live-promo {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+}
+/* H5 直播间：窄屏矮条 */
+body.page-h5-live-viewer .ad-live-promo,
+body.page-live .ad-live-promo,
+.lv-stage .ad-live-promo,
+.lv-shell .ad-live-promo {
+    height: 64px;
+    margin: 8px 12px 10px;
+    border-radius: 10px;
+}
+body.page-h5-live-viewer .ad-live-promo-tag,
+.lv-stage .ad-live-promo-tag {
+    top: 6px;
+    left: 6px;
+    padding: 2px 6px;
+}
+body.page-h5-live-viewer .ad-live-promo-close,
+.lv-stage .ad-live-promo-close {
+    top: 4px;
+    right: 4px;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+}

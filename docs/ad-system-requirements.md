@@ -123,9 +123,40 @@
 | 我的广告 | 筛选 + 列表；空态「暂无广告」 |
 | 广告详情 | 素材、套餐、审核意见、订单、投放状态；暂停/恢复/修改/重提审/退款；**已下架可删除（用户侧软删）** |
 | 广告账户 | 账户余额、冻结、可用、流水 |
-| 通知 | 审核/支付/投放开始结束/退款结果 |
+| 通知 | 视图 `notices`：支付 / 审核 / 投放 / 退款 / 下架；支持单条已读与「全部已读」 |
 
 用户侧仅管理**来源 `user`** 的广告与自有流水；平台广告在 `ads-ops-create.html`。
+
+#### 5.3.1 广告通知目录（`type` · 标题 · 触发）
+
+**字段结构（每条）：** `id` · `uid` · `type` · `title` · `body` · `at` · `read`；可选 `adId` · `orderId`（有 `adId` 时可点进广告详情）。
+
+| type | 标题（示例） | 正文要点 | 关联 | 触发时机 |
+|---|---|---|---|---|
+| `pay_ok` | 支付成功 | 订单已支付并冻结金额 | `adId` · `orderId` | 套餐支付成功 |
+| `pay_ok` | 套餐已更换 | 已退回原套餐并完成新套餐支付 | `adId` · `orderId` | 驳回后换套餐并支付成功 |
+| `pay_fail` | 支付失败 | 支付失败 / 可重试 / 对账失败 | `adId?` · `orderId?` | 支付失败或对账失败 |
+| `audit_pending` | 已提交审核 | 广告进入审核中 | `adId` · `orderId?` | 支付成功后自动进审 |
+| `audit_pending` | 已重新提交审核 | 修改后再次进入待审核 | `adId` | 用户重新提交上架审核 |
+| `audit_pass` | 广告审核通过 | 已通过审核 | `adId` | 运营审核通过 |
+| `audit_pass` | 待投放 | 将于开始时间自动投放 | `adId` | 审核通过但尚未到开始时间 |
+| `audit_reject` | 广告审核未通过 | 驳回原因（`rejectReason`） | `adId` | 运营审核驳回 |
+| `audit_expire` | 广告已自动取消 | 超过开始时间仍未审，系统取消 | `adId` · `orderId?` | 超时未审自动取消 |
+| `audit_expire` | 广告已自动取消并退款 | 超时取消并退回金额 | `adId` · `orderId` | 超时未审且有可退订单 |
+| `delivery_start` | 投放已开始 | 广告已开始展示 | `adId` | 到达开始时间 / 审核通过且可立即投放 |
+| `delivery_end` | 投放已结束 | 周期结束，冻结资金已结算 | `adId` · `orderId` | 投放自然结束 |
+| `delivery_end` | 广告已下架 | 用户主动下架，不可恢复 | `adId` | 用户下架 |
+| `delivery_end` | 广告已被平台下架 | 平台下架 + 原因 + 费用处理说明 | `adId` | 运营强制下架 |
+| `refund_apply` | 退款申请已提交 | 申请金额，等待财务审核 | `adId` · `orderId` | 用户提交退款申请 |
+| `refund_result` | 退款已到账 | 金额已退回广告账户 | `adId` · `orderId` | 财务通过 / 退款入账 |
+| `refund_result` | 退款申请未通过 | 驳回原因 | `adId` · `orderId` | 财务驳回 |
+
+> **【研发批注 · 冻结与通知】**  
+> - **不单独做 `freeze` /「冻结」通知类型。** 资金冻结是账变（`FinanceLedger.type = freeze`），发生在支付成功时；已写入 `pay_ok` 正文（「已支付并冻结 X USDT」）。明细以广告账户 / `users-ledger` 流水为准。  
+> - 暂停里的「冻结剩余天数」是**排期日历冻结**，不是资金通知，一期**不推**通知。  
+> - 若需强化资金感知，优先在 `pay_ok` 正文突出金额，避免与支付成功重复推送。
+
+原型样例（`noticeCatalogFor`）每种核心情况各 1 条；实现：`FLAdService.pushNotice` / `markNoticeRead` / `markAllNoticesRead`；UI：`#adNoticeList` +「全部已读」。
 
 ### 5.4 功能点对照（产品清单）
 
@@ -163,7 +194,7 @@
 | 服务端 · 频次控制 | 同用户同广告次数上限 | `recordImpression` + `freqCaps` | ✅ |
 | 服务端 · 支付对账 | 重复/延迟回调、失败、状态不一致 | `handlePayCallback` + 订单页演示 | ✅ |
 | 后台 · 风控管理 | 异常点击、异常流量、频次、异常广告 | `ads-risk.html` | ✅ |
-| 用户 · 消息通知 | 审核/支付/投放开始结束/退款 | 视图 `notices` | ✅ |
+| 用户 · 消息通知 | 支付/审核/投放/退款/下架（见 §5.3.1）；单条已读 + 全部已读；**无独立冻结通知** | 视图 `notices` | ✅ |
 
 ---
 
@@ -175,7 +206,8 @@
 | **Ad** | 来源 `user`/`platform`、`brandLogoUrl`（品牌头像）、素材/文案/链接、`auditStatus`、`payStatus`、`deliveryStatus`、`contentVersion`、`versions[]` |
 | **Order** | `priceSnapshot`（下单时套餐价）、`durationDays`、`effectiveImpressions`、支付/退款状态、幂等键 |
 | **Package** | 广告位、`durationDays`、`effectiveImpressions`（有效曝光配额）、现价、`enabled`；历史订单不随改价变化 |
-| **FinanceLedger** | 充值/购买/退款；唯一单号；**不可删改**（原型） |
+| **FinanceLedger** | 充值 / **冻结** / 消耗 / 退款；唯一单号；**不可删改**（原型）。冻结入账变，不单独推通知（见 §5.3.1） |
+| **Notice** | `type`：`pay_ok`/`pay_fail`/`audit_*`/`delivery_*`/`refund_*`；`read`；可选 `adId`/`orderId`（见 §5.3.1） |
 | **Risk / OpLog** | 异常事件、操作人/时间/原因 |
 
 **校验（原型已实现）**：必填项；**品牌头像 / LOGO**（正方形图，边长 ≥ 200px）；素材格式/大小/比例（按广告位）；链接禁 `javascript:`、风险域名拦截；**支付成功后才可** `submitForReview`；敏感字段（含 `brandLogoUrl` / 素材 / 标题 / 文案 / 落地）变更触发 **新版本 + 重新审核**。
@@ -189,12 +221,12 @@
 | 编码 | 位置 | 素材 | 标识 |
 |---|---|---|---|
 | `feed_video` | 短视频 / 推荐信息流（WEB 竖滑 + H5 Feed） | 最多 6 张图 **或** 1 段视频（不可混传）；信息流须填文案 | 「广告」 |
-| `home_banner` | 首页 Banner（**WEB 与 H5 均展示**） | **仅图片**（不可视频）；JPG/PNG/WebP；≤500KB；最多 6 张；WEB 推荐 **1920×240**（或 1200×150），H5 推荐 **750×200**；不展示信息流文案 | 「广告」 |
-| `live_room` | 直播画面下、互动区上 | 小卡 / 横条；**一期仅平台运营可投**（`userAllowed: false`） | 「广告」 |
+| `home_banner` | 首页 Banner（**WEB 与 H5 均展示**） | **仅 1 张图片**（不可视频）；JPG/PNG/WebP；≤500KB；推荐 **2400×300**（8:1），宽 ≥1200 且宽÷高 ≥6；居中 cover 适配各屏，重要元素放水平 60% 安全区；不展示信息流文案 | 「广告」 |
+| `live_room` | 直播画面下、互动区上 | **仅 1 张图片**（不可视频）；JPG/PNG/WebP；≤500KB；推荐 **1440×160**（9:1），宽 ≥900 且宽÷高 ≥7；展示时 **cover 铺满**整条（WEB / H5），**不展示标题 / LOGO**；**一期仅平台运营可投**（`userAllowed: false`） | 「广告」 |
 
 创编还须上传 **品牌头像 / LOGO**（`brandLogoUrl`）：用于信息流顶栏头像，建议正方形 JPG/PNG/WebP，边长 ≥ 200px；未上传不可进入下一步 / 不可提审。
 
-创编步骤「投放位置」选择后，须展示 **WEB / H5 样式预览**（`#adSlotStylePreview`）：选「首页 Banner」时示意两端通栏矮条轮播位；选「短视频信息流」时示意原生帖插入形态。预览为示意，非实时素材渲染。选 Banner 时，素材上传区须提示：**仅图片**、格式、单张大小、WEB/H5 推荐分辨率。
+创编步骤「投放位置」选择后，须展示 **WEB / H5 样式预览**（`#adSlotStylePreview`）：选「首页 Banner」时示意两端通栏矮条位；选「短视频信息流」时示意原生帖插入形态。预览为示意，非实时素材渲染。选 Banner / 直播间时，素材上传区须提示：**仅 1 张图片、禁视频**、格式、大小与推荐分辨率（Banner `2400×300`，直播间 `1440×160` 铺满推广条）。WEB 与 H5 共用 `MATERIAL_RULES` 与展示脚本。
 
 不得伪装成普通 UGC；不得点击空白区域隐藏跳转。暂停 / 下架 / 到期后展示组件应同步停止（原型：`fl-ad-store-changed` 刷新）。
 
@@ -677,4 +709,4 @@ R_{\max} = \mathrm{round}\Bigl(\mathrm{实付} \times \frac{D_{\mathrm{rem}}}{D}
 
 本文档为广告系统 **唯一需求说明入口**（HTML 完整版：`docs/ad-system-requirements.html`；摘要版：`docs/guanggao.html`）。改 MD 后可执行 `node docs/_md2html-ad-req.js` 重新导出 HTML。原型迭代时同步更新本章与 `js/ad-system-api.js` / `js-web/ad-system-display-web.js` 行为，避免多份文档分叉。
 
-**近期展示相关变更（须与 §7 保持一致）：** WEB/H5 均展示首页 Banner 轮播；信息流原生帖按密度投放；创编含广告位样式预览；投放排序 + 兴趣匹配；创编必传品牌 LOGO；正文只展示文案；曝光频控 + 会话去重。**§7.3.1 / §7.7 已写清匹配投放算法**（过滤→打分→截断→铺排；Banner 100 条只取 Top5 轮播；`matchScore` 定义；禁止全量随机/按创建时间硬塞）。
+**近期展示相关变更（须与 §7 保持一致）：** WEB/H5 均展示首页 Banner 轮播；信息流原生帖按密度投放；创编含广告位样式预览；投放排序 + 兴趣匹配；创编必传品牌 LOGO；正文只展示文案；曝光频控 + 会话去重。**§7.3.1 / §7.7 已写清匹配投放算法**（过滤→打分→截断→铺排；Banner 100 条只取 Top5 轮播；`matchScore` 定义；禁止全量随机/按创建时间硬塞）。**§5.3.1 已汇总广告通知目录**（含「不单独做冻结通知」批注；全部已读）。

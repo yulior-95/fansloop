@@ -76,15 +76,15 @@
         },
         {
             code: 'home_banner', name: '首页 Banner', page: '首页顶部（WEB / H5）', types: ['品牌曝光', '活动推广'],
-            spec: '仅图片 JPG/PNG/WebP ≤500KB；WEB 1920×240 / H5 750×200',
+            spec: '仅 1 张图 JPG/PNG/WebP ≤500KB；推荐 2400×300（8:1）',
             rotateSec: 5, maxPerSession: 5, dailyCap: 8, fallbackMode: 'hide', closable: true,
-            interval: '多条轮播 5s；同屏最多 5 条；可关闭',
+            interval: '多条广告轮播 5s；同屏最多 5 条；可关闭',
             cap: '同用户同广告每日最多 8 次', fallback: '隐藏广告位区域',
             enabled: true, userAllowed: true
         },
         {
             code: 'live_room', name: '直播间推广', page: '直播间', types: ['品牌曝光', '直播引流'],
-            spec: '小卡 4:3 或横条 Banner',
+            spec: '仅 1 张图（禁视频）；推荐 1440×160（9:1）铺满推广条',
             intervalMin: 15, maxPerSession: 4, dailyCap: 4, fallbackMode: 'none',
             interval: '每 15 分钟可展示 1 次',
             cap: '单场次最多 4 次 · 每日最多 4 次', fallback: '不展示推广',
@@ -154,7 +154,11 @@
     /** test01@qq.com 广告主 + 多状态样例广告 */
     var TEST01_AUTH_UID = 'uid_edcd63ff';
     var TEST01_EMAIL = 'test01@qq.com';
-    var DEMO_TEST01_AD_SEED_VERSION = 1;
+    var DEMO_TEST01_AD_SEED_VERSION = 3;
+    /** 广告通知：每种业务情况各一条样例 */
+    var DEMO_NOTICE_CATALOG_VERSION = 1;
+    /** Banner/直播间素材规范文案（单图、禁视频、推荐尺寸） */
+    var DEMO_SLOT_SPEC_VERSION = 2;
 
     function syntheticAdvertisers() {
         return [
@@ -465,11 +469,17 @@
             freqCaps: defaultFreqCaps(),
             rbac: defaultRbac(),
             rbacRevision: 2,
-            notices: [
-                { id: 'NT-DEMO-1', uid: DEMO_UID, type: 'pay_ok', title: '支付成功', body: '订单 ORD20260315001 已支付并冻结 199 USDT', adId: 'AD20260315002', orderId: 'ORD20260315001', at: '2026-03-17T14:30:00+08:00', read: false },
-                { id: 'NT-DEMO-2', uid: DEMO_UID, type: 'audit_pass', title: '广告审核通过', body: '信息流品牌曝光已通过审核，进入投放', adId: 'AD20260315002', orderId: 'ORD20260315001', at: '2026-03-17T16:00:00+08:00', read: false },
-                { id: 'NT-DEMO-3', uid: DEMO_UID, type: 'delivery_start', title: '投放已开始', body: '信息流品牌曝光已开始展示', adId: 'AD20260315002', at: '2026-03-18T00:00:00+08:00', read: true }
-            ],
+            notices: noticeCatalogFor(DEMO_UID, {
+                payOkAd: 'AD20260315002', payOkOrder: 'ORD20260315001',
+                deliverAd: 'AD20261109001',
+                reviewAd: 'AD20261109004',
+                rejectAd: 'AD202603113',
+                expireAd: 'AD20261109004',
+                pauseAd: 'AD20261109009',
+                refundAd: 'AD20261109007', refundOrder: 'ORD20261109007',
+                endedAd: 'AD20261109008',
+                removedAd: 'AD20261109006'
+            }),
             refunds: [
                 {
                     id: 'RF20261109001',
@@ -1399,6 +1409,8 @@
             data = applyAuditConsistencyMigration(data);
             data = applyDetailBtnMatrixMigration(data);
             data = applyAccountScopeMigration(data);
+            data = applySlotSpecMigration(data);
+            data = applyNoticeCatalogMigration(data);
             return applyTest01AdSeedMigration(data);
         } catch (e) {
             return seed();
@@ -1578,7 +1590,7 @@
             ads: [
                 {
                     id: 'AD-T01-DELIVER',
-                    name: '春季新品信息流投放',
+                    name: '【投放中】春季新品信息流',
                     source: 'user',
                     advertiserUid: uid,
                     type: '品牌曝光',
@@ -1589,8 +1601,8 @@
                     materialType: 'image',
                     landingType: 'external',
                     landingUrl: 'https://goodfans.io/campaign/t01-spring',
-                    startAt: '2026-11-20T00:00:00+08:00',
-                    endAt: '2026-12-20T23:59:00+08:00',
+                    startAt: '2026-11-01T00:00:00+08:00',
+                    endAt: '2026-12-31T23:59:00+08:00',
                     audience: { regions: ['全部'], langs: ['zh-CN'], minAge: 18 },
                     budgetTotal: 199,
                     billing: 'fixed',
@@ -1604,10 +1616,76 @@
                     contentVersion: 1,
                     versions: [],
                     rejectReason: '',
-                    priority: 8,
+                    priority: 9,
                     stats: { impressions: 12600, clicks: 340, spend: 0, conversions: 28 },
                     createdAt: '2026-11-18T09:00:00+08:00',
                     auditLog: [{ at: '2026-11-18T14:00:00+08:00', by: '审核·Ken', action: '审核通过', note: 'test01 投放中样例' }]
+                },
+                {
+                    id: 'AD-T01-DELIVER-2',
+                    name: '【投放中】旅行器材种草',
+                    source: 'user',
+                    advertiserUid: uid,
+                    type: '品牌曝光',
+                    slotCode: 'feed_video',
+                    title: '轻便机身 · 夜景也清晰',
+                    copy: '旅拍必备清单，点击查看',
+                    materialUrl: 'https://picsum.photos/seed/t01-deliver2/720/1280',
+                    materialType: 'image',
+                    landingType: 'external',
+                    landingUrl: 'https://goodfans.io/campaign/t01-gear',
+                    startAt: '2026-11-01T00:00:00+08:00',
+                    endAt: '2026-12-31T23:59:00+08:00',
+                    audience: { regions: ['全部'], langs: ['zh-CN'], minAge: 18 },
+                    budgetTotal: 199,
+                    billing: 'fixed',
+                    payStatus: 'paid',
+                    auditStatus: 'approved',
+                    deliveryStatus: 'delivering',
+                    orderId: 'ORD-T01-DELIVER-2',
+                    packageId: 'PKG-FEED-7',
+                    packageName: '信息流 · 7 天',
+                    priceUsdt: 199,
+                    contentVersion: 1,
+                    versions: [],
+                    rejectReason: '',
+                    priority: 8,
+                    stats: { impressions: 8600, clicks: 210, spend: 0, conversions: 15 },
+                    createdAt: '2026-11-19T09:00:00+08:00',
+                    auditLog: [{ at: '2026-11-19T14:00:00+08:00', by: '审核·Ken', action: '审核通过', note: 'test01 投放中样例 2' }]
+                },
+                {
+                    id: 'AD-T01-BANNER',
+                    name: '【投放中】首页 Banner 会员日',
+                    source: 'user',
+                    advertiserUid: uid,
+                    type: '品牌曝光',
+                    slotCode: 'home_banner',
+                    title: '会员日专属礼遇',
+                    copy: '',
+                    materialUrl: 'https://picsum.photos/seed/t01-banner/1200/675',
+                    materialType: 'image',
+                    landingType: 'external',
+                    landingUrl: 'https://goodfans.io/campaign/t01-banner',
+                    startAt: '2026-11-01T00:00:00+08:00',
+                    endAt: '2026-12-31T23:59:00+08:00',
+                    audience: { regions: ['全部'], langs: ['zh-CN'], minAge: 18 },
+                    budgetTotal: 399,
+                    billing: 'fixed',
+                    payStatus: 'paid',
+                    auditStatus: 'approved',
+                    deliveryStatus: 'delivering',
+                    orderId: 'ORD-T01-BANNER',
+                    packageId: 'PKG-BANNER-7',
+                    packageName: '首页 Banner · 7 天',
+                    priceUsdt: 399,
+                    contentVersion: 1,
+                    versions: [],
+                    rejectReason: '',
+                    priority: 10,
+                    stats: { impressions: 15200, clicks: 420, spend: 0, conversions: 33 },
+                    createdAt: '2026-11-17T09:00:00+08:00',
+                    auditLog: [{ at: '2026-11-17T15:00:00+08:00', by: '审核·Ken', action: '审核通过', note: 'test01 Banner 投放中' }]
                 },
                 {
                     id: 'AD-T01-PAUSE',
@@ -1851,6 +1929,8 @@
             ],
             orders: [
                 { id: 'ORD-T01-DELIVER', adId: 'AD-T01-DELIVER', uid: uid, packageId: 'PKG-FEED-7', packageName: '信息流 · 7 天', slotCode: 'feed_video', priceSnapshot: 199, durationDays: 7, payStatus: 'paid', paidAmount: 199, refundedAmount: 0, refundableAmount: 120, paidAt: '2026-11-18T09:10:00+08:00', frozen: 199 },
+                { id: 'ORD-T01-DELIVER-2', adId: 'AD-T01-DELIVER-2', uid: uid, packageId: 'PKG-FEED-7', packageName: '信息流 · 7 天', slotCode: 'feed_video', priceSnapshot: 199, durationDays: 7, payStatus: 'paid', paidAmount: 199, refundedAmount: 0, refundableAmount: 150, paidAt: '2026-11-19T09:10:00+08:00', frozen: 199 },
+                { id: 'ORD-T01-BANNER', adId: 'AD-T01-BANNER', uid: uid, packageId: 'PKG-BANNER-7', packageName: '首页 Banner · 7 天', slotCode: 'home_banner', priceSnapshot: 399, durationDays: 7, payStatus: 'paid', paidAmount: 399, refundedAmount: 0, refundableAmount: 280, paidAt: '2026-11-17T09:10:00+08:00', frozen: 399 },
                 { id: 'ORD-T01-PAUSE', adId: 'AD-T01-PAUSE', uid: uid, packageId: 'PKG-BANNER-7', packageName: '首页 Banner · 7 天', slotCode: 'home_banner', priceSnapshot: 399, durationDays: 7, payStatus: 'paid', paidAmount: 399, refundedAmount: 0, refundableAmount: 280, paidAt: '2026-11-21T10:10:00+08:00', frozen: 399 },
                 { id: 'ORD-T01-REFUND', adId: 'AD-T01-REFUND', uid: uid, packageId: 'PKG-FEED-7', packageName: '信息流 · 7 天', slotCode: 'feed_video', priceSnapshot: 199, durationDays: 7, payStatus: 'paid', paidAmount: 199, refundedAmount: 0, refundableAmount: 90, paidAt: '2026-11-09T11:10:00+08:00', frozen: 199, refundTicketId: 'RF-T01-001' },
                 { id: 'ORD-T01-REVIEW', adId: 'AD-T01-REVIEW', uid: uid, packageId: 'PKG-FEED-14', packageName: '信息流 · 14 天', slotCode: 'feed_video', priceSnapshot: 349, durationDays: 14, payStatus: 'paid', paidAmount: 349, refundedAmount: 0, refundableAmount: 349, paidAt: '2026-11-27T13:10:00+08:00', frozen: 349 },
@@ -1875,11 +1955,58 @@
                     createdAt: '2026-11-24T16:00:00+08:00'
                 }
             ],
-            notices: [
-                { id: 'NT-T01-1', uid: uid, type: 'audit_pass', title: '广告审核通过', body: '春季新品信息流投放已通过审核', adId: 'AD-T01-DELIVER', at: '2026-11-18T14:00:00+08:00', read: false },
-                { id: 'NT-T01-2', uid: uid, type: 'refund_pending', title: '退款申请已提交', body: '退款审核中样例 · 90.55 USDT 待财务审核', adId: 'AD-T01-REFUND', orderId: 'ORD-T01-REFUND', at: '2026-11-24T16:05:00+08:00', read: false }
-            ]
+            notices: noticeCatalogFor(uid, {
+                payOkAd: 'AD-T01-DELIVER', payOkOrder: 'ORD-T01-DELIVER',
+                deliverAd: 'AD-T01-DELIVER',
+                reviewAd: 'AD-T01-REVIEW',
+                rejectAd: 'AD-T01-REJECT',
+                expireAd: 'AD-T01-REVIEW',
+                pauseAd: 'AD-T01-PAUSE',
+                refundAd: 'AD-T01-REFUND', refundOrder: 'ORD-T01-REFUND',
+                endedAd: 'AD-T01-ENDED',
+                removedAd: 'AD-T01-REMOVED'
+            })
         };
+    }
+
+    /**
+     * 广告通知样例：每种业务情况各一条（支付 / 审核 / 投放 / 退款 / 下架）
+     */
+    function noticeCatalogFor(uid, ids) {
+        ids = ids || {};
+        var prefix = uid === DEMO_UID ? 'NT-DEMO' : 'NT-T01';
+        return [
+            { id: prefix + '-PAY-OK', uid: uid, type: 'pay_ok', title: '支付成功', body: '订单已支付并冻结套餐费用，可提交上架审核', adId: ids.payOkAd || '', orderId: ids.payOkOrder || '', at: '2026-11-27T10:00:00+08:00', read: true },
+            { id: prefix + '-PAY-FAIL', uid: uid, type: 'pay_fail', title: '支付失败', body: '余额不足或通道异常，广告未创建成功，可重试支付', adId: '', orderId: '', at: '2026-11-26T18:20:00+08:00', read: true },
+            { id: prefix + '-AUDIT-PENDING', uid: uid, type: 'audit_pending', title: '已提交审核', body: '广告已进入待审核，请等待平台上架审核', adId: ids.reviewAd || '', at: '2026-11-27T13:15:00+08:00', read: false },
+            { id: prefix + '-AUDIT-PASS', uid: uid, type: 'audit_pass', title: '广告审核通过', body: '广告已通过审核，将按排期自动投放', adId: ids.deliverAd || '', at: '2026-11-18T14:00:00+08:00', read: false },
+            { id: prefix + '-AUDIT-REJECT', uid: uid, type: 'audit_reject', title: '广告审核未通过', body: '素材或落地页不符合规范，请修改后重新提交上架审核', adId: ids.rejectAd || '', at: '2026-11-25T11:30:00+08:00', read: false },
+            { id: prefix + '-AUDIT-EXPIRE', uid: uid, type: 'audit_expire', title: '广告已自动取消', body: '超过开始时间仍未审核通过，系统已自动取消该广告', adId: ids.expireAd || '', at: '2026-11-23T00:05:00+08:00', read: true },
+            { id: prefix + '-DELIVERY-START', uid: uid, type: 'delivery_start', title: '投放已开始', body: '广告已开始展示，可在投放数据中查看曝光与点击', adId: ids.deliverAd || '', at: '2026-11-19T00:00:00+08:00', read: true },
+            { id: prefix + '-DELIVERY-END', uid: uid, type: 'delivery_end', title: '投放已结束', body: '投放周期结束，冻结资金已按规则结算', adId: ids.endedAd || '', at: '2026-10-28T23:59:00+08:00', read: true },
+            { id: prefix + '-REFUND-APPLY', uid: uid, type: 'refund_apply', title: '退款申请已提交', body: '退款审核中样例 · 90.55 USDT 待财务审核', adId: ids.refundAd || '', orderId: ids.refundOrder || '', at: '2026-11-24T16:05:00+08:00', read: false },
+            { id: prefix + '-REFUND-OK', uid: uid, type: 'refund_result', title: '退款已到账', body: '80.00 USDT 已退回广告账户，可在账户明细中查看', adId: ids.removedAd || '', at: '2026-11-20T15:40:00+08:00', read: true },
+            { id: prefix + '-REFUND-REJECT', uid: uid, type: 'refund_result', title: '退款申请未通过', body: '财务驳回：材料不完整，请补充说明后重新申请', adId: ids.pauseAd || '', at: '2026-11-22T09:12:00+08:00', read: false },
+            { id: prefix + '-REMOVED', uid: uid, type: 'delivery_end', title: '广告已被平台下架', body: '因违规或风控，广告已停止展示且不可恢复；如需继续请新建广告', adId: ids.removedAd || '', at: '2026-11-12T11:05:00+08:00', read: false }
+        ];
+    }
+
+    function applySlotSpecMigration(data) {
+        if (!data || (data.demoSlotSpecVersion || 0) >= DEMO_SLOT_SPEC_VERSION) return data;
+        var byCode = {};
+        SLOTS.forEach(function (s) { byCode[s.code] = s; });
+        data.slots = (data.slots || []).map(function (s) {
+            var fresh = byCode[s.code];
+            if (!fresh) return s;
+            return Object.assign({}, s, {
+                spec: fresh.spec,
+                name: fresh.name,
+                page: fresh.page
+            });
+        });
+        data.demoSlotSpecVersion = DEMO_SLOT_SPEC_VERSION;
+        save(data);
+        return data;
     }
 
     function applyTest01AdSeedMigration(data) {
@@ -1908,9 +2035,40 @@
         upsertById('ads', pack.ads);
         upsertById('orders', pack.orders);
         upsertById('refunds', pack.refunds);
-        upsertById('notices', pack.notices);
+        /* 通知：该账号只保留「每种情况一条」样例，去掉历史重复 */
+        data.notices = (data.notices || []).filter(function (n) { return !n || n.uid !== uid; });
+        pack.notices.forEach(function (row) {
+            data.notices.unshift(JSON.parse(JSON.stringify(row)));
+        });
 
         data.demoTest01AdSeedVersion = DEMO_TEST01_AD_SEED_VERSION;
+        save(data);
+        return data;
+    }
+
+    function applyNoticeCatalogMigration(data) {
+        if (!data || (data.demoNoticeCatalogVersion || 0) >= DEMO_NOTICE_CATALOG_VERSION) return data;
+        var catalog = noticeCatalogFor(DEMO_UID, {
+            payOkAd: 'AD20260315002', payOkOrder: 'ORD20260315001',
+            deliverAd: 'AD20261109001',
+            reviewAd: 'AD20261109004',
+            rejectAd: 'AD202603113',
+            expireAd: 'AD20261109004',
+            pauseAd: 'AD20261109009',
+            refundAd: 'AD20261109007', refundOrder: 'ORD20261109007',
+            endedAd: 'AD20261109008',
+            removedAd: 'AD20261109006'
+        });
+        data.notices = (data.notices || []).filter(function (n) {
+            if (!n) return false;
+            if (n.uid !== DEMO_UID) return true;
+            /* 清掉旧 DEMO 通知与运行期堆叠的同类型重复，改由目录统一提供 */
+            return false;
+        });
+        catalog.slice().reverse().forEach(function (row) {
+            data.notices.unshift(JSON.parse(JSON.stringify(row)));
+        });
+        data.demoNoticeCatalogVersion = DEMO_NOTICE_CATALOG_VERSION;
         save(data);
         return data;
     }

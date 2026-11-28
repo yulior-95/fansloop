@@ -77,6 +77,11 @@
             Object.keys(payload).forEach(function (k) { if (payload[k] !== undefined) ad[k] = payload[k]; });
             ad.source = 'platform';
             ad.advertiserUid = 'PLATFORM';
+            if (ad.slotCode === 'home_banner' || ad.slotCode === 'live_room') {
+                ad.brandLogoUrl = '';
+                ad.title = '';
+                ad.copy = '';
+            }
             global.FLAdStore.upsertAd(ad);
             global.FLAdStore.pushOpLog({ action: '保存运营广告', target: ad.id });
             return ad;
