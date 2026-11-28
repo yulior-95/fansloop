@@ -151,6 +151,10 @@
     var DEMO_QUAL_WALKTHROUGH_VERSION = 1;
     /** 详情底栏按钮矩阵演示样例：待审核/待开始/已暂停（无退款锁） */
     var DEMO_DETAIL_BTN_MATRIX_VERSION = 2;
+    /** test01@qq.com 广告主 + 多状态样例广告 */
+    var TEST01_AUTH_UID = 'uid_edcd63ff';
+    var TEST01_EMAIL = 'test01@qq.com';
+    var DEMO_TEST01_AD_SEED_VERSION = 1;
 
     function syntheticAdvertisers() {
         return [
@@ -1394,7 +1398,8 @@
             data = applyHomeAdShowcaseMigration(data);
             data = applyAuditConsistencyMigration(data);
             data = applyDetailBtnMatrixMigration(data);
-            return applyAccountScopeMigration(data);
+            data = applyAccountScopeMigration(data);
+            return applyTest01AdSeedMigration(data);
         } catch (e) {
             return seed();
         }
@@ -1547,6 +1552,369 @@
         return data;
     }
 
+    function test01AdTemplates() {
+        var uid = TEST01_AUTH_UID;
+        return {
+            advertiser: {
+                uid: uid,
+                accountStatus: 'approved',
+                applyAt: '2026-11-15T10:00:00+08:00',
+                companyName: '测试广告主 Test01',
+                contact: TEST01_EMAIL,
+                rejectReason: '',
+                violationCount: 0,
+                totalRecharge: 5000,
+                totalSpend: 420,
+                reviewedAt: '2026-11-16T12:00:00+08:00'
+            },
+            account: {
+                uid: uid,
+                balance: 3200,
+                frozen: 1680,
+                spent: 420,
+                refunded: 80,
+                totalRecharge: 5000
+            },
+            ads: [
+                {
+                    id: 'AD-T01-DELIVER',
+                    name: '春季新品信息流投放',
+                    source: 'user',
+                    advertiserUid: uid,
+                    type: '品牌曝光',
+                    slotCode: 'feed_video',
+                    title: '春季新品上线',
+                    copy: '限时折扣，点击查看详情',
+                    materialUrl: 'https://picsum.photos/seed/t01-deliver/720/1280',
+                    materialType: 'image',
+                    landingType: 'external',
+                    landingUrl: 'https://goodfans.io/campaign/t01-spring',
+                    startAt: '2026-11-20T00:00:00+08:00',
+                    endAt: '2026-12-20T23:59:00+08:00',
+                    audience: { regions: ['全部'], langs: ['zh-CN'], minAge: 18 },
+                    budgetTotal: 199,
+                    billing: 'fixed',
+                    payStatus: 'paid',
+                    auditStatus: 'approved',
+                    deliveryStatus: 'delivering',
+                    orderId: 'ORD-T01-DELIVER',
+                    packageId: 'PKG-FEED-7',
+                    packageName: '信息流 · 7 天',
+                    priceUsdt: 199,
+                    contentVersion: 1,
+                    versions: [],
+                    rejectReason: '',
+                    priority: 8,
+                    stats: { impressions: 12600, clicks: 340, spend: 0, conversions: 28 },
+                    createdAt: '2026-11-18T09:00:00+08:00',
+                    auditLog: [{ at: '2026-11-18T14:00:00+08:00', by: '审核·Ken', action: '审核通过', note: 'test01 投放中样例' }]
+                },
+                {
+                    id: 'AD-T01-PAUSE',
+                    name: '品牌 Banner 已暂停',
+                    source: 'user',
+                    advertiserUid: uid,
+                    type: '品牌曝光',
+                    slotCode: 'home_banner',
+                    title: '会员日专属礼遇',
+                    copy: '',
+                    materialUrl: 'https://picsum.photos/seed/t01-pause/1200/675',
+                    materialType: 'image',
+                    landingType: 'external',
+                    landingUrl: 'https://goodfans.io/campaign/t01-pause',
+                    startAt: '2026-11-22T00:00:00+08:00',
+                    endAt: '2026-12-22T23:59:00+08:00',
+                    audience: { regions: ['全部'], langs: ['zh-CN'], minAge: 18 },
+                    budgetTotal: 399,
+                    billing: 'fixed',
+                    payStatus: 'paid',
+                    auditStatus: 'approved',
+                    deliveryStatus: 'paused',
+                    pausedAt: '2026-11-26T11:00:00+08:00',
+                    pauseReason: '调整素材',
+                    orderId: 'ORD-T01-PAUSE',
+                    packageId: 'PKG-BANNER-7',
+                    packageName: '首页 Banner · 7 天',
+                    priceUsdt: 399,
+                    contentVersion: 1,
+                    versions: [],
+                    rejectReason: '',
+                    priority: 6,
+                    stats: { impressions: 5200, clicks: 88, spend: 0, conversions: 6 },
+                    createdAt: '2026-11-21T10:00:00+08:00',
+                    auditLog: [{ at: '2026-11-21T16:00:00+08:00', by: '审核·Ken', action: '审核通过', note: 'test01 已暂停样例' }]
+                },
+                {
+                    id: 'AD-T01-REFUND',
+                    name: '退款审核中样例',
+                    source: 'user',
+                    advertiserUid: uid,
+                    type: '活动推广',
+                    slotCode: 'feed_video',
+                    title: '周末快闪活动',
+                    copy: '到店领取限定周边',
+                    materialUrl: 'https://picsum.photos/seed/t01-refund/720/1280',
+                    materialType: 'image',
+                    landingType: 'external',
+                    landingUrl: 'https://goodfans.io/campaign/t01-refund',
+                    startAt: '2026-11-10T00:00:00+08:00',
+                    endAt: '2026-12-10T23:59:00+08:00',
+                    audience: { regions: ['全部'], langs: ['zh-CN'], minAge: 18 },
+                    budgetTotal: 199,
+                    billing: 'fixed',
+                    payStatus: 'paid',
+                    auditStatus: 'approved',
+                    deliveryStatus: 'paused',
+                    pausedAt: '2026-11-24T09:00:00+08:00',
+                    pauseReason: '申请退款前暂停',
+                    orderId: 'ORD-T01-REFUND',
+                    packageId: 'PKG-FEED-7',
+                    packageName: '信息流 · 7 天',
+                    priceUsdt: 199,
+                    contentVersion: 1,
+                    versions: [],
+                    rejectReason: '',
+                    priority: 5,
+                    stats: { impressions: 4100, clicks: 70, spend: 0, conversions: 4 },
+                    createdAt: '2026-11-09T11:00:00+08:00',
+                    auditLog: [{ at: '2026-11-09T15:00:00+08:00', by: '审核·Ken', action: '审核通过', note: 'test01 退款待审样例' }]
+                },
+                {
+                    id: 'AD-T01-REVIEW',
+                    name: '待审核 · 新品预告',
+                    source: 'user',
+                    advertiserUid: uid,
+                    type: '品牌曝光',
+                    slotCode: 'feed_video',
+                    title: '新品预告片',
+                    copy: '下周上线，提前预约',
+                    materialUrl: 'https://picsum.photos/seed/t01-review/720/1280',
+                    materialType: 'image',
+                    landingType: 'external',
+                    landingUrl: 'https://goodfans.io/campaign/t01-review',
+                    startAt: '2026-12-08T00:00:00+08:00',
+                    endAt: '2026-12-22T23:59:00+08:00',
+                    audience: { regions: ['全部'], langs: ['zh-CN'], minAge: 18 },
+                    budgetTotal: 349,
+                    billing: 'fixed',
+                    payStatus: 'paid',
+                    auditStatus: 'pending_review',
+                    deliveryStatus: 'pending_start',
+                    orderId: 'ORD-T01-REVIEW',
+                    packageId: 'PKG-FEED-14',
+                    packageName: '信息流 · 14 天',
+                    priceUsdt: 349,
+                    contentVersion: 1,
+                    versions: [],
+                    rejectReason: '',
+                    priority: 7,
+                    stats: { impressions: 0, clicks: 0, spend: 0, conversions: 0 },
+                    createdAt: '2026-11-27T13:00:00+08:00',
+                    auditLog: []
+                },
+                {
+                    id: 'AD-T01-START',
+                    name: '待开始 · 年末大促',
+                    source: 'user',
+                    advertiserUid: uid,
+                    type: '活动推广',
+                    slotCode: 'home_banner',
+                    title: '年末大促 Banner',
+                    copy: '',
+                    materialUrl: 'https://picsum.photos/seed/t01-start/1200/675',
+                    materialType: 'image',
+                    landingType: 'external',
+                    landingUrl: 'https://goodfans.io/campaign/t01-start',
+                    startAt: '2026-12-05T00:00:00+08:00',
+                    endAt: '2026-12-12T23:59:00+08:00',
+                    audience: { regions: ['全部'], langs: ['zh-CN'], minAge: 18 },
+                    budgetTotal: 399,
+                    billing: 'fixed',
+                    payStatus: 'paid',
+                    auditStatus: 'approved',
+                    deliveryStatus: 'pending_start',
+                    orderId: 'ORD-T01-START',
+                    packageId: 'PKG-BANNER-7',
+                    packageName: '首页 Banner · 7 天',
+                    priceUsdt: 399,
+                    contentVersion: 1,
+                    versions: [],
+                    rejectReason: '',
+                    priority: 6,
+                    stats: { impressions: 0, clicks: 0, spend: 0, conversions: 0 },
+                    createdAt: '2026-11-26T10:00:00+08:00',
+                    auditLog: [{ at: '2026-11-26T18:00:00+08:00', by: '审核·Ken', action: '审核通过', note: 'test01 待开始样例' }]
+                },
+                {
+                    id: 'AD-T01-REJECT',
+                    name: '审核失败 · 素材需替换',
+                    source: 'user',
+                    advertiserUid: uid,
+                    type: '应用推广',
+                    slotCode: 'feed_video',
+                    title: '课程推广',
+                    copy: '限时 5 折报名',
+                    materialUrl: 'https://picsum.photos/seed/t01-reject/720/1280',
+                    materialType: 'image',
+                    landingType: 'external',
+                    landingUrl: 'https://goodfans.io/campaign/t01-reject',
+                    startAt: '2026-12-01T00:00:00+08:00',
+                    endAt: '2026-12-08T23:59:00+08:00',
+                    audience: { regions: ['全部'], langs: ['zh-CN'], minAge: 18 },
+                    budgetTotal: 199,
+                    billing: 'fixed',
+                    payStatus: 'paid',
+                    auditStatus: 'rejected',
+                    deliveryStatus: 'pending_start',
+                    orderId: 'ORD-T01-REJECT',
+                    packageId: 'PKG-FEED-7',
+                    packageName: '信息流 · 7 天',
+                    priceUsdt: 199,
+                    contentVersion: 2,
+                    versions: [],
+                    rejectReason: '素材含未授权人像，请替换后重新提交。',
+                    priority: 4,
+                    stats: { impressions: 0, clicks: 0, spend: 0, conversions: 0 },
+                    createdAt: '2026-11-25T09:00:00+08:00',
+                    auditLog: [{ at: '2026-11-25T17:00:00+08:00', by: '审核·Ken', action: '审核拒绝', note: '素材含未授权人像' }]
+                },
+                {
+                    id: 'AD-T01-ENDED',
+                    name: '已结束 · 国庆活动',
+                    source: 'user',
+                    advertiserUid: uid,
+                    type: '品牌曝光',
+                    slotCode: 'feed_video',
+                    title: '国庆出行合集',
+                    copy: '热门目的地清单',
+                    materialUrl: 'https://picsum.photos/seed/t01-ended/720/1280',
+                    materialType: 'image',
+                    landingType: 'external',
+                    landingUrl: 'https://goodfans.io/campaign/t01-ended',
+                    startAt: '2026-10-01T00:00:00+08:00',
+                    endAt: '2026-10-31T23:59:00+08:00',
+                    audience: { regions: ['全部'], langs: ['zh-CN'], minAge: 18 },
+                    budgetTotal: 699,
+                    billing: 'fixed',
+                    payStatus: 'paid',
+                    auditStatus: 'approved',
+                    deliveryStatus: 'ended',
+                    orderId: 'ORD-T01-ENDED',
+                    packageId: 'PKG-FEED-30',
+                    packageName: '信息流 · 30 天',
+                    priceUsdt: 699,
+                    contentVersion: 1,
+                    versions: [],
+                    rejectReason: '',
+                    priority: 3,
+                    stats: { impressions: 88000, clicks: 2400, spend: 699, conversions: 310 },
+                    createdAt: '2026-09-28T10:00:00+08:00',
+                    auditLog: [{ at: '2026-09-29T11:00:00+08:00', by: '审核·Ken', action: '审核通过', note: 'test01 已结束样例' }]
+                },
+                {
+                    id: 'AD-T01-REMOVED',
+                    name: '已下架 · 穿搭合集',
+                    source: 'user',
+                    advertiserUid: uid,
+                    type: '品牌曝光',
+                    slotCode: 'feed_video',
+                    title: '秋季穿搭灵感',
+                    copy: '本季流行色与搭配',
+                    materialUrl: 'https://picsum.photos/seed/t01-removed/720/1280',
+                    materialType: 'image',
+                    landingType: 'external',
+                    landingUrl: 'https://goodfans.io/campaign/t01-removed',
+                    startAt: '2026-11-01T00:00:00+08:00',
+                    endAt: '2026-11-15T23:59:00+08:00',
+                    audience: { regions: ['全部'], langs: ['zh-CN'], minAge: 18 },
+                    budgetTotal: 199,
+                    billing: 'fixed',
+                    payStatus: 'paid',
+                    auditStatus: 'approved',
+                    deliveryStatus: 'removed',
+                    removedAt: '2026-11-12T11:00:00+08:00',
+                    removedBy: 'user',
+                    removedFeeAction: 'user',
+                    removedReason: '用户主动下架',
+                    orderId: 'ORD-T01-REMOVED',
+                    packageId: 'PKG-FEED-7',
+                    packageName: '信息流 · 7 天',
+                    priceUsdt: 199,
+                    contentVersion: 1,
+                    versions: [],
+                    rejectReason: '',
+                    priority: 2,
+                    stats: { impressions: 5200, clicks: 140, spend: 0, conversions: 9 },
+                    createdAt: '2026-11-01T08:10:00+08:00',
+                    auditLog: [{ at: '2026-11-01T12:00:00+08:00', by: '审核·Ken', action: '审核通过', note: 'test01 下架样例' }]
+                }
+            ],
+            orders: [
+                { id: 'ORD-T01-DELIVER', adId: 'AD-T01-DELIVER', uid: uid, packageId: 'PKG-FEED-7', packageName: '信息流 · 7 天', slotCode: 'feed_video', priceSnapshot: 199, durationDays: 7, payStatus: 'paid', paidAmount: 199, refundedAmount: 0, refundableAmount: 120, paidAt: '2026-11-18T09:10:00+08:00', frozen: 199 },
+                { id: 'ORD-T01-PAUSE', adId: 'AD-T01-PAUSE', uid: uid, packageId: 'PKG-BANNER-7', packageName: '首页 Banner · 7 天', slotCode: 'home_banner', priceSnapshot: 399, durationDays: 7, payStatus: 'paid', paidAmount: 399, refundedAmount: 0, refundableAmount: 280, paidAt: '2026-11-21T10:10:00+08:00', frozen: 399 },
+                { id: 'ORD-T01-REFUND', adId: 'AD-T01-REFUND', uid: uid, packageId: 'PKG-FEED-7', packageName: '信息流 · 7 天', slotCode: 'feed_video', priceSnapshot: 199, durationDays: 7, payStatus: 'paid', paidAmount: 199, refundedAmount: 0, refundableAmount: 90, paidAt: '2026-11-09T11:10:00+08:00', frozen: 199, refundTicketId: 'RF-T01-001' },
+                { id: 'ORD-T01-REVIEW', adId: 'AD-T01-REVIEW', uid: uid, packageId: 'PKG-FEED-14', packageName: '信息流 · 14 天', slotCode: 'feed_video', priceSnapshot: 349, durationDays: 14, payStatus: 'paid', paidAmount: 349, refundedAmount: 0, refundableAmount: 349, paidAt: '2026-11-27T13:10:00+08:00', frozen: 349 },
+                { id: 'ORD-T01-START', adId: 'AD-T01-START', uid: uid, packageId: 'PKG-BANNER-7', packageName: '首页 Banner · 7 天', slotCode: 'home_banner', priceSnapshot: 399, durationDays: 7, payStatus: 'paid', paidAmount: 399, refundedAmount: 0, refundableAmount: 399, paidAt: '2026-11-26T10:10:00+08:00', frozen: 399 },
+                { id: 'ORD-T01-REJECT', adId: 'AD-T01-REJECT', uid: uid, packageId: 'PKG-FEED-7', packageName: '信息流 · 7 天', slotCode: 'feed_video', priceSnapshot: 199, durationDays: 7, payStatus: 'paid', paidAmount: 199, refundedAmount: 0, refundableAmount: 199, paidAt: '2026-11-25T09:10:00+08:00', frozen: 199 },
+                { id: 'ORD-T01-ENDED', adId: 'AD-T01-ENDED', uid: uid, packageId: 'PKG-FEED-30', packageName: '信息流 · 30 天', slotCode: 'feed_video', priceSnapshot: 699, durationDays: 30, payStatus: 'paid', paidAmount: 699, refundedAmount: 0, refundableAmount: 0, paidAt: '2026-09-28T10:10:00+08:00', frozen: 0 },
+                { id: 'ORD-T01-REMOVED', adId: 'AD-T01-REMOVED', uid: uid, packageId: 'PKG-FEED-7', packageName: '信息流 · 7 天', slotCode: 'feed_video', priceSnapshot: 199, durationDays: 7, payStatus: 'paid', paidAmount: 199, refundedAmount: 0, refundableAmount: 80, paidAt: '2026-11-01T08:20:00+08:00', frozen: 199 }
+            ],
+            refunds: [
+                {
+                    id: 'RF-T01-001',
+                    orderId: 'ORD-T01-REFUND',
+                    adId: 'AD-T01-REFUND',
+                    uid: uid,
+                    amount: 90.55,
+                    reason: '活动临时取消，申请按规则退回可退金额。',
+                    status: 'pending',
+                    formulaText: '实付 199 × (4÷7) × (1-5%)',
+                    consumedDays: 3,
+                    remainingDays: 4,
+                    durationDays: 7,
+                    createdAt: '2026-11-24T16:00:00+08:00'
+                }
+            ],
+            notices: [
+                { id: 'NT-T01-1', uid: uid, type: 'audit_pass', title: '广告审核通过', body: '春季新品信息流投放已通过审核', adId: 'AD-T01-DELIVER', at: '2026-11-18T14:00:00+08:00', read: false },
+                { id: 'NT-T01-2', uid: uid, type: 'refund_pending', title: '退款申请已提交', body: '退款审核中样例 · 90.55 USDT 待财务审核', adId: 'AD-T01-REFUND', orderId: 'ORD-T01-REFUND', at: '2026-11-24T16:05:00+08:00', read: false }
+            ]
+        };
+    }
+
+    function applyTest01AdSeedMigration(data) {
+        if (!data || (data.demoTest01AdSeedVersion || 0) >= DEMO_TEST01_AD_SEED_VERSION) return data;
+        var pack = test01AdTemplates();
+        var uid = TEST01_AUTH_UID;
+        data.accounts = data.accounts || {};
+        data.accounts[uid] = Object.assign({}, emptyAccountPocket(uid), pack.account);
+
+        data.advertisers = data.advertisers || [];
+        var adv = data.advertisers.filter(function (a) { return a.uid === uid; })[0];
+        if (adv) Object.assign(adv, pack.advertiser);
+        else data.advertisers.push(Object.assign({}, pack.advertiser));
+
+        function upsertById(listKey, rows) {
+            data[listKey] = data[listKey] || [];
+            rows.forEach(function (row) {
+                var idx = -1;
+                for (var i = 0; i < data[listKey].length; i++) {
+                    if (data[listKey][i] && data[listKey][i].id === row.id) { idx = i; break; }
+                }
+                if (idx >= 0) data[listKey][idx] = Object.assign({}, data[listKey][idx], row);
+                else data[listKey].unshift(JSON.parse(JSON.stringify(row)));
+            });
+        }
+        upsertById('ads', pack.ads);
+        upsertById('orders', pack.orders);
+        upsertById('refunds', pack.refunds);
+        upsertById('notices', pack.notices);
+
+        data.demoTest01AdSeedVersion = DEMO_TEST01_AD_SEED_VERSION;
+        save(data);
+        return data;
+    }
+
     function getAds(filter) {
         filter = filter || {};
         var list = load().ads.slice();
@@ -1693,6 +2061,8 @@
     global.FLAdStore = {
         DEMO_UID: DEMO_UID,
         DEMO_AUTH_UID: DEMO_AUTH_UID,
+        TEST01_AUTH_UID: TEST01_AUTH_UID,
+        TEST01_EMAIL: TEST01_EMAIL,
         currentAdUid: currentAdUid,
         isDemoAdUid: isDemoAdUid,
         ensureAccountPocket: ensureAccountPocket,

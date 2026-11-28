@@ -4,6 +4,11 @@
 (function (global) {
     var LS_REGISTRY = 'fl_user_registry_v1';
     var DEMO_USER_ID = 'demo_uid_882910';
+    /** 广告 / KYC 联调默认测试账号（密码 123456） */
+    var TEST01_EMAIL = 'test01@qq.com';
+    var TEST01_USER_ID = 'uid_edcd63ff';
+    var TEST01_PUBLIC_UID = '960671';
+    var TEST01_ENSURE_VERSION = 1;
 
     /* Identity model: account identity is separate from creator eligibility and
        subscription relationships. `role` remains as a compatibility alias for
@@ -151,6 +156,113 @@
         };
     }
 
+    /** 广告联调默认账号：已 KYC + 可登录密码 123456 */
+    function test01Seed() {
+        return {
+            userId: TEST01_USER_ID,
+            publicUid: TEST01_PUBLIC_UID,
+            email: TEST01_EMAIL,
+            name: 'Test01 🎯',
+            avatar: AVATARS[3],
+            role: 'Creator',
+            accountType: IDENTITY.ACCOUNT_TYPE_USER,
+            creatorStatus: IDENTITY.CREATOR_APPROVED,
+            subscriptionRelations: [],
+            bio: '广告联调测试账号 · 默认已完成 KYC 与广告主认证',
+            walletAddress: '0xTE5701a1b2c3d4e5f678901234567890abcd',
+            joinedAt: '2026 年 11 月',
+            location: '中国 · 上海',
+            isNewUser: false,
+            assets: {
+                walletUsd: 5200,
+                usdtBalance: 5200,
+                liveUsdt: 5200,
+                starterUsdtGranted: true,
+                prototypeTopup50kV1: true,
+                monthlyRecharge: 5200,
+                monthlyWithdraw: 0,
+                monthlyDelta: 0,
+                kyc: {
+                    authStatus: 'approved',
+                    status: 'approved',
+                    zkpStatus: 'success',
+                    lastId: 'KYC-TEST01'
+                },
+                kycAudit: [{
+                    at: '2026-11-20T10:00:00+08:00',
+                    action: 'document_approved',
+                    note: '测试账号默认通过'
+                }],
+                payPassword: null,
+                security: {
+                    twoFa: false,
+                    withdrawPwdSet: false,
+                    securityScore: 70
+                }
+            },
+            pointsWallet: {
+                available: 8800,
+                frozen: 0,
+                frozenHint: '',
+                todayEarned: 120,
+                todayCap: 480
+            },
+            tierProfile: {
+                userId: TEST01_USER_ID,
+                registerDays: 30,
+                newUserTierDaysAtRegister: 7,
+                newUserTierMultiplierAtRegister: 1.08,
+                consecutiveLoginDays: 3,
+                consecutiveLoginBonusDaysUsed: 0,
+                engagementActions: 4,
+                engagementDistinctPosts: 2,
+                engagementDistinctAuthors: 2,
+                engagementSelfContentOnly: false,
+                hasActivePaidSubscription: false,
+                subscriptionPaidAmount: 0,
+                subscriptionDays: 0
+            },
+            test01EnsureVersion: TEST01_ENSURE_VERSION
+        };
+    }
+
+    function seedTest01Password() {
+        try {
+            var map = JSON.parse(localStorage.getItem('fl_email_pwds') || '{}');
+            map[TEST01_EMAIL] = '123456';
+            localStorage.setItem('fl_email_pwds', JSON.stringify(map));
+        } catch (e) { /* ignore */ }
+    }
+
+    /** 已有浏览器数据也强制写入 / 修复 test01 账号 */
+    function ensureTest01Account(store) {
+        store = store || readStore();
+        if (!Object.keys(store.accounts || {}).length) store = seedIfEmpty(store);
+        var email = TEST01_EMAIL;
+        var existing = store.accounts[email];
+        var need = !existing || (existing.test01EnsureVersion || 0) < TEST01_ENSURE_VERSION;
+        if (!need) {
+            seedTest01Password();
+            return store;
+        }
+        var seeded = test01Seed();
+        if (existing) {
+            seeded.name = existing.name || seeded.name;
+            seeded.avatar = existing.avatar || seeded.avatar;
+            seeded.pointsWallet = existing.pointsWallet || seeded.pointsWallet;
+            if (existing.assets && existing.assets.liveUsdt > 0) {
+                seeded.assets.liveUsdt = existing.assets.liveUsdt;
+                seeded.assets.usdtBalance = existing.assets.usdtBalance || existing.assets.liveUsdt;
+                seeded.assets.walletUsd = existing.assets.walletUsd || existing.assets.liveUsdt;
+            }
+        }
+        store.accounts[email] = seeded;
+        store.byUserId[TEST01_USER_ID] = email;
+        writeStore(store);
+        seedTest01Password();
+        return store;
+    }
+
     function readStore() {
         try {
             var raw = localStorage.getItem(LS_REGISTRY);
@@ -210,6 +322,7 @@
     function buildAccount(email, opts) {
         opts = opts || {};
         email = normalizeEmail(email);
+        if (email === TEST01_EMAIL) return test01Seed();
         var hash = hashStr(email);
         var local = email.split('@')[0] || 'user';
         var isNew = !!opts.isNewUser;
@@ -263,13 +376,13 @@
     function getByEmail(email) {
         email = normalizeEmail(email);
         if (!email) return null;
-        var store = seedIfEmpty(readStore());
+        var store = ensureTest01Account(seedIfEmpty(readStore()));
         return normalizeIdentity(store.accounts[email] || null);
     }
 
     function getByUserId(userId) {
         if (!userId) return null;
-        var store = seedIfEmpty(readStore());
+        var store = ensureTest01Account(seedIfEmpty(readStore()));
         var email = store.byUserId[userId];
         return email ? normalizeIdentity(store.accounts[email]) : null;
     }
@@ -279,7 +392,9 @@
         if (!email) return null;
         var existing = getByEmail(email);
         if (existing) return existing;
-        var account = email === 'luna@goodfans.io' ? lunaSeed() : buildAccount(email, { isNewUser: true });
+        var account = email === 'luna@goodfans.io'
+            ? lunaSeed()
+            : (email === TEST01_EMAIL ? test01Seed() : buildAccount(email, { isNewUser: true }));
         if (opts && opts.name) account.name = opts.name;
         return saveAccount(account);
     }
@@ -287,6 +402,7 @@
     function loginEmail(email) {
         email = normalizeEmail(email);
         if (!email) return null;
+        ensureTest01Account(seedIfEmpty(readStore()));
         var account = getByEmail(email);
         if (!account) {
             account = buildAccount(email, { isNewUser: true });
@@ -358,6 +474,8 @@
 
     global.FLUserRegistry = {
         DEMO_USER_ID: DEMO_USER_ID,
+        TEST01_EMAIL: TEST01_EMAIL,
+        TEST01_USER_ID: TEST01_USER_ID,
         normalizeEmail: normalizeEmail,
         getByEmail: getByEmail,
         getByUserId: getByUserId,
@@ -370,8 +488,11 @@
         toSessionUser: toSessionUser,
         resolvePublicUid: resolvePublicUid,
         ensureTierProfile: ensureTierProfile,
+        ensureTest01Account: function () { return ensureTest01Account(seedIfEmpty(readStore())); },
         walletShort: walletShort
     };
+
+    try { ensureTest01Account(seedIfEmpty(readStore())); } catch (eBoot) { /* ignore */ }
 
     global.FLIdentity = {
         values: IDENTITY,

@@ -108,6 +108,17 @@
         } else if (account.email === 'luna@goodfans.io' && account.assets.kyc && account.assets.kyc.lastId === 'KYC-LUNA-DEMO') {
             account.assets = newUserAssets();
             global.FLUserRegistry.persistAccount(account);
+        } else if (account.email === 'test01@qq.com') {
+            var kyc = account.assets.kyc || {};
+            if (kyc.authStatus !== 'approved' || kyc.status !== 'approved') {
+                account.assets.kyc = Object.assign({}, kyc, {
+                    authStatus: 'approved',
+                    status: 'approved',
+                    zkpStatus: 'success',
+                    lastId: kyc.lastId || 'KYC-TEST01'
+                });
+                global.FLUserRegistry.persistAccount(account);
+            }
         } else if (account.isNewUser) {
             grantStarterUsdtIfNeeded(account);
         }
