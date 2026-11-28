@@ -3,7 +3,10 @@
  */
 (function (global) {
     if (!global.FLAdStore || !global.FLAdService) return;
-    var UID = FLAdStore.DEMO_UID;
+    /** 始终取当前登录账号的广告主体，禁止写死演示 UID 导致串号 */
+    function UID() {
+        return FLAdStore.currentAdUid ? FLAdStore.currentAdUid() : FLAdStore.DEMO_UID;
+    }
 
     function adGo(view, params) {
         params = params || {};
@@ -171,7 +174,7 @@
     }
 
     function pickAdOrder(adId, ad) {
-        var list = FLAdStore.getOrders(UID).filter(function (o) { return o.adId === adId; });
+        var list = FLAdStore.getOrders(UID()).filter(function (o) { return o.adId === adId; });
         if (!list.length) return null;
         var open = list.filter(function (o) {
             return o.payStatus === 'unpaid' || o.payStatus === 'failed' || o.payStatus === 'processing';
@@ -271,7 +274,7 @@
         if (dot) {
             var unread = 0;
             if (approved && FLAdStore.getNotices) {
-                unread = (FLAdStore.getNotices(UID) || []).filter(function (n) { return !n.read; }).length;
+                unread = (FLAdStore.getNotices(UID()) || []).filter(function (n) { return !n.read; }).length;
             }
             dot.hidden = unread < 1;
         }
@@ -304,13 +307,13 @@
         syncNoticeNav(sum);
         if (createBtn) {
             createBtn.disabled = !approved;
-            createBtn.title = approved ? '' : (FLAdService.canCreatePaidAd(UID).message || '请先开通广告主');
+            createBtn.title = approved ? '' : (FLAdService.canCreatePaidAd(UID()).message || '请先开通广告主');
         }
         setOpsVisible(applyBtn, canApply);
     }
 
     function tryCreate() {
-        var gate = FLAdService.canCreatePaidAd(UID);
+        var gate = FLAdService.canCreatePaidAd(UID());
         if (!gate.ok) {
             toast(gate.message);
             if (sumNeedsApply()) adGo('apply');
@@ -320,18 +323,18 @@
     }
 
     function sumNeedsApply() {
-        var sum = FLAdStore.accountSummary(UID);
+        var sum = FLAdStore.accountSummary(UID());
         return sum.advertiserStatus === 'none' || sum.advertiserStatus === 'rejected';
     }
 
     function centerGate() {
-        var sum = FLAdStore.accountSummary(UID);
+        var sum = FLAdStore.accountSummary(UID());
         var banner = qs('#adQualBanner');
         if (banner) {
             banner.hidden = true;
             banner.innerHTML = '';
             if (sum.advertiserStatus === 'rejected') {
-                var adv = FLAdService.advertiser(UID);
+                var adv = FLAdService.advertiser(UID());
                 if (adv && adv.rejectReason) {
                     banner.hidden = false;
                     banner.innerHTML = '<span class="ad-qual-reason">' + esc(adv.rejectReason) + '</span>';
@@ -380,9 +383,9 @@
     }
 
     function renderCenter() {
-        if (FLAdService.purgeUnpaidUserAds) FLAdService.purgeUnpaidUserAds(UID);
+        if (FLAdService.purgeUnpaidUserAds) FLAdService.purgeUnpaidUserAds(UID());
         if (FLAdService.expireStalePendingReviewAds) FLAdService.expireStalePendingReviewAds();
-        var sum = FLAdStore.accountSummary(UID);
+        var sum = FLAdStore.accountSummary(UID());
         centerGate();
         renderRoleStrip(sum);
         syncCenterToolbar(sum);
@@ -418,7 +421,7 @@
     function renderList(mountId, filter) {
         var mount = document.getElementById(mountId);
         if (!mount) return;
-        var list = FLAdStore.getAds({ uid: UID, excludeUserDeleted: true }).map(function (a) {
+        var list = FLAdStore.getAds({ uid: UID(), excludeUserDeleted: true }).map(function (a) {
             return (FLAdService.healAdPayOrderConsistency && FLAdService.healAdPayOrderConsistency(a.id)) || a;
         }).filter(Boolean).filter(function (a) {
             return a.source !== 'platform' &&
@@ -444,7 +447,7 @@
             list = [];
         }
         if (!list.length) {
-            var sum = FLAdStore.accountSummary(UID);
+            var sum = FLAdStore.accountSummary(UID());
             var hint = sum.advertiserStatus === 'none'
                 ? '成为广告主并通过审核后，可在此管理您的广告'
                 : (sum.advertiserStatus === 'pending' ? '资质审核中，暂无可投放广告' : '暂无广告');
@@ -558,20 +561,20 @@
         form.setAttribute('data-submit-bound', '1');
         form.onsubmit = function (e) {
             e.preventDefault();
-            var pre = FLAdService.checkAdvertiserApplyPrerequisites(UID);
+            var pre = FLAdService.checkAdvertiserApplyPrerequisites(UID());
             if (!pre.ok) {
                 openApplyBlockSheet(pre.blockers);
                 toast(pre.message || '暂不满足申请条件');
                 return;
             }
             var fd = new FormData(form);
-            var r = FLAdService.applyAdvertiser(UID, {
+            var r = FLAdService.applyAdvertiser(UID(), {
                 companyName: fd.get('companyName'),
                 contact: fd.get('contact'),
                 agreedToTerms: !!fd.get('agreeTerms')
             });
             if (!r.ok) {
-                pre = FLAdService.checkAdvertiserApplyPrerequisites(UID);
+                pre = FLAdService.checkAdvertiserApplyPrerequisites(UID());
                 if (!pre.ok) openApplyBlockSheet(pre.blockers);
             }
             toast(r.ok ? '已提交，请等待审核（原型）' : r.message);
@@ -580,19 +583,22 @@
     }
 
     function initWallet() {
-        var acc = FLAdStore.load().account;
+        var uid = UID();
+        var acc = FLAdStore.getAccountPocket ? FLAdStore.getAccountPocket(uid) : FLAdStore.load().account;
         var available = acc.balance || 0;
         var frozen = acc.frozen || 0;
         ['wTotal', 'wBal', 'wFrozen', 'wSpent', 'wRefunded'].forEach(function (id, i) {
             var el = qs('#' + id);
             if (!el) return;
-            el.textContent = [available + frozen, available, frozen, acc.spent, acc.refunded][i];
+            el.textContent = [available + frozen, available, frozen, acc.spent || 0, acc.refunded || 0][i];
         });
         var list = qs('#wFinList');
         if (list) {
             var finLabel = { recharge: '充值', refund: '退款', freeze: '冻结', spend: '消耗', pay: '支付', ad_purchase: '购买套餐', unfreeze: '解冻', adjust: '调账' };
             var finStatus = { success: '成功', pending: '处理中', processing: '处理中', failed: '失败', cancelled: '已取消' };
-            list.innerHTML = FLAdStore.load().finance.slice(0, 20).map(function (f) {
+            list.innerHTML = (FLAdStore.load().finance || []).filter(function (f) {
+                return !f.uid || f.uid === uid;
+            }).slice(0, 20).map(function (f) {
                 var ti = finLabel[f.type] || f.type;
                 var st = finStatus[f.status] || f.status || '';
                 return '<div class="ad-row" style="cursor:default"><div class="meta"><div class="t">' + ti + ' · ' + esc(f.orderNo) + '</div><div class="s">' +
@@ -600,7 +606,7 @@
             }).join('');
         }
         qs('#wRecharge') && (qs('#wRecharge').onclick = function () {
-            var r = FLAdService.mockRecharge(500);
+            var r = FLAdService.mockRecharge(500, UID());
             toast(r.ok ? '模拟充值 +500 USDT（原型）' : r.message);
             initWallet();
         });
@@ -1539,7 +1545,7 @@
     function initWizard() {
         var form = qs('#adCreateForm');
         if (!form) return;
-        var gate = FLAdService.canCreatePaidAd(UID);
+        var gate = FLAdService.canCreatePaidAd(UID());
         if (!gate.ok && !location.search.includes('demo=1')) {
             toast(gate.message);
             setTimeout(function () { adGo('center'); }, 600);
@@ -1557,7 +1563,7 @@
         form.setAttribute('data-wizard-bound', '1');
         var step = 1;
         var draft = {
-            advertiserUid: UID, source: 'user', auditStatus: 'none', deliveryStatus: 'pending_start',
+            advertiserUid: UID(), source: 'user', auditStatus: 'none', deliveryStatus: 'pending_start',
             payStatus: 'none', stats: { impressions: 0, clicks: 0, spend: 0, conversions: 0 },
             auditLog: [], contentVersion: 1, versions: [], materials: [], materialUrl: '', materialMeta: { validated: false },
             brandLogoUrl: '', brandLogoMeta: null,
@@ -1748,7 +1754,7 @@
             qs('#adMockPay').disabled = true;
             var line = qs('#adPayResultLine');
             if (line) line.textContent = '支付处理中，正在创建广告…';
-            var created = FLAdService.createAndPayAd(draft, pkgId, UID, payKey);
+            var created = FLAdService.createAndPayAd(draft, pkgId, UID(), payKey);
             if (!created.ok) {
                 paying = false;
                 qs('#adMockPay').disabled = false;
@@ -1839,6 +1845,11 @@
         var ad = id && FLAdStore.getAd(id);
         if (!ad || ad.userDeleted) {
             toast(ad && ad.userDeleted ? '该广告已从列表删除' : '广告不存在');
+            adGo('center');
+            return;
+        }
+        if (ad.source === 'user' && ad.advertiserUid && ad.advertiserUid !== UID()) {
+            toast('无权查看该广告');
             adGo('center');
             return;
         }
@@ -2019,7 +2030,7 @@
                 '<div><span>订单号</span><strong>' + esc(order.id) + '</strong></div>' +
                 '<div><span>支付状态</span><strong>' + esc(payStatusLabel) + '</strong></div>' +
                 ((ad.payStatus === 'unpaid' || ad.payStatus === 'failed') &&
-                    FLAdStore.getOrders(UID).some(function (o) { return o.adId === id && o.payStatus === 'refunded'; })
+                    FLAdStore.getOrders(UID()).some(function (o) { return o.adId === id && o.payStatus === 'refunded'; })
                     ? '<div><span>说明</span><strong>原订单已退回余额，请按新套餐重新支付</strong></div>'
                     : '') +
                 (refundQuote && refundQuote.ok
@@ -2268,7 +2279,7 @@
             if (r.ok) initDetail({ id: id });
         });
         qs('#adBtnRefund') && (qs('#adBtnRefund').onclick = function () {
-            var orderRow = FLAdStore.getOrders(UID).filter(function (o) { return o.adId === id; })[0];
+            var orderRow = FLAdStore.getOrders(UID()).filter(function (o) { return o.adId === id; })[0];
             if (!orderRow) { toast('无关联订单'); return; }
             var q = FLAdService.syncOrderRefundable(orderRow.id);
             if (!q.ok) { toast(q.message); return; }
@@ -2295,7 +2306,7 @@
             var panel = qs('#adRefundPanel');
             var orderId = panel && panel._refundOrderId;
             if (!orderId) {
-                var ord = FLAdStore.getOrders(UID).filter(function (o) { return o.adId === id; })[0];
+                var ord = FLAdStore.getOrders(UID()).filter(function (o) { return o.adId === id; })[0];
                 orderId = ord && ord.id;
             }
             if (!orderId) { toast('无关联订单'); return; }
@@ -2408,7 +2419,7 @@
         if (!n) return '';
         if (n.adId) return n.adId;
         if (n.orderId && FLAdStore.getOrders) {
-            var ord = FLAdStore.getOrders(UID).filter(function (o) { return o.id === n.orderId; })[0];
+            var ord = FLAdStore.getOrders(UID()).filter(function (o) { return o.id === n.orderId; })[0];
             if (ord && ord.adId) return ord.adId;
         }
         return '';
@@ -2426,8 +2437,8 @@
     function initNotices() {
         var mount = qs('#adNoticeList');
         if (!mount) return;
-        var list = FLAdStore.getNotices ? FLAdStore.getNotices(UID) : [];
-        try { syncNoticeNav(FLAdStore.accountSummary(UID)); } catch (e) { /* ignore */ }
+        var list = FLAdStore.getNotices ? FLAdStore.getNotices(UID()) : [];
+        try { syncNoticeNav(FLAdStore.accountSummary(UID())); } catch (e) { /* ignore */ }
         if (!list.length) {
             mount.innerHTML = '<div class="ad-center-empty">暂无通知</div>';
             return;
@@ -2445,7 +2456,7 @@
             row.onclick = function () {
                 var ntId = row.getAttribute('data-nt');
                 FLAdService.markNoticeRead(ntId);
-                try { syncNoticeNav(FLAdStore.accountSummary(UID)); } catch (e2) { /* ignore */ }
+                try { syncNoticeNav(FLAdStore.accountSummary(UID())); } catch (e2) { /* ignore */ }
                 var n = list.filter(function (x) { return x.id === ntId; })[0];
                 var target = noticeTargetAd(n);
                 /* 有关联广告 → 进广告详情（非订单详情）；订单仅作兜底解析 adId */
@@ -2483,7 +2494,7 @@
 
     function bootView(view, params) {
         params = params || {};
-        try { syncNoticeNav(FLAdStore.accountSummary(UID)); } catch (e) { /* ignore */ }
+        try { syncNoticeNav(FLAdStore.accountSummary(UID())); } catch (e) { /* ignore */ }
         if (view === 'center') { renderCenter(); bindFilters(); }
         else if (view === 'apply') initApply();
         else if (view === 'wallet') initWallet();
@@ -2535,16 +2546,26 @@
             var onFilter = document.querySelector('[data-ad-filter].on');
             try {
                 renderList('adListMount', onFilter ? (onFilter.getAttribute('data-ad-filter') || '') : '');
-                var sum = FLAdStore.accountSummary(UID);
+                var sum = FLAdStore.accountSummary(UID());
                 if (isApprovedAdvertiser(sum.advertiserStatus)) {
                     var pendingEl = document.getElementById('adPending');
                     if (pendingEl) pendingEl.textContent = String(sum.pendingAudit || 0);
                 }
             } catch (e) { /* ignore */ }
         });
+        /* 切换登录账号后重绑广告中心，避免串到上一账号数据 */
+        window.addEventListener('goodfans-auth-change', function () {
+            try {
+                if (document.getElementById('settingsAdPanel') ||
+                    document.body.getAttribute('data-ad-shell') === 'settings' ||
+                    document.querySelector('.ad-set-view.on')) {
+                    renderCenter();
+                }
+            } catch (eAuth) { /* ignore */ }
+        });
     }
 
-    global.FLAdUser = { toast: toast, renderCenter: renderCenter, bootView: bootView, adGo: adGo, tryCreate: tryCreate };
+    global.FLAdUser = { toast: toast, renderCenter: renderCenter, bootView: bootView, adGo: adGo, tryCreate: tryCreate, currentUid: UID };
     bindGlobalClicks();
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
     else boot();

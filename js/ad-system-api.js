@@ -150,13 +150,26 @@
     function fail(msg) { return { ok: false, message: msg }; }
     function ok(data) { return { ok: true, data: data || {} }; }
 
+    function actorUid(uid) {
+        if (uid) return uid;
+        return FLAdStore.currentAdUid ? FLAdStore.currentAdUid() : FLAdStore.DEMO_UID;
+    }
+
+    /** 按账号读写广告钱包，避免新账号继承演示余额 */
+    function pocket(data, uid) {
+        uid = actorUid(uid);
+        if (FLAdStore.ensureAccountPocket) return FLAdStore.ensureAccountPocket(data, uid);
+        data.account = data.account || { uid: uid, balance: 0, frozen: 0, spent: 0 };
+        return data.account;
+    }
+
     function findAdvertiserIn(data, uid) {
-        uid = uid || FLAdStore.DEMO_UID;
+        uid = actorUid(uid);
         return ((data && data.advertisers) || []).filter(function (a) { return a.uid === uid; })[0] || null;
     }
 
     function advertiser(uid) {
-        return findAdvertiserIn(FLAdStore.load(), uid || FLAdStore.DEMO_UID);
+        return findAdvertiserIn(FLAdStore.load(), actorUid(uid));
     }
 
     function canCreatePaidAd(uid) {
@@ -333,13 +346,22 @@
     function isKycApprovedForAds() {
         if (global.GoodfansKycStore && global.GoodfansKycStore.isApproved()) return true;
         try {
-            if (localStorage.getItem('h5_withdraw_kyc_passed') === '1') return true;
-            var raw = localStorage.getItem('goodfans_kyc');
-            if (raw) {
-                var k = JSON.parse(raw);
-                if (k.authStatus === 'approved' || k.status === 'approved') return true;
+            if (global.FLUserAssets && global.FLUserAssets.getKycStatus) {
+                var st = global.FLUserAssets.getKycStatus();
+                if (st === 'approved' || st === 'passed') return true;
             }
-        } catch (e2) { /* ignore */ }
+        } catch (e0) { /* ignore */ }
+        /* 全局旧 key 仅演示账号可用，避免新账号继承 KYC 通过态 */
+        if (FLAdStore.isDemoAdUid && FLAdStore.isDemoAdUid(actorUid())) {
+            try {
+                if (localStorage.getItem('h5_withdraw_kyc_passed') === '1') return true;
+                var raw = localStorage.getItem('goodfans_kyc');
+                if (raw) {
+                    var k = JSON.parse(raw);
+                    if (k.authStatus === 'approved' || k.status === 'approved') return true;
+                }
+            } catch (e2) { /* ignore */ }
+        }
         return false;
     }
 
@@ -347,7 +369,7 @@
      * 申请广告主前置（对齐主流平台：实名/KYC + 协议；不要求预充值/押金/创作者身份）
      */
     function checkAdvertiserApplyPrerequisites(uid) {
-        uid = uid || FLAdStore.DEMO_UID;
+        uid = actorUid(uid);
         var items = [];
         var blockers = [];
 
@@ -384,6 +406,7 @@
     }
 
     function applyAdvertiser(uid, payload) {
+        uid = actorUid(uid);
         if (!payload || !payload.agreedToTerms) return fail('请先阅读并同意《广告主服务协议》');
         if (!payload.companyName || !String(payload.companyName).trim()) return fail('请填写投放主体名称');
         if (!payload.contact || !String(payload.contact).trim()) return fail('请填写联系邮箱');
@@ -648,6 +671,7 @@
 
     /** 清理某用户侧残留的待支付/支付失败广告（产品：无待支付列表态） */
     function purgeUnpaidUserAds(uid) {
+        uid = actorUid(uid);
         var data = FLAdStore.load();
         var dropIds = {};
         (data.ads || []).forEach(function (a) {
@@ -736,6 +760,7 @@
      * 支付成功后由 payOrder 回调将广告标为 paid 并进入 pending_review。
      */
     function createAndPayAd(adFields, packageId, uid, idempotencyKey) {
+        uid = actorUid(uid);
         idempotencyKey = idempotencyKey || ('create-pay-' + Date.now());
         if (IDEM[idempotencyKey] && IDEM[idempotencyKey].ok && IDEM[idempotencyKey].data && IDEM[idempotencyKey].data.settled) {
             return IDEM[idempotencyKey];
@@ -746,8 +771,9 @@
         if (!pkg) return fail('套餐不存在');
         if (!pkg.enabled) return fail('套餐已停售');
         var data0 = FLAdStore.load();
-        if ((data0.account.balance || 0) < pkg.priceUsdt) {
-            return fail('余额不足，还需 ' + (pkg.priceUsdt - (data0.account.balance || 0)).toFixed(2) + ' USDT');
+        var bal0 = pocket(data0, uid).balance || 0;
+        if (bal0 < pkg.priceUsdt) {
+            return fail('余额不足，还需 ' + (pkg.priceUsdt - bal0).toFixed(2) + ' USDT');
         }
         var adId = (adFields && adFields.id) || FLAdStore.nextAdId();
         var ad = Object.assign({}, adFields || {}, {
@@ -843,7 +869,7 @@
             return schPay;
         }
 
-        var acc = data.account;
+        var acc = pocket(data, order.uid);
         var price = order.priceSnapshot;
         if (acc.balance < price) {
             var r4 = fail('余额不足，还需 ' + (price - acc.balance).toFixed(2) + ' USDT');
@@ -862,7 +888,8 @@
             var d2 = FLAdStore.load();
             var o2 = (d2.orders || []).filter(function (o) { return o.id === orderId; })[0];
             if (!o2 || o2.payStatus === 'paid') return;
-            if (d2.account.balance < o2.priceSnapshot) {
+            var payAcc = pocket(d2, o2.uid);
+            if (payAcc.balance < o2.priceSnapshot) {
                 o2.payStatus = 'failed';
                 FLAdStore.save(d2);
                 /* 支付失败：回滚未付广告，不保留待支付列表态 */
@@ -871,8 +898,8 @@
                 global.dispatchEvent(new CustomEvent('fl-ad-store-changed'));
                 return;
             }
-            d2.account.balance -= o2.priceSnapshot;
-            d2.account.frozen = (d2.account.frozen || 0) + o2.priceSnapshot;
+            payAcc.balance -= o2.priceSnapshot;
+            payAcc.frozen = (payAcc.frozen || 0) + o2.priceSnapshot;
             o2.payStatus = 'paid';
             o2.paidAmount = o2.priceSnapshot;
             o2.frozen = o2.priceSnapshot;
@@ -994,9 +1021,10 @@
             o2.refundedAmount = (o2.refundedAmount || 0) + amount;
             var unfreeze = Math.min(amount, o2.frozen || 0);
             o2.frozen = Math.max(0, (o2.frozen || 0) - unfreeze);
-            d2.account.frozen = Math.max(0, (d2.account.frozen || 0) - unfreeze);
-            d2.account.balance += amount;
-            d2.account.refunded = (d2.account.refunded || 0) + amount;
+            var rfAcc = pocket(d2, o2.uid);
+            rfAcc.frozen = Math.max(0, (rfAcc.frozen || 0) - unfreeze);
+            rfAcc.balance += amount;
+            rfAcc.refunded = (rfAcc.refunded || 0) + amount;
             syncOrderRefundable(orderId);
             o2 = d2.orders.filter(function (o) { return o.id === orderId; })[0];
             var leftRef = (o2.refundableAmount || 0) - (o2.refundedAmount || 0);
@@ -1249,8 +1277,9 @@
         if (!order || !(order.frozen > 0)) return;
         var amt = order.frozen;
         order.frozen = 0;
-        data.account.frozen = Math.max(0, (data.account.frozen || 0) - amt);
-        data.account.spent = (data.account.spent || 0) + amt;
+        var settleAcc = pocket(data, order.uid || (ad && ad.advertiserUid));
+        settleAcc.frozen = Math.max(0, (settleAcc.frozen || 0) - amt);
+        settleAcc.spent = (settleAcc.spent || 0) + amt;
         data.finance.unshift({
             id: 'FIN-SP-' + Date.now(),
             uid: order.uid,
@@ -1335,16 +1364,17 @@
             back = Math.max(0, (paidOrd.paidAmount || paidOrd.priceSnapshot || 0) - (paidOrd.refundedAmount || 0));
         }
         var price = pkg.priceUsdt;
-        var bal = data.account.balance || 0;
+        var pkgAcc = pocket(data, ad.advertiserUid);
+        var bal = pkgAcc.balance || 0;
         if (bal + back < price) {
             return fail('余额不足（含原套餐退回后仍差 ' + (price - bal - back).toFixed(2) + ' USDT），无法更换套餐');
         }
 
         if (paidOrd) {
             if (back > 0) {
-                data.account.balance = bal + back;
-                data.account.frozen = Math.max(0, (data.account.frozen || 0) - (paidOrd.frozen || back));
-                data.account.refunded = (data.account.refunded || 0) + back;
+                pkgAcc.balance = bal + back;
+                pkgAcc.frozen = Math.max(0, (pkgAcc.frozen || 0) - (paidOrd.frozen || back));
+                pkgAcc.refunded = (pkgAcc.refunded || 0) + back;
                 paidOrd.refundedAmount = (paidOrd.refundedAmount || 0) + back;
                 data.finance = data.finance || [];
                 data.finance.unshift({
@@ -1363,8 +1393,8 @@
             paidOrd.refundableAmount = 0;
         }
 
-        data.account.balance = (data.account.balance || 0) - price;
-        data.account.frozen = (data.account.frozen || 0) + price;
+        pkgAcc.balance = (pkgAcc.balance || 0) - price;
+        pkgAcc.frozen = (pkgAcc.frozen || 0) + price;
         var newOrder = {
             id: 'ORD' + Date.now(),
             adId: adId,
@@ -1841,12 +1871,16 @@
         return ok();
     }
 
-    function mockRecharge(amount) {
+    function mockRecharge(amount, uid) {
         var data = FLAdStore.load();
-        data.account.balance += amount;
+        var u = actorUid(uid);
+        var acc = pocket(data, u);
+        acc.balance = (acc.balance || 0) + amount;
+        acc.totalRecharge = (acc.totalRecharge || 0) + amount;
+        data.finance = data.finance || [];
         data.finance.unshift({
             id: 'FIN-RC-' + Date.now(),
-            uid: data.account.uid,
+            uid: u,
             type: 'recharge',
             amount: amount,
             status: 'success',
@@ -1854,7 +1888,7 @@
             orderNo: 'SIM-RC'
         });
         FLAdStore.save(data);
-        return ok({ balance: data.account.balance });
+        return ok({ balance: acc.balance, uid: u });
     }
 
     global.FLAdService = {

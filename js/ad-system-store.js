@@ -5,7 +5,11 @@
 (function (global) {
     var STORAGE_KEY = 'fl_ad_system_v2';
     var LEGACY_KEY = 'fl_ad_system_v1';
+    /** 演示账号 Luna 在广告系统内的投放主体 ID（与 goodfans_auth.userId 映射） */
     var DEMO_UID = 'U102938';
+    var DEMO_AUTH_UID = 'demo_uid_882910';
+    var DEMO_AUTH_EMAIL = 'luna@goodfans.io';
+    var DEMO_ACCOUNT_SCOPE_VERSION = 1;
 
     /**
      * 上架/内容审核（与退款审核独立）
@@ -321,6 +325,94 @@
         return data;
     }
 
+    /**
+     * 当前登录用户 → 广告主体 UID。
+     * Luna 演示账号映射到种子 DEMO_UID；其它账号用各自 auth userId，互不串数据。
+     */
+    function currentAdUid() {
+        try {
+            if (global.GoodfansAuth && global.GoodfansAuth.getUserId) {
+                var authId = global.GoodfansAuth.getUserId();
+                if (authId) {
+                    if (authId === DEMO_AUTH_UID || authId === DEMO_UID) return DEMO_UID;
+                    var acc = global.FLUserRegistry && global.FLUserRegistry.getByUserId
+                        ? global.FLUserRegistry.getByUserId(authId)
+                        : null;
+                    if (acc && String(acc.email || '').toLowerCase() === DEMO_AUTH_EMAIL) return DEMO_UID;
+                    return String(authId);
+                }
+            }
+        } catch (e) { /* ignore */ }
+        return DEMO_UID;
+    }
+
+    function isDemoAdUid(uid) {
+        return !uid || uid === DEMO_UID || uid === DEMO_AUTH_UID;
+    }
+
+    function emptyAccountPocket(uid) {
+        return {
+            uid: uid,
+            balance: 0,
+            frozen: 0,
+            spent: 0,
+            refunded: 0,
+            totalRecharge: 0
+        };
+    }
+
+    function demoAccountPocket() {
+        return {
+            uid: DEMO_UID,
+            balance: 1280.5,
+            frozen: 1943,
+            spent: 897.6,
+            refunded: 120,
+            totalRecharge: 5000
+        };
+    }
+
+    /** 按账号取广告钱包；新账号自动建空口袋，不继承演示余额 */
+    function ensureAccountPocket(data, uid) {
+        uid = uid || currentAdUid();
+        data = data || load();
+        data.accounts = data.accounts || {};
+        if (!data.accounts[uid]) {
+            data.accounts[uid] = isDemoAdUid(uid) ? demoAccountPocket() : emptyAccountPocket(uid);
+        }
+        data.accounts[uid].uid = uid;
+        /* 兼容旧代码仍读 data.account：指向当前操作账号口袋 */
+        data.account = data.accounts[uid];
+        return data.accounts[uid];
+    }
+
+    function getAccountPocket(uid) {
+        var data = load();
+        return ensureAccountPocket(data, uid || currentAdUid());
+    }
+
+    function applyAccountScopeMigration(data) {
+        if (!data) return data;
+        data.accounts = data.accounts || {};
+        if (data.account && data.account.uid) {
+            var legacyUid = data.account.uid || DEMO_UID;
+            if (!data.accounts[legacyUid]) {
+                data.accounts[legacyUid] = Object.assign({}, emptyAccountPocket(legacyUid), data.account, { uid: legacyUid });
+            }
+        }
+        if (!data.accounts[DEMO_UID]) {
+            data.accounts[DEMO_UID] = data.account && (data.account.uid === DEMO_UID || !data.account.uid)
+                ? Object.assign({}, demoAccountPocket(), data.account, { uid: DEMO_UID })
+                : demoAccountPocket();
+        }
+        if ((data.demoAccountScopeVersion || 0) < DEMO_ACCOUNT_SCOPE_VERSION) {
+            data.demoAccountScopeVersion = DEMO_ACCOUNT_SCOPE_VERSION;
+        }
+        /* 保持 data.account 为演示口袋，避免后台未传 uid 时读到空 */
+        data.account = data.accounts[DEMO_UID];
+        return data;
+    }
+
     function seed() {
         var packages = [
             { id: 'PKG-FEED-7', slotCode: 'feed_video', name: '信息流·7天·有效曝光次数100次', durationDays: 7, effectiveImpressions: 100, priceUsdt: 10, enabled: true, version: 2 },
@@ -331,17 +423,17 @@
             { id: 'PKG-LIVE-7', slotCode: 'live_room', name: '直播间·7天·有效曝光次数200次', durationDays: 7, effectiveImpressions: 200, priceUsdt: 49, enabled: true, version: 2 },
             { id: 'PKG-LIVE-30', slotCode: 'live_room', name: '直播间·30天·有效曝光次数800次', durationDays: 30, effectiveImpressions: 800, priceUsdt: 149, enabled: false, version: 2 }
         ];
+        var demoPocket = demoAccountPocket();
         return {
             version: 2,
             demoUid: DEMO_UID,
-            account: {
-                uid: DEMO_UID,
-                balance: 1280.5,
-                frozen: 1943,
-                spent: 897.6,
-                refunded: 120,
-                totalRecharge: 5000
-            },
+            demoAccountScopeVersion: DEMO_ACCOUNT_SCOPE_VERSION,
+            account: demoPocket,
+            accounts: (function () {
+                var map = {};
+                map[DEMO_UID] = demoPocket;
+                return map;
+            })(),
             advertisers: [
                 { uid: 'U778899', accountStatus: 'pending', applyAt: '2026-03-17T09:00:00+08:00', companyName: 'Test Co', contact: 'a@test.com', rejectReason: '', violationCount: 0 },
                 /* 演示用户投放主体：信息流顶栏展示 companyName，不是广告名称 */
@@ -1301,13 +1393,20 @@
             data = applyPackageModelMigration(data);
             data = applyHomeAdShowcaseMigration(data);
             data = applyAuditConsistencyMigration(data);
-            return applyDetailBtnMatrixMigration(data);
+            data = applyDetailBtnMatrixMigration(data);
+            return applyAccountScopeMigration(data);
         } catch (e) {
             return seed();
         }
     }
 
     function save(data) {
+        if (data) {
+            data.accounts = data.accounts || {};
+            if (data.account && data.account.uid) {
+                data.accounts[data.account.uid] = data.account;
+            }
+        }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
 
@@ -1441,25 +1540,7 @@
             delete orderById.ORD20261109004.refundTicketId;
         }
 
-        data.advertisers = data.advertisers || [];
-        var demoAdv = data.advertisers.filter(function (a) { return a.uid === DEMO_UID; })[0];
-        if (!demoAdv) {
-            data.advertisers.push({
-                uid: DEMO_UID,
-                accountStatus: 'approved',
-                applyAt: '2026-11-01T10:00:00+08:00',
-                companyName: '星海互动传媒',
-                contact: 'ads@xinghai.demo',
-                rejectReason: '',
-                violationCount: 0,
-                totalRecharge: 5000,
-                totalSpend: 897.6
-            });
-        } else if (demoAdv.accountStatus !== 'approved') {
-            /* 详情矩阵演示依赖已通过的广告主；保留其它字段 */
-            demoAdv.accountStatus = 'approved';
-            if (!demoAdv.companyName) demoAdv.companyName = '星海互动传媒';
-        }
+        /* 不在此强制写入广告主资质，便于 clearAdvertiserQual() 走申请流程 */
 
         data.demoDetailBtnMatrixVersion = DEMO_DETAIL_BTN_MATRIX_VERSION;
         save(data);
@@ -1554,18 +1635,20 @@
     }
 
     function accountSummary(uid) {
-        uid = uid || DEMO_UID;
+        uid = uid || currentAdUid();
         var data = load();
-        var ads = data.ads.filter(function (a) { return a.advertiserUid === uid && !a.userDeleted; });
+        var pocket = ensureAccountPocket(data, uid);
+        var ads = (data.ads || []).filter(function (a) { return a.advertiserUid === uid && !a.userDeleted; });
         return {
-            balance: data.account.balance,
-            frozen: data.account.frozen,
-            available: data.account.balance,
-            total: (data.account.balance || 0) + (data.account.frozen || 0),
+            uid: uid,
+            balance: pocket.balance || 0,
+            frozen: pocket.frozen || 0,
+            available: pocket.balance || 0,
+            total: (pocket.balance || 0) + (pocket.frozen || 0),
             pendingPay: 0,
             activeCount: ads.filter(function (a) { return a.deliveryStatus === 'delivering' || a.deliveryStatus === 'active'; }).length,
             advertiserStatus: (function () {
-                var adv = (load().advertisers || []).filter(function (x) { return x.uid === uid; })[0];
+                var adv = (data.advertisers || []).filter(function (x) { return x.uid === uid; })[0];
                 return adv ? adv.accountStatus : 'none';
             })(),
             pendingAudit: ads.filter(function (a) {
@@ -1573,9 +1656,9 @@
                     a.deliveryStatus !== 'removed' &&
                     a.deliveryStatus !== 'ended';
             }).length,
-            impressions: ads.reduce(function (s, a) { return s + (a.stats.impressions || 0); }, 0),
-            clicks: ads.reduce(function (s, a) { return s + (a.stats.clicks || 0); }, 0),
-            spend: data.account.spent || ads.reduce(function (s, a) { return s + (a.stats.spend || 0); }, 0)
+            impressions: ads.reduce(function (s, a) { return s + ((a.stats && a.stats.impressions) || 0); }, 0),
+            clicks: ads.reduce(function (s, a) { return s + ((a.stats && a.stats.clicks) || 0); }, 0),
+            spend: pocket.spent || ads.reduce(function (s, a) { return s + ((a.stats && a.stats.spend) || 0); }, 0)
         };
     }
 
@@ -1609,6 +1692,11 @@
 
     global.FLAdStore = {
         DEMO_UID: DEMO_UID,
+        DEMO_AUTH_UID: DEMO_AUTH_UID,
+        currentAdUid: currentAdUid,
+        isDemoAdUid: isDemoAdUid,
+        ensureAccountPocket: ensureAccountPocket,
+        getAccountPocket: getAccountPocket,
         AUDIT_STATUS: AUDIT_STATUS,
         REFUND_AUDIT_STATUS: REFUND_AUDIT_STATUS,
         contentAuditKey: contentAuditKey,
