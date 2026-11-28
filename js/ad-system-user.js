@@ -247,6 +247,14 @@
         return { pill: 'is-muted', icon: 'fa-user', text: '普通用户' };
     }
 
+    function resetAdvertiserForDemo() {
+        if (!confirm('重置当前账号的广告主资质？将回到未申请状态，便于重新走申请流程（原型演示）。')) return;
+        if (FLAdStore.clearAdvertiserQual) FLAdStore.clearAdvertiserQual(UID());
+        toast('已重置广告主资质，可重新申请');
+        try { renderCenter(); } catch (e) { /* ignore */ }
+        try { adGo('center'); } catch (e2) { /* ignore */ }
+    }
+
     function renderRoleStrip(sum) {
         var strip = qs('#adRoleStrip');
         if (!strip) return;
@@ -259,7 +267,12 @@
         }
         strip.hidden = false;
         var m = roleMeta(st);
-        strip.innerHTML = '<span class="pill ' + m.pill + '"><i class="fa-solid ' + m.icon + '"></i> ' + m.text + '</span>';
+        strip.innerHTML =
+            '<span class="pill ' + m.pill + '"><i class="fa-solid ' + m.icon + '"></i> ' + m.text + '</span>' +
+            '<button type="button" class="ad-role-reset" id="adBtnResetAdvertiser" title="原型：重置广告主资质，便于再测申请流程">' +
+            '<i class="fa-solid fa-rotate-left"></i> 重置广告主</button>';
+        var resetBtn = qs('#adBtnResetAdvertiser');
+        if (resetBtn) resetBtn.onclick = resetAdvertiserForDemo;
     }
 
     function syncNoticeNav(sum) {
@@ -2515,8 +2528,13 @@
         if (document.documentElement.getAttribute('data-fl-ad-clicks') === '1') return;
         document.documentElement.setAttribute('data-fl-ad-clicks', '1');
         document.addEventListener('click', function (e) {
-            var t = e.target && e.target.closest ? e.target.closest('#adBtnCreate, [data-ad-go], [data-ad-filter], #adPromoApplyBtn') : null;
+            var t = e.target && e.target.closest ? e.target.closest('#adBtnCreate, #adBtnResetAdvertiser, [data-ad-go], [data-ad-filter], #adPromoApplyBtn') : null;
             if (!t) return;
+            if (t.id === 'adBtnResetAdvertiser') {
+                e.preventDefault();
+                resetAdvertiserForDemo();
+                return;
+            }
             if (t.id === 'adBtnCreate') {
                 e.preventDefault();
                 tryCreate();
@@ -2565,7 +2583,15 @@
         });
     }
 
-    global.FLAdUser = { toast: toast, renderCenter: renderCenter, bootView: bootView, adGo: adGo, tryCreate: tryCreate, currentUid: UID };
+    global.FLAdUser = {
+        toast: toast,
+        renderCenter: renderCenter,
+        bootView: bootView,
+        adGo: adGo,
+        tryCreate: tryCreate,
+        currentUid: UID,
+        resetAdvertiser: resetAdvertiserForDemo
+    };
     bindGlobalClicks();
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
     else boot();

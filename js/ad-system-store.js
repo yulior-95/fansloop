@@ -1416,7 +1416,7 @@
     }
 
     function clearAdvertiserQual(uid) {
-        uid = uid || DEMO_UID;
+        uid = uid || (typeof currentAdUid === 'function' ? currentAdUid() : DEMO_UID);
         var data = load();
         data.advertisers = (data.advertisers || []).filter(function (a) { return a.uid !== uid; });
         save(data);
